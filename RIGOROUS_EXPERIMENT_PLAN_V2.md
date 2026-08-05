@@ -1,3 +1,12 @@
+# Superseded Prospective Protocol (Retained for Provenance)
+
+> **Branch status:** This C0–C3 prospective novelty protocol is not active on
+> `codex/autonomous-research-trajectories`. The active protocol is
+> [`TRAJECTORY_STUDY_PROTOCOL.md`](TRAJECTORY_STUDY_PROTOCOL.md), which restores
+> the original project question: how OpenEvolve, Autoresearch, and TTT-Discover
+> search while optimizing AdderBoard parameter count at ≥99% accuracy. This file
+> remains unchanged below so the earlier design is auditable.
+
 # Confirmatory Protocol Amendment
 
 ## Valid Architectural Discovery in Autonomous Research Systems

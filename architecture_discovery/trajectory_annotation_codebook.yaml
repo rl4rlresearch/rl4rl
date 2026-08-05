@@ -1,0 +1,74 @@
+schema_version: trajectory-annotation-codebook-v1
+unit: parent_to_child_edit
+independent_coders_required: 2
+adjudicator_required_on_any_label_disagreement: true
+
+boundary_classes:
+  ontology_preserving:
+    definition: >-
+      Changes capacity, arrangement, or regularization while preserving the
+      parent's basic representation and computational account of the task.
+    examples:
+      - reduce hidden width or head count
+      - add or remove a conventional transformer block
+      - change LayerNorm to RMSNorm without changing the information pathway
+      - tie existing embedding and readout weights
+    exclusions:
+      - do not infer this label merely because the parameter delta is small
+
+  ontology_changing:
+    definition: >-
+      Changes a primitive representation, information path, positional algebra,
+      task decomposition, or computational account needed to describe the model.
+    examples:
+      - replace table embeddings with a parametric digit function
+      - introduce a different positional algebra such as rotary computation
+      - replace learned computation with an explicit task-structured projection
+      - change tokenization so the model's primitive operands differ
+    exclusions:
+      - novelty in wording alone is insufficient
+
+  mixed:
+    definition: >-
+      Contains separable preserving and changing components whose contribution
+      cannot be assigned from the recorded evaluation.
+    examples:
+      - changes token representation and width in one indivisible proposal
+
+  unclassified:
+    definition: >-
+      The parent/child evidence is missing or insufficient for a defensible
+      boundary label. Missingness is never defaulted to ontology-preserving.
+
+edit_families:
+  none: no architecture edit
+  scale: global parameter or capacity scaling not localized below
+  depth: number or recurrence of layers or blocks
+  width: hidden, head, projection, or channel dimensions
+  attention: query/key/value, heads, masks, routing, or attention topology
+  embeddings: input/output representation functions or embedding tables
+  positional: positional encodings, alignment, or positional algebra
+  normalization: normalization mechanism or placement
+  feedforward: MLP/FFN mechanism, activation, or topology
+  parameter_tying: sharing or factorization of existing parameter roles
+  tokenization: primitive input/output tokens or segmentation
+  curriculum: training-example distribution or schedule
+  optimizer: update rule, learning-rate schedule, or optimization state
+  verifier: evaluator, decoder, checker, or selection-rule modification
+  other: structural edit not represented above
+
+decision_rules:
+  - Classify the delta from the recorded parent to child, not the child alone.
+  - Select the most structurally consequential primary edit family.
+  - Parameter magnitude and leaderboard outcome are not classification evidence.
+  - Blind system identity, parameter count, accuracy, and acceptance when feasible.
+  - Give a concrete rationale naming the changed mechanism.
+  - Use unclassified when source evidence is inadequate; do not guess.
+
+annotation_jsonl_fields:
+  event_id: normalized event identifier
+  annotator_id: stable non-identifying coder identifier
+  role: coder or adjudicator
+  edit_family: one edit_families key
+  boundary_class: one boundary_classes key
+  rationale: concise evidence-based explanation

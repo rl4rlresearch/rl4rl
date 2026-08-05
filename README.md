@@ -1,39 +1,43 @@
-# RL4RL Architecture Discovery
+# RL4RL: Autonomous Research Trajectories
 
-This repository contains research infrastructure for reproducible, autonomous
-transformer-architecture discovery on AdderBoard. AdderBoard is used as a
-correctness and accuracy environment; parameter count is metadata, not an
-optimization objective.
+This branch studies **how autonomous research systems search**, using their
+complete AdderBoard model-compression trajectories rather than only their final
+leaderboard entries. The target is the smallest valid model reaching at least
+99% exact-match accuracy; the research outcome is the strategy the agent used
+to get there.
 
-The engineering infrastructure is tested offline. Scientific pilot and
-main-study execution remain fail-closed until the evidence and governance gates
-documented in `architecture_discovery/readiness_evidence.yaml` are satisfied.
+The primary comparison is among OpenEvolve, Autoresearch, and TTT-Discover. The
+analysis asks whether they mainly make local, ontology-preserving edits—width,
+depth, normalization, and weight tying—or cross architecture boundaries with
+new representations, positional mechanisms, algebraic projections, or other
+ontology-changing moves.
 
-## Clone and set up
+Start with:
+
+- [`TRAJECTORY_STUDY_PROTOCOL.md`](TRAJECTORY_STUDY_PROTOCOL.md) — active
+  scientific protocol and interpretation limits.
+- [`architecture_discovery/README.md`](architecture_discovery/README.md) —
+  executable workflow, schemas, adapters, and output contract.
+- [`architecture_discovery/trajectory_study_manifest.template.yaml`](architecture_discovery/trajectory_study_manifest.template.yaml)
+  — frozen-input manifest template.
+- [`architecture_discovery/trajectory_annotation_codebook.yaml`](architecture_discovery/trajectory_annotation_codebook.yaml)
+  — double-coding rules.
+
+## Quick offline validation
 
 ```bash
-git clone --recurse-submodules https://github.com/rl4rlresearch/rl4rl.git
-cd rl4rl
 git submodule update --init --recursive
 cd architecture_discovery
 uv sync --python 3.12
+.venv/bin/python -m pytest -q
+.venv/bin/python scripts/trajectory_offline_smoke.py \
+  --output-dir /private/tmp/rl4rl-trajectory-smoke
 ```
 
-Start with
-[`architecture_discovery/README.md`](architecture_discovery/README.md) for the
-system design, offline validation commands, MPS policy, and scientific launch
-gates.
+The smoke command uses explicitly synthetic data and cannot be mistaken for a
+scientific result. Real analysis remains data-blocked until complete trajectory
+exports and human annotations are added to a hash-frozen manifest.
 
-## Repository layout
-
-- `architecture_discovery/` — executable research infrastructure and tests.
-- `RIGOROUS_EXPERIMENT_PLAN_V2.md` — primary causal and scientific design.
-- `PROJECT_DIRECTION_AND_PAPER_ROADMAP.md` — project direction and publication
-  roadmap.
-- `CONFIGURE_DISCOVERY_AGENTS_PROMPT.md` — historical setup artifact retained
-  for provenance; it is not the current experiment protocol.
-
-Third-party sources are retained under `architecture_discovery/vendor/` as
-pinned submodules. The OpenEvolve submodule uses a dedicated fork commit with a
-small, documented retry-accounting patch; see
-`architecture_discovery/vendor/openevolve/UPSTREAM.md`.
+The previous C0–C3 prospective architecture-novelty apparatus remains in the
+repository for provenance and reuse, but it is not the active protocol on this
+branch. Its historical plans are clearly marked as superseded.

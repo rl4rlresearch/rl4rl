@@ -1,3 +1,11 @@
+# Superseded Architecture-Novelty Roadmap (Retained for Provenance)
+
+> **Branch status:** This roadmap and its non-size objective are not active on
+> `codex/autonomous-research-trajectories`. See
+> [`TRAJECTORY_STUDY_PROTOCOL.md`](TRAJECTORY_STUDY_PROTOCOL.md) for the active
+> study of how three autonomous research paradigms search a parameter-minimizing
+> AdderBoard landscape. The historical text is retained below for auditability.
+
 # Beyond Local Search
 
 ## Project Direction and Paper Roadmap: Valid Architectural Novelty in Autonomous Discovery
