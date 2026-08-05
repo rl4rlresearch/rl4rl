@@ -38,7 +38,11 @@ from study.runtime_adapters import (
     MatchedCausalProposalGenerator,
 )
 from study.scheduling import NoPendingRuns, SequentialRunScheduler
-from study.serialization import content_hash, create_json_exclusive, read_json
+from study.serialization import (
+    create_json_exclusive,
+    read_json,
+    source_sha256,
+)
 
 
 def _required_environment(name: str) -> str:
@@ -104,7 +108,7 @@ def _validated_runtime_contract(
             "frozen": manifest_schedule,
             "runtime": spec.transition_opportunities,
         }
-    expected_initial_id = content_hash(initial_source)
+    expected_initial_id = source_sha256(initial_source)
     if spec.initial_candidate_id != expected_initial_id:
         mismatches["initial_candidate_id"] = {
             "frozen": expected_initial_id,
@@ -208,12 +212,17 @@ def main() -> int:
             "DISCOVERY_MODEL differs from the frozen generation contract: "
             f"{model!r} != {generation_contract['target_model']!r}"
         )
-    client = OpenAI(api_key=api_key, base_url=api_base, max_retries=0)
     shared_system = "\n\n".join(
         (
             (ROOT / "common" / "prompts" / "shared_system.md").read_text(),
             (ROOT / "common" / "prompts" / "shared_task.md").read_text(),
         )
+    )
+    client = OpenAI(
+        api_key=api_key,
+        base_url=api_base,
+        max_retries=0,
+        timeout=int(generation_contract["request_timeout_seconds"]),
     )
     while True:
         try:

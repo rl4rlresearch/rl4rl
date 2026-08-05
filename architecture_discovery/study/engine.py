@@ -27,11 +27,11 @@ from study.interfaces import (
 from study.scheduling import MPSLease
 from study.serialization import (
     atomic_write_json,
-    content_hash,
     create_json_exclusive,
     read_json,
     require_bool,
     require_int,
+    source_sha256,
 )
 
 
@@ -384,7 +384,7 @@ class CommonStudyEngine:
             return
 
         if active["candidate_id"] is None:
-            candidate_id = content_hash(proposal.candidate_source)
+            candidate_id = source_sha256(proposal.candidate_source)
             ledger.record_candidate_source(candidate_id)
             active["candidate_id"] = candidate_id
             self._persist(state, ledger)

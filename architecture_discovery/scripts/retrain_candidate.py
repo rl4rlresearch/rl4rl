@@ -35,7 +35,12 @@ def main() -> None:
     parser.add_argument("--candidate", required=True)
     parser.add_argument(
         "--profile",
-        choices=("full_train_v1", "smoke_train_v1"),
+        choices=(
+            "full_train_v1",
+            "full_compute_development_v1",
+            "smoke_train_v1",
+            "development_train_v1",
+        ),
         required=True,
     )
     parser.add_argument("--seeds", required=True)

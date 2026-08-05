@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import hashlib
 import json
-from dataclasses import asdict, dataclass
+from dataclasses import asdict, dataclass, replace
 from typing import Any
 
 
@@ -166,6 +166,15 @@ FULL_TRAIN_V1 = TrainingProfile(
     scientific=True,
 )
 
+# Exact full-compute clone for local diagnostics while scientific containment and
+# launch gates remain closed. Its distinct identity prevents the resulting
+# artifacts from being mistaken for full_train_v1 scientific evidence.
+FULL_COMPUTE_DEVELOPMENT_V1 = replace(
+    FULL_TRAIN_V1,
+    name="full_compute_development_v1",
+    scientific=False,
+)
+
 SMOKE_TRAIN_V1 = TrainingProfile(
     name="smoke_train_v1",
     version="1",
@@ -190,9 +199,35 @@ SMOKE_TRAIN_V1 = TrainingProfile(
     scientific=False,
 )
 
+DEVELOPMENT_TRAIN_V1 = TrainingProfile(
+    name="development_train_v1",
+    version="1",
+    max_steps=2_000,
+    global_batch_size=256,
+    microbatch_size=None,
+    gradient_accumulation_steps=1,
+    peak_learning_rate=0.001,
+    adamw_betas=(0.9, 0.98),
+    weight_decay=0.1,
+    warmup_steps=100,
+    scheduler="cosine_decay_to_zero",
+    gradient_clip_norm=1.0,
+    validation_interval=250,
+    validation_examples=512,
+    checkpoint_interval=250,
+    maximum_wall_seconds=600,
+    dtype="float32",
+    deterministic_algorithms=True,
+    device_requirement="mps",
+    mps_memory_fraction=None,
+    scientific=False,
+)
+
 PROFILES = {
     FULL_TRAIN_V1.name: FULL_TRAIN_V1,
+    FULL_COMPUTE_DEVELOPMENT_V1.name: FULL_COMPUTE_DEVELOPMENT_V1,
     SMOKE_TRAIN_V1.name: SMOKE_TRAIN_V1,
+    DEVELOPMENT_TRAIN_V1.name: DEVELOPMENT_TRAIN_V1,
 }
 
 

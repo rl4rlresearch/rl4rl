@@ -1,3 +1,4 @@
+import hashlib
 from pathlib import Path
 from types import SimpleNamespace
 
@@ -85,7 +86,22 @@ def test_causal_generator_uses_fixed_parent_slots_and_full_source_store(tmp_path
     assert proposal.candidate_source == "VALUE = 2\n"
     assert proposal.prompt_tokens == 101
     assert proposal.completion_tokens == 17
-    assert store.path(next(path.stem for path in store.root.glob("*.py") if path.stem not in {"seed", "inspiration"})).is_file()
+    assert store.path(
+        next(
+            path.stem
+            for path in store.root.glob("*.py")
+            if path.stem not in {"seed", "inspiration"}
+        )
+    ).is_file()
+
+
+def test_candidate_source_identity_matches_training_worker_file_hash(tmp_path):
+    source = "VALUE = 1\n"
+    store = CandidateSourceStore(tmp_path / "sources")
+    candidate_id, path = store.put(source)
+    expected = hashlib.sha256(source.encode("utf-8")).hexdigest()
+    assert candidate_id == expected
+    assert hashlib.sha256(path.read_bytes()).hexdigest() == candidate_id
 
 
 def test_layer_a_adapter_maps_only_typed_search_result(tmp_path):

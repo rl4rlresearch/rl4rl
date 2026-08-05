@@ -29,7 +29,7 @@ from study.interfaces import (
     ProposalResult,
     RetryableProviderError,
 )
-from study.serialization import content_hash, require_bool, require_int
+from study.serialization import require_bool, require_int, source_sha256
 
 
 class ScientificReadinessBlocked(RuntimeError):
@@ -65,7 +65,7 @@ class CandidateSourceStore:
         return destination
 
     def put(self, source: str) -> tuple[str, Path]:
-        candidate_id = content_hash(source)
+        candidate_id = source_sha256(source)
         return candidate_id, self.register(candidate_id, source)
 
     def path(self, candidate_id: str) -> Path:
@@ -162,7 +162,7 @@ class MatchedCausalProposalGenerator:
         if extract_diffs(response_text):
             candidate_source = apply_diff(base_source, response_text)
             generated_id, _ = self.source_store.put(candidate_source)
-            if generated_id != content_hash(candidate_source):
+            if generated_id != source_sha256(candidate_source):
                 raise RuntimeError("candidate source store changed the engine identity")
         record = {
             "study_id": context.study_id,
@@ -345,7 +345,7 @@ class LayerACandidateEvaluator:
         opportunity_index: int,
         run_seed: int,
     ) -> EvaluationResult:
-        expected = content_hash(candidate_source)
+        expected = source_sha256(candidate_source)
         if candidate_id != expected:
             raise ValueError("engine candidate ID does not match candidate source")
         source_path = self.source_store.register(candidate_id, candidate_source)

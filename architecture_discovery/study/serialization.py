@@ -68,6 +68,13 @@ def content_hash(value: Any) -> str:
     return hashlib.sha256(canonical_json(value).encode("utf-8")).hexdigest()
 
 
+def source_sha256(source: str) -> str:
+    """Hash candidate source exactly as the training worker hashes its file bytes."""
+
+    require_str(source, "source")
+    return hashlib.sha256(source.encode("utf-8")).hexdigest()
+
+
 def stable_id(prefix: str, value: Any, *, length: int = 20) -> str:
     return f"{prefix}-{content_hash(value)[:length]}"
 

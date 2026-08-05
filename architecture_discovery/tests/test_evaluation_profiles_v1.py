@@ -54,6 +54,14 @@ def test_scientific_profile_has_no_implicit_case_count():
         )
 
 
+def test_profile_case_count_resolution_is_shared_with_readiness_audit():
+    assert DEVELOPMENT_EVAL_V1.resolve_case_count(None) == 512
+    with pytest.raises(ValueError, match="case_count must be an integer"):
+        DEVELOPMENT_EVAL_V1.resolve_case_count(True)
+    with pytest.raises(ValueError, match="requires at least"):
+        DEVELOPMENT_EVAL_V1.resolve_case_count(8)
+
+
 def test_smoke_sized_case_count_cannot_enter_scientific_profile():
     with pytest.raises(ValueError, match="requires at least"):
         resolve_evaluation_plan(
@@ -131,4 +139,3 @@ def test_scientific_layers_require_disjoint_case_sources():
     ))
     with pytest.raises(ValueError, match="must be disjoint"):
         validate_disjoint_scientific_plans(duplicate)
-

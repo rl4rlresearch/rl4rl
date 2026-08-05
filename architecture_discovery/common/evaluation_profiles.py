@@ -100,6 +100,22 @@ class EvaluationProfile:
                     "visibility is selected explicitly when resolving a synthetic plan"
                 )
 
+    def resolve_case_count(self, case_count: int | None) -> int:
+        """Resolve and validate a count without constructing an evaluation plan."""
+
+        resolved = self.default_case_count if case_count is None else case_count
+        if resolved is None:
+            raise ValueError(
+                "scientific case_count must be supplied by the frozen study decision"
+            )
+        if not isinstance(resolved, int) or isinstance(resolved, bool):
+            raise ValueError("case_count must be an integer")
+        if resolved < self.minimum_case_count:
+            raise ValueError(
+                f"{self.name} requires at least {self.minimum_case_count} cases"
+            )
+        return resolved
+
 
 @dataclass(frozen=True)
 class EvaluationPlan:
@@ -274,15 +290,7 @@ def resolve_evaluation_plan(
     profile = get_evaluation_profile(profile_name)
     if profile.fixed_layer is not None and layer is not profile.fixed_layer:
         raise ValueError(f"{profile.name} is fixed to {profile.fixed_layer.value}")
-    resolved_count = profile.default_case_count if case_count is None else case_count
-    if resolved_count is None:
-        raise ValueError(
-            "scientific case_count must be supplied by the frozen study decision"
-        )
-    if resolved_count < profile.minimum_case_count:
-        raise ValueError(
-            f"{profile.name} requires at least {profile.minimum_case_count} cases"
-        )
+    resolved_count = profile.resolve_case_count(case_count)
     plan = EvaluationPlan(
         profile_name=profile.name,
         profile_version=profile.version,

@@ -1,3 +1,5 @@
+from dataclasses import replace
+
 import pytest
 
 from study.budget import (
@@ -68,6 +70,13 @@ def test_ledger_round_trip_reconstructs_unique_sources_and_attempts() -> None:
     assert restored.to_dict() == ledger.to_dict()
     assert restored.unique_candidate_sources == 1
     assert restored.unknown_provider_usage == 1
+
+
+def test_integer_mps_ceiling_accepts_fractional_measured_seconds() -> None:
+    spec = replace(BudgetSpec.toy(1), mps_seconds=60)
+    ledger = BudgetLedger(spec)
+    _record_seed(ledger)
+    assert ledger.mps_seconds == 0.1
 
 
 def test_repairs_have_separate_total_and_per_opportunity_ceilings() -> None:

@@ -208,6 +208,41 @@ PYTORCH_ENABLE_MPS_FALLBACK=0 .venv/bin/python scripts/train_candidate.py \
 At present this command should fail at the containment gate before training;
 that is correct behavior.
 
+For a longer engineering-only check, `development_train_v1` runs 2,000 updates
+with a 600-second ceiling. It is still synthetic and non-scientific.
+`full_compute_development_v1` is an exact non-scientific clone of the 30,000-step
+full profile for local compute diagnostics while scientific launch gates remain
+closed; its artifacts cannot satisfy `full_train_v1` readiness evidence.
+
+## Cost-capped development integration
+
+Preview the complete four-condition development plan without reading API
+credentials, creating output files, training, or making provider requests:
+
+```bash
+.venv/bin/python scripts/study_development_run.py \
+  --study-id development-causal-smoke-v1 \
+  --output-root outputs/development \
+  --dry-run
+```
+
+The default paid mode is one block, one proposal opportunity per condition,
+one provider attempt per opportunity, no repair calls, low reasoning effort,
+and at most 1,200 completion tokens per call. It therefore permits at most four
+provider calls and 4,800 completion tokens across the study. Run it only after
+the preview, provider-free tests, and MPS smoke pass:
+
+```bash
+PYTORCH_ENABLE_MPS_FALLBACK=0 .venv/bin/python scripts/study_development_run.py \
+  --study-id development-causal-smoke-v1 \
+  --output-root outputs/development \
+  --confirm-paid-run
+```
+
+These artifacts diagnose integration only. They are excluded from pilot and
+main-study data, cannot support a memory-factor contrast with one opportunity,
+and cannot rank architectures under the ten-step smoke training profile.
+
 After a future full-profile run completes successfully in an MPS-available
 process, create the hash-linked evidence receipt without retraining:
 

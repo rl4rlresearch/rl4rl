@@ -166,7 +166,7 @@ class BudgetLedger:
         )
 
     def _add(self, field_name: str, amount: int | float, ceiling: int | float) -> None:
-        if isinstance(ceiling, int) and not isinstance(ceiling, bool):
+        if field_name != "mps_seconds":
             require_int(amount, field_name)
         elif (
             isinstance(amount, bool)

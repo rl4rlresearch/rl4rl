@@ -11,28 +11,27 @@ ROOT = Path(__file__).resolve().parents[1]
 if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
-from study.contracts import StudySpec
 from artifacts import (
     ArtifactContext,
     ArtifactEmittingStudyEngine,
     ImmutableStudyEventSink,
     RunArtifactStore,
 )
+from baselines.no_search import (
+    DeterministicFakeBackend,
+    NoSearchProposalGenerator,
+    NoSearchSpec,
+)
 from study.budget import BudgetLedger
-from study.contracts import ConditionId, ConditionSpec
+from study.contracts import ConditionId, ConditionSpec, StudySpec
 from study.fakes import DeterministicFakeEvaluator, DeterministicFakeGenerator
 from study.interfaces import ProposalContext
 from study.randomization import load_or_create_plan
 from study.scheduling import NoPendingRuns, SequentialRunScheduler
 from study.serialization import (
-    content_hash,
     create_json_exclusive,
     read_json,
-)
-from baselines.no_search import (
-    DeterministicFakeBackend,
-    NoSearchProposalGenerator,
-    NoSearchSpec,
+    source_sha256,
 )
 
 
@@ -80,7 +79,7 @@ def _offline_no_search(spec: StudySpec) -> dict:
             prompt_tokens=proposal.prompt_tokens,
             completion_tokens=proposal.completion_tokens,
         )
-        candidate_id = content_hash(proposal.candidate_source or "")
+        candidate_id = source_sha256(proposal.candidate_source or "")
         ledger.record_candidate_source(candidate_id)
         evaluation = evaluator.evaluate_candidate(
             proposal.candidate_source or "",
@@ -184,9 +183,7 @@ def main() -> None:
                 "condition_id": run.condition.condition_id.value,
                 "status": state["status"],
                 "seed_evaluations": state["ledger"]["seed_evaluations"],
-                "proposal_opportunities": state["ledger"][
-                    "proposal_opportunities"
-                ],
+                "proposal_opportunities": state["ledger"]["proposal_opportunities"],
             }
         )
     index_manifest = {
