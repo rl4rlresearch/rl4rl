@@ -121,7 +121,7 @@ def add(model, a: int, b: int) -> int:
 PROGRAM = """# AdderBoard Autoresearch pilot
 
 You are running a bounded, autonomous research pilot. Your job is to search
-for a **smaller trained autoregressive transformer** for 10-digit addition.
+for the **smallest trained autoregressive transformer** for 10-digit addition.
 
 ## Objective
 
@@ -132,14 +132,13 @@ uses *strictly fewer* parameters than the current retained incumbent.
 
 The starting incumbent is a 6,080-parameter, 100%-verified conventional
 decoder-only transformer. Do not assume its architecture is close to globally
-optimal. Continue testing substitution-level changes, not only deletions and
+optimal. Continue testing substitution-level major architecture changes, not only deletions and
 width reductions. Never write a conclusion that a local floor is a global
 lower bound.
 
 ## Scope and anti-leakage boundary
 
-Work only in this workspace. Do not read the parent RL4RL repository, online
-leaderboards, other submissions, or external source code. You may use your own
+Work only in this workspace. Do not read the parent RL4RL repository, anything online, or external source code. You may use your own
 general technical knowledge, but the experiment should not be handed a known
 solution or a target parameter count.
 
@@ -166,7 +165,7 @@ or any archived attempt artifacts. Keep the public contracts intact:
 1. Inspect the retained source and `../RESULTS.tsv`.
 2. Write a concise mechanism hypothesis and proposal in the `--proposal` and
    `--description` arguments below.
-3. Make one coherent candidate change. A change may be an ablation, but include
+3. Make coherent candidate change(s). A change may include ablations,
    representational substitutions as well as local compression ideas.
 4. Run exactly one logged attempt:
 
