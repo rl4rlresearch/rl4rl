@@ -17,9 +17,9 @@ import os
 import tempfile
 import time
 from collections import defaultdict
+from collections.abc import Iterator
 from pathlib import Path
-from typing import Any, Iterator
-
+from typing import Any
 
 TOKEN_FIELDS = (
     "input_tokens",
@@ -66,7 +66,9 @@ def _usage(value: Any) -> dict[str, int]:
     return {field: int(source.get(field, 0) or 0) for field in TOKEN_FIELDS}
 
 
-def _atomic_tsv(path: Path, fieldnames: list[str], rows: list[dict[str, object]]) -> None:
+def _atomic_tsv(
+    path: Path, fieldnames: list[str], rows: list[dict[str, object]]
+) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
     with tempfile.NamedTemporaryFile(
         mode="w", encoding="utf-8", newline="", dir=path.parent, delete=False
@@ -78,7 +80,9 @@ def _atomic_tsv(path: Path, fieldnames: list[str], rows: list[dict[str, object]]
     os.replace(temporary, path)
 
 
-def collect(runs_root: Path, sessions_root: Path) -> tuple[list[dict[str, object]], list[dict[str, object]]]:
+def collect(
+    runs_root: Path, sessions_root: Path
+) -> tuple[list[dict[str, object]], list[dict[str, object]]]:
     workspaces = _runs_by_workspace(runs_root)
     # A resumed/forked Codex session can exist in more than one archive file
     # with the same logical session id.  Treat the longest cumulative archive
@@ -86,7 +90,9 @@ def collect(runs_root: Path, sessions_root: Path) -> tuple[list[dict[str, object
     candidates: dict[
         tuple[str, str], tuple[dict[str, object], list[dict[str, object]]]
     ] = {}
-    for path in sorted(sessions_root.rglob("*.jsonl")) if sessions_root.is_dir() else ():
+    for path in (
+        sorted(sessions_root.rglob("*.jsonl")) if sessions_root.is_dir() else ()
+    ):
         metadata = _session_metadata(path)
         if not metadata or not metadata.get("cwd"):
             continue
@@ -132,7 +138,9 @@ def collect(runs_root: Path, sessions_root: Path) -> tuple[list[dict[str, object
             key = (run_id, session_id)
             previous = candidates.get(key)
             if previous is None or (
-                int(session["total_tokens"]), event_count, str(path)
+                int(session["total_tokens"]),
+                event_count,
+                str(path),
             ) > (
                 int(previous[0]["total_tokens"]),
                 int(previous[0]["token_events"]),
@@ -147,17 +155,40 @@ def collect(runs_root: Path, sessions_root: Path) -> tuple[list[dict[str, object
         increments.extend(session_increments)
     sessions.sort(key=lambda row: (str(row["run_id"]), str(row["session_id"])))
     increments.sort(
-        key=lambda row: (str(row["run_id"]), str(row["timestamp"]), str(row["session_id"]), int(row["token_event"]))
+        key=lambda row: (
+            str(row["run_id"]),
+            str(row["timestamp"]),
+            str(row["session_id"]),
+            int(row["token_event"]),
+        )
     )
     return sessions, increments
 
 
-def write_reports(output_dir: Path, sessions: list[dict[str, object]], increments: list[dict[str, object]]) -> None:
-    session_fields = ["run_id", "session_id", "session_file", "token_events", *TOKEN_FIELDS]
-    increment_fields = ["run_id", "session_id", "timestamp", "token_event", *TOKEN_FIELDS]
+def write_reports(
+    output_dir: Path,
+    sessions: list[dict[str, object]],
+    increments: list[dict[str, object]],
+) -> None:
+    session_fields = [
+        "run_id",
+        "session_id",
+        "session_file",
+        "token_events",
+        *TOKEN_FIELDS,
+    ]
+    increment_fields = [
+        "run_id",
+        "session_id",
+        "timestamp",
+        "token_event",
+        *TOKEN_FIELDS,
+    ]
     _atomic_tsv(output_dir / "session_totals.tsv", session_fields, sessions)
     _atomic_tsv(output_dir / "response_increments.tsv", increment_fields, increments)
-    by_run: dict[str, dict[str, int]] = defaultdict(lambda: {field: 0 for field in TOKEN_FIELDS})
+    by_run: dict[str, dict[str, int]] = defaultdict(
+        lambda: {field: 0 for field in TOKEN_FIELDS}
+    )
     session_counts: dict[str, int] = defaultdict(int)
     for row in sessions:
         run_id = str(row["run_id"])
@@ -168,7 +199,9 @@ def write_reports(output_dir: Path, sessions: list[dict[str, object]], increment
         {"run_id": run_id, "sessions": session_counts[run_id], **usage}
         for run_id, usage in sorted(by_run.items())
     ]
-    _atomic_tsv(output_dir / "run_totals.tsv", ["run_id", "sessions", *TOKEN_FIELDS], summary)
+    _atomic_tsv(
+        output_dir / "run_totals.tsv", ["run_id", "sessions", *TOKEN_FIELDS], summary
+    )
     (output_dir / "README.md").write_text(
         "# Codex token accounting\n\n"
         "Generated from local Codex session archives. `run_totals.tsv` sums the "
@@ -183,7 +216,9 @@ def write_reports(output_dir: Path, sessions: list[dict[str, object]], increment
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--runs-root", type=Path, required=True)
-    parser.add_argument("--sessions-root", type=Path, default=Path.home() / ".codex" / "sessions")
+    parser.add_argument(
+        "--sessions-root", type=Path, default=Path.home() / ".codex" / "sessions"
+    )
     parser.add_argument("--output-dir", type=Path)
     parser.add_argument("--watch-seconds", type=float, default=0.0)
     args = parser.parse_args()
@@ -193,7 +228,10 @@ def main() -> int:
     while True:
         sessions, increments = collect(runs_root, sessions_root)
         write_reports(output_dir, sessions, increments)
-        print(f"wrote {len(sessions)} session totals and {len(increments)} response increments to {output_dir}")
+        print(
+            f"wrote {len(sessions)} session totals and "
+            f"{len(increments)} response increments to {output_dir}"
+        )
         if args.watch_seconds <= 0:
             return 0
         time.sleep(args.watch_seconds)
