@@ -255,7 +255,7 @@ The paper-level output should include more than the best parameter count:
 These additions make it possible to compare agents as researchers rather than
 only compare their final compression score.
 
-## 11. Let the agent design bounded automated sweeps
+## 11. Let the agent design bounded automations
 
 The completed run spent 217 retained candidates on scalar-pruning or
 fixed-zero variants. A long sequence of nearly identical agent turns is an
@@ -272,7 +272,7 @@ Micro-trial: one automatically generated candidate evaluated by that policy.
 Every micro-trial remains a saved, reproducible experimental artifact.
 ```
 
-For example, an agent could configure a QKV sweep as:
+For example, an agent could configure a QKV automation as:
 
 ```text
 Rank eligible QKV scalars by a declared importance measure. For each scalar in
@@ -286,16 +286,16 @@ Add this rule to `PROGRAM.md`:
 
 ```text
 When testing a monotonic or repeatedly structured mechanism, prefer a bounded
-automated sweep over one agent turn per variant. Before launching a sweep,
+automation over one agent turn per variant. Before launching an automation,
 state its hypothesis, mechanism family, candidate-ordering rule, acceptance
-rule, stopping rule, maximum micro-trial count, and compute budget. The sweep
+rule, stopping rule, maximum micro-trial count, and compute budget. The automation
 must save each micro-trial and write a compact summary before the agent chooses
 the next mechanism.
 ```
 
 The summary should include the best retained candidate, all attempted
 parameter values, acceptance/error counts, failure blacklist, training cost,
-and the reason the sweep stopped. This lets the agent revise its search policy
+and the reason the automation stopped. This lets the agent revise its search policy
 at a meaningful boundary instead of repeatedly consuming tokens to make a
 one-line variant.
 
@@ -307,7 +307,7 @@ automated loop can adaptively overfit a development set much more quickly.
 If the paper's central question is how agents conduct research, report macro
 attempts and micro-trials separately. Better still, compare a vanilla
 one-candidate-per-decision condition with a condition where the agent may
-author bounded sweeps; that comparison measures whether access to automation
+author bounded automations; that comparison measures whether access to automation
 changes exploration, token use, compute use, and the final frontier.
 
 ## Recommended priority order
@@ -318,5 +318,5 @@ changes exploration, token use, compute use, and the final frontier.
    `PROGRAM.md`.
 4. Freeze and log training-compute policy within a phase.
 5. Improve error categorization and checkpoint diagnostics.
-6. Add bounded automated sweeps with macro-attempt/micro-trial logging.
+6. Add bounded automations with macro-attempt/micro-trial logging.
 7. Use portable relative commands in all generated program files.

@@ -51,8 +51,22 @@ architecture_discovery/.venv/bin/python \
   --agent-reasoning-effort xhigh
 ```
 
-The command prints the absolute run directory. From here, replace
-`<RUN_DIR>` with that directory.
+More concise version:
+
+```bash
+architecture_discovery/.venv/bin/python \
+  experiments/autoresearch_pilot/create_run.py \
+  --run-id autoresearch-pilot-20260814 \
+  --max-attempts 5 \
+  --agent-model gpt-5.6-terra \
+  --agent-reasoning-effort xhigh
+```
+
+The command prints the absolute run directory and automatically evaluates the
+unmodified 6,080-parameter model with the official seed-2025 verifier. It does
+not call an LLM or train anything. A successful command leaves a qualified
+`baseline` row in `<RUN_DIR>/RESULTS.tsv`; if qualification fails, it exits
+nonzero but preserves the new run and its diagnostics for inspection.
 
 The model and reasoning effort are chosen when the run is created and are
 recorded in the run manifest, configuration, and launcher. If omitted, they
@@ -61,22 +75,6 @@ different model, add `--agent-model <model-name>`; to change reasoning, use
 `--agent-reasoning-effort high` (the accepted values are `minimal`, `low`,
 `medium`, `high`, and `xhigh`). These settings do not inherit from your global
 Codex `config.toml`.
-
-## Record the baseline first
-
-This evaluates the unmodified pretrained 6,080-parameter model with the
-*official* `AdderBoard/verify.py` seed-2025 test. It does not call an LLM and
-does not train anything.
-
-```bash
-architecture_discovery/.venv/bin/python \
-  <RUN_DIR>/run_attempt.py \
-  --run-dir <RUN_DIR> baseline
-```
-
-Expected result: `Parameters (unique): 6080`, at least 99% qualification, and
-a `baseline` row in `<RUN_DIR>/RESULTS.tsv`. Stop and investigate if it fails;
-do not launch an agent against an unverified start point.
 
 ## Launch the autonomous researcher
 
@@ -87,6 +85,8 @@ First inspect these run-local files:
 - `<RUN_DIR>/workspace/PROGRAM.md`: the exact research instructions available
   to the agent.
 - `<RUN_DIR>/RUN_CONFIG.json`: the Python executable and hard timeouts.
+- `<RUN_DIR>/RESULTS.tsv`: confirm the automatically recorded `baseline` row
+  qualified before launching.
 
 Then launch the non-interactive Codex run:
 
@@ -98,6 +98,32 @@ This is the step that consumes your configured Codex/API allowance. It stores
 the raw Codex event stream in `<RUN_DIR>/logs/codex-events.jsonl` and its final
 message in `logs/codex-last-message.md`. Do not use a separate interactive
 agent in the same workspace while it is running.
+
+## Token accounting
+
+Token accounting is kept outside all run directories, so it cannot affect a
+live workspace or runner. To generate totals for every completed and ongoing
+run, plus each model-response increment, run:
+
+```bash
+architecture_discovery/.venv/bin/python \
+  experiments/autoresearch_pilot/token_usage.py \
+  --runs-root data/raw/autoresearch
+```
+
+This writes `run_totals.tsv`, `session_totals.tsv`, and
+`response_increments.tsv` to `data/raw/autoresearch/token_usage/`. The first
+two use Codex's cumulative session totals; forked copies of the same Codex
+session are deduplicated by logical session ID. `response_increments.tsv` records
+the per-response `last_token_usage` increments. Cached input is reported
+separately and is already included in input-token totals. Add `--watch-seconds
+60` for a read-only live refresh. Future launchers refresh the same reports
+after each Codex session exits.
+
+Mutating runner commands now hold an exclusive `.runner.lock` for their full
+duration. A second command targeting the same run exits with `Runner busy`
+instead of reusing an attempt ID or corrupting `STATE.json`. Different run
+directories, such as separate Sol and Luna runs, can still run concurrently.
 
 The agent must use the runner once per candidate. The runner does all of the
 following before restoring a rejected change:
@@ -144,9 +170,31 @@ RUN_MANIFEST.json        frozen inputs and hashes
 RUN_CONFIG.json          command/time budget
 STATE.json               current retained incumbent
 RESULTS.tsv              one row per baseline/attempt
+AUTOMATION_RESULTS.tsv   one row per automation micro-trial
 attempts/<id>/           source, checkpoint, stdout, stderr, parsed result
+automations/<macro-id>/  automation plan, micro-trial artifacts, and final summary
 workspace/.git/          retained line plus permanent rejected-attempt refs
 logs/codex-events.jsonl  agent reasoning/action event stream
+```
+
+For a bounded automation, reserve one macro attempt, run one or more
+micro-trials, then close it. `RESULTS.tsv` receives the one macro summary;
+`AUTOMATION_RESULTS.tsv` receives every candidate-level record:
+
+```bash
+<RUN_DIR>/run_attempt.py --run-dir <RUN_DIR> automation-start \
+  --automation-id qkv-prune \
+  --family "scalar pruning" \
+  --description "greedy QKV scalar-pruning automation" \
+  --proposal "hypothesis, ordering, acceptance, stopping, and budget" \
+  --max-micro-trials 20
+
+<RUN_DIR>/run_attempt.py --run-dir <RUN_DIR> automation-attempt \
+  --description "zero the next eligible scalar" \
+  --proposal "ranked candidate 1"
+
+<RUN_DIR>/run_attempt.py --run-dir <RUN_DIR> automation-end \
+  --summary "boundary reached after 12 micro-trials"
 ```
 
 After the run ends, inspect the baseline and at least ten candidate artifacts
