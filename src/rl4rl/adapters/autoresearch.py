@@ -48,9 +48,13 @@ def parse_autoresearch_tsv(path: str | Path, *, run_id: str) -> list[TrajectoryE
         events: list[TrajectoryEvent] = []
         for step, row in enumerate(reader):
             commit = _cell(row, resolved["commit"]) or f"row-{step:05d}"
-            raw_accuracy = _parse_float(_cell(row, resolved["accuracy"]))
-            accuracy = raw_accuracy / 100 if raw_accuracy > 1 else raw_accuracy
-            parameters = _parse_int(_cell(row, resolved["parameters"]))
+            raw_accuracy = _parse_optional_float(_cell(row, resolved["accuracy"]))
+            accuracy = (
+                raw_accuracy / 100
+                if raw_accuracy is not None and raw_accuracy > 1
+                else raw_accuracy
+            )
+            parameters = _parse_optional_int(_cell(row, resolved["parameters"]))
             raw_status = _cell(row, resolved["status"])
             status, accepted, valid = _status(raw_status, accuracy)
             parent = _cell(row, resolved["parent"])
@@ -69,7 +73,7 @@ def parse_autoresearch_tsv(path: str | Path, *, run_id: str) -> list[TrajectoryE
                     architecture=ArchitectureSnapshot(
                         parameters=parameters,
                         accuracy=accuracy,
-                        qualifies=accuracy >= 0.99,
+                        qualifies=accuracy is not None and accuracy >= 0.99,
                     ),
                     artifact_refs=[f"{source}:{step + 2}"],
                     provenance={
@@ -82,7 +86,9 @@ def parse_autoresearch_tsv(path: str | Path, *, run_id: str) -> list[TrajectoryE
     return events
 
 
-def _status(raw: str | None, accuracy: float) -> tuple[EventStatus, bool, bool]:
+def _status(
+    raw: str | None, accuracy: float | None
+) -> tuple[EventStatus, bool | None, bool]:
     normalized = _normalize(raw or "")
     if any(token in normalized for token in ("keep", "accept", "success", "pass")):
         return EventStatus.ACCEPTED, True, True
@@ -94,7 +100,7 @@ def _status(raw: str | None, accuracy: float) -> tuple[EventStatus, bool, bool]:
         return EventStatus.ERROR, False, False
     if any(token in normalized for token in ("discard", "reject", "fail")):
         return EventStatus.REJECTED, False, True
-    if accuracy >= 0.99:
+    if accuracy is not None and accuracy >= 0.99:
         return EventStatus.EVALUATED, None, True
     return EventStatus.EVALUATED, None, True
 
@@ -106,15 +112,15 @@ def _cell(row: dict[str, str], column: str | None) -> str | None:
     return value or None
 
 
-def _parse_float(value: str | None) -> float:
+def _parse_optional_float(value: str | None) -> float | None:
     if value is None:
-        raise ValueError("accuracy cell is empty")
+        return None
     return float(value.rstrip("%"))
 
 
-def _parse_int(value: str | None) -> int:
+def _parse_optional_int(value: str | None) -> int | None:
     if value is None:
-        raise ValueError("parameter cell is empty")
+        return None
     return int(re.sub(r"[,_ ]", "", value))
 
 
