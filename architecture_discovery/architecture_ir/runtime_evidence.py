@@ -48,6 +48,7 @@ class RuntimeBindings:
 @dataclass(frozen=True)
 class RuntimeValidityEvidence:
     graph_hash: str
+    observed_model_graph_hash: str | None
     binding_provenance: str
     expected_device: str
     observed_parameter_devices: tuple[str, ...]
@@ -59,6 +60,7 @@ class RuntimeValidityEvidence:
     causal_prefix_max_delta: float | None
     sequence_dependence_max_delta: float | None
     attention_intervention_max_delta: float | None
+    attention_intervention_max_deltas: Mapping[str, float]
     influenced_parameter_tensors: int
     trainable_parameter_tensors: int
     checks: Mapping[str, bool]
@@ -71,6 +73,11 @@ class RuntimeValidityEvidence:
             "attention_output_norms",
             MappingProxyType(dict(self.attention_output_norms)),
         )
+        object.__setattr__(
+            self,
+            "attention_intervention_max_deltas",
+            MappingProxyType(dict(self.attention_intervention_max_deltas)),
+        )
         object.__setattr__(self, "checks", MappingProxyType(dict(self.checks)))
         object.__setattr__(self, "errors", tuple(self.errors))
 
@@ -78,11 +85,13 @@ class RuntimeValidityEvidence:
     def passed(self) -> bool:
         required = {
             "binding_valid",
+            "graph_identity",
             "device_placement",
             "attention_executed",
             "causal_prefix_invariance",
             "sequence_dependence",
             "attention_influences_output",
+            "each_attention_influences_output",
             "parameters_influence_output",
         }
         return not self.errors and all(self.checks.get(name) is True for name in required)
@@ -90,6 +99,7 @@ class RuntimeValidityEvidence:
     def to_dict(self) -> dict[str, Any]:
         return {
             "graph_hash": self.graph_hash,
+            "observed_model_graph_hash": self.observed_model_graph_hash,
             "binding_provenance": self.binding_provenance,
             "expected_device": self.expected_device,
             "observed_parameter_devices": list(self.observed_parameter_devices),
@@ -101,6 +111,9 @@ class RuntimeValidityEvidence:
             "causal_prefix_max_delta": self.causal_prefix_max_delta,
             "sequence_dependence_max_delta": self.sequence_dependence_max_delta,
             "attention_intervention_max_delta": self.attention_intervention_max_delta,
+            "attention_intervention_max_deltas": dict(
+                self.attention_intervention_max_deltas
+            ),
             "influenced_parameter_tensors": self.influenced_parameter_tensors,
             "trainable_parameter_tensors": self.trainable_parameter_tensors,
             "checks": dict(self.checks),
@@ -177,11 +190,17 @@ def probe_fresh_build(
     numpy_rng = np.random.get_state()
     torch_rng = torch.get_rng_state()
     mps_rng: torch.Tensor | None = None
+    cuda_rng: list[torch.Tensor] | None = None
     if hasattr(torch, "mps") and hasattr(torch.mps, "get_rng_state"):
         try:
             mps_rng = torch.mps.get_rng_state()
         except RuntimeError:
             mps_rng = None
+    if hasattr(torch, "cuda") and torch.cuda.is_available():
+        try:
+            cuda_rng = [state.cpu().clone() for state in torch.cuda.get_rng_state_all()]
+        except RuntimeError:
+            cuda_rng = None
     try:
         models = [
             _unwrap_model(builder(seed)),
@@ -197,6 +216,8 @@ def probe_fresh_build(
         torch.set_rng_state(torch_rng)
         if mps_rng is not None and hasattr(torch.mps, "set_rng_state"):
             torch.mps.set_rng_state(mps_rng)
+        if cuda_rng is not None and hasattr(torch, "cuda"):
+            torch.cuda.set_rng_state_all(cuda_rng)
 
     devices = {
         parameter.device.type
@@ -277,8 +298,22 @@ def probe_runtime_validity(
     for the sequence-dependence test.
     """
 
-    errors = list(bindings.validate())
-    checks: dict[str, bool] = {"binding_valid": not errors}
+    binding_errors = list(bindings.validate())
+    errors = list(binding_errors)
+    checks: dict[str, bool] = {"binding_valid": not binding_errors}
+    model_graph_hash = getattr(model, "graph_hash", None)
+    graph_identity = (
+        isinstance(model_graph_hash, str)
+        and model_graph_hash == bindings.graph_hash
+    )
+    checks["graph_identity"] = graph_identity
+    if not isinstance(model_graph_hash, str):
+        errors.append("model does not expose a trusted graph_hash identity")
+    elif model_graph_hash != bindings.graph_hash:
+        errors.append(
+            "runtime binding graph_hash does not match the interpreted model "
+            f"({bindings.graph_hash} != {model_graph_hash})"
+        )
     calls = {node_id: 0 for node_id in bindings.attention_modules}
     output_norms = {node_id: 0.0 for node_id in bindings.attention_modules}
     bound_modules: dict[str, nn.Module] = {}
@@ -289,11 +324,15 @@ def probe_runtime_validity(
     causal_delta: float | None = None
     sequence_delta: float | None = None
     intervention_delta: float | None = None
+    intervention_deltas: dict[str, float] = {}
     influenced_parameters = 0
     trainable_parameters = sum(1 for parameter in model.parameters() if parameter.requires_grad)
     input_device: str | None = None
 
-    if token_ids.ndim != 2 or token_ids.shape[0] != 1 or token_ids.shape[1] < 4:
+    token_ids_valid = (
+        token_ids.ndim == 2 and token_ids.shape[0] == 1 and token_ids.shape[1] >= 4
+    )
+    if not token_ids_valid:
         errors.append("token_ids must have shape [1, sequence] with sequence >= 4")
 
     for node_id, path in bindings.attention_modules.items():
@@ -323,7 +362,11 @@ def probe_runtime_validity(
         for node_id, module in bound_modules.items():
             handles.append(module.register_forward_hook(make_hook(node_id)))
 
-        if not errors:
+        # Identity mismatches invalidate the evidence but should not suppress
+        # the remaining diagnostics.  Only malformed bindings, token inputs,
+        # or unresolved module paths make executing the probe meaningless.
+        bindings_resolved = len(bound_modules) == len(bindings.attention_modules)
+        if not binding_errors and token_ids_valid and bindings_resolved:
             base = token_ids.to(expected_device)
             input_device = base.device.type
             future_changed = base.clone()
@@ -358,7 +401,22 @@ def probe_runtime_validity(
                 for handle in handles:
                     handle.remove()
                 handles.clear()
-                intervention_handles = [
+                # Intervene on each bound attention module separately.  An
+                # aggregate intervention can hide a dead/bypassed attention
+                # node when another live node still changes the logits.
+                for node_id in sorted(bound_modules):
+                    intervention_handle = bound_modules[node_id].register_forward_hook(
+                        lambda _module, _inputs, output: _zero_output(output)
+                    )
+                    try:
+                        with torch.no_grad():
+                            intervened_logits = model(base)
+                    finally:
+                        intervention_handle.remove()
+                    intervention_deltas[node_id] = _max_delta(
+                        baseline_logits, intervened_logits
+                    )
+                aggregate_handles = [
                     module.register_forward_hook(
                         lambda _module, _inputs, output: _zero_output(output)
                     )
@@ -366,11 +424,13 @@ def probe_runtime_validity(
                 ]
                 try:
                     with torch.no_grad():
-                        intervened_logits = model(base)
+                        aggregate_intervened_logits = model(base)
                 finally:
-                    for handle in intervention_handles:
+                    for handle in aggregate_handles:
                         handle.remove()
-                intervention_delta = _max_delta(baseline_logits, intervened_logits)
+                intervention_delta = _max_delta(
+                    baseline_logits, aggregate_intervened_logits
+                )
 
                 model.zero_grad(set_to_none=True)
                 gradient_logits = model(base)
@@ -399,19 +459,30 @@ def probe_runtime_validity(
         and output_device == expected_device
         and input_device == expected_device
     )
+    each_attention_influences = (
+        set(intervention_deltas) == set(bindings.attention_modules)
+        and bool(intervention_deltas)
+        and all(
+            delta > influence_tolerance for delta in intervention_deltas.values()
+        )
+    )
     checks.update(
         {
             "device_placement": device_ok,
             "attention_executed": bool(calls) and all(count > 0 for count in calls.values()),
             "causal_prefix_invariance": causal_delta is not None and causal_delta <= causal_tolerance,
             "sequence_dependence": sequence_delta is not None and sequence_delta > influence_tolerance,
-            "attention_influences_output": intervention_delta is not None and intervention_delta > influence_tolerance,
+            "attention_influences_output": each_attention_influences,
+            "each_attention_influences_output": each_attention_influences,
             "parameters_influence_output": influenced_parameters > 0,
             "causal_mask_buffer_observed": bool(mask_buffers),
         }
     )
     return RuntimeValidityEvidence(
         graph_hash=bindings.graph_hash,
+        observed_model_graph_hash=(
+            model_graph_hash if isinstance(model_graph_hash, str) else None
+        ),
         binding_provenance=bindings.provenance,
         expected_device=expected_device,
         observed_parameter_devices=parameter_devices,
@@ -423,6 +494,7 @@ def probe_runtime_validity(
         causal_prefix_max_delta=causal_delta,
         sequence_dependence_max_delta=sequence_delta,
         attention_intervention_max_delta=intervention_delta,
+        attention_intervention_max_deltas=intervention_deltas,
         influenced_parameter_tensors=influenced_parameters,
         trainable_parameter_tensors=trainable_parameters,
         checks=checks,

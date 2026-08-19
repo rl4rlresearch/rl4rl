@@ -6,15 +6,15 @@ import hashlib
 import json
 import math
 import uuid
+from collections.abc import Mapping
 from dataclasses import asdict, dataclass
 from datetime import UTC, datetime
 from enum import Enum
 from pathlib import PurePosixPath
 from types import MappingProxyType
-from typing import Any, Mapping
+from typing import Any
 
 from common.evaluation_profiles import EvaluationLayer
-
 
 SCHEMA_VERSION = "1"
 
@@ -46,14 +46,16 @@ def utc_now() -> str:
 
 
 def _require_identifier(value: str, field_name: str) -> None:
-    if not value or value != value.strip():
+    if not isinstance(value, str) or not value or value != value.strip():
         raise ValueError(f"{field_name} must be a non-empty trimmed identifier")
     if any(character in value for character in ("/", "\\", "\x00")):
         raise ValueError(f"{field_name} must not contain path separators")
 
 
 def require_sha256(value: str, field_name: str) -> None:
-    if len(value) != 64 or any(character not in "0123456789abcdef" for character in value):
+    if not isinstance(value, str) or len(value) != 64 or any(
+        character not in "0123456789abcdef" for character in value
+    ):
         raise ValueError(f"{field_name} must be a lowercase SHA-256 hex digest")
 
 
@@ -65,9 +67,28 @@ def require_bool(value: object, field_name: str) -> bool:
     return value
 
 
-def _probability(value: float, field_name: str) -> None:
-    if not math.isfinite(value) or not 0.0 <= value <= 1.0:
+def _finite_number(value: object, field_name: str) -> float:
+    if isinstance(value, bool) or not isinstance(value, (int, float)):
+        raise ValueError(f"{field_name} must be numeric")
+    converted = float(value)
+    if not math.isfinite(converted):
+        raise ValueError(f"{field_name} must be finite")
+    return converted
+
+
+def _probability(value: object, field_name: str) -> float:
+    converted = _finite_number(value, field_name)
+    if not 0.0 <= converted <= 1.0:
         raise ValueError(f"{field_name} must be finite and in [0, 1]")
+    return converted
+
+
+def _nonnegative_integer(value: object, field_name: str) -> int:
+    if isinstance(value, bool) or not isinstance(value, int):
+        raise ValueError(f"{field_name} must be an integer")
+    if value < 0:
+        raise ValueError(f"{field_name} cannot be negative")
+    return value
 
 
 def _metric_pairs(
@@ -79,8 +100,7 @@ def _metric_pairs(
         if name in names:
             raise ValueError(f"duplicate {field_name} name {name!r}")
         names.add(name)
-        if not math.isfinite(value):
-            raise ValueError(f"{field_name} values must be finite")
+        _finite_number(value, f"{field_name} value")
 
 
 @dataclass(frozen=True)
@@ -112,7 +132,7 @@ class RecordEnvelope:
         config_sha256: str,
         environment_sha256: str,
         record_id: str | None = None,
-    ) -> "RecordEnvelope":
+    ) -> RecordEnvelope:
         envelope = cls(
             schema_name=schema_name,
             schema_version=SCHEMA_VERSION,
@@ -165,7 +185,8 @@ class ArtifactReference:
     def validate(self, *, expected_layer: EvaluationLayer) -> None:
         if self.layer is not expected_layer:
             raise ValueError(
-                f"artifact belongs to {self.layer.value}, expected {expected_layer.value}"
+                "artifact belongs to "
+                f"{self.layer.value}, expected {expected_layer.value}"
             )
         path = PurePosixPath(self.relative_path)
         if path.is_absolute() or not self.relative_path or ".." in path.parts:
@@ -234,17 +255,24 @@ class SearchEvaluationRecord:
     parameter_count_metadata: int = 0
     online_descriptor_codes: tuple[tuple[str, float], ...] = ()
     public_artifacts: tuple[ArtifactReference, ...] = ()
+    runtime_validity_artifact: ArtifactReference | None = None
 
     def __post_init__(self) -> None:
         self.envelope.validate(expected_schema="search_evaluation")
         _require_identifier(self.candidate_id, "candidate_id")
         _require_identifier(self.training_record_id, "training_record_id")
+        require_bool(self.execution_ok, "execution_ok")
+        require_bool(self.transformer_valid, "transformer_valid")
+        require_bool(self.eligible_for_parent, "eligible_for_parent")
+        require_bool(self.infrastructure_failure, "infrastructure_failure")
         _probability(self.public_accuracy, "public_accuracy")
         _probability(self.search_score, "search_score")
-        if self.parameter_count_metadata < 0:
-            raise ValueError("parameter_count_metadata cannot be negative")
-        if self.eligible_for_parent and not (
-            self.execution_ok and self.transformer_valid
+        _nonnegative_integer(
+            self.parameter_count_metadata,
+            "parameter_count_metadata",
+        )
+        if self.eligible_for_parent is True and not (
+            self.execution_ok is True and self.transformer_valid is True
         ):
             raise ValueError(
                 "only successfully executed, transformer-valid candidates are eligible"
@@ -252,6 +280,10 @@ class SearchEvaluationRecord:
         _metric_pairs(self.online_descriptor_codes, "online descriptor")
         for artifact in self.public_artifacts:
             artifact.validate(expected_layer=EvaluationLayer.SEARCH)
+        if self.runtime_validity_artifact is not None:
+            self.runtime_validity_artifact.validate(
+                expected_layer=EvaluationLayer.SEARCH
+            )
 
     def controller_view(self) -> ControllerSearchView:
         return ControllerSearchView(
@@ -282,7 +314,7 @@ class SearchEvaluationRecord:
 def search_evaluation_from_dict(payload: Mapping[str, Any]) -> SearchEvaluationRecord:
     """Reconstruct an exact Layer A record from an untrusted JSON object."""
 
-    allowed = {
+    required = {
         "envelope",
         "candidate_id",
         "training_record_id",
@@ -297,7 +329,8 @@ def search_evaluation_from_dict(payload: Mapping[str, Any]) -> SearchEvaluationR
         "online_descriptor_codes",
         "public_artifacts",
     }
-    if set(payload) != allowed:
+    optional = {"runtime_validity_artifact"}
+    if not required.issubset(payload) or set(payload).difference(required | optional):
         raise ValueError("Layer A worker response has unexpected or missing fields")
     envelope_value = payload["envelope"]
     if not isinstance(envelope_value, Mapping):
@@ -316,6 +349,17 @@ def search_evaluation_from_dict(payload: Mapping[str, Any]) -> SearchEvaluationR
         values = dict(item)
         values["layer"] = EvaluationLayer(values["layer"])
         artifacts.append(ArtifactReference(**values))
+    # ``runtime_validity_artifact`` was introduced as an optional additive v1
+    # field.  Accept records written before it existed instead of silently
+    # making old schema-v1 records unparsable.
+    runtime_artifact_value = payload.get("runtime_validity_artifact")
+    runtime_artifact: ArtifactReference | None = None
+    if runtime_artifact_value is not None:
+        if not isinstance(runtime_artifact_value, Mapping):
+            raise ValueError("runtime validity artifact must be an object or null")
+        runtime_values = dict(runtime_artifact_value)
+        runtime_values["layer"] = EvaluationLayer(runtime_values["layer"])
+        runtime_artifact = ArtifactReference(**runtime_values)
     return SearchEvaluationRecord(
         envelope=envelope,
         candidate_id=str(payload["candidate_id"]),
@@ -324,8 +368,8 @@ def search_evaluation_from_dict(payload: Mapping[str, Any]) -> SearchEvaluationR
         transformer_valid=require_bool(
             payload["transformer_valid"], "transformer_valid"
         ),
-        public_accuracy=float(payload["public_accuracy"]),
-        search_score=float(payload["search_score"]),
+        public_accuracy=_probability(payload["public_accuracy"], "public_accuracy"),
+        search_score=_probability(payload["search_score"], "search_score"),
         eligible_for_parent=require_bool(
             payload["eligible_for_parent"], "eligible_for_parent"
         ),
@@ -333,11 +377,19 @@ def search_evaluation_from_dict(payload: Mapping[str, Any]) -> SearchEvaluationR
         infrastructure_failure=require_bool(
             payload["infrastructure_failure"], "infrastructure_failure"
         ),
-        parameter_count_metadata=int(payload["parameter_count_metadata"]),
+        parameter_count_metadata=_nonnegative_integer(
+            payload["parameter_count_metadata"],
+            "parameter_count_metadata",
+        ),
         online_descriptor_codes=tuple(
-            (str(item[0]), float(item[1])) for item in descriptor_value
+            (
+                str(item[0]),
+                _finite_number(item[1], "online descriptor value"),
+            )
+            for item in descriptor_value
         ),
         public_artifacts=tuple(artifacts),
+        runtime_validity_artifact=runtime_artifact,
     )
 
 
@@ -361,7 +413,9 @@ class QualificationEvaluationRecord:
         require_sha256(self.frozen_snapshot_sha256, "frozen_snapshot_sha256")
         require_sha256(self.evaluation_plan_sha256, "evaluation_plan_sha256")
         _probability(self.exact_match_accuracy, "exact_match_accuracy")
-        if self.qualifies and not self.evaluation_complete:
+        require_bool(self.qualifies, "qualifies")
+        require_bool(self.evaluation_complete, "evaluation_complete")
+        if self.qualifies is True and self.evaluation_complete is not True:
             raise ValueError("an incomplete Layer B evaluation cannot qualify")
         _metric_pairs(self.sealed_metrics, "sealed metric")
         for artifact in self.sealed_artifacts:
@@ -373,6 +427,97 @@ class QualificationEvaluationRecord:
     @property
     def record_hash(self) -> str:
         return content_sha256(self.to_dict())
+
+
+def _envelope_from_dict(payload: object) -> RecordEnvelope:
+    expected = {
+        "schema_name",
+        "schema_version",
+        "record_id",
+        "study_id",
+        "block_id",
+        "run_id",
+        "condition_id",
+        "created_at_utc",
+        "writer_component",
+        "code_sha256",
+        "config_sha256",
+        "environment_sha256",
+    }
+    if not isinstance(payload, Mapping) or set(payload) != expected:
+        raise ValueError("evaluation record envelope has invalid fields")
+    return RecordEnvelope(**dict(payload))
+
+
+def _artifact_references_from_dict(
+    payload: object, *, layer: EvaluationLayer
+) -> tuple[ArtifactReference, ...]:
+    if not isinstance(payload, (list, tuple)):
+        raise ValueError("sealed_artifacts must be an array")
+    references: list[ArtifactReference] = []
+    for raw in payload:
+        if not isinstance(raw, Mapping) or set(raw) != {
+            "layer",
+            "relative_path",
+            "sha256",
+        }:
+            raise ValueError("sealed artifact reference has invalid fields")
+        try:
+            raw_layer = EvaluationLayer(raw["layer"])
+        except (TypeError, ValueError) as error:
+            raise ValueError("sealed artifact layer is invalid") from error
+        reference = ArtifactReference(
+            layer=raw_layer,
+            relative_path=raw["relative_path"],
+            sha256=raw["sha256"],
+        )
+        reference.validate(expected_layer=layer)
+        references.append(reference)
+    return tuple(references)
+
+
+def _sealed_metrics_from_dict(payload: object) -> tuple[tuple[str, float], ...]:
+    if not isinstance(payload, (list, tuple)):
+        raise ValueError("sealed_metrics must be an array")
+    metrics: list[tuple[str, float]] = []
+    for raw in payload:
+        if not isinstance(raw, (list, tuple)) or len(raw) != 2:
+            raise ValueError("each sealed metric must be a name/value pair")
+        metrics.append((raw[0], raw[1]))
+    return tuple(metrics)
+
+
+def qualification_evaluation_from_dict(
+    payload: Mapping[str, Any],
+) -> QualificationEvaluationRecord:
+    expected = {
+        "envelope",
+        "candidate_id",
+        "frozen_snapshot_id",
+        "frozen_snapshot_sha256",
+        "evaluation_plan_sha256",
+        "exact_match_accuracy",
+        "qualifies",
+        "evaluation_complete",
+        "sealed_metrics",
+        "sealed_artifacts",
+    }
+    if not isinstance(payload, Mapping) or set(payload) != expected:
+        raise ValueError("Layer B evaluation record has invalid fields")
+    return QualificationEvaluationRecord(
+        envelope=_envelope_from_dict(payload["envelope"]),
+        candidate_id=payload["candidate_id"],
+        frozen_snapshot_id=payload["frozen_snapshot_id"],
+        frozen_snapshot_sha256=payload["frozen_snapshot_sha256"],
+        evaluation_plan_sha256=payload["evaluation_plan_sha256"],
+        exact_match_accuracy=payload["exact_match_accuracy"],
+        qualifies=payload["qualifies"],
+        evaluation_complete=payload["evaluation_complete"],
+        sealed_metrics=_sealed_metrics_from_dict(payload["sealed_metrics"]),
+        sealed_artifacts=_artifact_references_from_dict(
+            payload["sealed_artifacts"], layer=EvaluationLayer.QUALIFICATION
+        ),
+    )
 
 
 @dataclass(frozen=True)
@@ -402,7 +547,9 @@ class ConfirmationEvaluationRecord:
         require_sha256(self.frozen_candidate_sha256, "frozen_candidate_sha256")
         require_sha256(self.evaluation_plan_sha256, "evaluation_plan_sha256")
         _probability(self.exact_match_accuracy, "exact_match_accuracy")
-        if self.confirmed and not self.evaluation_complete:
+        require_bool(self.confirmed, "confirmed")
+        require_bool(self.evaluation_complete, "evaluation_complete")
+        if self.confirmed is True and self.evaluation_complete is not True:
             raise ValueError("an incomplete Layer C evaluation cannot confirm")
         _metric_pairs(self.sealed_metrics, "sealed metric")
         for artifact in self.sealed_artifacts:
@@ -414,3 +561,40 @@ class ConfirmationEvaluationRecord:
     @property
     def record_hash(self) -> str:
         return content_sha256(self.to_dict())
+
+
+def confirmation_evaluation_from_dict(
+    payload: Mapping[str, Any],
+) -> ConfirmationEvaluationRecord:
+    expected = {
+        "envelope",
+        "candidate_id",
+        "frozen_snapshot_id",
+        "frozen_candidate_sha256",
+        "qualification_record_id",
+        "release_authorization_id",
+        "evaluation_plan_sha256",
+        "exact_match_accuracy",
+        "confirmed",
+        "evaluation_complete",
+        "sealed_metrics",
+        "sealed_artifacts",
+    }
+    if not isinstance(payload, Mapping) or set(payload) != expected:
+        raise ValueError("Layer C evaluation record has invalid fields")
+    return ConfirmationEvaluationRecord(
+        envelope=_envelope_from_dict(payload["envelope"]),
+        candidate_id=payload["candidate_id"],
+        frozen_snapshot_id=payload["frozen_snapshot_id"],
+        frozen_candidate_sha256=payload["frozen_candidate_sha256"],
+        qualification_record_id=payload["qualification_record_id"],
+        release_authorization_id=payload["release_authorization_id"],
+        evaluation_plan_sha256=payload["evaluation_plan_sha256"],
+        exact_match_accuracy=payload["exact_match_accuracy"],
+        confirmed=payload["confirmed"],
+        evaluation_complete=payload["evaluation_complete"],
+        sealed_metrics=_sealed_metrics_from_dict(payload["sealed_metrics"]),
+        sealed_artifacts=_artifact_references_from_dict(
+            payload["sealed_artifacts"], layer=EvaluationLayer.CONFIRMATION
+        ),
+    )

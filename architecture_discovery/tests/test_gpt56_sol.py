@@ -4,8 +4,20 @@ from types import SimpleNamespace
 import pytest
 from openevolve.llm.openai import OpenAILLM
 
-from common.gpt56_sol import GPT56SolProfile, TARGET_MODEL
+from common.gpt56_sol import (
+    GPT56SolProfile,
+    OFFICIAL_OPENAI_API_BASE,
+    TARGET_MODEL,
+    resolve_provider_endpoint,
+)
 from common.openevolve_runner import _build_model_config
+from common.provider_attempts import (
+    PROVIDER_ATTEMPT_ACTION_ENV,
+    PROVIDER_ATTEMPT_HARNESS_ENV,
+    PROVIDER_ATTEMPT_LEDGER_ENV,
+    ProviderAttemptLedger,
+    load_provider_attempt_ledger,
+)
 
 
 def _profile(environ=None):
@@ -74,6 +86,62 @@ def test_profile_applies_explicit_gpt56_overrides():
     assert profile.retry_delay_seconds == 5
 
 
+def test_scientific_profile_rejects_conflicting_environment_overrides():
+    with pytest.raises(ValueError, match="scientific generation settings are frozen"):
+        GPT56SolProfile.resolve(
+            model=TARGET_MODEL,
+            seed=17,
+            default_reasoning_effort="high",
+            default_max_completion_tokens=16384,
+            default_timeout_seconds=300,
+            default_retries=2,
+            default_retry_delay_seconds=3,
+            environ={"DISCOVERY_REQUEST_RETRIES": "4"},
+            allow_environment_overrides=False,
+        )
+
+
+def test_scientific_profile_accepts_matching_bound_environment_values():
+    profile = GPT56SolProfile.resolve(
+        model=TARGET_MODEL,
+        seed=17,
+        default_reasoning_effort="high",
+        default_max_completion_tokens=16384,
+        default_timeout_seconds=300,
+        default_retries=2,
+        default_retry_delay_seconds=3,
+        environ={"DISCOVERY_REQUEST_RETRIES": "2"},
+        allow_environment_overrides=False,
+    )
+
+    assert profile.retries == 2
+    assert profile.manifest_fields()["request_settings_source"] == (
+        "frozen_controller_configuration"
+    )
+
+
+def test_provider_endpoint_is_normalized_and_scientific_endpoint_is_frozen():
+    endpoint = resolve_provider_endpoint(
+        "HTTPS://API.OPENAI.COM/v1/",
+        scientific=True,
+    )
+
+    assert endpoint.base_url == OFFICIAL_OPENAI_API_BASE
+    assert endpoint.provider_identity == "openai_official"
+    assert "key" not in endpoint.manifest_fields()
+
+    with pytest.raises(ValueError, match="pinned to the official OpenAI API"):
+        resolve_provider_endpoint("https://proxy.example/v1", scientific=True)
+
+
+def test_provider_endpoint_rejects_embedded_secrets():
+    with pytest.raises(ValueError, match="may not contain credentials"):
+        resolve_provider_endpoint(
+            "https://user:secret@api.openai.com/v1",
+            scientific=False,
+        )
+
+
 def test_openevolve_adapter_sends_the_same_effective_gpt56_fields():
     generation = _profile()
     model_config = _build_model_config(
@@ -115,3 +183,74 @@ def test_openevolve_adapter_sends_the_same_effective_gpt56_fields():
     assert "temperature" not in captured
     assert "top_p" not in captured
     assert "max_tokens" not in captured
+
+
+def test_controlled_openevolve_transport_records_the_actual_sdk_attempt(
+    tmp_path,
+    monkeypatch,
+):
+    generation = GPT56SolProfile.resolve(
+        model=TARGET_MODEL,
+        seed=1,
+        default_reasoning_effort="high",
+        default_max_completion_tokens=16384,
+        default_timeout_seconds=300,
+        default_retries=0,
+        default_retry_delay_seconds=0,
+        environ={},
+    )
+    path = tmp_path / "provider_attempts.jsonl"
+    ProviderAttemptLedger.create(
+        path,
+        harness="openevolve_generic",
+        action="one_opportunity_engineering_canary",
+        controller_run_id="controller-run-1",
+        api_endpoint=OFFICIAL_OPENAI_API_BASE,
+        model=TARGET_MODEL,
+        environ={},
+    )
+    monkeypatch.setenv(PROVIDER_ATTEMPT_LEDGER_ENV, str(path))
+    monkeypatch.setenv(PROVIDER_ATTEMPT_HARNESS_ENV, "openevolve_generic")
+    monkeypatch.setenv(
+        PROVIDER_ATTEMPT_ACTION_ENV,
+        "one_opportunity_engineering_canary",
+    )
+    monkeypatch.setenv("DISCOVERY_RUN_ID", "controller-run-1")
+
+    adapter = OpenAILLM(
+        _build_model_config(
+            generation,
+            api_base=OFFICIAL_OPENAI_API_BASE,
+            api_key="offline-test-key",
+        )
+    )
+    response = SimpleNamespace(
+        id="chatcmpl-openevolve123",
+        _request_id="req_openevolve123",
+        usage=SimpleNamespace(
+            prompt_tokens=10,
+            completion_tokens=5,
+            total_tokens=15,
+        ),
+        choices=[SimpleNamespace(message=SimpleNamespace(content="offline response"))],
+    )
+    adapter.client = SimpleNamespace(
+        chat=SimpleNamespace(
+            completions=SimpleNamespace(create=lambda **_kwargs: response)
+        )
+    )
+
+    result = asyncio.run(
+        adapter.generate_with_context(
+            "system prompt",
+            [{"role": "user", "content": "Propose one architecture."}],
+        )
+    )
+
+    assert result == "offline response"
+    record = load_provider_attempt_ledger(path)[0]
+    assert record.harness == "openevolve_generic"
+    assert record.status == "success"
+    assert record.provider_response_id == "chatcmpl-openevolve123"
+    assert record.provider_request_id == "req_openevolve123"
+    assert record.total_tokens == 15
