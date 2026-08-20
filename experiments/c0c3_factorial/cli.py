@@ -14,7 +14,12 @@ from .campaign import (
     execute_calibration,
     prepare_calibration,
 )
-from .orchestration import next_run
+from .orchestration import (
+    campaign_lock,
+    next_run,
+    run_parallel_campaign,
+    run_parallel_next,
+)
 from .postsearch import export_layer_b_packets, run_layer_c, score_layer_b
 from .runner import recover_active_opportunity, run_one_opportunity
 from .spec import (
@@ -153,7 +158,8 @@ def _run_once(
 
 
 def command_run_one(args: argparse.Namespace) -> int:
-    record = _run_once(args)
+    with campaign_lock(args.campaign):
+        record = _run_once(args)
     print(json.dumps(record, indent=2, sort_keys=True))
     return 0
 
@@ -161,28 +167,30 @@ def command_run_one(args: argparse.Namespace) -> int:
 def command_run(args: argparse.Namespace) -> int:
     campaign = args.campaign.resolve()
     spec, _task, _framework = _load_campaign(campaign)
-    while True:
-        controller = SearchController.load(campaign / "runs" / args.run_id, spec)
-        if controller.state.status == "completed":
-            break
-        record = _run_once(args)
-        print(
-            f"{record['run_id']} opportunity={record['opportunity']} "
-            f"retained={record['retained']} "
-            f"decision={record['retention_decision']}",
-            flush=True,
-        )
+    with campaign_lock(campaign):
+        while True:
+            controller = SearchController.load(campaign / "runs" / args.run_id, spec)
+            if controller.state.status == "completed":
+                break
+            record = _run_once(args)
+            print(
+                f"{record['run_id']} opportunity={record['opportunity']} "
+                f"retained={record['retained']} "
+                f"decision={record['retention_decision']}",
+                flush=True,
+            )
     return 0
 
 
 def command_run_next(args: argparse.Namespace) -> int:
     campaign = args.campaign.resolve()
     spec, _task, _framework = _load_campaign(campaign)
-    selected = next_run(campaign, spec)
-    if selected is None:
-        print("campaign completed")
-        return 0
-    record = _run_once(args, run_id=selected.run_id)
+    with campaign_lock(campaign):
+        selected = next_run(campaign, spec)
+        if selected is None:
+            print("campaign completed")
+            return 0
+        record = _run_once(args, run_id=selected.run_id)
     print(json.dumps(record, indent=2, sort_keys=True))
     return 0
 
@@ -191,19 +199,71 @@ def command_run_campaign(args: argparse.Namespace) -> int:
     campaign = args.campaign.resolve()
     spec, _task, _framework = _load_campaign(campaign)
     completed = 0
-    while args.max_opportunities is None or completed < args.max_opportunities:
-        selected = next_run(campaign, spec)
-        if selected is None:
-            print("campaign completed", flush=True)
-            break
-        record = _run_once(args, run_id=selected.run_id)
+    with campaign_lock(campaign):
+        while args.max_opportunities is None or completed < args.max_opportunities:
+            selected = next_run(campaign, spec)
+            if selected is None:
+                print("campaign completed", flush=True)
+                break
+            record = _run_once(args, run_id=selected.run_id)
+            completed += 1
+            print(
+                f"{record['run_id']} opportunity={record['opportunity']} "
+                f"condition={record['condition']} retained={record['retained']} "
+                f"decision={record['retention_decision']}",
+                flush=True,
+            )
+    return 0
+
+
+def command_run_parallel_next(args: argparse.Namespace) -> int:
+    campaign = args.campaign.resolve()
+    spec, task, framework = _load_campaign(campaign)
+    result = run_parallel_next(
+        campaign,
+        spec=spec,
+        task=task,
+        framework=framework,
+        repo_root=REPO_ROOT,
+        python_bin=args.python_bin,
+        codex_binary=args.codex_binary,
+        codex_timeout_seconds=args.codex_timeout,
+    )
+    if result is None:
+        print("campaign completed")
+    else:
+        print(json.dumps(result, indent=2, sort_keys=True))
+    return 0
+
+
+def command_run_parallel_campaign(args: argparse.Namespace) -> int:
+    campaign = args.campaign.resolve()
+    spec, task, framework = _load_campaign(campaign)
+    completed = 0
+    for result in run_parallel_campaign(
+        campaign,
+        spec=spec,
+        task=task,
+        framework=framework,
+        repo_root=REPO_ROOT,
+        python_bin=args.python_bin,
+        codex_binary=args.codex_binary,
+        codex_timeout_seconds=args.codex_timeout,
+        max_block_rounds=args.max_block_rounds,
+    ):
         completed += 1
+        factorial = ",".join(
+            str(record["condition"])
+            for record in result["factorial_records"]
+        )
         print(
-            f"{record['run_id']} opportunity={record['opportunity']} "
-            f"condition={record['condition']} retained={record['retained']} "
-            f"decision={record['retention_decision']}",
+            f"block={result['block']} opportunity={result['opportunity']} "
+            f"parallel_conditions={factorial or '-'} "
+            f"n0={'yes' if result['no_search_record'] is not None else 'no'}",
             flush=True,
         )
+    if completed == 0:
+        print("campaign completed", flush=True)
     return 0
 
 
@@ -280,11 +340,12 @@ def command_layer_c(args: argparse.Namespace) -> int:
 def command_recover(args: argparse.Namespace) -> int:
     campaign = args.campaign.resolve()
     spec, _task, _framework = _load_campaign(campaign)
-    record = recover_active_opportunity(
-        campaign / "runs" / args.run_id,
-        spec=spec,
-        reason=args.reason,
-    )
+    with campaign_lock(campaign):
+        record = recover_active_opportunity(
+            campaign / "runs" / args.run_id,
+            spec=spec,
+            reason=args.reason,
+        )
     print(json.dumps(record, indent=2, sort_keys=True))
     return 0
 
@@ -341,6 +402,19 @@ def build_parser() -> argparse.ArgumentParser:
         run.add_argument("--codex-timeout", type=int, default=3600)
         if name == "run-campaign":
             run.add_argument("--max-opportunities", type=int)
+        run.set_defaults(handler=handler)
+
+    for name, handler in (
+        ("run-parallel-next", command_run_parallel_next),
+        ("run-parallel-campaign", command_run_parallel_campaign),
+    ):
+        run = subparsers.add_parser(name)
+        run.add_argument("--campaign", type=Path, required=True)
+        run.add_argument("--python-bin", default=sys.executable)
+        run.add_argument("--codex-binary", default="codex")
+        run.add_argument("--codex-timeout", type=int, default=3600)
+        if name == "run-parallel-campaign":
+            run.add_argument("--max-block-rounds", type=int)
         run.set_defaults(handler=handler)
 
     status = subparsers.add_parser("status")

@@ -10,6 +10,8 @@ import stat
 import sys
 from pathlib import Path
 
+import pytest
+
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
 
@@ -32,7 +34,13 @@ from experiments.c0c3_factorial.frameworks import (
     unbundle_workspace,
 )
 from experiments.c0c3_factorial.modal_app import safe_campaign_path
-from experiments.c0c3_factorial.orchestration import next_run
+from experiments.c0c3_factorial.orchestration import (
+    CampaignLockedError,
+    campaign_lock,
+    next_parallel_wave,
+    next_run,
+    run_parallel_campaign,
+)
 from experiments.c0c3_factorial.postsearch import (
     export_layer_b_packets,
     run_layer_c,
@@ -44,6 +52,7 @@ from experiments.c0c3_factorial.runner import (
     run_one_opportunity,
 )
 from experiments.c0c3_factorial.spec import (
+    PARALLEL_EXECUTION_RULE,
     BudgetSpec,
     ExecutionBackend,
     FactorialSpec,
@@ -73,6 +82,18 @@ def protocol() -> FactorialSpec:
             max_evaluator_seconds=100.0,
             evaluator_timeout_seconds=10,
         ),
+    )
+
+
+def parallel_protocol() -> FactorialSpec:
+    serial = protocol()
+    return FactorialSpec(
+        **{
+            **serial.__dict__,
+            "protocol_version": "1.1",
+            "study_id": "parallel-execution-test",
+            "execution_rule": PARALLEL_EXECUTION_RULE,
+        }
     )
 
 
@@ -168,6 +189,50 @@ print(json.dumps({{
     return path
 
 
+def make_parallel_barrier_fake_codex(path: Path, marker_root: Path) -> Path:
+    path.write_text(
+        f"""#!{sys.executable}
+import json
+import pathlib
+import sys
+import time
+
+args = sys.argv[1:]
+workspace = pathlib.Path(args[args.index('--cd') + 1])
+last = pathlib.Path(args[args.index('--output-last-message') + 1])
+run_id = workspace.parents[2].name
+_prompt = sys.stdin.read()
+if not run_id.endswith('-n0'):
+    markers = pathlib.Path({str(marker_root)!r})
+    markers.mkdir(parents=True, exist_ok=True)
+    (markers / run_id).write_text('started')
+    deadline = time.monotonic() + 5
+    while len(list(markers.iterdir())) < 4:
+        if time.monotonic() >= deadline:
+            raise SystemExit('four factorial calls did not overlap')
+        time.sleep(0.01)
+(workspace / 'candidate.py').write_text('SCORE = 1\\n')
+last.write_text(
+    'HYPOTHESIS: increasing the toy score improves fitness\\n'
+    'INTENDED_EDIT: set SCORE to 1\\n'
+)
+print(json.dumps({{'type': 'thread.started', 'thread_id': run_id}}))
+print(json.dumps({{
+    'type': 'turn.completed',
+    'usage': {{
+        'input_tokens': 11,
+        'cached_input_tokens': 3,
+        'output_tokens': 5,
+        'reasoning_output_tokens': 2,
+    }},
+}}))
+""",
+        encoding="utf-8",
+    )
+    path.chmod(path.stat().st_mode | stat.S_IXUSR)
+    return path
+
+
 def make_fake_diff_codex(path: Path) -> Path:
     path.write_text(
         f"""#!{sys.executable}
@@ -227,6 +292,17 @@ def test_modal_campaign_path_is_relative_and_confined() -> None:
             pass
         else:  # pragma: no cover
             raise AssertionError(f"unsafe Modal path accepted: {unsafe}")
+
+
+def test_campaign_writer_lock_rejects_a_second_owner(tmp_path: Path) -> None:
+    campaign = tmp_path / "campaign"
+    campaign.mkdir()
+    with (
+        campaign_lock(campaign),
+        pytest.raises(CampaignLockedError, match="active writer"),
+        campaign_lock(campaign),
+    ):
+        pass
 
 
 def test_codex_transport_campaign_and_one_real_controller_step(
@@ -551,6 +627,122 @@ def test_campaign_orchestration_is_blocked_round_robin(tmp_path: Path) -> None:
     second = next_run(campaign, protocol())
     assert second is not None
     assert second.run_id == schedule[1]["run_id"]
+
+
+def test_parallel_wave_selects_only_lagging_factorial_cells(
+    tmp_path: Path,
+) -> None:
+    spec = parallel_protocol()
+    seed_source = make_seed(tmp_path / "source")
+    calibration = calibrate_task(
+        tmp_path / "calibration",
+        spec=spec,
+        task=task(seed_source),
+        repo_root=ROOT,
+        python_bin=sys.executable,
+    )
+    campaign = create_campaign(
+        tmp_path / "campaign",
+        spec=spec,
+        task=task(seed_source),
+        framework=framework(),
+        calibration_path=calibration,
+        repo_root=ROOT,
+        include_no_search=True,
+    )
+    schedule = json.loads((campaign / "schedule.json").read_text())
+    first = next(row for row in schedule if row["condition"] != "N0")
+    controller = SearchController.load(campaign / "runs" / first["run_id"], spec)
+    controller.begin()
+    controller.complete(
+        candidate_id="interrupted-peer",
+        artifact_path=f"candidates/{controller.state.incumbent_id}",
+        hypothesis="simulate a peer completing before host interruption",
+        intended_edit="none",
+        evaluation=Evaluation(False, None, {}, 0.0, evaluator_calls=0),
+        usage=Usage(input_tokens=1, output_tokens=1),
+        prompt_hashes={},
+    )
+    wave = next_parallel_wave(campaign, spec)
+    assert wave is not None
+    assert wave.recovery_subset is True
+    assert first["run_id"] not in {run.run_id for run in wave.factorial_runs}
+    assert len(wave.factorial_runs) == 3
+    assert wave.no_search_run is not None
+
+
+def test_parallel_campaign_overlaps_c0_c3_and_serializes_n0(
+    tmp_path: Path,
+) -> None:
+    spec = parallel_protocol()
+    seed_source = make_seed(tmp_path / "source")
+    fake_codex = make_parallel_barrier_fake_codex(
+        tmp_path / "fake-parallel-codex", tmp_path / "parallel-markers"
+    )
+    calibration = calibrate_task(
+        tmp_path / "calibration",
+        spec=spec,
+        task=task(seed_source),
+        repo_root=ROOT,
+        python_bin=sys.executable,
+    )
+    campaign = create_campaign(
+        tmp_path / "campaign",
+        spec=spec,
+        task=task(seed_source),
+        framework=framework(),
+        calibration_path=calibration,
+        repo_root=ROOT,
+        include_no_search=True,
+    )
+    report = validate_campaign(
+        campaign,
+        spec=spec,
+        task=task(seed_source),
+        framework=framework(),
+        repo_root=ROOT,
+    )
+    assert report["valid"] is True
+    assert report["controls"]["frozen_parallel_condition_rounds"] is True
+    with pytest.raises(ValueError, match="serial campaign commands require"):
+        next_run(campaign, spec)
+
+    results = list(
+        run_parallel_campaign(
+            campaign,
+            spec=spec,
+            task=task(seed_source),
+            framework=framework(),
+            repo_root=ROOT,
+            python_bin=sys.executable,
+            codex_binary=str(fake_codex),
+            codex_timeout_seconds=10,
+            max_block_rounds=1,
+        )
+    )
+    assert len(results) == 1
+    assert {row["condition"] for row in results[0]["factorial_records"]} == {
+        "C0",
+        "C1",
+        "C2",
+        "C3",
+    }
+    assert results[0]["no_search_record"]["condition"] == "N0"
+    assert len(list((tmp_path / "parallel-markers").iterdir())) == 4
+    schedule = json.loads((campaign / "schedule.json").read_text())
+    assert all(
+        SearchController.load(campaign / "runs" / row["run_id"], spec).state.status
+        == "completed"
+        for row in schedule
+    )
+    events = [
+        json.loads(line)
+        for line in (campaign / "parallel-rounds.jsonl").read_text().splitlines()
+    ]
+    assert [row["event"] for row in events] == [
+        "parallel_wave_started",
+        "parallel_wave_completed",
+    ]
 
 
 def test_interrupted_opportunity_recovery_consumes_proposal_not_evaluation(

@@ -1,10 +1,13 @@
-# C0–C3 protocol v1.0
+# C0–C3 protocols v1.0 and v1.1
 
 This document is the human-readable preregistration for the implementation in
 this directory. The executable contract is `FactorialSpec`; a campaign records
 its canonical protocol hash, task hash, framework hash, starting-artifact hash,
 and scientific-runtime hash. Disagreement between this document and executable
 state is a protocol deviation that must be disclosed, not silently repaired.
+Version 1.0 is the 100-opportunity serial paper protocol. Version 1.1 is the
+separate 30-opportunity synchronized-parallel workshop pilot. Results retain
+their protocol labels and are not pooled as interchangeable replications.
 
 ## 1. Research question and unit of analysis
 
@@ -107,8 +110,9 @@ and challenge a core assumption and test a meaningfully different architecture
 family. Width/depth changes, scalar/hyperparameter tuning, deletion alone, or a
 renamed instance of the same computation do not satisfy that instruction.
 
-The paper schedule is opportunities `20, 40, 60, 80`. C0 and C2 never receive
-the transition text. Compliance is not inferred from the instruction label:
+The paper-v1 schedule is opportunities `20, 40, 60, 80`; the parallel pilot
+schedule is `10, 20`. C0 and C2 never receive the transition text. Compliance
+is not inferred from the instruction label:
 blinded Layer B reviewers inspect parent-to-candidate changes and decide whether
 a coherent mechanism change occurred.
 
@@ -124,11 +128,29 @@ from all factorial contrasts.
 ## 8. Randomization, blocking, and seeds
 
 For each task × framework × block, a deterministic SHA-256-derived block seed
-shuffles C0–C3 once. The four cells share the same block seed. N0 follows as the
-fifth run. Scientific execution uses blocked round-robin order: the least-
-advanced run is selected first, then block and frozen within-block order. Thus
-one opportunity is accrued per run per round instead of completing one entire
-condition before another.
+shuffles C0–C3 once. The four cells share the same block seed. N0 is assigned
+the fifth frozen order.
+
+Protocol 1.0 freezes
+`blocked_round_robin_one_opportunity_v1`: select the least-advanced run, then
+block and frozen within-block order. Thus one opportunity is accrued per run per
+round instead of completing one entire condition before another.
+
+Protocol 1.1 freezes `blocked_parallel_condition_rounds_v1`. At each wave:
+
+1. find the minimum `proposals_used` among every non-completed campaign run;
+2. select the earliest block containing a run at that minimum;
+3. launch every C0–C3 cell in that block at the minimum concurrently, behind
+   one process-local start barrier;
+4. wait for all launched factorial cells to finish; and
+5. only then run an eligible N0 opportunity serially.
+
+The campaign-wide minimum is a hard round barrier: no non-completed run advances
+to a later wave while another non-completed run remains behind. Budget-completed
+runs leave the eligible set under the ordinary stopping rule. One campaign
+writer lock covers selection and execution. `parallel-rounds.jsonl` records the
+participants and completion of each wave. Parallelism is currently supported
+only for local task backends; Modal remains protocol-1.0 serialized execution.
 
 `C0C3_RUN_SEED` and `PYTHONHASHSEED` are supplied to Codex and evaluator
 subprocesses. Task code may use `C0C3_RUN_SEED`; task-specific fixed seeds still
@@ -137,8 +159,9 @@ seed through this runner, so model sampling is not deterministic. Blocking,
 identical settings, and replication mitigate that source of variance; they do
 not eliminate it.
 
-Use `run-next` or `run-campaign`. Direct `run-one --run-id` is diagnostic and can
-bypass randomized order.
+Use `run-next` or `run-campaign` for protocol 1.0. Use `run-parallel-next` or
+`run-parallel-campaign` for protocol 1.1. Direct `run-one --run-id` is diagnostic
+and can bypass randomized order.
 
 ## 9. Controls held common within a campaign
 
@@ -169,6 +192,11 @@ Paper v1 freezes, per run:
 - 360,000 aggregate evaluator seconds;
 - 3,600 seconds per evaluator invocation.
 
+The workshop parallel pilot freezes, per run, 30 opportunities/evaluator calls,
+30,000,000 total reported tokens, 108,000 aggregate evaluator seconds, and the
+same 3,600-second evaluator timeout. It uses three blocks and therefore has
+three independent trajectories per factorial cell plus three separate N0 runs.
+
 A new opportunity cannot start after any remaining budget reaches zero. One
 already-started Codex or evaluator call may overshoot a ceiling; its actual usage
 is logged and the run then completes. There is no performance-based early stop.
@@ -184,6 +212,13 @@ An infrastructure interruption can leave `state.active` populated. The only
 valid continuation is `recover-active`, which logs the reason, recovers any
 available Codex usage, records a zero-evaluator infrastructure failure, consumes
 the opportunity, and preserves all artifacts. Never delete or retry it.
+
+Under protocol 1.1, first recover every active opportunity explicitly. A host
+interruption can also occur before every intended peer starts. The frozen
+campaign-wide-minimum rule then launches only the still-lagging C0–C3 cells;
+`recovery_subset=true` in `parallel-rounds.jsonl` discloses that partial-round
+completion. Previously completed cells are never repeated and N0 still waits
+until the selected factorial subset finishes.
 
 ## 12. Feedback layers
 
@@ -217,7 +252,8 @@ holdout; the paper must use that terminology.
 
 ## 13. Confirmatory analysis
 
-Analyze every task × framework stratum separately first. For each stratum:
+Analyze every task × framework × protocol stratum separately first. For each
+stratum:
 
 1. Publish the four cell means and all run-level counts.
 2. Publish the three prespecified contrasts and within-block contrasts generated
@@ -240,8 +276,9 @@ runs are not imputed into the confirmatory estimate. If external failure makes a
 campaign incomplete, report it and either finish under the frozen recovery rule
 or label the campaign non-confirmatory.
 
-Any change after the first paper run—including model alias behavior, prompts,
+Any change after the first run under a protocol—including model alias behavior, prompts,
 `K`, schedule, selection, retention, evaluator, public metrics, timeout, task
 source, dependency environment, or runtime code—creates a new protocol version.
-Do not merge those runs into paper v1 without an explicit sensitivity analysis
-and deviation record.
+Do not merge protocol-1.1 pilot runs into paper v1. A cross-protocol comparison
+may be reported only as an explicitly labeled sensitivity analysis with a
+deviation record.

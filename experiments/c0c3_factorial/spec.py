@@ -81,7 +81,14 @@ PARENT_SELECTION_RULE = (
 )
 SINGLE_RETENTION_RULE = "strict_incumbent_improvement_v1"
 FAILURE_RULE = "consume_opportunity_and_evaluation_if_started;never_retain_v1"
-EXECUTION_RULE = "blocked_round_robin_one_opportunity_v1"
+SERIAL_EXECUTION_RULE = "blocked_round_robin_one_opportunity_v1"
+PARALLEL_EXECUTION_RULE = "blocked_parallel_condition_rounds_v1"
+# Backward-compatible name for the original paper-v1 execution rule.
+EXECUTION_RULE = SERIAL_EXECUTION_RULE
+PROTOCOL_EXECUTION_RULES = {
+    "1.0": SERIAL_EXECUTION_RULE,
+    "1.1": PARALLEL_EXECUTION_RULE,
+}
 
 
 def canonical_json(value: object) -> str:
@@ -168,7 +175,7 @@ class FactorialSpec:
     execution_rule: str = EXECUTION_RULE
 
     def __post_init__(self) -> None:
-        if self.protocol_version != "1.0":
+        if self.protocol_version not in PROTOCOL_EXECUTION_RULES:
             raise ValueError("unsupported protocol version")
         if not self.study_id or any(character.isspace() for character in self.study_id):
             raise ValueError("study_id must be non-empty and contain no whitespace")
@@ -185,8 +192,12 @@ class FactorialSpec:
             raise ValueError("unknown single-incumbent retention rule")
         if self.failure_rule != FAILURE_RULE:
             raise ValueError("unknown failure rule")
-        if self.execution_rule != EXECUTION_RULE:
-            raise ValueError("unknown campaign execution rule")
+        expected_execution_rule = PROTOCOL_EXECUTION_RULES[self.protocol_version]
+        if self.execution_rule != expected_execution_rule:
+            raise ValueError(
+                f"protocol {self.protocol_version} requires execution_rule="
+                f"{expected_execution_rule!r}"
+            )
         schedule = self.transition_opportunities
         if tuple(sorted(set(schedule))) != schedule:
             raise ValueError("transition schedule must be sorted and unique")

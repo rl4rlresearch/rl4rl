@@ -13,7 +13,15 @@ from .prompts import (
     VisibleCandidate,
     treatment_skeleton,
 )
-from .spec import Condition, FactorialSpec, FrameworkSpec, TaskSpec, sha256_json
+from .spec import (
+    PARALLEL_EXECUTION_RULE,
+    Condition,
+    ExecutionBackend,
+    FactorialSpec,
+    FrameworkSpec,
+    TaskSpec,
+    sha256_json,
+)
 from .state import SearchController
 
 
@@ -39,6 +47,13 @@ def validate_campaign(
     for name, expected in expected_hashes.items():
         if manifest.get(name) != expected:
             errors.append(f"campaign {name} mismatch")
+    if (
+        spec.execution_rule == PARALLEL_EXECUTION_RULE
+        and task.preferred_backend is not ExecutionBackend.LOCAL
+    ):
+        errors.append(
+            "parallel condition rounds currently require a local task backend"
+        )
     schedule = json.loads((campaign / "schedule.json").read_text(encoding="utf-8"))
     run_ids = [str(row["run_id"]) for row in schedule]
     if len(run_ids) != len(set(run_ids)):
@@ -149,7 +164,13 @@ def validate_campaign(
             "same_task_and_evaluator": len(support_hashes) == 1,
             "same_budget": True,
             "same_failure_rule": True,
-            "frozen_blocked_round_robin_execution": True,
+            "frozen_execution_rule": spec.execution_rule,
+            "frozen_blocked_round_robin_execution": (
+                spec.execution_rule != PARALLEL_EXECUTION_RULE
+            ),
+            "frozen_parallel_condition_rounds": (
+                spec.execution_rule == PARALLEL_EXECUTION_RULE
+            ),
             "layer_b_c_absent_at_launch": layers_absent,
         },
     }

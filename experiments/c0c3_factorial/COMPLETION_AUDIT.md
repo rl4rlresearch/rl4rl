@@ -25,8 +25,9 @@ authoritative evidence. It is not a substitute for each campaign’s launch-time
 | Easy future framework/task changes | Strict independent TOMLs, `FrameworkSpec`/`TaskSpec`, narrow adapter factory/evaluator contract, extension instructions | Satisfied |
 | AdderBoard ready | Real starting model/support packaging, trusted verifier wrapper, 99% qualification, parameter objective, fixed Layer A and disjoint Layer C seeds | Satisfied |
 | At least one other strong ML task | Pinned-source official Karpathy Autoresearch nanoGPT config, H100 fixed-time `val_bpb`, persistent preparation cache, target-backend calibration path | Satisfied |
-| Local Codex CLI | Official noninteractive flags, ephemeral calls, JSONL/last-message capture, usage parser, run lock/recovery, one-opportunity and campaign CLIs | Satisfied |
-| Modal parity | Same CLI/controller on pinned Modal SDK, H100 image, secret, campaign/cache Volumes, explicit reload/commit, no retries, one mutation container, portable calibration | Satisfied |
+| Local Codex CLI | Official noninteractive flags, ephemeral calls, JSONL/last-message capture, usage parser, run and campaign locks/recovery, serial and parallel campaign CLIs | Satisfied |
+| Versioned parallel rounds | Protocol 1.1 binds a distinct execution-rule identifier, concurrently launches least-advanced C0–C3 peers behind a start barrier, serializes N0, logs every wave, and deterministically selects lagging recovery subsets; concurrency/recovery/lock tests | Satisfied |
+| Modal parity | Protocol 1.0 uses the same CLI/controller on pinned Modal SDK, H100 image, secret, campaign/cache Volumes, explicit reload/commit, no retries, one mutation container, portable calibration; validation explicitly rejects protocol 1.1 on nonlocal task backends | Satisfied |
 | Merge safety and reuse | New isolated package; reuses vendored OpenEvolve and AdderBoard; no edits/staging of teammate-owned dirty submodule | Satisfied |
 | Detailed human/agent docs | README, protocol, runbook, framework/task guide, Modal guide, agent instructions, paper notes, and this audit | Satisfied |
 | Literature-informed decisions | FML-bench, Heuresis, Autoresearch, OpenEvolve, EvoTrace, and long-horizon architecture work synthesized with links in `PAPER_NOTES.md` | Satisfied |
@@ -41,7 +42,8 @@ Passed after the final implementation changes:
   PASS (root suite; one expected optional-dependency skip)
 
 architecture_discovery/.venv/bin/python -m pytest -q tests/test_c0c3_execution.py
-  PASS (11 tests, including actual vendored OpenEvolve dependencies and Modal SDK import)
+  PASS (14 tests, including actual vendored OpenEvolve dependencies, Modal SDK
+  import, synchronized four-call execution, and campaign-lock rejection)
 
 .venv/bin/ruff check experiments/c0c3_factorial \
   tests/test_c0c3_factorial_core.py tests/test_c0c3_execution.py

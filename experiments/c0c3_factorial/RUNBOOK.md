@@ -22,6 +22,19 @@ Use `dev.toml` until the entire workflow succeeds. Change only `PROTOCOL` to
 FRAMEWORK=$C0C3/configs/frameworks/openevolve.toml
 ```
 
+For the separately labeled local parallel workshop pilot, use:
+
+```bash
+PROTOCOL=$C0C3/configs/protocols/workshop_pilot_parallel_v1.toml
+TASK=$C0C3/configs/tasks/adderboard.toml
+FRAMEWORK=$C0C3/configs/frameworks/autoresearch.toml
+OUT=data/c0c3/workshop-pilot-parallel-adderboard-autoresearch
+```
+
+Do not reuse a `dev.toml` or `paper_v1.toml` calibration/campaign: protocol 1.1
+has a different protocol hash. The parallel protocol currently requires a local
+task backend and is not a Modal launch path.
+
 Verify prerequisites:
 
 ```bash
@@ -116,7 +129,9 @@ Archive the printed `validation.json`, `codex --version`, Python environment
 lock/pip freeze, GPU model/driver, OS, git commit, and the campaign hashes before
 starting the first paper opportunity.
 
-## 5. Execute in the frozen order
+## 5. Execute with the protocol's frozen rule
+
+### Protocol 1.0 serial blocked round-robin
 
 Run exactly one next opportunity:
 
@@ -150,6 +165,38 @@ A file lock prevents two local processes from mutating one run, but it is not
 authorization to run multiple writers against one campaign. Keep exactly one
 campaign orchestrator active.
 
+### Protocol 1.1 synchronized parallel condition rounds
+
+Run one block wave. Normally this launches C0–C3 concurrently and then N0
+serially, so one wave ordinarily consumes five Codex calls:
+
+```bash
+$PY -m $CLI run-parallel-next \
+  --campaign "$OUT-campaign" \
+  --python-bin "$PY"
+```
+
+Run a bounded number of block waves:
+
+```bash
+$PY -m $CLI run-parallel-campaign \
+  --campaign "$OUT-campaign" \
+  --python-bin "$PY" \
+  --max-block-rounds 3
+```
+
+Omit `--max-block-rounds` to finish the campaign. With three blocks and 30
+opportunities, a clean complete campaign has 90 block waves, 360 factorial
+calls, and 90 serial N0 calls. The runner chooses the campaign-wide
+least-advanced opportunity count and earliest eligible block; do not manually
+choose four run IDs or start four CLI processes.
+
+The outer CLI is the only campaign writer. It owns one campaign lock while an
+internal four-worker pool runs distinct run directories. It waits for all
+factorial workers before starting N0. Every wave is recorded in
+`parallel-rounds.jsonl`. A nonzero command exit may leave active opportunities;
+use the recovery procedure below before invoking the parallel command again.
+
 ## 6. Inspect progress without changing it
 
 ```bash
@@ -165,6 +212,8 @@ run_id  condition  status  proposals_used  evaluations_used  total_tokens  evalu
 For detailed provenance, inspect `events.jsonl` and individual
 `opportunities/NNNN/` directories. Never edit them. The last
 `proposal_completed` event is authoritative; a Codex last message alone is not.
+For protocol 1.1, also inspect `parallel-rounds.jsonl` for the exact concurrent
+participant set, N0 member, and `recovery_subset` flag.
 
 ## 7. Recover an interrupted active opportunity
 
@@ -183,6 +232,11 @@ Recovery consumes that proposal, recovers logged Codex tokens when possible,
 records no evaluator call unless one had already been durably completed by the
 normal runner, and never retries or deletes artifacts. Do not use recovery to
 erase a scientifically inconvenient result.
+
+For protocol 1.1, repeat `recover-active` for every run whose state is active.
+The next `run-parallel-next` deterministically selects only any still-lagging
+factorial peers, marks that wave as a recovery subset, and runs N0 afterward if
+it is at the same minimum. Never repeat a peer that already completed.
 
 ## 8. Export and adjudicate Layer B
 

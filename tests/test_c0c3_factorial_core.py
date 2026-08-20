@@ -20,6 +20,8 @@ from experiments.c0c3_factorial.prompts import (
     treatment_skeleton,
 )
 from experiments.c0c3_factorial.spec import (
+    PARALLEL_EXECUTION_RULE,
+    SERIAL_EXECUTION_RULE,
     BudgetSpec,
     Condition,
     ExecutionBackend,
@@ -58,6 +60,26 @@ def protocol(*, proposals: int = 4, capacity: int = 2) -> FactorialSpec:
             evaluator_timeout_seconds=100,
         ),
     )
+
+
+def test_protocol_version_freezes_its_execution_rule() -> None:
+    serial = protocol()
+    assert serial.execution_rule == SERIAL_EXECUTION_RULE
+    with pytest.raises(ValueError, match="protocol 1.0 requires execution_rule"):
+        FactorialSpec(
+            **{
+                **serial.__dict__,
+                "execution_rule": PARALLEL_EXECUTION_RULE,
+            }
+        )
+    parallel = FactorialSpec(
+        **{
+            **serial.__dict__,
+            "protocol_version": "1.1",
+            "execution_rule": PARALLEL_EXECUTION_RULE,
+        }
+    )
+    assert parallel.execution_rule == PARALLEL_EXECUTION_RULE
 
 
 def task() -> TaskSpec:

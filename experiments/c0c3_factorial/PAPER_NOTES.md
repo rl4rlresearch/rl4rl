@@ -421,6 +421,7 @@ Append one row before analysis whenever anything differs from paper v1:
 
 | Timestamp UTC | Campaign/run IDs | Before/after first affected opportunity | Frozen item | Reason | Exact change | Data disposition | Approved by |
 |---|---|---|---|---|---|---|---|
+| 2026-08-20 | Prospective `c0c3-workshop-pilot-parallel-v1` campaigns | Before campaign creation and before every affected opportunity | Protocol version, execution rule, per-run opportunity budget, and transition schedule | Deadline-bounded workshop evidence collection with concurrent condition calls | Added protocol 1.1: three blocks, 30 opportunities, checkpoints 10/20, `blocked_parallel_condition_rounds_v1`; N0 remains serialized after each C0–C3 group | Analyze as its own protocol stratum; never pool with `paper_v1`; disclose partial recovery subsets | Operator |
 
 Never overwrite an earlier row. If code/config changed, record old/new hashes and
 create a new campaign/protocol identifier.
