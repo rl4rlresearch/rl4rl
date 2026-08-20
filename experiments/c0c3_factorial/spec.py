@@ -252,6 +252,7 @@ class TaskSpec:
     qualification_metric: str | None
     qualification_minimum: float | None
     public_feedback_metrics: tuple[str, ...]
+    metric_patterns: dict[str, str]
     final_holdout_command: tuple[str, ...]
     preferred_backend: ExecutionBackend
 
@@ -278,10 +279,13 @@ class TaskSpec:
     @classmethod
     def from_toml(cls, path: str | Path) -> TaskSpec:
         payload = tomllib.loads(Path(path).read_text(encoding="utf-8"))
+        payload.setdefault("qualification_metric", None)
+        payload.setdefault("qualification_minimum", None)
         editable_paths = tuple(payload.pop("editable_paths"))
         evaluator_command = tuple(payload.pop("evaluator_command"))
         objective_direction = ObjectiveDirection(payload.pop("objective_direction"))
         public_feedback_metrics = tuple(payload.pop("public_feedback_metrics"))
+        metric_patterns = dict(payload.pop("metric_patterns"))
         final_holdout_command = tuple(payload.pop("final_holdout_command"))
         preferred_backend = ExecutionBackend(payload.pop("preferred_backend"))
         return cls(
@@ -290,6 +294,7 @@ class TaskSpec:
             evaluator_command=evaluator_command,
             objective_direction=objective_direction,
             public_feedback_metrics=public_feedback_metrics,
+            metric_patterns=metric_patterns,
             final_holdout_command=final_holdout_command,
             preferred_backend=preferred_backend,
         )

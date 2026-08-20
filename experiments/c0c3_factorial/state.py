@@ -101,6 +101,7 @@ class RunState:
     no_search: bool
     status: str
     next_opportunity: int
+    proposals_used: int
     evaluations_used: int
     evaluator_seconds_used: float
     usage: Usage
@@ -137,11 +138,13 @@ class Evaluation:
     failure_kind: str | None = None
 
     def __post_init__(self) -> None:
-        if self.evaluator_calls != 1:
-            raise ValueError("each proposal must have exactly one evaluator call")
+        if self.evaluator_calls not in {0, 1}:
+            raise ValueError("a proposal may start at most one evaluator call")
         if self.evaluator_seconds < 0 or not math.isfinite(self.evaluator_seconds):
             raise ValueError("evaluator_seconds must be finite and nonnegative")
         if self.valid:
+            if self.evaluator_calls != 1:
+                raise ValueError("valid evaluations require one evaluator call")
             if self.fitness is None or not math.isfinite(self.fitness):
                 raise ValueError("valid evaluations require finite fitness")
             if self.failure_kind is not None:
@@ -181,11 +184,12 @@ class SearchController:
         state = RunState(
             schema_version="1.0",
             run_id=run_id,
-            condition=condition.value,
+            condition="N0" if no_search else condition.value,
             protocol_hash=spec.protocol_hash,
             no_search=no_search,
             status="ready",
             next_opportunity=1,
+            proposals_used=0,
             evaluations_used=0,
             evaluator_seconds_used=0.0,
             usage=Usage(),
@@ -202,7 +206,7 @@ class SearchController:
                 "event": "run_created",
                 "timestamp": utc_now(),
                 "run_id": run_id,
-                "condition": condition.value,
+                "condition": "N0" if no_search else condition.value,
                 "no_search": no_search,
                 "protocol_hash": spec.protocol_hash,
                 "seed_candidate_id": seed_candidate.candidate_id,
@@ -220,7 +224,7 @@ class SearchController:
 
     @property
     def condition(self) -> Condition:
-        return Condition(self.state.condition)
+        return Condition.C0 if self.state.no_search else Condition(self.state.condition)
 
     def _validate(self) -> None:
         state = self.state
@@ -230,8 +234,10 @@ class SearchController:
             raise ValueError("invalid run status")
         if not 1 <= state.next_opportunity <= self.spec.budget.proposals + 1:
             raise ValueError("next opportunity is outside the frozen budget")
-        if state.evaluations_used != state.next_opportunity - 1:
-            raise ValueError("proposal and evaluation accounting diverged")
+        if state.proposals_used != state.next_opportunity - 1:
+            raise ValueError("proposal opportunity accounting diverged")
+        if not 0 <= state.evaluations_used <= state.proposals_used:
+            raise ValueError("evaluation accounting exceeds proposal accounting")
         if state.incumbent_id not in state.candidates:
             raise ValueError("incumbent candidate is missing")
         if (
@@ -267,7 +273,7 @@ class SearchController:
 
     def remaining(self) -> dict[str, int | float]:
         return {
-            "proposals": self.spec.budget.proposals - self.state.evaluations_used,
+            "proposals": self.spec.budget.proposals - self.state.proposals_used,
             "evaluations": (
                 self.spec.budget.candidate_evaluations - self.state.evaluations_used
             ),
@@ -380,7 +386,8 @@ class SearchController:
         if candidate_id in self.state.candidates:
             raise ValueError("candidate ID has already been evaluated")
         self.state.usage.add(usage)
-        self.state.evaluations_used += 1
+        self.state.proposals_used += 1
+        self.state.evaluations_used += evaluation.evaluator_calls
         self.state.evaluator_seconds_used += evaluation.evaluator_seconds
         retained = False
         decision = "invalid"
@@ -462,6 +469,7 @@ class SearchController:
             | {"total_tokens": self.state.usage.total_tokens},
             "evaluator_calls_increment": evaluation.evaluator_calls,
             "evaluator_calls_cumulative": self.state.evaluations_used,
+            "proposals_cumulative": self.state.proposals_used,
             "evaluator_seconds_increment": evaluation.evaluator_seconds,
             "evaluator_seconds_cumulative": self.state.evaluator_seconds_used,
             "remaining_budget": remaining_before_advance,

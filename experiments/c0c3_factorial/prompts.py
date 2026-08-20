@@ -35,6 +35,7 @@ class PromptContext:
     remaining_evaluations: int
     remaining_tokens: int
     remaining_evaluator_seconds: float
+    no_search: bool = False
 
 
 @dataclass(frozen=True)
@@ -151,11 +152,28 @@ class PromptRenderer:
         framework: FrameworkSpec,
         context: PromptContext,
     ) -> RenderedPrompt:
-        transition_active = context.condition.transition_active(
-            context.opportunity, spec.transition_opportunities
+        transition_active = (
+            False
+            if context.no_search
+            else context.condition.transition_active(
+                context.opportunity, spec.transition_opportunities
+            )
         )
-        search_state = self._search_state(context.condition, spec.portfolio_capacity)
-        proposal_policy = self.transition if transition_active else self.ordinary
+        if context.no_search:
+            search_state = (
+                "Independent no-search baseline. Exactly the frozen seed is visible. "
+                "This proposal receives no previous proposal, evaluation, or adaptive "
+                "search feedback, and its result will not alter later proposals."
+            )
+            proposal_policy = (
+                "Produce one independent best-effort proposal from the frozen seed. "
+                "Do not infer a trajectory or ask for prior results."
+            )
+        else:
+            search_state = self._search_state(
+                context.condition, spec.portfolio_capacity
+            )
+            proposal_policy = self.transition if transition_active else self.ordinary
         budget = (
             f"proposals_remaining={context.remaining_proposals}; "
             f"evaluations_remaining={context.remaining_evaluations}; "

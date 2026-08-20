@@ -1,0 +1,34 @@
+task_id = "adderboard"
+display_name = "AdderBoard 10-digit autoregressive addition compression"
+adapter = "adderboard_v1"
+seed_source = "architecture_discovery/vendor/starting_model"
+editable_paths = ["src/model.py", "src/data.py", "src/train.py", "submission.py"]
+evaluator_command = [
+  "{python}",
+  "{repo_root}/experiments/c0c3_factorial/task_evaluators.py",
+  "adderboard",
+  "--workspace", "{workspace}",
+  "--repo-root", "{repo_root}",
+  "--python-bin", "{python}",
+  "--output", "{output}",
+]
+objective_metric = "parameters"
+objective_direction = "minimize"
+qualification_metric = "accuracy"
+qualification_minimum = 0.99
+public_feedback_metrics = ["accuracy", "parameters", "training_steps"]
+final_holdout_command = [
+  "{python}",
+  "{repo_root}/experiments/c0c3_factorial/task_evaluators.py",
+  "adderboard-holdout",
+  "--workspace", "{workspace}",
+  "--repo-root", "{repo_root}",
+  "--python-bin", "{python}",
+  "--output", "{output}",
+]
+preferred_backend = "local"
+
+[metric_patterns]
+accuracy = "Results: [0-9]+/[0-9]+ correct \\(([0-9.]+)%\\)"
+parameters = "Parameters \\(unique\\):\\s*([0-9,]+)"
+training_steps = "step\\s+([0-9]+)"

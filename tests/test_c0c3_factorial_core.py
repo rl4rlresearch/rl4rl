@@ -72,6 +72,7 @@ def task() -> TaskSpec:
         qualification_metric=None,
         qualification_minimum=None,
         public_feedback_metrics=("score",),
+        metric_patterns={"score": r"score:\s*([0-9.]+)"},
         final_holdout_command=("python", "holdout.py"),
         preferred_backend=ExecutionBackend.LOCAL,
     )

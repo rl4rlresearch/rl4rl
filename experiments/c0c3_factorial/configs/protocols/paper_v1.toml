@@ -1,0 +1,23 @@
+protocol_version = "1.0"
+study_id = "c0c3-paper-v1"
+study_seed = 20260820
+blocks = 3
+portfolio_capacity = 4
+transition_opportunities = [20, 40, 60, 80]
+retention_rule = "fill_then_replace_selected_parent_on_strict_improvement_v1"
+parent_selection_rule = "least_selected_then_best_then_oldest_then_id_v1"
+single_retention_rule = "strict_incumbent_improvement_v1"
+failure_rule = "consume_opportunity_and_evaluation_if_started;never_retain_v1"
+
+[model]
+name = "gpt-5.6-sol"
+reasoning_effort = "xhigh"
+sandbox = "workspace-write"
+approval_policy = "never"
+
+[budget]
+proposals = 100
+candidate_evaluations = 100
+max_total_tokens = 100000000
+max_evaluator_seconds = 360000.0
+evaluator_timeout_seconds = 3600
