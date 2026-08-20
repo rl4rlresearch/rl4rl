@@ -9,7 +9,7 @@ import shutil
 import stat
 from pathlib import Path
 
-from .spec import TaskSpec, canonical_json
+from .spec import FrameworkKind, FrameworkSpec, TaskSpec, canonical_json, sha256_json
 
 _ENV_REFERENCE = re.compile(r"^\$\{([A-Z][A-Z0-9_]*)\}$")
 _IGNORED_PARTS = {".git", "__pycache__", ".pytest_cache", ".ruff_cache"}
@@ -78,6 +78,30 @@ def tree_hash(root: Path) -> str:
         digest.update(path.read_bytes())
         digest.update(b"\0")
     return digest.hexdigest()
+
+
+def scientific_runtime_hash(
+    repo_root: Path, *, task: TaskSpec, framework: FrameworkSpec
+) -> str:
+    """Hash controller and repository-owned runtime code used by a campaign."""
+
+    roots = {
+        "factorial_controller": repo_root / "experiments/c0c3_factorial",
+    }
+    if framework.framework_id is FrameworkKind.OPENEVOLVE:
+        roots["openevolve_adapter_runtime"] = (
+            repo_root / "architecture_discovery/vendor/openevolve/openevolve"
+        )
+    if task.adapter == "adderboard_v1":
+        roots["adderboard_verifier"] = (
+            repo_root / "architecture_discovery/vendor/AdderBoard"
+        )
+    hashes = {}
+    for label, root in roots.items():
+        if not root.is_dir():
+            raise FileNotFoundError(f"scientific runtime root is missing: {root}")
+        hashes[label] = tree_hash(root)
+    return sha256_json(hashes)
 
 
 def candidate_hash(workspace: Path, editable_paths: tuple[str, ...]) -> str:

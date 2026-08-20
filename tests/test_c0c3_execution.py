@@ -110,7 +110,7 @@ def framework() -> FrameworkSpec:
         framework_id=FrameworkKind.AUTORESEARCH,
         adapter="codex_direct_editor_v1",
         prompt_profile="controlled_factorial_v1",
-        diff_mode=True,
+        edit_mode="direct_workspace",
     )
 
 
@@ -302,6 +302,56 @@ def test_portable_calibration_can_execute_on_a_later_backend(tmp_path: Path) -> 
     assert json.loads(baseline.read_text())["calibration_kind"] == (
         "executed_on_target_backend"
     )
+
+
+def test_runtime_hash_change_fails_validation_and_execution(tmp_path: Path) -> None:
+    seed_source = make_seed(tmp_path / "source")
+    baseline = calibrate_task(
+        tmp_path / "calibration",
+        spec=protocol(),
+        task=task(seed_source),
+        repo_root=ROOT,
+        python_bin=sys.executable,
+    )
+    campaign = create_campaign(
+        tmp_path / "campaign",
+        spec=protocol(),
+        task=task(seed_source),
+        framework=framework(),
+        calibration_path=baseline,
+        repo_root=ROOT,
+        include_no_search=False,
+    )
+    assignment = json.loads((campaign / "schedule.json").read_text())[0]
+    manifest_path = campaign / "runs" / assignment["run_id"] / "manifest.json"
+    manifest = json.loads(manifest_path.read_text())
+    manifest["scientific_runtime_hash"] = "tampered"
+    manifest_path.write_text(json.dumps(manifest), encoding="utf-8")
+    report = validate_campaign(
+        campaign,
+        spec=protocol(),
+        task=task(seed_source),
+        framework=framework(),
+        repo_root=ROOT,
+    )
+    assert report["valid"] is False
+    assert any(
+        "scientific_runtime_hash mismatch" in error for error in report["errors"]
+    )
+    try:
+        run_one_opportunity(
+            campaign / "runs" / assignment["run_id"],
+            spec=protocol(),
+            task=task(seed_source),
+            framework=framework(),
+            repo_root=ROOT,
+            python_bin=sys.executable,
+            codex_binary="not-used",
+        )
+    except ValueError as error:
+        assert "scientific runtime changed" in str(error)
+    else:  # pragma: no cover
+        raise AssertionError("execution accepted a mismatched runtime")
 
 
 def test_codex_event_usage_parser_uses_final_turn(tmp_path: Path) -> None:

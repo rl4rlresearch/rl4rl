@@ -314,7 +314,11 @@ class FrameworkSpec:
     framework_id: FrameworkKind
     adapter: str
     prompt_profile: str
-    diff_mode: bool
+    edit_mode: str
+
+    def __post_init__(self) -> None:
+        if self.edit_mode not in {"direct_workspace", "search_replace_diff"}:
+            raise ValueError("unsupported framework edit mode")
 
     @classmethod
     def from_toml(cls, path: str | Path) -> FrameworkSpec:

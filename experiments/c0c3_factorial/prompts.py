@@ -97,7 +97,7 @@ class PromptRenderer:
         return (
             f"Framework: {framework.framework_id.value}\n"
             f"Proposal adapter: {framework.adapter}\n"
-            f"Edit representation: {'diff' if framework.diff_mode else 'full rewrite'}"
+            f"Edit representation: {framework.edit_mode}"
         )
 
     @staticmethod

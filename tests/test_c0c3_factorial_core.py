@@ -84,7 +84,7 @@ def framework() -> FrameworkSpec:
         framework_id=FrameworkKind.AUTORESEARCH,
         adapter="codex_editor_v1",
         prompt_profile="controlled_v1",
-        diff_mode=True,
+        edit_mode="direct_workspace",
     )
 
 

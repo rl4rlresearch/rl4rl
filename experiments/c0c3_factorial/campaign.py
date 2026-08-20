@@ -10,6 +10,7 @@ from pathlib import Path
 
 from .artifacts import (
     prepare_seed_workspace,
+    scientific_runtime_hash,
     snapshot_candidate,
     tree_hash,
 )
@@ -218,6 +219,9 @@ def create_campaign(
         )
     )
     schedule: list[dict[str, object]] = []
+    runtime_hash = scientific_runtime_hash(
+        repo_root, task=task, framework=framework
+    )
     for assignment in assignments:
         schedule.append(asdict(assignment) | {"condition": assignment.condition.value})
     if include_no_search:
@@ -272,6 +276,7 @@ def create_campaign(
                 "protocol_hash": spec.protocol_hash,
                 "task_hash": sha256_json(asdict(task)),
                 "framework_hash": sha256_json(asdict(framework)),
+                "scientific_runtime_hash": runtime_hash,
                 "baseline": calibration,
                 "repo_revision": _repo_revision(repo_root),
             },
@@ -292,6 +297,7 @@ def create_campaign(
             "protocol_hash": spec.protocol_hash,
             "task_hash": sha256_json(asdict(task)),
             "framework_hash": sha256_json(asdict(framework)),
+            "scientific_runtime_hash": runtime_hash,
             "seed_candidate_id": candidate_id,
             "include_no_search": include_no_search,
             "run_count": len(schedule),

@@ -6,7 +6,7 @@ import json
 from dataclasses import asdict
 from pathlib import Path
 
-from .artifacts import candidate_hash, tree_hash
+from .artifacts import candidate_hash, scientific_runtime_hash, tree_hash
 from .prompts import (
     PromptContext,
     PromptRenderer,
@@ -32,6 +32,9 @@ def validate_campaign(
         "protocol_hash": spec.protocol_hash,
         "task_hash": sha256_json(asdict(task)),
         "framework_hash": sha256_json(asdict(framework)),
+        "scientific_runtime_hash": scientific_runtime_hash(
+            repo_root, task=task, framework=framework
+        ),
     }
     for name, expected in expected_hashes.items():
         if manifest.get(name) != expected:

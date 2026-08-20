@@ -16,6 +16,7 @@ from .artifacts import (
     make_read_only,
     materialize_candidate,
     protected_hash,
+    scientific_runtime_hash,
     snapshot_candidate,
 )
 from .codex_cli import CodexCli, usage_from_events
@@ -81,6 +82,13 @@ def _run_one_opportunity_unlocked(
     run_dir = Path(run_dir).resolve()
     controller = SearchController.load(run_dir, spec)
     run_manifest = _read_json(run_dir / "manifest.json")
+    expected_runtime_hash = scientific_runtime_hash(
+        repo_root, task=task, framework=framework
+    )
+    if run_manifest.get("scientific_runtime_hash") != expected_runtime_hash:
+        raise ValueError(
+            "scientific runtime changed after campaign creation; create a new campaign"
+        )
     assignment = run_manifest.get("assignment")
     if not isinstance(assignment, dict) or isinstance(
         assignment.get("run_seed"), bool
