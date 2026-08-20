@@ -303,9 +303,49 @@ def _execute_parallel_wave(
         )
         raise ParallelWaveError("; ".join(failures))
 
+    provider_failures = [
+        str(record.get("run_id", "unknown"))
+        for record in factorial_records
+        if record.get("evaluation", {}).get("failure_kind") == "provider"
+        and record.get("usage_increment", {}).get("total_tokens", 0) == 0
+    ]
+    if provider_failures:
+        message = (
+            "Codex provider transport failed before token accounting for: "
+            + ", ".join(provider_failures)
+        )
+        append_jsonl(
+            events_path,
+            {
+                **base_event,
+                "event": "parallel_wave_failed",
+                "timestamp": utc_now(),
+                "errors": [message],
+            },
+        )
+        raise ParallelWaveError(message)
+
     no_search_record = None
     if wave.no_search_run is not None:
         no_search_record = execute(wave.no_search_run)
+        if (
+            no_search_record.get("evaluation", {}).get("failure_kind") == "provider"
+            and no_search_record.get("usage_increment", {}).get("total_tokens", 0) == 0
+        ):
+            message = (
+                "Codex provider transport failed before token accounting for: "
+                f"{wave.no_search_run.run_id}"
+            )
+            append_jsonl(
+                events_path,
+                {
+                    **base_event,
+                    "event": "parallel_wave_failed",
+                    "timestamp": utc_now(),
+                    "errors": [message],
+                },
+            )
+            raise ParallelWaveError(message)
     result = {
         **base_event,
         "factorial_records": factorial_records,

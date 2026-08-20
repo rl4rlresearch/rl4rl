@@ -66,7 +66,10 @@ class CommandEvaluator:
         self.task = task
         self.support_source = support_source
         self.repo_root = repo_root
-        self.python_bin = python_bin
+        if "/" in python_bin:
+            self.python_bin = str(Path(python_bin).resolve())
+        else:
+            self.python_bin = shutil.which(python_bin) or python_bin
 
     def evaluate(
         self,

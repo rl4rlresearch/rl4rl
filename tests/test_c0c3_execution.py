@@ -36,6 +36,7 @@ from experiments.c0c3_factorial.frameworks import (
 from experiments.c0c3_factorial.modal_app import safe_campaign_path
 from experiments.c0c3_factorial.orchestration import (
     CampaignLockedError,
+    ParallelWaveError,
     campaign_lock,
     next_parallel_wave,
     next_run,
@@ -164,6 +165,8 @@ import pathlib
 import sys
 
 args = sys.argv[1:]
+assert '-a' not in args
+assert 'approval_policy="never"' in args
 workspace = pathlib.Path(args[args.index('--cd') + 1])
 last = pathlib.Path(args[args.index('--output-last-message') + 1])
 _prompt = sys.stdin.read()
@@ -226,6 +229,20 @@ print(json.dumps({{
         'reasoning_output_tokens': 2,
     }},
 }}))
+""",
+        encoding="utf-8",
+    )
+    path.chmod(path.stat().st_mode | stat.S_IXUSR)
+    return path
+
+
+def make_failing_fake_codex(path: Path) -> Path:
+    path.write_text(
+        f"""#!{sys.executable}
+import sys
+
+print('simulated provider transport failure', file=sys.stderr)
+raise SystemExit(2)
 """,
         encoding="utf-8",
     )
@@ -742,6 +759,64 @@ def test_parallel_campaign_overlaps_c0_c3_and_serializes_n0(
     assert [row["event"] for row in events] == [
         "parallel_wave_started",
         "parallel_wave_completed",
+    ]
+
+
+def test_parallel_campaign_stops_after_zero_token_provider_failure(
+    tmp_path: Path,
+) -> None:
+    spec = parallel_protocol()
+    seed_source = make_seed(tmp_path / "source")
+    calibration = calibrate_task(
+        tmp_path / "calibration",
+        spec=spec,
+        task=task(seed_source),
+        repo_root=ROOT,
+        python_bin=sys.executable,
+    )
+    campaign = create_campaign(
+        tmp_path / "campaign",
+        spec=spec,
+        task=task(seed_source),
+        framework=framework(),
+        calibration_path=calibration,
+        repo_root=ROOT,
+        include_no_search=True,
+    )
+    failing_codex = make_failing_fake_codex(tmp_path / "failing-codex")
+
+    with pytest.raises(ParallelWaveError, match="before token accounting"):
+        list(
+            run_parallel_campaign(
+                campaign,
+                spec=spec,
+                task=task(seed_source),
+                framework=framework(),
+                repo_root=ROOT,
+                python_bin=sys.executable,
+                codex_binary=str(failing_codex),
+                codex_timeout_seconds=10,
+            )
+        )
+
+    schedule = json.loads((campaign / "schedule.json").read_text())
+    states = {
+        row["condition"]: SearchController.load(
+            campaign / "runs" / row["run_id"], spec
+        ).state
+        for row in schedule
+    }
+    assert all(
+        states[name].proposals_used == 1 for name in ("C0", "C1", "C2", "C3")
+    )
+    assert states["N0"].proposals_used == 0
+    events = [
+        json.loads(line)
+        for line in (campaign / "parallel-rounds.jsonl").read_text().splitlines()
+    ]
+    assert [row["event"] for row in events] == [
+        "parallel_wave_started",
+        "parallel_wave_failed",
     ]
 
 
