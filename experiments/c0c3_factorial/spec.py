@@ -73,10 +73,15 @@ class ExecutionBackend(StrEnum):
     MODAL = "modal"
 
 
-PORTFOLIO_RETENTION_RULE = "fill_then_replace_selected_parent_on_strict_improvement_v1"
-PARENT_SELECTION_RULE = "least_selected_then_best_then_oldest_then_id_v1"
+PORTFOLIO_RETENTION_RULE = (
+    "fill_open_slots_then_replace_selected_lineage_on_strict_improvement_v1"
+)
+PARENT_SELECTION_RULE = (
+    "fill_from_seed_then_least_selected_lineage_then_best_then_oldest_then_id_v1"
+)
 SINGLE_RETENTION_RULE = "strict_incumbent_improvement_v1"
 FAILURE_RULE = "consume_opportunity_and_evaluation_if_started;never_retain_v1"
+EXECUTION_RULE = "blocked_round_robin_one_opportunity_v1"
 
 
 def canonical_json(value: object) -> str:
@@ -160,6 +165,7 @@ class FactorialSpec:
     parent_selection_rule: str = PARENT_SELECTION_RULE
     single_retention_rule: str = SINGLE_RETENTION_RULE
     failure_rule: str = FAILURE_RULE
+    execution_rule: str = EXECUTION_RULE
 
     def __post_init__(self) -> None:
         if self.protocol_version != "1.0":
@@ -179,6 +185,8 @@ class FactorialSpec:
             raise ValueError("unknown single-incumbent retention rule")
         if self.failure_rule != FAILURE_RULE:
             raise ValueError("unknown failure rule")
+        if self.execution_rule != EXECUTION_RULE:
+            raise ValueError("unknown campaign execution rule")
         schedule = self.transition_opportunities
         if tuple(sorted(set(schedule))) != schedule:
             raise ValueError("transition schedule must be sorted and unique")
@@ -207,6 +215,7 @@ class FactorialSpec:
                 "parent_selection_rule",
                 "single_retention_rule",
                 "failure_rule",
+                "execution_rule",
                 "model",
                 "budget",
             },

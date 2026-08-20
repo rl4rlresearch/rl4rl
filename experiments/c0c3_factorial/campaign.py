@@ -58,6 +58,7 @@ def calibrate_task(
         candidate_snapshot=snapshot,
         opportunity_root=output / "evaluation",
         timeout_seconds=spec.budget.evaluator_timeout_seconds,
+        run_seed=spec.study_seed,
     )
     if not artifacts.evaluation.valid:
         raise RuntimeError(

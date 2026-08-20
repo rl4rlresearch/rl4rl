@@ -12,6 +12,7 @@ ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
 
 from experiments.c0c3_factorial.analysis import RunOutcome, estimate
+from experiments.c0c3_factorial.environment import controlled_subprocess_environment
 from experiments.c0c3_factorial.prompts import (
     PromptContext,
     PromptRenderer,
@@ -234,6 +235,51 @@ def test_portfolio_fills_then_replaces_selected_parent(tmp_path: Path) -> None:
     assert result["retained"]
     assert result["evicted_candidate_id"] == "branch"
     assert controller.state.portfolio_ids == ["seed", "branch-better"]
+
+
+def test_portfolio_fills_from_seed_and_replacement_preserves_lineage_count(
+    tmp_path: Path,
+) -> None:
+    controller = SearchController.create(
+        tmp_path / "c2-lineages",
+        protocol(capacity=3),
+        run_id="run-c2-lineages",
+        condition=Condition.C2,
+        seed_candidate=seed(),
+    )
+    for candidate_id, fitness in (("branch-a", -1.0), ("branch-b", -2.0)):
+        active = controller.begin()
+        assert active.selected_parent_id == "seed"
+        controller.complete(
+            candidate_id=candidate_id,
+            artifact_path=f"candidates/{candidate_id}",
+            hypothesis="independent initial branch",
+            intended_edit="branch",
+            evaluation=Evaluation(True, fitness, {"score": fitness}, 1.0),
+            usage=Usage(input_tokens=1, output_tokens=1),
+            prompt_hashes={},
+        )
+    selected = controller.begin()
+    assert selected.selected_parent_id == "branch-a"
+    controller.complete(
+        candidate_id="branch-a-child",
+        artifact_path="candidates/branch-a-child",
+        hypothesis="improve branch a",
+        intended_edit="change",
+        evaluation=Evaluation(True, -0.5, {"score": -0.5}, 1.0),
+        usage=Usage(input_tokens=1, output_tokens=1),
+        prompt_hashes={},
+    )
+    assert controller.state.candidates["branch-a-child"].selected_count == 1
+    # branch-b remains the least-selected lineage; the successful child does
+    # not reset to zero and monopolize the next opportunity.
+    assert controller.begin().selected_parent_id == "branch-b"
+
+
+def test_controlled_environment_exposes_full_and_python_seeds() -> None:
+    environment = controlled_subprocess_environment(2**40 + 17)
+    assert environment["C0C3_RUN_SEED"] == str(2**40 + 17)
+    assert environment["PYTHONHASHSEED"] == "17"
 
 
 def test_no_search_always_uses_seed_and_never_adapts(tmp_path: Path) -> None:

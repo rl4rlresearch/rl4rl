@@ -9,7 +9,9 @@ import sys
 from pathlib import Path
 
 from .campaign import calibrate_task, create_campaign
-from .runner import run_one_opportunity
+from .orchestration import next_run
+from .postsearch import export_layer_b_packets, run_layer_c, score_layer_b
+from .runner import recover_active_opportunity, run_one_opportunity
 from .spec import (
     BudgetSpec,
     ExecutionBackend,
@@ -21,6 +23,7 @@ from .spec import (
     TaskSpec,
 )
 from .state import SearchController
+from .validation import validate_campaign
 
 PACKAGE_ROOT = Path(__file__).resolve().parent
 REPO_ROOT = PACKAGE_ROOT.parents[1]
@@ -87,10 +90,13 @@ def command_create(args: argparse.Namespace) -> int:
     return 0
 
 
-def _run_once(args: argparse.Namespace) -> dict[str, object]:
+def _run_once(
+    args: argparse.Namespace, *, run_id: str | None = None
+) -> dict[str, object]:
     campaign = args.campaign.resolve()
     spec, task, framework = _load_campaign(campaign)
-    run_dir = campaign / "runs" / args.run_id
+    selected_run_id = run_id or args.run_id
+    run_dir = campaign / "runs" / selected_run_id
     return run_one_opportunity(
         run_dir,
         spec=spec,
@@ -126,6 +132,38 @@ def command_run(args: argparse.Namespace) -> int:
     return 0
 
 
+def command_run_next(args: argparse.Namespace) -> int:
+    campaign = args.campaign.resolve()
+    spec, _task, _framework = _load_campaign(campaign)
+    selected = next_run(campaign, spec)
+    if selected is None:
+        print("campaign completed")
+        return 0
+    record = _run_once(args, run_id=selected.run_id)
+    print(json.dumps(record, indent=2, sort_keys=True))
+    return 0
+
+
+def command_run_campaign(args: argparse.Namespace) -> int:
+    campaign = args.campaign.resolve()
+    spec, _task, _framework = _load_campaign(campaign)
+    completed = 0
+    while args.max_opportunities is None or completed < args.max_opportunities:
+        selected = next_run(campaign, spec)
+        if selected is None:
+            print("campaign completed", flush=True)
+            break
+        record = _run_once(args, run_id=selected.run_id)
+        completed += 1
+        print(
+            f"{record['run_id']} opportunity={record['opportunity']} "
+            f"condition={record['condition']} retained={record['retained']} "
+            f"decision={record['retention_decision']}",
+            flush=True,
+        )
+    return 0
+
+
 def command_status(args: argparse.Namespace) -> int:
     campaign = args.campaign.resolve()
     spec, _task, _framework = _load_campaign(campaign)
@@ -148,6 +186,63 @@ def command_status(args: argparse.Namespace) -> int:
                 )
             )
         )
+    return 0
+
+
+def command_validate(args: argparse.Namespace) -> int:
+    campaign = args.campaign.resolve()
+    spec, task, framework = _load_campaign(campaign)
+    report = validate_campaign(
+        campaign,
+        spec=spec,
+        task=task,
+        framework=framework,
+        repo_root=REPO_ROOT,
+    )
+    print(json.dumps(report, indent=2, sort_keys=True))
+    return 0 if report["valid"] else 2
+
+
+def command_export_layer_b(args: argparse.Namespace) -> int:
+    campaign = args.campaign.resolve()
+    spec, task, _framework = _load_campaign(campaign)
+    print(export_layer_b_packets(campaign, spec=spec, task=task))
+    return 0
+
+
+def command_score_layer_b(args: argparse.Namespace) -> int:
+    print(
+        score_layer_b(
+            args.campaign.resolve(), annotations_path=args.annotations.resolve()
+        )
+    )
+    return 0
+
+
+def command_layer_c(args: argparse.Namespace) -> int:
+    campaign = args.campaign.resolve()
+    spec, task, _framework = _load_campaign(campaign)
+    print(
+        run_layer_c(
+            campaign,
+            spec=spec,
+            task=task,
+            repo_root=REPO_ROOT,
+            python_bin=args.python_bin,
+        )
+    )
+    return 0
+
+
+def command_recover(args: argparse.Namespace) -> int:
+    campaign = args.campaign.resolve()
+    spec, _task, _framework = _load_campaign(campaign)
+    record = recover_active_opportunity(
+        campaign / "runs" / args.run_id,
+        spec=spec,
+        reason=args.reason,
+    )
+    print(json.dumps(record, indent=2, sort_keys=True))
     return 0
 
 
@@ -179,9 +274,46 @@ def build_parser() -> argparse.ArgumentParser:
         run.add_argument("--codex-timeout", type=int, default=3600)
         run.set_defaults(handler=handler)
 
+    for name, handler in (
+        ("run-next", command_run_next),
+        ("run-campaign", command_run_campaign),
+    ):
+        run = subparsers.add_parser(name)
+        run.add_argument("--campaign", type=Path, required=True)
+        run.add_argument("--python-bin", default=sys.executable)
+        run.add_argument("--codex-binary", default="codex")
+        run.add_argument("--codex-timeout", type=int, default=3600)
+        if name == "run-campaign":
+            run.add_argument("--max-opportunities", type=int)
+        run.set_defaults(handler=handler)
+
     status = subparsers.add_parser("status")
     status.add_argument("--campaign", type=Path, required=True)
     status.set_defaults(handler=command_status)
+
+    validate = subparsers.add_parser("validate")
+    validate.add_argument("--campaign", type=Path, required=True)
+    validate.set_defaults(handler=command_validate)
+
+    export_layer_b = subparsers.add_parser("export-layer-b")
+    export_layer_b.add_argument("--campaign", type=Path, required=True)
+    export_layer_b.set_defaults(handler=command_export_layer_b)
+
+    score = subparsers.add_parser("score-layer-b")
+    score.add_argument("--campaign", type=Path, required=True)
+    score.add_argument("--annotations", type=Path, required=True)
+    score.set_defaults(handler=command_score_layer_b)
+
+    layer_c = subparsers.add_parser("run-layer-c")
+    layer_c.add_argument("--campaign", type=Path, required=True)
+    layer_c.add_argument("--python-bin", default=sys.executable)
+    layer_c.set_defaults(handler=command_layer_c)
+
+    recover = subparsers.add_parser("recover-active")
+    recover.add_argument("--campaign", type=Path, required=True)
+    recover.add_argument("--run-id", required=True)
+    recover.add_argument("--reason", required=True)
+    recover.set_defaults(handler=command_recover)
     return parser
 
 

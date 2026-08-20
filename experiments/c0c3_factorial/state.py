@@ -296,6 +296,18 @@ class SearchController:
             ).candidate_id
         if not self.condition.has_portfolio:
             return self.state.incumbent_id
+        if len(self.state.portfolio_ids) < self.spec.portfolio_capacity:
+            # Create distinct initial branches from the same frozen seed. This
+            # prevents a newly filled zero-count slot from immediately turning
+            # portfolio construction into a single deep chain.
+            return min(
+                self.state.candidates.values(),
+                key=lambda candidate: (
+                    candidate.created_opportunity,
+                    candidate.retained_order,
+                    candidate.candidate_id,
+                ),
+            ).candidate_id
         return min(
             (self.state.candidates[identifier] for identifier in visible),
             key=lambda candidate: (
@@ -423,6 +435,10 @@ class SearchController:
                 decision = "filled_open_portfolio_slot"
             elif candidate.fitness > parent.fitness:
                 retained = True
+                # selected_count belongs to the lineage slot, not the concrete
+                # candidate. Carrying it forward prevents every successful
+                # replacement from resetting to zero and monopolizing selection.
+                candidate.selected_count = parent.selected_count
                 position = self.state.portfolio_ids.index(parent.candidate_id)
                 self.state.portfolio_ids[position] = candidate_id
                 evicted_id = parent.candidate_id

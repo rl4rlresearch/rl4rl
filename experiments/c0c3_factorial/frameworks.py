@@ -99,6 +99,7 @@ class AutoresearchAdapter:
         log_root: Path,
         call_id: str,
         timeout_seconds: int,
+        run_seed: int,
         **_unused: object,
     ) -> ProposalExecution:
         result = self.codex.run(
@@ -108,6 +109,7 @@ class AutoresearchAdapter:
             log_root=log_root,
             call_id=call_id,
             sandbox="workspace-write",
+            run_seed=run_seed,
             timeout_seconds=timeout_seconds,
         )
         hypothesis, intended_edit = parse_metadata(result.last_message)
@@ -146,6 +148,7 @@ class OpenEvolveAdapter:
         log_root: Path,
         call_id: str,
         timeout_seconds: int,
+        run_seed: int,
         task: TaskSpec,
         visible_workspaces: tuple[Path, ...],
         selected_parent_id: str,
@@ -208,6 +211,7 @@ class OpenEvolveAdapter:
             log_root=log_root,
             call_id=call_id,
             sandbox="read-only",
+            run_seed=run_seed,
             timeout_seconds=timeout_seconds,
         )
         hypothesis, intended_edit = parse_metadata(result.last_message)

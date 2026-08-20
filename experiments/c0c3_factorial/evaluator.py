@@ -11,6 +11,7 @@ from dataclasses import dataclass
 from pathlib import Path
 
 from .artifacts import materialize_candidate
+from .environment import controlled_subprocess_environment
 from .spec import ObjectiveDirection, TaskSpec
 from .state import Evaluation
 
@@ -73,6 +74,7 @@ class CommandEvaluator:
         candidate_snapshot: Path,
         opportunity_root: Path,
         timeout_seconds: int,
+        run_seed: int | None = None,
     ) -> EvaluationArtifacts:
         workspace = opportunity_root / "evaluation-workspace"
         materialize_candidate(
@@ -104,6 +106,7 @@ class CommandEvaluator:
                     cwd=workspace,
                     stdout=stdout_handle,
                     stderr=stderr_handle,
+                    env=controlled_subprocess_environment(run_seed),
                     timeout=timeout_seconds,
                     check=False,
                 )

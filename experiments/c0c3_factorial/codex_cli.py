@@ -9,6 +9,7 @@ import tempfile
 from dataclasses import dataclass
 from pathlib import Path
 
+from .environment import controlled_subprocess_environment
 from .spec import ModelSpec
 from .state import Usage
 
@@ -57,6 +58,7 @@ class CodexCli:
         log_root: Path,
         call_id: str,
         sandbox: str | None = None,
+        run_seed: int | None = None,
         timeout_seconds: int = 3600,
     ) -> CodexResult:
         log_root.mkdir(parents=True, exist_ok=True)
@@ -102,6 +104,7 @@ class CodexCli:
                         text=True,
                         stdout=stdout_handle,
                         stderr=stderr_handle,
+                        env=controlled_subprocess_environment(run_seed),
                         timeout=timeout_seconds,
                         check=False,
                     )
