@@ -1,0 +1,24 @@
+{
+  "accepted": false,
+  "event": {
+    "accuracy": "",
+    "attempt_id": "attempt-0037",
+    "commit": "729dba332c2d15b7650ee98766f5fb2e07e974c8",
+    "description": "Tie query and key projections within each attention block while retaining independent value/output projections, reversed padded operands, d=14, two heads, two blocks, ff=19, rank-3 learned positions, and the 45000-step schedule.",
+    "parameters": "",
+    "parent_commit": "ddb46dcb7ab3e48ddf0d72e1f7a518a7f93d6ab4",
+    "proposal": "Family: parameter tying. Retained incumbent is 3129 parameters at 99.190000%, a +0.190000 percentage-point margin over 99%. Same-family history: the accepted starting model used tied input/output embeddings (6080, 100.00%); the most recent failed result is attempt-0020, feed-forward sharing across layers, an optimization failure with 58.95% peak validation; 3 prior parameter-tying candidate attempts. The immediately preceding rank-2 reversed-input attempt-0036 is an optimization failure (45000 steps, 11.1% peak validation, no checkpoint), not a scored nonqualification. Hypothesis: a common query/key feature map may suffice for content-similarity attention in the fixed-format task while independent value and output projections preserve information transport and head mixing; this removes one 14x14 matrix per block, reducing actual parameters from 3129 to 2737. This is a representational parameter-tying change, not scalar pruning. It is more informative than the nearest untested cross-layer-attention sharing alternative because it isolates within-layer attention-score symmetry without coupling the two sequential attention computations.",
+    "status": "error",
+    "timestamp_utc": "2026-08-17T09:25:42.530165+00:00",
+    "train_exit": 0,
+    "verify_exit": ""
+  },
+  "verification": {
+    "accuracy": null,
+    "accuracy_percent": null,
+    "correct": null,
+    "parameters": null,
+    "qualified": false,
+    "total": null
+  }
+}

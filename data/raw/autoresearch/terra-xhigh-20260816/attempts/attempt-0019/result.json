@@ -1,0 +1,24 @@
+{
+  "accepted": false,
+  "event": {
+    "accuracy": "",
+    "attempt_id": "attempt-0019",
+    "commit": "53eb7addd2c7ab17a49fea8562a708775d6ef744",
+    "description": "Use independent 7-dimensional QKV projections within each of two attention heads while retaining each block's dense 14x14 attention-output projection, d=14, two blocks, ff=20, and rank-8 learned positions.",
+    "parameters": "",
+    "parent_commit": "b83d413f1422d8bf55bc797d729f1519d9e72d80",
+    "proposal": "Family: attention organization. Retained incumbent is 3430 parameters at 99.660000%, a +0.660000 percentage-point margin over 99%. Same-family history: the most recent accepted result is attempt-0006, d=14 with two heads (3528, 99.66%); the most recent failed result is attempt-0008, a one-layer d=14 variant that was an optimization failure; 3 prior family macro-attempts. The immediately preceding attempt-0018 fixed-position training-control retry is an optimization failure (45000 steps, no checkpoint), so its unscored result does not establish a verifier boundary. Hypothesis: per-head QKV computation may be sufficient because the retained dense output projection and feed-forward networks still mix the two head subspaces after attention; restricting only QKV maps removes 294 weights per block, reducing 3430 to 2842 actual parameters without reducing d_model, head count, or depth. This is an attention-organization representational change, not scalar pruning. It is more informative than the nearest untested d=12 alternative because it preserves the established d=14 residual capacity while directly testing whether cross-head QKV coupling is necessary.",
+    "status": "error",
+    "timestamp_utc": "2026-08-17T05:40:43.436352+00:00",
+    "train_exit": 0,
+    "verify_exit": ""
+  },
+  "verification": {
+    "accuracy": null,
+    "accuracy_percent": null,
+    "correct": null,
+    "parameters": null,
+    "qualified": false,
+    "total": null
+  }
+}

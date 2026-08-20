@@ -1,0 +1,24 @@
+{
+  "accepted": false,
+  "event": {
+    "accuracy": "",
+    "attempt_id": "attempt-0021",
+    "commit": "5b177c440e82188c64d67564c091b2f786214b09",
+    "description": "Remove only the final LayerNorm additive bias while retaining its scale, both block LayerNorms with biases, and all retained d=14, h=2, L=2, ff=20, rank-8 positional mechanisms.",
+    "parameters": "",
+    "parent_commit": "b83d413f1422d8bf55bc797d729f1519d9e72d80",
+    "proposal": "Family: scalar pruning. Retained incumbent is 3430 parameters at 99.660000%, a +0.660000 percentage-point margin over 99%. Same-family history: no accepted scalar-pruning candidate and no failed scalar-pruning candidate; 0 prior attempts in this family. The immediately preceding feed-forward-sharing attempt-0020 is an optimization failure (30000 steps, 58.95% peak validation, no checkpoint), not a scored nonqualification. Hypothesis: the final normalization offset merely shifts all token logits through the tied output table and may be redundant after centering; deleting only that 14-scalar vector leaves all attention, feed-forward, position, and inner-normalization parameterizations intact, reducing actual parameters from 3430 to 3416. This is parameterization-preserving scalar pruning, not a representational substitution. It is more informative than the nearest untested inner-LayerNorm-bias deletion because it isolates the smallest possible normalization offset change without modifying residual-stream calibration inside either transformer block.",
+    "status": "error",
+    "timestamp_utc": "2026-08-17T05:58:24.458935+00:00",
+    "train_exit": 0,
+    "verify_exit": ""
+  },
+  "verification": {
+    "accuracy": null,
+    "accuracy_percent": null,
+    "correct": null,
+    "parameters": null,
+    "qualified": false,
+    "total": null
+  }
+}

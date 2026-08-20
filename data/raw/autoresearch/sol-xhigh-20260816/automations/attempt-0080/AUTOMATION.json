@@ -1,0 +1,20 @@
+{
+  "accepted_micro_trials": 1,
+  "attempt_id": "attempt-0080",
+  "automation_id": "nearest-token-matrix-unions",
+  "best_accuracy": "99.010000%",
+  "best_parameters": 1790,
+  "description": "Reconstruct the tied token matrix from scalar groups and test nearest-value unions",
+  "error_micro_trials": 1,
+  "family": "parameter tying",
+  "finished_at_utc": "2026-08-17T02:34:48.504051+00:00",
+  "max_micro_trials": 20,
+  "micro_attempts_used": 2,
+  "parent_commit": "a041f63b9c301e072b092d01ff31751e6d6f1d54",
+  "parent_parameters": 1791,
+  "proposal": "Family: parameter tying. Current retained frontier is 1,791 parameters at 99.010000%, a +0.010000 percentage-point margin over 99%. There have been 22 prior macro-attempts and 317 prior micro-trials in this family. The most recent accepted result is attempt-0079/micro-0002 at 1,791 parameters and 99.01%; the most recent failed result is attempt-0079/micro-0003, a positional union candidate at 1,790 parameters that scored 98.91% and was rolled back. Hypothesis: scalar sensitivity is tensor-site-specific, so reconstructing the tied input/output token matrix from honestly counted scalar groups and unioning its closest values can compress a different representation without crossing the positional failure boundary. Ordering is ascending absolute difference among current token-matrix groups, recomputed after each keep. This parameterization-preserving compression is more informative than a third positional exclusion branch because it tests whether fragility is localized to position encoding while preserving the token matrix exactly before the first union. Each micro-trial changes exactly one union; the official runner alone accepts or rolls back. Stop at the first scored discard or error, after 20 micro-trials, or if no token pair remains. Compute budget: at most 20 checkpoint migrations and official verifications or 30 wall-clock minutes, whichever boundary occurs first.",
+  "schema": "rl4rl-autoresearch-automation-v1",
+  "started_at_utc": "2026-08-17T02:33:04.573462+00:00",
+  "status": "keep",
+  "summary": "Evaluated two nearest token-matrix scalar unions. micro-0001 qualified at 1,790 parameters and 99.01% and was retained. micro-0002 was not scored: training exited with a reproducible implementation error because checkpoint migration still indexed the removed dense token_emb.weight key after the first sparse token checkpoint; it is not capacity evidence. Frontier moved from 1,791 to 1,790 parameters; 1 accept, 1 implementation error, 0 scored discards. Compute used one checkpoint migration and one official verification plus a negligible failed launch over 1m17s wall clock. Stop reason: recorded implementation error before the 20-trial/30-minute cap."
+}

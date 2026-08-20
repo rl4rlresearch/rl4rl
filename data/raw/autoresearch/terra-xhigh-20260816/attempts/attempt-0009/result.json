@@ -1,0 +1,24 @@
+{
+  "accepted": false,
+  "event": {
+    "accuracy": "",
+    "attempt_id": "attempt-0009",
+    "commit": "5e15ca9b01e1065a9bac045666386b22c8d9e8c7",
+    "description": "Remove additive bias parameters from all five LayerNorm instances while retaining their learned scales and baseline depth/width.",
+    "parameters": "",
+    "parent_commit": "8283b3e78a8dca7557c9afa83c7235e5d0dff2ce",
+    "proposal": "Family: normalization. Retained incumbent is 3528 parameters at 99.660000%, a +0.660000 percentage-point margin over 99%. Same-family history: no prior accepted or failed result; 0 prior attempts. The one-layer attention variant was an optimization failure (0% validation after 30000 steps), but it does not test normalization offsets. Hypothesis: LayerNorm's learned additive offsets are redundant in this bias-free residual network; retaining scales and centering/variance normalization may preserve learning while eliminating those parameters. This is a parameterization-preserving scalar compression, not a representational substitution. It is more informative than the nearest untested alternative, replacing LayerNorm with RMSNorm, because removing offsets first cleanly attributes any effect to the learned shifts rather than to changing the normalization statistic.",
+    "status": "error",
+    "timestamp_utc": "2026-08-17T03:44:24.846194+00:00",
+    "train_exit": 1,
+    "verify_exit": ""
+  },
+  "verification": {
+    "accuracy": null,
+    "accuracy_percent": null,
+    "correct": null,
+    "parameters": null,
+    "qualified": false,
+    "total": null
+  }
+}

@@ -1,0 +1,24 @@
+{
+  "accepted": true,
+  "event": {
+    "accuracy": "99.440000%",
+    "attempt_id": "attempt-0051",
+    "commit": "ced9d1904de66f08a10ad3a90c685a2c03440d2a",
+    "description": "Replace the 15x14 tied token table with rank-6 learned token codes and one shared learned 6-to-14 expansion that forms both input embeddings and output-logit rows, retaining factorized rank-3 positions, full QKV attention, shared no-offset normalization, reversed operands, two blocks, ff=19, and the 45000-step schedule.",
+    "parameters": 2944,
+    "parent_commit": "ea7532a1a103060f3f552ba57104a4f979ea756a",
+    "proposal": "Family: token representation. Retained incumbent is attempt-0045 with 2980 parameters at 99.960000%, a +0.960000 percentage-point margin over 99%. Same-family history: the last attempted learned token-factorization is attempt-0043, rank 5, an optimization failure with 0% peak validation; a prior fixed rank-4 token basis also failed; 4 prior token-representation macro attempts. The immediately preceding width-18 candidate attempt-0050 is an optimization failure (45000 steps, 87.15% peak validation, no checkpoint), not a scored nonqualification. Hypothesis: the 15 token identities may require more than five but not all fourteen latent coordinates when one learned expansion is shared between the input table and tied output rows. Rank 6 uses 15x6 token codes plus one 6x14 expansion, replacing 210 tied-table values with 174 and reducing actual parameters from 2980 to 2944 while preserving exact input/output factor tying. This is a learned token-subspace representation, not scalar pruning. It is more informative than a rank-7 test because rank 6 is the nearest richer alternative to the rank-5 optimization failure; it is more informative than untied low-rank tables because it directly tests compression under the retained tying constraint.",
+    "status": "keep",
+    "timestamp_utc": "2026-08-17T12:26:00.999809+00:00",
+    "train_exit": 0,
+    "verify_exit": 0
+  },
+  "verification": {
+    "accuracy": 0.9944,
+    "accuracy_percent": 99.44,
+    "correct": 9954,
+    "parameters": 2944,
+    "qualified": true,
+    "total": 10010
+  }
+}

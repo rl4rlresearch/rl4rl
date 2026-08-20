@@ -1,0 +1,24 @@
+{
+  "accepted": false,
+  "event": {
+    "accuracy": "0.490000%",
+    "attempt_id": "attempt-0063",
+    "commit": "8bdd426d45e875f73c7a19d4e9f11a05ca71397c",
+    "description": "Share one free FF input vector across blocks",
+    "parameters": 2816,
+    "parent_commit": "a23edcb008bf1a0ce799cd4d003d8500ae866864",
+    "proposal": "family: parameter tying; current retained incumbent is 2830 parameters at 99.9800%, a +0.98 percentage-point margin over 99%. Same-family accepted result: attempt-0062, sharing the already tied FF hidden-unit vector across blocks at 2830/99.98%; same-family failed result: attempt-0059, tying two hidden units input/output within each block at 2828/30.73%. Prior attempts in this family: 8. Hypothesis: one cross-block tied hidden vector is viable, so share only one additional free hidden unit input vector across the two blocks while retaining independent output columns and all other free units. This removes 14 parameters for a target of 2816. This is more informative than sharing a full FF input projection, which failed at 7.83%, because it isolates a single non-tied input row and leaves the corresponding nonlinear output weights block-specific; the nearest alternative is sharing the output column too, which would confound two small ties at once. Keep d14/h2/L2, MQA, independent head-local maps, ff23 with one within-block tied unit and one cross-block shared free input, two final LayerNorm group scales, rank8 positions, affine-free block pre-norms, reversed operands, zero weight decay, mixed-digit curriculum, and 30000 steps; retain only official accuracy >=99% and strictly below 2830 parameters.",
+    "status": "discard",
+    "timestamp_utc": "2026-08-17T12:29:20.423271+00:00",
+    "train_exit": 0,
+    "verify_exit": 0
+  },
+  "verification": {
+    "accuracy": 0.0049,
+    "accuracy_percent": 0.49,
+    "correct": 49,
+    "parameters": 2816,
+    "qualified": false,
+    "total": 10010
+  }
+}

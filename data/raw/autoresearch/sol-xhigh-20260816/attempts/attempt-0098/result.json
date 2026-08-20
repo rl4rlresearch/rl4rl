@@ -1,0 +1,24 @@
+{
+  "accepted": false,
+  "event": {
+    "accuracy": "0.030000%",
+    "attempt_id": "attempt-0098",
+    "commit": "74038cf0fae2538628bac01d72327f283d342726",
+    "description": "Repair legacy refs and test head-shared asymmetric bilinear attention",
+    "parameters": 1465,
+    "parent_commit": "a1dfac6cb503f577ebebcb35e93ea9788786fa40",
+    "proposal": "Family: attention organization. Current retained frontier is 1,672 parameters at 99.010000%, a +0.010000 percentage-point margin over 99%. There have been 4 prior logged attempts in this family. The most recent accepted result is attempt-0020, which removed attention output projections and qualified at 3,168 parameters and 99.94%; the most recent failed result is attempt-0097, whose per-head symmetric bilinear substitution was a valid nonqualification at 1,481 parameters and 0.00%. The immediately preceding launch of this exact candidate was an infrastructure failure before archival, training, scoring, result recording, or budget consumption: a legacy attempt-0098/micro-0001 ref blocked the regular ref. An audit found the same unrecorded legacy pattern through attempt 0200; all 103 commits were atomically preserved under refs/autoresearch/recovered/legacy-* and only their conflicting names plus the empty attempt-0098 directory were removed. Candidate and conditions are unchanged. Hypothesis: attempt-0097 failed because addition requires directed query-to-key compatibility, not because separate Q/K factors or head-specific forms are essential. This major representational change preserves a full asymmetric 16x16 bilinear form, shares it across heads, retains the 16x16 value transform, and yields 1,465 parameters by averaging the checkpoint-derived head forms. It is more informative than a low-rank per-head alternative because it isolates head-specific geometry while restoring every asymmetric interaction removed by the failed symmetric candidate. Generic causal softmax self-attention and autoregressive greedy decoding remain intact.",
+    "status": "discard",
+    "timestamp_utc": "2026-08-17T05:41:50.842258+00:00",
+    "train_exit": 0,
+    "verify_exit": 0
+  },
+  "verification": {
+    "accuracy": 0.0003,
+    "accuracy_percent": 0.03,
+    "correct": 3,
+    "parameters": 1465,
+    "qualified": false,
+    "total": 10010
+  }
+}

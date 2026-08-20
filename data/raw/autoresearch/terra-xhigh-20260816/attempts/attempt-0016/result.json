@@ -1,0 +1,24 @@
+{
+  "accepted": false,
+  "event": {
+    "accuracy": "",
+    "attempt_id": "attempt-0016",
+    "commit": "066a07c26ee65eb435feee1545bbe50f6ea82d04",
+    "description": "Remove all five LayerNorm additive bias vectors while retaining LayerNorm scales, the rank-8 learned positional factorization, d=14, h=2, L=2, and ff=20.",
+    "parameters": "",
+    "parent_commit": "b83d413f1422d8bf55bc797d729f1519d9e72d80",
+    "proposal": "Family: normalization. Retained incumbent is 3430 parameters at 99.660000%, a +0.660000 percentage-point margin over 99%. Same-family history: no accepted normalization compression; the most recent failed result was attempt-0011, the no-offset variant under an extended 45000-step, learning-rate-floor schedule, an optimization failure that peaked only 11.5% validation after unstable training; 2 prior family attempts. The immediately preceding tying candidate attempt-0015 is an optimization failure (30000 steps, 7.4% peak validation, no checkpoint), not a scored result. Hypothesis: all learned normalization shifts remain redundant after the newly retained rank-8 learned positional factorization, which the earlier no-offset trials did not use; retaining scales and LayerNorm statistics preserves the normalizing mechanism while removing 70 actual scalar parameters (3430 to 3360). This is parameterization-preserving scalar compression rather than a representational substitution. It is more informative than the nearest untested alternative RMSNorm because it changes only additive offsets and, unlike the prior no-offset runs, isolates their interaction with the accepted positional factorization under the standard schedule.",
+    "status": "error",
+    "timestamp_utc": "2026-08-17T05:08:44.291677+00:00",
+    "train_exit": 0,
+    "verify_exit": ""
+  },
+  "verification": {
+    "accuracy": null,
+    "accuracy_percent": null,
+    "correct": null,
+    "parameters": null,
+    "qualified": false,
+    "total": null
+  }
+}

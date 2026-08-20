@@ -1,0 +1,24 @@
+{
+  "accepted": true,
+  "event": {
+    "accuracy": "99.910000%",
+    "attempt_id": "attempt-0043",
+    "commit": "a655cc589f95afa87c0b9b91d133d1e6231604ab",
+    "description": "Compensate d14 attention width with ff24",
+    "parameters": 3038,
+    "parent_commit": "7b108ce73f66ebafe562401d225bf2bb72f8bcff",
+    "proposal": "family: attention organization; current retained incumbent is 3120 parameters at 99.9200%, a +0.92 percentage-point margin over 99%. Same-family accepted result: attempt-0030, per-head block-diagonal output projections at 3200/100.00% before final-bias pruning; same-family failed result: attempt-0025, d14 MQA with ff17 and full output organization at 2968/9.99%; prior attempts in this family: 8. Hypothesis: the earlier d14 failure may reflect both narrower attention channels and insufficient nonlinear width. Retain the successful per-head output organization and final-bias pruning, shrink d_model to 14, and increase each FF to 24 so the candidate has wider nonlinear processing while reducing embedding, positional, and attention costs; predicted count is 3038. This is more informative than repeating d14/ff17 because it changes the capacity allocation and isolates whether d14's failure was an attention-width floor; the nearest untested alternative is d14 with a still wider FF, which would obscure that boundary. Keep h2/L2, MQA, independent head-local maps, affine-free block pre-norms, final learned scale, learned positions, reversed operands, mixed-digit curriculum, and 30000 steps; retain only official accuracy >=99% and strictly below 3120 parameters.",
+    "status": "keep",
+    "timestamp_utc": "2026-08-17T08:58:35.013281+00:00",
+    "train_exit": 0,
+    "verify_exit": 0
+  },
+  "verification": {
+    "accuracy": 0.9991,
+    "accuracy_percent": 99.91,
+    "correct": 10001,
+    "parameters": 3038,
+    "qualified": true,
+    "total": 10010
+  }
+}

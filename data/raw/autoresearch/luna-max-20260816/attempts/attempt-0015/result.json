@@ -1,0 +1,24 @@
+{
+  "accepted": true,
+  "event": {
+    "accuracy": "99.950000%",
+    "attempt_id": "attempt-0015",
+    "commit": "fe2361500f0474ac230e5d5326e3fda99788c78d",
+    "description": "Share K/V projection across two attention heads",
+    "parameters": 3776,
+    "parent_commit": "417f4856be561d81678c7a1b9616cf07bd72489c",
+    "proposal": "family: attention organization; retained incumbent is 4288 parameters at 99.9100%, a +0.91 percentage-point margin over 99%. Same-family accepted result: none; same-family failed result: none; prior attempts in this family: 0. The latest position-representation probes 0005 and 0014 scored 8.85% and 0.11%, so this proposal changes the attention mechanism rather than revisiting position compression. Hypothesis: two query subspaces can attend through shared keys and values, preserving two attention heads while replacing the per-head-expanded qkv projection with a d-by-d query plus d-by-d_head shared K/V projection; at d16,h2 this removes 256 parameters per block and yields 3776 total parameters. This is more informative than a one-head deletion because it isolates K/V sharing while retaining independent queries and the same causal attention depth. Keep learned positions, reversed operands, ff20, and 30000-step training; retain only official accuracy >=99% and strictly below 4288 parameters.",
+    "status": "keep",
+    "timestamp_utc": "2026-08-17T03:31:47.130171+00:00",
+    "train_exit": 0,
+    "verify_exit": 0
+  },
+  "verification": {
+    "accuracy": 0.9995,
+    "accuracy_percent": 99.95,
+    "correct": 10005,
+    "parameters": 3776,
+    "qualified": true,
+    "total": 10010
+  }
+}

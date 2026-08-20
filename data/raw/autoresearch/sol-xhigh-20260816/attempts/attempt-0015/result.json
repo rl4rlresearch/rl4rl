@@ -1,0 +1,24 @@
+{
+  "accepted": true,
+  "event": {
+    "accuracy": "99.180000%",
+    "attempt_id": "attempt-0015",
+    "commit": "a79774abe7f1d24bcb074f3e4a1ab76761bebd6d",
+    "description": "Excise unused PAD row from retained checkpoint without changing digit logits",
+    "parameters": 3408,
+    "parent_commit": "f0e2523a02c9b23b63c4859b588649999c48438d",
+    "proposal": "Family: token representation. Current retained frontier is 3,424 parameters at 99.180000%, a +0.180000 percentage-point margin over 99%. There have been 3 prior attempts in this family. The most recent accepted result is attempt-0005, the interleaved representation at 5,792 parameters and 99.93% official accuracy; the most recent failed result is attempt-0014, an optimization failure where the PAD-free architecture remained near 9% validation under fresh training and received no official score. Hypothesis: PAD is functionally unused and removable, but width-7 fresh optimization is seed-fragile; exact checkpoint surgery that deletes old row 11 and shifts the retained BOS/EOS rows preserves every digit logit, all attention/FF weights, and generic decoding while yielding 3,408 parameters. This parameterization-preserving repair is more informative than the nearest untested fresh-seed retry because it directly separates representational necessity from optimization luck and changes no candidate semantics beyond removing the unreachable PAD class.",
+    "status": "keep",
+    "timestamp_utc": "2026-08-16T05:11:59.370790+00:00",
+    "train_exit": 0,
+    "verify_exit": 0
+  },
+  "verification": {
+    "accuracy": 0.9918,
+    "accuracy_percent": 99.18,
+    "correct": 9928,
+    "parameters": 3408,
+    "qualified": true,
+    "total": 10010
+  }
+}

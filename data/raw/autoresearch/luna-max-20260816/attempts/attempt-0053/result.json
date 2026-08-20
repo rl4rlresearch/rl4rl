@@ -1,0 +1,24 @@
+{
+  "accepted": false,
+  "event": {
+    "accuracy": "95.640000%",
+    "attempt_id": "attempt-0053",
+    "commit": "3be8ad99ec451e5d73392c1ea9582e2605fc918a",
+    "description": "Repair PAD-row table construction for MPS and rerun",
+    "parameters": 2870,
+    "parent_commit": "a3adffc7be1254323fe6d42c6dc751fb5f809d5c",
+    "proposal": "family: token representation; implementation repair for attempt-0052: the candidate's train log failed before optimization because MPS does not implement index_copy when materializing the fixed PAD row. Current retained incumbent is 2884 parameters at 99.9900%, a +0.99 percentage-point margin over 99%. Same-family accepted result: attempt-0002, reversed operand token order at 5056/99.98%; same-family failed result: attempt-0052, the intended PAD-row compression at 2870 parameters with train_exit 1 from the MPS index_copy error; prior attempts in this family: 4. Rebuild the identical 14-trainable-row plus fixed-zero-PAD table using torch.cat, with no architecture or acceptance-rule change. This repair is more informative than switching to fixing an active BOS/EOS row because it resolves a reproducible infrastructure/implementation incompatibility while preserving the exact unused-row hypothesis; the nearest untested alternative remains fixing another active token, which would change the tested representation. Keep d14/h2/L2, MQA, independent head-local maps, ff23, rank8 positions, affine-free block pre-norms, final learned scale without bias, reversed operands, zero weight decay, mixed-digit curriculum, and 30000 steps; retain only official accuracy >=99% and strictly below 2884 parameters.",
+    "status": "discard",
+    "timestamp_utc": "2026-08-17T10:35:02.346423+00:00",
+    "train_exit": 0,
+    "verify_exit": 0
+  },
+  "verification": {
+    "accuracy": 0.9564,
+    "accuracy_percent": 95.64,
+    "correct": 9574,
+    "parameters": 2870,
+    "qualified": false,
+    "total": 10010
+  }
+}

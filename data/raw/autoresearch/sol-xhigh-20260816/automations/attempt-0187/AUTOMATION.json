@@ -1,0 +1,20 @@
+{
+  "accepted_micro_trials": 20,
+  "attempt_id": "attempt-0187",
+  "automation_id": "qkv-revisit-after-cross-tensor-compression",
+  "best_accuracy": "99.210000%",
+  "best_parameters": 1459,
+  "description": "Revisit QKV unions after 117 cross-tensor reductions",
+  "error_micro_trials": 0,
+  "family": "parameter tying",
+  "finished_at_utc": "2026-08-17T13:31:29.380328+00:00",
+  "max_micro_trials": 20,
+  "micro_attempts_used": 20,
+  "parent_commit": "05875f033cfc959c59f855cfc2b634ebb11116fc",
+  "parent_parameters": 1479,
+  "proposal": "Family: parameter tying. Current retained frontier is 1,479 parameters at 99.200000%, a +0.200000-point margin. There have been 84 prior macro-attempts and 674 prior micro-trials in this family. The most recent accepted result is attempt-0185/micro-0002 at 1,479/99.20%; the most recent failed result is attempt-0186/micro-0001, where a normalization-bias union scored 98.08%. The most recent QKV band ended in attempt-0165 after pair 571/651 scored 98.99%; that pair and all earlier sensitive QKV pairs are excluded. Hypothesis: 117 retained reductions in FF, token, and normalization tensors plus recovered margin materially changed residual routing enough to reopen QKV compression. The helper adds one minimum-difference eligible QKV union per official micro-trial with runner-only retention/rollback. Stop at first scored discard/error, no pair, 20 trials, or 25 minutes. This is more informative than another normalization variant because it retests a high-capacity tensor only after materially changed conditions.",
+  "schema": "rl4rl-autoresearch-automation-v1",
+  "started_at_utc": "2026-08-17T13:04:34.665460+00:00",
+  "status": "keep",
+  "summary": "The QKV revisit reached its declared 20-trial cap with all 20 ordered unions qualifying. The retained frontier moved from 1,479 to 1,459 parameters; no scored discards or errors occurred. Compute used 20 official migrations/verifications over about 24m20s. Stop reason: hard micro-trial cap, not a measured failure boundary. This confirms cross-tensor compression materially reopened QKV redundancy."
+}

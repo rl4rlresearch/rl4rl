@@ -1,0 +1,20 @@
+{
+  "accepted_micro_trials": 1,
+  "attempt_id": "attempt-0094",
+  "automation_id": "nearest-block0-preff-scale-unions",
+  "best_accuracy": "99.040000%",
+  "best_parameters": 1673,
+  "description": "Reconstruct block-0 pre-FF LayerNorm scales and exhaust nearest unions",
+  "error_micro_trials": 0,
+  "family": "parameter tying",
+  "finished_at_utc": "2026-08-17T05:25:05.257892+00:00",
+  "max_micro_trials": 15,
+  "micro_attempts_used": 2,
+  "parent_commit": "18a35879736439a6b66630cfa1c0127ae4ae019f",
+  "parent_parameters": 1674,
+  "proposal": "Family: parameter tying. Current retained frontier is 1,674 parameters at 99.000000%, a +0.000000 percentage-point margin over 99%. There have been 36 prior macro-attempts and 444 prior micro-trials in this family. The most recent accepted result is attempt-0093/micro-0009 at 1,674 parameters and 99.00%; the most recent failed result is attempt-0093/micro-0010, whose next final-normalization scale union scored 98.96%. Hypothesis: block 0's pre-feed-forward LayerNorm has local scale redundancy distinct from final rescaling; reconstructing its 16 scales from groups and unioning nearest values can reduce count while leaving all 16 biases independent. Ordering is ascending absolute current scale-group difference. This parameterization-preserving normalization substitution is more informative than excluding the failed final-scale pair because it opens a distinct upstream site and isolates scales from biases. Each micro-trial adds one scale union and the official runner alone accepts or rolls back. Stop on the first scored discard or error, at the complete-space cap of 15 micro-trials, or if no pair remains. Compute budget: at most 15 checkpoint migrations and official verifications or 20 wall-clock minutes.",
+  "schema": "rl4rl-autoresearch-automation-v1",
+  "started_at_utc": "2026-08-17T05:22:20.085655+00:00",
+  "status": "keep",
+  "summary": "The block-0 pre-FF scale search evaluated two nearest unions. The first qualified at 1,673 parameters and 99.04% and was retained; the second proposed 1,672 parameters and scored 97.90%, so it was discarded and rolled back. Frontier moved from 1,674 to 1,673 parameters; 1 accept, 1 scored discard, 0 errors. Compute used two checkpoint migrations and official verifications over 2m29s wall clock. Stop reason: first scored failure closed this scale path before the 15-trial/20-minute cap."
+}

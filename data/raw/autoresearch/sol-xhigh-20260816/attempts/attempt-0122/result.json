@@ -1,0 +1,24 @@
+{
+  "accepted": false,
+  "event": {
+    "accuracy": "0.000000%",
+    "attempt_id": "attempt-0122",
+    "commit": "58e37360f583f4eda333346e5b4e5169b487d180",
+    "description": "Share only the key map across two attention heads",
+    "parameters": 1593,
+    "parent_commit": "a1dfac6cb503f577ebebcb35e93ea9788786fa40",
+    "proposal": "Family: attention organization. Current retained frontier is 1,672 parameters at 99.010000%, a +0.010000 percentage-point margin over 99%. There have been 12 prior attempts in this family. The most recent accepted result is attempt-0020, which removed attention output projections at 3,168 parameters/99.94%; the most recent failed result is attempt-0113, whose single-head attention with learned output projection scored 0.00% at 1,465 parameters. Hypothesis: two query-dependent attention maps are essential, but their key feature map can be shared across heads. Keep both 8D query heads and the full 16D value transform, replace only the two key maps by their checkpoint-average 8x16 map, and share the resulting attention parameters across depth, yielding 1,593 parameters. This major attention-organization change is more informative than full multi-query sharing because it is the least restrictive head-sharing substitution and isolates key diversity from query and value diversity. Causal softmax attention and generic autoregressive decoding remain intact.",
+    "status": "discard",
+    "timestamp_utc": "2026-08-17T06:38:39.214290+00:00",
+    "train_exit": 0,
+    "verify_exit": 0
+  },
+  "verification": {
+    "accuracy": 0.0,
+    "accuracy_percent": 0.0,
+    "correct": 0,
+    "parameters": 1593,
+    "qualified": false,
+    "total": 10010
+  }
+}

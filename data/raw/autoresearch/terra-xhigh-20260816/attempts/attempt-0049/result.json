@@ -1,0 +1,24 @@
+{
+  "accepted": false,
+  "event": {
+    "accuracy": "",
+    "attempt_id": "attempt-0049",
+    "commit": "38251e3353449da8684300ed083c925974a2ecfe",
+    "description": "Replace each two-head full-QKV attention layer with multi-query attention: preserve a full two-head query projection and output projection while sharing one key and one value per token across both heads; retain factorized rank-3 positions, shared no-offset normalization, reversed operands, d=14, L=2, ff=19, and the 45000-step schedule.",
+    "parameters": "",
+    "parent_commit": "ea7532a1a103060f3f552ba57104a4f979ea756a",
+    "proposal": "Family: parameter tying. Retained incumbent is attempt-0045 with 2980 parameters at 99.960000%, a +0.960000 percentage-point margin over 99%. Same-family history: the most recent accepted structural-sharing result is attempt-0038, cross-layer LayerNorm sharing (3073, 99.71%); the most recent failed result is attempt-0044, transpose-tied feed-forward maps, an optimization failure peaking at 94.85% validation; 8 prior parameter-tying macro attempts. The immediately preceding attempt-0048 final-scale ablation is an optimization failure (45000 steps, 84.0% peak validation, no checkpoint), not a scored nonqualification. Hypothesis: two attention heads need distinct query directions to choose different causal locations, but may reuse a common tokenwise key/value memory. Replacing per-block 3d-by-d QKV maps with one d-by-d query map and one d-by-2d_head key/value map saves 196 learned values per block at d=14,h=2, reducing actual parameters from 2980 to 2588 while retaining two query heads and the output mixer. This is a structured multi-query attention representation, not scalar pruning. It is more informative than sharing full QKV across blocks or transpose tying because it isolates cross-head KV redundancy while preserving layer-specific maps and head-specific queries.",
+    "status": "error",
+    "timestamp_utc": "2026-08-17T11:58:07.205874+00:00",
+    "train_exit": 0,
+    "verify_exit": ""
+  },
+  "verification": {
+    "accuracy": null,
+    "accuracy_percent": null,
+    "correct": null,
+    "parameters": null,
+    "qualified": false,
+    "total": null
+  }
+}

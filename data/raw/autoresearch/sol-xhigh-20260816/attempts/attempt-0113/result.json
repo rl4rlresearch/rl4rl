@@ -1,0 +1,24 @@
+{
+  "accepted": false,
+  "event": {
+    "accuracy": "0.000000%",
+    "attempt_id": "attempt-0113",
+    "commit": "7bd05e4407c0e67d402605260185c40b8b7f2796",
+    "description": "Use one eight-dimensional attention head with a learned residual projection",
+    "parameters": 1465,
+    "parent_commit": "a1dfac6cb503f577ebebcb35e93ea9788786fa40",
+    "proposal": "Family: attention organization. Current retained frontier is 1,672 parameters at 99.010000%, a +0.010000 percentage-point margin over 99%. There have been 9 prior attempts in this family. The most recent accepted result is attempt-0020, which removed attention output projections and qualified at 3,168 parameters and 99.94%; the most recent failed result is attempt-0102, whose global rank-6 value map scored 0.00% at 1,657 parameters. Hypothesis: two distinct attention maps may be redundant if one full eight-dimensional head can redistribute its attended values through a learned 8x16 residual projection. This major attention substitution retains the first checkpoint head's full Q/K/V rows, adds a learned output projection initialized as its original residual embedding, shares both transforms across depth, and yields 1,465 parameters. It is more informative than simply deleting a head because the learned projection preserves the ability to write into every residual coordinate and isolates the number of attention maps rather than output dimensionality. Causal softmax self-attention, feed-forward paths, representations, autoregressive logits, and generic decoding remain intact.",
+    "status": "discard",
+    "timestamp_utc": "2026-08-17T06:14:30.055380+00:00",
+    "train_exit": 0,
+    "verify_exit": 0
+  },
+  "verification": {
+    "accuracy": 0.0,
+    "accuracy_percent": 0.0,
+    "correct": 0,
+    "parameters": 1465,
+    "qualified": false,
+    "total": 10010
+  }
+}

@@ -1,0 +1,24 @@
+{
+  "accepted": false,
+  "event": {
+    "accuracy": "",
+    "attempt_id": "attempt-0052",
+    "commit": "04db6b8f89cdbd4074e04e10e0a0a19c5fe76f17",
+    "description": "Remove the unused trainable PAD token row",
+    "parameters": "",
+    "parent_commit": "a3adffc7be1254323fe6d42c6dc751fb5f809d5c",
+    "proposal": "family: token representation; current retained incumbent is 2884 parameters at 99.9900%, a +0.99 percentage-point margin over 99%. Same-family accepted result: attempt-0002, reversed operand token order at 5056/99.98%; same-family failed result: attempt-0034, rank-7 tied token/output factorization at 3113/6.07% (the earlier rank-6 factor also collapsed); prior attempts in this family: 3. Hypothesis: the fixed-length data and official interface never present PAD, so the trainable PAD row contributes no used input representation or target logit. Remove only that row from the tied parameter table, materialize a fixed zero PAD row for honest 15-way logits, and keep all digit, operator, BOS, and EOS rows trainable; this saves 14 parameters for 2870 total. This is more informative than factorizing used token rows because it changes no representation of any token that appears in training or verification; the nearest untested alternative is fixing BOS or EOS, which would alter active sequence semantics. Keep d14/h2/L2, MQA, independent head-local maps, ff23, rank8 positions, affine-free block pre-norms, final learned scale without bias, reversed operands, zero weight decay, mixed-digit curriculum, and 30000 steps; retain only official accuracy >=99% and strictly below 2884 parameters.",
+    "status": "error",
+    "timestamp_utc": "2026-08-17T10:24:19.220369+00:00",
+    "train_exit": 1,
+    "verify_exit": ""
+  },
+  "verification": {
+    "accuracy": null,
+    "accuracy_percent": null,
+    "correct": null,
+    "parameters": null,
+    "qualified": false,
+    "total": null
+  }
+}

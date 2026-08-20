@@ -1,0 +1,24 @@
+{
+  "accepted": false,
+  "event": {
+    "accuracy": "0.030000%",
+    "attempt_id": "attempt-0023",
+    "commit": "51d45d26dd598c3b280ac737c1df85c03f05258b",
+    "description": "Train MQA ff16 only on full 10-digit operands",
+    "parameters": 3520,
+    "parent_commit": "01848016461da3374b810b751cfcbbae94c43b53",
+    "proposal": "family: training control; retained incumbent is 3584 parameters at 99.1700%, a +0.17 percentage-point margin over 99%. Same-family accepted result: attempt-0009, which raised the ff24 candidate from a 98.84% 15k result to 99.99% with a justified training-control change; same-family failed result: none; prior attempts in this family: 1. The latest architecture probe, attempt-0022, used MQA+ff16 at 3520 parameters and scored 98.50% after 30000 steps, a near miss. Hypothesis: the remaining error may be distributional because training mixed 1\u201310 digit operands while the official random cases use full-range 10-digit operands; set min_digits=max_digits=10 while changing no model parameters, and test whether the same 3520-parameter candidate crosses 99%. This is more informative than repeating 30000 mixed-digit steps because it changes the data exposure to match the qualification regime. Retain only official accuracy >=99% and strictly below 3584 parameters.",
+    "status": "discard",
+    "timestamp_utc": "2026-08-17T05:02:29.688317+00:00",
+    "train_exit": 0,
+    "verify_exit": 0
+  },
+  "verification": {
+    "accuracy": 0.0003,
+    "accuracy_percent": 0.03,
+    "correct": 3,
+    "parameters": 3520,
+    "qualified": false,
+    "total": 10010
+  }
+}

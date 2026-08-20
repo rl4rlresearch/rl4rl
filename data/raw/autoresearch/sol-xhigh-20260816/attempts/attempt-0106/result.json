@@ -1,0 +1,24 @@
+{
+  "accepted": false,
+  "event": {
+    "accuracy": "0.010000%",
+    "attempt_id": "attempt-0106",
+    "commit": "368cd074c1634660a695d297c56324a81da68b77",
+    "description": "Factor only the shared feed-forward output transform at rank 7",
+    "parameters": 1669,
+    "parent_commit": "a1dfac6cb503f577ebebcb35e93ea9788786fa40",
+    "proposal": "Family: feed-forward width. Current retained frontier is 1,672 parameters at 99.010000%, a +0.010000 percentage-point margin over 99%. There have been 16 prior attempts in this family. The most recent accepted result is attempt-0022, which retained projection-free feed-forward width 10 at 3,040 parameters and 99.85%; the most recent failed result is attempt-0105, whose rank-7 input-transform factorization validly scored 0.01% at 1,660 parameters. Hypothesis: feature construction is full-rank-sensitive, but residual reconstruction may tolerate a rank-7 output transform. This complementary representational change keeps the current 236-group input map and GELU width 16 exact, replacing only the 227-group output map with its best rank-7 SVD factors (7x16 and 16x7), yielding 1,669 parameters. It is more informative than rank 6 because rank 7 is the highest and least lossy factorization that is strictly smaller than the current output map, and it cleanly localizes rank sensitivity to the output side. Attention, normalization, token/position representations, and generic autoregressive decoding remain unchanged.",
+    "status": "discard",
+    "timestamp_utc": "2026-08-17T06:00:02.412687+00:00",
+    "train_exit": 0,
+    "verify_exit": 0
+  },
+  "verification": {
+    "accuracy": 0.0001,
+    "accuracy_percent": 0.01,
+    "correct": 1,
+    "parameters": 1669,
+    "qualified": false,
+    "total": 10010
+  }
+}

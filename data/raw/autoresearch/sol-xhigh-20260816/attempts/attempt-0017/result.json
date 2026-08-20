@@ -1,0 +1,24 @@
+{
+  "accepted": false,
+  "event": {
+    "accuracy": "0.020000%",
+    "attempt_id": "attempt-0017",
+    "commit": "010e6babb9402e6de11dc1ab9c3bafd111786e3b",
+    "description": "Remove BOS and shift retained absolute positions left",
+    "parameters": 3344,
+    "parent_commit": "440271a60c1ab2acbee7ce94776577ded59fcaae",
+    "proposal": "Family: token representation. Current retained frontier is 3,376 parameters at 99.180000%, a +0.180000 percentage-point margin over 99%. There have been 5 prior attempts in this family. The most recent accepted result is attempt-0016, fixed-length EOS/position removal at 3,376 parameters and 99.18% official accuracy; the most recent failed result is attempt-0014, a fresh-optimization failure for PAD-free semantics with no official score. Hypothesis: BOS may be unnecessary because the delimiter and absolute positions already anchor the fixed stream; dropping its tied vocabulary row and shifting each retained real-token positional vector left saves 32 parameters, yielding 3,344. This is a representational change because the constant BOS key/value disappears from attention, unlike attempts-0015/0016. It is more informative than the nearest untested fresh BOS-free training alternative because checkpoint surgery preserves all real-token embeddings and weights, isolating BOS attention participation from optimization instability.",
+    "status": "discard",
+    "timestamp_utc": "2026-08-16T05:16:20.064769+00:00",
+    "train_exit": 0,
+    "verify_exit": 0
+  },
+  "verification": {
+    "accuracy": 0.0002,
+    "accuracy_percent": 0.02,
+    "correct": 2,
+    "parameters": 3344,
+    "qualified": false,
+    "total": 10010
+  }
+}

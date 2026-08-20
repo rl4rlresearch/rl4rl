@@ -1,0 +1,24 @@
+{
+  "accepted": false,
+  "event": {
+    "accuracy": "6.740000%",
+    "attempt_id": "attempt-0036",
+    "commit": "8e1a5ac90e6ca3edbd7dea6fff934f99636b0086",
+    "description": "Trade one transformer layer for a wider ff48 sublayer",
+    "parameters": 3008,
+    "parent_commit": "196138df826bd6598dbc55e0729fdadba3f9b9a1",
+    "proposal": "family: attention organization; current retained incumbent is 3136 parameters at 99.9500%, a +0.95 percentage-point margin over 99%. Same-family accepted result: attempt-0030, per-head block-diagonal output projections at 3200/100.00% before the ff16 reduction; same-family failed result: attempt-0025, d14 MQA width reduction at 2968/9.99%; prior attempts in this family: 6. Hypothesis: the incumbent's two blocks each use a narrow ff16 sublayer, while a single independently parameterized MQA block with ff48 can spend a similar budget on nonlinear width and still attend over the whole fixed sequence, yielding 3008 parameters. This is more informative than repeating the failed tied-block experiment because it removes a depth copy but restores independent parameters and substantially widens the surviving block; the nearest untested alternative is a two-block partial tie, which tests reuse rather than the depth-versus-width tradeoff. Keep d16/h2, independent head-local output maps, MQA, affine-free pre-norms, final affine norm, learned positions, reversed operands, mixed-digit curriculum, and 30000 steps; retain only official accuracy >=99% and strictly below 3136 parameters.",
+    "status": "discard",
+    "timestamp_utc": "2026-08-17T07:46:50.170799+00:00",
+    "train_exit": 0,
+    "verify_exit": 0
+  },
+  "verification": {
+    "accuracy": 0.0674,
+    "accuracy_percent": 6.74,
+    "correct": 675,
+    "parameters": 3008,
+    "qualified": false,
+    "total": 10010
+  }
+}

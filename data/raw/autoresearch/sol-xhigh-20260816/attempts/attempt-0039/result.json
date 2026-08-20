@@ -1,0 +1,24 @@
+{
+  "accepted": true,
+  "event": {
+    "accuracy": "99.140000%",
+    "attempt_id": "attempt-0039",
+    "commit": "cd0312bf1963f4930b2658a8d9203391a947a9ee",
+    "description": "Zero the least-magnitude LayerNorm bias scalar",
+    "parameters": 2127,
+    "parent_commit": "45b925ebdb16adb119d086aa1ac8f1151cb28705",
+    "proposal": "Family: scalar pruning. Current retained frontier is 2,128 parameters at 99.140000%, a +0.140000 percentage-point margin over 99%. There have been 0 prior attempts in this family, so there is no accepted or failed in-family result. The most recent experiment, attempt-0038 in training control, hit the 20k abort at 27.85% and was rolled back. Retained-checkpoint inspection finds the smallest absolute block-normalization bias is blocks.1.ln2 coordinate 9 at -0.0004392121, over eight times smaller than the next candidate. Hypothesis: fixing exactly this coordinate to zero while retaining the other 15 bias coordinates as trainable parameters preserves behavior above threshold and yields 2,127 parameters. This is more informative than the nearest untested second-smallest scalar because it tests the uniquely least-salient coordinate first with the smallest possible honest parameter reduction and no retraining variance.",
+    "status": "keep",
+    "timestamp_utc": "2026-08-16T07:46:56.548017+00:00",
+    "train_exit": 0,
+    "verify_exit": 0
+  },
+  "verification": {
+    "accuracy": 0.9914000000000001,
+    "accuracy_percent": 99.14,
+    "correct": 9924,
+    "parameters": 2127,
+    "qualified": true,
+    "total": 10010
+  }
+}

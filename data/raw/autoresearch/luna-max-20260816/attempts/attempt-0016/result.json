@@ -1,0 +1,24 @@
+{
+  "accepted": false,
+  "event": {
+    "accuracy": "0.020000%",
+    "attempt_id": "attempt-0016",
+    "commit": "3eb3e9bbb1725e9b2bab0992b646a6f311fdac61",
+    "description": "Share query projection across two MQA heads",
+    "parameters": 3520,
+    "parent_commit": "fe2361500f0474ac230e5d5326e3fda99788c78d",
+    "proposal": "family: attention organization; retained incumbent is 3776 parameters at 99.9500%, a +0.95 percentage-point margin over 99%. Same-family accepted result: attempt-0015, multi-query shared K/V at 3776/99.95%; same-family failed result: none; prior attempts in this family: 1. Hypothesis: after K/V sharing succeeded, a shared query vector expanded across the two head slots may preserve the useful attention pattern while removing 128 query parameters per block, yielding 3520 parameters. This is more informative than deleting a head because it retains two-head tensor computation and changes only query sharing relative to the accepted MQA candidate. Keep learned positions, reversed operands, ff20, and 30000-step training; retain only official accuracy >=99% and strictly below 3776 parameters.",
+    "status": "discard",
+    "timestamp_utc": "2026-08-17T03:42:30.715734+00:00",
+    "train_exit": 0,
+    "verify_exit": 0
+  },
+  "verification": {
+    "accuracy": 0.0002,
+    "accuracy_percent": 0.02,
+    "correct": 2,
+    "parameters": 3520,
+    "qualified": false,
+    "total": 10010
+  }
+}

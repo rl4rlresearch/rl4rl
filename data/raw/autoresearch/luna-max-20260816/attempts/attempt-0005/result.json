@@ -1,0 +1,24 @@
+{
+  "accepted": false,
+  "event": {
+    "accuracy": "8.850000%",
+    "attempt_id": "attempt-0005",
+    "commit": "797be47e56273bd8016ee47fc56935e0cee7c882",
+    "description": "Repair embedding call in structured position candidate",
+    "parameters": 4784,
+    "parent_commit": "94ab87f45bd859ad38b8dc00072401db9c27b215",
+    "proposal": "family: position representation; implementation repair of attempt-0004. Retained incumbent is 5056 parameters at 99.9800%, a +0.98 percentage-point margin over 99%. Same-family accepted result: none; same-family failed results: attempt-0003 nonqualification at 0.01% and attempt-0004 implementation error before scoring; prior attempts in this family: 2. Attempt-0004's train log shows the intended 4784-parameter seven-segment/eleven-column candidate failed only because an nn.Embedding module was indexed with brackets, raising TypeError before the first batch. This repair changes only those two calls to normal embedding-module invocation; it is more informative than a new position hypothesis because it recovers the already-specified candidate without altering its architecture or training conditions. Train for 15000 steps with final-checkpoint fallback; retain only official accuracy >=99% and strictly below 5056 parameters.",
+    "status": "discard",
+    "timestamp_utc": "2026-08-17T02:02:44.423771+00:00",
+    "train_exit": 0,
+    "verify_exit": 0
+  },
+  "verification": {
+    "accuracy": 0.0885,
+    "accuracy_percent": 8.85,
+    "correct": 886,
+    "parameters": 4784,
+    "qualified": false,
+    "total": 10010
+  }
+}

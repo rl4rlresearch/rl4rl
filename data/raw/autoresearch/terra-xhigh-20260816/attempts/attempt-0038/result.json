@@ -1,0 +1,24 @@
+{
+  "accepted": true,
+  "event": {
+    "accuracy": "99.710000%",
+    "attempt_id": "attempt-0038",
+    "commit": "9a606f78349133fefd3cd24930863f0acd901a3f",
+    "description": "Tie corresponding LayerNorm modules across the two blocks while retaining independent attention/feed-forward transforms, reversed padded operands, d=14, two heads, ff=19, rank-3 learned positions, and the 45000-step schedule.",
+    "parameters": 3073,
+    "parent_commit": "ddb46dcb7ab3e48ddf0d72e1f7a518a7f93d6ab4",
+    "proposal": "Family: parameter tying. Retained incumbent is 3129 parameters at 99.190000%, a +0.190000 percentage-point margin over 99%. Same-family history: the accepted starting model used tied input/output embeddings (6080, 100.00%); the most recent failed result is attempt-0037, Q/K sharing within each attention block, an optimization failure with 11.4% peak validation; 4 prior parameter-tying candidate attempts. The immediately preceding rank-2 reversed-input attempt-0036 is an optimization failure (45000 steps, 11.1% peak validation, no checkpoint), not a scored nonqualification. Hypothesis: normalization scale/offset calibration may transfer across the two residual stages even when their attention and feed-forward computations require separate weights; tying only the two LayerNorm pairs removes 56 actual parameters (3129 to 3073). This is a parameter-tying change, not scalar pruning. It is more informative than tying the final LayerNorm to a block normalization because it preserves its distinct output-role normalization while testing the corresponding within-block mechanisms.",
+    "status": "keep",
+    "timestamp_utc": "2026-08-17T09:41:23.561189+00:00",
+    "train_exit": 0,
+    "verify_exit": 0
+  },
+  "verification": {
+    "accuracy": 0.9971,
+    "accuracy_percent": 99.71,
+    "correct": 9981,
+    "parameters": 3073,
+    "qualified": true,
+    "total": 10010
+  }
+}

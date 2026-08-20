@@ -1,0 +1,24 @@
+{
+  "accepted": true,
+  "event": {
+    "accuracy": "99.360000%",
+    "attempt_id": "attempt-0059",
+    "commit": "5d4588e0b530eabf5e627cf280a4aeb68f863b6d",
+    "description": "Tie the final LayerNorm scale to the shared first pre-attention LayerNorm scale while retaining layer-shared attention outputs, no offsets, rank-4 tied tokens, factorized rank-3 positions, d=14, ff=19, and the 75000-step schedule.",
+    "parameters": 2676,
+    "parent_commit": "e0e960c0bf6cf7142297422923a0e74cd909c435",
+    "proposal": "Family: parameter tying. Retained incumbent is attempt-0058 with 2690 parameters at 99.940000%, a +0.940000 percentage-point margin over 99%. Same-family history: the most recent accepted result is attempt-0058, cross-layer attention-output sharing (2690, 99.94%); the most recent failed result is attempt-0049, multi-query attention, an optimization failure; 10 prior parameter-tying macro attempts. The preceding rank-3 token automation failure establishes a token-rank boundary but does not test final normalization calibration. Hypothesis: after tying the corresponding pre-norms across blocks, the final norm's learned scale may encode the same residual-stream calibration as the shared first pre-attention norm. This is a parameter-tying representational change, not scalar pruning: it shares one 14-scalar scale vector while retaining the final normalization operation and all normalization statistics, reducing actual parameters from 2690 to 2676. It is more informative than retrying the previously failed final-to-pre-FF tie because it isolates a different, role-closer pre-attention normalization scale in the materially changed, attention-output-tied architecture.",
+    "status": "keep",
+    "timestamp_utc": "2026-08-17T15:28:53.779488+00:00",
+    "train_exit": 0,
+    "verify_exit": 0
+  },
+  "verification": {
+    "accuracy": 0.9936,
+    "accuracy_percent": 99.36,
+    "correct": 9946,
+    "parameters": 2676,
+    "qualified": true,
+    "total": 10010
+  }
+}

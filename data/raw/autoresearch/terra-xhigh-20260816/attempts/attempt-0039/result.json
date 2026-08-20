@@ -1,0 +1,24 @@
+{
+  "accepted": false,
+  "event": {
+    "accuracy": "",
+    "attempt_id": "attempt-0039",
+    "commit": "de8aed04002c78e1425daeed2b995b3edf4aff42",
+    "description": "Tie the final LayerNorm to the shared feed-forward pre-normalization while retaining corresponding LayerNorm sharing across blocks, reversed operands, d=14, two heads, two blocks, ff=19, rank-3 learned positions, and the 45000-step schedule.",
+    "parameters": "",
+    "parent_commit": "9a606f78349133fefd3cd24930863f0acd901a3f",
+    "proposal": "Family: parameter tying. Retained incumbent is 3073 parameters at 99.710000%, a +0.710000 percentage-point margin over 99%. Same-family history: the most recent accepted result is attempt-0038, corresponding LayerNorm sharing across blocks (3073, 99.71%); the most recent failed result is attempt-0037, Q/K sharing, an optimization failure with 11.4% peak validation; 5 prior parameter-tying candidate attempts. The preceding rank-2 reversed-input attempt-0036 is an optimization failure (45000 steps, 11.1% peak validation, no checkpoint), not a scored nonqualification. Hypothesis: the final output normalization may use the same learned affine calibration as the feed-forward pre-normalization now already shared across depth; this removes just one 14-scale-plus-14-offset vector, reducing actual parameters from 3073 to 3045. This is a parameter-tying change, not scalar pruning. It is more informative than removing that final affine entirely because it distinguishes redundancy through reuse from the need for normalization itself.",
+    "status": "error",
+    "timestamp_utc": "2026-08-17T09:54:05.116143+00:00",
+    "train_exit": 0,
+    "verify_exit": ""
+  },
+  "verification": {
+    "accuracy": null,
+    "accuracy_percent": null,
+    "correct": null,
+    "parameters": null,
+    "qualified": false,
+    "total": null
+  }
+}

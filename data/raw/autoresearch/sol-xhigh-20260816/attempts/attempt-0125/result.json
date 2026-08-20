@@ -1,0 +1,24 @@
+{
+  "accepted": false,
+  "event": {
+    "accuracy": "0.000000%",
+    "attempt_id": "attempt-0125",
+    "commit": "fbf57386fe0827b0991dffad87c3448dd2fac000",
+    "description": "Keep only the second attention head with learned residual projection",
+    "parameters": 1465,
+    "parent_commit": "a1dfac6cb503f577ebebcb35e93ea9788786fa40",
+    "proposal": "Family: attention organization. Current retained frontier is 1,672 parameters at 99.010000%, a +0.010000 percentage-point margin over 99%. There have been 15 prior attempts in this family. The most recent accepted result is attempt-0020 at 3,168 parameters/99.94%; the most recent failed result is attempt-0124, whose value-shared two-head candidate scored 0.00% at 1,593 parameters. The nearest directly comparable failed result is attempt-0113, which kept only the first head and scored 0.00% at 1,465 parameters. Hypothesis: the two learned heads may be asymmetric and the second may carry the essential carry-routing pattern. Retain its Q/K/V rows, add an 8x16 learned output projection initialized into the second residual half, and share both across depth, yielding 1,465 parameters. This is more informative than another mixed head-sharing scheme because it is the exact untested categorical complement of attempt-0113; after it, single-head deletion is closed. Causal softmax and generic decoding remain intact.",
+    "status": "discard",
+    "timestamp_utc": "2026-08-17T06:44:38.144004+00:00",
+    "train_exit": 0,
+    "verify_exit": 0
+  },
+  "verification": {
+    "accuracy": 0.0,
+    "accuracy_percent": 0.0,
+    "correct": 0,
+    "parameters": 1465,
+    "qualified": false,
+    "total": 10010
+  }
+}

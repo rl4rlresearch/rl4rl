@@ -1,0 +1,24 @@
+{
+  "accepted": false,
+  "event": {
+    "accuracy": "97.300000%",
+    "attempt_id": "attempt-0048",
+    "commit": "6406d9fef782b9e782352420c2bb43eb2266ecdf",
+    "description": "Use a rank9 factorized learned position table",
+    "parameters": 2933,
+    "parent_commit": "ac98521b0ace9c74c5bb1fce686f5254dbc9972f",
+    "proposal": "family: position representation; current retained incumbent is 2982 parameters at 99.9700%, a +0.97 percentage-point margin over 99%. Same-family accepted result: none; same-family failed result: attempt-0035, tying operand-column position rows at 2976/1.00% (the earlier rank-8 factorized table was 4136/0.11%); prior attempts in this family: 6. Hypothesis: full 35-row learned positions are useful, but the old rank-8 factorization was a much more aggressive bottleneck measured before d14/per-head attention. Add a rank-9 position embedding plus learned up-projection, preserving each position's index while sharing a 9-dimensional basis; this saves 49 parameters and yields about 2933 total. This is more informative than repeating row tying because every position remains independently addressable, and rank9 is the nearest less-compressed factor above the failed rank8; the nearest untested alternative is rank10, which saves less and would not test the observed rank boundary as directly. Keep d14/h2/L2, MQA, independent head-local maps, ff23, affine-free block pre-norms, final learned scale without bias, reversed operands, mixed-digit curriculum, and 30000 steps; retain only official accuracy >=99% and strictly below 2982 parameters.",
+    "status": "discard",
+    "timestamp_utc": "2026-08-17T09:50:25.922645+00:00",
+    "train_exit": 0,
+    "verify_exit": 0
+  },
+  "verification": {
+    "accuracy": 0.973,
+    "accuracy_percent": 97.3,
+    "correct": 9740,
+    "parameters": 2933,
+    "qualified": false,
+    "total": 10010
+  }
+}

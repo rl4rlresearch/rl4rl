@@ -1,0 +1,24 @@
+{
+  "accepted": false,
+  "event": {
+    "accuracy": "90.810000%",
+    "attempt_id": "attempt-0039",
+    "commit": "528d28e5e0d2cfe90d0c0bd324de678ead752774",
+    "description": "Remove the remaining final LayerNorm scale",
+    "parameters": 3104,
+    "parent_commit": "7b108ce73f66ebafe562401d225bf2bb72f8bcff",
+    "proposal": "family: normalization; current retained incumbent is 3120 parameters at 99.9200%, a +0.92 percentage-point margin over 99%. Same-family accepted result: attempt-0038, final LayerNorm with learned scale but no bias at 3120/99.92%; same-family failed result: attempt-0029, removing both final scale and bias in the pre-per-head context at 3424/95.58%; prior attempts in this family: 6. Hypothesis: after the accepted bias removal, test the remaining final scale independently in the newer per-head/ff16 regime; this yields 3104 parameters and distinguishes whether the surviving calibration parameter is essential. This is more informative than removing the entire final normalization because the bias has already been held out and the current attention organization changed materially; the nearest untested alternative is deleting the final norm module, which also changes normalization behavior rather than just affine capacity. Keep d16/h2/L2, independent head-local maps, MQA, ff16, affine-free block pre-norms, learned positions, reversed operands, mixed-digit curriculum, and 30000 steps; retain only official accuracy >=99% and strictly below 3120 parameters.",
+    "status": "discard",
+    "timestamp_utc": "2026-08-17T08:18:38.341416+00:00",
+    "train_exit": 0,
+    "verify_exit": 0
+  },
+  "verification": {
+    "accuracy": 0.9081,
+    "accuracy_percent": 90.81,
+    "correct": 9090,
+    "parameters": 3104,
+    "qualified": false,
+    "total": 10010
+  }
+}

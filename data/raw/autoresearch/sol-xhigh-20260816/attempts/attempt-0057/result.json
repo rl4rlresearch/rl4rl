@@ -1,0 +1,24 @@
+{
+  "accepted": true,
+  "event": {
+    "accuracy": "99.190000%",
+    "attempt_id": "attempt-0057",
+    "commit": "123d3caa480794dcb15fb4260f447355a1cd0581",
+    "description": "Fix the closest-to-neutral LayerNorm scale at one",
+    "parameters": 2119,
+    "parent_commit": "8e0176ef055a980f1adc4fc0a4cf765c353a5dac",
+    "proposal": "Family: scalar pruning. Current retained frontier is 2,120 parameters at 99.200000%, a +0.200000 percentage-point margin over 99%. There have been 18 prior attempts in this family. The most recent accepted result is attempt-0048 at 2,120 parameters and 99.20%; the most recent failed result is attempt-0056, the third consecutive additional block-1 ln1 bias failure, at 96.41%, closing further bias pruning there. Across all retained LayerNorm scales, blocks.1.ln1 coordinate 11 is uniquely closest to the neutral value 1.0 at 0.990370095, only 0.009629905 away; the next closest deviation is 0.04748. Hypothesis: fixing this scale exactly to one while retaining all eight accepted bias zeros preserves qualification and yields 2,119 parameters. This is more informative than testing any remaining bias because it changes scalar type and uses the smallest available neutralization perturbation.",
+    "status": "keep",
+    "timestamp_utc": "2026-08-16T08:18:51.497454+00:00",
+    "train_exit": 0,
+    "verify_exit": 0
+  },
+  "verification": {
+    "accuracy": 0.9919,
+    "accuracy_percent": 99.19,
+    "correct": 9929,
+    "parameters": 2119,
+    "qualified": true,
+    "total": 10010
+  }
+}

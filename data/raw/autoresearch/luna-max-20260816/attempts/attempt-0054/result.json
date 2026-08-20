@@ -1,0 +1,24 @@
+{
+  "accepted": false,
+  "event": {
+    "accuracy": "0.030000%",
+    "attempt_id": "attempt-0054",
+    "commit": "f9ad44afe2808c1554fb6f756c70279cea5349ca",
+    "description": "Tie the unused PAD row to digit zero",
+    "parameters": 2870,
+    "parent_commit": "a3adffc7be1254323fe6d42c6dc751fb5f809d5c",
+    "proposal": "family: token representation; current retained incumbent is 2884 parameters at 99.9900%, a +0.99 percentage-point margin over 99%. Same-family accepted result: attempt-0002, reversed operand token order at 5056/99.98%; same-family failed result: attempt-0053, the repaired 14-row plus zero-PAD table at 2870/95.64% (attempt-0052 was its MPS implementation error); prior attempts in this family: 5. Hypothesis: zeroing PAD changed output calibration even though PAD is unused, so retain a learned PAD logit by tying its row to the digit-zero vector while still removing one independent row. The materialized tied table remains 15-way and saves 14 parameters for 2870 total. This is more informative than fixing BOS or EOS because it preserves a learned competing PAD direction without altering active control tokens; the nearest untested alternative is tying PAD to EOS, which would couple an unused output to the active stopping symbol. Keep d14/h2/L2, MQA, independent head-local maps, ff23, rank8 positions, affine-free block pre-norms, final learned scale without bias, reversed operands, zero weight decay, mixed-digit curriculum, and 30000 steps; retain only official accuracy >=99% and strictly below 2884 parameters.",
+    "status": "discard",
+    "timestamp_utc": "2026-08-17T10:45:41.691242+00:00",
+    "train_exit": 0,
+    "verify_exit": 0
+  },
+  "verification": {
+    "accuracy": 0.0003,
+    "accuracy_percent": 0.03,
+    "correct": 3,
+    "parameters": 2870,
+    "qualified": false,
+    "total": 10010
+  }
+}

@@ -1,0 +1,24 @@
+{
+  "accepted": false,
+  "event": {
+    "accuracy": "0.000000%",
+    "attempt_id": "attempt-0124",
+    "commit": "6b5b7b11f720447fe61144da2e45c819a3443c22",
+    "description": "Share only the value map across two attention heads",
+    "parameters": 1593,
+    "parent_commit": "a1dfac6cb503f577ebebcb35e93ea9788786fa40",
+    "proposal": "Family: attention organization. Current retained frontier is 1,672 parameters at 99.010000%, a +0.010000 percentage-point margin over 99%. There have been 14 prior attempts in this family. The most recent accepted result is attempt-0020 at 3,168 parameters/99.94%; the most recent failed result is attempt-0123, whose query-shared candidate scored 0.00% at 1,593 parameters. Hypothesis: both query and key maps require head-specific routing geometry, but the content feature map can be common because different attention weights still produce distinct head outputs. Preserve all 32 Q/K rows, replace the two value maps by their checkpoint-average 8x16 map broadcast across heads, and share across depth, yielding 1,593 parameters. This is more informative than full multi-query attention because attempts 0122-0123 already bound Q/K sharing and this exact complement isolates value-head diversity at the same parameter count. Causal softmax and generic autoregressive decoding remain unchanged.",
+    "status": "discard",
+    "timestamp_utc": "2026-08-17T06:42:42.894944+00:00",
+    "train_exit": 0,
+    "verify_exit": 0
+  },
+  "verification": {
+    "accuracy": 0.0,
+    "accuracy_percent": 0.0,
+    "correct": 0,
+    "parameters": 1593,
+    "qualified": false,
+    "total": 10010
+  }
+}

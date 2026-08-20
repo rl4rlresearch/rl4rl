@@ -1,0 +1,20 @@
+{
+  "accepted_micro_trials": 6,
+  "attempt_id": "attempt-0081",
+  "automation_id": "nearest-token-matrix-unions-repair",
+  "best_accuracy": "99.000000%",
+  "best_parameters": 1784,
+  "description": "Repair sparse-token checkpoint migration and resume nearest token scalar unions",
+  "error_micro_trials": 0,
+  "family": "parameter tying",
+  "finished_at_utc": "2026-08-17T02:44:08.138319+00:00",
+  "max_micro_trials": 20,
+  "micro_attempts_used": 7,
+  "parent_commit": "732b17f6e96b16a5d189c42a3dcb4e619ab13044",
+  "parent_parameters": 1790,
+  "proposal": "Family: parameter tying. Current retained frontier is 1,790 parameters at 99.010000%, a +0.010000 percentage-point margin over 99%. There have been 23 prior macro-attempts and 319 prior micro-trials in this family. The most recent accepted result is attempt-0080/micro-0001, whose closest token-matrix scalar union retained 1,790 parameters at 99.01%; the most recent failed result is attempt-0080/micro-0002, an implementation error before verification because train.py indexed the obsolete dense token_emb.weight key after migration to token_emb.values. This is the permitted repair of the same intended candidate: checkpoint metadata now obtains vocabulary size from token_emb.value_indices when the incumbent is sparse; architecture, second union, ordering, acceptance, and stopping conditions are unchanged. Hypothesis: minimum-difference unions in the tied input/output token matrix preserve qualification beyond the first retained union. Ordering is ascending absolute current token-group difference and is more informative than the next untested alternative because repairing micro-0002 isolates implementation from capacity at the exact candidate that was never scored. The official runner alone accepts or rolls back. Stop at the first scored discard or further error, at 20 micro-trials, or if no pair remains. Compute budget: at most 20 checkpoint migrations and official verifications or 30 wall-clock minutes.",
+  "schema": "rl4rl-autoresearch-automation-v1",
+  "started_at_utc": "2026-08-17T02:35:15.226242+00:00",
+  "status": "keep",
+  "summary": "Repaired sparse-token checkpoint migration and evaluated 7 nearest token-matrix unions. The first 6 qualified and were retained, moving the frontier from 1,790 parameters at 99.01% to 1,784 parameters at exactly 99.00%; micro-0007 proposed 1,783 parameters and scored 98.97%, so it was discarded and rolled back. There were 6 accepts, 1 scored discard, and 0 errors after repair. Compute used checkpoint migration plus 7 official verifications, no fresh optimization, over 8m38s wall clock. Stop reason: first scored failure closed the repaired nearest-token path before the 20-trial/30-minute cap."
+}

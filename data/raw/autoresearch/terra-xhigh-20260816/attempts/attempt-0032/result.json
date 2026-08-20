@@ -1,0 +1,24 @@
+{
+  "accepted": false,
+  "event": {
+    "accuracy": "",
+    "attempt_id": "attempt-0032",
+    "commit": "dba4d537094d1701c0e6ef4023b7f86aaeeb99d4",
+    "description": "Replace the retained d=14, two-head attention organization with d=13, one-head attention while retaining two transformer blocks, ff=20, rank-3 learned positions, and the 45000-step learning-rate-floor schedule.",
+    "parameters": "",
+    "parent_commit": "a92a1ecb934d5f08abdf43baa66e7dfd2303da95",
+    "proposal": "Family: attention organization. Retained incumbent is 3185 parameters at 99.990000%, a +0.990000 percentage-point margin over 99%. Same-family history: the most recent accepted result is attempt-0006, d=14 with two heads (3528, 99.66%); the most recent failed result is attempt-0023, rank-10 QKV factorization, an optimization failure with 0% peak validation; 5 prior attention-organization macro-attempts. The immediately preceding ff=19 attempt-0031 is an optimization failure (45000 steps, 9.05% peak validation, no checkpoint), not a scored nonqualification. Hypothesis: one 13-dimensional full attention head may retain sufficient autoregressive routing for fixed-format addition when the residual width drops only one channel and all remaining components use the now-successful rank-3/45k configuration; this is a representational attention change, not scalar pruning, and reduces actual parameters from 3185 to 2861. It is more informative than the nearest untested d=12 alternative because it preserves the largest residual width below 14 while testing whether two separately parameterized heads are necessary.",
+    "status": "error",
+    "timestamp_utc": "2026-08-17T08:19:19.439276+00:00",
+    "train_exit": 0,
+    "verify_exit": ""
+  },
+  "verification": {
+    "accuracy": null,
+    "accuracy_percent": null,
+    "correct": null,
+    "parameters": null,
+    "qualified": false,
+    "total": null
+  }
+}

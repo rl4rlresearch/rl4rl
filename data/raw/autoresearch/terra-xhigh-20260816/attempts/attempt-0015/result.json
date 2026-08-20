@@ -1,0 +1,24 @@
+{
+  "accepted": false,
+  "event": {
+    "accuracy": "",
+    "attempt_id": "attempt-0015",
+    "commit": "c0444ddb8057317a81fc06ecfbae38740724a95a",
+    "description": "Tie each attention value projection to its output projection by transpose while retaining independent query/key projections, two blocks, d=14, h=2, ff=20, and rank-8 learned positional factorization.",
+    "parameters": "",
+    "parent_commit": "b83d413f1422d8bf55bc797d729f1519d9e72d80",
+    "proposal": "Family: parameter tying. Retained incumbent is 3430 parameters at 99.660000%, a +0.660000 percentage-point margin over 99%. Same-family history: the starting model's tied input/output embedding was accepted at 6080 parameters and 100.000000%; the most recent failed formal tying candidate was attempt-0005, full cross-layer block sharing, an optimization failure that peaked near 9.7% validation; 1 prior parameter-tying candidate attempt. The immediately preceding token-code attempt-0014 is classified as an optimization failure (30000 completed steps, 1.5% peak validation, no checkpoint), not a scored capacity result. Hypothesis: attention may preserve useful value content when the output map decodes through the transpose of the same learned value basis, eliminating one 14x14 matrix per block while leaving attention routing (Q and K) and inter-block specialization unconstrained. This is a representational parameter-tying change, not scalar pruning, reducing actual learned parameters from 3430 to 3038. It is more informative than the nearest untested alternative Q/K tying because it constrains content encoding/decoding without also forcing query and key roles to be symmetric.",
+    "status": "error",
+    "timestamp_utc": "2026-08-17T04:59:38.219053+00:00",
+    "train_exit": 0,
+    "verify_exit": ""
+  },
+  "verification": {
+    "accuracy": null,
+    "accuracy_percent": null,
+    "correct": null,
+    "parameters": null,
+    "qualified": false,
+    "total": null
+  }
+}

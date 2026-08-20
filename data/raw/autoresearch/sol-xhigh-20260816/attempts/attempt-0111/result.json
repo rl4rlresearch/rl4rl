@@ -1,0 +1,24 @@
+{
+  "accepted": false,
+  "event": {
+    "accuracy": "0.000000%",
+    "attempt_id": "attempt-0111",
+    "commit": "64c296768ca77f7d32ecc7e24c8076e5ddcaf55a",
+    "description": "Replace all LayerNorm sites with per-coordinate RMSNorm",
+    "parameters": 1629,
+    "parent_commit": "a1dfac6cb503f577ebebcb35e93ea9788786fa40",
+    "proposal": "Family: normalization. Current retained frontier is 1,672 parameters at 99.010000%, a +0.010000 percentage-point margin over 99%. There have been 2 prior attempts in this family. The most recent accepted result is attempt-0018, which removed only the final LayerNorm bias and qualified at 3,360 parameters and 99.07%; the most recent failed result is attempt-0019, whose residual LayerNorm bias-group removal scored 0.01%. Hypothesis: learned per-coordinate scales are essential but explicit mean centering and additive shifts are redundant across the pre-normalized residual stack. This is a major normalization substitution, not scalar pruning: all four block normalizers and the final normalizer become RMSNorm with migrated dense scale vectors, removing every learned normalization bias and fixed/learned centering parameter while yielding 1,629 parameters. It is more informative than ScaleNorm because RMSNorm retains the full per-coordinate scaling capacity and changes only centering/bias behavior, the least restrictive operation-level alternative. Causal self-attention, feed-forward paths, token/position representations, autoregressive logits, and generic decoding remain unchanged.",
+    "status": "discard",
+    "timestamp_utc": "2026-08-17T06:10:23.774871+00:00",
+    "train_exit": 0,
+    "verify_exit": 0
+  },
+  "verification": {
+    "accuracy": 0.0,
+    "accuracy_percent": 0.0,
+    "correct": 0,
+    "parameters": 1629,
+    "qualified": false,
+    "total": 10010
+  }
+}

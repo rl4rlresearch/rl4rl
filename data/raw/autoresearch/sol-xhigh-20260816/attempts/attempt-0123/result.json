@@ -1,0 +1,24 @@
+{
+  "accepted": false,
+  "event": {
+    "accuracy": "0.000000%",
+    "attempt_id": "attempt-0123",
+    "commit": "3c6800ef5fe8c6fdcd683d483c43212449a9fa74",
+    "description": "Share only the query map across two attention heads",
+    "parameters": 1593,
+    "parent_commit": "a1dfac6cb503f577ebebcb35e93ea9788786fa40",
+    "proposal": "Family: attention organization. Current retained frontier is 1,672 parameters at 99.010000%, a +0.010000 percentage-point margin over 99%. There have been 13 prior attempts in this family. The most recent accepted result is attempt-0020 at 3,168 parameters/99.94%; the most recent failed result is attempt-0122, whose key-shared two-head attention scored 0.00% at 1,593 parameters. Hypothesis: attempt-0122 failed specifically because distinct keys are needed to expose different memory features, while a shared query can still compare against both key heads. Preserve both full key heads and the full value transform, replace only the two query maps by their checkpoint-average 8x16 map, and share parameters across depth, yielding 1,593 parameters. This is more informative than sharing values next because it is the exact query/key complement of the measured failure at identical count and isolates which side of compatibility needs head-specific features. Causal softmax and generic decoding remain unchanged.",
+    "status": "discard",
+    "timestamp_utc": "2026-08-17T06:40:41.744053+00:00",
+    "train_exit": 0,
+    "verify_exit": 0
+  },
+  "verification": {
+    "accuracy": 0.0,
+    "accuracy_percent": 0.0,
+    "correct": 0,
+    "parameters": 1593,
+    "qualified": false,
+    "total": 10010
+  }
+}

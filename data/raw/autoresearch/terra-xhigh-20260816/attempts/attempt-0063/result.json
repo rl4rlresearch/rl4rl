@@ -1,0 +1,24 @@
+{
+  "accepted": false,
+  "event": {
+    "accuracy": "",
+    "attempt_id": "attempt-0063",
+    "commit": "e8c0866d5946c4077f50123955f6f8c1da4ba904",
+    "description": "Tie the two 7-by-7 head-local attention output maps to one shared 7-by-7 basis while retaining independent two-head QKV routing, cross-layer output sharing, shared final/pre-attention normalization scale, rank-4 tokens, factorized rank-3 positions, d=14, ff=19, and 75000 steps.",
+    "parameters": "",
+    "parent_commit": "9a78e4371710d31ef1ac6f067dfd20019bfff847",
+    "proposal": "Family: attention organization. Retained incumbent is attempt-0062 with 2578 parameters at 99.110000%, a +0.110000 percentage-point margin over 99%. Same-family history: the most recent accepted result is attempt-0062, separate head-local attention output maps (2578, 99.11%); the most recent failed result is attempt-0023, rank-10 QKV factorization, an optimization failure; 7 prior attention-organization macro attempts. The immediately preceding cross-layer value-sharing attempt-0061 failed near 11% validation, which indicates depth-shared content maps are unsuitable but does not test whether the two heads can decode through one common output basis. Hypothesis: separate QKV attention patterns may produce head-specific content that can nevertheless share the same 7-dimensional output-basis transformation; the residual/feed-forward paths retain head mixing after concatenation. This is an attention-organization parameter-tie, not scalar pruning: it replaces two shared 7x7 head output maps with one shared 7x7 map, reducing the expected deduplicated count from 2578 to 2529. It is more informative than eliminating the second head because it preserves independent attention distributions and isolates only their output decoding basis.",
+    "status": "error",
+    "timestamp_utc": "2026-08-17T16:51:02.332305+00:00",
+    "train_exit": 0,
+    "verify_exit": ""
+  },
+  "verification": {
+    "accuracy": null,
+    "accuracy_percent": null,
+    "correct": null,
+    "parameters": null,
+    "qualified": false,
+    "total": null
+  }
+}

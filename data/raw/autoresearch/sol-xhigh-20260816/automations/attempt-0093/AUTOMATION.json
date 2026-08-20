@@ -1,0 +1,20 @@
+{
+  "accepted_micro_trials": 9,
+  "attempt_id": "attempt-0093",
+  "automation_id": "nearest-final-norm-scale-unions",
+  "best_accuracy": "99.000000%",
+  "best_parameters": 1674,
+  "description": "Reconstruct final LayerNorm scales from groups and exhaust nearest-value unions",
+  "error_micro_trials": 0,
+  "family": "parameter tying",
+  "finished_at_utc": "2026-08-17T05:20:48.470087+00:00",
+  "max_micro_trials": 15,
+  "micro_attempts_used": 10,
+  "parent_commit": "e554eb1a7df61aea77cf31474dc370b1dfd7652c",
+  "parent_parameters": 1683,
+  "proposal": "Family: parameter tying. Current retained frontier is 1,683 parameters at 99.000000%, a +0.000000 percentage-point margin over 99%. There have been 35 prior macro-attempts and 434 prior micro-trials in this family. The most recent accepted result is attempt-0092/micro-0003 at 1,683 parameters and 99.00%; the most recent failed result is attempt-0092/micro-0004, whose positional union scored 98.98%. Hypothesis: the final LayerNorm's 16 learned scales contain near-duplicate coordinate values independent of the now-bounded matrix, token, and position tensors; reconstructing this scale vector from groups and greedily unioning its closest values can remove parameters while preserving the exact normalization computation before the first union. Ordering is ascending absolute current scale-group difference. This parameterization-preserving normalization substitution is more informative than another exclusion branch because it opens a distinct complete 16-scalar site and can exhaust it within a valid 15-trial cap. Each micro-trial adds one scale union and the official runner alone accepts or rolls back. Stop on the first scored discard or error, at the complete-space cap of 15 micro-trials, or if no pair remains. Compute budget: at most 15 checkpoint migrations and official verifications or 20 wall-clock minutes.",
+  "schema": "rl4rl-autoresearch-automation-v1",
+  "started_at_utc": "2026-08-17T05:08:33.917854+00:00",
+  "status": "keep",
+  "summary": "Evaluated 10 nearest unions in the complete final-LayerNorm scale search. The first 9 qualified and were retained, moving the frontier from 1,683 parameters at 99.00% to 1,674 parameters at 99.00%; micro-0010 proposed 1,673 parameters and scored 98.96%, so it was discarded and rolled back. Outcomes: 9 accepts, 1 scored discard, 0 errors. Compute used checkpoint migration plus 10 official verifications over 12m00s wall clock. Stop reason: first scored failure closed the final-scale path before the 15-trial/20-minute cap."
+}

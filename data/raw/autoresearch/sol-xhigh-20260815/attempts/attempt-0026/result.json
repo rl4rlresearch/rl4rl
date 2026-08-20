@@ -1,0 +1,24 @@
+{
+  "accepted": true,
+  "event": {
+    "accuracy": "99.980000%",
+    "attempt_id": "attempt-0026",
+    "commit": "c2b2ae3f502f532d584ad7a4ee4f79ee4b7c765c",
+    "description": "Share QKV transform across depth and widen feed-forward paths",
+    "parameters": 2656,
+    "parent_commit": "0f238238b535303ba022d3f231fcb8bfaf797056",
+    "proposal": "Family: parameter tying. Current retained frontier is 3,040 parameters at 99.850000%, a +0.850000 percentage-point margin over 99%. There have been 0 prior attempts in this family, so there is no accepted or failed in-family result. The most recent experiment, attempt-0025 in position representation, was a scored nonqualification at 32.44%, while attempt-0022 remains retained. Hypothesis: both blocks can reuse one 16x48 QKV transform because their inputs, normalizers, attention maps, residual states, and feed-forward paths remain layer-specific; widening each feed-forward path from 10 to 16 reallocates 384 of the 768 saved parameters. The resulting 2,656-parameter model is a genuine parameter-sharing architecture. This is more informative than the nearest untested tying alternative, sharing the feed-forward matrices, because QKV sharing saves more capacity while retaining independent nonlinear computation in each block.",
+    "status": "keep",
+    "timestamp_utc": "2026-08-16T06:20:08.218038+00:00",
+    "train_exit": 0,
+    "verify_exit": 0
+  },
+  "verification": {
+    "accuracy": 0.9998,
+    "accuracy_percent": 99.98,
+    "correct": 10008,
+    "parameters": 2656,
+    "qualified": true,
+    "total": 10010
+  }
+}

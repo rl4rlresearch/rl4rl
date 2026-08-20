@@ -1,0 +1,24 @@
+{
+  "accepted": false,
+  "event": {
+    "accuracy": "",
+    "attempt_id": "attempt-0033",
+    "commit": "33306bf80460daeddb5cc8448c9dd6e93c8e31f2",
+    "description": "Reverse each zero-padded operand in the input representation and use one d=14, two-head transformer block with ff=20, rank-3 learned positions, and the 45000-step learning-rate-floor schedule.",
+    "parameters": "",
+    "parent_commit": "a92a1ecb934d5f08abdf43baa66e7dfd2303da95",
+    "proposal": "Family: token representation. Retained incumbent is 3185 parameters at 99.990000%, a +0.990000 percentage-point margin over 99%. Same-family history: no accepted token-representation substitution; the most recent failed result is attempt-0014, the rank-4 tied token-code expansion, an optimization failure with 1.5% peak validation; 1 prior attempt in this family. The immediately preceding d=13 single-head attempt-0032 is an optimization failure (45000 steps, 83.7% peak validation followed by decline, no checkpoint), not a scored nonqualification. Hypothesis: reversing padded operand digits makes each next output digit attend to aligned least-significant-first operand positions and prior generated carry, potentially eliminating the second transformer block while retaining one full causal self-attention layer. This is a token-representation plus depth substitution, not parameterization-preserving scalar pruning, reducing actual parameters from 3185 to 1785. It is more informative than reversing operands while preserving two blocks because it directly tests whether alignment removes the previously necessary second computation stage, rather than only measuring a representation change without compression.",
+    "status": "error",
+    "timestamp_utc": "2026-08-17T08:29:49.900724+00:00",
+    "train_exit": 0,
+    "verify_exit": ""
+  },
+  "verification": {
+    "accuracy": null,
+    "accuracy_percent": null,
+    "correct": null,
+    "parameters": null,
+    "qualified": false,
+    "total": null
+  }
+}

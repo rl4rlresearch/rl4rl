@@ -1,0 +1,24 @@
+{
+  "accepted": false,
+  "event": {
+    "accuracy": "",
+    "attempt_id": "attempt-0061",
+    "commit": "e3cf1fba5dec7d236064d0ec8f55568e650193ea",
+    "description": "Split QKV into explicit query, key, and value maps and tie only the value map across the two blocks; retain independent Q/K maps, shared attention outputs, shared final/pre-attention normalization scale, rank-4 tied tokens, factorized rank-3 positions, d=14, ff=19, and 75000 steps.",
+    "parameters": "",
+    "parent_commit": "5d4588e0b530eabf5e627cf280a4aeb68f863b6d",
+    "proposal": "Family: parameter tying. Retained incumbent is attempt-0059 with 2676 parameters at 99.360000%, a +0.360000 percentage-point margin over 99%. Same-family history: the most recent accepted result is attempt-0059, final-to-pre-attention normalization-scale tying (2676, 99.36%); the most recent failed result is attempt-0060, within-block pre-norm scale sharing, an optimization failure plateauing near 94% validation after 75000 steps; 12 prior parameter-tying macro attempts. Hypothesis: the value transform is a reusable content basis across two attention stages, particularly because the downstream attention-output map is already shared, while queries and keys must remain layer-specific to form distinct causal attention patterns. Refactoring the combined QKV linear map into equivalent separate maps is parameterization-preserving; tying only the two 14x14 value maps is the representational compression, not scalar pruning. It removes 196 actual parameters (2676 to 2480). It is more informative than tying Q or K across depth because it preserves attention-score formation and tests only cross-stage value content reuse.",
+    "status": "error",
+    "timestamp_utc": "2026-08-17T16:07:32.483954+00:00",
+    "train_exit": 0,
+    "verify_exit": ""
+  },
+  "verification": {
+    "accuracy": null,
+    "accuracy_percent": null,
+    "correct": null,
+    "parameters": null,
+    "qualified": false,
+    "total": null
+  }
+}

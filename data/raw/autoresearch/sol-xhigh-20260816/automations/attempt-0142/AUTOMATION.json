@@ -1,0 +1,20 @@
+{
+  "accepted_micro_trials": 0,
+  "attempt_id": "attempt-0142",
+  "automation_id": "qkv-union-gelu-compensation",
+  "best_accuracy": "",
+  "best_parameters": "",
+  "description": "Scan four GELU blends around the one-example QKV-union boundary",
+  "error_micro_trials": 0,
+  "family": "feed-forward width",
+  "finished_at_utc": "2026-08-17T07:29:32.938741+00:00",
+  "max_micro_trials": 4,
+  "micro_attempts_used": 4,
+  "parent_commit": "06d88307073db782499be4f6c2ff2d17294940e2",
+  "parent_parameters": 1671,
+  "proposal": "Family: feed-forward width. Current retained frontier is 1,671 parameters at 99.000000%, exactly threshold (+0.000000 margin). There have been 21 prior macro-attempts in this family. The most recent accepted result is attempt-0139/micro-0001 at 1,671/99.00%; the most recent failed result is attempt-0141/micro-0001, where QKV pair 555/517 scored 98.99% at 1,670 under alpha=0.5; the same pair scored 98.99% under exact GELU in attempt-0091. Hypothesis: a modest off-center activation blend can compensate the single changed QKV scalar while preserving the learned function. The helper tests fixed alphas 0.25, 0.75, 0.125, 0.875, one official micro-trial each. Stop on first acceptance because all candidates share 1,670 parameters, after four trials, on error, or after eight wall-clock minutes. This is more informative than a dense activation grid because the symmetric widening order samples the largest distinct offsets around measured alpha=0/0.5 failures within a strict cap.",
+  "schema": "rl4rl-autoresearch-automation-v1",
+  "started_at_utc": "2026-08-17T07:23:52.846267+00:00",
+  "status": "discard",
+  "summary": "Tested QKV union 555/517 with GELU-blend alphas 0.25, 0.75, 0.125, and 0.875. Every 1,670-parameter candidate scored exactly 98.99%, so all were discarded and rolled back; frontier stayed 1,671/99.00%. Outcomes: 0 accepts, 4 scored nonqualifications, 0 errors. Compute used four migrations and official verifications over about 5m10s. Stop reason: reached the declared four-point/eight-minute boundary, demonstrating this failed example is insensitive to the tested activation blend."
+}

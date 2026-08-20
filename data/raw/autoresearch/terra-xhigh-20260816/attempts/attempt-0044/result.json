@@ -1,0 +1,24 @@
+{
+  "accepted": false,
+  "event": {
+    "accuracy": "",
+    "attempt_id": "attempt-0044",
+    "commit": "5e4f14f4e8a5fc89538ccc6965565fb6862a403d",
+    "description": "Tie each feed-forward output map to the transpose of its own learned input expansion while retaining GELU, independent attention, shared no-offset normalization, reversed operands, d=14, h=2, L=2, ff=19, rank-3 positions, and the 45000-step schedule.",
+    "parameters": "",
+    "parent_commit": "a4b3599e6eae9457e0ebc438d69d82ace76dda0c",
+    "proposal": "Family: parameter tying. Retained incumbent is 3031 parameters at 99.990000%, a +0.990000 percentage-point margin over 99%. Same-family history: the most recent accepted result is attempt-0038, cross-layer LayerNorm sharing (3073, 99.71%); the most recent failed result is attempt-0040, in-block normalization sharing, an optimization failure with 10% peak validation; 7 prior parameter-tying candidate attempts. The immediately preceding learned rank-5 token-factorization attempt-0043 is an optimization failure (45000 steps, 0% peak validation, no checkpoint), not a scored nonqualification. Hypothesis: each feed-forward residual update may operate as a learned nonlinear analysis/synthesis pair using one expansion and its transpose, preserving the GELU and separate block-specific basis while removing one 14x19 matrix per block; this reduces actual parameters from 3031 to 2499. This is a representational parameter-tying change, not scalar pruning. It is more informative than cross-layer feed-forward sharing because it preserves each layer's distinct nonlinear basis while testing whether within-layer reconstruction needs an independent decoder.",
+    "status": "error",
+    "timestamp_utc": "2026-08-17T11:00:01.998248+00:00",
+    "train_exit": 0,
+    "verify_exit": ""
+  },
+  "verification": {
+    "accuracy": null,
+    "accuracy_percent": null,
+    "correct": null,
+    "parameters": null,
+    "qualified": false,
+    "total": null
+  }
+}

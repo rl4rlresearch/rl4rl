@@ -1,0 +1,24 @@
+{
+  "accepted": true,
+  "event": {
+    "accuracy": "99.960000%",
+    "attempt_id": "attempt-0045",
+    "commit": "ea7532a1a103060f3f552ba57104a4f979ea756a",
+    "description": "Replace the 35-row rank-3 learned positional code table with factorized rank-3 digit-index and sequence-segment code tables, sharing digit-index codes across reversed operands and output while retaining separate segment codes, learned expansion, shared no-offset normalization, d=14, h=2, L=2, ff=19, and the 45000-step schedule.",
+    "parameters": 2980,
+    "parent_commit": "a4b3599e6eae9457e0ebc438d69d82ace76dda0c",
+    "proposal": "Family: position representation. Retained incumbent is 3031 parameters at 99.990000%, a +0.990000 percentage-point margin over 99%. Same-family history: the rank-3 learned-position mechanism was retained in attempt-0029 (3185, 99.99%) and is used in the reversed-operand architecture accepted at attempt-0034 (3129, 99.19%); the most recent failed position result is attempt-0036, reversed operands with rank-2 positions, an optimization failure peaking near 11.1% validation; 11 prior position-representation macro attempts plus a rank-7 training-tail reattempt. The immediately preceding feed-forward symmetry attempt-0044 is an optimization failure (45000 steps completed, 94.85% peak validation, no checkpoint), not a scored nonqualification. Hypothesis: after reversing padded operand and result digit order, a shared digit-index code can supply the common least-significant-to-most-significant coordinate across both operands and the output, while seven segment codes distinguish BOS, operand, separator, and result roles. Replacing the 35x3 position table plus 3x14 expansion (147 learned values) with 11x3 digit-index plus 7x3 segment codes plus the same expansion (96 learned values) reduces actual parameters from 3031 to 2980. This is a structured positional representation factorization, not scalar pruning. It is more informative than a fixed positional projection because it isolates table redundancy while retaining a learned positional subspace and alignment-specific sharing.",
+    "status": "keep",
+    "timestamp_utc": "2026-08-17T11:16:48.465645+00:00",
+    "train_exit": 0,
+    "verify_exit": 0
+  },
+  "verification": {
+    "accuracy": 0.9995999999999999,
+    "accuracy_percent": 99.96,
+    "correct": 10006,
+    "parameters": 2980,
+    "qualified": true,
+    "total": 10010
+  }
+}

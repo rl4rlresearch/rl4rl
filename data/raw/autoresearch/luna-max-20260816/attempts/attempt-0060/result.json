@@ -1,0 +1,24 @@
+{
+  "accepted": true,
+  "event": {
+    "accuracy": "100.000000%",
+    "attempt_id": "attempt-0060",
+    "commit": "807f9500bc49fd8ae49f3a889a812d8aefcd690d",
+    "description": "Use two learned final LayerNorm group scales",
+    "parameters": 2844,
+    "parent_commit": "830391ebe220b69b896734b5c261580a3de18fe1",
+    "proposal": "family: normalization; current retained incumbent is 2856 parameters at 100.0000%, a +1.00 percentage-point margin over 99%. Same-family accepted result: attempt-0038, removing only the final LayerNorm bias at 3120/99.92%; same-family failed result: attempt-0056, replacing the 14-element final scale with one global scalar at 2871/5.47%. Prior attempts in this family: 8. Hypothesis: preserve full final LayerNorm normalization and retain channel-group calibration, but replace its 14 independent scale values with two learned scalars broadcast over the two 7-channel attention-head groups. This saves 12 parameters for a target of 2844 while providing more calibration capacity than the known one-scalar failure. This is more informative than retrying a global scalar or deleting scale, because it tests the nearest intermediate granularity and aligns the groups with the retained head-local attention organization. Keep d14/h2/L2, MQA, independent head-local maps, ff23 with one tied hidden unit per block, rank8 positions, affine-free block pre-norms, reversed operands, zero weight decay, mixed-digit curriculum, and 30000 steps; retain only official accuracy >=99% and strictly below 2856 parameters.",
+    "status": "keep",
+    "timestamp_utc": "2026-08-17T11:53:58.484722+00:00",
+    "train_exit": 0,
+    "verify_exit": 0
+  },
+  "verification": {
+    "accuracy": 1.0,
+    "accuracy_percent": 100.0,
+    "correct": 10010,
+    "parameters": 2844,
+    "qualified": true,
+    "total": 10010
+  }
+}

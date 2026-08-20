@@ -1,0 +1,24 @@
+{
+  "accepted": true,
+  "event": {
+    "accuracy": "99.660000%",
+    "attempt_id": "attempt-0006",
+    "commit": "8283b3e78a8dca7557c9afa83c7235e5d0dff2ce",
+    "description": "Reduce the shared latent width from d=16 to d=14 while retaining two untied two-head blocks, learned positions, and ff=20.",
+    "parameters": 3528,
+    "parent_commit": "02fc67e1ea918cac3e24c0cb4067cddf8fc6611b",
+    "proposal": "Family: attention organization. Retained incumbent is 4288 parameters at 99.910000%, a +0.910000 percentage-point margin over 99%. Same-family history: no prior accepted or failed result; 0 prior attempts. The nearest scalar-pruning boundary ff=16 was an optimization failure (validation peaked at 11.4% after 30000 steps), and full-block parameter tying likewise failed (peak 9.7%), but neither tests per-head latent dimensionality. Hypothesis: reducing d_model from 16 to 14 while retaining two heads changes each head from 8 to 7 channels and may preserve the separate attention pathways while removing 760 parameters, from 4288 to 3528. This is a parameterization-preserving latent-width compression, not a representational substitution. It is more informative than the nearest untested alternative d=12 because d=14 supplies the smallest valid two-head decrement and locates the next attention-capacity boundary.",
+    "status": "keep",
+    "timestamp_utc": "2026-08-17T03:27:01.137995+00:00",
+    "train_exit": 0,
+    "verify_exit": 0
+  },
+  "verification": {
+    "accuracy": 0.9965999999999999,
+    "accuracy_percent": 99.66,
+    "correct": 9976,
+    "parameters": 3528,
+    "qualified": true,
+    "total": 10010
+  }
+}

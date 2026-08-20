@@ -1,0 +1,24 @@
+{
+  "accepted": false,
+  "event": {
+    "accuracy": "",
+    "attempt_id": "attempt-0060",
+    "commit": "fd2fadb7685010baf73de9733a251a79e44e2d3d",
+    "description": "Share the pre-attention and pre-feed-forward LayerNorm scales within each block, yielding one scale shared across both blocks and the already tied final normalization; retain shared attention outputs, rank-4 tokens, factorized rank-3 positions, d=14, ff=19, and 75000 steps.",
+    "parameters": "",
+    "parent_commit": "5d4588e0b530eabf5e627cf280a4aeb68f863b6d",
+    "proposal": "Family: parameter tying. Retained incumbent is attempt-0059 with 2676 parameters at 99.360000%, a +0.360000 percentage-point margin over 99%. Same-family history: the most recent accepted result is attempt-0059, final-to-pre-attention normalization-scale tying (2676, 99.36%); the most recent failed result is attempt-0049, multi-query attention, an optimization failure; 11 prior parameter-tying macro attempts. The closest related failure is attempt-0040, within-block pre-norm tying under an earlier rank-3-position, full-attention-output, 45000-step architecture; this is an explicitly changed-condition retry because the current model has rank-4 tied tokens, shared attention outputs, an already accepted final/pre-attention tie, and 75000 updates. Hypothesis: the two residual-branch normalizations can use one shared scale when their centering and variance statistics remain separate. This is parameter tying, not scalar pruning: it removes the remaining distinct 14-scalar pre-feed-forward scale, lowering actual parameters from 2676 to 2662. It is more informative than deleting the scale because it preserves learned normalization calibration while isolating whether branch-specific scaling remains needed.",
+    "status": "error",
+    "timestamp_utc": "2026-08-17T15:46:54.678049+00:00",
+    "train_exit": 0,
+    "verify_exit": ""
+  },
+  "verification": {
+    "accuracy": null,
+    "accuracy_percent": null,
+    "correct": null,
+    "parameters": null,
+    "qualified": false,
+    "total": null
+  }
+}

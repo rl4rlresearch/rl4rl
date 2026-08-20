@@ -1,0 +1,24 @@
+{
+  "accepted": false,
+  "event": {
+    "accuracy": "",
+    "attempt_id": "attempt-0048",
+    "commit": "29b9f3e46bbad8195eb164d8a2777d828d31fb4c",
+    "description": "Retry the final-LayerNorm-scale ablation after correcting initialization to handle affine-free LayerNorms: retain its normalization statistic, all shared no-offset pre-normalization scales, factorized rank-3 positions, reversed operands, d=14, h=2, L=2, ff=19, and the 45000-step schedule.",
+    "parameters": "",
+    "parent_commit": "ea7532a1a103060f3f552ba57104a4f979ea756a",
+    "proposal": "Family: normalization. Retained incumbent is attempt-0045 with 2980 parameters at 99.960000%, a +0.960000 percentage-point margin over 99%. Same-family history: the most recent accepted result is attempt-0041, no LayerNorm additive bias vectors (3031, 99.99%); the most recent evaluated failure is attempt-0042, removal of all remaining LayerNorm scales, an optimization failure peaking at 8.3% validation; 5 prior normalization macro attempts. Attempt-0047 was a pre-training setup error, not an optimization result: an affine-free final LayerNorm exposed an initializer that unconditionally filled module.weight, which was None. This candidate fixes that general guard and tests the same scientific hypothesis: final per-channel scaling may be redundant while the output normalization statistic and the three shared block scales remain. It removes only 14 learned values, from 2980 to 2966. This is a focused normalization ablation, not scalar pruning. Retrying after the documented configuration correction is more informative than changing the mechanism, because no training signal was obtained in attempt-0047; it remains more diagnostic than all-scale removal because it isolates final-logit calibration from residual-stream calibration.",
+    "status": "error",
+    "timestamp_utc": "2026-08-17T11:44:13.603766+00:00",
+    "train_exit": 0,
+    "verify_exit": ""
+  },
+  "verification": {
+    "accuracy": null,
+    "accuracy_percent": null,
+    "correct": null,
+    "parameters": null,
+    "qualified": false,
+    "total": null
+  }
+}

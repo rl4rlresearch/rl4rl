@@ -1,0 +1,24 @@
+{
+  "accepted": false,
+  "event": {
+    "accuracy": "0.000000%",
+    "attempt_id": "attempt-0112",
+    "commit": "d268f8d6dff22b0aacfdb05826793cf4cd7045c0",
+    "description": "Use RMSNorm only at block 0's pre-feed-forward site",
+    "parameters": 1658,
+    "parent_commit": "a1dfac6cb503f577ebebcb35e93ea9788786fa40",
+    "proposal": "Family: normalization. Current retained frontier is 1,672 parameters at 99.010000%, a +0.010000 percentage-point margin over 99%. There have been 3 prior attempts in this family. The most recent accepted result is attempt-0018, which removed the final LayerNorm bias and qualified at 3,360 parameters and 99.07%; the most recent failed result is attempt-0111, whose all-site RMSNorm substitution scored 0.00% at 1,629 parameters. Hypothesis: attempt-0111 failed because centering was removed globally, but block 0's pre-feed-forward site can use RMS normalization locally; this is the only site where both one scale tie and one bias tie qualified in attempts 0094-0095. This operation-level change restores retained LayerNorm at the other four sites, migrates the 16 reconstructed scales into one RMSNorm, removes its 15 learned bias groups, and yields 1,658 parameters. It is more informative than testing a less-supported site because prior local tying provides positive evidence specifically here and isolates whether mean centering, rather than affine redundancy, is essential. Attention, feed-forward transforms, representations, and generic autoregressive decoding remain unchanged.",
+    "status": "discard",
+    "timestamp_utc": "2026-08-17T06:12:22.264557+00:00",
+    "train_exit": 0,
+    "verify_exit": 0
+  },
+  "verification": {
+    "accuracy": 0.0,
+    "accuracy_percent": 0.0,
+    "correct": 0,
+    "parameters": 1658,
+    "qualified": false,
+    "total": 10010
+  }
+}

@@ -1,0 +1,24 @@
+{
+  "accepted": true,
+  "event": {
+    "accuracy": "100.000000%",
+    "attempt_id": "attempt-0030",
+    "commit": "ba7a4f9020644e7461f731689b6226af4a20fb9b",
+    "description": "Use per-head block-diagonal attention output projections",
+    "parameters": 3200,
+    "parent_commit": "614bf9a6378fd23b3a59741b1b26d77d0777984e",
+    "proposal": "family: attention organization; retained incumbent is 3456 parameters at 99.9200%, a +0.92 percentage-point margin over 99%. Same-family accepted result: attempt-0015, full output MQA at 3776/99.95%; same-family failed result: attempt-0018, rank-6 output bottleneck at 3648/0.01% (with attempts 0016\u20130017 also failing); prior attempts in this family: 5. Hypothesis: the failed low-rank projections removed too much global mixing, so preserve a full-rank d_head-by-d_head output transform independently for each head and remove only cross-head output terms; at d16,h2 this reduces each projection from 256 to 128 parameters and yields 3200 total. This is more informative than another low-rank rank because it preserves exact within-head expressivity and changes only cross-head coupling. Keep affine-free block pre-norms, full final norm, learned positions, MQA, ff17, mixed-digit training, and 30000 steps; retain only official accuracy >=99% and strictly below 3456 parameters.",
+    "status": "keep",
+    "timestamp_utc": "2026-08-17T06:11:07.713296+00:00",
+    "train_exit": 0,
+    "verify_exit": 0
+  },
+  "verification": {
+    "accuracy": 1.0,
+    "accuracy_percent": 100.0,
+    "correct": 10010,
+    "parameters": 3200,
+    "qualified": true,
+    "total": 10010
+  }
+}

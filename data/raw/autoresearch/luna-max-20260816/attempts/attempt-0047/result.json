@@ -1,0 +1,24 @@
+{
+  "accepted": false,
+  "event": {
+    "accuracy": "10.340000%",
+    "attempt_id": "attempt-0047",
+    "commit": "4604fddbdfdbe7adf4ddb640f1fe10f49175cca2",
+    "description": "Allocate d12 attention with ff33 nonlinear width",
+    "parameters": 2916,
+    "parent_commit": "ac98521b0ace9c74c5bb1fce686f5254dbc9972f",
+    "proposal": "family: attention organization; current retained incumbent is 2982 parameters at 99.9700%, a +0.97 percentage-point margin over 99%. Same-family accepted result: attempt-0043, d14/h2 with ff24 at 3038/99.91%; same-family failed result: attempt-0046, one d13 attention head at 2951/1.35% (and the preceding Q/KV tie was 10.29%); prior attempts in this family: 10. Hypothesis: two heads are required, but each d14 head may have excess channel width. Test d12/h2 with a much wider ff33, retaining MQA and independent 6x6 head-local output maps; the candidate is predicted at 2916 parameters. This is more informative than continuing d14 FF interpolation because it shifts capacity from attention channels to nonlinear width while preserving two-head specialization; the nearest untested alternative is d12 with a smaller FF, which would conflate head-width and FF losses before this allocation is measured. Keep two layers, affine-free block pre-norms, final learned scale without bias, learned positions, reversed operands, mixed-digit curriculum, and 30000 steps; retain only official accuracy >=99% and strictly below 2982 parameters.",
+    "status": "discard",
+    "timestamp_utc": "2026-08-17T09:39:32.537959+00:00",
+    "train_exit": 0,
+    "verify_exit": 0
+  },
+  "verification": {
+    "accuracy": 0.10339999999999999,
+    "accuracy_percent": 10.34,
+    "correct": 1035,
+    "parameters": 2916,
+    "qualified": false,
+    "total": 10010
+  }
+}

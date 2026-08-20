@@ -1,0 +1,24 @@
+{
+  "accepted": false,
+  "event": {
+    "accuracy": "9.420000%",
+    "attempt_id": "attempt-0067",
+    "commit": "9dcd1c366e35321820994a5eaa585eb51b633aa2",
+    "description": "Share both head-local attention output maps across depth blocks",
+    "parameters": 2732,
+    "parent_commit": "74d31740304d396160a6393d7653db2132bfd1f9",
+    "proposal": "family: attention organization; current retained incumbent is 2781 parameters at 100.0000%, a +1.00 percentage-point margin over 99%. Same-family most recent accepted result: attempt-0066, sharing head 0's 7x7 attention output map across the two blocks at 2781 parameters and 100.00%; same-family most recent failed result: attempt-0057, block-diagonal Q projections at 2688 parameters and 0.01%; prior attempts in this family: 13. Hypothesis: because one cross-depth head-local output tie is fully qualified, share the complementary head 1 output map across both blocks while preserving both causal attention applications, all Q/KV projections, and the two distinct head-local maps as a pair. This removes the second 49-parameter map for a target of 2732. It is more informative than the nearest untested cross-layer Q or KV tie because it completes the already accepted output-map interpolation and isolates whether both heads can use depth-shared output coordinates before constraining attention-score formation. Keep d14/h2/L2 MQA, ff23 with one within-block tied hidden unit shared across blocks, rank8 positions, two final group scales, reversed operands, zero weight decay, mixed-digit curriculum, and 30000 steps; retain only official accuracy at least 99% and strictly fewer parameters than the incumbent.",
+    "status": "discard",
+    "timestamp_utc": "2026-08-17T13:29:06.464013+00:00",
+    "train_exit": 0,
+    "verify_exit": 0
+  },
+  "verification": {
+    "accuracy": 0.0942,
+    "accuracy_percent": 9.42,
+    "correct": 943,
+    "parameters": 2732,
+    "qualified": false,
+    "total": 10010
+  }
+}

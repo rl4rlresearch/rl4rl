@@ -1,0 +1,20 @@
+{
+  "accepted_micro_trials": 0,
+  "attempt_id": "attempt-0115",
+  "automation_id": "nearest-block0-preattn-bias-pruning",
+  "best_accuracy": "",
+  "best_parameters": "",
+  "description": "Prune block-0 pre-attention LayerNorm biases in nearest-neutral order",
+  "error_micro_trials": 1,
+  "family": "scalar pruning",
+  "finished_at_utc": "2026-08-17T06:23:42.761010+00:00",
+  "max_micro_trials": 14,
+  "micro_attempts_used": 1,
+  "parent_commit": "a1dfac6cb503f577ebebcb35e93ea9788786fa40",
+  "parent_parameters": 1672,
+  "proposal": "Family: scalar pruning. Current retained frontier is 1,672 parameters at 99.010000%, a +0.010000 percentage-point margin over 99%. There have been 23 prior attempts in this family. The most recent accepted result was attempt-0059, which fixed block-1 pre-FF scale coordinate 12 at 2,118 parameters/99.05%; the most recent failed result was attempt-0061, whose second block-1 pre-FF scale prune scored 54.19% at 2,117 parameters. The current checkpoint's nearest remaining normalization bias to zero is block 0 pre-attention coordinate 3 at magnitude 1.045e-02, slightly below the nearest block-1 pre-attention alternative at 1.108e-02. Hypothesis: after later scalar unions changed the frontier, this isolated residual bias remains dispensable. The helper orders eligible coordinates by current absolute bias, fixes one to zero per micro-trial, and the official runner alone accepts or rolls back. Stop on the first scored discard or error, when no coordinate remains, at 14 micro-trials, or after 20 wall-clock minutes. This is more informative than opening block 1 first because it is the globally least checkpoint perturbation among untested sparse-normalization biases.",
+  "schema": "rl4rl-autoresearch-automation-v1",
+  "started_at_utc": "2026-08-17T06:22:26.675265+00:00",
+  "status": "discard",
+  "summary": "One micro-trial attempted block-0 pre-attention bias coordinate 3, but training never started because the helper generated an invalid tuple by omitting a separator before the new coordinate. Outcomes: 0 accepts, 0 scored discards, 1 implementation error, no official verification, and no frontier change. Stop reason: the declared first-error boundary. The syntax defect is reproducible and has been corrected in the helper; architectural capacity remains untested."
+}

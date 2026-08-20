@@ -1,0 +1,20 @@
+{
+  "accepted_micro_trials": 20,
+  "attempt_id": "attempt-0084",
+  "automation_id": "nearest-shared-ff-input-unions",
+  "best_accuracy": "99.020000%",
+  "best_parameters": 1724,
+  "description": "Reconstruct the shared feed-forward input map from scalar groups and test nearest unions",
+  "error_micro_trials": 0,
+  "family": "parameter tying",
+  "finished_at_utc": "2026-08-17T04:01:51.563460+00:00",
+  "max_micro_trials": 20,
+  "micro_attempts_used": 20,
+  "parent_commit": "8bc754bff8bd13f93e1726431a4973a0d16cf297",
+  "parent_parameters": 1744,
+  "proposal": "Family: parameter tying. Current retained frontier is 1,744 parameters at 99.010000%, a +0.010000 percentage-point margin over 99%. There have been 26 prior macro-attempts and 366 prior micro-trials in this family. The most recent accepted result is attempt-0083/micro-0020 at 1,744 parameters and 99.01%; the most recent failed result is attempt-0081/micro-0007, whose token-matrix union scored 98.97%. Hypothesis: the depth-shared feed-forward input map contains near-duplicate learned scalars independent of the two accepted QKV bands, so reconstructing only this nonlinear feature-construction matrix from scalar groups and greedily unioning its closest values can reduce count without perturbing attention or the FF output map. Ordering is ascending absolute current group-value difference, recomputed after every keep. This parameterization-preserving substitution is more informative than a third QKV band because it tests whether redundancy transfers to a different mechanism while isolating the input side of the FF path. Each micro-trial adds one union and the official runner alone accepts or rolls back. Stop on the first scored discard or error, at the 20-micro-trial cap, or if no pair remains. Compute budget: at most 20 checkpoint migrations and official verifications or 30 wall-clock minutes.",
+  "schema": "rl4rl-autoresearch-automation-v1",
+  "started_at_utc": "2026-08-17T03:37:03.784121+00:00",
+  "status": "keep",
+  "summary": "Completed the declared 20 nearest shared feed-forward input scalar unions. All 20 qualified and were retained, moving the frontier from 1,744 parameters at 99.01% to 1,724 parameters at 99.02%; 20 accepts, 0 discards, 0 errors. Pairwise differences rose through 1.888e-4. Compute used checkpoint migration plus 20 official verifications, no fresh optimization, over 24m33s wall clock. Stop reason: fixed 20-micro-trial cap; no scored FF-input boundary was reached."
+}

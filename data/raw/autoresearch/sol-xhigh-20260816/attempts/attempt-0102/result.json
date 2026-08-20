@@ -1,0 +1,24 @@
+{
+  "accepted": false,
+  "event": {
+    "accuracy": "0.000000%",
+    "attempt_id": "attempt-0102",
+    "commit": "d8e920be72655e23618bea7cdb13879570c3f5b4",
+    "description": "Replace the value map with a global rank-6 SVD factorization",
+    "parameters": 1657,
+    "parent_commit": "a1dfac6cb503f577ebebcb35e93ea9788786fa40",
+    "proposal": "Family: attention organization. Current retained frontier is 1,672 parameters at 99.010000%, a +0.010000 percentage-point margin over 99%. There have been 8 prior attempts in this family. The most recent accepted result is attempt-0020, which removed attention output projections and qualified at 3,168 parameters and 99.94%; the most recent failed result is attempt-0101, whose block-diagonal per-head value maps scored 0.00% at 1,593 parameters. Hypothesis: attempt-0101 failed because it removed global cross-half value mixing, whereas the learned value transform may still have low intrinsic rank. This major representational change preserves the reconstructed 32x16 Q/K maps exactly and replaces the global 16x16 value map with its best rank-6 SVD factorization (16x6 and 6x16), yielding 1,657 parameters. It is more informative than a rank-5 candidate because rank 6 is the highest integer rank that produces a strict parameter reduction once full Q/K maps are retained; it therefore tests value-rank compression with minimum representational loss. Generic two-head causal softmax self-attention and autoregressive decoding remain intact.",
+    "status": "discard",
+    "timestamp_utc": "2026-08-17T05:51:18.552919+00:00",
+    "train_exit": 0,
+    "verify_exit": 0
+  },
+  "verification": {
+    "accuracy": 0.0,
+    "accuracy_percent": 0.0,
+    "correct": 0,
+    "parameters": 1657,
+    "qualified": false,
+    "total": 10010
+  }
+}

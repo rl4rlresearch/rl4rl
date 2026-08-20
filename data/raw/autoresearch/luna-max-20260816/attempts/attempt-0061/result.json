@@ -1,0 +1,24 @@
+{
+  "accepted": false,
+  "event": {
+    "accuracy": "10.510000%",
+    "attempt_id": "attempt-0061",
+    "commit": "6ea4c951955b7a3e6d341f2141f0839f26e3f436",
+    "description": "Collapse final LayerNorm group scales to one scalar",
+    "parameters": 2843,
+    "parent_commit": "807f9500bc49fd8ae49f3a889a812d8aefcd690d",
+    "proposal": "family: normalization; current retained incumbent is 2844 parameters at 100.0000%, a +1.00 percentage-point margin over 99%. Same-family accepted result: attempt-0060, two learned final LayerNorm group scales at 2844/100.00%; same-family failed result: attempt-0056, one global final LayerNorm scale from the pre-tying incumbent at 2871/5.47%. Prior attempts in this family: 9. Hypothesis: the accepted two-group scale retains more calibration capacity than needed, so test the immediate one-scalar boundary while preserving the complete final normalization and all other retained reductions. This targets 2843 parameters. This is more informative than deleting the final scale or making another large architectural change because it isolates whether the second group scalar is necessary, directly bracketing the newly accepted two-group result; the earlier scalar failure is a prior warning but was measured before the successful FF tie and grouped-scale context. Keep d14/h2/L2, MQA, independent head-local maps, ff23 with one tied hidden unit per block, rank8 positions, affine-free block pre-norms, reversed operands, zero weight decay, mixed-digit curriculum, and 30000 steps; retain only official accuracy >=99% and strictly below 2844 parameters.",
+    "status": "discard",
+    "timestamp_utc": "2026-08-17T12:05:15.184097+00:00",
+    "train_exit": 0,
+    "verify_exit": 0
+  },
+  "verification": {
+    "accuracy": 0.1051,
+    "accuracy_percent": 10.51,
+    "correct": 1052,
+    "parameters": 2843,
+    "qualified": false,
+    "total": 10010
+  }
+}

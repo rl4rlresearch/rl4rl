@@ -1,0 +1,24 @@
+{
+  "accepted": false,
+  "event": {
+    "accuracy": "5.470000%",
+    "attempt_id": "attempt-0056",
+    "commit": "35017ecb3abb7522b5caeecdc8b511ddadcfd98a",
+    "description": "Tie final LayerNorm scale to one global scalar",
+    "parameters": 2871,
+    "parent_commit": "a3adffc7be1254323fe6d42c6dc751fb5f809d5c",
+    "proposal": "family: normalization; current retained incumbent is 2884 parameters at 99.9900%, a +0.99 percentage-point margin over 99%. Same-family accepted result: attempt-0038, removing only final LayerNorm bias at 3120/99.92%; same-family failed result: attempt-0039, removing the remaining final scale entirely at 3104/90.81%; prior attempts in this family: 7. Hypothesis: the final scale vector is necessary but may not need 14 independent coordinates. Retain final normalization and replace its learned 14-element scale with one learned scalar broadcast over channels, saving 13 parameters for 2871 total. This is more informative than deleting the scale because it preserves global output calibration while isolating per-channel calibration; the nearest untested alternative is a fixed scale, which repeats the known scale-removal failure. Keep d14/h2/L2, MQA, independent head-local maps, ff23, rank8 positions, affine-free block pre-norms, reversed operands, zero weight decay, mixed-digit curriculum, and 30000 steps; retain only official accuracy >=99% and strictly below 2884 parameters.",
+    "status": "discard",
+    "timestamp_utc": "2026-08-17T11:06:50.764400+00:00",
+    "train_exit": 0,
+    "verify_exit": 0
+  },
+  "verification": {
+    "accuracy": 0.0547,
+    "accuracy_percent": 5.47,
+    "correct": 548,
+    "parameters": 2871,
+    "qualified": false,
+    "total": 10010
+  }
+}

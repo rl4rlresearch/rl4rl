@@ -1,0 +1,20 @@
+{
+  "accepted_micro_trials": 20,
+  "attempt_id": "attempt-0082",
+  "automation_id": "nearest-shared-qkv-unions",
+  "best_accuracy": "99.010000%",
+  "best_parameters": 1764,
+  "description": "Reconstruct the depth-shared QKV matrix from scalar groups and test nearest-value unions",
+  "error_micro_trials": 0,
+  "family": "parameter tying",
+  "finished_at_utc": "2026-08-17T03:10:41.702149+00:00",
+  "max_micro_trials": 20,
+  "micro_attempts_used": 20,
+  "parent_commit": "76b797df9fd2d9b42b82d99720958d50ba25fc7e",
+  "parent_parameters": 1784,
+  "proposal": "Family: parameter tying. Current retained frontier is 1,784 parameters at 99.000000%, a +0.000000 percentage-point margin over 99%. There have been 24 prior macro-attempts and 326 prior micro-trials in this family. The most recent accepted result is attempt-0081/micro-0006 at 1,784 parameters and 99.00%; the most recent failed result is attempt-0081/micro-0007, whose next token-matrix union proposed 1,783 parameters and scored 98.97%. Hypothesis: the already depth-shared 768-scalar QKV transform contains much closer duplicate values than the token matrix, so reconstructing it from scalar groups and unioning the least-separated groups can compress the attention parameterization without the token site's measured sensitivity. Ordering is ascending absolute current QKV-group difference, recomputed after every keep. This parameterization-preserving attention substitution is more informative than excluding the failed token pair because it tests a new large tensor with smaller perturbations and separates tensor sensitivity from the zero observed accuracy margin. Each micro-trial changes one QKV union; the official runner alone accepts or rolls back. Stop on the first scored discard or error, at the 20-micro-trial cap, or when no group pair remains. Compute budget: at most 20 checkpoint migrations and official verifications or 30 wall-clock minutes.",
+  "schema": "rl4rl-autoresearch-automation-v1",
+  "started_at_utc": "2026-08-17T02:45:45.829835+00:00",
+  "status": "keep",
+  "summary": "Completed the declared 20 nearest shared-QKV scalar unions. All 20 qualified and were retained, moving the frontier from 1,784 parameters at 99.00% to 1,764 parameters at 99.01%; 20 accepts, 0 discards, 0 errors. Pairwise differences rose through 1.892e-5. Compute used checkpoint migration plus 20 official verifications, no fresh optimization, over 24m37s wall clock. Stop reason: fixed 20-micro-trial cap; no scored boundary was reached."
+}

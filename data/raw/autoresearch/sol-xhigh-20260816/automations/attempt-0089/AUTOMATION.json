@@ -1,0 +1,20 @@
+{
+  "accepted_micro_trials": 8,
+  "attempt_id": "attempt-0089",
+  "automation_id": "third-shared-qkv-union-band-repair",
+  "best_accuracy": "99.010000%",
+  "best_parameters": 1687,
+  "description": "Repair the QKV source splice and resume the third nearest-union band",
+  "error_micro_trials": 0,
+  "family": "parameter tying",
+  "finished_at_utc": "2026-08-17T04:56:13.538070+00:00",
+  "max_micro_trials": 20,
+  "micro_attempts_used": 9,
+  "parent_commit": "28e517b2dcd2a7d2fa7f9b474399079bf38b15b2",
+  "parent_parameters": 1695,
+  "proposal": "Family: parameter tying. Current retained frontier is 1,695 parameters at 99.030000%, a +0.030000 percentage-point margin over 99%. There have been 31 prior macro-attempts and 418 prior micro-trials in this family. The most recent accepted result is attempt-0087/micro-0009 at 1,695 parameters and 99.03%; the most recent failed result is attempt-0088/micro-0001, an implementation error with no score because the QKV helper inserted coordinates into the FF-output pair constant after the source layout changed, causing an IndexError before checkpoint migration. This is the permitted repair of the exact intended QKV candidate: the helper now terminates its splice at FF_IN_TIED_PAIRS; candidate (633,422), ordering, architecture, and official acceptance/rollback are unchanged. Hypothesis: the third nearest-difference QKV band continues the 40 accepted attention unions. Repairing the unscored candidate is more informative than the next alternative because it cleanly separates the implementation defect from QKV capacity at the exact minimum-difference pair. Stop on the first scored discard or further error, at 20 micro-trials, or if no pair remains. Compute budget: at most 20 checkpoint migrations and official verifications or 30 wall-clock minutes.",
+  "schema": "rl4rl-autoresearch-automation-v1",
+  "started_at_utc": "2026-08-17T04:45:02.934434+00:00",
+  "status": "keep",
+  "summary": "After repairing the splice, evaluated 9 unions in the third QKV band. The first 8 qualified and were retained, moving the frontier from 1,695 parameters at 99.03% to 1,687 parameters at 99.01%; micro-0009 proposed 1,686 parameters and scored 98.99%, so it was discarded and rolled back. Outcomes: 8 accepts, 1 scored discard, 0 errors after repair. Compute used checkpoint migration plus 9 official verifications over 10m56s wall clock. Stop reason: first scored failure closed the QKV path before the 20-trial/30-minute cap."
+}

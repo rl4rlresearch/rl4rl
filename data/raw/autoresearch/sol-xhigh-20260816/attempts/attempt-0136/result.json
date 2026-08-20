@@ -1,0 +1,24 @@
+{
+  "accepted": false,
+  "event": {
+    "accuracy": "0.000000%",
+    "attempt_id": "attempt-0136",
+    "commit": "85beeb53f54fea830ff5430cb7ea952128c60ad8",
+    "description": "Use RMSNorm only at block 1 pre-feed-forward",
+    "parameters": 1659,
+    "parent_commit": "a1dfac6cb503f577ebebcb35e93ea9788786fa40",
+    "proposal": "Family: normalization. Current retained frontier is 1,672 parameters at 99.010000%, a +0.010000 percentage-point margin over 99%. There have been 6 prior attempts in this family. The most recent accepted result is attempt-0018 at 3,360 parameters/99.07%; the most recent failed result is attempt-0135, whose block-1 pre-attention RMSNorm scored 0.00% at 1,661 parameters. The nearest same-operation failed result is attempt-0112, block-0 pre-FF RMSNorm at 0.00%. Hypothesis: the second block's nonlinear path may tolerate uncentered normalization because its scale coordinate 12 was previously fixed to one successfully and it operates on a more processed residual stream. Replace only that LayerNorm by RMSNorm, reconstruct 16 scales, remove 14 biases net of one restored scale, yielding 1,659 parameters. This completes the untested depth complement and is more informative than a global normalization retry because every other site remains exact.",
+    "status": "discard",
+    "timestamp_utc": "2026-08-17T07:10:11.892645+00:00",
+    "train_exit": 0,
+    "verify_exit": 0
+  },
+  "verification": {
+    "accuracy": 0.0,
+    "accuracy_percent": 0.0,
+    "correct": 0,
+    "parameters": 1659,
+    "qualified": false,
+    "total": 10010
+  }
+}

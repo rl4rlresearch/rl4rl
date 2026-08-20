@@ -1,0 +1,24 @@
+{
+  "accepted": false,
+  "event": {
+    "accuracy": "",
+    "attempt_id": "attempt-0040",
+    "commit": "83d6d974e7c3aeb591f0c76676493970e378c9ee",
+    "description": "Tie attention and feed-forward pre-normalization within each block while retaining corresponding cross-layer normalization sharing, reversed operands, d=14, two heads, two blocks, ff=19, rank-3 learned positions, and the 45000-step schedule.",
+    "parameters": "",
+    "parent_commit": "9a606f78349133fefd3cd24930863f0acd901a3f",
+    "proposal": "Family: parameter tying. Retained incumbent is 3073 parameters at 99.710000%, a +0.710000 percentage-point margin over 99%. Same-family history: the most recent accepted result is attempt-0038, corresponding LayerNorm sharing across blocks (3073, 99.71%); the most recent failed result is attempt-0039, final-normalization sharing, an optimization failure with 10.7% peak validation; 6 prior parameter-tying candidate attempts. Hypothesis: attention and feed-forward residual updates may use one shared pre-normalization affine calibration while the final output normalization remains distinct; with the existing cross-layer tie, this removes one further 14-scale-plus-14-offset vector, reducing actual parameters from 3073 to 3045. This is a parameter-tying change, not scalar pruning. It is more informative than final-normalization sharing because it preserves the output-specific calibration that the prior failure directly implicated.",
+    "status": "error",
+    "timestamp_utc": "2026-08-17T10:06:52.849695+00:00",
+    "train_exit": 0,
+    "verify_exit": ""
+  },
+  "verification": {
+    "accuracy": null,
+    "accuracy_percent": null,
+    "correct": null,
+    "parameters": null,
+    "qualified": false,
+    "total": null
+  }
+}

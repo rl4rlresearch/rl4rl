@@ -1,0 +1,20 @@
+{
+  "accepted_micro_trials": 0,
+  "attempt_id": "attempt-0088",
+  "automation_id": "third-shared-qkv-union-band",
+  "best_accuracy": "",
+  "best_parameters": "",
+  "description": "Test a third 20-union difference band in the shared QKV transform",
+  "error_micro_trials": 1,
+  "family": "parameter tying",
+  "finished_at_utc": "2026-08-17T04:44:34.199377+00:00",
+  "max_micro_trials": 20,
+  "micro_attempts_used": 1,
+  "parent_commit": "28e517b2dcd2a7d2fa7f9b474399079bf38b15b2",
+  "parent_parameters": 1695,
+  "proposal": "Family: parameter tying. Current retained frontier is 1,695 parameters at 99.030000%, a +0.030000 percentage-point margin over 99%. There have been 30 prior macro-attempts and 417 prior micro-trials in this family. The most recent accepted result is attempt-0087/micro-0009 at 1,695 parameters and 99.03%; the most recent failed result is attempt-0087/micro-0010, whose next FF-output union scored 98.99% at 1,694 parameters. Shared QKV has retained 40 ordered unions without a scored failure. Hypothesis: attention-transform redundancy extends beyond both measured feed-forward boundaries, so the next ascending-difference QKV band can still reduce parameters while preserving qualification. This parameterization-preserving compression is more informative than excluding either failed FF pair because it returns to the only large tensor site whose ordered path remains open and tests a new difference range. Each micro-trial adds one QKV union and the official runner alone accepts or rolls back. Stop on the first scored discard or error, at 20 micro-trials, or if no pair remains. Compute budget: at most 20 checkpoint migrations and official verifications or 30 wall-clock minutes.",
+  "schema": "rl4rl-autoresearch-automation-v1",
+  "started_at_utc": "2026-08-17T04:44:05.989646+00:00",
+  "status": "discard",
+  "summary": "No candidate was scored. The first intended QKV union hit a reproducible implementation error during model construction because the QKV helper's source insertion boundary had become stale after adding FF scalar-pair constants and inserted QKV coordinates into the 256-entry FF-output list, causing an IndexError. This is not capacity evidence. Frontier remained 1,695 parameters at 99.03%; 0 accepts, 0 scored discards, 1 implementation error, negligible compute. Stop reason: recorded implementation error before the 20-trial/30-minute cap."
+}

@@ -1,0 +1,24 @@
+{
+  "accepted": false,
+  "event": {
+    "accuracy": "10.290000%",
+    "attempt_id": "attempt-0042",
+    "commit": "c86d3dee9bc7baef0c5d043871ef8a817109cbce",
+    "description": "Tie the Q and shared KV projections within each attention block",
+    "parameters": 2608,
+    "parent_commit": "7b108ce73f66ebafe562401d225bf2bb72f8bcff",
+    "proposal": "family: attention organization; current retained incumbent is 3120 parameters at 99.9200%, a +0.92 percentage-point margin over 99%. Same-family accepted result: attempt-0030, independent per-head block-diagonal output projections at 3200/100.00% before final-bias pruning; same-family failed result: attempt-0036, one-layer wide-FF depth reduction at 3008/6.74% (the earlier Q/KV-sharing attempt-0016 also scored 0.02%); prior attempts in this family: 7. Hypothesis: MQA already shares K/V while retaining a separate Q map; tie the equal-shaped d16 Q and 2*d_head KV projections within each block to remove 256 parameters per block, yielding 2608 total. This revisits the earlier failed Q/KV tie only after the successful head-local output organization, ff16 boundary, and final-bias pruning changed the regime; it is more informative than reducing head width because it preserves two full attention channels and tests parameter reuse alone. The nearest untested alternative is sharing Q across layers, which removes depth-specific attention rather than query/key/value specialization. Keep two blocks, independent head-local output maps, full FFs, affine-free pre-norms, final learned scale, learned positions, reversed operands, mixed-digit curriculum, and 30000 steps; retain only official accuracy >=99% and strictly below 3120 parameters.",
+    "status": "discard",
+    "timestamp_utc": "2026-08-17T08:47:34.974867+00:00",
+    "train_exit": 0,
+    "verify_exit": 0
+  },
+  "verification": {
+    "accuracy": 0.10289999999999999,
+    "accuracy_percent": 10.29,
+    "correct": 1030,
+    "parameters": 2608,
+    "qualified": false,
+    "total": 10010
+  }
+}

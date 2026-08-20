@@ -1,0 +1,24 @@
+{
+  "accepted": false,
+  "event": {
+    "accuracy": "",
+    "attempt_id": "attempt-0047",
+    "commit": "a0772fbd3bb456959d603cfe776fda99be421baf",
+    "description": "Remove only the final LayerNorm learned scale vector while retaining its centering-and-variance statistic, all three shared no-offset pre-normalization scales, factorized rank-3 positions, reversed operands, d=14, h=2, L=2, ff=19, and the 45000-step schedule.",
+    "parameters": "",
+    "parent_commit": "ea7532a1a103060f3f552ba57104a4f979ea756a",
+    "proposal": "Family: normalization. Retained incumbent is attempt-0045 with 2980 parameters at 99.960000%, a +0.960000 percentage-point margin over 99%. Same-family history: the most recent accepted result is attempt-0041, no LayerNorm additive bias vectors (3031, 99.99%), and the incumbent retains its block scales; the most recent failed result is attempt-0042, removal of all remaining LayerNorm scales, an optimization failure peaking at 8.3% validation; 4 prior normalization macro attempts. The immediately preceding attempt-0046 position-sharing candidate is an optimization failure (45000 steps, 0% peak validation, no checkpoint), not a scored nonqualification. Hypothesis: the final normalization statistic may be useful but its per-channel learned scale could be redundant because the tied output embedding and retained pre-normalization scales already calibrate representations. Removing only this 14-element scale lowers actual parameters from 2980 to 2966 while preserving all shared block scales. This is a focused normalization parameterization ablation, not a representational substitution. It is more informative than removing all scales again because it distinguishes final-logit calibration from block residual-stream calibration; the nearest untested fixed-unit-scale alternative would merely restate the same absence of learned final scaling.",
+    "status": "error",
+    "timestamp_utc": "2026-08-17T11:31:59.460500+00:00",
+    "train_exit": 1,
+    "verify_exit": ""
+  },
+  "verification": {
+    "accuracy": null,
+    "accuracy_percent": null,
+    "correct": null,
+    "parameters": null,
+    "qualified": false,
+    "total": null
+  }
+}

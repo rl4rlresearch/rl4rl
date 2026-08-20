@@ -1,0 +1,24 @@
+{
+  "accepted": false,
+  "event": {
+    "accuracy": "95.580000%",
+    "attempt_id": "attempt-0029",
+    "commit": "0e8fb52ac103d293049d81900986cd50b6ea9503",
+    "description": "Remove affine parameters from final LayerNorm after block pruning",
+    "parameters": 3424,
+    "parent_commit": "614bf9a6378fd23b3a59741b1b26d77d0777984e",
+    "proposal": "family: normalization; retained incumbent is 3456 parameters at 99.9200%, a +0.92 percentage-point margin over 99%. Same-family accepted results: attempt-0027 ln2 affine-free at 3520/99.79% and attempt-0028 ln1+ln2 affine-free at 3456/99.92%; same-family failed result: attempt-0007 final-only affine removal under standard attention at 5024/2.60%; prior attempts in this family: 4. Hypothesis: the final affine terms may only have been necessary when internal LayerNorms carried learned affine transformations; with both block pre-norms now affine-free, remove the last final scale/bias for 3424 parameters. This is more informative than repeating the old final-only test because the normalization context has changed through two accepted reductions. Keep mixed-digit training and 30000 steps; retain only official accuracy >=99% and strictly below 3456 parameters.",
+    "status": "discard",
+    "timestamp_utc": "2026-08-17T06:00:39.914125+00:00",
+    "train_exit": 0,
+    "verify_exit": 0
+  },
+  "verification": {
+    "accuracy": 0.9558,
+    "accuracy_percent": 95.58,
+    "correct": 9568,
+    "parameters": 3424,
+    "qualified": false,
+    "total": 10010
+  }
+}

@@ -1,0 +1,24 @@
+{
+  "accepted": false,
+  "event": {
+    "accuracy": "2.600000%",
+    "attempt_id": "attempt-0007",
+    "commit": "aa914c607b71c61b2eab8f6b4bb89092a5828b1e",
+    "description": "Repair initializer for affine-free final LayerNorm",
+    "parameters": 5024,
+    "parent_commit": "94ab87f45bd859ad38b8dc00072401db9c27b215",
+    "proposal": "family: normalization; implementation repair of attempt-0006. Retained incumbent is 5056 parameters at 99.9800%, a +0.98 percentage-point margin over 99%. Same-family accepted result: none; same-family failed result: attempt-0006, an implementation error before training because the initializer called ones_ on None for affine-free LayerNorm; prior attempts in this family: 1. The intended candidate remains final LayerNorm with elementwise_affine=False, 5024 parameters, while block LayerNorms and all other code stay unchanged. This repair adds None checks in the initializer and re-applies only the intended final-LayerNorm change; it is more informative than a new normalization variant because it recovers the exact unscored hypothesis. Train for 15000 steps with final-checkpoint fallback; retain only official accuracy >=99% and strictly below 5056 parameters.",
+    "status": "discard",
+    "timestamp_utc": "2026-08-17T02:09:20.817163+00:00",
+    "train_exit": 0,
+    "verify_exit": 0
+  },
+  "verification": {
+    "accuracy": 0.026000000000000002,
+    "accuracy_percent": 2.6,
+    "correct": 260,
+    "parameters": 5024,
+    "qualified": false,
+    "total": 10010
+  }
+}

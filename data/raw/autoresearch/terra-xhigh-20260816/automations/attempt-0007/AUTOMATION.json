@@ -1,0 +1,20 @@
+{
+  "accepted_micro_trials": 0,
+  "attempt_id": "attempt-0007",
+  "automation_id": "dmodel-descend",
+  "best_accuracy": "",
+  "best_parameters": "",
+  "description": "Monotonic descending sweep of valid two-head latent widths below the retained d=14 architecture.",
+  "error_micro_trials": 1,
+  "family": "attention organization",
+  "finished_at_utc": "2026-08-17T03:36:33.374560+00:00",
+  "max_micro_trials": 6,
+  "micro_attempts_used": 1,
+  "parent_commit": "8283b3e78a8dca7557c9afa83c7235e5d0dff2ce",
+  "parent_parameters": 3528,
+  "proposal": "Family: attention organization. Retained incumbent is 3528 parameters at 99.660000%, a +0.660000 percentage-point margin over 99%. Same-family history: accepted attempt-0006 at d=14 (3528, 99.66%); no scored failure; 1 prior attempt. Hypothesis: the retained d=14 two-head representation may tolerate additional even-width compression while retaining two independent attention pathways. This is a parameterization-preserving latent-width compression, not a representational substitution. Ordering: test d_model values 12, 10, 8, 6, 4, 2 in descending order with n_heads=2 and ff=20 fixed. Acceptance/rollback: the runner retains only a qualified smaller candidate and restores the incumbent otherwise; stop on any scored discard/error because smaller widths are then ineligible under the declared monotonic policy. Stopping: first discard/error, no eligible widths, or six micro-trials. Maximum micro-trials: 6. Compute budget: at most 180000 training steps and six configured runner windows (21600 seconds); no training, verification, retention, or silent discarding occurs outside run_attempt.py. This is more informative than skipping to d=10 because d=12 is the nearest untested valid two-head decrement.",
+  "schema": "rl4rl-autoresearch-automation-v1",
+  "started_at_utc": "2026-08-17T03:27:48.080070+00:00",
+  "status": "discard",
+  "summary": "Attempted the declared two-head latent-width range beginning at d=12. The first micro-trial was an optimization failure: it completed 30000 steps in 8.3 minutes but validation peaked at 7.6%, never produced a checkpoint, and consequently had no official score. No candidate was retained; frontier remains d=14, ff=20 at 3528 parameters and 99.660000%. Compute used: 30000 training steps. Stopped because the scored error changed the monotonic lower-width eligibility rule; d=10, 8, 6, 4, and 2 were not run."
+}

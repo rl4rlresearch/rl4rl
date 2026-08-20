@@ -1,0 +1,24 @@
+{
+  "accepted": false,
+  "event": {
+    "accuracy": "0.020000%",
+    "attempt_id": "attempt-0072",
+    "commit": "059bfc180a5ca9c118d5c567469f1a28174ca4f2",
+    "description": "Share one MQA K/V output row across depth blocks",
+    "parameters": 2725,
+    "parent_commit": "b5f309a4845d074d62558cef9fbb1144e68c4ebc",
+    "proposal": "family: attention organization; current retained incumbent is 2739 parameters at 99.7000%, a +0.70 percentage-point margin over 99%. Same-family most recent accepted result: attempt-0070, sharing three query output rows across depth at 2739 parameters and 99.70%; same-family most recent failed result: attempt-0071, sharing four query output rows at 2725 parameters and 1.80%; prior attempts in this family: 18. Hypothesis: the fourth query-row tie crossed a sharp score-path boundary, so preserve the three qualified shared query rows and instead share only one 14-value row of the MQA K/V projection across depth, leaving the other 13 K/V rows, Q rows, and head-local output maps depth-specific. This removes 14 parameters for a target of 2725. It is more informative than repeating another query row because it tests the complementary value/key representation path at the same compression granularity while retaining the full qualified query organization. Keep d14/h2/L2 MQA, ff23 with one within-block tied hidden unit shared across blocks, rank8 positions, two final group scales, reversed operands, zero weight decay, mixed-digit curriculum, and 30000 steps; retain only official accuracy at least 99% and strictly fewer parameters than the incumbent.",
+    "status": "discard",
+    "timestamp_utc": "2026-08-17T14:37:31.459596+00:00",
+    "train_exit": 0,
+    "verify_exit": 0
+  },
+  "verification": {
+    "accuracy": 0.0002,
+    "accuracy_percent": 0.02,
+    "correct": 2,
+    "parameters": 2725,
+    "qualified": false,
+    "total": 10010
+  }
+}

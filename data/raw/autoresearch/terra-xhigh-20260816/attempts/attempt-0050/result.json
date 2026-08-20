@@ -1,0 +1,24 @@
+{
+  "accepted": false,
+  "event": {
+    "accuracy": "",
+    "attempt_id": "attempt-0050",
+    "commit": "687c1a80707dc0727160acb5bab09e4c71d92a4f",
+    "description": "Reduce the feed-forward width from 19 to 18 in both blocks while retaining factorized rank-3 positional codes, distinct operand segment codes, full two-head QKV attention, shared no-offset normalization, reversed operands, d=14, L=2, and the 45000-step schedule.",
+    "parameters": "",
+    "parent_commit": "ea7532a1a103060f3f552ba57104a4f979ea756a",
+    "proposal": "Family: feed-forward width. Retained incumbent is attempt-0045 with 2980 parameters at 99.960000%, a +0.960000 percentage-point margin over 99%. Same-family history: the most recent accepted result is attempt-0025, ff=19 in the earlier rank-7 forward-order architecture (3381, 99.89%); the most recent failed result is attempt-0035, ff=18 in the pre-factorized reversed-input architecture, an optimization failure; 6 prior feed-forward-width macro attempts plus one closed fine-width automation. The immediately preceding multi-query candidate attempt-0049 is an optimization failure (45000 steps, 7.35% peak validation, no checkpoint), not a scored nonqualification. Hypothesis: the accepted factorized positional representation reduces the role-specific burden on the residual stream enough that one fewer nonlinear channel per block can suffice. Reducing each 14-to-19-to-14 feed-forward pair to width 18 removes 28 learned values per block, lowering actual parameters from 2980 to 2924. This is a one-channel feed-forward-width compression, not a representational substitution. It is more informative than trying ff=17 because it revisits the immediate width boundary under the materially different accepted factorized-position architecture; it also identifies whether position factorization, not just wider feed-forward capacity, provides the incumbent's margin.",
+    "status": "error",
+    "timestamp_utc": "2026-08-17T12:10:54.237910+00:00",
+    "train_exit": 0,
+    "verify_exit": ""
+  },
+  "verification": {
+    "accuracy": null,
+    "accuracy_percent": null,
+    "correct": null,
+    "parameters": null,
+    "qualified": false,
+    "total": null
+  }
+}

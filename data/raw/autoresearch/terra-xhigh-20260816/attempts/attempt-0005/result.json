@@ -1,0 +1,24 @@
+{
+  "accepted": false,
+  "event": {
+    "accuracy": "",
+    "attempt_id": "attempt-0005",
+    "commit": "7fa4b04c82ac810b26da7a9a885b3bb698cd9982",
+    "description": "Tie the two sequential transformer-block applications to one shared block while retaining two recurrent depth applications, learned positions, and ff=20.",
+    "parameters": "",
+    "parent_commit": "02fc67e1ea918cac3e24c0cb4067cddf8fc6611b",
+    "proposal": "Family: parameter tying. Retained incumbent is 4288 parameters at 99.910000%, a +0.910000 percentage-point margin over 99%. Same-family history: the baseline's tied input/output embedding was accepted at 6080 parameters and 100.000000%; there is no prior cross-layer-tying failure and 0 prior cross-layer-tying candidate attempts. The most recent width-family failure was an optimization failure at ff=16 (validation peaked at 11.4% after 30000 steps), which establishes a feed-forward boundary but not a sharing boundary. Hypothesis: repeated application of one learned transformer block can preserve the two-stage computation needed for carry propagation while removing the second block's independent parameters, reducing 4288 to 2560. This is a representational parameter-tying change, not scalar pruning. It is more informative than the nearest untested alternative, tying only a subprojection such as attention QKV, because it tests whether full block-specific depth capacity is needed while retaining exactly two attention applications.",
+    "status": "error",
+    "timestamp_utc": "2026-08-17T03:16:08.561321+00:00",
+    "train_exit": 0,
+    "verify_exit": ""
+  },
+  "verification": {
+    "accuracy": null,
+    "accuracy_percent": null,
+    "correct": null,
+    "parameters": null,
+    "qualified": false,
+    "total": null
+  }
+}

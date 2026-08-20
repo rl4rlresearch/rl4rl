@@ -1,0 +1,24 @@
+{
+  "accepted": false,
+  "event": {
+    "accuracy": "16.350000%",
+    "attempt_id": "attempt-0133",
+    "commit": "e43cc02981a5eda6e227692b2ab1957a03ca6eff",
+    "description": "Preserve digit rows and merge only the two control-token embeddings",
+    "parameters": 1663,
+    "parent_commit": "a1dfac6cb503f577ebebcb35e93ea9788786fa40",
+    "proposal": "Family: token representation. Current retained frontier is 1,672 parameters at 99.010000%, a +0.010000 percentage-point margin over 99%. There have been 9 prior attempts in this family. The most recent accepted result is attempt-0016 at 3,376 parameters/99.18%; the most recent failed result is attempt-0114, whose Chebyshev digit basis scored 28.80% at 1,663 parameters. Hypothesis: attempt-0114 failed because it projected the ten digit classifier rows, while the BOS and equals controls\u2014which are never target outputs\u2014can share one input feature. Use ten one-hot digit features plus one shared control feature and fit the 11x16 projection by least squares; this preserves every digit row exactly and averages only control rows, yielding 1,663 parameters. This is more informative than another polynomial digit basis because it isolates control-token identity without altering digit geometry at the same count.",
+    "status": "discard",
+    "timestamp_utc": "2026-08-17T07:03:53.798822+00:00",
+    "train_exit": 0,
+    "verify_exit": 0
+  },
+  "verification": {
+    "accuracy": 0.1635,
+    "accuracy_percent": 16.35,
+    "correct": 1637,
+    "parameters": 1663,
+    "qualified": false,
+    "total": 10010
+  }
+}

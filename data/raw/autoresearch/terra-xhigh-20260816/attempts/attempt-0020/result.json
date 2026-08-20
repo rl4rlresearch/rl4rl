@@ -1,0 +1,24 @@
+{
+  "accepted": false,
+  "event": {
+    "accuracy": "",
+    "attempt_id": "attempt-0020",
+    "commit": "76ee614397e90d84de96c2e36d518ccedc2a2512",
+    "description": "Tie the two transformer blocks' feed-forward sublayers while retaining independent attention and normalization sublayers, d=14, h=2, ff=20, and rank-8 learned positional factorization.",
+    "parameters": "",
+    "parent_commit": "b83d413f1422d8bf55bc797d729f1519d9e72d80",
+    "proposal": "Family: parameter tying. Retained incumbent is 3430 parameters at 99.660000%, a +0.660000 percentage-point margin over 99%. Same-family history: the accepted starting model used tied input/output embeddings (6080 parameters, 100.000000%); the most recent failed tying result is attempt-0015, transpose tying of attention value/output maps, an optimization failure with 7.4% peak validation; 2 prior parameter-tying candidate attempts. The immediately preceding head-local-QKV attempt-0019 is an optimization failure (30000 steps, 5.55% peak validation, no checkpoint), not a scored nonqualification. Hypothesis: the feed-forward nonlinearity may be reusable across the two computational stages even though the two attention maps must remain layer-specific; sharing only the 560-parameter feed-forward sublayer preserves two serial GELU applications, independent attention routing, and independent normalization while reducing actual parameters from 3430 to 2870. This is a representational parameter-tying change, not scalar pruning. It is more informative than the nearest untested attention-sublayer sharing alternative because the prior full-block-sharing failure leaves an identifiable question about whether attention, rather than feed-forward computation, required depth-specific capacity.",
+    "status": "error",
+    "timestamp_utc": "2026-08-17T05:49:34.613097+00:00",
+    "train_exit": 0,
+    "verify_exit": ""
+  },
+  "verification": {
+    "accuracy": null,
+    "accuracy_percent": null,
+    "correct": null,
+    "parameters": null,
+    "qualified": false,
+    "total": null
+  }
+}

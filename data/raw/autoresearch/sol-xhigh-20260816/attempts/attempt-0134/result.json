@@ -1,0 +1,24 @@
+{
+  "accepted": false,
+  "event": {
+    "accuracy": "0.030000%",
+    "attempt_id": "attempt-0134",
+    "commit": "9eaf040753f938f1bf3de8372691150f59acfd2c",
+    "description": "Use RMSNorm only at block 0 pre-attention",
+    "parameters": 1658,
+    "parent_commit": "a1dfac6cb503f577ebebcb35e93ea9788786fa40",
+    "proposal": "Family: normalization. Current retained frontier is 1,672 parameters at 99.010000%, a +0.010000 percentage-point margin over 99%. There have been 4 prior attempts in this family. The most recent accepted result is attempt-0018, which removed the final LayerNorm bias at 3,360 parameters/99.07%; the most recent failed result is attempt-0112, whose block-0 pre-FF-only RMSNorm scored 0.00% at 1,658 parameters. Hypothesis: mean centering may be essential for nonlinear feature construction but redundant before the first attention routing operation. Replace only block 0 pre-attention LayerNorm with per-coordinate RMSNorm, migrate its 16 scales, retain all other LayerNorm sites, and remove its 14 learned bias values for 1,658 parameters. This is more informative than block 1 first because block 0 directly processes token-plus-position inputs and cleanly isolates whether initial attention needs centering, complementing attempt-0112 at identical count.",
+    "status": "discard",
+    "timestamp_utc": "2026-08-17T07:06:14.209337+00:00",
+    "train_exit": 0,
+    "verify_exit": 0
+  },
+  "verification": {
+    "accuracy": 0.0003,
+    "accuracy_percent": 0.03,
+    "correct": 3,
+    "parameters": 1658,
+    "qualified": false,
+    "total": 10010
+  }
+}

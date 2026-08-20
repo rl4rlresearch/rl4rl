@@ -1,0 +1,24 @@
+{
+  "accepted": false,
+  "event": {
+    "accuracy": "0.020000%",
+    "attempt_id": "attempt-0107",
+    "commit": "d11b726d3e343b8141632221fd728bf3655f8730",
+    "description": "Factor the tied token matrix through a learned rank-6 code",
+    "parameters": 1655,
+    "parent_commit": "a1dfac6cb503f577ebebcb35e93ea9788786fa40",
+    "proposal": "Family: token representation. Current retained frontier is 1,672 parameters at 99.010000%, a +0.010000 percentage-point margin over 99%. There have been 6 prior attempts in this family. The most recent accepted result is attempt-0016, which removed the fixed-length EOS row and unused final position at 3,376 parameters and 99.18%; the most recent failed result is attempt-0017, whose BOS removal scored 0.02%. Hypothesis: the 12 token vectors and tied output classifiers occupy a six-dimensional learned subspace even though the transformer residual stream remains 16-dimensional. This is a major token representational change: replace the current 185 grouped token scalars with a 12x6 code matrix and 6x16 shared projection initialized by the best rank-6 SVD, retaining exact input/output weight tying and yielding 1,655 parameters. It is more informative than rank 7 because rank-7 factors require 196 parameters and would not be strictly smaller than the current grouped matrix; rank 6 is the highest eligible subspace. Token streams, positional representation, attention, autoregressive logits, and generic greedy decoding remain otherwise unchanged.",
+    "status": "discard",
+    "timestamp_utc": "2026-08-17T06:02:21.689717+00:00",
+    "train_exit": 0,
+    "verify_exit": 0
+  },
+  "verification": {
+    "accuracy": 0.0002,
+    "accuracy_percent": 0.02,
+    "correct": 2,
+    "parameters": 1655,
+    "qualified": false,
+    "total": 10010
+  }
+}

@@ -1,0 +1,24 @@
+{
+  "accepted": true,
+  "event": {
+    "accuracy": "99.960000%",
+    "attempt_id": "attempt-0078",
+    "commit": "251dbef8c3b5b8ecfc39aaf355cd7a0146b03af0",
+    "description": "Replace unused PAD embedding row with a learned PAD logit",
+    "parameters": 2677,
+    "parent_commit": "478fd10e51382be24e818f1eb78c0ff5784c4bc0",
+    "proposal": "family: token representation; current retained incumbent is 2690 parameters at 100.0000%, a +1.00 percentage-point margin over 99%. Same-family most recent accepted result: attempt-0002, reversed operand token representation at 5056 parameters and 99.98%; same-family most recent failed result: attempt-0054, tying the unused PAD row to digit zero at 2870 parameters and 0.03% (the repaired fixed-zero PAD row in attempt-0053 reached 95.64%); prior attempts in this family: 6. Hypothesis: the unused PAD input row can be removed without forcing its output direction to zero if the tied head retains a learned context-independent PAD logit. Use 14 trainable token rows for all active symbols, materialize a fixed-zero PAD input row, and add one learned scalar only for the PAD output logit; this saves 13 parameters for a target of 2677. This is more informative than repeating the prior zero or digit-zero row because it preserves independent PAD calibration while removing only its unused input features, and it is the nearest token compression that does not couple PAD to an active digit vector. Keep d14/h2/L2 MQA, three shared query rows, shared head-0 output map, rank7 positions, ff23, two final group scales, reversed operands, zero weight decay, mixed-digit curriculum, 50000 steps, and retain only official accuracy at least 99% and strictly fewer parameters than the incumbent.",
+    "status": "keep",
+    "timestamp_utc": "2026-08-17T16:04:59.030440+00:00",
+    "train_exit": 0,
+    "verify_exit": 0
+  },
+  "verification": {
+    "accuracy": 0.9995999999999999,
+    "accuracy_percent": 99.96,
+    "correct": 10006,
+    "parameters": 2677,
+    "qualified": true,
+    "total": 10010
+  }
+}

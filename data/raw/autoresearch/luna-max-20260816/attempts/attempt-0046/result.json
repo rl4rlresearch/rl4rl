@@ -1,0 +1,24 @@
+{
+  "accepted": false,
+  "event": {
+    "accuracy": "1.350000%",
+    "attempt_id": "attempt-0046",
+    "commit": "8c8f7581842f30ef5bfeb937a93ceb610161ab24",
+    "description": "Replace two d14 heads with one d13 head and ff18",
+    "parameters": 2951,
+    "parent_commit": "ac98521b0ace9c74c5bb1fce686f5254dbc9972f",
+    "proposal": "family: attention organization; current retained incumbent is 2982 parameters at 99.9700%, a +0.97 percentage-point margin over 99%. Same-family accepted result: attempt-0043, d14/h2 with ff24 at 3038/99.91%; same-family failed result: attempt-0042, tying Q and shared KV projections at 2608/10.29% (the prior d14 full-output attempt-0025 was also 9.99%); prior attempts in this family: 9. Hypothesis: d14/h2 succeeds with 7-wide head channels, but the minimum may instead use one full d13 head with a larger per-head output map and ff18, reducing the model to 2951 parameters. This is more informative than another d14 FF decrement because it changes head organization and tests whether two-head specialization is essential; the nearest untested alternative is d13/h2, which is not divisible without changing the channel geometry. Keep two layers, MQA-form K/V path, independent head-local output map, affine-free block pre-norms, final learned scale without bias, learned positions, reversed operands, mixed-digit curriculum, and 30000 steps; retain only official accuracy >=99% and strictly below 2982 parameters.",
+    "status": "discard",
+    "timestamp_utc": "2026-08-17T09:29:08.248890+00:00",
+    "train_exit": 0,
+    "verify_exit": 0
+  },
+  "verification": {
+    "accuracy": 0.013500000000000002,
+    "accuracy_percent": 1.35,
+    "correct": 135,
+    "parameters": 2951,
+    "qualified": false,
+    "total": 10010
+  }
+}

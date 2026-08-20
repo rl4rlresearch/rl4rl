@@ -1,0 +1,24 @@
+{
+  "accepted": false,
+  "event": {
+    "accuracy": "",
+    "attempt_id": "attempt-0052",
+    "commit": "4c8c2ed28bff15444136eccb08000c646289f4a7",
+    "description": "Reduce the retained rank-6 learned tied token factorization to rank 5 while retaining factorized rank-3 positions, full QKV attention, shared no-offset normalization, reversed operands, d=14, two blocks, ff=19, and the 45000-step schedule.",
+    "parameters": "",
+    "parent_commit": "ced9d1904de66f08a10ad3a90c685a2c03440d2a",
+    "proposal": "Family: token representation. Retained incumbent is attempt-0051 with 2944 parameters at 99.440000%, a +0.440000 percentage-point margin over 99%. Same-family history: the most recent accepted result is attempt-0051, rank-6 learned tied token codes (2944, 99.44%); the closest prior failed result is attempt-0043, rank 5 in the earlier non-factorized-position architecture, an optimization failure peaking at 0%; 5 prior token-representation macro attempts. The immediately preceding width-18 candidate attempt-0050 is an optimization failure (45000 steps, 87.15% peak validation, no checkpoint), while the factorized-position/token-rank-6 combination has since changed the retained representation. Hypothesis: by sharing digit-index/segment positional structure and using the now-confirmed tied token-code pathway, the task may fit in a five-dimensional token identity subspace even though rank 5 did not optimize in the prior positional regime. Reducing rank 6 to rank 5 replaces 15x6 plus 6x14 token values with 15x5 plus 5x14, lowering actual parameters from 2944 to 2915. This is a one-rank learned token-subspace reduction, not scalar pruning. It is more informative than rank 4 because rank 5 is the immediate retained-token boundary and directly resolves whether the prior rank-5 failure was due to its former positional representation.",
+    "status": "error",
+    "timestamp_utc": "2026-08-17T12:39:36.908566+00:00",
+    "train_exit": 0,
+    "verify_exit": ""
+  },
+  "verification": {
+    "accuracy": null,
+    "accuracy_percent": null,
+    "correct": null,
+    "parameters": null,
+    "qualified": false,
+    "total": null
+  }
+}

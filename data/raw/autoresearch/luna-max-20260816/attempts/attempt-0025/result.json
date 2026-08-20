@@ -1,0 +1,24 @@
+{
+  "accepted": false,
+  "event": {
+    "accuracy": "9.990000%",
+    "attempt_id": "attempt-0025",
+    "commit": "a607a56cb4b4bada0feb469b532e1ac822693570",
+    "description": "Shrink MQA transformer width from d16 to d14",
+    "parameters": 2968,
+    "parent_commit": "01848016461da3374b810b751cfcbbae94c43b53",
+    "proposal": "family: attention organization; retained incumbent is 3584 parameters at 99.1700%, a +0.17 percentage-point margin over 99%. Same-family accepted result: attempt-0015, d16 MQA at 3776/99.95%; same-family failed result: attempt-0018, d16 rank-6 output projection at 3648/0.01% (with attempts 0016\u20130017 also failing); prior attempts in this family: 4. Hypothesis: preserve two independently scored attention heads and the successful shared-K/V organization while shrinking each head channel from 8 to 7 (d14), with ff17 and learned positions unchanged; the actual model should be 2992 parameters. This is more informative than one-head deletion because it isolates channel width while retaining two-head attention and independent depth. Keep the mixed-digit curriculum and 30000-step training; retain only official accuracy >=99% and strictly below 3584 parameters.",
+    "status": "discard",
+    "timestamp_utc": "2026-08-17T05:22:30.737995+00:00",
+    "train_exit": 0,
+    "verify_exit": 0
+  },
+  "verification": {
+    "accuracy": 0.0999,
+    "accuracy_percent": 9.99,
+    "correct": 1000,
+    "parameters": 2968,
+    "qualified": false,
+    "total": 10010
+  }
+}

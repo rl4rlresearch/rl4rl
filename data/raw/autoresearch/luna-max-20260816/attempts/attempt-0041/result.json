@@ -1,0 +1,24 @@
+{
+  "accepted": false,
+  "event": {
+    "accuracy": "10.190000%",
+    "attempt_id": "attempt-0041",
+    "commit": "e6d85f09b05eb1c3b9f67ef67bfe7a856c2ec63c",
+    "description": "Tie FF output projections across the two blocks",
+    "parameters": 2864,
+    "parent_commit": "7b108ce73f66ebafe562401d225bf2bb72f8bcff",
+    "proposal": "family: parameter tying; current retained incumbent is 3120 parameters at 99.9200%, a +0.92 percentage-point margin over 99%. Same-family accepted result: none; same-family failed result: attempt-0040, sharing the FF input projection at 2864/7.83% (with attempt-0032 sharing head-local attention output at 3008/9.91%); prior attempts in this family: 4. Hypothesis: the FF input tie failed because block-specific feature extraction was lost; instead share only the second ff16-to-d16 projection while retaining independent hidden features and independent attention, saving the same 256 deduplicated parameters for 2864 total. This is more informative than repeating the input tie because it tests the complementary role of recombination after a scored failure, and more informative than full-block tying because all attention and first FF projections remain independent; the nearest untested alternative is tying the two FF matrices together within each block. Keep d16/h2/L2, independent head-local attention maps, MQA, affine-free block pre-norms, final no-bias affine scale, learned positions, reversed operands, mixed-digit curriculum, and 30000 steps; retain only official accuracy >=99% and strictly below 3120 parameters.",
+    "status": "discard",
+    "timestamp_utc": "2026-08-17T08:37:58.977108+00:00",
+    "train_exit": 0,
+    "verify_exit": 0
+  },
+  "verification": {
+    "accuracy": 0.10189999999999999,
+    "accuracy_percent": 10.19,
+    "correct": 1020,
+    "parameters": 2864,
+    "qualified": false,
+    "total": 10010
+  }
+}

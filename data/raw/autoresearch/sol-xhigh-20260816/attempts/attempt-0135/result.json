@@ -1,0 +1,24 @@
+{
+  "accepted": false,
+  "event": {
+    "accuracy": "0.000000%",
+    "attempt_id": "attempt-0135",
+    "commit": "3473e7bdf5f14a10cac50a93c5ea91ac1ed2e1f2",
+    "description": "Use RMSNorm only at block 1 pre-attention",
+    "parameters": 1661,
+    "parent_commit": "a1dfac6cb503f577ebebcb35e93ea9788786fa40",
+    "proposal": "Family: normalization. Current retained frontier is 1,672 parameters at 99.010000%, a +0.010000 percentage-point margin over 99%. There have been 5 prior attempts in this family. The most recent accepted result is attempt-0018 at 3,360 parameters/99.07%; the most recent failed result is attempt-0134, whose block-0 pre-attention RMSNorm scored 0.03% at 1,658 parameters. Hypothesis: centering is essential when attention first consumes token-plus-position embeddings, but may be redundant after one complete transformer block. Replace only block 1 pre-attention LayerNorm with per-coordinate RMSNorm, reconstruct its 16 scales including the one fixed-neutral coordinate, retain all other sites, and remove the 12 learned biases net of the restored scale for 1,661 parameters. This is more informative than block-1 pre-FF because depth is the only changed factor relative to attempt-0134.",
+    "status": "discard",
+    "timestamp_utc": "2026-08-17T07:08:05.263144+00:00",
+    "train_exit": 0,
+    "verify_exit": 0
+  },
+  "verification": {
+    "accuracy": 0.0,
+    "accuracy_percent": 0.0,
+    "correct": 0,
+    "parameters": 1661,
+    "qualified": false,
+    "total": 10010
+  }
+}

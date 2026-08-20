@@ -1,0 +1,24 @@
+{
+  "accepted": false,
+  "event": {
+    "accuracy": "",
+    "attempt_id": "attempt-0034",
+    "commit": "2734bbfa9b9c35c8dd93151c1f9a2cd856f2a958",
+    "description": "Share only corresponding LayerNorm biases across depth",
+    "parameters": "",
+    "parent_commit": "45b925ebdb16adb119d086aa1ac8f1151cb28705",
+    "proposal": "Family: parameter tying. Current retained frontier is 2,128 parameters at 99.140000%, a +0.140000 percentage-point margin over 99%. There have been 3 prior attempts in this family. The most recent accepted in-family result is attempt-0029, full attention/feed-forward sharing at 2,144 parameters and 99.14%; the most recent failed result is attempt-0033, which shared both LayerNorm scales and biases and peaked at 77.55% internal validation. Hypothesis: depth-specific normalization scale is necessary but additive offsets are less expressive and can be shared; tying only corresponding ln1 and ln2 bias vectors while retaining separate scale vectors yields 2,096 parameters. This is more informative than the nearest untested scale-only tie because the earlier successful deletion of the final LayerNorm bias suggests bias is the lower-risk affine component, while the full-affine failure establishes that both components cannot be tied together.",
+    "status": "error",
+    "timestamp_utc": "2026-08-16T07:11:55.990173+00:00",
+    "train_exit": 0,
+    "verify_exit": ""
+  },
+  "verification": {
+    "accuracy": null,
+    "accuracy_percent": null,
+    "correct": null,
+    "parameters": null,
+    "qualified": false,
+    "total": null
+  }
+}

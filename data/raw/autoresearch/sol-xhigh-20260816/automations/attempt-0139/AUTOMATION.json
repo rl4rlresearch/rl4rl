@@ -1,0 +1,20 @@
+{
+  "accepted_micro_trials": 1,
+  "attempt_id": "attempt-0139",
+  "automation_id": "gelu-blend-with-output-union",
+  "best_accuracy": "99.000000%",
+  "best_parameters": 1671,
+  "description": "Bracket exact-to-tanh GELU interpolation with one FF-output union",
+  "error_micro_trials": 0,
+  "family": "feed-forward width",
+  "finished_at_utc": "2026-08-17T07:18:09.314312+00:00",
+  "max_micro_trials": 4,
+  "micro_attempts_used": 1,
+  "parent_commit": "a1dfac6cb503f577ebebcb35e93ea9788786fa40",
+  "parent_parameters": 1672,
+  "proposal": "Family: feed-forward width. Current retained frontier is 1,672 parameters at 99.010000%, a +0.010000 percentage-point margin over 99%. There have been 20 prior macro-attempts in this family. The most recent accepted result is attempt-0022 at 3,040 parameters/99.85%; the most recent failed result is attempt-0138, whose alpha=1 tanh-GELU plus output union 82/85 scored 98.99% at 1,671 parameters, while alpha=0 without that new union is the retained exact-GELU frontier. Hypothesis: reducing activation perturbation inside this measured bracket can recover one example while retaining the scalar union. The helper tests alpha 0.5, 0.25, 0.125, then 0 in decreasing order; one candidate per official micro-trial, same 1,671 count, same checkpoint migration. A scored failure makes the next smaller alpha eligible. Stop on the first accepted candidate because equal-count alternatives can no longer improve it, after all four trials, on error, or after eight wall-clock minutes. This is more informative than a new activation because it resolves the near-threshold local boundary.",
+  "schema": "rl4rl-autoresearch-automation-v1",
+  "started_at_utc": "2026-08-17T07:15:52.091220+00:00",
+  "status": "keep",
+  "summary": "The monotone GELU interpolation tested alpha=0.5 first with FF-output union 82/85. It qualified at exactly 99.00% with 1,671 parameters and was retained, moving the frontier down by one parameter. Outcomes: 1 accept, 0 scored discards, 0 errors; one official checkpoint migration and verification in about 1m22s. Stop reason: after acceptance, every remaining blend had the same 1,671 count and therefore no eligible strict frontier improvement remained, before the four-trial/eight-minute cap."
+}

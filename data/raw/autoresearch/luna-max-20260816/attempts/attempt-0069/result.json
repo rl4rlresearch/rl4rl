@@ -1,0 +1,24 @@
+{
+  "accepted": true,
+  "event": {
+    "accuracy": "99.970000%",
+    "attempt_id": "attempt-0069",
+    "commit": "42fd912d59bf9c882cc0c61c71856ab18efed398",
+    "description": "Share two query output rows across depth blocks",
+    "parameters": 2753,
+    "parent_commit": "a38e3354751d5430057330502c17b7be28b2a86a",
+    "proposal": "family: attention organization; current retained incumbent is 2767 parameters at 100.0000%, a +1.00 percentage-point margin over 99%. Same-family most recent accepted result: attempt-0068, sharing one 14-value query row across depth at 2767 parameters and 100.00%; same-family most recent failed result: attempt-0067, sharing both head-local attention output maps across depth at 2732 parameters and 9.42%; prior attempts in this family: 15. Hypothesis: the first shared query row was qualified, so share a second query row across the two blocks while retaining 12 block-specific query rows, both MQA K/V maps, and all head-local output maps. This removes one additional 14-value row for a target of 2753. It is more informative than jumping to a larger Q tie or switching to K/V sharing because it follows the nearest ordered interpolation after the accepted one-row boundary and measures the marginal redundancy of another query coordinate. Keep d14/h2/L2 MQA, ff23 with one within-block tied hidden unit shared across blocks, rank8 positions, two final group scales, reversed operands, zero weight decay, mixed-digit curriculum, and 30000 steps; retain only official accuracy at least 99% and strictly fewer parameters than the incumbent.",
+    "status": "keep",
+    "timestamp_utc": "2026-08-17T13:54:34.043068+00:00",
+    "train_exit": 0,
+    "verify_exit": 0
+  },
+  "verification": {
+    "accuracy": 0.9997,
+    "accuracy_percent": 99.97,
+    "correct": 10007,
+    "parameters": 2753,
+    "qualified": true,
+    "total": 10010
+  }
+}

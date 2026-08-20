@@ -1,0 +1,24 @@
+{
+  "accepted": false,
+  "event": {
+    "accuracy": "0.000000%",
+    "attempt_id": "attempt-0097",
+    "commit": "cbdac9b799e0090fae5f4aa80f151d046c06bb65",
+    "description": "Repair ref collision and test per-head symmetric bilinear attention",
+    "parameters": 1481,
+    "parent_commit": "a1dfac6cb503f577ebebcb35e93ea9788786fa40",
+    "proposal": "Family: attention organization. Current retained frontier is 1,672 parameters at 99.010000%, a +0.010000 percentage-point margin over 99%. There have been 3 prior logged attempts in this family. The most recent accepted result is attempt-0020, which removed attention output projections and qualified at 3,168 parameters and 99.94%; the most recent failed result is attempt-0036, an optimization failure for a 14-dimensional query-key bottleneck with no official score. The immediately preceding launch of this exact candidate was an infrastructure failure before archival, training, scoring, result recording, or budget consumption: an unrelated stale attempt-0097/micro-0001 ref and empty directory blocked the regular attempt ref; its commit was preserved under refs/autoresearch/recovered and the conflicting artifacts were removed. Candidate and conditions are unchanged. Hypothesis: query/key factors primarily identify a per-head bilinear form, and constraining that form to be symmetric retains task-relevant compatibility geometry while removing factorization redundancy. This is a major representational change, not scalar pruning: each head stores 136 triangular bilinear coefficients plus a shared 16x16 value map, replacing 719 learned QKV groups and yielding 1,481 parameters by checkpoint projection. It is more informative than a full bilinear alternative because the full form would exceed the retained QKV count and could not satisfy strict reduction; symmetry is the least restrictive directly compressive bilinear substitution. Generic causal softmax self-attention and autoregressive decoding remain intact.",
+    "status": "discard",
+    "timestamp_utc": "2026-08-17T05:37:13.288194+00:00",
+    "train_exit": 0,
+    "verify_exit": 0
+  },
+  "verification": {
+    "accuracy": 0.0,
+    "accuracy_percent": 0.0,
+    "correct": 0,
+    "parameters": 1481,
+    "qualified": false,
+    "total": 10010
+  }
+}

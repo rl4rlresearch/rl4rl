@@ -1,0 +1,24 @@
+{
+  "accepted": false,
+  "event": {
+    "accuracy": "0.000000%",
+    "attempt_id": "attempt-0101",
+    "commit": "99eb00d9b9b6eedb8d14a9a99bbdfa359031928c",
+    "description": "Use block-diagonal per-head value maps with full retained query-key maps",
+    "parameters": 1593,
+    "parent_commit": "a1dfac6cb503f577ebebcb35e93ea9788786fa40",
+    "proposal": "Family: attention organization. Current retained frontier is 1,672 parameters at 99.010000%, a +0.010000 percentage-point margin over 99%. There have been 7 prior attempts in this family. The most recent accepted result is attempt-0020, which removed attention output projections and qualified at 3,168 parameters and 99.94%; the most recent failed result is attempt-0100, whose head-specific-symmetric/shared-skew QK decomposition scored 0.13% at 1,601 parameters. Attempts 0097-0100 collectively close direct Q/K bilinear compression. Hypothesis: each value head primarily reads its corresponding eight-dimensional residual subspace, so cross-half value weights are redundant even though full retained Q/K geometry is necessary. This major attention-organization change preserves the reconstructed 32x16 Q/K maps exactly, replaces the 16x16 value map with two learned 8x8 diagonal blocks migrated from the checkpoint, and yields 1,593 parameters. It is more informative than a diagonal value map because it retains all within-head mixing while isolating whether cross-head residual input mixing is needed. Generic two-head causal softmax self-attention and autoregressive decoding remain intact.",
+    "status": "discard",
+    "timestamp_utc": "2026-08-17T05:49:09.137935+00:00",
+    "train_exit": 0,
+    "verify_exit": 0
+  },
+  "verification": {
+    "accuracy": 0.0,
+    "accuracy_percent": 0.0,
+    "correct": 0,
+    "parameters": 1593,
+    "qualified": false,
+    "total": 10010
+  }
+}

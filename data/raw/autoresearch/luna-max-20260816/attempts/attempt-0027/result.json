@@ -1,0 +1,24 @@
+{
+  "accepted": true,
+  "event": {
+    "accuracy": "99.790000%",
+    "attempt_id": "attempt-0027",
+    "commit": "3d08fd3c61b5ed03c56142cc11c656fc43dae64d",
+    "description": "Remove affine parameters from FF pre-norms",
+    "parameters": 3520,
+    "parent_commit": "01848016461da3374b810b751cfcbbae94c43b53",
+    "proposal": "family: normalization; retained incumbent is 3584 parameters at 99.1700%, a +0.17 percentage-point margin over 99%. Same-family accepted result: none; same-family failed result: attempt-0007, final-LayerNorm affine removal at 5024/2.60% after an initializer repair; prior attempts in this family: 2. The retained model now uses successful MQA, reversed operands, and ff17, while attempts 0024\u20130026 showed tying, d14 width, and special-position pruning are not viable. Hypothesis: the FF pre-norm scale/bias may be redundant even though final affine removal failed; make only block ln2 affine-free, saving 64 parameters and yielding 3520 while retaining attention ln1 and final normalization. This is more informative than removing all normalization affine terms because it isolates the FF interface in the successful attention regime. Keep mixed-digit training and 30000 steps; retain only official accuracy >=99% and strictly below 3584 parameters.",
+    "status": "keep",
+    "timestamp_utc": "2026-08-17T05:42:29.069072+00:00",
+    "train_exit": 0,
+    "verify_exit": 0
+  },
+  "verification": {
+    "accuracy": 0.9979,
+    "accuracy_percent": 99.79,
+    "correct": 9989,
+    "parameters": 3520,
+    "qualified": true,
+    "total": 10010
+  }
+}

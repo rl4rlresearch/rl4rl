@@ -1,0 +1,24 @@
+{
+  "accepted": true,
+  "event": {
+    "accuracy": "100.000000%",
+    "attempt_id": "attempt-0058",
+    "commit": "830391ebe220b69b896734b5c261580a3de18fe1",
+    "description": "Tie one FF hidden unit's input and output weights",
+    "parameters": 2856,
+    "parent_commit": "a3adffc7be1254323fe6d42c6dc751fb5f809d5c",
+    "proposal": "family: parameter tying; current retained incumbent is 2884 parameters at 99.9900%, a +0.99 percentage-point margin over 99%. Same-family accepted result: none; same-family failed result: attempt-0041, sharing the complete FF output projection across blocks at 2864/10.19% (with attempt-0040 sharing the input projection at 7.83%); prior attempts in this family: 5. Hypothesis: full inter-layer ties are too disruptive, so preserve all 23 hidden units and all cross-head connectivity while tieing only one hidden unit's d14 input row to its d14 output column within each block. This removes 14 parameters per block, yielding 2856 total. This is more informative than reducing ff23 to ff22 because it keeps the nonlinear width and tests a localized redundancy; the nearest untested alternative is tying multiple hidden units, which would skip the one-unit boundary. Keep d14/h2/L2, MQA, independent head-local maps, rank8 positions, affine-free block pre-norms, final learned scale without bias, reversed operands, zero weight decay, mixed-digit curriculum, and 30000 steps; retain only official accuracy >=99% and strictly below 2884 parameters.",
+    "status": "keep",
+    "timestamp_utc": "2026-08-17T11:29:53.072321+00:00",
+    "train_exit": 0,
+    "verify_exit": 0
+  },
+  "verification": {
+    "accuracy": 1.0,
+    "accuracy_percent": 100.0,
+    "correct": 10010,
+    "parameters": 2856,
+    "qualified": true,
+    "total": 10010
+  }
+}

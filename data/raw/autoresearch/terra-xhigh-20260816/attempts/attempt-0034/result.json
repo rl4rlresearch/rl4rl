@@ -1,0 +1,24 @@
+{
+  "accepted": true,
+  "event": {
+    "accuracy": "99.190000%",
+    "attempt_id": "attempt-0034",
+    "commit": "ddb46dcb7ab3e48ddf0d72e1f7a518a7f93d6ab4",
+    "description": "Retain reversed padded operands but restore two d=14, two-head transformer blocks and use ff=19, with rank-3 learned positions and the 45000-step learning-rate-floor schedule.",
+    "parameters": 3129,
+    "parent_commit": "a92a1ecb934d5f08abdf43baa66e7dfd2303da95",
+    "proposal": "Family: token representation. Retained incumbent is 3185 parameters at 99.990000%, a +0.990000 percentage-point margin over 99%. Same-family history: no accepted token-representation substitution; the most recent failed result is attempt-0033, reversed operands plus one block, an optimization failure peaking at 2.4% validation; 2 prior token-representation attempts. The immediately preceding d=13 one-head attempt-0032 is an optimization failure (45000 steps, peak 83.7% validation followed by decline, no checkpoint), not a scored nonqualification. Hypothesis: reversing operands may require both retained attention stages even if it does not support the one-layer compression; paired with the nearest ff=19 width reduction, it tests whether the representation can still support a smaller two-layer model (3185 to 3129 parameters). This is a token-representation substitution plus feed-forward-width compression, not parameterization-preserving scalar pruning. It is more informative than restoring two blocks at unchanged ff=20 because it directly resolves whether the reordering can support a qualifying reduction rather than only a non-retainable control.",
+    "status": "keep",
+    "timestamp_utc": "2026-08-17T08:44:32.408383+00:00",
+    "train_exit": 0,
+    "verify_exit": 0
+  },
+  "verification": {
+    "accuracy": 0.9919,
+    "accuracy_percent": 99.19,
+    "correct": 9929,
+    "parameters": 3129,
+    "qualified": true,
+    "total": 10010
+  }
+}

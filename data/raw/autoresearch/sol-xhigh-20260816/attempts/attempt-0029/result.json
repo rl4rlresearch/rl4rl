@@ -1,0 +1,24 @@
+{
+  "accepted": true,
+  "event": {
+    "accuracy": "99.140000%",
+    "attempt_id": "attempt-0029",
+    "commit": "950da517c072298f15a04ada56d1842e37b26312",
+    "description": "Share feed-forward transforms as well as QKV across depth",
+    "parameters": 2144,
+    "parent_commit": "c2b2ae3f502f532d584ad7a4ee4f79ee4b7c765c",
+    "proposal": "Family: parameter tying. Current retained frontier is 2,656 parameters at 99.980000%, a +0.980000 percentage-point margin over 99%. There has been 1 prior attempt in this family: attempt-0026 is the accepted shared-QKV result at 2,656 parameters and 99.98%, and there is no failed in-family result. The most recent failures, attempts 0027 and 0028 in feed-forward width, show that direct deletion of even one trained unit per block destroys exact-sequence accuracy. Hypothesis: instead of deleting nonlinear channels, both depth steps can reuse the complete width-16 feed-forward transform while retaining independent pre-attention and pre-FF LayerNorm affine parameters and distinct residual states. Fresh training can co-adapt this recurrent transform, yielding 2,144 unique parameters. This is more informative than the nearest untested partial tie of only one feed-forward matrix because it directly tests whether layer specialization resides in normalization/residual state rather than either half of the nonlinear transform, with a larger measurable compression.",
+    "status": "keep",
+    "timestamp_utc": "2026-08-16T06:36:13.412721+00:00",
+    "train_exit": 0,
+    "verify_exit": 0
+  },
+  "verification": {
+    "accuracy": 0.9914000000000001,
+    "accuracy_percent": 99.14,
+    "correct": 9924,
+    "parameters": 2144,
+    "qualified": true,
+    "total": 10010
+  }
+}

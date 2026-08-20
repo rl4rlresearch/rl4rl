@@ -1,0 +1,20 @@
+{
+  "accepted_micro_trials": 0,
+  "attempt_id": "attempt-0004",
+  "automation_id": "ff-width-low",
+  "best_accuracy": "",
+  "best_parameters": "",
+  "description": "Continue the bounded monotonic feed-forward-width sweep from retained width 20 through lower four-channel bottlenecks.",
+  "error_micro_trials": 1,
+  "family": "feed-forward width",
+  "finished_at_utc": "2026-08-17T03:08:03.328575+00:00",
+  "max_micro_trials": 4,
+  "micro_attempts_used": 1,
+  "parent_commit": "02fc67e1ea918cac3e24c0cb4067cddf8fc6611b",
+  "parent_parameters": 4288,
+  "proposal": "Family: feed-forward width. Retained incumbent is 4288 parameters at 99.910000%, a +0.910000 percentage-point margin over 99%. Same-family history: most recent accepted result is micro-0006 at ff=20 (4288, 99.91%); no scored failure; 2 prior family macro-attempts comprising 7 scored candidates. Hypothesis: the retained 20-wide bottleneck may still contain redundant channels, but the remaining capacity margin makes a fine, ordered sweep necessary. This is a parameterization-preserving compression, not a representational change. Ordering: test ff widths 16, 12, 8, 4 in descending order. Acceptance/rollback: the runner retains only a qualified strictly smaller candidate and restores the incumbent otherwise; any scored discard/error stops the smaller-width branch because it changes the declared monotonic eligibility rule. Stopping: first discard/error, no eligible widths, or four micro-trials. Maximum micro-trials: 4. Compute budget: at most 120000 training steps and four configured 3600-second runner windows; all training, verification, and retention remain exclusively in run_attempt.py. This is more informative than skipping to ff=12 because ff=16 is the nearest untested width and directly locates the next boundary.",
+  "schema": "rl4rl-autoresearch-automation-v1",
+  "started_at_utc": "2026-08-17T02:59:14.145720+00:00",
+  "status": "discard",
+  "summary": "Attempted the declared low-width range beginning with ff=16. The first micro-trial was an optimization failure: it completed 30000 steps in 8.4 minutes but validation plateaued near 11.4%, never met the checkpoint gate, and therefore had no official score. No candidate was retained; frontier remains ff=20 at 4288 parameters and 99.910000%. Compute used: 30000 training steps. Stopped because the scored error changed the monotonic smaller-width eligibility rule; widths 12, 8, and 4 were not run."
+}

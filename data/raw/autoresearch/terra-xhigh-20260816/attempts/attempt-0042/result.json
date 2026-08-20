@@ -1,0 +1,24 @@
+{
+  "accepted": false,
+  "event": {
+    "accuracy": "",
+    "attempt_id": "attempt-0042",
+    "commit": "bcc2bea6e1bf80886f1d4216e8765afb4702704e",
+    "description": "Remove all remaining LayerNorm affine scales as well as offsets while retaining affine-free LayerNorm statistics, cross-layer norm sharing, reversed operands, d=14, two heads, two blocks, ff=19, rank-3 positions, and the 45000-step schedule.",
+    "parameters": "",
+    "parent_commit": "a4b3599e6eae9457e0ebc438d69d82ace76dda0c",
+    "proposal": "Family: normalization. Retained incumbent is 3031 parameters at 99.990000%, a +0.990000 percentage-point margin over 99%. Same-family history: the most recent accepted result is attempt-0041, offset-free shared LayerNorm (3031, 99.99%); the most recent failed result is attempt-0016, offset-free LayerNorm in the earlier forward-order/rank-8 setup, an optimization failure; 4 prior normalization attempts. Hypothesis: the three shared LayerNorm scales may also be unnecessary once offsets have been successfully removed, while the centering and variance statistic remain active; this removes 42 actual learned scalars, reducing 3031 to 2989. This is parameterization-preserving normalization compression, not a representational substitution. It is more informative than replacing LayerNorm with RMSNorm because it directly isolates all affine parameters while retaining the same mean-and-variance normalization statistic.",
+    "status": "error",
+    "timestamp_utc": "2026-08-17T10:33:48.914612+00:00",
+    "train_exit": 0,
+    "verify_exit": ""
+  },
+  "verification": {
+    "accuracy": null,
+    "accuracy_percent": null,
+    "correct": null,
+    "parameters": null,
+    "qualified": false,
+    "total": null
+  }
+}

@@ -1,0 +1,24 @@
+{
+  "accepted": true,
+  "event": {
+    "accuracy": "99.630000%",
+    "attempt_id": "attempt-0009",
+    "commit": "48f1bd089a2da52dff44847b9269a102cb055a26",
+    "description": "Reduce interleaved model feed-forward width from 16 to 8",
+    "parameters": 3488,
+    "parent_commit": "fad4c4f10ecd274c5c13b006249551ad5cfb5826",
+    "proposal": "Family: feed-forward width. Current retained frontier is 4,000 parameters at 99.920000%, a +0.920000 percentage-point margin over 99%. There have been 4 prior attempts in this family. The most recent accepted result is attempt-0008, ff_dim=16 at 4,000 parameters and 99.92% official accuracy; the most recent failed result remains attempt-0001, an optimization failure under the superseded separated-token representation with no official score. Hypothesis: interleaved column alignment may permit an 8D nonlinear bottleneck in each block; reducing ff_dim 16->8 is parameterization-preserving compression removing 512 parameters. This is more informative than the nearest untested ff_dim=12 because it tests whether half-model-width nonlinear state is viable after square width qualified. Since width 16 transitioned near step 12,000 and checkpointed at 24,000, the stalled-run observation gate moves from step 15,000 to 20,000 to avoid censoring a plausibly delayed transition while retaining a bounded stop.",
+    "status": "keep",
+    "timestamp_utc": "2026-08-16T04:21:31.726779+00:00",
+    "train_exit": 0,
+    "verify_exit": 0
+  },
+  "verification": {
+    "accuracy": 0.9963,
+    "accuracy_percent": 99.63,
+    "correct": 9973,
+    "parameters": 3488,
+    "qualified": true,
+    "total": 10010
+  }
+}

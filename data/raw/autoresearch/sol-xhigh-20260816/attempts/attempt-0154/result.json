@@ -1,0 +1,24 @@
+{
+  "accepted": false,
+  "event": {
+    "accuracy": "1.240000%",
+    "attempt_id": "attempt-0154",
+    "commit": "d4346a239d584b8a3794f4de96922a57d39bb81b",
+    "description": "Keep only top-eight causal attention logits with one QKV union",
+    "parameters": 1639,
+    "parent_commit": "462c6c42e25b52b5c63baa6f55133167cf5e9205",
+    "proposal": "Family: attention organization. Current retained frontier is 1,640 parameters at 99.000000%, exactly threshold. There have been 23 prior macro-attempts in this family. The most recent accepted result is attempt-0146/micro-0011 at 1,640/99.00%; the most recent failed result is attempt-0153, whose squared-ReLU attention scored 0.00% at 1,639. Hypothesis: exponential competition is essential, but its diffuse low-probability tail is redundant; retaining the top eight causal logits preserves the strongest column/carry routes. Add QKV pair 608/539, mask all but the top eight available logits when T>8, and retain incumbent softmax/temperature, yielding 1,639 parameters. This is more informative than top four because eight is the least restrictive sparsification that materially affects later sequence positions.",
+    "status": "discard",
+    "timestamp_utc": "2026-08-17T08:42:02.082535+00:00",
+    "train_exit": 0,
+    "verify_exit": 0
+  },
+  "verification": {
+    "accuracy": 0.0124,
+    "accuracy_percent": 1.24,
+    "correct": 124,
+    "parameters": 1639,
+    "qualified": false,
+    "total": 10010
+  }
+}

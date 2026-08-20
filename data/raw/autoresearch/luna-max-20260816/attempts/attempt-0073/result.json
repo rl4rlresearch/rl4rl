@@ -1,0 +1,24 @@
+{
+  "accepted": false,
+  "event": {
+    "accuracy": "94.330000%",
+    "attempt_id": "attempt-0073",
+    "commit": "ab0f7cc6b0ab6fb89d3c55af303ba93ac90e921c",
+    "description": "Share one output row of the second attention head across depth",
+    "parameters": 2732,
+    "parent_commit": "b5f309a4845d074d62558cef9fbb1144e68c4ebc",
+    "proposal": "family: attention organization; current retained incumbent is 2739 parameters at 99.7000%, a +0.70 percentage-point margin over 99%. Same-family most recent accepted result: attempt-0070, sharing three query output rows across depth at 2739 parameters and 99.70%; same-family most recent failed result: attempt-0072, sharing one MQA K/V output row at 2725 parameters and 0.02%; prior attempts in this family: 19. Hypothesis: preserve the three qualified query-row ties and the shared head-0 output map, but share only one 7-value output row of head 1's otherwise independent 7x7 map across depth, leaving its remaining six output rows block-specific. This removes 7 parameters for a target of 2732. It is more informative than repeating the failed full K/V-row tie or the earlier full second-head output tie at the same total count because it isolates a minimal post-attention redundancy in the remaining head and tests a finer boundary. Keep d14/h2/L2 MQA, ff23 with one within-block tied hidden unit shared across blocks, rank8 positions, two final group scales, reversed operands, zero weight decay, mixed-digit curriculum, and 30000 steps; retain only official accuracy at least 99% and strictly fewer parameters than the incumbent.",
+    "status": "discard",
+    "timestamp_utc": "2026-08-17T14:50:45.128056+00:00",
+    "train_exit": 0,
+    "verify_exit": 0
+  },
+  "verification": {
+    "accuracy": 0.9433,
+    "accuracy_percent": 94.33,
+    "correct": 9442,
+    "parameters": 2732,
+    "qualified": false,
+    "total": 10010
+  }
+}

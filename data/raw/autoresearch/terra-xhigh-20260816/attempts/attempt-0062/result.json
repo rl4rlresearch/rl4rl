@@ -1,0 +1,24 @@
+{
+  "accepted": true,
+  "event": {
+    "accuracy": "99.110000%",
+    "attempt_id": "attempt-0062",
+    "commit": "9a78e4371710d31ef1ac6f067dfd20019bfff847",
+    "description": "Replace the shared dense 14-by-14 attention output map with a shared pair of independent 7-by-7 head-local output maps, retaining dense QKV routing, two attention heads, two blocks, shared final/pre-attention normalization scale, rank-4 tied tokens, factorized rank-3 positions, ff=19, and 75000 steps.",
+    "parameters": 2578,
+    "parent_commit": "5d4588e0b530eabf5e627cf280a4aeb68f863b6d",
+    "proposal": "Family: attention organization. Retained incumbent is attempt-0059 with 2676 parameters at 99.360000%, a +0.360000 percentage-point margin over 99%. Same-family history: the most recent accepted result is attempt-0006, which reduced the residual width to d=14 with two heads (3528, 99.66%); the most recent failed result is attempt-0023, rank-10 QKV factorization, an optimization failure; 6 prior attention-organization macro attempts. The immediately preceding cross-layer value-sharing attempt-0061 was an optimization failure near 11% validation, so it rules out that tying hypothesis but not a within-layer output organization change. Hypothesis: the two heads may already provide independent local attention channels, so dense cross-head output mixing can be deferred to the residual/feed-forward path while retaining dense QKV maps for attention formation. This is an attention-organization representational change, not scalar pruning: the shared dense output map is replaced by a shared pair of 7x7 head-local maps, reducing the expected learned output-map degrees of freedom by 98; the runner will calculate the actual deduplicated count. It is more informative than head-local QKV, which previously failed, because it preserves full cross-head routing in QKV and isolates only the post-attention mixing constraint.",
+    "status": "keep",
+    "timestamp_utc": "2026-08-17T16:31:16.623359+00:00",
+    "train_exit": 0,
+    "verify_exit": 0
+  },
+  "verification": {
+    "accuracy": 0.9911,
+    "accuracy_percent": 99.11,
+    "correct": 9921,
+    "parameters": 2578,
+    "qualified": true,
+    "total": 10010
+  }
+}

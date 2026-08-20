@@ -1,0 +1,24 @@
+{
+  "accepted": true,
+  "event": {
+    "accuracy": "99.920000%",
+    "attempt_id": "attempt-0038",
+    "commit": "7b108ce73f66ebafe562401d225bf2bb72f8bcff",
+    "description": "Remove only the final LayerNorm bias",
+    "parameters": 3120,
+    "parent_commit": "196138df826bd6598dbc55e0729fdadba3f9b9a1",
+    "proposal": "family: normalization; current retained incumbent is 3136 parameters at 99.9500%, a +0.95 percentage-point margin over 99%. Same-family accepted result: attempt-0028, affine-free attention and FF pre-norms at 3456/99.92%; same-family failed result: attempt-0029, removing both final scale and bias in that context at 3424/95.58%; prior attempts in this family: 5. Hypothesis: the failed all-affine removal may have lost useful output scaling, while the final shift alone may be redundant after the two block pre-norms are affine-free. Remove only the 16-parameter final bias and retain the learned final scale, yielding 3120 parameters. This is more informative than repeating full final-affine removal because it isolates scale from shift and is the nearest untested normalization ablation; the nearest alternative is removing only the scale, which changes output calibration more directly. Keep the successful per-head attention organization, ff16, all other norms, learned positions, reversed operands, mixed-digit curriculum, and 30000 steps; retain only official accuracy >=99% and strictly below 3136 parameters.",
+    "status": "keep",
+    "timestamp_utc": "2026-08-17T08:09:09.023076+00:00",
+    "train_exit": 0,
+    "verify_exit": 0
+  },
+  "verification": {
+    "accuracy": 0.9992,
+    "accuracy_percent": 99.92,
+    "correct": 10002,
+    "parameters": 3120,
+    "qualified": true,
+    "total": 10010
+  }
+}

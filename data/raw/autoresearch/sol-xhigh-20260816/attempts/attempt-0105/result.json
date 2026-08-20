@@ -1,0 +1,24 @@
+{
+  "accepted": false,
+  "event": {
+    "accuracy": "0.010000%",
+    "attempt_id": "attempt-0105",
+    "commit": "9eafb391bc0b1b7a8066b9135c4771d1dda50b32",
+    "description": "Factor only the shared feed-forward input transform at rank 7",
+    "parameters": 1660,
+    "parent_commit": "a1dfac6cb503f577ebebcb35e93ea9788786fa40",
+    "proposal": "Family: feed-forward width. Current retained frontier is 1,672 parameters at 99.010000%, a +0.010000 percentage-point margin over 99%. There have been 15 prior attempts in this family. The most recent accepted result is attempt-0022, which retained projection-free feed-forward width 10 at 3,040 parameters and 99.85%; the most recent failed result is attempt-0032, an optimization failure with no official score for the fully shared width-15 model after correcting shifted teacher forcing. Hypothesis: the present width-16 nonlinear state is useful, but its shared input transform has intrinsic rank 7 and can be factorized without tying it to the independent output map. This is a representational rank change rather than unit deletion: replace the current 236-group 16x16 input map with its best rank-7 SVD factors (7x16 and 16x7), keep GELU width 16 and the retained output map unchanged, yielding 1,660 parameters. It is more informative than rank 8 because rank-8 factors require 256 parameters and would not be strictly smaller than the current grouped input map; rank 7 is the least lossy eligible factorization. Attention, output synthesis, normalization, and generic autoregressive decoding remain unchanged.",
+    "status": "discard",
+    "timestamp_utc": "2026-08-17T05:57:57.727278+00:00",
+    "train_exit": 0,
+    "verify_exit": 0
+  },
+  "verification": {
+    "accuracy": 0.0001,
+    "accuracy_percent": 0.01,
+    "correct": 1,
+    "parameters": 1660,
+    "qualified": false,
+    "total": 10010
+  }
+}

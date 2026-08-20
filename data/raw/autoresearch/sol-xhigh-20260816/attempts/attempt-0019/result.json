@@ -1,0 +1,24 @@
+{
+  "accepted": false,
+  "event": {
+    "accuracy": "0.010000%",
+    "attempt_id": "attempt-0019",
+    "commit": "e2e38c74ad2ab04f790e16eea72ba8a5effd2496",
+    "description": "Remove lowest-norm residual LayerNorm bias group",
+    "parameters": 3344,
+    "parent_commit": "81effb202f6962ef53608bef94839f0303cf352e",
+    "proposal": "Family: normalization. Current retained frontier is 3,360 parameters at 99.070000%, a +0.070000 percentage-point margin over 99%. There has been 1 prior attempt in this family. The most recent accepted result is attempt-0018, final-LayerNorm bias removal at 3,360 parameters and 99.07% official accuracy; there is no failed in-family result. Retained bias inspection ranks blocks.1.ln1.bias lowest by L2 norm at 0.2636, versus 0.3906, 0.6519, and 0.6638 for the other residual LayerNorm biases. Hypothesis: this least-magnitude additive group is the safest remaining affine redundancy; deleting it via checkpoint surgery yields 3,344 parameters. This parameterization-preserving, importance-ranked ablation is more informative than the nearest untested all-bias or RMSNorm substitution because it isolates one empirically weakest group under only seven-case qualification slack.",
+    "status": "discard",
+    "timestamp_utc": "2026-08-16T05:20:11.340939+00:00",
+    "train_exit": 0,
+    "verify_exit": 0
+  },
+  "verification": {
+    "accuracy": 0.0001,
+    "accuracy_percent": 0.01,
+    "correct": 1,
+    "parameters": 3344,
+    "qualified": false,
+    "total": 10010
+  }
+}

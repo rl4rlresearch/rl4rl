@@ -1,0 +1,24 @@
+{
+  "accepted": false,
+  "event": {
+    "accuracy": "",
+    "attempt_id": "attempt-0023",
+    "commit": "65520991ad3a0a3a527b1b2a2352ecb56b0c0ec5",
+    "description": "Factor each 14-to-42 QKV projection through a learned rank-10 bottleneck while retaining dense attention output projections, two heads, two blocks, ff=20, and rank-8 learned positions.",
+    "parameters": "",
+    "parent_commit": "b83d413f1422d8bf55bc797d729f1519d9e72d80",
+    "proposal": "Family: attention organization. Retained incumbent is 3430 parameters at 99.660000%, a +0.660000 percentage-point margin over 99%. Same-family history: the most recent accepted result is attempt-0006, d=14 with two heads (3528, 99.66%); the most recent failed result is attempt-0019, head-local QKV projections, an optimization failure with 5.55% peak validation; 4 prior family macro-attempts. The immediately preceding fine feed-forward-width automation attempt-0022 is an optimization failure: its ff=19 micro-trial completed 30000 steps, peaked at 9.9% validation, and produced no checkpoint. Hypothesis: Q, K, and V may share a modest ten-dimensional upstream feature basis without losing the established d=14 residual stream or dense cross-head output mixing; this saves 28 learned weights per block, reducing actual parameters from 3430 to 3374. This is a representational attention factorization, not parameterization-preserving scalar pruning. It is more informative than the nearest untested rank-9 factorization because rank 10 is the smallest bottleneck reduction and distinguishes low-rank QKV redundancy from the much harsher head-local constraint that failed.",
+    "status": "error",
+    "timestamp_utc": "2026-08-17T06:17:03.096842+00:00",
+    "train_exit": 0,
+    "verify_exit": ""
+  },
+  "verification": {
+    "accuracy": null,
+    "accuracy_percent": null,
+    "correct": null,
+    "parameters": null,
+    "qualified": false,
+    "total": null
+  }
+}

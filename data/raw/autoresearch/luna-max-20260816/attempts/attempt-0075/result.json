@@ -1,0 +1,24 @@
+{
+  "accepted": false,
+  "event": {
+    "accuracy": "97.690000%",
+    "attempt_id": "attempt-0075",
+    "commit": "cdd7fdf9dff86279262db8c903d7a2263e34ec4f",
+    "description": "Re-test rank-7 factorized positions with qualified attention ties",
+    "parameters": 2690,
+    "parent_commit": "b5f309a4845d074d62558cef9fbb1144e68c4ebc",
+    "proposal": "family: position representation; current retained incumbent is 2739 parameters at 99.7000%, a +0.70 percentage-point margin over 99%. Same-family most recent accepted result: attempt-0050, rank-8 factorized positions with zero weight decay at 2884 parameters and 99.99%; same-family most recent failed result: attempt-0051, rank-7 positions at 2835 parameters and 9.58%; prior attempts in this family: 9. Hypothesis: the earlier rank-7 collapse was measured before the now-qualified shared head-0 output map and three shared query rows, which alter attention parameterization and may provide a better inductive bias per parameter. Re-test rank 7 under the exact retained d14/h2/L2 MQA, FF23, and zero-decay conditions, reducing the factorized position table by 49 parameters for a target of 2690. This is more informative than jumping to rank 6 because it revisits the nearest positional boundary while holding the newly validated attention organization fixed and explicitly tests whether the prior failure was context-dependent. Keep reversed operands, two final group scales, one shared FF hidden-unit vector, mixed-digit curriculum, and 30000 steps; retain only official accuracy at least 99% and strictly fewer parameters than the incumbent.",
+    "status": "discard",
+    "timestamp_utc": "2026-08-17T15:12:58.165368+00:00",
+    "train_exit": 0,
+    "verify_exit": 0
+  },
+  "verification": {
+    "accuracy": 0.9769,
+    "accuracy_percent": 97.69,
+    "correct": 9779,
+    "parameters": 2690,
+    "qualified": false,
+    "total": 10010
+  }
+}

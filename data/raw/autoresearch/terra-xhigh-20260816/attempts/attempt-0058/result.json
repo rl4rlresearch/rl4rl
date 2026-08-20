@@ -1,0 +1,24 @@
+{
+  "accepted": true,
+  "event": {
+    "accuracy": "99.940000%",
+    "attempt_id": "attempt-0058",
+    "commit": "e0e960c0bf6cf7142297422923a0e74cd909c435",
+    "description": "Tie the two transformer blocks\u2019 attention output projections while retaining independent QKV maps, feed-forward sublayers, shared no-offset normalizations, rank-4 tied tokens, factorized rank-3 positions, d=14, ff=19, and the 75000-step schedule.",
+    "parameters": 2690,
+    "parent_commit": "6dbcc21c9c1a57f0845fffe39839921999111a72",
+    "proposal": "Family: parameter tying. Retained incumbent is attempt-0056 with 2886 parameters at 99.310000%, a +0.310000 percentage-point margin over 99%. Same-family history: the most recent accepted result is attempt-0038, which tied corresponding LayerNorms across the two blocks (3073, 99.71%); the most recent failed result is attempt-0049, multi-query attention, an optimization failure; 9 prior parameter-tying macro attempts. The immediately preceding token-rank automation ended in a rank-3 optimization failure after 75000 steps, which establishes a token-subspace boundary but does not test inter-block attention sharing. Hypothesis: the post-attention mixing map may be reusable across the two serial stages even though attention routing and value formation require layer-specific QKV weights. This is a representational parameter-tying change, not scalar pruning: it shares only one 14x14 output map and removes 196 actual parameters (2886 to 2690), while retaining two self-attention applications and all QKV/FF transforms. It is more informative than the nearest untested cross-layer QKV tie because it first constrains the already-mixed attention output rather than the causal attention scores or values.",
+    "status": "keep",
+    "timestamp_utc": "2026-08-17T15:08:24.037671+00:00",
+    "train_exit": 0,
+    "verify_exit": 0
+  },
+  "verification": {
+    "accuracy": 0.9994,
+    "accuracy_percent": 99.94,
+    "correct": 10004,
+    "parameters": 2690,
+    "qualified": true,
+    "total": 10010
+  }
+}

@@ -1,0 +1,24 @@
+{
+  "accepted": false,
+  "event": {
+    "accuracy": "",
+    "attempt_id": "attempt-0006",
+    "commit": "447c70d51996606606c2d04ada6dcfa6c04b1f5b",
+    "description": "Remove affine scale and bias from final LayerNorm",
+    "parameters": "",
+    "parent_commit": "94ab87f45bd859ad38b8dc00072401db9c27b215",
+    "proposal": "family: normalization; retained incumbent is 5056 parameters at 99.9800%, a +0.98 percentage-point margin over 99%. Same-family accepted result: none; same-family failed result: none; prior attempts in this family: 0. The latest accepted result is attempt-0002; position-representation attempts 0003 and 0005 scored 0.01% and 8.85% respectively, so this proposal keeps the learned position table unchanged. Hypothesis: final LayerNorm's learned scale and bias are redundant after the two pre-norm blocks; removing only its 32 affine parameters should preserve normalization while yielding 5024 parameters. This is more informative than removing affine terms from every LayerNorm because it isolates the final projection interface and keeps internal optimization stabilizers intact. Train for 15000 steps with final-checkpoint fallback; retain only official accuracy >=99% and strictly below 5056 parameters.",
+    "status": "error",
+    "timestamp_utc": "2026-08-17T02:03:20.800588+00:00",
+    "train_exit": 1,
+    "verify_exit": ""
+  },
+  "verification": {
+    "accuracy": null,
+    "accuracy_percent": null,
+    "correct": null,
+    "parameters": null,
+    "qualified": false,
+    "total": null
+  }
+}

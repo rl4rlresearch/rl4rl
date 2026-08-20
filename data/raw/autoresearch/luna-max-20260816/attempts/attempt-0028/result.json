@@ -1,0 +1,24 @@
+{
+  "accepted": true,
+  "event": {
+    "accuracy": "99.920000%",
+    "attempt_id": "attempt-0028",
+    "commit": "614bf9a6378fd23b3a59741b1b26d77d0777984e",
+    "description": "Remove affine parameters from attention pre-norms",
+    "parameters": 3456,
+    "parent_commit": "3d08fd3c61b5ed03c56142cc11c656fc43dae64d",
+    "proposal": "family: normalization; retained incumbent is 3520 parameters at 99.7900%, a +0.79 percentage-point margin over 99%. Same-family accepted result: attempt-0027, affine-free FF pre-norms in MQA+ff17 at 3520/99.79%; same-family failed result: attempt-0007, final affine-free LayerNorm under standard attention at 5024/2.60%; prior attempts in this family: 3. Hypothesis: the successful removal at ln2 may extend to attention pre-norm ln1, saving another 64 parameters while leaving normalization itself, residual paths, MQA, full attention output, learned positions, and final affine normalization intact. This is more informative than removing all remaining affine terms at once because it isolates the attention interface and retains the known-stable final norm. Keep mixed-digit training and 30000 steps; retain only official accuracy >=99% and strictly below 3520 parameters.",
+    "status": "keep",
+    "timestamp_utc": "2026-08-17T05:51:57.317625+00:00",
+    "train_exit": 0,
+    "verify_exit": 0
+  },
+  "verification": {
+    "accuracy": 0.9992,
+    "accuracy_percent": 99.92,
+    "correct": 10002,
+    "parameters": 3456,
+    "qualified": true,
+    "total": 10010
+  }
+}

@@ -1,0 +1,20 @@
+{
+  "accepted_micro_trials": 0,
+  "attempt_id": "attempt-0022",
+  "automation_id": "ff-width-fine",
+  "best_accuracy": "",
+  "best_parameters": "",
+  "description": "Monotonic one-channel descending sweep of feed-forward bottleneck widths below the retained 20-wide model in the d=14, rank-8 positional architecture.",
+  "error_micro_trials": 1,
+  "family": "feed-forward width",
+  "finished_at_utc": "2026-08-17T06:08:08.208212+00:00",
+  "max_micro_trials": 3,
+  "micro_attempts_used": 1,
+  "parent_commit": "b83d413f1422d8bf55bc797d729f1519d9e72d80",
+  "parent_parameters": 3430,
+  "proposal": "Family: feed-forward width. Retained incumbent is 3430 parameters at 99.660000%, a +0.660000 percentage-point margin over 99%. Same-family history: the most recent accepted result is attempt-0003, whose sweep retained ff=20 at 4288 parameters and 99.91%; the most recent failed result is attempt-0004, whose ff=16 micro-trial was an optimization failure near 11.4% validation; 3 prior family macro-attempts. The immediately preceding scalar-pruning attempt-0021 is an optimization failure (30000 steps, 0.35% peak validation, no checkpoint), not a scored nonqualification. Hypothesis: in the newer retained d=14/rank-8-position architecture, one-channel reductions below ff=20 may retain the nonlinear carry-processing capacity that the earlier coarse sweep could not resolve. This is parameterization-preserving scalar compression, not a representational substitution. Ordering: test ff widths 19, 18, then 17, descending. Acceptance/rollback: the runner retains only qualified strictly smaller candidates and restores the incumbent otherwise; any scored discard or error stops the lower-width branch because it changes the monotonic eligibility rule. Stopping: first discard/error, no eligible widths, or three micro-trials. Maximum micro-trials: 3. Compute budget: at most 90000 training steps and three configured runner windows (10800 seconds); all candidate edits, training, verification, retention, and recording remain exclusively runner-mediated. This is more informative than jumping to ff=17 because ff=19 is the nearest untested bottleneck boundary.",
+  "schema": "rl4rl-autoresearch-automation-v1",
+  "started_at_utc": "2026-08-17T05:59:33.173515+00:00",
+  "status": "discard",
+  "summary": "Attempted the declared fine feed-forward-width range beginning at ff=19 in the retained d=14, rank-8 positional architecture. The only micro-trial completed 30000 steps in about 7.9 minutes, peaked at 9.9% validation, produced no checkpoint, and had no official score. No candidate was retained; frontier remains ff=20 at 3430 parameters and 99.660000%. Compute used: 30000 training steps. Stopped because the scored optimization-failure error changed the declared monotonic lower-width eligibility rule, as recorded in AUTOMATION_TRIGGER.json; ff=18 and ff=17 were not run."
+}

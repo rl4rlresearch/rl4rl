@@ -1,0 +1,24 @@
+{
+  "accepted": false,
+  "event": {
+    "accuracy": "0.000000%",
+    "attempt_id": "attempt-0104",
+    "commit": "8abb8ff909c23b191aeda43f49879f0a3b3343b1",
+    "description": "Reuse one square feed-forward map in the same orientation around GELU",
+    "parameters": 1465,
+    "parent_commit": "a1dfac6cb503f577ebebcb35e93ea9788786fa40",
+    "proposal": "Family: parameter tying. Current retained frontier is 1,672 parameters at 99.010000%, a +0.010000 percentage-point margin over 99%. There have been 40 prior macro-attempts and 449 prior micro-trials in this family. The most recent accepted result is attempt-0095/micro-0001 at 1,672 parameters and 99.01%; the most recent failed result is attempt-0103, whose transpose-tied feed-forward substitution scored 0.00% at 1,465 parameters. Hypothesis: attempt-0103 failed because transposition misaligned learned feature coordinates, while the same square transform may be reusable in the same orientation before and after GELU. This major representational tying change averages the two reconstructed 16x16 maps without transposition and reuses the resulting matrix twice, yielding 1,465 parameters while preserving nonlinear width and shared depth. It is more informative than an untied low-rank factorization because it is the exact categorical complement of the failed transpose geometry and directly tests whether independence or orientation caused the failure. Attention, normalization, autoregressive logits, and generic decoding remain unchanged.",
+    "status": "discard",
+    "timestamp_utc": "2026-08-17T05:55:30.349776+00:00",
+    "train_exit": 0,
+    "verify_exit": 0
+  },
+  "verification": {
+    "accuracy": 0.0,
+    "accuracy_percent": 0.0,
+    "correct": 0,
+    "parameters": 1465,
+    "qualified": false,
+    "total": 10010
+  }
+}

@@ -1,0 +1,24 @@
+{
+  "accepted": false,
+  "event": {
+    "accuracy": "0.010000%",
+    "attempt_id": "attempt-0057",
+    "commit": "a7ee0f8df5f3b13d0f78fad8b3e452853c830b17",
+    "description": "Make Q projections block-diagonal by head",
+    "parameters": 2688,
+    "parent_commit": "a3adffc7be1254323fe6d42c6dc751fb5f809d5c",
+    "proposal": "family: attention organization; current retained incumbent is 2884 parameters at 99.9900%, a +0.99 percentage-point margin over 99%. Same-family accepted result: attempt-0043, d14/h2 with MQA and independent head-local output maps at 3038/99.91%; same-family failed result: attempt-0047, d12/h2 with wider ff33 at 2916/10.34% (the Q/KV tie in attempt-0042 was 10.29%); prior attempts in this family: 11. Hypothesis: the successful per-head output maps show that cross-head mixing can be removed after attention, while the Q projection remains a full 14x14 map. Replace it with two independent 7x7 head-local Q maps, retain full shared K/V mixing and all FF connectivity, saving 196 parameters for 2688 total. This is more informative than tying Q to K/V because it leaves K/V full and isolates only cross-head query mixing; the nearest untested alternative is block-diagonal K/V, which would simultaneously constrain the shared content path. Keep rank8 positions, d14/h2/L2, ff23, affine-free block pre-norms, final learned scale without bias, reversed operands, zero weight decay, mixed-digit curriculum, and 30000 steps; retain only official accuracy >=99% and strictly below 2884 parameters.",
+    "status": "discard",
+    "timestamp_utc": "2026-08-17T11:17:57.384959+00:00",
+    "train_exit": 0,
+    "verify_exit": 0
+  },
+  "verification": {
+    "accuracy": 0.0001,
+    "accuracy_percent": 0.01,
+    "correct": 1,
+    "parameters": 2688,
+    "qualified": false,
+    "total": 10010
+  }
+}

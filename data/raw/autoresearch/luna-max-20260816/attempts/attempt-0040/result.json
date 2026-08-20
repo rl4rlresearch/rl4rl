@@ -1,0 +1,24 @@
+{
+  "accepted": false,
+  "event": {
+    "accuracy": "7.830000%",
+    "attempt_id": "attempt-0040",
+    "commit": "0a59b6133154c9747ec769c829cd168ef9feb800",
+    "description": "Tie FF input projections across the two blocks",
+    "parameters": 2864,
+    "parent_commit": "7b108ce73f66ebafe562401d225bf2bb72f8bcff",
+    "proposal": "family: parameter tying; current retained incumbent is 3120 parameters at 99.9200%, a +0.92 percentage-point margin over 99%. Same-family accepted result: none; same-family failed result: attempt-0032, sharing the per-head attention output map at 3008/9.91% (and attempt-0024, tying complete blocks at 2208/82.12%); prior attempts in this family: 3. Hypothesis: complete block tying removed too many independent functions, while the failed head-local-map sharing is a different within-block constraint. Share only the first d16-to-ff16 projection between the two independently attended blocks, leaving both attention stacks, FF output projections, residual paths, and final scale separate; this saves 256 deduplicated parameters for 2864 total. This is more informative than tying both FF matrices because it isolates the feature-expansion basis from the block-specific recombination, and more informative than full-block tying because attention remains independent; the nearest untested alternative is sharing only the FF output projection. Keep learned positions, reversed operands, d16/h2/L2, independent head-local attention maps, MQA, affine-free block pre-norms, final no-bias affine scale, mixed-digit curriculum, and 30000 steps; retain only official accuracy >=99% and strictly below 3120 parameters.",
+    "status": "discard",
+    "timestamp_utc": "2026-08-17T08:28:28.033393+00:00",
+    "train_exit": 0,
+    "verify_exit": 0
+  },
+  "verification": {
+    "accuracy": 0.0783,
+    "accuracy_percent": 7.83,
+    "correct": 784,
+    "parameters": 2864,
+    "qualified": false,
+    "total": 10010
+  }
+}
