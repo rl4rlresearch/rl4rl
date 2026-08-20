@@ -374,3 +374,17 @@ def test_factorial_estimators() -> None:
     assert result["portfolio_memory_main_effect"] == pytest.approx(5.0)
     assert result["assumption_changing_main_effect"] == pytest.approx(4.0)
     assert result["interaction"] == pytest.approx(4.0)
+    assert len(result["block_contrasts"]) == 2
+    assert all(
+        row["portfolio_memory_effect"] == pytest.approx(5.0)
+        for row in result["block_contrasts"]
+    )
+
+
+def test_factorial_estimators_reject_duplicate_cells() -> None:
+    rows = [
+        RunOutcome("b1", condition, index, f"b1-{condition.value}")
+        for index, condition in enumerate(Condition)
+    ]
+    with pytest.raises(ValueError, match="duplicate block-condition"):
+        estimate([*rows, RunOutcome("b1", Condition.C0, 99, "duplicate-run")])

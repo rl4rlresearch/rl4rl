@@ -8,7 +8,12 @@ import json
 import sys
 from pathlib import Path
 
-from .campaign import calibrate_task, create_campaign
+from .campaign import (
+    calibrate_task,
+    create_campaign,
+    execute_calibration,
+    prepare_calibration,
+)
 from .orchestration import next_run
 from .postsearch import export_layer_b_packets, run_layer_c, score_layer_b
 from .runner import recover_active_opportunity, run_one_opportunity
@@ -29,14 +34,16 @@ PACKAGE_ROOT = Path(__file__).resolve().parent
 REPO_ROOT = PACKAGE_ROOT.parents[1]
 
 
-def _load_campaign(campaign: Path) -> tuple[FactorialSpec, TaskSpec, FrameworkSpec]:
-    inputs = campaign / "inputs"
-    protocol = json.loads((inputs / "protocol.json").read_text(encoding="utf-8"))
+def _load_spec(path: Path) -> FactorialSpec:
+    protocol = json.loads(path.read_text(encoding="utf-8"))
     model = ModelSpec(**protocol.pop("model"))
     budget = BudgetSpec(**protocol.pop("budget"))
     protocol["transition_opportunities"] = tuple(protocol["transition_opportunities"])
-    spec = FactorialSpec(**protocol, model=model, budget=budget)
-    task_payload = json.loads((inputs / "task.json").read_text(encoding="utf-8"))
+    return FactorialSpec(**protocol, model=model, budget=budget)
+
+
+def _load_task(path: Path) -> TaskSpec:
+    task_payload = json.loads(path.read_text(encoding="utf-8"))
     for key in (
         "editable_paths",
         "evaluator_command",
@@ -50,7 +57,13 @@ def _load_campaign(campaign: Path) -> tuple[FactorialSpec, TaskSpec, FrameworkSp
     task_payload["preferred_backend"] = ExecutionBackend(
         task_payload["preferred_backend"]
     )
-    task = TaskSpec(**task_payload)
+    return TaskSpec(**task_payload)
+
+
+def _load_campaign(campaign: Path) -> tuple[FactorialSpec, TaskSpec, FrameworkSpec]:
+    inputs = campaign / "inputs"
+    spec = _load_spec(inputs / "protocol.json")
+    task = _load_task(inputs / "task.json")
     framework_payload = json.loads(
         (inputs / "framework.json").read_text(encoding="utf-8")
     )
@@ -70,6 +83,36 @@ def command_calibrate(args: argparse.Namespace) -> int:
         python_bin=args.python_bin,
     )
     print(path)
+    return 0
+
+
+def command_prepare_calibration(args: argparse.Namespace) -> int:
+    spec = FactorialSpec.from_toml(args.protocol)
+    task = TaskSpec.from_toml(args.task)
+    print(
+        prepare_calibration(
+            args.output,
+            spec=spec,
+            task=task,
+            repo_root=REPO_ROOT,
+        )
+    )
+    return 0
+
+
+def command_execute_calibration(args: argparse.Namespace) -> int:
+    calibration = args.calibration.resolve()
+    spec = _load_spec(calibration / "inputs/protocol.json")
+    task = _load_task(calibration / "inputs/task.json")
+    print(
+        execute_calibration(
+            calibration,
+            spec=spec,
+            task=task,
+            repo_root=REPO_ROOT,
+            python_bin=args.python_bin,
+        )
+    )
     return 0
 
 
@@ -255,6 +298,19 @@ def build_parser() -> argparse.ArgumentParser:
     calibrate.add_argument("--output", type=Path, required=True)
     calibrate.add_argument("--python-bin", default=sys.executable)
     calibrate.set_defaults(handler=command_calibrate)
+
+    prepare_calibration_parser = subparsers.add_parser("prepare-calibration")
+    prepare_calibration_parser.add_argument("--protocol", type=Path, required=True)
+    prepare_calibration_parser.add_argument("--task", type=Path, required=True)
+    prepare_calibration_parser.add_argument("--output", type=Path, required=True)
+    prepare_calibration_parser.set_defaults(handler=command_prepare_calibration)
+
+    execute_calibration_parser = subparsers.add_parser("execute-calibration")
+    execute_calibration_parser.add_argument(
+        "--calibration", type=Path, required=True
+    )
+    execute_calibration_parser.add_argument("--python-bin", default=sys.executable)
+    execute_calibration_parser.set_defaults(handler=command_execute_calibration)
 
     create = subparsers.add_parser("create")
     create.add_argument("--protocol", type=Path, required=True)

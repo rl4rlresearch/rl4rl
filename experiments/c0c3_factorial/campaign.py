@@ -41,13 +41,89 @@ def calibrate_task(
 ) -> Path:
     """Evaluate the frozen seed once on the target execution environment."""
 
+    output = prepare_calibration(
+        output_dir,
+        spec=spec,
+        task=task,
+        repo_root=repo_root,
+    )
+    return execute_calibration(
+        output,
+        spec=spec,
+        task=task,
+        repo_root=repo_root,
+        python_bin=python_bin,
+    )
+
+
+def prepare_calibration(
+    output_dir: str | Path,
+    *,
+    spec: FactorialSpec,
+    task: TaskSpec,
+    repo_root: Path,
+) -> Path:
+    """Create a portable, unevaluated calibration bundle."""
+
     output = Path(output_dir).resolve()
     output.mkdir(parents=True, exist_ok=False)
     support = output / "task-support"
     prepare_seed_workspace(task, support, repo_root=repo_root)
-    candidate_id, snapshot = snapshot_candidate(
+    candidate_id, _snapshot = snapshot_candidate(
         support, output / "candidates", task.editable_paths
     )
+    inputs = output / "inputs"
+    inputs.mkdir()
+    _write_json(inputs / "protocol.json", asdict(spec))
+    _write_json(inputs / "task.json", asdict(task))
+    _write_json(
+        output / "calibration.json",
+        {
+            "schema_version": "1.0",
+            "task_id": task.task_id,
+            "candidate_id": candidate_id,
+            "support_tree_sha256": tree_hash(support),
+            "protocol_hash": spec.protocol_hash,
+            "status": "prepared",
+        },
+    )
+    return output
+
+
+def execute_calibration(
+    calibration_dir: str | Path,
+    *,
+    spec: FactorialSpec,
+    task: TaskSpec,
+    repo_root: Path,
+    python_bin: str,
+) -> Path:
+    """Evaluate a prepared calibration bundle on its target backend."""
+
+    output = Path(calibration_dir).resolve()
+    baseline_path = output / "baseline.json"
+    if baseline_path.exists():
+        raise FileExistsError("calibration baseline already exists")
+    prepared = json.loads((output / "calibration.json").read_text(encoding="utf-8"))
+    support = output / "task-support"
+    expected = {
+        "schema_version": "1.0",
+        "task_id": task.task_id,
+        "support_tree_sha256": tree_hash(support),
+        "protocol_hash": spec.protocol_hash,
+        "status": "prepared",
+    }
+    mismatch = {
+        key: (value, prepared.get(key))
+        for key, value in expected.items()
+        if prepared.get(key) != value
+    }
+    if mismatch:
+        raise ValueError(f"prepared calibration bundle mismatch: {mismatch}")
+    candidate_id = str(prepared.get("candidate_id", ""))
+    snapshot = output / "candidates" / candidate_id
+    if not snapshot.is_dir():
+        raise FileNotFoundError("prepared calibration candidate snapshot is missing")
     evaluator = CommandEvaluator(
         task=task,
         support_source=support,
@@ -75,9 +151,8 @@ def calibrate_task(
         "protocol_hash": spec.protocol_hash,
         "calibration_kind": "executed_on_target_backend",
     }
-    path = output / "baseline.json"
-    _write_json(path, calibration)
-    return path
+    _write_json(baseline_path, calibration)
+    return baseline_path
 
 
 def _load_calibration(

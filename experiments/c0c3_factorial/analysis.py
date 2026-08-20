@@ -25,6 +25,12 @@ def _mean(values: list[float]) -> float:
 
 
 def estimate(outcomes: list[RunOutcome]) -> dict[str, object]:
+    run_ids = [row.run_id for row in outcomes]
+    if len(run_ids) != len(set(run_ids)):
+        raise ValueError("factorial outcomes contain duplicate run IDs")
+    block_cells = [(row.block, row.condition) for row in outcomes]
+    if len(block_cells) != len(set(block_cells)):
+        raise ValueError("factorial outcomes contain duplicate block-condition cells")
     cells = {
         condition: [
             float(row.qualified_mechanism_clusters)
@@ -58,6 +64,28 @@ def estimate(outcomes: list[RunOutcome]) -> dict[str, object]:
     }
     if incomplete:
         raise ValueError(f"incomplete randomized blocks: {incomplete}")
+    block_contrasts = []
+    for block in sorted(blocks):
+        values = {
+            outcome.condition: float(outcome.qualified_mechanism_clusters)
+            for outcome in outcomes
+            if outcome.block == block
+        }
+        block_contrasts.append(
+            {
+                "block": block,
+                "portfolio_memory_effect": (
+                    (values[Condition.C2] + values[Condition.C3]) / 2
+                    - (values[Condition.C0] + values[Condition.C1]) / 2
+                ),
+                "assumption_changing_effect": (
+                    (values[Condition.C1] + values[Condition.C3]) / 2
+                    - (values[Condition.C0] + values[Condition.C2]) / 2
+                ),
+                "interaction": (values[Condition.C3] - values[Condition.C2])
+                - (values[Condition.C1] - values[Condition.C0]),
+            }
+        )
     return {
         "estimand": "distinct Layer-B-qualified mechanism clusters per run",
         "cell_means": {key.value: value for key, value in means.items()},
@@ -65,6 +93,7 @@ def estimate(outcomes: list[RunOutcome]) -> dict[str, object]:
         "portfolio_memory_main_effect": memory,
         "assumption_changing_main_effect": transition,
         "interaction": interaction,
+        "block_contrasts": block_contrasts,
     }
 
 

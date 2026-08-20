@@ -82,14 +82,19 @@ def export_layer_b_packets(
             source = run_dir / str(event["artifact_path"])
             destination = packets_root / packet_id / "candidate"
             shutil.copytree(source, destination)
+            parent_ids = event["parent_ids"]
+            if not isinstance(parent_ids, list) or len(parent_ids) != 1:
+                raise ValueError("Layer B v1 requires exactly one recorded parent")
+            parent_source = run_dir / "candidates" / str(parent_ids[0])
+            shutil.copytree(parent_source, packets_root / packet_id / "parent")
             packet = {
                 "schema_version": "1.0",
                 "packet_id": packet_id,
                 "task_id": task.task_id,
                 "hypothesis": event["hypothesis"],
                 "intended_edit": event["intended_edit"],
-                "parent_count": len(event["parent_ids"]),
-                "layer_a_metrics": evaluation["metrics"],
+                "parent_count": 1,
+                "layer_a_qualified": True,
                 "review_question": (
                     "Does this candidate instantiate a coherent, testable mechanism "
                     "change rather than only a parameter/hyperparameter adjustment?"
@@ -134,6 +139,8 @@ def export_layer_b_packets(
         "`annotations.template.tsv`, add exactly one row per packet, use `1` only "
         "for a qualified mechanism change, and assign the same stable "
         "`mechanism_cluster` label to mechanistically equivalent candidates. "
+        "Compare `parent/` with `candidate/`; Layer A scores are intentionally "
+        "hidden from reviewers to reduce performance-outcome bias. "
         "Do not open `private/` until adjudication is frozen.\n",
         encoding="utf-8",
     )

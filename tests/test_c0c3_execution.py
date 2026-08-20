@@ -18,7 +18,12 @@ from experiments.c0c3_factorial.artifacts import (
     materialize_candidate,
     snapshot_candidate,
 )
-from experiments.c0c3_factorial.campaign import calibrate_task, create_campaign
+from experiments.c0c3_factorial.campaign import (
+    calibrate_task,
+    create_campaign,
+    execute_calibration,
+    prepare_calibration,
+)
 from experiments.c0c3_factorial.codex_cli import CodexCli
 from experiments.c0c3_factorial.frameworks import (
     OpenEvolveAdapter,
@@ -278,6 +283,27 @@ def test_codex_transport_campaign_and_one_real_controller_step(
     assert n0_state["condition"] == "N0"
 
 
+def test_portable_calibration_can_execute_on_a_later_backend(tmp_path: Path) -> None:
+    seed_source = make_seed(tmp_path / "source")
+    calibration = prepare_calibration(
+        tmp_path / "calibration",
+        spec=protocol(),
+        task=task(seed_source),
+        repo_root=ROOT,
+    )
+    assert not (calibration / "baseline.json").exists()
+    baseline = execute_calibration(
+        calibration,
+        spec=protocol(),
+        task=task(seed_source),
+        repo_root=ROOT,
+        python_bin=sys.executable,
+    )
+    assert json.loads(baseline.read_text())["calibration_kind"] == (
+        "executed_on_target_backend"
+    )
+
+
 def test_codex_event_usage_parser_uses_final_turn(tmp_path: Path) -> None:
     fake_codex = make_fake_codex(tmp_path / "fake-codex")
     workspace = make_seed(tmp_path / "workspace")
@@ -385,6 +411,11 @@ def test_layer_b_is_sealed_until_completion_then_scores_factorial(
             (sealed / "packet_order.tsv").open(encoding="utf-8"), delimiter="\t"
         )
     ]
+    first_packet = sealed / "packets" / packet_ids[0]
+    assert (first_packet / "parent/candidate.py").is_file()
+    packet_payload = json.loads((first_packet / "packet.json").read_text())
+    assert "layer_a_metrics" not in packet_payload
+    assert packet_payload["layer_a_qualified"] is True
     annotations = sealed / "annotations.tsv"
     with annotations.open("w", newline="", encoding="utf-8") as handle:
         writer = csv.DictWriter(

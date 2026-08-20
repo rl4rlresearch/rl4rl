@@ -108,7 +108,10 @@ if modal is not None:
         },
     )
     def run_remote(
-        campaign: str, run_id: str = "", opportunities: int = 1
+        campaign: str,
+        run_id: str = "",
+        opportunities: int = 1,
+        execute_calibration: bool = False,
     ) -> dict[str, object]:
         if opportunities < 1:
             raise ValueError("opportunities must be positive")
@@ -116,23 +119,39 @@ if modal is not None:
             raise ValueError(
                 "explicit run_id is diagnostic-only and requires opportunities=1"
             )
+        if execute_calibration and (run_id or opportunities != 1):
+            raise ValueError(
+                "calibration execution does not accept run_id or batched opportunities"
+            )
         campaign_volume.reload()
         autoresearch_cache.reload()
         campaign_path = safe_campaign_path(campaign)
         outputs = []
         for _ in range(opportunities):
-            command = [
-                "python",
-                "-m",
-                "experiments.c0c3_factorial.cli",
-                "run-one" if run_id else "run-next",
-                "--campaign",
-                str(campaign_path),
-                "--python-bin",
-                "python",
-            ]
-            if run_id:
-                command.extend(("--run-id", run_id))
+            if execute_calibration:
+                command = [
+                    "python",
+                    "-m",
+                    "experiments.c0c3_factorial.cli",
+                    "execute-calibration",
+                    "--calibration",
+                    str(campaign_path),
+                    "--python-bin",
+                    "python",
+                ]
+            else:
+                command = [
+                    "python",
+                    "-m",
+                    "experiments.c0c3_factorial.cli",
+                    "run-one" if run_id else "run-next",
+                    "--campaign",
+                    str(campaign_path),
+                    "--python-bin",
+                    "python",
+                ]
+                if run_id:
+                    command.extend(("--run-id", run_id))
             completed = subprocess.run(
                 command,
                 cwd=REMOTE_REPO,
@@ -155,6 +174,7 @@ if modal is not None:
             "campaign": campaign,
             "run_id": run_id or "[frozen campaign order]",
             "opportunities": opportunities,
+            "action": "execute_calibration" if execute_calibration else "search",
         }
 
     @app.function(
@@ -176,12 +196,19 @@ if modal is not None:
         campaign_volume.reload()
         autoresearch_cache.reload()
         campaign_path = safe_campaign_path(campaign)
-        schedule = json.loads(
-            (campaign_path / "schedule.json").read_text(encoding="utf-8")
-        )
-        if not schedule:
-            raise ValueError("campaign has no runs")
-        support = campaign_path / "runs" / str(schedule[0]["run_id"]) / "task-support"
+        support = campaign_path / "task-support"
+        if not support.is_dir():
+            schedule = json.loads(
+                (campaign_path / "schedule.json").read_text(encoding="utf-8")
+            )
+            if not schedule:
+                raise ValueError("campaign has no runs")
+            support = (
+                campaign_path
+                / "runs"
+                / str(schedule[0]["run_id"])
+                / "task-support"
+            )
         completed = subprocess.run(
             ["python", "prepare.py", "--num-shards", str(num_shards)],
             cwd=support,
@@ -204,6 +231,7 @@ if modal is not None:
         opportunities: int = 1,
         prepare_autoresearch: bool = False,
         prepare_only: bool = False,
+        execute_calibration: bool = False,
         num_shards: int = 10,
     ) -> None:
         if prepare_autoresearch:
@@ -212,7 +240,9 @@ if modal is not None:
             if not prepare_autoresearch:
                 raise ValueError("prepare_only requires prepare_autoresearch=true")
             return
-        result = run_remote.remote(campaign, run_id, opportunities)
+        result = run_remote.remote(
+            campaign, run_id, opportunities, execute_calibration
+        )
         print(result["stdout"])
 
 else:
