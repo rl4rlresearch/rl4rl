@@ -25,8 +25,8 @@ and is never included in the 2×2 contrasts.
    Autoresearch” and “OpenEvolve” mean here, AdderBoard and nanoGPT setup, and
    extension interfaces.
 4. [MODAL.md](MODAL.md) — target-backend calibration, persistent volumes, and
-   serialized GPU execution for protocol 1.0. Protocol 1.1 parallel rounds are
-   currently local-only.
+   serialized GPU execution for protocol 1.0. Parallel protocols 1.1, 1.3, and
+   1.4 are currently local-only.
 5. [PAPER_NOTES.md](PAPER_NOTES.md) — literature, hypotheses, reviewer rubric,
    figures, statistical cautions, and paper-writing checklist.
 
@@ -44,8 +44,9 @@ Future coding agents must also follow [AGENTS.md](AGENTS.md).
   SEARCH/REPLACE adapters.
 - `campaign.py`: portable calibration and immutable campaign construction.
 - `runner.py`: one locked proposal/evaluation opportunity.
-- `orchestration.py`: versioned serial and synchronized parallel execution,
-  campaign writer lock, and append-only parallel-round provenance.
+- `orchestration.py`: versioned serial, synchronized-wave, and independently
+  advancing parallel execution, plus campaign writer locks and append-only
+  execution provenance.
 - `validation.py`: fail-closed launch audit.
 - `postsearch.py` and `analysis.py`: sealed Layer B review, Layer C evaluation,
   and factorial contrasts.
@@ -71,11 +72,18 @@ Future coding agents must also follow [AGENTS.md](AGENTS.md).
   per run. It is a separate stratum; see `CONTINUOUS_AUTORESEARCH.md` and do not
   pool it with protocol 1.1.
 - `configs/protocols/workshop_primary_block1_continuous_v1.toml` is protocol
-  1.3 and is the current launch preset. Its primary stage runs only Block 1
-  C0–C3: four concurrent trajectories and 800 total opportunities. It creates
-  but does not advance N0 or Blocks 2–3, preserving exact optional extensions
-  under the same campaign hashes. Use only the staged commands documented in
-  `CONTINUOUS_AUTORESEARCH.md`.
+  1.3 and preserves the original synchronized-wave primary preset. Its primary
+  stage runs only Block 1 C0–C3: four concurrent trajectories and 800 total
+  opportunities. It creates but does not advance N0 or Blocks 2–3, preserving
+  exact optional extensions under the same campaign hashes. Use only the staged
+  commands documented in `CONTINUOUS_AUTORESEARCH.md`.
+- `configs/protocols/workshop_primary_block1_independent_continuous_v1.toml`
+  is protocol 1.4 and is the current launch preset. It keeps the same
+  treatments, continuous conversations, budgets, seeds, primary scope, and
+  dormant extensions as protocol 1.3, but C0–C3 start together and then each
+  advances independently through all 200 opportunities rather than waiting at
+  every shared wave boundary. It is a separate execution stratum and cannot be
+  pooled with protocol 1.3 as if their timing rules were the same.
 
 Run the dev protocol end to end before spending on the paper protocol. Do not
 reinterpret dev results as a pilot effect estimate: its transition density and
@@ -90,16 +98,17 @@ budget are intentionally unlike the paper protocol.
   `run-parallel-next`/`run-parallel-campaign` for protocol 1.1. Each command
   rejects a campaign frozen to the other rule. `run-one` and `run --run-id`
   exist for diagnostics and can bypass randomized ordering.
-- Use `run-staged-next`/`run-staged-campaign` for protocol 1.3. Its primary
+- Use `run-staged-next`/`run-staged-campaign` for protocol 1.3. Use
+  `run-staged-independent-campaign` for protocol 1.4. Each primary
   Block 1 factorial stage must complete before an optional stage can start.
 - Never expose Layer B annotations or Layer C results until every run in the
   campaign is completed.
 - Do not delete, retry, or reuse a failed opportunity. Use `recover-active` for
   an interrupted active opportunity; the opportunity remains charged.
 - Do not run the same campaign from local and Modal storage simultaneously.
-- Keep one campaign orchestrator process. Protocols 1.1 and 1.3 create their
-  four C0–C3 Codex calls internally; four manually launched CLI processes are
-  invalid.
+- Keep one campaign orchestrator process. Protocols 1.1, 1.3, and 1.4 create
+  their four C0–C3 Codex workers internally; four manually launched CLI
+  processes are invalid.
 - Do not pool task or framework strata as if they were interchangeable
   replications. Report each task × framework stratum, then synthesize effects.
 

@@ -1,4 +1,4 @@
-# C0–C3 protocols v1.0–v1.3
+# C0–C3 protocols v1.0–v1.4
 
 This document is the human-readable preregistration for the implementation in
 this directory. The executable contract is `FactorialSpec`; a campaign records
@@ -9,10 +9,12 @@ Version 1.0 is the 100-opportunity serial paper protocol. Version 1.1 is the
 separate 30-opportunity synchronized-parallel workshop pilot. Version 1.2 is
 the separate 200-opportunity continuous-session Autoresearch protocol with an
 intervention every tenth opportunity. Version 1.3 keeps those proposal and
-conversation rules but freezes a staged execution plan: Block 1 C0–C3 is the
-one-block primary analysis, while N0 and Blocks 2–3 are dormant optional
-extensions. Results retain their protocol labels and are not pooled as
-interchangeable replications.
+conversation rules but freezes a staged, synchronized-wave execution plan:
+Block 1 C0–C3 is the one-block primary analysis, while N0 and Blocks 2–3 are
+dormant optional extensions. Version 1.4 keeps the same treatment and stage
+scope but lets the four initially concurrent trajectories advance independently
+after their simultaneous start. Results retain their protocol labels and are
+not pooled as interchangeable replications.
 
 ## 1. Research question and unit of analysis
 
@@ -64,9 +66,9 @@ No conversation is resumed between opportunities. Cross-opportunity memory is
 exactly the code, metrics, selection counts, and hypotheses exposed by the
 controller.
 
-### Protocol 1.2/1.3 continuous-session exception
+### Protocol 1.2–1.4 continuous-session exception
 
-Protocols 1.2 and 1.3 apply only to separate Autoresearch strata. Each starts
+Protocols 1.2–1.4 apply only to separate Autoresearch strata. Each starts
 one persisted Codex session per run at opportunity 1 and resumes that session
 for all later opportunities. Before each resume, the controller reconstructs the
 stable session workspace from the selected candidate, then snapshots and
@@ -182,6 +184,26 @@ pre-created with the same protocol, task, framework, calibration, runtime, and
 deterministic block seeds, but advance only through an explicit staged command.
 Every wave records its stage in `parallel-rounds.jsonl`.
 
+Protocol 1.4 freezes
+`staged_independent_parallel_trajectories_v1`. It has the same one-block
+primary scope, run seeds, C0–C3 treatments, continuous-session rule, budgets,
+and dormant optional extensions as protocol 1.3, but is an independently
+advancing execution design: C0–C3 launch together behind one initial local
+barrier and each worker immediately begins its next opportunity when its own
+previous evaluator completes. It does not wait for a peer at opportunities
+1–200. One campaign writer still owns all four workers; manually launching four
+run commands remains invalid. `independent-trajectories.jsonl` records the
+initial participant set, starting opportunity for each run, each completed
+trajectory, and batch completion/failure. A transport failure or unexpected
+runner exception prevents new opportunities from starting after in-flight work
+finishes; completed records remain charged and ordinary recovery rules apply.
+
+This changes the execution/timing instrument, not the C0–C3 treatment
+boundary. Because a trajectory can get ahead of another, protocol 1.4 process
+metrics must report per-run wall time and overlap rather than treating a shared
+round as the unit of execution. Its factorial outcomes remain run-level and
+descriptive for its one-block primary stage.
+
 The Block 1 factorial is the prespecified one-block primary analysis. A later
 decision to activate an extension must be timestamped with its reason before
 the first extension opportunity. Extension blocks are compatible replications
@@ -200,8 +222,9 @@ not eliminate it.
 Use `run-next` or `run-campaign` for protocol 1.0. Use `run-parallel-next` or
 `run-parallel-campaign` for protocol 1.1. Direct `run-one --run-id` is diagnostic
 and can bypass randomized order.
-Use `run-staged-next` or `run-staged-campaign` for protocol 1.3; the other
-orchestrators reject its execution-rule identifier.
+Use `run-staged-next` or `run-staged-campaign` for protocol 1.3. Use
+`run-staged-independent-campaign` for protocol 1.4; the other orchestrators
+reject its execution-rule identifier.
 
 ## 9. Controls held common within a campaign
 
@@ -237,12 +260,12 @@ The workshop parallel pilot freezes, per run, 30 opportunities/evaluator calls,
 same 3,600-second evaluator timeout. It uses three blocks and therefore has
 three independent trajectories per factorial cell plus three separate N0 runs.
 
-Protocols 1.2 and 1.3 freeze 200 opportunities/evaluator calls, 500,000,000
+Protocols 1.2–1.4 freeze 200 opportunities/evaluator calls, 500,000,000
 total reported tokens, 720,000 aggregate evaluator seconds, and the same
-3,600-second evaluator timeout per run. Protocol 1.3's primary stage contains
-four runs and therefore schedules 800 proposals and 40 assumption-changing
-interventions. Dormant extension runs consume no budget until explicitly
-activated.
+3,600-second evaluator timeout per run. Protocols 1.3 and 1.4 primary stages
+contain four runs and therefore schedule 800 proposals and 40
+assumption-changing interventions. Dormant extension runs consume no budget
+until explicitly activated.
 
 A new opportunity cannot start after any remaining budget reaches zero. One
 already-started Codex or evaluator call may overshoot a ceiling; its actual usage
@@ -268,9 +291,12 @@ completion. Previously completed cells are never repeated and N0 still waits
 until the selected factorial subset finishes.
 
 Under protocol 1.3, recover every active opportunity and resume the same
-explicit block/stage. Only lagging peers in that stage are selected. Recovery
-never advances N0 or another block, and the primary-completion gate remains in
-force for extensions.
+explicit block/stage. Only lagging peers in that stage are selected. Under
+protocol 1.4, recover every active opportunity and resume the same independent
+stage launcher; every unfinished selected trajectory resumes from its own next
+opportunity, without creating a new wave barrier. Neither protocol advances N0
+or another block, and the primary-completion gate remains in force for
+extensions.
 
 ## 12. Feedback layers
 
@@ -284,7 +310,7 @@ the human-readable metric.
 ### Layer B — sealed mechanism review
 
 Layer B cannot be exported until every run in the frozen analysis scope is
-completed. For protocol 1.3 that scope is the four Block 1 primary runs plus
+completed. For protocols 1.3 and 1.4 that scope is the four Block 1 primary runs plus
 every explicitly activated and completed extension stage; dormant extensions
 are excluded. The operator must activate any optional extension before Layer
 B/C is created, after which the runner forbids more collection.
@@ -326,7 +352,7 @@ Any pooled synthesis across tasks/frameworks should be hierarchical or a
 clearly labeled descriptive meta-analysis, not a replacement for stratum-level
 results.
 
-Protocol 1.3's primary stage has one trajectory per cell. Its cell values and
+Protocols 1.3 and 1.4 primary stages have one trajectory per cell. Their cell values and
 three factorial contrasts are descriptive: there is no between-block sampling
 variance estimate and proposals cannot be substituted as replicates. If later
 blocks are activated, publish the original Block 1 result unchanged, then show

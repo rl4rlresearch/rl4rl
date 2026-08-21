@@ -16,6 +16,7 @@ from .prompts import (
 from .spec import (
     PARALLEL_EXECUTION_RULE,
     SERIAL_EXECUTION_RULE,
+    STAGED_INDEPENDENT_EXECUTION_RULE,
     STAGED_PARALLEL_EXECUTION_RULE,
     Condition,
     ExecutionBackend,
@@ -51,7 +52,11 @@ def validate_campaign(
             errors.append(f"campaign {name} mismatch")
     if (
         spec.execution_rule
-        in {PARALLEL_EXECUTION_RULE, STAGED_PARALLEL_EXECUTION_RULE}
+        in {
+            PARALLEL_EXECUTION_RULE,
+            STAGED_PARALLEL_EXECUTION_RULE,
+            STAGED_INDEPENDENT_EXECUTION_RULE,
+        }
         and task.preferred_backend is not ExecutionBackend.LOCAL
     ):
         errors.append(
@@ -67,7 +72,8 @@ def validate_campaign(
             for row in schedule
             if int(row["block"]) == 1 and str(row["condition"]) != "N0"
         ]
-        if spec.execution_rule == STAGED_PARALLEL_EXECUTION_RULE
+        if spec.execution_rule
+        in {STAGED_PARALLEL_EXECUTION_RULE, STAGED_INDEPENDENT_EXECUTION_RULE}
         else run_ids
     )
     expected_optional = [
@@ -78,7 +84,8 @@ def validate_campaign(
     if manifest.get("optional_run_ids") != expected_optional:
         errors.append("campaign optional run scope mismatch")
     if (
-        spec.execution_rule == STAGED_PARALLEL_EXECUTION_RULE
+        spec.execution_rule
+        in {STAGED_PARALLEL_EXECUTION_RULE, STAGED_INDEPENDENT_EXECUTION_RULE}
         and not manifest.get("include_no_search")
     ):
         errors.append("staged protocol requires pre-created N0 extensions")
@@ -197,6 +204,9 @@ def validate_campaign(
             ),
             "frozen_staged_parallel_trajectories": (
                 spec.execution_rule == STAGED_PARALLEL_EXECUTION_RULE
+            ),
+            "frozen_staged_independent_trajectories": (
+                spec.execution_rule == STAGED_INDEPENDENT_EXECUTION_RULE
             ),
             "layer_b_c_absent_at_launch": layers_absent,
         },

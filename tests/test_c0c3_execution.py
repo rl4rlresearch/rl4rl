@@ -39,6 +39,7 @@ from experiments.c0c3_factorial.orchestration import (
     FACTORIAL_STAGE,
     NO_SEARCH_STAGE,
     CampaignLockedError,
+    IndependentTrajectoryError,
     ParallelWaveError,
     campaign_lock,
     next_parallel_wave,
@@ -46,6 +47,8 @@ from experiments.c0c3_factorial.orchestration import (
     next_staged_parallel_wave,
     run_parallel_campaign,
     run_staged_campaign,
+    run_staged_independent_campaign,
+    staged_independent_trajectories,
 )
 from experiments.c0c3_factorial.postsearch import (
     export_layer_b_packets,
@@ -59,6 +62,7 @@ from experiments.c0c3_factorial.runner import (
 )
 from experiments.c0c3_factorial.spec import (
     PARALLEL_EXECUTION_RULE,
+    STAGED_INDEPENDENT_EXECUTION_RULE,
     STAGED_PARALLEL_EXECUTION_RULE,
     BudgetSpec,
     ConversationMode,
@@ -115,6 +119,26 @@ def staged_protocol() -> FactorialSpec:
             "blocks": 2,
             "conversation_mode": ConversationMode.CONTINUOUS,
             "execution_rule": STAGED_PARALLEL_EXECUTION_RULE,
+        }
+    )
+
+
+def independent_staged_protocol() -> FactorialSpec:
+    base = staged_protocol()
+    return FactorialSpec(
+        **{
+            **base.__dict__,
+            "protocol_version": "1.4",
+            "study_id": "independent-staged-execution-test",
+            "budget": BudgetSpec(
+                proposals=2,
+                candidate_evaluations=2,
+                max_total_tokens=1000,
+                max_evaluator_seconds=100.0,
+                evaluator_timeout_seconds=10,
+            ),
+            "transition_opportunities": (2,),
+            "execution_rule": STAGED_INDEPENDENT_EXECUTION_RULE,
         }
     )
 
@@ -304,6 +328,58 @@ print(json.dumps({{
         'reasoning_output_tokens': 2,
     }},
 }}))
+""",
+        encoding="utf-8",
+    )
+    path.chmod(path.stat().st_mode | stat.S_IXUSR)
+    return path
+
+
+def make_independent_continuous_fake_codex(path: Path, marker_root: Path) -> Path:
+    """Require one peer to resume before a deliberately slow peer finishes."""
+
+    session_root = path.with_suffix(".sessions")
+    path.write_text(
+        f"""#!{sys.executable}
+import json
+import pathlib
+import sys
+import time
+
+args = sys.argv[1:]
+markers = pathlib.Path({str(marker_root)!r})
+sessions = pathlib.Path({str(session_root)!r})
+last = pathlib.Path(args[args.index('--output-last-message') + 1])
+if 'resume' in args:
+    run_id = last.parents[3].name
+    workspace = pathlib.Path((sessions / run_id).read_text())
+    (markers / 'resumed').mkdir(parents=True, exist_ok=True)
+    (markers / 'resumed' / run_id).write_text('resumed')
+else:
+    workspace = pathlib.Path(args[args.index('--cd') + 1])
+    run_id = workspace.parent.name
+    sessions.mkdir(parents=True, exist_ok=True)
+    (sessions / run_id).write_text(str(workspace))
+    initial = markers / 'initial'
+    initial.mkdir(parents=True, exist_ok=True)
+    (initial / run_id).write_text('started')
+    deadline = time.monotonic() + 5
+    while len(list(initial.iterdir())) < 4:
+        if time.monotonic() >= deadline:
+            raise SystemExit('four independent trajectories did not overlap at launch')
+        time.sleep(0.01)
+    if run_id.endswith('-c0'):
+        time.sleep(0.5)
+        if not (markers / 'resumed').exists():
+            raise SystemExit('C0 waited for its peers before starting opportunity 2')
+previous = int((workspace / 'candidate.py').read_text().split('=')[1])
+(workspace / 'candidate.py').write_text(f'SCORE = {{previous + 1}}\\n')
+last.write_text('HYPOTHESIS: increment score\\nINTENDED_EDIT: increment SCORE\\n')
+print(json.dumps({{'type': 'thread.started', 'thread_id': 'fake-' + run_id}}))
+print(json.dumps({{'type': 'turn.completed', 'usage': {{
+    'input_tokens': 11, 'cached_input_tokens': 3,
+    'output_tokens': 5, 'reasoning_output_tokens': 2
+}}}}))
 """,
         encoding="utf-8",
     )
@@ -1138,6 +1214,176 @@ def test_staged_campaign_runs_primary_only_and_preserves_later_stages(
             block=2,
             stage=NO_SEARCH_STAGE,
         )
+
+
+def test_independent_staged_campaign_runs_trajectories_without_round_barriers(
+    tmp_path: Path,
+) -> None:
+    spec = independent_staged_protocol()
+    seed_source = make_seed(tmp_path / "source")
+    fake_codex = make_independent_continuous_fake_codex(
+        tmp_path / "fake-independent-continuous-codex",
+        tmp_path / "independent-markers",
+    )
+    continuous_framework = FrameworkSpec(
+        framework_id=FrameworkKind.AUTORESEARCH,
+        adapter="codex_direct_editor_session_resume_v1",
+        prompt_profile="controlled_factorial_continuous_v1",
+        edit_mode="direct_workspace",
+    )
+    calibration = calibrate_task(
+        tmp_path / "calibration",
+        spec=spec,
+        task=task(seed_source),
+        repo_root=ROOT,
+        python_bin=sys.executable,
+    )
+    campaign = create_campaign(
+        tmp_path / "campaign",
+        spec=spec,
+        task=task(seed_source),
+        framework=continuous_framework,
+        calibration_path=calibration,
+        repo_root=ROOT,
+        include_no_search=True,
+    )
+    report = validate_campaign(
+        campaign,
+        spec=spec,
+        task=task(seed_source),
+        framework=continuous_framework,
+        repo_root=ROOT,
+    )
+    assert report["valid"] is True
+    assert report["controls"]["frozen_staged_independent_trajectories"] is True
+    assert len(
+        staged_independent_trajectories(
+            campaign,
+            spec,
+            block=1,
+            stage=FACTORIAL_STAGE,
+        )
+    ) == 4
+    with pytest.raises(ValueError, match="staged parallel campaign commands require"):
+        next_staged_parallel_wave(
+            campaign,
+            spec,
+            block=1,
+            stage=FACTORIAL_STAGE,
+        )
+
+    results = list(
+        run_staged_independent_campaign(
+            campaign,
+            spec=spec,
+            task=task(seed_source),
+            framework=continuous_framework,
+            repo_root=ROOT,
+            python_bin=sys.executable,
+            block=1,
+            stage=FACTORIAL_STAGE,
+            codex_binary=str(fake_codex),
+            codex_timeout_seconds=10,
+        )
+    )
+    assert len(results) == 4
+    assert {result["condition"] for result in results} == {"C0", "C1", "C2", "C3"}
+    assert all(result["status"] == "completed" for result in results)
+    assert all(result["proposals_used"] == 2 for result in results)
+    assert len(list((tmp_path / "independent-markers" / "initial").iterdir())) == 4
+    assert (tmp_path / "independent-markers" / "resumed").is_dir()
+
+    schedule = json.loads((campaign / "schedule.json").read_text())
+    states = {
+        (int(row["block"]), str(row["condition"])): SearchController.load(
+            campaign / "runs" / row["run_id"], spec
+        ).state
+        for row in schedule
+    }
+    assert states[(1, "N0")].proposals_used == 0
+    assert all(
+        states[(2, condition)].proposals_used == 0
+        for condition in ("C0", "C1", "C2", "C3", "N0")
+    )
+    events = [
+        json.loads(line)
+        for line in (campaign / "independent-trajectories.jsonl")
+        .read_text()
+        .splitlines()
+    ]
+    assert events[0]["event"] == "independent_trajectory_batch_started"
+    assert events[-1]["event"] == "independent_trajectory_batch_completed"
+    assert sum(
+        event["event"] == "independent_trajectory_completed" for event in events
+    ) == 4
+
+
+def test_independent_staged_campaign_stops_after_zero_token_provider_failure(
+    tmp_path: Path,
+) -> None:
+    spec = independent_staged_protocol()
+    seed_source = make_seed(tmp_path / "source")
+    calibration = calibrate_task(
+        tmp_path / "calibration",
+        spec=spec,
+        task=task(seed_source),
+        repo_root=ROOT,
+        python_bin=sys.executable,
+    )
+    continuous_framework = FrameworkSpec(
+        framework_id=FrameworkKind.AUTORESEARCH,
+        adapter="codex_direct_editor_session_resume_v1",
+        prompt_profile="controlled_factorial_continuous_v1",
+        edit_mode="direct_workspace",
+    )
+    campaign = create_campaign(
+        tmp_path / "campaign",
+        spec=spec,
+        task=task(seed_source),
+        framework=continuous_framework,
+        calibration_path=calibration,
+        repo_root=ROOT,
+        include_no_search=True,
+    )
+    failing_codex = make_failing_fake_codex(tmp_path / "failing-codex")
+
+    with pytest.raises(IndependentTrajectoryError):
+        list(
+            run_staged_independent_campaign(
+                campaign,
+                spec=spec,
+                task=task(seed_source),
+                framework=continuous_framework,
+                repo_root=ROOT,
+                python_bin=sys.executable,
+                block=1,
+                stage=FACTORIAL_STAGE,
+                codex_binary=str(failing_codex),
+                codex_timeout_seconds=10,
+            )
+        )
+
+    schedule = json.loads((campaign / "schedule.json").read_text())
+    states = {
+        (int(row["block"]), str(row["condition"])): SearchController.load(
+            campaign / "runs" / row["run_id"], spec
+        ).state
+        for row in schedule
+    }
+    assert all(
+        states[(1, condition)].proposals_used <= 1
+        and states[(1, condition)].active is None
+        for condition in ("C0", "C1", "C2", "C3")
+    )
+    assert states[(1, "N0")].proposals_used == 0
+    events = [
+        json.loads(line)
+        for line in (campaign / "independent-trajectories.jsonl")
+        .read_text()
+        .splitlines()
+    ]
+    assert events[0]["event"] == "independent_trajectory_batch_started"
+    assert events[-1]["event"] == "independent_trajectory_batch_failed"
 
 
 def test_interrupted_opportunity_recovery_consumes_proposal_not_evaluation(

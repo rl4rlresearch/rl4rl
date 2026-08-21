@@ -7,7 +7,7 @@ import json
 import os
 import threading
 from collections.abc import Iterator
-from concurrent.futures import ThreadPoolExecutor
+from concurrent.futures import ThreadPoolExecutor, as_completed
 from contextlib import contextmanager
 from dataclasses import dataclass
 from datetime import UTC, datetime
@@ -17,6 +17,7 @@ from .runner import run_one_opportunity
 from .spec import (
     PARALLEL_EXECUTION_RULE,
     SERIAL_EXECUTION_RULE,
+    STAGED_INDEPENDENT_EXECUTION_RULE,
     STAGED_PARALLEL_EXECUTION_RULE,
     ExecutionBackend,
     FactorialSpec,
@@ -32,6 +33,10 @@ class CampaignLockedError(RuntimeError):
 
 class ParallelWaveError(RuntimeError):
     """One or more concurrently launched factorial opportunities failed."""
+
+
+class IndependentTrajectoryError(RuntimeError):
+    """An independently advancing trajectory stopped the staged launcher."""
 
 
 @dataclass(frozen=True)
@@ -228,25 +233,21 @@ def next_parallel_wave(
     )
 
 
-def next_staged_parallel_wave(
+def _staged_stage_assignments(
     campaign_dir: str | Path,
     spec: FactorialSpec,
     *,
     block: int,
     stage: str,
-) -> ParallelWave | None:
-    """Select one wave from a prespecified block-local execution stage.
+) -> list[tuple[dict[str, object], SearchController]]:
+    """Load a valid, explicit stage without deciding its execution geometry."""
 
-    Protocol 1.3 defines Block 1 C0-C3 as the primary stage. N0 and later
-    blocks remain frozen in the same campaign but advance only when their
-    explicit stage is selected. This prevents dormant optional extensions from
-    holding the primary trajectories behind the campaign-wide round barrier.
-    """
-
-    if spec.execution_rule != STAGED_PARALLEL_EXECUTION_RULE:
+    if spec.execution_rule not in {
+        STAGED_PARALLEL_EXECUTION_RULE,
+        STAGED_INDEPENDENT_EXECUTION_RULE,
+    }:
         raise ValueError(
-            "staged campaign commands require "
-            f"execution_rule={STAGED_PARALLEL_EXECUTION_RULE!r}"
+            "staged campaign commands require a staged execution rule"
         )
     if block < 1 or block > spec.blocks:
         raise ValueError(f"block must be between 1 and {spec.blocks}")
@@ -302,6 +303,29 @@ def next_staged_parallel_wave(
             f"block {block} stage {stage!r} requires {expected_count} scheduled "
             f"runs, found {len(selected)}"
         )
+    return selected
+
+
+def next_staged_parallel_wave(
+    campaign_dir: str | Path,
+    spec: FactorialSpec,
+    *,
+    block: int,
+    stage: str,
+) -> ParallelWave | None:
+    """Select one protocol-1.3 synchronized wave from an explicit stage."""
+
+    if spec.execution_rule != STAGED_PARALLEL_EXECUTION_RULE:
+        raise ValueError(
+            "staged parallel campaign commands require "
+            f"execution_rule={STAGED_PARALLEL_EXECUTION_RULE!r}"
+        )
+    selected = _staged_stage_assignments(
+        campaign_dir,
+        spec,
+        block=block,
+        stage=stage,
+    )
     eligible = [
         (assignment, controller)
         for assignment, controller in selected
@@ -330,7 +354,7 @@ def next_staged_parallel_wave(
         None,
     )
     recovery_subset = stage == FACTORIAL_STAGE and any(
-        controller.state.proposals_used > minimum for controller in all_factorial
+        controller.state.proposals_used > minimum for _, controller in selected
     )
     return ParallelWave(
         block=block,
@@ -339,6 +363,38 @@ def next_staged_parallel_wave(
         no_search_run=no_search,
         recovery_subset=recovery_subset,
         execution_stage=f"block-{block:02d}-{stage}",
+    )
+
+
+def staged_independent_trajectories(
+    campaign_dir: str | Path,
+    spec: FactorialSpec,
+    *,
+    block: int,
+    stage: str,
+) -> tuple[NextRun, ...]:
+    """Select every unfinished trajectory in a protocol-1.4 stage.
+
+    Unlike a synchronized wave, each selected trajectory continues through its
+    entire remaining budget in its own worker. The initial barrier is only a
+    simultaneous launch boundary; it is not repeated between opportunities.
+    """
+
+    if spec.execution_rule != STAGED_INDEPENDENT_EXECUTION_RULE:
+        raise ValueError(
+            "staged independent campaign commands require "
+            f"execution_rule={STAGED_INDEPENDENT_EXECUTION_RULE!r}"
+        )
+    selected = _staged_stage_assignments(
+        campaign_dir,
+        spec,
+        block=block,
+        stage=stage,
+    )
+    return tuple(
+        _next_run_from(assignment, controller)
+        for assignment, controller in selected
+        if controller.state.status != "completed"
     )
 
 
@@ -629,3 +685,213 @@ def run_staged_campaign(
                 codex_timeout_seconds=codex_timeout_seconds,
             )
             completed += 1
+
+
+def _run_independent_trajectory(
+    campaign: Path,
+    selected: NextRun,
+    *,
+    spec: FactorialSpec,
+    task: TaskSpec,
+    framework: FrameworkSpec,
+    repo_root: Path,
+    python_bin: str,
+    codex_binary: str,
+    codex_timeout_seconds: int,
+    stage: str,
+    launch_barrier: threading.Barrier,
+    abort: threading.Event,
+    errors: list[str],
+    errors_lock: threading.Lock,
+) -> dict[str, object]:
+    """Advance one run until its frozen budget completes or a hard failure occurs."""
+
+    launch_barrier.wait()
+    records: list[dict[str, object]] = []
+    run_dir = campaign / "runs" / selected.run_id
+    while not abort.is_set():
+        controller = SearchController.load(run_dir, spec)
+        if controller.state.active is not None:
+            message = (
+                f"{selected.run_id} has an interrupted active opportunity; "
+                "recover it explicitly before campaign execution"
+            )
+            with errors_lock:
+                errors.append(message)
+            abort.set()
+            break
+        if controller.state.status == "completed":
+            break
+        try:
+            record = run_one_opportunity(
+                run_dir,
+                spec=spec,
+                task=task,
+                framework=framework,
+                repo_root=repo_root,
+                python_bin=python_bin,
+                codex_binary=codex_binary,
+                codex_timeout_seconds=codex_timeout_seconds,
+            )
+        except Exception as error:  # noqa: BLE001 - preserve peer run state
+            message = f"{selected.run_id}: {type(error).__name__}: {error}"
+            with errors_lock:
+                errors.append(message)
+            abort.set()
+            break
+        records.append(record)
+        if (
+            record.get("evaluation", {}).get("failure_kind") == "provider"
+            and record.get("usage_increment", {}).get("total_tokens", 0) == 0
+        ):
+            message = (
+                "Codex provider transport failed before token accounting for: "
+                f"{selected.run_id}"
+            )
+            with errors_lock:
+                errors.append(message)
+            abort.set()
+            break
+
+    final_state = SearchController.load(run_dir, spec).state
+    return {
+        "run_id": selected.run_id,
+        "condition": selected.condition,
+        "block": selected.block,
+        "execution_stage": f"block-{selected.block:02d}-{stage}-independent",
+        "starting_opportunity": selected.opportunity,
+        "completed_opportunities": len(records),
+        "status": final_state.status,
+        "proposals_used": final_state.proposals_used,
+    }
+
+
+def run_staged_independent_campaign(
+    campaign_dir: str | Path,
+    *,
+    spec: FactorialSpec,
+    task: TaskSpec,
+    framework: FrameworkSpec,
+    repo_root: Path,
+    python_bin: str,
+    block: int,
+    stage: str,
+    codex_binary: str = "codex",
+    codex_timeout_seconds: int = 3600,
+) -> Iterator[dict[str, object]]:
+    """Run every selected protocol-1.4 trajectory independently and concurrently.
+
+    The campaign writer starts all selected trajectories behind one initial
+    barrier. Each worker then immediately starts its next opportunity when its
+    own evaluator finishes; no worker waits for a peer's opportunity boundary.
+    A provider transport failure or unexpected runner exception stops new work
+    after already in-flight opportunities finish, preserving their charged
+    records for explicit recovery or resumption.
+    """
+
+    if spec.execution_rule != STAGED_INDEPENDENT_EXECUTION_RULE:
+        raise ValueError(
+            "staged independent campaign commands require "
+            f"execution_rule={STAGED_INDEPENDENT_EXECUTION_RULE!r}"
+        )
+    if task.preferred_backend is not ExecutionBackend.LOCAL:
+        raise ValueError(
+            "independent parallel trajectories currently require a local task backend"
+        )
+    campaign = Path(campaign_dir).resolve()
+    with campaign_lock(campaign):
+        selected_runs = staged_independent_trajectories(
+            campaign,
+            spec,
+            block=block,
+            stage=stage,
+        )
+        if not selected_runs:
+            return
+        events_path = campaign / "independent-trajectories.jsonl"
+        base_event = {
+            "schema_version": "1.0",
+            "execution_rule": spec.execution_rule,
+            "execution_stage": f"block-{block:02d}-{stage}",
+            "block": block,
+            "stage": stage,
+            "run_ids": [run.run_id for run in selected_runs],
+            "starting_opportunities": {
+                run.run_id: run.opportunity for run in selected_runs
+            },
+        }
+        append_jsonl(
+            events_path,
+            {
+                **base_event,
+                "event": "independent_trajectory_batch_started",
+                "timestamp": utc_now(),
+            },
+        )
+        abort = threading.Event()
+        errors: list[str] = []
+        errors_lock = threading.Lock()
+        launch_barrier = threading.Barrier(len(selected_runs))
+        outcomes: list[dict[str, object]] = []
+        with ThreadPoolExecutor(
+            max_workers=len(selected_runs),
+            thread_name_prefix="c0c3-independent",
+        ) as executor:
+            futures = [
+                executor.submit(
+                    _run_independent_trajectory,
+                    campaign,
+                    selected,
+                    spec=spec,
+                    task=task,
+                    framework=framework,
+                    repo_root=repo_root,
+                    python_bin=python_bin,
+                    codex_binary=codex_binary,
+                    codex_timeout_seconds=codex_timeout_seconds,
+                    stage=stage,
+                    launch_barrier=launch_barrier,
+                    abort=abort,
+                    errors=errors,
+                    errors_lock=errors_lock,
+                )
+                for selected in selected_runs
+            ]
+            for future in as_completed(futures):
+                outcome = future.result()
+                outcomes.append(outcome)
+                append_jsonl(
+                    events_path,
+                    {
+                        **base_event,
+                        "event": (
+                            "independent_trajectory_completed"
+                            if outcome["status"] == "completed"
+                            else "independent_trajectory_stopped"
+                        ),
+                        "timestamp": utc_now(),
+                        "trajectory": outcome,
+                    },
+                )
+                yield outcome
+        if errors:
+            append_jsonl(
+                events_path,
+                {
+                    **base_event,
+                    "event": "independent_trajectory_batch_failed",
+                    "timestamp": utc_now(),
+                    "errors": errors,
+                    "trajectories": outcomes,
+                },
+            )
+            raise IndependentTrajectoryError("; ".join(errors))
+        append_jsonl(
+            events_path,
+            {
+                **base_event,
+                "event": "independent_trajectory_batch_completed",
+                "timestamp": utc_now(),
+                "trajectories": outcomes,
+            },
+        )

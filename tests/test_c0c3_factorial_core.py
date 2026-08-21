@@ -22,6 +22,7 @@ from experiments.c0c3_factorial.prompts import (
 from experiments.c0c3_factorial.spec import (
     PARALLEL_EXECUTION_RULE,
     SERIAL_EXECUTION_RULE,
+    STAGED_INDEPENDENT_EXECUTION_RULE,
     STAGED_PARALLEL_EXECUTION_RULE,
     BudgetSpec,
     Condition,
@@ -46,6 +47,11 @@ STAGED_CONTINUOUS_PROTOCOL = (
     ROOT
     / "experiments/c0c3_factorial/configs/protocols"
     / "workshop_primary_block1_continuous_v1.toml"
+)
+INDEPENDENT_STAGED_CONTINUOUS_PROTOCOL = (
+    ROOT
+    / "experiments/c0c3_factorial/configs/protocols"
+    / "workshop_primary_block1_independent_continuous_v1.toml"
 )
 
 
@@ -221,6 +227,16 @@ def test_continuous_protocol_has_200_opportunities_and_strong_interventions() ->
     assert "load-bearing assumption" in at_ten.text
     assert "different mechanism family" in at_ten.text
     assert "state the old assumption" in at_ten.text
+
+
+def test_independent_continuous_protocol_freezes_a_new_execution_rule() -> None:
+    spec = FactorialSpec.from_toml(INDEPENDENT_STAGED_CONTINUOUS_PROTOCOL)
+    assert spec.protocol_version == "1.4"
+    assert spec.execution_rule == STAGED_INDEPENDENT_EXECUTION_RULE
+    assert spec.conversation_mode.value == "continuous_session_per_run_v1"
+    assert spec.blocks == 3
+    assert spec.budget.proposals == 200
+    assert spec.transition_opportunities == tuple(range(10, 201, 10))
 
 
 def test_single_incumbent_retains_only_strict_improvement(tmp_path: Path) -> None:

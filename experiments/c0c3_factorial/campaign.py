@@ -16,6 +16,7 @@ from .artifacts import (
 )
 from .evaluator import CommandEvaluator
 from .spec import (
+    STAGED_INDEPENDENT_EXECUTION_RULE,
     STAGED_PARALLEL_EXECUTION_RULE,
     Condition,
     FactorialSpec,
@@ -198,7 +199,11 @@ def create_campaign(
     repo_root: Path,
     include_no_search: bool = True,
 ) -> Path:
-    if spec.execution_rule == STAGED_PARALLEL_EXECUTION_RULE and not include_no_search:
+    if (
+        spec.execution_rule
+        in {STAGED_PARALLEL_EXECUTION_RULE, STAGED_INDEPENDENT_EXECUTION_RULE}
+        and not include_no_search
+    ):
         raise ValueError(
             "staged protocol requires pre-created N0 extension assignments"
         )
@@ -292,7 +297,10 @@ def create_campaign(
     _write_json(inputs / "task.json", asdict(task))
     _write_json(inputs / "framework.json", asdict(framework))
     _write_json(output / "schedule.json", schedule)
-    staged = spec.execution_rule == STAGED_PARALLEL_EXECUTION_RULE
+    staged = spec.execution_rule in {
+        STAGED_PARALLEL_EXECUTION_RULE,
+        STAGED_INDEPENDENT_EXECUTION_RULE,
+    }
     primary_run_ids = [
         str(row["run_id"])
         for row in schedule

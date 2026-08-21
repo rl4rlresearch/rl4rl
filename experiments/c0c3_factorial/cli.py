@@ -21,6 +21,7 @@ from .orchestration import (
     run_parallel_campaign,
     run_parallel_next,
     run_staged_campaign,
+    run_staged_independent_campaign,
     run_staged_next,
 )
 from .postsearch import export_layer_b_packets, run_layer_c, score_layer_b
@@ -325,6 +326,36 @@ def command_run_staged_campaign(args: argparse.Namespace) -> int:
     return 0
 
 
+def command_run_staged_independent_campaign(args: argparse.Namespace) -> int:
+    campaign = args.campaign.resolve()
+    spec, task, framework = _load_campaign(campaign)
+    completed = 0
+    for result in run_staged_independent_campaign(
+        campaign,
+        spec=spec,
+        task=task,
+        framework=framework,
+        repo_root=REPO_ROOT,
+        python_bin=args.python_bin,
+        block=args.block,
+        stage=args.stage,
+        codex_binary=args.codex_binary,
+        codex_timeout_seconds=args.codex_timeout,
+    ):
+        completed += 1
+        print(
+            f"stage={result['execution_stage']} "
+            f"run_id={result['run_id']} "
+            f"condition={result['condition']} "
+            f"proposals_used={result['proposals_used']} "
+            f"status={result['status']}",
+            flush=True,
+        )
+    if completed == 0:
+        print(f"block {args.block} stage {args.stage} completed", flush=True)
+    return 0
+
+
 def command_status(args: argparse.Namespace) -> int:
     campaign = args.campaign.resolve()
     spec, _task, _framework = _load_campaign(campaign)
@@ -493,6 +524,19 @@ def build_parser() -> argparse.ArgumentParser:
         if name == "run-staged-campaign":
             run.add_argument("--max-block-rounds", type=int)
         run.set_defaults(handler=handler)
+
+    staged_independent = subparsers.add_parser("run-staged-independent-campaign")
+    staged_independent.add_argument("--campaign", type=Path, required=True)
+    staged_independent.add_argument("--block", type=int, required=True)
+    staged_independent.add_argument(
+        "--stage",
+        choices=sorted(STAGED_EXECUTION_STAGES),
+        required=True,
+    )
+    staged_independent.add_argument("--python-bin", default=sys.executable)
+    staged_independent.add_argument("--codex-binary", default="codex")
+    staged_independent.add_argument("--codex-timeout", type=int, default=3600)
+    staged_independent.set_defaults(handler=command_run_staged_independent_campaign)
 
     status = subparsers.add_parser("status")
     status.add_argument("--campaign", type=Path, required=True)
