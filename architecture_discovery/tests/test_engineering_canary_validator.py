@@ -19,6 +19,12 @@ from common.gpt56_sol import (
     GPT56SolProfile,
     resolve_provider_endpoint,
 )
+from common.evolution_run import (
+    EVOLUTION_COMPLETION_TOKENS_PER_REQUEST,
+    EVOLUTION_FUNCTION_NAME,
+    EVOLUTION_INPUT_BYTES_PER_REQUEST,
+    EvolutionRunSpec,
+)
 from common.provider_attempts import (
     PROVIDER_ATTEMPT_LEDGER_FILENAME,
     PROVIDER_ATTEMPT_SCHEMA,
@@ -75,6 +81,7 @@ from scripts.validate_engineering_canaries import (
     validate_existing_mps_smoke,
     validate_private_canary_staging,
 )
+from scripts.validate_evolution_run import validate_private_evolution_staging
 from scripts.validate_engineering_canaries import (
     main as validator_main,
 )
@@ -2871,6 +2878,126 @@ def test_modal_evolution_generator_requires_frozen_controller_configuration() ->
     )
     with pytest.raises(ValueError, match="request_settings_source differs"):
         _validate_modal_canary_generator(generator)
+
+
+def test_private_evolution_staging_accepts_controller_provider_action(
+    tmp_path: Path,
+) -> None:
+    project = _project_fixture(tmp_path)
+    candidate = _synthetic_cuda_smoke(project, tmp_path)
+    controller = tmp_path / "evolution-controller"
+    stored_candidate = controller / "candidate_training" / "seed"
+    shutil.copytree(candidate, stored_candidate)
+
+    context = ExecutionContextV1(
+        execution_backend="modal",
+        run_id="evolution-action-run",
+        app_name=APP_NAME,
+        function_name=EVOLUTION_FUNCTION_NAME,
+        modal_app_id="ap-evolution",
+        modal_function_id="fu-evolution",
+        modal_call_id="fc-evolution",
+        modal_image_id="im-evolution",
+        image_source_sha256="a" * 64,
+        artifact_uri=volume_artifact_uri("evolution-action-run"),
+    )
+    training_manifest_path = stored_candidate / "training_manifest.json"
+    training_manifest_payload = json.loads(training_manifest_path.read_text())
+    training_manifest_payload["execution_context"] = context.to_dict()
+    _write_json(training_manifest_path, training_manifest_payload)
+
+    spec = EvolutionRunSpec("openevolve_generic", 1)
+    controller_run_id = "controller-evolution-1"
+    _write_json(
+        controller / "run_manifest.json",
+        {
+            "run_id": controller_run_id,
+            "condition": spec.harness,
+            "modal_evolution_run": True,
+            "provider_input_bytes_per_request_ceiling": (
+                EVOLUTION_INPUT_BYTES_PER_REQUEST
+            ),
+            "candidate_budget": 2,
+            "mutation_budget": 1,
+            "maximum_provider_attempts": 1,
+            "candidate_training_budget": 2,
+            "authoritative_scientific_evidence": False,
+            "training": {
+                "profile": "smoke_train_cuda_v2",
+                "device": "cuda",
+                "allow_cpu_for_tests": False,
+            },
+            "evaluation": {
+                "profile": "smoke_eval_v1",
+                "case_count": 24,
+                "scientific": False,
+            },
+            "generator": {
+                **_MODAL_CANARY_GENERATOR_CONTRACT,
+                "request_settings_source": "frozen_controller_configuration",
+            },
+            "engineering_pilot": True,
+            "proposal_opportunities": 1,
+        },
+    )
+    _write_json(
+        controller / "run_result.json",
+        {
+            "run_id": controller_run_id,
+            "condition": spec.harness,
+            "completed": True,
+            "proposal_opportunities_requested": 1,
+            "proposal_opportunities_completed": 1,
+            "proposal_accounting_errors": [],
+            "failure_stage": "",
+        },
+    )
+    record = ProviderAttemptRecord(
+        schema_name=ProviderAttemptRecord.SCHEMA_NAME,
+        schema_version=ProviderAttemptRecord.SCHEMA_VERSION,
+        harness=spec.harness,
+        action=EVOLUTION_FUNCTION_NAME,
+        controller_run_id=controller_run_id,
+        execution_backend="modal",
+        action_run_id=context.run_id,
+        modal_call_id=context.modal_call_id,
+        attempt_ordinal=1,
+        started_at_utc="2026-08-21T00:00:00.000000Z",
+        ended_at_utc="2026-08-21T00:00:01.000000Z",
+        status="success",
+        api_endpoint=OFFICIAL_OPENAI_API_BASE,
+        model=TARGET_MODEL,
+        generation_settings_sha256=generation_settings_sha256(
+            {
+                "model": TARGET_MODEL,
+                "max_completion_tokens": (
+                    EVOLUTION_COMPLETION_TOKENS_PER_REQUEST
+                ),
+                "reasoning_effort": "high",
+                "seed": 1,
+            }
+        ),
+        provider_response_id="chatcmpl-evolution",
+        provider_request_id="req-evolution",
+        usage_known=True,
+        input_tokens=100,
+        output_tokens=100,
+        total_tokens=200,
+        error_class=None,
+    )
+    (controller / PROVIDER_ATTEMPT_LEDGER_FILENAME).write_text(
+        json.dumps(record.to_dict(), sort_keys=True, separators=(",", ":")) + "\n",
+        encoding="utf-8",
+    )
+
+    result = validate_private_evolution_staging(
+        controller,
+        spec=spec,
+        execution_context=context,
+    )
+
+    assert result["valid"] is True
+    assert result["provider_attempt_count"] == 1
 
 
 def test_downloaded_modal_canary_bundle_accepts_one_retried_attempt(tmp_path):

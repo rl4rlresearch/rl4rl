@@ -6,7 +6,6 @@ from pathlib import Path
 from typing import Any
 
 from common.evolution_run import (
-    EVOLUTION_ACTION,
     EVOLUTION_COMPLETION_TOKENS_PER_REQUEST,
     EVOLUTION_FUNCTION_NAME,
     EVOLUTION_INPUT_BYTES_PER_REQUEST,
@@ -127,7 +126,7 @@ def validate_private_evolution_staging(
     for ordinal, record in enumerate(records, start=1):
         if (
             record.harness != spec.harness
-            or record.action != EVOLUTION_ACTION.replace("-", "_")
+            or record.action != EVOLUTION_FUNCTION_NAME
             or record.controller_run_id != controller_run_id
             or record.execution_backend != "modal"
             or record.action_run_id != execution_context.run_id
