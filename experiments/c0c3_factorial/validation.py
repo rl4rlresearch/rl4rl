@@ -15,6 +15,8 @@ from .prompts import (
 )
 from .spec import (
     PARALLEL_EXECUTION_RULE,
+    SERIAL_EXECUTION_RULE,
+    STAGED_PARALLEL_EXECUTION_RULE,
     Condition,
     ExecutionBackend,
     FactorialSpec,
@@ -48,7 +50,8 @@ def validate_campaign(
         if manifest.get(name) != expected:
             errors.append(f"campaign {name} mismatch")
     if (
-        spec.execution_rule == PARALLEL_EXECUTION_RULE
+        spec.execution_rule
+        in {PARALLEL_EXECUTION_RULE, STAGED_PARALLEL_EXECUTION_RULE}
         and task.preferred_backend is not ExecutionBackend.LOCAL
     ):
         errors.append(
@@ -58,6 +61,27 @@ def validate_campaign(
     run_ids = [str(row["run_id"]) for row in schedule]
     if len(run_ids) != len(set(run_ids)):
         errors.append("campaign schedule contains duplicate run IDs")
+    expected_primary = (
+        [
+            str(row["run_id"])
+            for row in schedule
+            if int(row["block"]) == 1 and str(row["condition"]) != "N0"
+        ]
+        if spec.execution_rule == STAGED_PARALLEL_EXECUTION_RULE
+        else run_ids
+    )
+    expected_optional = [
+        run_id for run_id in run_ids if run_id not in set(expected_primary)
+    ]
+    if manifest.get("primary_run_ids") != expected_primary:
+        errors.append("campaign primary run scope mismatch")
+    if manifest.get("optional_run_ids") != expected_optional:
+        errors.append("campaign optional run scope mismatch")
+    if (
+        spec.execution_rule == STAGED_PARALLEL_EXECUTION_RULE
+        and not manifest.get("include_no_search")
+    ):
+        errors.append("staged protocol requires pre-created N0 extensions")
     for block in range(1, spec.blocks + 1):
         rows = [row for row in schedule if int(row["block"]) == block]
         factorial = [row["condition"] for row in rows if row["condition"] != "N0"]
@@ -166,10 +190,13 @@ def validate_campaign(
             "same_failure_rule": True,
             "frozen_execution_rule": spec.execution_rule,
             "frozen_blocked_round_robin_execution": (
-                spec.execution_rule != PARALLEL_EXECUTION_RULE
+                spec.execution_rule == SERIAL_EXECUTION_RULE
             ),
             "frozen_parallel_condition_rounds": (
                 spec.execution_rule == PARALLEL_EXECUTION_RULE
+            ),
+            "frozen_staged_parallel_trajectories": (
+                spec.execution_rule == STAGED_PARALLEL_EXECUTION_RULE
             ),
             "layer_b_c_absent_at_launch": layers_absent,
         },

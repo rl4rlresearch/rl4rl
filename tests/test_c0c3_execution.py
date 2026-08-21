@@ -36,12 +36,16 @@ from experiments.c0c3_factorial.frameworks import (
 )
 from experiments.c0c3_factorial.modal_app import safe_campaign_path
 from experiments.c0c3_factorial.orchestration import (
+    FACTORIAL_STAGE,
+    NO_SEARCH_STAGE,
     CampaignLockedError,
     ParallelWaveError,
     campaign_lock,
     next_parallel_wave,
     next_run,
+    next_staged_parallel_wave,
     run_parallel_campaign,
+    run_staged_campaign,
 )
 from experiments.c0c3_factorial.postsearch import (
     export_layer_b_packets,
@@ -55,6 +59,7 @@ from experiments.c0c3_factorial.runner import (
 )
 from experiments.c0c3_factorial.spec import (
     PARALLEL_EXECUTION_RULE,
+    STAGED_PARALLEL_EXECUTION_RULE,
     BudgetSpec,
     ConversationMode,
     ExecutionBackend,
@@ -96,6 +101,20 @@ def parallel_protocol() -> FactorialSpec:
             "protocol_version": "1.1",
             "study_id": "parallel-execution-test",
             "execution_rule": PARALLEL_EXECUTION_RULE,
+        }
+    )
+
+
+def staged_protocol() -> FactorialSpec:
+    base = protocol()
+    return FactorialSpec(
+        **{
+            **base.__dict__,
+            "protocol_version": "1.3",
+            "study_id": "staged-execution-test",
+            "blocks": 2,
+            "conversation_mode": ConversationMode.CONTINUOUS,
+            "execution_rule": STAGED_PARALLEL_EXECUTION_RULE,
         }
     )
 
@@ -255,7 +274,11 @@ import time
 args = sys.argv[1:]
 workspace = pathlib.Path(args[args.index('--cd') + 1])
 last = pathlib.Path(args[args.index('--output-last-message') + 1])
-run_id = workspace.parents[2].name
+run_id = (
+    workspace.parent.name
+    if workspace.name == '.continuous-codex-workspace'
+    else workspace.parents[2].name
+)
 _prompt = sys.stdin.read()
 if not run_id.endswith('-n0'):
     markers = pathlib.Path({str(marker_root)!r})
@@ -966,6 +989,155 @@ def test_parallel_campaign_stops_after_zero_token_provider_failure(
         "parallel_wave_started",
         "parallel_wave_failed",
     ]
+
+
+def test_staged_campaign_runs_primary_only_and_preserves_later_stages(
+    tmp_path: Path,
+) -> None:
+    spec = staged_protocol()
+    seed_source = make_seed(tmp_path / "source")
+    fake_codex = make_parallel_barrier_fake_codex(
+        tmp_path / "fake-staged-codex", tmp_path / "staged-markers"
+    )
+    calibration = calibrate_task(
+        tmp_path / "calibration",
+        spec=spec,
+        task=task(seed_source),
+        repo_root=ROOT,
+        python_bin=sys.executable,
+    )
+    campaign = create_campaign(
+        tmp_path / "campaign",
+        spec=spec,
+        task=task(seed_source),
+        framework=framework(),
+        calibration_path=calibration,
+        repo_root=ROOT,
+        include_no_search=True,
+    )
+    report = validate_campaign(
+        campaign,
+        spec=spec,
+        task=task(seed_source),
+        framework=framework(),
+        repo_root=ROOT,
+    )
+    assert report["valid"] is True
+    assert report["controls"]["frozen_staged_parallel_trajectories"] is True
+    assert report["controls"]["frozen_blocked_round_robin_execution"] is False
+    with pytest.raises(ValueError, match="parallel campaign commands require"):
+        next_parallel_wave(campaign, spec)
+    with pytest.raises(ValueError, match="complete the frozen primary stage"):
+        next_staged_parallel_wave(
+            campaign,
+            spec,
+            block=1,
+            stage=NO_SEARCH_STAGE,
+        )
+
+    primary = list(
+        run_staged_campaign(
+            campaign,
+            spec=spec,
+            task=task(seed_source),
+            framework=framework(),
+            repo_root=ROOT,
+            python_bin=sys.executable,
+            block=1,
+            stage=FACTORIAL_STAGE,
+            codex_binary=str(fake_codex),
+            codex_timeout_seconds=10,
+        )
+    )
+    assert len(primary) == 1
+    assert primary[0]["execution_stage"] == "block-01-factorial"
+    assert primary[0]["no_search_record"] is None
+    assert {row["condition"] for row in primary[0]["factorial_records"]} == {
+        "C0",
+        "C1",
+        "C2",
+        "C3",
+    }
+
+    schedule = json.loads((campaign / "schedule.json").read_text())
+    states = {
+        (int(row["block"]), str(row["condition"])): SearchController.load(
+            campaign / "runs" / row["run_id"], spec
+        ).state
+        for row in schedule
+    }
+    assert all(
+        states[(1, condition)].status == "completed"
+        for condition in ("C0", "C1", "C2", "C3")
+    )
+    assert states[(1, "N0")].proposals_used == 0
+    assert all(
+        states[(2, condition)].proposals_used == 0
+        for condition in ("C0", "C1", "C2", "C3", "N0")
+    )
+    assert (
+        next_staged_parallel_wave(
+            campaign,
+            spec,
+            block=1,
+            stage=FACTORIAL_STAGE,
+        )
+        is None
+    )
+
+    n0 = list(
+        run_staged_campaign(
+            campaign,
+            spec=spec,
+            task=task(seed_source),
+            framework=framework(),
+            repo_root=ROOT,
+            python_bin=sys.executable,
+            block=1,
+            stage=NO_SEARCH_STAGE,
+            codex_binary=str(fake_codex),
+            codex_timeout_seconds=10,
+        )
+    )
+    assert len(n0) == 1
+    assert n0[0]["factorial_records"] == []
+    assert n0[0]["no_search_record"]["condition"] == "N0"
+
+    extension = list(
+        run_staged_campaign(
+            campaign,
+            spec=spec,
+            task=task(seed_source),
+            framework=framework(),
+            repo_root=ROOT,
+            python_bin=sys.executable,
+            block=2,
+            stage=FACTORIAL_STAGE,
+            codex_binary=str(fake_codex),
+            codex_timeout_seconds=10,
+        )
+    )
+    assert len(extension) == 1
+    assert extension[0]["execution_stage"] == "block-02-factorial"
+    assert states[(2, "N0")].proposals_used == 0
+
+    sealed = export_layer_b_packets(
+        campaign,
+        spec=spec,
+        task=task(seed_source),
+    )
+    scope = json.loads((sealed / "scope.json").read_text())
+    assert len(scope["run_ids"]) == 9
+    assert any(run_id.endswith("-b01-n0") for run_id in scope["run_ids"])
+    assert any("-b02-" in run_id for run_id in scope["run_ids"])
+    assert not any(run_id.endswith("-b02-n0") for run_id in scope["run_ids"])
+    with pytest.raises(ValueError, match="before primary Layer B/C"):
+        next_staged_parallel_wave(
+            campaign,
+            spec,
+            block=2,
+            stage=NO_SEARCH_STAGE,
+        )
 
 
 def test_interrupted_opportunity_recovery_consumes_proposal_not_evaluation(

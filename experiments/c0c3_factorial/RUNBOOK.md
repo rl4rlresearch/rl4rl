@@ -35,6 +35,20 @@ Do not reuse a `dev.toml` or `paper_v1.toml` calibration/campaign: protocol 1.1
 has a different protocol hash. The parallel protocol currently requires a local
 task backend and is not a Modal launch path.
 
+For the continuous-session, one-block primary Autoresearch run, use:
+
+```bash
+PROTOCOL=$C0C3/configs/protocols/workshop_primary_block1_continuous_v1.toml
+TASK=$C0C3/configs/tasks/adderboard.toml
+FRAMEWORK=$C0C3/configs/frameworks/autoresearch_continuous.toml
+OUT=data/c0c3/workshop-primary-block1-continuous-adderboard-autoresearch
+```
+
+Protocol 1.3 pre-creates dormant extension assignments but its primary launcher
+advances only Block 1 C0–C3. Do not add `--without-no-search` when creating this
+campaign: pre-creating N0 under the frozen hashes is what makes a later N0 stage
+comparable without making it part of the primary run.
+
 Verify prerequisites:
 
 ```bash
@@ -197,6 +211,46 @@ factorial workers before starting N0. Every wave is recorded in
 `parallel-rounds.jsonl`. A nonzero command exit may leave active opportunities;
 use the recovery procedure below before invoking the parallel command again.
 
+### Protocol 1.3 staged one-block primary
+
+Run one primary Block 1 C0–C3 wave:
+
+```bash
+$PY -m $CLI run-staged-next \
+  --campaign "$OUT-campaign" --python-bin "$PY" \
+  --block 1 --stage factorial
+```
+
+Run the complete 200-wave primary stage:
+
+```bash
+$PY -m $CLI run-staged-campaign \
+  --campaign "$OUT-campaign" --python-bin "$PY" \
+  --block 1 --stage factorial
+```
+
+The runner launches only Block 1 C0–C3 concurrently. It never launches N0 or a
+later block implicitly. The frozen primary must finish before the CLI permits
+an extension. After it completes, the operator may explicitly run a prespecified
+dormant stage:
+
+```bash
+# Optional descriptive N0 for Block 1
+$PY -m $CLI run-staged-campaign \
+  --campaign "$OUT-campaign" --python-bin "$PY" \
+  --block 1 --stage no-search
+
+# Optional factorial replication for Block 2
+$PY -m $CLI run-staged-campaign \
+  --campaign "$OUT-campaign" --python-bin "$PY" \
+  --block 2 --stage factorial
+```
+
+Use Block 3 identically. Record the decision timestamp and reason before the
+first optional-stage call. If the choice used Block 1 outcomes, label later
+blocks as adaptively collected extensions. Never rewrite the original Block 1
+result as if three blocks had been the primary sample all along.
+
 ## 6. Inspect progress without changing it
 
 ```bash
@@ -214,6 +268,9 @@ For detailed provenance, inspect `events.jsonl` and individual
 `proposal_completed` event is authoritative; a Codex last message alone is not.
 For protocol 1.1, also inspect `parallel-rounds.jsonl` for the exact concurrent
 participant set, N0 member, and `recovery_subset` flag.
+For protocol 1.3, the same file also records `execution_stage`. After the
+primary run, Block 1 C0–C3 should be completed while the other eleven runs
+remain `ready` with zero proposals; this is expected, not a stalled campaign.
 
 ## 7. Recover an interrupted active opportunity
 
@@ -238,9 +295,18 @@ The next `run-parallel-next` deterministically selects only any still-lagging
 factorial peers, marks that wave as a recovery subset, and runs N0 afterward if
 it is at the same minimum. Never repeat a peer that already completed.
 
+For protocol 1.3, recover every active run, then invoke the same
+`run-staged-next` or `run-staged-campaign` block/stage that was interrupted. The
+runner selects only lagging peers within that stage and never advances a dormant
+stage as part of recovery.
+
 ## 8. Export and adjudicate Layer B
 
-Only after `status` shows every run completed:
+For protocols 1.0–1.2, wait until `status` shows every run completed. For
+protocol 1.3, first finish Block 1 C0–C3 and decide whether to activate any
+optional extension. Activate every chosen extension before exporting. If none
+is chosen, the dormant runs remain `ready` and the exporter seals only the four
+frozen primary run IDs recorded in `campaign.json`:
 
 ```bash
 $PY -m $CLI export-layer-b --campaign "$OUT-campaign"
@@ -249,6 +315,10 @@ $PY -m $CLI export-layer-b --campaign "$OUT-campaign"
 This creates opaque, randomly ordered parent/candidate packets and a private
 condition mapping. Do not show reviewers `sealed-layer-b/private/`, event logs,
 run directories, or Layer A scores.
+For protocol 1.3, `sealed-layer-b/scope.json` records the exact primary scope.
+Once Layer B or C is created, the staged runner refuses to start an optional
+extension; this prevents an unblinded primary review from driving additional
+data collection.
 
 Recommended review process:
 
@@ -279,8 +349,9 @@ qualified row without a cluster label.
 
 ## 9. Run sealed Layer C
 
-Layer C is independent of Layer B adjudication but still requires all runs to
-be completed:
+Layer C is independent of Layer B adjudication but requires the campaign's
+frozen analysis scope to be completed. Under protocol 1.3 that scope is the
+four Block 1 primary runs; decide on extensions before creating Layer C:
 
 ```bash
 $PY -m $CLI run-layer-c \

@@ -25,18 +25,53 @@ def _completed_runs(
     campaign: Path, spec: FactorialSpec
 ) -> list[tuple[dict[str, object], SearchController]]:
     schedule = _read_json(campaign / "schedule.json")
-    result = []
-    incomplete = []
+    campaign_manifest = _read_json(campaign / "campaign.json")
+    primary_run_ids = {
+        str(run_id)
+        for run_id in campaign_manifest.get(
+            "primary_run_ids",
+            [assignment["run_id"] for assignment in schedule],
+        )
+    }
+    optional_run_ids = {
+        str(run_id) for run_id in campaign_manifest.get("optional_run_ids", [])
+    }
+    loaded: list[tuple[dict[str, object], SearchController]] = []
     for assignment in schedule:
         controller = SearchController.load(
             campaign / "runs" / str(assignment["run_id"]), spec
         )
+        loaded.append((assignment, controller))
+
+    scope_run_ids = set(primary_run_ids)
+    optional_stages: dict[tuple[int, str], list[SearchController]] = {}
+    for assignment, controller in loaded:
+        if controller.state.run_id not in optional_run_ids:
+            continue
+        stage_kind = "no-search" if controller.state.no_search else "factorial"
+        key = (int(assignment["block"]), stage_kind)
+        optional_stages.setdefault(key, []).append(controller)
+    for controllers in optional_stages.values():
+        activated = any(
+            controller.state.status != "ready"
+            or controller.state.proposals_used > 0
+            for controller in controllers
+        )
+        if activated:
+            scope_run_ids.update(controller.state.run_id for controller in controllers)
+
+    result = []
+    incomplete = []
+    for assignment, controller in loaded:
+        if controller.state.run_id not in scope_run_ids:
+            continue
         if controller.state.status != "completed":
             incomplete.append(controller.state.run_id)
         result.append((assignment, controller))
     if incomplete:
         raise RuntimeError(
-            "post-search layers are sealed until every run completes: "
+            "post-search layers are sealed until every run completes within the "
+            "activated analysis scope: "
             + ", ".join(incomplete)
         )
     return result
@@ -133,6 +168,19 @@ def export_layer_b_packets(
         json.dumps(mapping, indent=2, sort_keys=True) + "\n", encoding="utf-8"
     )
     (private / "salt.txt").write_text(salt + "\n", encoding="utf-8")
+    (sealed / "scope.json").write_text(
+        json.dumps(
+            {
+                "schema_version": "1.0",
+                "run_ids": [controller.state.run_id for _, controller in runs],
+                "scope": "campaign_activated_analysis_scope",
+            },
+            indent=2,
+            sort_keys=True,
+        )
+        + "\n",
+        encoding="utf-8",
+    )
     (sealed / "README.md").write_text(
         "# Blinded Layer B packets\n\n"
         "Review packets in `packet_order.tsv` order. Copy "
@@ -167,6 +215,9 @@ def score_layer_b(
             f"extra={sorted(set(actual) - expected)}"
         )
     annotations = {str(row["packet_id"]): row for row in rows}
+    scope_run_ids = {
+        str(run_id) for run_id in _read_json(sealed / "scope.json")["run_ids"]
+    }
     clusters: dict[str, set[str]] = {}
     for private in mapping:
         packet_id = str(private["packet_id"])
@@ -191,6 +242,8 @@ def score_layer_b(
     factorial_rows: list[dict[str, object]] = []
     baseline_rows: list[dict[str, object]] = []
     for assignment in schedule:
+        if str(assignment["run_id"]) not in scope_run_ids:
+            continue
         row = {
             "block": assignment["block"],
             "condition": assignment["condition"],

@@ -22,6 +22,7 @@ from experiments.c0c3_factorial.prompts import (
 from experiments.c0c3_factorial.spec import (
     PARALLEL_EXECUTION_RULE,
     SERIAL_EXECUTION_RULE,
+    STAGED_PARALLEL_EXECUTION_RULE,
     BudgetSpec,
     Condition,
     ExecutionBackend,
@@ -41,10 +42,10 @@ from experiments.c0c3_factorial.state import (
 )
 
 TEMPLATES = ROOT / "experiments/c0c3_factorial/templates"
-CONTINUOUS_PROTOCOL = (
+STAGED_CONTINUOUS_PROTOCOL = (
     ROOT
     / "experiments/c0c3_factorial/configs/protocols"
-    / "workshop_pilot_parallel_continuous_v1.toml"
+    / "workshop_primary_block1_continuous_v1.toml"
 )
 
 
@@ -193,7 +194,10 @@ def test_prompts_share_one_skeleton_and_only_scheduled_cells_transition() -> Non
 
 
 def test_continuous_protocol_has_200_opportunities_and_strong_interventions() -> None:
-    spec = FactorialSpec.from_toml(CONTINUOUS_PROTOCOL)
+    spec = FactorialSpec.from_toml(STAGED_CONTINUOUS_PROTOCOL)
+    assert spec.protocol_version == "1.3"
+    assert spec.execution_rule == STAGED_PARALLEL_EXECUTION_RULE
+    assert spec.blocks == 3
     assert spec.budget.proposals == 200
     assert spec.budget.candidate_evaluations == 200
     assert spec.transition_opportunities == tuple(range(10, 201, 10))

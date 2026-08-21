@@ -17,6 +17,7 @@ from .runner import run_one_opportunity
 from .spec import (
     PARALLEL_EXECUTION_RULE,
     SERIAL_EXECUTION_RULE,
+    STAGED_PARALLEL_EXECUTION_RULE,
     ExecutionBackend,
     FactorialSpec,
     FrameworkSpec,
@@ -44,13 +45,19 @@ class NextRun:
 
 @dataclass(frozen=True)
 class ParallelWave:
-    """The next least-advanced block wave under protocol 1.1."""
+    """One synchronized factorial or serial N0 wave."""
 
     block: int
     opportunity: int
     factorial_runs: tuple[NextRun, ...]
     no_search_run: NextRun | None
     recovery_subset: bool
+    execution_stage: str
+
+
+FACTORIAL_STAGE = "factorial"
+NO_SEARCH_STAGE = "no-search"
+STAGED_EXECUTION_STAGES = frozenset({FACTORIAL_STAGE, NO_SEARCH_STAGE})
 
 
 def _schedule(campaign: Path) -> list[dict[str, object]]:
@@ -217,6 +224,121 @@ def next_parallel_wave(
         factorial_runs=factorial,
         no_search_run=no_search,
         recovery_subset=recovery_subset,
+        execution_stage="synchronized-all-runs",
+    )
+
+
+def next_staged_parallel_wave(
+    campaign_dir: str | Path,
+    spec: FactorialSpec,
+    *,
+    block: int,
+    stage: str,
+) -> ParallelWave | None:
+    """Select one wave from a prespecified block-local execution stage.
+
+    Protocol 1.3 defines Block 1 C0-C3 as the primary stage. N0 and later
+    blocks remain frozen in the same campaign but advance only when their
+    explicit stage is selected. This prevents dormant optional extensions from
+    holding the primary trajectories behind the campaign-wide round barrier.
+    """
+
+    if spec.execution_rule != STAGED_PARALLEL_EXECUTION_RULE:
+        raise ValueError(
+            "staged campaign commands require "
+            f"execution_rule={STAGED_PARALLEL_EXECUTION_RULE!r}"
+        )
+    if block < 1 or block > spec.blocks:
+        raise ValueError(f"block must be between 1 and {spec.blocks}")
+    if stage not in STAGED_EXECUTION_STAGES:
+        raise ValueError(
+            f"stage must be one of {sorted(STAGED_EXECUTION_STAGES)}"
+        )
+
+    campaign = Path(campaign_dir).resolve()
+    selected: list[tuple[dict[str, object], SearchController]] = []
+    all_factorial: list[SearchController] = []
+    primary_factorial: list[SearchController] = []
+    for assignment in _schedule(campaign):
+        controller = SearchController.load(
+            campaign / "runs" / str(assignment["run_id"]), spec
+        )
+        if controller.state.active is not None:
+            raise RuntimeError(
+                f"{controller.state.run_id} has an interrupted active opportunity; "
+                "recover it explicitly before campaign execution"
+            )
+        assignment_block = int(assignment["block"])
+        is_no_search = str(assignment["condition"]) == "N0"
+        if assignment_block == 1 and not is_no_search:
+            primary_factorial.append(controller)
+        if assignment_block != block:
+            continue
+        if not is_no_search:
+            all_factorial.append(controller)
+        if (stage == NO_SEARCH_STAGE) != is_no_search:
+            continue
+        selected.append((assignment, controller))
+
+    if (block, stage) != (1, FACTORIAL_STAGE) and any(
+        controller.state.status != "completed" for controller in primary_factorial
+    ):
+        raise ValueError(
+            "complete the frozen primary stage (block 1 factorial) before "
+            "starting an optional extension"
+        )
+    if (block, stage) != (1, FACTORIAL_STAGE) and (
+        (campaign / "sealed-layer-b").exists()
+        or (campaign / "sealed-layer-c").exists()
+    ):
+        raise ValueError(
+            "optional extensions must be activated before primary Layer B/C "
+            "outputs are unsealed"
+        )
+
+    expected_count = 4 if stage == FACTORIAL_STAGE else 1
+    if len(selected) != expected_count:
+        raise ValueError(
+            f"block {block} stage {stage!r} requires {expected_count} scheduled "
+            f"runs, found {len(selected)}"
+        )
+    eligible = [
+        (assignment, controller)
+        for assignment, controller in selected
+        if controller.state.status != "completed"
+    ]
+    if not eligible:
+        return None
+
+    minimum = min(controller.state.proposals_used for _, controller in eligible)
+    at_minimum = [
+        (assignment, controller)
+        for assignment, controller in eligible
+        if controller.state.proposals_used == minimum
+    ]
+    factorial = tuple(
+        _next_run_from(assignment, controller)
+        for assignment, controller in at_minimum
+        if not controller.state.no_search
+    )
+    no_search = next(
+        (
+            _next_run_from(assignment, controller)
+            for assignment, controller in at_minimum
+            if controller.state.no_search
+        ),
+        None,
+    )
+    recovery_subset = stage == FACTORIAL_STAGE and any(
+        controller.state.proposals_used > minimum for controller in all_factorial
+    )
+    return ParallelWave(
+        block=block,
+        opportunity=minimum + 1,
+        factorial_runs=factorial,
+        no_search_run=no_search,
+        recovery_subset=recovery_subset,
+        execution_stage=f"block-{block:02d}-{stage}",
     )
 
 
@@ -238,6 +360,7 @@ def _execute_parallel_wave(
     base_event = {
         "schema_version": "1.0",
         "execution_rule": spec.execution_rule,
+        "execution_stage": wave.execution_stage,
         "block": wave.block,
         "opportunity": wave.opportunity,
         "factorial_run_ids": [run.run_id for run in wave.factorial_runs],
@@ -410,6 +533,88 @@ def run_parallel_campaign(
         completed = 0
         while max_block_rounds is None or completed < max_block_rounds:
             wave = next_parallel_wave(campaign, spec)
+            if wave is None:
+                return
+            yield _execute_parallel_wave(
+                campaign,
+                wave,
+                spec=spec,
+                task=task,
+                framework=framework,
+                repo_root=repo_root,
+                python_bin=python_bin,
+                codex_binary=codex_binary,
+                codex_timeout_seconds=codex_timeout_seconds,
+            )
+            completed += 1
+
+
+def run_staged_next(
+    campaign_dir: str | Path,
+    *,
+    spec: FactorialSpec,
+    task: TaskSpec,
+    framework: FrameworkSpec,
+    repo_root: Path,
+    python_bin: str,
+    block: int,
+    stage: str,
+    codex_binary: str = "codex",
+    codex_timeout_seconds: int = 3600,
+) -> dict[str, object] | None:
+    """Execute one protocol-1.3 wave from an explicit frozen stage."""
+
+    campaign = Path(campaign_dir).resolve()
+    with campaign_lock(campaign):
+        wave = next_staged_parallel_wave(
+            campaign,
+            spec,
+            block=block,
+            stage=stage,
+        )
+        if wave is None:
+            return None
+        return _execute_parallel_wave(
+            campaign,
+            wave,
+            spec=spec,
+            task=task,
+            framework=framework,
+            repo_root=repo_root,
+            python_bin=python_bin,
+            codex_binary=codex_binary,
+            codex_timeout_seconds=codex_timeout_seconds,
+        )
+
+
+def run_staged_campaign(
+    campaign_dir: str | Path,
+    *,
+    spec: FactorialSpec,
+    task: TaskSpec,
+    framework: FrameworkSpec,
+    repo_root: Path,
+    python_bin: str,
+    block: int,
+    stage: str,
+    codex_binary: str = "codex",
+    codex_timeout_seconds: int = 3600,
+    max_block_rounds: int | None = None,
+) -> Iterator[dict[str, object]]:
+    """Complete one protocol-1.3 stage without advancing dormant stages."""
+
+    if max_block_rounds is not None and max_block_rounds < 1:
+        raise ValueError("max_block_rounds must be positive")
+    campaign = Path(campaign_dir).resolve()
+    with campaign_lock(campaign):
+        completed = 0
+        while max_block_rounds is None or completed < max_block_rounds:
+            wave = next_staged_parallel_wave(
+                campaign,
+                spec,
+                block=block,
+                stage=stage,
+            )
             if wave is None:
                 return
             yield _execute_parallel_wave(

@@ -139,7 +139,7 @@ class CommandEvaluator:
         if valid and self.task.qualification_metric is not None:
             qualification = metrics.get(self.task.qualification_metric)
             valid = (
-                isinstance(qualification, (int, float))
+                isinstance(qualification, int | float)
                 and not isinstance(qualification, bool)
                 and qualification >= float(self.task.qualification_minimum)
             )
@@ -148,7 +148,7 @@ class CommandEvaluator:
         objective = metrics.get(self.task.objective_metric)
         if (
             valid
-            and isinstance(objective, (int, float))
+            and isinstance(objective, int | float)
             and not isinstance(objective, bool)
         ):
             fitness = float(objective)

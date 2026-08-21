@@ -70,6 +70,12 @@ Future coding agents must also follow [AGENTS.md](AGENTS.md).
   an intervention every tenth opportunity, and one resumed Codex conversation
   per run. It is a separate stratum; see `CONTINUOUS_AUTORESEARCH.md` and do not
   pool it with protocol 1.1.
+- `configs/protocols/workshop_primary_block1_continuous_v1.toml` is protocol
+  1.3 and is the current launch preset. Its primary stage runs only Block 1
+  C0–C3: four concurrent trajectories and 800 total opportunities. It creates
+  but does not advance N0 or Blocks 2–3, preserving exact optional extensions
+  under the same campaign hashes. Use only the staged commands documented in
+  `CONTINUOUS_AUTORESEARCH.md`.
 
 Run the dev protocol end to end before spending on the paper protocol. Do not
 reinterpret dev results as a pilot effect estimate: its transition density and
@@ -84,13 +90,16 @@ budget are intentionally unlike the paper protocol.
   `run-parallel-next`/`run-parallel-campaign` for protocol 1.1. Each command
   rejects a campaign frozen to the other rule. `run-one` and `run --run-id`
   exist for diagnostics and can bypass randomized ordering.
+- Use `run-staged-next`/`run-staged-campaign` for protocol 1.3. Its primary
+  Block 1 factorial stage must complete before an optional stage can start.
 - Never expose Layer B annotations or Layer C results until every run in the
   campaign is completed.
 - Do not delete, retry, or reuse a failed opportunity. Use `recover-active` for
   an interrupted active opportunity; the opportunity remains charged.
 - Do not run the same campaign from local and Modal storage simultaneously.
-- Keep one campaign orchestrator process. Protocol 1.1 creates its four C0–C3
-  Codex calls internally; four manually launched CLI processes are invalid.
+- Keep one campaign orchestrator process. Protocols 1.1 and 1.3 create their
+  four C0–C3 Codex calls internally; four manually launched CLI processes are
+  invalid.
 - Do not pool task or framework strata as if they were interchangeable
   replications. Report each task × framework stratum, then synthesize effects.
 

@@ -90,12 +90,14 @@ SINGLE_RETENTION_RULE = "strict_incumbent_improvement_v1"
 FAILURE_RULE = "consume_opportunity_and_evaluation_if_started;never_retain_v1"
 SERIAL_EXECUTION_RULE = "blocked_round_robin_one_opportunity_v1"
 PARALLEL_EXECUTION_RULE = "blocked_parallel_condition_rounds_v1"
+STAGED_PARALLEL_EXECUTION_RULE = "staged_parallel_block_trajectories_v1"
 # Backward-compatible name for the original paper-v1 execution rule.
 EXECUTION_RULE = SERIAL_EXECUTION_RULE
 PROTOCOL_EXECUTION_RULES = {
     "1.0": SERIAL_EXECUTION_RULE,
     "1.1": PARALLEL_EXECUTION_RULE,
     "1.2": PARALLEL_EXECUTION_RULE,
+    "1.3": STAGED_PARALLEL_EXECUTION_RULE,
 }
 
 
@@ -208,12 +210,15 @@ class FactorialSpec:
                 f"{expected_execution_rule!r}"
             )
         if (
-            self.protocol_version == "1.2"
+            self.protocol_version in {"1.2", "1.3"}
             and self.conversation_mode is not ConversationMode.CONTINUOUS
         ):
-            raise ValueError("protocol 1.2 requires continuous_session_per_run_v1")
+            raise ValueError(
+                f"protocol {self.protocol_version} requires "
+                "continuous_session_per_run_v1"
+            )
         if (
-            self.protocol_version != "1.2"
+            self.protocol_version not in {"1.2", "1.3"}
             and self.conversation_mode is not ConversationMode.EPHEMERAL
         ):
             raise ValueError(

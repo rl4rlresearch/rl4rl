@@ -1,4 +1,4 @@
-# C0–C3 protocols v1.0, v1.1, and v1.2
+# C0–C3 protocols v1.0–v1.3
 
 This document is the human-readable preregistration for the implementation in
 this directory. The executable contract is `FactorialSpec`; a campaign records
@@ -8,8 +8,11 @@ state is a protocol deviation that must be disclosed, not silently repaired.
 Version 1.0 is the 100-opportunity serial paper protocol. Version 1.1 is the
 separate 30-opportunity synchronized-parallel workshop pilot. Version 1.2 is
 the separate 200-opportunity continuous-session Autoresearch protocol with an
-intervention every tenth opportunity. Results retain their protocol labels and
-are not pooled as interchangeable replications.
+intervention every tenth opportunity. Version 1.3 keeps those proposal and
+conversation rules but freezes a staged execution plan: Block 1 C0–C3 is the
+one-block primary analysis, while N0 and Blocks 2–3 are dormant optional
+extensions. Results retain their protocol labels and are not pooled as
+interchangeable replications.
 
 ## 1. Research question and unit of analysis
 
@@ -61,18 +64,18 @@ No conversation is resumed between opportunities. Cross-opportunity memory is
 exactly the code, metrics, selection counts, and hypotheses exposed by the
 controller.
 
-### Protocol 1.2 continuous-session exception
+### Protocol 1.2/1.3 continuous-session exception
 
-Protocol 1.2 applies only to the separate Autoresearch stratum. It starts one
-persisted Codex session per run at opportunity 1 and resumes that session for
-all later opportunities. Before each resume, the controller reconstructs the
+Protocols 1.2 and 1.3 apply only to separate Autoresearch strata. Each starts
+one persisted Codex session per run at opportunity 1 and resumes that session
+for all later opportunities. Before each resume, the controller reconstructs the
 stable session workspace from the selected candidate, then snapshots and
 evaluates only the resulting allowed files in the normal per-opportunity
 workspace. The persistent transcript is therefore shared by every condition,
-including C0, C2, and N0. In protocol 1.2, the C0/C2 comparison measures the
-extra effect of controller-provided portfolio evidence over shared transcript
-memory; it is not a memory-versus-no-memory estimate. N0 has no controller
-search state but is not transcript-free.
+including C0, C2, and N0 when N0 is run. In either protocol, the C0/C2
+comparison measures the extra effect of controller-provided portfolio evidence
+over shared transcript memory; it is not a memory-versus-no-memory estimate.
+N0 has no controller search state but is not transcript-free.
 
 ## 4. Single-incumbent state (C0/C1)
 
@@ -170,6 +173,23 @@ writer lock covers selection and execution. `parallel-rounds.jsonl` records the
 participants and completion of each wave. Parallelism is currently supported
 only for local task backends; Modal remains protocol-1.0 serialized execution.
 
+Protocol 1.3 freezes
+`staged_parallel_block_trajectories_v1`. Its primary stage is Block 1 C0–C3
+only. The four conditions advance together at their within-stage minimum and
+N0 does not run. That primary stage must complete before the runner permits an
+optional extension. Block 1 N0, Block 2 C0–C3/N0, and Block 3 C0–C3/N0 are
+pre-created with the same protocol, task, framework, calibration, runtime, and
+deterministic block seeds, but advance only through an explicit staged command.
+Every wave records its stage in `parallel-rounds.jsonl`.
+
+The Block 1 factorial is the prespecified one-block primary analysis. A later
+decision to activate an extension must be timestamped with its reason before
+the first extension opportunity. Extension blocks are compatible replications
+under the same instrument, but if the activation decision used primary results,
+they are adaptively collected and must not be presented as if the original
+primary sample size had always been three blocks. N0 remains descriptive and
+outside the factorial contrasts.
+
 `C0C3_RUN_SEED` and `PYTHONHASHSEED` are supplied to Codex and evaluator
 subprocesses. Task code may use `C0C3_RUN_SEED`; task-specific fixed seeds still
 take precedence where declared. The Codex provider does not expose a generation
@@ -180,10 +200,12 @@ not eliminate it.
 Use `run-next` or `run-campaign` for protocol 1.0. Use `run-parallel-next` or
 `run-parallel-campaign` for protocol 1.1. Direct `run-one --run-id` is diagnostic
 and can bypass randomized order.
+Use `run-staged-next` or `run-staged-campaign` for protocol 1.3; the other
+orchestrators reject its execution-rule identifier.
 
 ## 9. Controls held common within a campaign
 
-- Codex model, reasoning effort, sandbox, approval policy, and ephemeral mode.
+- Codex model, reasoning effort, sandbox, approval policy, and conversation mode.
 - Starting task-support tree and seed candidate, verified by content hash.
 - Editable paths, evaluator command, objective, qualification, feedback fields,
   timeout, and target backend.
@@ -215,6 +237,13 @@ The workshop parallel pilot freezes, per run, 30 opportunities/evaluator calls,
 same 3,600-second evaluator timeout. It uses three blocks and therefore has
 three independent trajectories per factorial cell plus three separate N0 runs.
 
+Protocols 1.2 and 1.3 freeze 200 opportunities/evaluator calls, 500,000,000
+total reported tokens, 720,000 aggregate evaluator seconds, and the same
+3,600-second evaluator timeout per run. Protocol 1.3's primary stage contains
+four runs and therefore schedules 800 proposals and 40 assumption-changing
+interventions. Dormant extension runs consume no budget until explicitly
+activated.
+
 A new opportunity cannot start after any remaining budget reaches zero. One
 already-started Codex or evaluator call may overshoot a ceiling; its actual usage
 is logged and the run then completes. There is no performance-based early stop.
@@ -238,6 +267,11 @@ campaign-wide-minimum rule then launches only the still-lagging C0–C3 cells;
 completion. Previously completed cells are never repeated and N0 still waits
 until the selected factorial subset finishes.
 
+Under protocol 1.3, recover every active opportunity and resume the same
+explicit block/stage. Only lagging peers in that stage are selected. Recovery
+never advances N0 or another block, and the primary-completion gate remains in
+force for extensions.
+
 ## 12. Feedback layers
 
 ### Layer A — online
@@ -249,12 +283,16 @@ the human-readable metric.
 
 ### Layer B — sealed mechanism review
 
-Layer B cannot be exported until every campaign run is completed. Every valid
-proposal becomes an opaque packet containing parent and candidate source plus
-the stated hypothesis/edit. Condition, run, opportunity, and Layer A scores are
-hidden. Independent reviewers decide whether the delta is a coherent testable
-mechanism change and assign a stable cross-packet cluster label. Repetitions of
-one mechanism count once per run.
+Layer B cannot be exported until every run in the frozen analysis scope is
+completed. For protocol 1.3 that scope is the four Block 1 primary runs plus
+every explicitly activated and completed extension stage; dormant extensions
+are excluded. The operator must activate any optional extension before Layer
+B/C is created, after which the runner forbids more collection.
+Every valid proposal becomes an opaque packet containing parent and candidate
+source plus the stated hypothesis/edit. Condition, run, opportunity, and Layer
+A scores are hidden. Independent reviewers decide whether the delta is a
+coherent testable mechanism change and assign a stable cross-packet cluster
+label. Repetitions of one mechanism count once per run.
 
 Use at least two independent reviewers, report raw agreement, adjudicate
 disagreements without treatment labels, and score only the frozen adjudicated
@@ -262,10 +300,11 @@ file. See `PAPER_NOTES.md` for the rubric.
 
 ### Layer C — sealed final evaluation
 
-Layer C also waits for all runs. Factorial cells evaluate the online incumbent.
-N0 evaluates its post-search best Layer-A-valid independent proposal. AdderBoard
-uses a disjoint verifier seed. Official Karpathy Autoresearch currently repeats
-the pinned validation procedure, so it is a replication check, not an unseen
+Layer C also waits for all runs in the frozen analysis scope. Factorial cells
+evaluate the online incumbent. N0 evaluates its post-search best Layer-A-valid
+independent proposal when N0 is included in that scope. AdderBoard uses a
+disjoint verifier seed. Official Karpathy Autoresearch currently repeats the
+pinned validation procedure, so it is a replication check, not an unseen
 holdout; the paper must use that terminology.
 
 ## 13. Confirmatory analysis
@@ -286,6 +325,12 @@ sizes, raw blocks, and compatibility intervals rather than binary significance.
 Any pooled synthesis across tasks/frameworks should be hierarchical or a
 clearly labeled descriptive meta-analysis, not a replacement for stratum-level
 results.
+
+Protocol 1.3's primary stage has one trajectory per cell. Its cell values and
+three factorial contrasts are descriptive: there is no between-block sampling
+variance estimate and proposals cannot be substituted as replicates. If later
+blocks are activated, publish the original Block 1 result unchanged, then show
+the extension blocks and a transparently labeled combined sensitivity analysis.
 
 ## 14. Exclusions and deviations
 

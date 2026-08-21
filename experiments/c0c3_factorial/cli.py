@@ -15,10 +15,13 @@ from .campaign import (
     prepare_calibration,
 )
 from .orchestration import (
+    STAGED_EXECUTION_STAGES,
     campaign_lock,
     next_run,
     run_parallel_campaign,
     run_parallel_next,
+    run_staged_campaign,
+    run_staged_next,
 )
 from .postsearch import export_layer_b_packets, run_layer_c, score_layer_b
 from .runner import recover_active_opportunity, run_one_opportunity
@@ -267,6 +270,61 @@ def command_run_parallel_campaign(args: argparse.Namespace) -> int:
     return 0
 
 
+def command_run_staged_next(args: argparse.Namespace) -> int:
+    campaign = args.campaign.resolve()
+    spec, task, framework = _load_campaign(campaign)
+    result = run_staged_next(
+        campaign,
+        spec=spec,
+        task=task,
+        framework=framework,
+        repo_root=REPO_ROOT,
+        python_bin=args.python_bin,
+        block=args.block,
+        stage=args.stage,
+        codex_binary=args.codex_binary,
+        codex_timeout_seconds=args.codex_timeout,
+    )
+    if result is None:
+        print(f"block {args.block} stage {args.stage} completed")
+    else:
+        print(json.dumps(result, indent=2, sort_keys=True))
+    return 0
+
+
+def command_run_staged_campaign(args: argparse.Namespace) -> int:
+    campaign = args.campaign.resolve()
+    spec, task, framework = _load_campaign(campaign)
+    completed = 0
+    for result in run_staged_campaign(
+        campaign,
+        spec=spec,
+        task=task,
+        framework=framework,
+        repo_root=REPO_ROOT,
+        python_bin=args.python_bin,
+        block=args.block,
+        stage=args.stage,
+        codex_binary=args.codex_binary,
+        codex_timeout_seconds=args.codex_timeout,
+        max_block_rounds=args.max_block_rounds,
+    ):
+        completed += 1
+        factorial = ",".join(
+            str(record["condition"]) for record in result["factorial_records"]
+        )
+        print(
+            f"stage={result['execution_stage']} "
+            f"opportunity={result['opportunity']} "
+            f"parallel_conditions={factorial or '-'} "
+            f"n0={'yes' if result['no_search_record'] is not None else 'no'}",
+            flush=True,
+        )
+    if completed == 0:
+        print(f"block {args.block} stage {args.stage} completed", flush=True)
+    return 0
+
+
 def command_status(args: argparse.Namespace) -> int:
     campaign = args.campaign.resolve()
     spec, _task, _framework = _load_campaign(campaign)
@@ -414,6 +472,25 @@ def build_parser() -> argparse.ArgumentParser:
         run.add_argument("--codex-binary", default="codex")
         run.add_argument("--codex-timeout", type=int, default=3600)
         if name == "run-parallel-campaign":
+            run.add_argument("--max-block-rounds", type=int)
+        run.set_defaults(handler=handler)
+
+    for name, handler in (
+        ("run-staged-next", command_run_staged_next),
+        ("run-staged-campaign", command_run_staged_campaign),
+    ):
+        run = subparsers.add_parser(name)
+        run.add_argument("--campaign", type=Path, required=True)
+        run.add_argument("--block", type=int, required=True)
+        run.add_argument(
+            "--stage",
+            choices=sorted(STAGED_EXECUTION_STAGES),
+            required=True,
+        )
+        run.add_argument("--python-bin", default=sys.executable)
+        run.add_argument("--codex-binary", default="codex")
+        run.add_argument("--codex-timeout", type=int, default=3600)
+        if name == "run-staged-campaign":
             run.add_argument("--max-block-rounds", type=int)
         run.set_defaults(handler=handler)
 
