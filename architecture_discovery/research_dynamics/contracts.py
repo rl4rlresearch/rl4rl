@@ -2,14 +2,28 @@
 
 from __future__ import annotations
 
-import os
+import base64
+import binascii
 import hashlib
+import json
+import os
 from dataclasses import dataclass
 from enum import StrEnum
 from pathlib import Path
 from typing import Any, ClassVar
 
-from study.serialization import content_hash, require_bool, require_int, require_str
+from study.serialization import (
+    atomic_write_json,
+    content_hash,
+    require_bool,
+    require_int,
+    require_str,
+)
+
+MODAL_PROCESS_PAYLOAD_SCHEMA = "ModalResearchProcessPayload"
+MODAL_PROCESS_PAYLOAD_VERSION = "1.0"
+MAX_MODAL_INITIAL_CANDIDATE_BYTES = 64 * 1024
+MAX_MODAL_PROCESS_PAYLOAD_BYTES = 128 * 1024
 
 
 class VisibleMemoryPolicy(StrEnum):
@@ -213,6 +227,7 @@ class ProcessStudyConfig:
 
 
 ENV_CONFIG_PATH = "RL4RL_PROCESS_CONFIG"
+ENV_INITIAL_CANDIDATE_PATH = "RL4RL_PROCESS_INITIAL_CANDIDATE"
 
 
 def config_from_environment() -> ProcessStudyConfig | None:
@@ -239,7 +254,7 @@ def resolve_initial_candidate(
     """Resolve a fork checkpoint and bind it to the frozen process config hash."""
 
     default_path = Path(default).expanduser().resolve()
-    environment_value = os.environ.get("RL4RL_PROCESS_INITIAL_CANDIDATE")
+    environment_value = os.environ.get(ENV_INITIAL_CANDIDATE_PATH)
     if explicit is not None and environment_value is not None:
         if Path(explicit).expanduser().resolve() != Path(environment_value).expanduser().resolve():
             raise ValueError("explicit and environment initial candidates differ")
@@ -259,3 +274,177 @@ def resolve_initial_candidate(
     if actual != config.source_checkpoint_hash:
         raise ValueError("initial candidate differs from the randomized checkpoint")
     return selected
+
+
+def _canonical_json_bytes(payload: dict[str, Any]) -> bytes:
+    return json.dumps(
+        payload,
+        sort_keys=True,
+        separators=(",", ":"),
+        ensure_ascii=True,
+        allow_nan=False,
+    ).encode("utf-8")
+
+
+def build_modal_process_payload(
+    config: ProcessStudyConfig,
+    *,
+    initial_candidate: str | Path | None = None,
+) -> str:
+    """Encode one non-secret treatment assignment for Modal transport."""
+
+    if config.scientific:
+        raise ValueError("Modal evolution interventions are non-scientific")
+    candidate_payload: dict[str, Any] | None = None
+    if initial_candidate is not None:
+        candidate = Path(initial_candidate).expanduser().resolve()
+        if not candidate.is_file() or candidate.is_symlink():
+            raise ValueError("Modal initial candidate must be a regular file")
+        raw_candidate = candidate.read_bytes()
+        if not raw_candidate or len(raw_candidate) > MAX_MODAL_INITIAL_CANDIDATE_BYTES:
+            raise ValueError("Modal initial candidate is empty or too large")
+        digest = hashlib.sha256(raw_candidate).hexdigest()
+        if config.source_checkpoint_hash != digest:
+            raise ValueError("Modal initial candidate differs from config checkpoint")
+        candidate_payload = {
+            "filename": "initial_candidate.ir.json",
+            "sha256": digest,
+            "bytes_base64": base64.b64encode(raw_candidate).decode("ascii"),
+        }
+    elif config.source_checkpoint_hash is not None:
+        raise ValueError("checkpoint-bound process config requires an initial candidate")
+    payload = {
+        "schema_name": MODAL_PROCESS_PAYLOAD_SCHEMA,
+        "schema_version": MODAL_PROCESS_PAYLOAD_VERSION,
+        "config": config.to_dict(),
+        "config_hash": config.config_hash,
+        "initial_candidate": candidate_payload,
+    }
+    encoded = _canonical_json_bytes(payload)
+    if len(encoded) > MAX_MODAL_PROCESS_PAYLOAD_BYTES:
+        raise ValueError("Modal research-process payload is too large")
+    return base64.urlsafe_b64encode(encoded).rstrip(b"=").decode("ascii")
+
+
+def materialize_modal_process_payload(
+    encoded_payload: str,
+    *,
+    run_directory: str | Path,
+    expected_framework: FrameworkKind,
+    maximum_opportunities: int,
+) -> tuple[dict[str, str], dict[str, Any]]:
+    """Validate and materialize one source-bound Modal treatment envelope."""
+
+    if not isinstance(encoded_payload, str) or not encoded_payload:
+        raise ValueError("Modal research-process payload is empty")
+    try:
+        padded = encoded_payload + "=" * (-len(encoded_payload) % 4)
+        raw = base64.b64decode(
+            padded.encode("ascii"), altchars=b"-_", validate=True
+        )
+    except (UnicodeEncodeError, ValueError, binascii.Error) as error:
+        raise ValueError("Modal research-process payload is not base64url") from error
+    if not raw or len(raw) > MAX_MODAL_PROCESS_PAYLOAD_BYTES:
+        raise ValueError("Modal research-process payload is empty or too large")
+    try:
+        payload = json.loads(raw.decode("utf-8"))
+    except (UnicodeDecodeError, json.JSONDecodeError) as error:
+        raise ValueError("Modal research-process payload is not JSON") from error
+    expected_fields = {
+        "schema_name",
+        "schema_version",
+        "config",
+        "config_hash",
+        "initial_candidate",
+    }
+    if not isinstance(payload, dict) or set(payload) != expected_fields:
+        raise ValueError("Modal research-process payload fields differ from schema")
+    if (
+        payload["schema_name"] != MODAL_PROCESS_PAYLOAD_SCHEMA
+        or payload["schema_version"] != MODAL_PROCESS_PAYLOAD_VERSION
+    ):
+        raise ValueError("unsupported Modal research-process payload schema")
+    raw_config = payload["config"]
+    if not isinstance(raw_config, dict):
+        raise ValueError("Modal research-process config must be an object")
+    config = ProcessStudyConfig.from_dict(raw_config)
+    if payload["config_hash"] != config.config_hash:
+        raise ValueError("Modal research-process config hash differs")
+    if config.framework is not expected_framework:
+        raise ValueError("Modal research-process framework differs from controller")
+    if config.scientific:
+        raise ValueError("Modal evolution interventions are non-scientific")
+    if config.challenge_opportunities and (
+        config.challenge_opportunities[-1] > maximum_opportunities
+    ):
+        raise ValueError("challenge schedule exceeds the evolution horizon")
+
+    candidate_payload = payload["initial_candidate"]
+    candidate_bytes: bytes | None = None
+    if candidate_payload is None:
+        if config.source_checkpoint_hash is not None:
+            raise ValueError("checkpoint-bound payload lacks its initial candidate")
+    else:
+        if not isinstance(candidate_payload, dict) or set(candidate_payload) != {
+            "filename",
+            "sha256",
+            "bytes_base64",
+        }:
+            raise ValueError("Modal initial-candidate fields differ from schema")
+        if candidate_payload["filename"] != "initial_candidate.ir.json":
+            raise ValueError("Modal initial-candidate filename is invalid")
+        try:
+            candidate_bytes = base64.b64decode(
+                require_str(candidate_payload["bytes_base64"], "bytes_base64"),
+                validate=True,
+            )
+        except (ValueError, binascii.Error) as error:
+            raise ValueError("Modal initial candidate is not base64") from error
+        if (
+            not candidate_bytes
+            or len(candidate_bytes) > MAX_MODAL_INITIAL_CANDIDATE_BYTES
+        ):
+            raise ValueError("Modal initial candidate is empty or too large")
+        digest = hashlib.sha256(candidate_bytes).hexdigest()
+        if (
+            candidate_payload["sha256"] != digest
+            or config.source_checkpoint_hash != digest
+        ):
+            raise ValueError("Modal initial-candidate hash differs")
+
+    root = Path(run_directory).resolve()
+    if not root.is_dir() or root.is_symlink():
+        raise ValueError("Modal run directory is missing or unsafe")
+    inputs = root / "process_inputs"
+    inputs.mkdir(mode=0o700)
+    config_path = inputs / "process_config.json"
+    atomic_write_json(config_path, config.to_dict())
+    environment = {ENV_CONFIG_PATH: str(config_path)}
+    if candidate_bytes is not None:
+        candidate_path = inputs / "initial_candidate.ir.json"
+        flags = os.O_CREAT | os.O_EXCL | os.O_WRONLY
+        flags |= getattr(os, "O_NOFOLLOW", 0)
+        descriptor = os.open(candidate_path, flags, 0o600)
+        try:
+            view = memoryview(candidate_bytes)
+            while view:
+                written = os.write(descriptor, view)
+                if written <= 0:
+                    raise OSError("failed to materialize Modal initial candidate")
+                view = view[written:]
+        finally:
+            os.close(descriptor)
+        environment[ENV_INITIAL_CANDIDATE_PATH] = str(candidate_path)
+    summary = {
+        "schema_name": MODAL_PROCESS_PAYLOAD_SCHEMA,
+        "schema_version": MODAL_PROCESS_PAYLOAD_VERSION,
+        "payload_sha256": hashlib.sha256(raw).hexdigest(),
+        "config_hash": config.config_hash,
+        "study_id": config.study_id,
+        "run_id": config.run_id,
+        "framework": config.framework.value,
+        "condition_id": config.condition.condition_id.value,
+        "source_checkpoint_id": config.source_checkpoint_id,
+        "source_checkpoint_hash": config.source_checkpoint_hash,
+    }
+    return environment, summary

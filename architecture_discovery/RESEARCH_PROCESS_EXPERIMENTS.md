@@ -106,6 +106,41 @@ python scripts/research_process.py run-manifest \
 The executor re-hashes the checkpoint before execution and refuses non-fresh
 branch outputs.
 
+## Modal execution
+
+The existing `evolve` entrypoint now transports an opt-in process assignment to
+the existing source-bound `evolution_run` Modal function. It reads the same two
+environment variables used by the local executor; no API key is placed in the
+payload or inherited by the controller process.
+
+Plan one checkpoint-bound branch without starting paid work:
+
+```bash
+RL4RL_PROCESS_CONFIG=/absolute/path/process_config.json \
+RL4RL_PROCESS_INITIAL_CANDIDATE=/absolute/path/checkpoint.ir.json \
+./evolve openevolve -n 4 --run-id process-oe-rd3-01
+```
+
+The plan must report `"process_intervention_attached": true`. After completing
+the repository's existing Modal readiness and cost-approval steps, add the
+normal execution flags:
+
+```bash
+RL4RL_PROCESS_CONFIG=/absolute/path/process_config.json \
+RL4RL_PROCESS_INITIAL_CANDIDATE=/absolute/path/checkpoint.ir.json \
+./evolve openevolve -n 4 --run-id process-oe-rd3-01 \
+  --execute --accept-estimated-cost
+```
+
+For a full trajectory without a fork checkpoint, omit
+`RL4RL_PROCESS_INITIAL_CANDIDATE`. The remote function validates and
+materializes the frozen config (and checkpoint when present) under
+`process_inputs/`, passes only those paths to the existing controller, and
+publishes `controller/research_process/exposures.jsonl` and
+`controller/research_process/decisions.jsonl` with the normal run artifacts.
+Each treatment cell remains a separate paid Modal run and therefore retains the
+existing per-run approval and cost gates.
+
 ## E3: full trajectories
 
 The full planner creates randomized blocks containing one run in each treatment

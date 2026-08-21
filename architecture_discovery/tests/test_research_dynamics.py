@@ -1,3 +1,4 @@
+import hashlib
 import json
 from pathlib import Path
 
@@ -11,6 +12,8 @@ from research_dynamics.contracts import (
     ProcessCondition,
     ProcessStudyConfig,
     VisibleMemoryPolicy,
+    build_modal_process_payload,
+    materialize_modal_process_payload,
 )
 from research_dynamics.extraction import extract_autoresearch_run
 from research_dynamics.memory import render_memory_packet, select_memory_entries
@@ -67,6 +70,37 @@ def test_config_is_strict_and_round_trips() -> None:
     mutated["reward"] = "changed"
     with pytest.raises(ValueError, match="fields differ"):
         ProcessStudyConfig.from_dict(mutated)
+
+
+def test_modal_process_payload_round_trips_checkpoint_and_assignment(
+    tmp_path: Path,
+) -> None:
+    checkpoint = tmp_path / "checkpoint.ir.json"
+    checkpoint.write_text("{}\n", encoding="utf-8")
+    digest = hashlib.sha256(checkpoint.read_bytes()).hexdigest()
+    config = ProcessStudyConfig(
+        study_id="modal-fork",
+        run_id="modal-fork-rd1",
+        framework=FrameworkKind.AUTORESEARCH,
+        condition=ProcessCondition.for_id(ConditionId.RD1),
+        challenge_opportunities=(1, 2),
+        source_checkpoint_id="checkpoint-modal",
+        source_checkpoint_hash=digest,
+    )
+    payload = build_modal_process_payload(config, initial_candidate=checkpoint)
+    run_directory = tmp_path / "remote-run"
+    run_directory.mkdir()
+    environment, summary = materialize_modal_process_payload(
+        payload,
+        run_directory=run_directory,
+        expected_framework=FrameworkKind.AUTORESEARCH,
+        maximum_opportunities=2,
+    )
+    assert Path(environment["RL4RL_PROCESS_INITIAL_CANDIDATE"]).read_bytes() == (
+        checkpoint.read_bytes()
+    )
+    assert summary["config_hash"] == config.config_hash
+    assert summary["source_checkpoint_hash"] == digest
 
 
 def test_deliberation_blocks_have_equal_character_exposure() -> None:
