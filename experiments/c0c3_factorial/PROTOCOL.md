@@ -1,4 +1,4 @@
-# C0–C3 protocols v1.0 and v1.1
+# C0–C3 protocols v1.0, v1.1, and v1.2
 
 This document is the human-readable preregistration for the implementation in
 this directory. The executable contract is `FactorialSpec`; a campaign records
@@ -6,8 +6,9 @@ its canonical protocol hash, task hash, framework hash, starting-artifact hash,
 and scientific-runtime hash. Disagreement between this document and executable
 state is a protocol deviation that must be disclosed, not silently repaired.
 Version 1.0 is the 100-opportunity serial paper protocol. Version 1.1 is the
-separate 30-opportunity synchronized-parallel workshop pilot. Results retain
-their protocol labels and are not pooled as interchangeable replications.
+separate 30-opportunity synchronized-parallel workshop pilot. Version 1.2 is
+the continuous-session Autoresearch variant of that pilot. Results retain their
+protocol labels and are not pooled as interchangeable replications.
 
 ## 1. Research question and unit of analysis
 
@@ -58,6 +59,19 @@ sequence:
 No conversation is resumed between opportunities. Cross-opportunity memory is
 exactly the code, metrics, selection counts, and hypotheses exposed by the
 controller.
+
+### Protocol 1.2 continuous-session exception
+
+Protocol 1.2 applies only to the separate Autoresearch stratum. It starts one
+persisted Codex session per run at opportunity 1 and resumes that session for
+all later opportunities. Before each resume, the controller reconstructs the
+stable session workspace from the selected candidate, then snapshots and
+evaluates only the resulting allowed files in the normal per-opportunity
+workspace. The persistent transcript is therefore shared by every condition,
+including C0, C2, and N0. In protocol 1.2, the C0/C2 comparison measures the
+extra effect of controller-provided portfolio evidence over shared transcript
+memory; it is not a memory-versus-no-memory estimate. N0 has no controller
+search state but is not transcript-free.
 
 ## 4. Single-incumbent state (C0/C1)
 

@@ -21,6 +21,25 @@ class CodexResult:
     usage: Usage
     events_path: Path
     stderr_path: Path
+    session_id: str | None
+
+
+def session_id_from_events(path: Path) -> str | None:
+    """Return the Codex thread ID recorded for a non-ephemeral session."""
+
+    if not path.is_file():
+        return None
+    for line in path.read_text(encoding="utf-8", errors="replace").splitlines():
+        try:
+            event = json.loads(line)
+        except json.JSONDecodeError:
+            continue
+        if event.get("type") != "thread.started":
+            continue
+        session_id = event.get("thread_id")
+        if isinstance(session_id, str) and session_id.strip():
+            return session_id
+    return None
 
 
 def usage_from_events(path: Path) -> Usage:
@@ -60,6 +79,8 @@ class CodexCli:
         sandbox: str | None = None,
         run_seed: int | None = None,
         timeout_seconds: int = 3600,
+        resume_session_id: str | None = None,
+        persist_session: bool = False,
     ) -> CodexResult:
         log_root.mkdir(parents=True, exist_ok=True)
         events = log_root / f"{call_id}.jsonl"
@@ -67,26 +88,49 @@ class CodexCli:
         last_message = log_root / f"{call_id}.last-message.md"
         if any(path.exists() for path in (events, stderr, last_message)):
             raise FileExistsError(f"Codex call ID already exists: {call_id}")
-        command = [
-            self.binary,
-            "exec",
-            "--model",
-            model.name,
-            "-c",
-            f'model_reasoning_effort="{model.reasoning_effort}"',
-            "-c",
-            f'approval_policy="{model.approval_policy}"',
-            "--json",
-            "--output-last-message",
-            str(last_message),
-            "--sandbox",
-            sandbox or model.sandbox,
-            "--ephemeral",
-            "--skip-git-repo-check",
-            "--cd",
-            str(workspace),
-            "-",
-        ]
+        if resume_session_id is None:
+            command = [
+                self.binary,
+                "exec",
+                "--model",
+                model.name,
+                "-c",
+                f'model_reasoning_effort="{model.reasoning_effort}"',
+                "-c",
+                f'approval_policy="{model.approval_policy}"',
+                "--json",
+                "--output-last-message",
+                str(last_message),
+                "--sandbox",
+                sandbox or model.sandbox,
+                "--skip-git-repo-check",
+                "--cd",
+                str(workspace),
+            ]
+            # A continuous session must be persisted by Codex so a later
+            # opportunity can use ``codex exec resume``. Existing protocols
+            # remain ephemeral and therefore behaviorally unchanged.
+            if not persist_session:
+                command.append("--ephemeral")
+            command.append("-")
+        else:
+            command = [
+                self.binary,
+                "exec",
+                "resume",
+                "--model",
+                model.name,
+                "-c",
+                f'model_reasoning_effort="{model.reasoning_effort}"',
+                "-c",
+                f'approval_policy="{model.approval_policy}"',
+                "--json",
+                "--output-last-message",
+                str(last_message),
+                "--skip-git-repo-check",
+                resume_session_id,
+                "-",
+            ]
         descriptor, temporary_name = tempfile.mkstemp(
             prefix=f".{call_id}.", dir=log_root
         )
@@ -126,4 +170,5 @@ class CodexCli:
             usage=usage_from_events(events),
             events_path=events,
             stderr_path=stderr,
+            session_id=session_id_from_events(events) or resume_session_id,
         )

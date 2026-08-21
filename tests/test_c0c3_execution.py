@@ -56,6 +56,7 @@ from experiments.c0c3_factorial.runner import (
 from experiments.c0c3_factorial.spec import (
     PARALLEL_EXECUTION_RULE,
     BudgetSpec,
+    ConversationMode,
     ExecutionBackend,
     FactorialSpec,
     FrameworkKind,
@@ -177,6 +178,56 @@ last.write_text(
     'INTENDED_EDIT: set SCORE to 1\\n'
 )
 print(json.dumps({{'type': 'thread.started', 'thread_id': 'fake'}}))
+print(json.dumps({{
+    'type': 'turn.completed',
+    'usage': {{
+        'input_tokens': 11,
+        'cached_input_tokens': 3,
+        'output_tokens': 5,
+        'reasoning_output_tokens': 2,
+    }},
+}}))
+""",
+        encoding="utf-8",
+    )
+    path.chmod(path.stat().st_mode | stat.S_IXUSR)
+    return path
+
+
+def make_continuous_fake_codex(path: Path) -> Path:
+    """Emulate a persisted Codex thread whose cwd is fixed on its first turn."""
+
+    session_workspace = path.with_suffix(".session-workspace")
+    invocation_log = path.with_suffix(".invocations.jsonl")
+    path.write_text(
+        f"""#!{sys.executable}
+import json
+import pathlib
+import sys
+
+args = sys.argv[1:]
+session_workspace = pathlib.Path({str(session_workspace)!r})
+invocation_log = pathlib.Path({str(invocation_log)!r})
+last = pathlib.Path(args[args.index('--output-last-message') + 1])
+if 'resume' in args:
+    assert '--cd' not in args
+    workspace = pathlib.Path(session_workspace.read_text())
+    mode = 'resume'
+else:
+    assert '--ephemeral' not in args
+    workspace = pathlib.Path(args[args.index('--cd') + 1])
+    session_workspace.write_text(str(workspace))
+    mode = 'initial'
+_prompt = sys.stdin.read()
+previous = int((workspace / 'candidate.py').read_text().split('=')[1])
+(workspace / 'candidate.py').write_text(f'SCORE = {{previous + 1}}\\n')
+last.write_text(
+    'HYPOTHESIS: increment score\\n'
+    'INTENDED_EDIT: increment SCORE\\n'
+)
+with invocation_log.open('a') as handle:
+    handle.write(json.dumps({{'mode': mode, 'args': args}}) + '\\n')
+print(json.dumps({{'type': 'thread.started', 'thread_id': 'fake-continuous'}}))
 print(json.dumps({{
     'type': 'turn.completed',
     'usage': {{
@@ -396,6 +447,81 @@ def test_codex_transport_campaign_and_one_real_controller_step(
     n0_state = json.loads((campaign / "runs" / n0["run_id"] / "state.json").read_text())
     assert n0_state["no_search"] is True
     assert n0_state["condition"] == "N0"
+
+
+def test_continuous_autoresearch_resumes_one_codex_session_per_run(
+    tmp_path: Path,
+) -> None:
+    spec = FactorialSpec(
+        protocol_version="1.2",
+        study_id="continuous-execution-test",
+        study_seed=42,
+        blocks=1,
+        portfolio_capacity=2,
+        transition_opportunities=(2,),
+        conversation_mode=ConversationMode.CONTINUOUS,
+        model=ModelSpec("gpt-fake", "high"),
+        budget=BudgetSpec(
+            proposals=2,
+            candidate_evaluations=2,
+            max_total_tokens=1000,
+            max_evaluator_seconds=100.0,
+            evaluator_timeout_seconds=10,
+        ),
+        execution_rule=PARALLEL_EXECUTION_RULE,
+    )
+    seed_source = make_seed(tmp_path / "source")
+    fake_codex = make_continuous_fake_codex(tmp_path / "fake-continuous-codex")
+    continuous_framework = FrameworkSpec(
+        framework_id=FrameworkKind.AUTORESEARCH,
+        adapter="codex_direct_editor_session_resume_v1",
+        prompt_profile="controlled_factorial_continuous_v1",
+        edit_mode="direct_workspace",
+    )
+    calibration = calibrate_task(
+        tmp_path / "calibration",
+        spec=spec,
+        task=task(seed_source),
+        repo_root=ROOT,
+        python_bin=sys.executable,
+    )
+    campaign = create_campaign(
+        tmp_path / "campaign",
+        spec=spec,
+        task=task(seed_source),
+        framework=continuous_framework,
+        calibration_path=calibration,
+        repo_root=ROOT,
+        include_no_search=True,
+    )
+    c0 = next(
+        row
+        for row in json.loads((campaign / "schedule.json").read_text())
+        if row["condition"] == "C0"
+    )
+    run_dir = campaign / "runs" / c0["run_id"]
+    for _ in range(2):
+        run_one_opportunity(
+            run_dir,
+            spec=spec,
+            task=task(seed_source),
+            framework=continuous_framework,
+            repo_root=ROOT,
+            python_bin=sys.executable,
+            codex_binary=str(fake_codex),
+            codex_timeout_seconds=10,
+        )
+    state = SearchController.load(run_dir, spec).state
+    assert state.conversation_session_id == "fake-continuous"
+    assert state.incumbent_id in state.candidates
+    assert state.candidates[state.incumbent_id].metrics["score"] == 2
+    invocations = [
+        json.loads(line)
+        for line in fake_codex.with_suffix(".invocations.jsonl")
+        .read_text(encoding="utf-8")
+        .splitlines()
+    ]
+    assert [entry["mode"] for entry in invocations] == ["initial", "resume"]
 
 
 def test_portable_calibration_can_execute_on_a_later_backend(tmp_path: Path) -> None:

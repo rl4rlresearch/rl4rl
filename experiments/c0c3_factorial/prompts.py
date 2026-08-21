@@ -7,7 +7,7 @@ import json
 from dataclasses import dataclass
 from pathlib import Path
 
-from .spec import Condition, FactorialSpec, FrameworkSpec, TaskSpec
+from .spec import Condition, ConversationMode, FactorialSpec, FrameworkSpec, TaskSpec
 
 SEARCH_SLOT_OPEN = "<!-- TREATMENT:SEARCH_STATE:BEGIN -->"
 SEARCH_SLOT_CLOSE = "<!-- TREATMENT:SEARCH_STATE:END -->"
@@ -63,6 +63,7 @@ class PromptRenderer:
             "{proposal_policy}",
             "{task_contract}",
             "{framework_contract}",
+            "{conversation_contract}",
             "{opportunity}",
             "{selected_parent_id}",
             "{candidate_slots}",
@@ -98,6 +99,21 @@ class PromptRenderer:
             f"Framework: {framework.framework_id.value}\n"
             f"Proposal adapter: {framework.adapter}\n"
             f"Edit representation: {framework.edit_mode}"
+        )
+
+    @staticmethod
+    def _conversation_contract(spec: FactorialSpec) -> str:
+        if spec.conversation_mode is ConversationMode.CONTINUOUS:
+            return (
+                "This is one persistent Codex conversation for this run. Before each "
+                "opportunity the controller refreshes the workspace with the selected "
+                "parent; treat the current filesystem and the structured Layer A state "
+                "below as authoritative. Conversation history is retained in every "
+                "condition."
+            )
+        return (
+            "This opportunity uses a fresh, ephemeral Codex conversation. No prior "
+            "conversation transcript is available."
         )
 
     @staticmethod
@@ -161,13 +177,14 @@ class PromptRenderer:
         )
         if context.no_search:
             search_state = (
-                "Independent no-search baseline. Exactly the frozen seed is visible. "
-                "This proposal receives no previous proposal, evaluation, or adaptive "
-                "search feedback, and its result will not alter later proposals."
+                "No-controller-search baseline. Exactly the frozen seed is visible in "
+                "the controller state. This proposal receives no controller-supplied "
+                "previous proposal, evaluation, or adaptive search feedback, and its "
+                "result will not alter later controller state."
             )
             proposal_policy = (
-                "Produce one independent best-effort proposal from the frozen seed. "
-                "Do not infer a trajectory or ask for prior results."
+                "Produce one best-effort proposal from the frozen seed supplied by the "
+                "controller. Do not request controller-supplied prior results."
             )
         else:
             search_state = self._search_state(
@@ -188,6 +205,7 @@ class PromptRenderer:
             ),
             task_contract=self._task_contract(task),
             framework_contract=self._framework_contract(framework),
+            conversation_contract=self._conversation_contract(spec),
             opportunity=context.opportunity,
             selected_parent_id=context.selected_parent_id,
             candidate_slots=self._slots(
