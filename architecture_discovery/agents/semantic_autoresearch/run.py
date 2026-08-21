@@ -65,6 +65,9 @@ from common.task_adapter import DEFAULT_TASK
 from common.trainer import trusted_component_hashes, trusted_component_set_sha256
 from common.training_config import PROFILES, TrainingSeedBundle, get_training_profile
 from evaluation.records import SCHEMA_VERSION, ControllerSearchView
+from research_dynamics.contracts import FrameworkKind, resolve_initial_candidate
+from research_dynamics.extraction import export_run as export_process_run
+from research_dynamics.protocol import ProcessProtocol
 
 
 AGENT_DIR = Path(__file__).resolve().parent
@@ -921,6 +924,10 @@ def run_semantic_autoresearch(
     provider.preflight()
 
     output_dir = _prepare_fresh_output(requested_output)
+    process_protocol = ProcessProtocol.from_environment(
+        output_dir,
+        expected_framework=FrameworkKind.AUTORESEARCH,
+    )
     if isinstance(provider, OpenAIProposalProvider):
         provider.bind_attempt_ledger(
             output_dir,
@@ -1064,6 +1071,13 @@ def run_semantic_autoresearch(
         manifest.update(
             {"schema_name": "ControllerRunManifest", "schema_version": "2.0"}
         )
+    if process_protocol is not None:
+        manifest["research_process"] = {
+            "config_path": "research_process/study_config.json",
+            "config_hash": process_protocol.config.config_hash,
+            "treatment_fields": ["memory_policy", "deliberation_policy"],
+            "selection_or_reward_changed": False,
+        }
     _atomic_json(output_dir / "run_manifest.json", manifest)
     _atomic_json(archive_path, archive.to_dict())
 
@@ -1180,6 +1194,12 @@ def run_semantic_autoresearch(
             archive=archive,
             opportunity=opportunity,
         )
+        if process_protocol is not None:
+            messages = process_protocol.augment_messages(
+                messages,
+                opportunity,
+                lineage_path=ledger,
+            )
         user_prompt = messages[-1]["content"]
         prompt_hash = _canonical_messages_hash(messages)
         artifact_base = artifacts / f"{opportunity:04d}"
@@ -1456,6 +1476,8 @@ def run_semantic_autoresearch(
             {"schema_name": "ControllerRunSummary", "schema_version": "2.0"}
         )
     _atomic_json(output_dir / "run_summary.json", summary)
+    if process_protocol is not None:
+        export_process_run(output_dir, process_protocol.config)
     return summary
 
 
@@ -1516,6 +1538,7 @@ def main() -> None:
     parser.add_argument("--iterations", type=_positive_int, default=config["iterations"])
     parser.add_argument("--seed", type=int, default=config["seed"])
     parser.add_argument("--output-dir", type=Path)
+    parser.add_argument("--initial-candidate", type=Path)
     parser.add_argument(
         "--engineering-pilot",
         action="store_true",
@@ -1577,6 +1600,14 @@ def main() -> None:
     configured_candidate = (ROOT / str(config["candidate_path"])).resolve()
     if configured_candidate != DEFAULT_INITIAL_CANDIDATE.resolve():
         parser.error("configured candidate_path differs from the trusted initial seed")
+    try:
+        initial_candidate = resolve_initial_candidate(
+            DEFAULT_INITIAL_CANDIDATE,
+            explicit=arguments.initial_candidate,
+            expected_framework=FrameworkKind.AUTORESEARCH,
+        )
+    except (FileNotFoundError, ValueError) as error:
+        parser.error(str(error))
 
     case_count = arguments.evaluation_cases
     if (
@@ -1596,7 +1627,7 @@ def main() -> None:
         iterations=arguments.iterations,
         seed=arguments.seed,
         output_dir=arguments.output_dir,
-        initial_candidate=DEFAULT_INITIAL_CANDIDATE,
+        initial_candidate=initial_candidate,
         training_profile=training_profile,
         evaluation_profile=evaluation_profile,
         evaluation_case_count=case_count,

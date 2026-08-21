@@ -59,6 +59,10 @@ from modal_boundary import (
     OPENEVOLVE_60_INPUT_BYTES_PER_REQUEST,
     OPENEVOLVE_60_ITERATIONS,
 )
+from research_dynamics.contracts import FrameworkKind, resolve_initial_candidate
+from research_dynamics.extraction import export_run as export_process_run
+from research_dynamics.openevolve_integration import instrument_openevolve_prompts
+from research_dynamics.protocol import ProcessProtocol
 
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -71,6 +75,7 @@ _INITIAL_ARCHITECTURE_HASH_ENV = "DISCOVERY_INITIAL_ARCHITECTURE_HASH"
 _INITIAL_EVALUATION_AUTH_ENV = "DISCOVERY_OPENEVOLVE_INITIAL_EVALUATION_AUTH"
 _ARCHITECTURE_REGISTRY_ENV = "DISCOVERY_ARCHITECTURE_HASH_REGISTRY"
 _TERMINAL_LEDGER_ENV = "DISCOVERY_OPENEVOLVE_TERMINAL_LEDGER"
+_PROCESS_OUTPUT_ENV = "RL4RL_PROCESS_RUN_OUTPUT"
 
 
 def _architecture_hash_for_ir_text(text: str) -> str:
@@ -176,12 +181,22 @@ def _parent_bound_iteration_worker(
     os.environ[_PARENT_ARCHITECTURE_HASH_ENV] = parent_architecture_hash
     try:
         try:
-            result = _VENDOR_RUN_ITERATION_WORKER(
-                iteration,
-                db_snapshot,
-                parent_id,
-                inspiration_ids,
+            process_output = os.environ.get(_PROCESS_OUTPUT_ENV)
+            process_protocol = (
+                ProcessProtocol.from_environment(
+                    process_output,
+                    expected_framework=FrameworkKind.OPENEVOLVE,
+                )
+                if process_output
+                else None
             )
+            with instrument_openevolve_prompts(process_protocol):
+                result = _VENDOR_RUN_ITERATION_WORKER(
+                    iteration,
+                    db_snapshot,
+                    parent_id,
+                    inspiration_ids,
+                )
         except Exception as error:  # defensive boundary around vendor worker
             result = SerializableResult(
                 error=f"iteration worker failed: {type(error).__name__}: {error}",
@@ -407,6 +422,13 @@ def _run_controller_impl(kind: str, argv: Sequence[str] | None = None) -> None:
     )
     _require_fresh_output(raw_output_dir)
     output_dir = raw_output_dir.resolve()
+    try:
+        initial_candidate = resolve_initial_candidate(
+            INITIAL_IR_CANDIDATE,
+            expected_framework=FrameworkKind.OPENEVOLVE,
+        )
+    except (FileNotFoundError, ValueError) as error:
+        raise SystemExit(str(error)) from error
 
     raw_config = yaml.safe_load((agent_dir / "config.yaml").read_text())
     training_config = raw_config["training"]
@@ -482,7 +504,7 @@ def _run_controller_impl(kind: str, argv: Sequence[str] | None = None) -> None:
         else (None if args.engineering_pilot else _environment_case_count())
     )
     evaluation_plan = _preflight_runtime(
-        candidate_path=INITIAL_IR_CANDIDATE,
+        candidate_path=initial_candidate,
         training_profile=training_profile,
         training_seeds=training_seeds,
         training_device=training_device,
@@ -495,7 +517,7 @@ def _run_controller_impl(kind: str, argv: Sequence[str] | None = None) -> None:
             else os.environ.get("DISCOVERY_SCIENTIFIC_DECISION_RECORD")
         ),
     )
-    initial_validation = validate_ir_candidate_path(INITIAL_IR_CANDIDATE)
+    initial_validation = validate_ir_candidate_path(initial_candidate)
     if not initial_validation.valid or initial_validation.graph is None:
         reasons = "; ".join(
             f"{issue.code}: {issue.message}" for issue in initial_validation.issues
@@ -533,6 +555,14 @@ def _run_controller_impl(kind: str, argv: Sequence[str] | None = None) -> None:
     # An explicitly supplied empty directory is permitted; non-empty paths were
     # rejected above before any provider object could be constructed.
     output_dir.mkdir(parents=True, exist_ok=True)
+    process_protocol = ProcessProtocol.from_environment(
+        output_dir,
+        expected_framework=FrameworkKind.OPENEVOLVE,
+    )
+    if process_protocol is not None:
+        os.environ[_PROCESS_OUTPUT_ENV] = str(output_dir)
+    else:
+        os.environ.pop(_PROCESS_OUTPUT_ENV, None)
     architecture_registry = ArchitectureHashRegistry(
         output_dir / "architecture_hash_registry"
     )
@@ -636,6 +666,8 @@ def _run_controller_impl(kind: str, argv: Sequence[str] | None = None) -> None:
             (ROOT / "common" / "prompts" / "architecture_ir_contract.md").read_text(),
         )
     )
+    if process_protocol is not None:
+        config.prompt.system_message += "\n\n" + process_protocol.system_prompt_block()
     config.prompt.template_dir = str(agent_dir / "templates")
     config.evolution_trace.output_path = str(output_dir / "evolution_trace.jsonl")
     config.llm.temperature = None
@@ -689,7 +721,7 @@ def _run_controller_impl(kind: str, argv: Sequence[str] | None = None) -> None:
             "api_base_configured": bool(api_base),
             **provider_endpoint.manifest_fields(),
         },
-        "initial_candidate_hash": file_hash(INITIAL_IR_CANDIDATE),
+        "initial_candidate_hash": file_hash(initial_candidate),
         "initial_architecture_hash": initial_architecture_hash,
         "architecture_hash_schema": ARCHITECTURE_HASH_SCHEMA,
         "parent_relative_architecture_change_required": True,
@@ -757,25 +789,35 @@ def _run_controller_impl(kind: str, argv: Sequence[str] | None = None) -> None:
         run_manifest.update(
             {"schema_name": "ControllerRunManifest", "schema_version": "2.0"}
         )
+    if process_protocol is not None:
+        run_manifest["research_process"] = {
+            "config_path": "research_process/study_config.json",
+            "config_hash": process_protocol.config.config_hash,
+            "treatment_fields": ["memory_policy", "deliberation_policy"],
+            "selection_or_reward_changed": False,
+        }
     (output_dir / "run_manifest.json").write_text(
         json.dumps(run_manifest, indent=2, sort_keys=True) + "\n"
     )
 
-    controller = OpenEvolve(
-        initial_program_path=str(INITIAL_IR_CANDIDATE),
-        evaluation_file=str(agent_dir / "evaluator_adapter.py"),
-        config=config,
-        output_dir=str(output_dir),
-    )
-    # The adapter consumes this authorization exactly once during the initial
-    # program evaluation.  Evolved candidates require a worker-bound parent.
-    os.environ[_INITIAL_EVALUATION_AUTH_ENV] = initial_architecture_hash
-    previous_iteration_worker = _install_parent_bound_worker()
-    try:
-        best_program = asyncio.run(controller.run(iterations=args.iterations))
-    finally:
-        _restore_iteration_worker(previous_iteration_worker)
-        os.environ.pop(_INITIAL_EVALUATION_AUTH_ENV, None)
+    with instrument_openevolve_prompts(process_protocol):
+        controller = OpenEvolve(
+            initial_program_path=str(initial_candidate),
+            evaluation_file=str(agent_dir / "evaluator_adapter.py"),
+            config=config,
+            output_dir=str(output_dir),
+        )
+        # The adapter consumes this authorization exactly once during the initial
+        # program evaluation. Evolved candidates require a worker-bound parent.
+        os.environ[_INITIAL_EVALUATION_AUTH_ENV] = initial_architecture_hash
+        previous_iteration_worker = _install_parent_bound_worker()
+        try:
+            best_program = asyncio.run(controller.run(iterations=args.iterations))
+        finally:
+            _restore_iteration_worker(previous_iteration_worker)
+            os.environ.pop(_INITIAL_EVALUATION_AUTH_ENV, None)
+    if process_protocol is not None:
+        export_process_run(output_dir, process_protocol.config)
     terminal_summary = _terminal_outcome_summary(terminal_ledger, args.iterations)
     terminal_count = int(terminal_summary["terminal_count"])
     all_requested_terminal = bool(terminal_summary["all_requested_terminal"])
@@ -849,6 +891,7 @@ _RUN_ENVIRONMENT_KEYS = (
     PROVIDER_ATTEMPT_ACTION_ENV,
     _PARENT_ARCHITECTURE_HASH_ENV,
     _INITIAL_EVALUATION_AUTH_ENV,
+    _PROCESS_OUTPUT_ENV,
 )
 
 
