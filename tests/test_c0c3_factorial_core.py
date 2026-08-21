@@ -41,6 +41,11 @@ from experiments.c0c3_factorial.state import (
 )
 
 TEMPLATES = ROOT / "experiments/c0c3_factorial/templates"
+CONTINUOUS_PROTOCOL = (
+    ROOT
+    / "experiments/c0c3_factorial/configs/protocols"
+    / "workshop_pilot_parallel_continuous_v1.toml"
+)
 
 
 def protocol(*, proposals: int = 4, capacity: int = 2) -> FactorialSpec:
@@ -184,6 +189,34 @@ def test_prompts_share_one_skeleton_and_only_scheduled_cells_transition() -> Non
         rendered[Condition.C1].proposal_policy_sha256
         == rendered[Condition.C3].proposal_policy_sha256
     )
+    assert "frozen assumption-changing checkpoint" in rendered[Condition.C1].text
+
+
+def test_continuous_protocol_has_200_opportunities_and_strong_interventions() -> None:
+    spec = FactorialSpec.from_toml(CONTINUOUS_PROTOCOL)
+    assert spec.budget.proposals == 200
+    assert spec.budget.candidate_evaluations == 200
+    assert spec.transition_opportunities == tuple(range(10, 201, 10))
+    assert spec.budget.max_total_tokens == 500_000_000
+    assert spec.budget.max_evaluator_seconds == 720_000.0
+
+    renderer = PromptRenderer(TEMPLATES)
+    at_ten = renderer.render(spec, task(), framework(), context(Condition.C1, 10))
+    at_two_hundred = renderer.render(
+        spec,
+        task(),
+        framework(),
+        context(Condition.C3, 200),
+    )
+    untreated = renderer.render(spec, task(), framework(), context(Condition.C0, 10))
+
+    assert at_ten.transition_active
+    assert at_two_hundred.transition_active
+    assert not untreated.transition_active
+    assert "frozen assumption-changing checkpoint" not in at_ten.text
+    assert "load-bearing assumption" in at_ten.text
+    assert "different mechanism family" in at_ten.text
+    assert "state the old assumption" in at_ten.text
 
 
 def test_single_incumbent_retains_only_strict_improvement(tmp_path: Path) -> None:

@@ -7,8 +7,9 @@ and scientific-runtime hash. Disagreement between this document and executable
 state is a protocol deviation that must be disclosed, not silently repaired.
 Version 1.0 is the 100-opportunity serial paper protocol. Version 1.1 is the
 separate 30-opportunity synchronized-parallel workshop pilot. Version 1.2 is
-the continuous-session Autoresearch variant of that pilot. Results retain their
-protocol labels and are not pooled as interchangeable replications.
+the separate 200-opportunity continuous-session Autoresearch protocol with an
+intervention every tenth opportunity. Results retain their protocol labels and
+are not pooled as interchangeable replications.
 
 ## 1. Research question and unit of analysis
 
@@ -124,11 +125,14 @@ and challenge a core assumption and test a meaningfully different architecture
 family. Width/depth changes, scalar/hyperparameter tuning, deletion alone, or a
 renamed instance of the same computation do not satisfy that instruction.
 
-The paper-v1 schedule is opportunities `20, 40, 60, 80`; the parallel pilot
-schedule is `10, 20`. C0 and C2 never receive the transition text. Compliance
-is not inferred from the instruction label:
-blinded Layer B reviewers inspect parent-to-candidate changes and decide whether
-a coherent mechanism change occurred.
+The paper-v1 schedule is opportunities `20, 40, 60, 80`; the ephemeral
+parallel-pilot schedule is `10, 20`; and the continuous Autoresearch schedule
+is every tenth opportunity from `10` through `200`. C0 and C2 never receive the
+transition text. The continuous Autoresearch protocol uses its own
+evidence-conditioned transition template; it does not alter the prompt used by
+the other protocols or by OpenEvolve. Compliance is not inferred from the
+instruction label: blinded Layer B reviewers inspect parent-to-candidate
+changes and decide whether a coherent mechanism change occurred.
 
 ## 7. N0 no-search baseline
 

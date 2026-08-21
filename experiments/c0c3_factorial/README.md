@@ -66,9 +66,10 @@ Future coding agents must also follow [AGENTS.md](AGENTS.md).
   it must never be pooled with `paper_v1` as if the execution rules and budgets
   were identical.
 - `configs/protocols/workshop_pilot_parallel_continuous_v1.toml` is protocol
-  1.2 for continuous-session Autoresearch: the same local parallel block waves,
-  but one resumed Codex conversation per run. It is a separate stratum; see
-  `CONTINUOUS_AUTORESEARCH.md` and do not pool it with protocol 1.1.
+  1.2 for continuous-session Autoresearch: 200 opportunities per trajectory,
+  an intervention every tenth opportunity, and one resumed Codex conversation
+  per run. It is a separate stratum; see `CONTINUOUS_AUTORESEARCH.md` and do not
+  pool it with protocol 1.1.
 
 Run the dev protocol end to end before spending on the paper protocol. Do not
 reinterpret dev results as a pilot effect estimate: its transition density and

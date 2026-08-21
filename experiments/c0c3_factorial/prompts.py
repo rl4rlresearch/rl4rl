@@ -7,7 +7,14 @@ import json
 from dataclasses import dataclass
 from pathlib import Path
 
-from .spec import Condition, ConversationMode, FactorialSpec, FrameworkSpec, TaskSpec
+from .spec import (
+    Condition,
+    ConversationMode,
+    FactorialSpec,
+    FrameworkKind,
+    FrameworkSpec,
+    TaskSpec,
+)
 
 SEARCH_SLOT_OPEN = "<!-- TREATMENT:SEARCH_STATE:BEGIN -->"
 SEARCH_SLOT_CLOSE = "<!-- TREATMENT:SEARCH_STATE:END -->"
@@ -57,6 +64,11 @@ class PromptRenderer:
         self.ordinary = (root / "ordinary.md").read_text(encoding="utf-8").strip()
         self.transition = (
             (root / "assumption_changing.md").read_text(encoding="utf-8").strip()
+        )
+        self.continuous_autoresearch_transition = (
+            (root / "assumption_changing_continuous_autoresearch.md")
+            .read_text(encoding="utf-8")
+            .strip()
         )
         required = {
             "{search_state}",
@@ -190,7 +202,15 @@ class PromptRenderer:
             search_state = self._search_state(
                 context.condition, spec.portfolio_capacity
             )
-            proposal_policy = self.transition if transition_active else self.ordinary
+            if transition_active:
+                proposal_policy = (
+                    self.continuous_autoresearch_transition
+                    if spec.conversation_mode is ConversationMode.CONTINUOUS
+                    and framework.framework_id is FrameworkKind.AUTORESEARCH
+                    else self.transition
+                )
+            else:
+                proposal_policy = self.ordinary
         budget = (
             f"proposals_remaining={context.remaining_proposals}; "
             f"evaluations_remaining={context.remaining_evaluations}; "
