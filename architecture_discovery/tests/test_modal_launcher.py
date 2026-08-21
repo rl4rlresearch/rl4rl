@@ -4704,17 +4704,16 @@ def test_boot_identity_provider_rejects_raw_type_and_size_spoof(
 
 
 @pytest.mark.parametrize(
-    ("current_start", "accepted"),
+    "current_start",
     (
-        (_TEST_BOOT_STARTED_AT_UNIX_MICROSECONDS + 409_185, True),
-        (_TEST_BOOT_STARTED_AT_UNIX_MICROSECONDS + 641_717, True),
-        (_TEST_BOOT_STARTED_AT_UNIX_MICROSECONDS - 1, False),
-        (_TEST_BOOT_STARTED_AT_UNIX_MICROSECONDS + 1_000_000, False),
+        _TEST_BOOT_STARTED_AT_UNIX_MICROSECONDS + 409_185,
+        _TEST_BOOT_STARTED_AT_UNIX_MICROSECONDS + 641_717,
+        _TEST_BOOT_STARTED_AT_UNIX_MICROSECONDS - 1,
+        _TEST_BOOT_STARTED_AT_UNIX_MICROSECONDS + 1_000_000,
     ),
 )
-def test_same_boot_uuid_allows_only_same_second_start_time(
+def test_same_boot_uuid_allows_wall_clock_boot_time_corrections(
     current_start: int,
-    accepted: bool,
 ) -> None:
     host_sha256 = "a" * 64
     recorded_session = launch_modal._local_boot_session_sha256(
@@ -4730,13 +4729,9 @@ def test_same_boot_uuid_allows_only_same_second_start_time(
         "boot_session_provider": lambda: current_start,
         "boot_identity_provider": lambda: _TEST_BOOT_IDENTITY,
     }
-    if accepted:
-        assert launch_modal.modal_local_boot_session_relation(
-            **kwargs
-        ) == "same_boot_session"
-    else:
-        with pytest.raises(ValueError, match="same OS boot identity"):
-            launch_modal.modal_local_boot_session_relation(**kwargs)
+    assert launch_modal.modal_local_boot_session_relation(
+        **kwargs
+    ) == "same_boot_session"
 
 
 @pytest.mark.parametrize(
@@ -4774,7 +4769,9 @@ def test_changed_boot_uuid_requires_strictly_later_start_second(
             launch_modal.modal_local_boot_session_relation(**kwargs)
 
 
-def test_held_local_boot_session_rejects_provider_drift(tmp_path: Path) -> None:
+def test_held_local_boot_session_allows_timestamp_drift_with_same_uuid(
+    tmp_path: Path,
+) -> None:
     observed = [_TEST_BOOT_STARTED_AT_UNIX_MICROSECONDS]
     binding = launch_modal._open_or_create_local_containment_binding(
         project_root=tmp_path,
@@ -4786,8 +4783,7 @@ def test_held_local_boot_session_rejects_provider_drift(tmp_path: Path) -> None:
     )
     observed[0] += 1_000_000
     try:
-        with pytest.raises(ValueError, match="boot-start time changed"):
-            binding.require_current()
+        binding.require_current()
     finally:
         binding.close()
 
