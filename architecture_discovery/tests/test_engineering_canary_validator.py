@@ -68,6 +68,7 @@ from modal_boundary import (
 )
 from scripts.validate_engineering_canaries import (
     _MODAL_CANARY_GENERATOR_CONTRACT,
+    _validate_private_canary_tree,
     _validate_modal_canary_generator,
     HARNESSES,
     MAX_FAKE_RESPONSE_BYTES,
@@ -99,6 +100,26 @@ def _write_json(path: Path, payload: dict) -> None:
         json.dumps(payload, indent=2, sort_keys=True) + "\n",
         encoding="utf-8",
     )
+
+
+def test_private_canary_tree_accepts_empty_research_decision_ledger(
+    tmp_path: Path,
+) -> None:
+    controller = tmp_path / "controller"
+    decisions = controller / "research_process" / "decisions.jsonl"
+    decisions.parent.mkdir(parents=True)
+    decisions.write_bytes(b"")
+
+    assert _validate_private_canary_tree(controller) == (1, 0)
+
+
+def test_private_canary_tree_rejects_other_empty_files(tmp_path: Path) -> None:
+    controller = tmp_path / "controller"
+    controller.mkdir()
+    (controller / "lineage.jsonl").write_bytes(b"")
+
+    with pytest.raises(ValueError, match="publication byte cap"):
+        _validate_private_canary_tree(controller)
 
 
 def _selector_identity(

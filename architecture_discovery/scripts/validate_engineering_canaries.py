@@ -2070,6 +2070,7 @@ def _validate_private_canary_tree(controller: Path) -> tuple[int, int]:
     )
     for path in sorted(controller.rglob("*")):
         relative = path.relative_to(controller)
+        relative_posix = relative.as_posix()
         item = path.lstat()
         if stat.S_ISLNK(item.st_mode):
             raise ValueError("private canary staging may not contain symlinks")
@@ -2079,7 +2080,14 @@ def _validate_private_canary_tree(controller: Path) -> tuple[int, int]:
             raise ValueError(
                 "private canary staging may contain only singly linked regular files"
             )
-        if item.st_size < 1 or item.st_size > MAX_ARTIFACT_DOWNLOAD_FILE_BYTES:
+        empty_research_decision_ledger = (
+            relative_posix == "research_process/decisions.jsonl"
+            and item.st_size == 0
+        )
+        if (
+            item.st_size > MAX_ARTIFACT_DOWNLOAD_FILE_BYTES
+            or (item.st_size == 0 and not empty_research_decision_ledger)
+        ):
             raise ValueError("private canary file violates the publication byte cap")
         total_bytes += item.st_size
         if total_bytes > MAX_ARTIFACT_DOWNLOAD_TOTAL_BYTES:
@@ -2102,21 +2110,26 @@ def _validate_private_canary_tree(controller: Path) -> tuple[int, int]:
             continue
         if suffix not in _PRIVATE_CANARY_TEXT_SUFFIXES:
             raise ValueError(
-                f"private canary file has an unapproved type: {relative.as_posix()}"
+                f"private canary file has an unapproved type: {relative_posix}"
             )
+        if empty_research_decision_ledger:
+            # The no-deliberation control condition has a typed, intentionally
+            # empty decision ledger. Preserve that negative process evidence;
+            # every other empty staged file remains invalid.
+            continue
         try:
             text = path.read_text(encoding="utf-8")
         except UnicodeDecodeError as error:
             raise ValueError(
-                f"private canary text artifact is not UTF-8: {relative.as_posix()}"
+                f"private canary text artifact is not UTF-8: {relative_posix}"
             ) from error
         if text_credential.search(text):
             raise ValueError("private canary staging contains credential-shaped text")
         if suffix == ".json":
-            payload = _strict_json_loads(text, label=relative.as_posix())
-            _validate_json_security(payload, label=relative.as_posix())
+            payload = _strict_json_loads(text, label=relative_posix)
+            _validate_json_security(payload, label=relative_posix)
         elif suffix == ".jsonl":
-            _load_private_jsonl(path, label=relative.as_posix())
+            _load_private_jsonl(path, label=relative_posix)
     if file_count < 1:
         raise ValueError("private canary staging contains no files")
     return file_count, total_bytes
