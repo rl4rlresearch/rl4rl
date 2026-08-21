@@ -27,6 +27,7 @@ from experiments.c0c3_factorial.campaign import (
     prepare_calibration,
 )
 from experiments.c0c3_factorial.codex_cli import CodexCli
+from experiments.c0c3_factorial.evaluator import CommandEvaluator
 from experiments.c0c3_factorial.frameworks import (
     OpenEvolveAdapter,
     bundle_workspace,
@@ -320,6 +321,27 @@ def test_campaign_writer_lock_rejects_a_second_owner(tmp_path: Path) -> None:
         campaign_lock(campaign),
     ):
         pass
+
+
+def test_evaluator_preserves_symlinked_virtualenv_interpreter(
+    tmp_path: Path,
+) -> None:
+    seed_source = make_seed(tmp_path / "source")
+    environment_bin = tmp_path / "environment" / "bin"
+    environment_bin.mkdir(parents=True)
+    environment_python = environment_bin / "python"
+    environment_python.symlink_to(Path(sys.executable).resolve())
+
+    evaluator = CommandEvaluator(
+        task=task(seed_source),
+        support_source=seed_source,
+        repo_root=ROOT,
+        python_bin=str(environment_python),
+    )
+
+    assert evaluator.python_bin == str(environment_python.absolute())
+    assert Path(evaluator.python_bin).is_symlink()
+    assert Path(evaluator.python_bin).resolve() == Path(sys.executable).resolve()
 
 
 def test_codex_transport_campaign_and_one_real_controller_step(

@@ -67,7 +67,10 @@ class CommandEvaluator:
         self.support_source = support_source
         self.repo_root = repo_root
         if "/" in python_bin:
-            self.python_bin = str(Path(python_bin).resolve())
+            # Make relative paths safe for the evaluator's temporary cwd without
+            # dereferencing a virtual-environment interpreter symlink. Resolving
+            # that symlink can bypass pyvenv.cfg and silently drop dependencies.
+            self.python_bin = str(Path(python_bin).expanduser().absolute())
         else:
             self.python_bin = shutil.which(python_bin) or python_bin
 
