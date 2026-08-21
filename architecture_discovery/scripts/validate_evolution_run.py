@@ -85,7 +85,10 @@ def validate_private_evolution_staging(
         or evaluation.get("scientific") is not False
     ):
         raise ValueError("evolution smoke training/evaluation contract changed")
-    _validate_modal_canary_generator(manifest.get("generator"))
+    _validate_modal_canary_generator(
+        manifest.get("generator"),
+        request_settings_source="frozen_controller_configuration",
+    )
 
     if spec.harness in _NATIVE:
         if (

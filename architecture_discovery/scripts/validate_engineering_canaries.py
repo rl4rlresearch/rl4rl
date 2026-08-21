@@ -1936,12 +1936,20 @@ def _validate_cuda_checkpoints(
         raise ValueError("partial and latest resume checkpoints are byte-identical")
 
 
-def _validate_modal_canary_generator(generator: object) -> None:
-    """Require the exact non-secret provider settings approved for canaries."""
+def _validate_modal_canary_generator(
+    generator: object,
+    *,
+    request_settings_source: str = "environment_overrides_permitted",
+) -> None:
+    """Require exact non-secret provider settings for a bounded Modal action."""
 
     if not isinstance(generator, dict):
         raise ValueError("controller manifest lacks its generator contract")
-    expected_fields = set(_MODAL_CANARY_GENERATOR_CONTRACT)
+    expected_contract = {
+        **_MODAL_CANARY_GENERATOR_CONTRACT,
+        "request_settings_source": request_settings_source,
+    }
+    expected_fields = set(expected_contract)
     observed_fields = set(generator)
     missing_fields = expected_fields - observed_fields
     unknown_fields = observed_fields - expected_fields
@@ -1958,7 +1966,7 @@ def _validate_modal_canary_generator(generator: object) -> None:
             "controller manifest generator fields differ from the frozen "
             "provider contract"
         )
-    for field, expected in _MODAL_CANARY_GENERATOR_CONTRACT.items():
+    for field, expected in expected_contract.items():
         observed = generator[field]
         if type(observed) is not type(expected) or observed != expected:
             raise ValueError(

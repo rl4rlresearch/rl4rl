@@ -62,6 +62,7 @@ from modal_boundary import (
 )
 from scripts.validate_engineering_canaries import (
     _MODAL_CANARY_GENERATOR_CONTRACT,
+    _validate_modal_canary_generator,
     HARNESSES,
     MAX_FAKE_RESPONSE_BYTES,
     DeterministicFakeProvider,
@@ -2856,6 +2857,20 @@ def test_modal_canary_controller_configs_emit_the_frozen_generator_contract(
     }
 
     assert emitted_contract == _MODAL_CANARY_GENERATOR_CONTRACT
+
+
+def test_modal_evolution_generator_requires_frozen_controller_configuration() -> None:
+    generator = {
+        **_MODAL_CANARY_GENERATOR_CONTRACT,
+        "request_settings_source": "frozen_controller_configuration",
+    }
+
+    _validate_modal_canary_generator(
+        generator,
+        request_settings_source="frozen_controller_configuration",
+    )
+    with pytest.raises(ValueError, match="request_settings_source differs"):
+        _validate_modal_canary_generator(generator)
 
 
 def test_downloaded_modal_canary_bundle_accepts_one_retried_attempt(tmp_path):
