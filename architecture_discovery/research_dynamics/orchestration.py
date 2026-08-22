@@ -133,12 +133,17 @@ def plan_full_trajectories(
     output_dir: str | Path,
     command: list[str],
     blocks: int,
+    iterations: int,
     first_seed: int,
     challenge_schedule: tuple[int, ...],
     scientific: bool,
 ) -> Path:
     if blocks < 1:
         raise ValueError("blocks must be positive")
+    if iterations < 1:
+        raise ValueError("iterations must be positive")
+    if challenge_schedule and challenge_schedule[-1] > iterations:
+        raise ValueError("challenge schedule exceeds the trajectory iterations")
     root = _prepare_plan_root(output_dir)
     branches = []
     for block in range(blocks):
@@ -165,6 +170,7 @@ def plan_full_trajectories(
                     "position": position,
                     "condition_id": condition_id.value,
                     "seed": run_seed,
+                    "iterations": iterations,
                     "run_id": run_id,
                     "config_path": str(config_path),
                     "config_hash": config.config_hash,
@@ -180,6 +186,7 @@ def plan_full_trajectories(
         "framework": framework.value,
         "first_seed": first_seed,
         "blocks": blocks,
+        "iterations": iterations,
         "challenge_schedule": list(challenge_schedule),
         "branches": branches,
     }
@@ -202,6 +209,9 @@ def _render_command(
         "seed": str(branch.get("seed", manifest.get("seed", 0))),
         "checkpoint": manifest.get("checkpoint_path", ""),
         "horizon": str(manifest.get("horizon", "")),
+        "iterations": str(
+            branch.get("iterations", manifest.get("iterations", manifest.get("horizon", "")))
+        ),
     }
     return [str(part).format(**replacements) for part in command]
 
@@ -230,6 +240,16 @@ def execute_manifest(
     ):
         config_payload = json.loads(Path(branch["config_path"]).read_text(encoding="utf-8"))
         config = ProcessStudyConfig.from_dict(config_payload)
+        iterations = branch.get(
+            "iterations", manifest.get("iterations", manifest.get("horizon"))
+        )
+        if type(iterations) is not int or iterations < 1:
+            raise ValueError("manifest iterations must be a positive integer")
+        if (
+            config.challenge_opportunities
+            and config.challenge_opportunities[-1] > iterations
+        ):
+            raise ValueError("branch challenge schedule exceeds its iterations")
         if config.config_hash != branch.get("config_hash"):
             raise ValueError("branch process config changed after randomization")
         if (

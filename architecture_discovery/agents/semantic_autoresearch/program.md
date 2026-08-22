@@ -19,15 +19,16 @@ For each proposal opportunity:
    block is permitted, but prose outside the JSON is forbidden.
 4. Let the trusted evaluator initialize, train, checkpoint, and evaluate it.
 5. Preserve the candidate in a new categorical cell, or replace the occupant of
-   the same cell only when public search accuracy is higher.
+   the same cell when parameter count is lower; public accuracy breaks equal-size
+   ties.
 6. Preserve every rejected, malformed, and failed proposal in the append-only
    lineage without making it a parent.
 
 Categorical coverage is an exploratory search-diversity device. A new cell is
 not evidence of scientific novelty, mechanism validity, or external validity.
-Category codes are labels, not ordered fitness values. Parameter count remains
-descriptive metadata and must never affect proposals, retention, parent
-selection, tie-breaking, or stopping.
+Category codes are labels, not ordered fitness values. Coverage preserves
+structurally different mechanism families. Within an occupied cell, trusted
+parameter count is the optimization objective after public eligibility.
 
 Only evaluator-owned, versioned primitive names are permitted. Python
 callbacks, import paths, commands, file paths, checkpoints, and arbitrary

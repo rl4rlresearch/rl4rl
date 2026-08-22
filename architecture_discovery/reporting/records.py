@@ -354,7 +354,7 @@ class ResourceDisclosure:
     completion_tokens: int
     provider_usage_complete: bool
     notes: tuple[str, ...]
-    parameter_count_role: str = field(default="descriptive_metadata_only", init=False)
+    parameter_count_role: str = field(default="constrained_search_objective", init=False)
 
     def __post_init__(self) -> None:
         object.__setattr__(self, "quantities", tuple(self.quantities))

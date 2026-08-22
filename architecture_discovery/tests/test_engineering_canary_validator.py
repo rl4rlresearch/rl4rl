@@ -274,7 +274,7 @@ def _synthetic_mps_smoke(project: Path, tmp_path: Path) -> Path:
         "profile_hash": SMOKE_TRAIN_V1.profile_hash,
         "requested_device": "mps",
         "selected_device": "mps",
-        "parameter_count_role": "descriptive_metadata_only",
+        "parameter_count_role": "constrained_search_objective",
         "isolation_level": "engineering_only_or_scientific_gate_blocked",
         "runtime": {
             "mps_built": True,
@@ -366,7 +366,7 @@ def _synthetic_pre_ir_mps_smoke(project: Path, tmp_path: Path) -> Path:
         "profile_hash": SMOKE_TRAIN_V1.profile_hash,
         "requested_device": "mps",
         "selected_device": "mps",
-        "parameter_count_role": "descriptive_metadata_only",
+        "parameter_count_role": "constrained_search_objective",
         "isolation_level": "engineering_only_or_scientific_gate_blocked",
         "runtime": {
             "mps_built": True,
@@ -778,7 +778,15 @@ def _synthetic_modal_canary_bundle(
                     "max_ir_bytes": 40_000,
                     "run_mode": "engineering_pilot",
                     "exploratory_only": True,
-                    "selection_semantics": "mechanics_only_transformer_validity",
+                    "selection_semantics": (
+                        "eligibility_then_minimum_parameter_count"
+                        if harness == "greedy_autoresearch"
+                        else "semantic_coverage_then_minimum_parameter_count"
+                    ),
+                    "optimization_objective": {
+                        "primary_constraint": "public_parent_eligibility",
+                        "architecture_uniqueness": "run_wide_executable_hash_gate",
+                    },
                     "prompt_protocol": {},
                     "preflight": {},
                     "evidence_scope": "secondary_native_replication",
@@ -787,16 +795,17 @@ def _synthetic_modal_canary_bundle(
             if harness == "greedy_autoresearch":
                 run_manifest["greedy_retention"] = {
                     "requires_parent_eligibility": True,
-                    "rejects_search_score_regressions": True,
+                    "prefers_smaller_eligible_candidates": True,
+                    "accuracy_breaks_equal_size_ties": True,
                     "accept_valid_plateau_moves": True,
                 }
             else:
                 run_manifest["semantic_archive"] = {
                     "axes": [],
-                    "parent_policy": "least_used_cell_then_accuracy",
-                    "novelty_role": "exploratory_coverage_tiebreak_only",
+                    "parent_policy": "least_used_cell_then_minimum_parameter_count",
+                    "novelty_role": "unique_semantic_coverage_within_accuracy_constraint",
                     "scientific_novelty_claim": False,
-                    "parameter_count_role": "descriptive_metadata_only",
+                    "parameter_count_role": "within_cell_optimization_objective",
                 }
             summary = {
                 "schema_name": "ControllerRunSummary",
@@ -835,6 +844,13 @@ def _synthetic_modal_canary_bundle(
                     "generated_python_execution": False,
                     "containment_bypass": False,
                     "parent_relative_architecture_change_required": True,
+                    "optimization_objective": {
+                        "primary_constraint": "public_parent_eligibility",
+                        "primary_objective_after_eligibility": "minimize_parameter_count",
+                        "tie_breaker": "public_search_score",
+                        "architecture_uniqueness": "run_wide_executable_hash_gate",
+                        "semantic_coverage": harness == "openevolve_semantic",
+                    },
                     "proposal_terminal_ledger": "proposal_terminal_outcomes.jsonl",
                     "evidence_scope": "exploratory_engineering_pilot",
                     "eligibility_threshold": 0.0,
@@ -1662,7 +1678,7 @@ def _synthetic_private_semantic_canary(
             "schema_version": "2.0",
             "axes": axes,
             "coverage_cells": 1,
-            "novelty_role": "exploratory_coverage_tiebreak_only",
+            "novelty_role": "unique_semantic_coverage_within_accuracy_constraint",
             "scientific_novelty_claim": False,
             "cells": [
                 {
@@ -1673,6 +1689,7 @@ def _synthetic_private_semantic_canary(
                     "source_path": "artifacts/0000_seed.ir.json",
                     "search_score": 0.5,
                     "public_accuracy": 0.5,
+                    "parameter_count_metadata": 6_080,
                     "discovered_opportunity": 0,
                     "parent_uses": 1,
                 }

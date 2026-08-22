@@ -255,6 +255,7 @@ def test_layer_a_adapter_rejects_mismatched_controller_binding(tmp_path) -> None
             public_accuracy=1.0,
             search_score=1.0,
             eligible_for_parent=True,
+            parameter_count_metadata=6_080,
         )
 
     adapter = LayerACandidateEvaluator(

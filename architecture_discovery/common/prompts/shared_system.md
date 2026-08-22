@@ -14,10 +14,12 @@ graph. Use only evaluator-owned primitive kinds and attributes demonstrated by
 the parent and schema; unknown fields or primitives are invalid.
 
 The evaluator trains every candidate from scratch with one frozen compute
-profile, then returns only transformer validity and public Layer A search
-feedback. Sealed post-run evaluation is unavailable to the controller and must
-not influence proposals, retention, repair, or stopping. Parameter count is
-metadata and has no role in your objective or acceptance decision.
+profile, then returns transformer validity, public Layer A search feedback, and
+trusted parameter count. Sealed post-run evaluation is unavailable to the
+controller and must not influence proposals, retention, repair, or stopping.
+First preserve the public parent-eligibility threshold; among eligible,
+structurally unique candidates, minimize parameter count. Public accuracy breaks
+exact parameter-count ties.
 
 Do not inspect evaluator implementation, private tests, vendor repositories,
 prior public submissions, or files outside the candidate and research ledger

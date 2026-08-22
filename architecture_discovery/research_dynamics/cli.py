@@ -48,6 +48,13 @@ def _schedule(value: str) -> tuple[int, ...]:
     return parsed
 
 
+def _positive_int(value: str) -> int:
+    parsed = int(value)
+    if parsed < 1:
+        raise argparse.ArgumentTypeError("value must be positive")
+    return parsed
+
+
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(prog="research-process")
     sub = parser.add_subparsers(dest="action", required=True)
@@ -68,6 +75,12 @@ def build_parser() -> argparse.ArgumentParser:
     full.add_argument("--output-dir", type=Path, required=True)
     full.add_argument("--command-json", type=_command, required=True)
     full.add_argument("--blocks", type=int, required=True)
+    full.add_argument(
+        "--iterations",
+        type=_positive_int,
+        required=True,
+        help="proposal opportunities per trajectory; available as {iterations} in command-json",
+    )
     full.add_argument("--first-seed", type=int, default=1)
     full.add_argument("--challenge-schedule", type=_schedule, default=(5, 10, 15, 20))
     full.add_argument("--scientific", action="store_true")
@@ -128,6 +141,7 @@ def main(argv: list[str] | None = None) -> int:
             output_dir=args.output_dir,
             command=args.command_json,
             blocks=args.blocks,
+            iterations=args.iterations,
             first_seed=args.first_seed,
             challenge_schedule=args.challenge_schedule,
             scientific=args.scientific,

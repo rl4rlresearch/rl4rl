@@ -18,7 +18,11 @@ from research_dynamics.contracts import (
 from research_dynamics.extraction import extract_autoresearch_run
 from research_dynamics.memory import render_memory_packet, select_memory_entries
 from research_dynamics.metrics import summarize_annotations, summarize_decisions
-from research_dynamics.orchestration import execute_manifest, plan_forks
+from research_dynamics.orchestration import (
+    execute_manifest,
+    plan_forks,
+    plan_full_trajectories,
+)
 from research_dynamics.openevolve_integration import instrument_openevolve_prompts
 from research_dynamics.prompts import deliberation_block
 from research_dynamics.protocol import ProcessProtocol
@@ -185,6 +189,39 @@ def test_fork_manifest_clones_one_checkpoint_into_all_cells(tmp_path: Path) -> N
     first_config.write_text(json.dumps(tampered), encoding="utf-8")
     with pytest.raises(ValueError, match="changed after randomization"):
         execute_manifest(manifest_path, dry_run=True)
+
+
+def test_full_manifest_binds_configurable_iterations_and_schedule(tmp_path: Path) -> None:
+    manifest_path = plan_full_trajectories(
+        study_id="full-test",
+        framework=FrameworkKind.AUTORESEARCH,
+        output_dir=tmp_path / "full",
+        command=["runner", "--iterations", "{iterations}", "--seed", "{seed}"],
+        blocks=2,
+        iterations=12,
+        first_seed=7,
+        challenge_schedule=(4, 8, 12),
+        scientific=False,
+    )
+    manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
+    assert manifest["iterations"] == 12
+    assert len(manifest["branches"]) == 8
+    assert {branch["iterations"] for branch in manifest["branches"]} == {12}
+    dry = execute_manifest(manifest_path, dry_run=True)
+    assert all(item["command"][2] == "12" for item in dry)
+
+    with pytest.raises(ValueError, match="challenge schedule exceeds"):
+        plan_full_trajectories(
+            study_id="bad-full-test",
+            framework=FrameworkKind.AUTORESEARCH,
+            output_dir=tmp_path / "bad-full",
+            command=["runner", "--iterations", "{iterations}"],
+            blocks=1,
+            iterations=8,
+            first_seed=1,
+            challenge_schedule=(4, 12),
+            scientific=False,
+        )
 
 
 def test_extraction_links_next_public_interpretation_and_blinds_treatment(

@@ -16,6 +16,7 @@ PUBLIC_EVALUATION_FIELDS = (
     "public_accuracy",
     "search_score",
     "eligible_for_parent",
+    "parameter_count_metadata",
     "failure_stage",
 )
 

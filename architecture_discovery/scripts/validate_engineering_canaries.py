@@ -443,6 +443,7 @@ _GREEDY_CONTROLLER_MANIFEST_FIELDS = frozenset(
         "run_mode",
         "exploratory_only",
         "selection_semantics",
+        "optimization_objective",
         "greedy_retention",
         "generator",
         "initial_candidate_hash",
@@ -493,6 +494,7 @@ _OPENEVOLVE_CONTROLLER_MANIFEST_FIELDS = frozenset(
         "architecture_hash_schema",
         "parent_relative_architecture_change_required",
         "architecture_deduplication",
+        "optimization_objective",
         "proposal_terminal_ledger",
         "evaluator_hash",
         "trusted_executable_component_hashes",
@@ -1471,7 +1473,7 @@ def _validate_cuda_manifest(
         "task_adapter_hash": DEFAULT_TASK.config_hash,
         "requested_device": "cuda",
         "selected_device": summary.get("device"),
-        "parameter_count_role": "descriptive_metadata_only",
+        "parameter_count_role": "constrained_search_objective",
         "development_only_checkpoint_selection": profile.checkpoint_selection_rule,
         "scientific_limitations": [
             "Engineering only. Not valid for architecture ranking or "
@@ -2475,7 +2477,8 @@ def _validate_private_native_terminal_state(
         archive["schema_name"] != "semantic_autoresearch_archive"
         or archive["schema_version"] != "2.0"
         or archive["axes"] != expected_axes
-        or archive["novelty_role"] != "exploratory_coverage_tiebreak_only"
+        or archive["novelty_role"]
+        != "unique_semantic_coverage_within_accuracy_constraint"
     ):
         raise ValueError("semantic archive identity is invalid")
     _exact_bool(archive, "scientific_novelty_claim", False)
@@ -2498,6 +2501,7 @@ def _validate_private_native_terminal_state(
             "source_path",
             "search_score",
             "public_accuracy",
+            "parameter_count_metadata",
             "discovered_opportunity",
             "parent_uses",
         }:
@@ -2528,6 +2532,8 @@ def _validate_private_native_terminal_state(
         _exact_integer(cell, "parent_uses")
         _finite_number(cell, "search_score")
         _finite_number(cell, "public_accuracy")
+        if _exact_integer(cell, "parameter_count_metadata") < 1:
+            raise ValueError("semantic archive parameter count must be positive")
 
 
 def _validate_openevolve_program(
@@ -3245,7 +3251,7 @@ def _validate_existing_smoke(
         expected_manifest: dict[str, Any] = {
             "candidate_source_hash": expected_summary["candidate_source_hash"],
             "profile_hash": profile.profile_hash,
-            "parameter_count_role": "descriptive_metadata_only",
+            "parameter_count_role": "constrained_search_objective",
             "isolation_level": "engineering_only_or_scientific_gate_blocked",
         }
         if candidate_format == "architecture_ir":

@@ -60,7 +60,7 @@ def _qualification_record(*, accuracy: float) -> QualificationEvaluationRecord:
     )
 
 
-def test_controller_view_is_an_exact_allowlist_without_sealed_or_size_fields():
+def test_controller_view_allowlists_public_size_but_excludes_sealed_fields():
     record = _search_record()
     view = record.controller_view()
     assert {field.name for field in fields(view)} == CONTROLLER_SEARCH_FIELDS
@@ -71,10 +71,25 @@ def test_controller_view_is_an_exact_allowlist_without_sealed_or_size_fields():
         "shadow_accuracy",
         "edge_accuracy",
         "carry_accuracy",
-        "parameter_count_metadata",
         "public_artifacts",
     }
     assert forbidden.isdisjoint(view.as_dict())
+    assert view.parameter_count_metadata == 10_000_000
+
+
+def test_eligible_record_requires_positive_trusted_parameter_count():
+    with pytest.raises(ValueError, match="positive trusted parameter count"):
+        SearchEvaluationRecord(
+            envelope=_envelope("search_evaluation", record_id="search-no-size"),
+            candidate_id="candidate-1",
+            training_record_id="training-1",
+            execution_ok=True,
+            transformer_valid=True,
+            public_accuracy=0.75,
+            search_score=0.75,
+            eligible_for_parent=True,
+            parameter_count_metadata=0,
+        )
 
 
 def test_controller_inbox_rejects_generic_dicts_and_layer_b_records():

@@ -25,7 +25,7 @@ def _write_ir_candidate(path):
     return path
 
 
-def _view(candidate, *, eligible, score, descriptors=()):
+def _view(candidate, *, eligible, score, descriptors=(), parameter_count=6_080):
     source_hash = openevolve_adapter.file_hash(candidate)
     return ControllerSearchView(
         schema_name="search_evaluation",
@@ -42,6 +42,7 @@ def _view(candidate, *, eligible, score, descriptors=()):
         failure_stage="" if eligible else "device_unavailable",
         infrastructure_failure=not eligible,
         online_descriptor_codes=descriptors,
+        parameter_count_metadata=parameter_count,
     )
 
 
@@ -77,7 +78,9 @@ def test_failed_evaluation_emits_all_unknown_semantic_metrics(monkeypatch, tmp_p
     assert result.metrics["eligible_for_parent"] == 0.0
 
 
-def test_combined_score_uses_only_eligibility_and_search_score(monkeypatch, tmp_path):
+def test_combined_score_uses_eligibility_parameter_count_and_search_score(
+    monkeypatch, tmp_path
+):
     _set_native_context(monkeypatch)
     candidate = _write_ir_candidate(tmp_path / "candidate.json")
     view = _view(
@@ -96,7 +99,10 @@ def test_combined_score_uses_only_eligibility_and_search_score(monkeypatch, tmp_
 
     result = openevolve_adapter.evaluate_for_openevolve(str(candidate))
 
-    assert result.metrics["combined_score"] == 2.8
+    assert result.metrics["parameter_count_metadata"] == 6_080.0
+    assert result.metrics["combined_score"] == openevolve_adapter.canonical_combined_score(
+        result.metrics
+    )
     assert result.metrics["semantic_token_representation"] == 4.0
     assert result.artifacts["candidate_graph_hash"]
     assert result.artifacts["candidate_architecture_hash"]

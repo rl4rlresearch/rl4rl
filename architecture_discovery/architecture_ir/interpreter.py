@@ -1385,7 +1385,7 @@ def _build_validated_candidate(
             "architecture_ir_schema": f"{graph.schema_name}@{graph.schema_version}",
             "parameter_count": parameter_count,
             "params": parameter_count,
-            "parameter_count_role": "descriptive_metadata_only",
+            "parameter_count_role": "constrained_search_objective",
             "initialization_seed": seed,
             "initial_device": "cpu",
             "execution_provenance": "trusted_ir_interpreter",

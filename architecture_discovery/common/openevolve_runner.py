@@ -731,6 +731,13 @@ def _run_controller_impl(kind: str, argv: Sequence[str] | None = None) -> None:
             "duplicate_proposals_train": False,
             "duplicate_proposals_consume_opportunity": True,
         },
+        "optimization_objective": {
+            "primary_constraint": "public_parent_eligibility",
+            "primary_objective_after_eligibility": "minimize_parameter_count",
+            "tie_breaker": "public_search_score",
+            "architecture_uniqueness": "run_wide_executable_hash_gate",
+            "semantic_coverage": kind == "semantic",
+        },
         "proposal_terminal_ledger": (
             str(terminal_ledger)
             if training_profile.version == "1"
