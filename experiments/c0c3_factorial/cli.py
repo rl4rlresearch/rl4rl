@@ -28,6 +28,7 @@ from .postsearch import export_layer_b_packets, run_layer_c, score_layer_b
 from .runner import recover_active_opportunity, run_one_opportunity
 from .spec import (
     BudgetSpec,
+    ConversationMode,
     ExecutionBackend,
     FactorialSpec,
     FrameworkKind,
@@ -48,6 +49,7 @@ def _load_spec(path: Path) -> FactorialSpec:
     model = ModelSpec(**protocol.pop("model"))
     budget = BudgetSpec(**protocol.pop("budget"))
     protocol["transition_opportunities"] = tuple(protocol["transition_opportunities"])
+    protocol["conversation_mode"] = ConversationMode(protocol["conversation_mode"])
     return FactorialSpec(**protocol, model=model, budget=budget)
 
 
