@@ -26,6 +26,22 @@ convenient can silently alter an estimand.
 - Keep changes inside this package and its focused tests unless integration
   genuinely requires otherwise. This isolation is intentional for merging.
 
+## Commit hygiene
+
+- Commit coherent, verified work frequently: normally when a focused feature,
+  invariant, test group, or documentation update is complete. Do not let
+  unrelated changes accumulate into one large catch-all commit.
+- At natural handoff points and before starting another substantial change,
+  inspect `git status --short` and `git diff --stat`. If the uncommitted source
+  change set has become large, split and commit its already-complete coherent
+  pieces before continuing.
+- Keep generated campaign artifacts, checkpoints, event logs, local run data,
+  caches, and credentials out of commits. Review every staged path so an
+  experiment's live artifacts or teammate work are not swept in accidentally.
+- Do not push, force-push, amend published history, or alter a teammate's
+  branch unless the user explicitly asks. Local commits are expected; pushing
+  is a separate action.
+
 ## Required verification
 
 For controller, prompt, adapter, evaluator, campaign, or analysis changes:
