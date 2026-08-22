@@ -1,9 +1,10 @@
 # Architecture Discovery on AdderBoard
 
-Research-process memory/challenge experiments are documented in
-[`RESEARCH_PROCESS_EXPERIMENTS.md`](RESEARCH_PROCESS_EXPERIMENTS.md). They are an
-opt-in instrumentation layer around the existing AutoResearch and OpenEvolve
-controllers; ordinary runs remain unchanged.
+The actual data and idea trajectories from the eight-run research-process pilot
+are documented in
+[`RESEARCH_PROCESS_PILOT_RESULTS.md`](RESEARCH_PROCESS_PILOT_RESULTS.md).
+The interventions are an opt-in layer around the existing AutoResearch and
+OpenEvolve controllers; ordinary runs remain unchanged.
 
 This repository is an offline-tested research-infrastructure system for studying
 novel transformer architecture discovery. AdderBoard is used only as a
