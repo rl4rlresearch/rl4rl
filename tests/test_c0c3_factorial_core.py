@@ -65,6 +65,7 @@ from experiments.c0c3_factorial.task_evaluators import (
     TRAINING_STEP,
     _source_contract_error,
 )
+from experiments.c0c3_factorial.validation import neutral_source_disclosure_terms
 
 TEMPLATES = ROOT / "experiments/c0c3_factorial/templates"
 STAGED_CONTINUOUS_PROTOCOL = (
@@ -412,6 +413,11 @@ def test_v16_freezes_confined_three_block_runtime_and_inference_data() -> None:
         "10",
         "11",
     ]
+    assert neutral_source_disclosure_terms("c1 = c2 + 1") == ()
+    assert neutral_source_disclosure_terms("AdderBoard benchmark") == (
+        "adderboard",
+        "benchmark",
+    )
 
 
 def test_v15_seed_workspace_is_sanitized_and_decoder_is_protected(

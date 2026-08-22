@@ -117,7 +117,7 @@ def plans(profile: str | None = None) -> tuple[CampaignPlan, ...]:
                     "RL4RL_V16_1644_CAMPAIGN",
                     Path(
                         "/private/tmp/"
-                        "rl4rl-v16-codex1644-confined-campaign-live-20260822a"
+                        "rl4rl-v16-codex1644-confined-campaign-live-20260822b"
                     ),
                 ),
                 mode="individual-trajectories",

@@ -40,6 +40,16 @@ from .spec import (
 from .state import SearchController
 
 
+def neutral_source_disclosure_terms(source: str) -> tuple[str, ...]:
+    """Audit code without treating ordinary c0/c1/c2/c3 variables as labels."""
+
+    return tuple(
+        term
+        for term in neutral_disclosure_terms(source)
+        if term not in {"c0", "c1", "c2", "c3"}
+    )
+
+
 def validate_campaign(
     campaign_dir: str | Path,
     *,
@@ -174,7 +184,7 @@ def validate_campaign(
             source = (
                 campaign / "runs" / run_ids[0] / "task-support" / relative
             ).read_text(encoding="utf-8", errors="replace")
-            disclosures = neutral_disclosure_terms(source)
+            disclosures = neutral_source_disclosure_terms(source)
             if disclosures:
                 errors.append(
                     f"neutral task-support {relative} exposes {list(disclosures)}"
