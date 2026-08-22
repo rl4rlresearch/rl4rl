@@ -4,6 +4,371 @@ This package studies how visible memory and assumption-challenge prompts change
 the reasoning dynamics of existing research controllers. It does not introduce
 a new controller and does not optimize final benchmark performance.
 
+## Executive summary
+
+The central question is not simply whether an intervention produces a better
+final model. It is whether changing what a research agent remembers and asking
+it to challenge a consequential assumption changes the *path of research*: the
+hypotheses it maintains, the experiments it chooses, how far it moves after new
+evidence, which failed ideas it revisits, and whether it uses contradictory
+results to revise its explanation.
+
+The implementation wraps the repository's existing AutoResearch and OpenEvolve
+controllers with an opt-in, process-observation layer. It holds evaluation,
+training, rewards, selection, compute, and stopping rules fixed. The layer only:
+
+1. controls which public prior results are visible in a bounded memory packet;
+2. switches between neutral review and a frozen assumption-challenge prompt;
+3. asks for short, inspectable lab-note metadata; and
+4. records treatment exposure, decisions, lineage, and public outcomes.
+
+On 2026-08-21/22, the complete eight-run engineering pilot finished on Modal:
+two frameworks crossed with four treatment cells, four proposal opportunities
+per run, and 32 total proposal opportunities. All eight final runs returned
+code 0, produced distinct artifact manifests, and have successful immutable
+terminal receipts. This establishes that the experimental machinery is usable;
+it is not yet enough replication for a causal or scientific result.
+
+## Research question and contribution
+
+### Main question
+
+How do bounded portfolio memory and scheduled assumption challenges, separately
+and together, change the research dynamics of LLM-based research controllers?
+
+The intended paper contribution is a process-level causal design and
+instrumentation system. It treats the sequence of ideas, explanations,
+experiments, evidence updates, and selection decisions as the object of study.
+Final benchmark performance is a downstream descriptive outcome, not the
+primary target.
+
+### Why this is important
+
+Research agents can arrive at a strong or weak final score for many accidental
+reasons. A final score alone does not tell us whether an agent explored several
+mechanisms, learned from disconfirming evidence, repeatedly polished one idea,
+or changed explanations without acknowledging the change. If autonomous
+research systems are used to generate scientific claims, their evidence-use and
+search dynamics need to be observable and experimentally testable.
+
+### Why this is interesting
+
+The interventions may have non-monotonic and framework-dependent effects.
+Portfolio memory could preserve abandoned alternatives, or it could anchor the
+agent to a fixed menu. Assumption challenges could produce discriminating
+experiments, or merely generate plausible-sounding criticism. Their combination
+could create productive recombination, overwhelm the prompt, or behave
+differently in a greedy controller and a population-based controller. These
+interactions are scientifically richer than asking whether a longer prompt
+increases a benchmark score.
+
+## Experimental design
+
+This is a 2 × 2 factorial design within each framework.
+
+| Condition | Visible memory | Deliberation | Intuitive description |
+|---|---|---|---|
+| `RD0` | Sequential | Neutral review | Show the most recent direction and ask what to try next. |
+| `RD1` | Sequential | Assumption challenge | Show the most recent direction and require a consequential assumption test. |
+| `RD2` | Four-slot portfolio | Neutral review | Show several strategically different prior directions and ask what to try next. |
+| `RD3` | Four-slot portfolio | Assumption challenge | Show the portfolio and require an experiment that distinguishes explanations. |
+
+The two factors are:
+
+- **Memory policy:** whether the controller sees only the current/recent entry
+  or a fixed four-slot portfolio of public prior work.
+- **Deliberation policy:** whether it receives a neutral evidence-review prompt
+  or an assumption-challenge prompt at precommitted opportunities.
+
+The framework axis contains:
+
+- **AutoResearch:** the existing greedy, sequential controller.
+- **OpenEvolve:** the existing population/portfolio controller.
+
+Framework is a moderator and replication axis in this pilot, not a randomized
+treatment. The visible-memory intervention does not change either framework's
+native parent selection, population management, reward, or retention logic.
+
+### Intuitive example
+
+Suppose the current explanation is “adding a gated residual path improves
+carry propagation.” A sequential condition shows only that recent direction.
+A portfolio condition may additionally show a valid failure, a lexically
+distant alternative such as a recurrence mechanism, and an abandoned direction.
+
+The neutral prompt asks the agent to review the evidence and choose its next
+experiment. The challenge prompt instead asks which unsupported claim would
+most change the decision, requires an alternative explanation, and asks for a
+test whose public result would distinguish the two. For example, the agent may
+contrast “gating improves carry propagation” with “the improvement only comes
+from added depth,” then propose an ablation that matches depth while removing
+the gate.
+
+The experiment studies whether this intervention actually changes what the
+agent does and how it reacts to the result—not whether the resulting prose
+sounds more critical.
+
+## Exact intervention mechanics
+
+### Bounded visible memory
+
+Every memory packet is padded or truncated to exactly 6,000 characters. It may
+use only public evaluation fields: execution success, transformer validity,
+public accuracy, search score, parent eligibility, and failure stage. It cannot
+read sealed outcomes or future results.
+
+Sequential memory fills only `current_or_recent`. Portfolio memory uses four
+fixed semantic slots:
+
+1. `current_or_recent`: the latest retained direction, or latest entry;
+2. `valid_failure`: a rejected candidate that executed successfully when one
+   exists;
+3. `distant_alternative`: the prior entry with greatest lexical distance from
+   the current mechanism description; and
+4. `abandoned_direction`: another rejected direction when available.
+
+Unavailable slots are explicit placeholders. This keeps the schema fixed and
+prevents the number of displayed entries from silently revealing information.
+
+### Assumption challenge
+
+The challenge instruction asks the controller to identify one claim that the
+current direction treats as true without decisive public evidence. It must pick
+the claim whose rejection would most change the next decision, state an
+alternative explanation, identify evidence favoring each explanation, and
+choose an experiment because it distinguishes them. Cosmetic challenges do not
+satisfy the instruction.
+
+Neutral and challenge blocks are both padded to 1,800 characters. Provider token
+counts are recorded separately because equal characters do not guarantee equal
+tokens. In the completed four-opportunity pilot, challenge conditions were
+precommitted to opportunities 1, 2, 3, and 4; neutral conditions had no
+challenge opportunities.
+
+### Public lab notes
+
+Each proposal is asked to include one or two auditable sentences for the current
+explanation, supporting evidence, next experiment, expected result, decision
+rule, interpretation of the previous result, whether the result changed the
+explanation, challenged assumption, alternative explanation, and
+discriminating evidence. These are top-level candidate metadata and do not alter
+the executable architecture. They are not private chain-of-thought.
+
+### One opportunity, step by step
+
+1. The wrapper reads only eligible prior public records.
+2. It deterministically constructs the sequential or portfolio memory packet.
+3. It appends the neutral or scheduled challenge block.
+4. The unchanged controller proposes a complete Architecture IR and public lab
+   note.
+5. The unchanged evaluator trains/evaluates the candidate and emits public
+   feedback.
+6. The unchanged native selection logic accepts, rejects, archives, or replaces
+   the candidate.
+7. The wrapper records exposure, proposal, parent, result, retention decision,
+   and the following interpretation in hash-bound artifacts.
+
+## What is held constant
+
+Within the pilot, all final cells use the same:
+
+- starting checkpoint, SHA-256
+  `b9020bc633d9d999751dcbf1101e636bf034be278367fa7774cfd992b6764bcb`;
+- model, `gpt-5.6-sol`, with high reasoning effort;
+- four proposal opportunities and at most one provider request per opportunity;
+- seed 1, zero provider retries, and zero Modal retries;
+- `smoke_train_cuda_v2` training and smoke evaluation on one NVIDIA T4;
+- complete Architecture IR proposal format;
+- 16,384 maximum completion tokens per request;
+- public evaluator feedback, reward, eligibility, native parent selection,
+  archive/retention rules, stopping rule, and compute profile.
+
+The randomized launch order is frozen in the launch manifest. This small pilot
+has one run per framework × condition cell, so order randomization prevents an
+obvious systematic ordering choice but cannot by itself create adequate
+replication.
+
+## Completed Modal engineering pilot
+
+### Frozen identities
+
+- Final local commit: `7498a662c4283eaf756ef814875842ed7d7bdd59`
+- Source-tree SHA-256:
+  `ea6d925d495a2c2ba3f8dc49c2ab873346607d8c939944e467f4bbe597aee087`
+- Modal image-source SHA-256:
+  `56d1976d9fd27eac5c108af86d2269d91fdb632234e8117e014f8e26f8271e7e`
+- Modal image ID: `im-myPyiMq25YHvFcT8qBP1Db`
+- Cohort: `modal-cuda-env-20260821-rp5`
+- Modal profile/environment: `scalingintelligence` / `main`
+- Artifact volume: `rl4rl-architecture-artifacts`
+- Claim scope: `non_scientific_engineering_pilot`
+
+Before experiments, 1,563 repository checks passed and were sealed in local
+engineering-freeze identity
+`1d4b9279cf8ec11303b0773ef8ab8a54c1a3dcff7ec3f968bfd911f9c4275fb1`.
+Eight provider-free Modal readiness actions then verified CUDA, offline smoke
+execution, candidate training, artifact round trips, and checkpoint resume.
+The final candidate/resume preflight binding was
+`aae9061eace3d591057ac423199d873e9306942e23ad737b5f044f7cc73b2db8`.
+
+### Final execution order and outcomes
+
+| Position | Framework | Cell | Final run ID | Attempt ID | Artifact manifest SHA-256 | Status |
+|---:|---|---|---|---|---|---|
+| 1 | OpenEvolve | `RD1` | `oe-modal-rd1-20260821-06` | `8687ed8134bfdcc2afc9c4310d419b7c` | `7553c4e5c47db998146a7896cfc2daef6a7f0034a2deca9ef67b77cbbbc8722f` | succeeded |
+| 2 | AutoResearch | `RD0` | `ar-modal-rd0-20260821-03` | `5d655f6b93b21ade9d9f0abdb63fc678` | `4ceb18479977af9eb83d1cca04368e9e350441c3b0347e91a0fccbb57193fbc0` | succeeded |
+| 3 | OpenEvolve | `RD0` | `oe-modal-rd0-20260821-02` | `85ca56a2afc4c03e5027e8a2b62135bc` | `40665d00a3ce3583776106e1e372b8ea496b4d3e7c07113111035b1c23fe5d76` | succeeded |
+| 4 | OpenEvolve | `RD3` | `oe-modal-rd3-20260821-02` | `9e059614ba106d12cecd64eca86de0d6` | `72b5a16dcf86d80f473317e6a6dbaa9580b47bdade59289bcfe182c55a8194b5` | succeeded |
+| 5 | OpenEvolve | `RD2` | `oe-modal-rd2-20260821-02` | `86d6749c3a66f9617b0b5226d340f176` | `84dbcb5c00e8821af7f8dcc4da714d30ca38f9824817f46ee6ad65d01bb16eeb` | succeeded |
+| 6 | AutoResearch | `RD2` | `ar-modal-rd2-20260821-02` | `ee9d4f67ad70171e3d08e4a390aa8957` | `27f33c2fdedd2fed3f8ad6e36b312dad7fa879eb0f727a9f32812f132869624b` | succeeded |
+| 7 | AutoResearch | `RD1` | `ar-modal-rd1-20260821-02` | `f64535a3badc4962397fb67e7f66a5f2` | `e49b947e42002660d22e2b3caf27387c733d99759b60f899859fae4ff1c66673` | succeeded |
+| 8 | AutoResearch | `RD3` | `ar-modal-rd3-20260821-02` | `649ed80a34b3fee338e464a36d8bad44` | `81a2ab0da68526805828ca20b0a06dfb2629b65219189b95fc7fcaef63479eb2` | succeeded |
+
+All eight have exactly one final terminal receipt in the final cohort, status
+`succeeded`, and return code 0. The receipt schema conservatively records that
+remote execution “may have started”; this is normal containment language and
+does not contradict the explicit successful status and return code.
+
+Each remote artifact root is:
+
+```text
+volume://rl4rl-architecture-artifacts/runs/<final-run-id>
+```
+
+Local action receipts are generated under:
+
+```text
+outputs/readiness/modal_only_final/modal_live_cohorts/
+  ea6d925d495a2c2ba3f8dc49c2ab873346607d8c939944e467f4bbe597aee087/
+  56d1976d9fd27eac5c108af86d2269d91fdb632234e8117e014f8e26f8271e7e/
+  modal-cuda-env-20260821-rp5/action_attempts/
+```
+
+`outputs/` is intentionally ignored by Git. The hashes and run IDs above are
+the durable lookup keys; teammates in the Modal workspace can download the
+corresponding volume artifacts through the repository's bound download path.
+
+### Authorization envelopes
+
+These are local approval ceilings, not measured charges or platform-enforced
+billing limits:
+
+- eight provider-free readiness actions: `$0.64551825` total Modal approval;
+- each experiment: `$0.33603658125` Modal and `$22.9376` provider approval;
+- eight experiments: `$2.68829265` Modal and `$183.5008` provider approval;
+- maximum provider requests: 32.
+
+Actual billing may be lower or differ. No cost conclusion should be inferred
+from these local gates.
+
+## What the completed pilot establishes
+
+The pilot establishes engineering facts:
+
+- all four treatment configurations can be attached to both controllers;
+- treatment payloads survive the local-to-Modal boundary;
+- the same source, image, checkpoint, seed, and budget can execute all cells;
+- public exposure and decision ledgers are emitted, including the intentionally
+  empty control decision ledger where no deliberation record exists;
+- provider-attempt accounting, terminal receipts, and artifact manifests seal;
+- the Mac launcher's containment evidence survives a legitimate wall-clock
+  correction without confusing it with an OS reboot.
+
+The pilot does **not** establish that either intervention improves diversity,
+scientific reasoning, or final performance. There is only one short trajectory
+per cell, the training/evaluation profile is explicitly non-scientific, and the
+process artifacts have not yet undergone blinded semantic annotation.
+
+## Analysis plan
+
+### Primary process outcomes
+
+The primary paper-facing outcomes are:
+
+1. **Discriminating-experiment rate:** how often the chosen experiment can
+   separate the stated explanation from a concrete alternative.
+2. **Research displacement:** how far the next move departs from the current
+   hypothesis/mechanism, from `D0` (same hypothesis) through `D5` (problem
+   reformulation).
+3. **Evidence-responsive revision after contradiction:** whether a contradicted
+   prediction leads to weakening, rejection, narrowing, replication, or an
+   auxiliary explanation rather than silent continuation.
+
+### Secondary outcomes
+
+- research-move and epistemic-purpose entropy;
+- transition matrices and move persistence;
+- hypothesis lifetime;
+- rationale/action alignment;
+- whether the interpretation is supported by the public result;
+- challenge uptake and visible-memory citation;
+- lineage branching and parent concentration;
+- lexical explanation/experiment diversity as an immediate diagnostic only;
+- final public score as a separate downstream descriptive outcome.
+
+### Annotation and inference
+
+Semantic claims should use blinded annotation. Annotators receive local decision
+context but not framework, treatment, final score, or future success. Report
+inter-annotator agreement and adjudicate disagreements under the frozen
+codebook. Do not treat the four decisions within a trajectory as independent
+replicates. Checkpoint-fork experiments should use paired contrasts or
+checkpoint fixed effects; full trajectories should use run-level or
+block-aware uncertainty.
+
+The factorial contrasts of interest are the memory main effect, challenge main
+effect, memory × challenge interaction, and moderation by framework. With one
+pilot run per cell these contrasts are descriptive only. A scientific follow-up
+needs multiple randomized blocks/checkpoints and a precommitted analysis plan.
+
+## Failure history and fixes
+
+Several failed or superseded launch attempts were useful engineering evidence
+but are not members of the final cohort:
+
+- early attempts exposed missing frozen source-identity manifests;
+- an expired/exhausted OpenAI credential produced genuine provider HTTP 429
+  failures until the Modal secret was corrected;
+- full evolution validation initially expected a canary-only generator source;
+- the provider ledger validator initially compared CLI action `evolve` with the
+  remote action name `evolution_run`;
+- the RD0 control could legitimately emit an empty `decisions.jsonl`, which a
+  generic non-empty-tree validator originally rejected;
+- macOS kept the same boot UUID while correcting `kern.boottime` by one second,
+  causing a completed remote run to fail local terminal-receipt persistence.
+
+The final launcher treats the kernel boot UUID as authoritative for same-session
+identity while retaining the validated boot timestamp to order genuinely
+different boot UUIDs. The focused launcher tests and the complete 1,563-test
+suite passed after this change. The final authoritative cohort is `rp5`; do not
+combine earlier run IDs with the final eight-run table.
+
+## Implementation map
+
+- `research_dynamics/contracts.py`: treatment, exposure, decision, and lab-note
+  schemas.
+- `research_dynamics/memory.py`: public-field allowlist and deterministic
+  sequential/portfolio memory selection.
+- `research_dynamics/prompts.py`: frozen, character-matched neutral and
+  assumption-challenge instructions.
+- `research_dynamics/extraction.py`: extraction of public lab notes and linked
+  decision records.
+- `research_dynamics/orchestration.py`: fork/full planning and fresh-output
+  execution.
+- `research_dynamics/openevolve_integration.py`: scoped instrumentation inside
+  OpenEvolve proposal workers.
+- `research_dynamics/annotations.py`, `codebook.py`, and `metrics.py`: blinded
+  annotation export and process-first summaries.
+- `agents/greedy_autoresearch/run.py` and
+  `agents/semantic_autoresearch/run.py`: opt-in AutoResearch integration.
+- `common/openevolve_runner.py`: opt-in OpenEvolve integration.
+- `common/evolution_run.py`, `modal_app.py`, `evolve`, and
+  `scripts/launch_modal.py`: frozen payload transport, Modal execution, approval
+  gates, and receipts.
+
+Ordinary runs without `RL4RL_PROCESS_CONFIG` follow their original controller
+path.
+
 The randomized variables are:
 
 - visible memory: sequential (`RD0`, `RD1`) or four-slot portfolio (`RD2`, `RD3`);
