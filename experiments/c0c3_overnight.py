@@ -36,6 +36,11 @@ elif PROFILE == "1644-extension":
 elif PROFILE == "1644-confined":
     DEFAULT_CONTROL_ROOT = REPO_ROOT / "data/c0c3/overnight-control-1644-confined"
     DEFAULT_SCREEN_SESSION = "rl4rl-c0c3-1644-confined"
+elif PROFILE == "1644-confined-fresh":
+    DEFAULT_CONTROL_ROOT = (
+        REPO_ROOT / "data/c0c3/overnight-control-1644-confined-fresh"
+    )
+    DEFAULT_SCREEN_SESSION = "rl4rl-c0c3-1644-confined-fresh"
 else:
     raise RuntimeError(f"unknown overnight profile: {PROFILE}")
 CONTROL_ROOT = Path(
@@ -118,6 +123,25 @@ def plans(profile: str | None = None) -> tuple[CampaignPlan, ...]:
                     Path(
                         "/private/tmp/"
                         "rl4rl-v16-codex1644-confined-campaign-live-20260822b"
+                    ),
+                ),
+                mode="individual-trajectories",
+                blocks=(1, 2, 3),
+            ),
+        )
+    if selected_profile == "1644-confined-fresh":
+        return (
+            CampaignPlan(
+                key="autoresearch-v1.6-1644-confined-fresh",
+                runtime_root=_env_path(
+                    "RL4RL_V16_1644_FRESH_RUNTIME",
+                    Path("/private/tmp/rl4rl-c0c3-v16-confined"),
+                ),
+                campaign=_env_path(
+                    "RL4RL_V16_1644_FRESH_CAMPAIGN",
+                    Path(
+                        "/private/tmp/"
+                        "rl4rl-v16-codex1644-confined-campaign-fresh-20260822c"
                     ),
                 ),
                 mode="individual-trajectories",
@@ -276,7 +300,7 @@ def progress_for(job: Job) -> dict[str, Any]:
             accuracy = metrics.get("accuracy", 0)
             if (
                 isinstance(parameters, int)
-                and isinstance(accuracy, (int, float))
+                and isinstance(accuracy, int | float)
                 and accuracy >= 0.99
             ):
                 best.append(parameters)

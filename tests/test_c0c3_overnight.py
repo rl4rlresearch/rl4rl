@@ -39,6 +39,15 @@ def test_1644_confined_profile_declares_all_three_blocks() -> None:
     assert roster[0].blocks == (1, 2, 3)
 
 
+def test_1644_confined_fresh_profile_is_independent_and_declares_three_blocks() -> None:
+    roster = plans("1644-confined-fresh")
+
+    assert len(roster) == 1
+    assert roster[0].key == "autoresearch-v1.6-1644-confined-fresh"
+    assert roster[0].blocks == (1, 2, 3)
+    assert roster[0].campaign.name.endswith("campaign-fresh-20260822c")
+
+
 def test_individual_plan_expands_only_declared_factorial_blocks(tmp_path: Path) -> None:
     campaign = tmp_path / "campaign"
     _write_json(
