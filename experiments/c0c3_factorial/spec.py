@@ -92,6 +92,7 @@ SERIAL_EXECUTION_RULE = "blocked_round_robin_one_opportunity_v1"
 PARALLEL_EXECUTION_RULE = "blocked_parallel_condition_rounds_v1"
 STAGED_PARALLEL_EXECUTION_RULE = "staged_parallel_block_trajectories_v1"
 STAGED_INDEPENDENT_EXECUTION_RULE = "staged_independent_parallel_trajectories_v1"
+STAGED_INDIVIDUAL_EXECUTION_RULE = "staged_individually_controlled_trajectories_v1"
 # Backward-compatible name for the original paper-v1 execution rule.
 EXECUTION_RULE = SERIAL_EXECUTION_RULE
 PROTOCOL_EXECUTION_RULES = {
@@ -100,6 +101,7 @@ PROTOCOL_EXECUTION_RULES = {
     "1.2": PARALLEL_EXECUTION_RULE,
     "1.3": STAGED_PARALLEL_EXECUTION_RULE,
     "1.4": STAGED_INDEPENDENT_EXECUTION_RULE,
+    "1.5": STAGED_INDIVIDUAL_EXECUTION_RULE,
 }
 
 
@@ -212,7 +214,7 @@ class FactorialSpec:
                 f"{expected_execution_rule!r}"
             )
         if (
-            self.protocol_version in {"1.2", "1.3", "1.4"}
+            self.protocol_version in {"1.2", "1.3", "1.4", "1.5"}
             and self.conversation_mode is not ConversationMode.CONTINUOUS
         ):
             raise ValueError(
@@ -220,7 +222,7 @@ class FactorialSpec:
                 "continuous_session_per_run_v1"
             )
         if (
-            self.protocol_version not in {"1.2", "1.3", "1.4"}
+            self.protocol_version not in {"1.2", "1.3", "1.4", "1.5"}
             and self.conversation_mode is not ConversationMode.EPHEMERAL
         ):
             raise ValueError(

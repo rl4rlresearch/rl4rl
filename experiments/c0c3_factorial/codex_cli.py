@@ -9,7 +9,10 @@ import tempfile
 from dataclasses import dataclass
 from pathlib import Path
 
-from .environment import controlled_subprocess_environment
+from .environment import (
+    controlled_subprocess_environment,
+    subject_subprocess_environment,
+)
 from .spec import ModelSpec
 from .state import Usage
 
@@ -81,6 +84,7 @@ class CodexCli:
         timeout_seconds: int = 3600,
         resume_session_id: str | None = None,
         persist_session: bool = False,
+        neutral_subject: bool = False,
     ) -> CodexResult:
         log_root.mkdir(parents=True, exist_ok=True)
         events = log_root / f"{call_id}.jsonl"
@@ -148,7 +152,13 @@ class CodexCli:
                         text=True,
                         stdout=stdout_handle,
                         stderr=stderr_handle,
-                        env=controlled_subprocess_environment(run_seed),
+                        env=(
+                            subject_subprocess_environment(
+                                run_seed, workspace=workspace
+                            )
+                            if neutral_subject
+                            else controlled_subprocess_environment(run_seed)
+                        ),
                         timeout=timeout_seconds,
                         check=False,
                     )

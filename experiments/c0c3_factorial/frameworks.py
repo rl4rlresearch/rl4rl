@@ -102,6 +102,7 @@ class AutoresearchAdapter:
         run_seed: int,
         resume_session_id: str | None = None,
         persist_session: bool = False,
+        neutral_subject: bool = False,
         **_unused: object,
     ) -> ProposalExecution:
         result = self.codex.run(
@@ -115,6 +116,7 @@ class AutoresearchAdapter:
             timeout_seconds=timeout_seconds,
             resume_session_id=resume_session_id,
             persist_session=persist_session,
+            neutral_subject=neutral_subject,
         )
         hypothesis, intended_edit = parse_metadata(result.last_message)
         return ProposalExecution(result, hypothesis, intended_edit)

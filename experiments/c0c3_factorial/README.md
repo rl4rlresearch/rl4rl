@@ -25,8 +25,8 @@ and is never included in the 2×2 contrasts.
    Autoresearch” and “OpenEvolve” mean here, AdderBoard and nanoGPT setup, and
    extension interfaces.
 4. [MODAL.md](MODAL.md) — target-backend calibration, persistent volumes, and
-   serialized GPU execution for protocol 1.0. Parallel protocols 1.1, 1.3, and
-   1.4 are currently local-only.
+   serialized GPU execution for protocol 1.0. Parallel protocols 1.1, 1.3,
+   1.4 and 1.5 are currently local-only.
 5. [PAPER_NOTES.md](PAPER_NOTES.md) — literature, hypotheses, reviewer rubric,
    figures, statistical cautions, and paper-writing checklist.
 
@@ -84,6 +84,16 @@ Future coding agents must also follow [AGENTS.md](AGENTS.md).
   advances independently through all 200 opportunities rather than waiting at
   every shared wave boundary. It is a separate execution stratum and cannot be
   pooled with protocol 1.3 as if their timing rules were the same.
+- `configs/protocols/workshop_primary_block1_independent_continuous_v1_5.toml`
+  is protocol 1.5. It retains the protocol-1.4 execution geometry and factorial
+  mapping but introduces a subject-neutral engineering prompt, a sanitized
+  workspace, condition-private recent-result summaries, a protected generic
+  decoder, learned-transformer contract validation, and one independently
+  controlled process per scheduled trajectory. It is scientifically separate
+  from 1.4 because the admissible model class, online evidence, and execution
+  ownership changed. Its primary stage remains Block 1 C0–C3; N0 and Blocks 2–3
+  are pre-created extensions; predeclared factorial blocks may be launched
+  concurrently, while N0 remains dormant unless explicitly activated.
 
 Run the dev protocol end to end before spending on the paper protocol. Do not
 reinterpret dev results as a pilot effect estimate: its transition density and
@@ -99,16 +109,18 @@ budget are intentionally unlike the paper protocol.
   rejects a campaign frozen to the other rule. `run-one` and `run --run-id`
   exist for diagnostics and can bypass randomized ordering.
 - Use `run-staged-next`/`run-staged-campaign` for protocol 1.3. Use
-  `run-staged-independent-campaign` for protocol 1.4. Each primary
-  Block 1 factorial stage must complete before an optional stage can start.
+  `run-staged-independent-campaign` for protocol 1.4. Use
+  `start-staged-trajectory`, `pause-staged-trajectory`, and
+  `resume-staged-trajectory` for protocol 1.5. Each primary Block 1 factorial
+  stage must complete before an optional stage can start.
 - Never expose Layer B annotations or Layer C results until every run in the
   campaign is completed.
 - Do not delete, retry, or reuse a failed opportunity. Use `recover-active` for
   an interrupted active opportunity; the opportunity remains charged.
 - Do not run the same campaign from local and Modal storage simultaneously.
-- Keep one campaign orchestrator process. Protocols 1.1, 1.3, and 1.4 create
-  their four C0–C3 Codex workers internally; four manually launched CLI
-  processes are invalid.
+- Keep one campaign orchestrator process for protocols 1.1–1.4. Protocol 1.5
+  instead authorizes one controller per scheduled run; a per-run lock rejects a
+  second controller for the same trajectory, while peers may operate in parallel.
 - Do not pool task or framework strata as if they were interchangeable
   replications. Report each task × framework stratum, then synthesize effects.
 

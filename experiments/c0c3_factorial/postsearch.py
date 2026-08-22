@@ -13,7 +13,8 @@ from pathlib import Path
 
 from .analysis import RunOutcome, estimate, write_estimate
 from .evaluator import CommandEvaluator
-from .spec import FactorialSpec, TaskSpec
+from .orchestration import stage_gate_lock
+from .spec import STAGED_INDIVIDUAL_EXECUTION_RULE, FactorialSpec, TaskSpec
 from .state import SearchController
 
 
@@ -86,7 +87,7 @@ def _proposal_events(path: Path) -> list[dict[str, object]]:
     return events
 
 
-def export_layer_b_packets(
+def _export_layer_b_packets_unlocked(
     campaign_dir: str | Path,
     *,
     spec: FactorialSpec,
@@ -193,6 +194,21 @@ def export_layer_b_packets(
         encoding="utf-8",
     )
     return sealed
+
+
+def export_layer_b_packets(
+    campaign_dir: str | Path,
+    *,
+    spec: FactorialSpec,
+    task: TaskSpec,
+) -> Path:
+    """Export Layer B while keeping v1.5's stage gate closed during sealing."""
+
+    campaign = Path(campaign_dir).resolve()
+    if spec.execution_rule == STAGED_INDIVIDUAL_EXECUTION_RULE:
+        with stage_gate_lock(campaign):
+            return _export_layer_b_packets_unlocked(campaign, spec=spec, task=task)
+    return _export_layer_b_packets_unlocked(campaign, spec=spec, task=task)
 
 
 def score_layer_b(
@@ -302,7 +318,7 @@ def _layer_a_selected_candidate_id(controller: SearchController) -> str:
     ).candidate_id
 
 
-def run_layer_c(
+def _run_layer_c_unlocked(
     campaign_dir: str | Path,
     *,
     spec: FactorialSpec,
@@ -351,3 +367,32 @@ def run_layer_c(
         json.dumps(summary, indent=2, sort_keys=True) + "\n", encoding="utf-8"
     )
     return output
+
+
+def run_layer_c(
+    campaign_dir: str | Path,
+    *,
+    spec: FactorialSpec,
+    task: TaskSpec,
+    repo_root: Path,
+    python_bin: str,
+) -> Path:
+    """Run Layer C while keeping v1.5's extension gate closed during sealing."""
+
+    campaign = Path(campaign_dir).resolve()
+    if spec.execution_rule == STAGED_INDIVIDUAL_EXECUTION_RULE:
+        with stage_gate_lock(campaign):
+            return _run_layer_c_unlocked(
+                campaign,
+                spec=spec,
+                task=task,
+                repo_root=repo_root,
+                python_bin=python_bin,
+            )
+    return _run_layer_c_unlocked(
+        campaign,
+        spec=spec,
+        task=task,
+        repo_root=repo_root,
+        python_bin=python_bin,
+    )

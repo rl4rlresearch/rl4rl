@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import json
+import shutil
 import sys
 from pathlib import Path
 
@@ -12,20 +13,37 @@ ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
 
 from experiments.c0c3_factorial.analysis import RunOutcome, estimate
-from experiments.c0c3_factorial.environment import controlled_subprocess_environment
+from experiments.c0c3_factorial.artifacts import prepare_seed_workspace
+from experiments.c0c3_factorial.environment import (
+    controlled_subprocess_environment,
+    subject_subprocess_environment,
+)
+from experiments.c0c3_factorial.neutral_task import (
+    NEUTRAL_SUBMISSION_WRAPPER,
+    NEUTRAL_TASK_ADAPTER,
+    validate_v15_pairing,
+)
 from experiments.c0c3_factorial.prompts import (
+    NEUTRAL_PROMPT_PROFILE,
     PromptContext,
     PromptRenderer,
     VisibleCandidate,
+    VisibleOutcome,
     treatment_skeleton,
+)
+from experiments.c0c3_factorial.runner import (
+    _make_tree_owner_writable,
+    _refresh_continuous_workspace,
 )
 from experiments.c0c3_factorial.spec import (
     PARALLEL_EXECUTION_RULE,
     SERIAL_EXECUTION_RULE,
     STAGED_INDEPENDENT_EXECUTION_RULE,
+    STAGED_INDIVIDUAL_EXECUTION_RULE,
     STAGED_PARALLEL_EXECUTION_RULE,
     BudgetSpec,
     Condition,
+    ConversationMode,
     ExecutionBackend,
     FactorialSpec,
     FrameworkKind,
@@ -41,6 +59,7 @@ from experiments.c0c3_factorial.state import (
     SearchController,
     Usage,
 )
+from experiments.c0c3_factorial.task_evaluators import _source_contract_error
 
 TEMPLATES = ROOT / "experiments/c0c3_factorial/templates"
 STAGED_CONTINUOUS_PROTOCOL = (
@@ -52,6 +71,21 @@ INDEPENDENT_STAGED_CONTINUOUS_PROTOCOL = (
     ROOT
     / "experiments/c0c3_factorial/configs/protocols"
     / "workshop_primary_block1_independent_continuous_v1.toml"
+)
+V15_PROTOCOL = (
+    ROOT
+    / "experiments/c0c3_factorial/configs/protocols"
+    / "workshop_primary_block1_independent_continuous_v1_5.toml"
+)
+V15_TASK = (
+    ROOT
+    / "experiments/c0c3_factorial/configs/tasks"
+    / "ten_digit_addition_transformer.toml"
+)
+V15_FRAMEWORK = (
+    ROOT
+    / "experiments/c0c3_factorial/configs/frameworks"
+    / "autoresearch_continuous_v1_5.toml"
 )
 
 
@@ -233,10 +267,304 @@ def test_independent_continuous_protocol_freezes_a_new_execution_rule() -> None:
     spec = FactorialSpec.from_toml(INDEPENDENT_STAGED_CONTINUOUS_PROTOCOL)
     assert spec.protocol_version == "1.4"
     assert spec.execution_rule == STAGED_INDEPENDENT_EXECUTION_RULE
+    assert spec.conversation_mode == ConversationMode.CONTINUOUS
     assert spec.conversation_mode.value == "continuous_session_per_run_v1"
     assert spec.blocks == 3
     assert spec.budget.proposals == 200
     assert spec.transition_opportunities == tuple(range(10, 201, 10))
+
+
+def test_v15_uses_neutral_subject_prompt_without_changing_v14() -> None:
+    renderer = PromptRenderer(TEMPLATES)
+    v14_spec = FactorialSpec.from_toml(INDEPENDENT_STAGED_CONTINUOUS_PROTOCOL)
+    v14_prompt = renderer.render(
+        v14_spec, task(), framework(), context(Condition.C0, 1)
+    ).text
+    assert "pre-registered experiment" in v14_prompt
+
+    spec = FactorialSpec.from_toml(V15_PROTOCOL)
+    task_spec = TaskSpec.from_toml(V15_TASK)
+    framework_spec = FrameworkSpec.from_toml(V15_FRAMEWORK)
+    assert spec.protocol_version == "1.5"
+    assert spec.execution_rule == STAGED_INDIVIDUAL_EXECUTION_RULE
+    assert spec.budget.proposals == 200
+    assert framework_spec.prompt_profile == NEUTRAL_PROMPT_PROFILE
+    assert task_spec.editable_paths == (
+        "src/model.py",
+        "src/data.py",
+        "src/train.py",
+    )
+
+    visible = (
+        VisibleCandidate(
+            "seed",
+            -6080.0,
+            {"accuracy": 1.0, "parameters": 6080, "training_steps": 22000},
+            1,
+            ".design-references/design-1",
+            "baseline",
+        ),
+    )
+    outcome = VisibleOutcome(
+        opportunity=9,
+        hypothesis="[feed-forward width] a narrower MLP will qualify",
+        intended_edit="reduce the MLP width",
+        metrics={"accuracy": 0.98, "parameters": 5568},
+        valid=False,
+        retained=False,
+        failure_kind="nonqualification",
+    )
+    prompts = {}
+    for condition in Condition:
+        prompt_context = PromptContext(
+            condition=condition,
+            opportunity=10,
+            selected_parent_id="seed",
+            visible_candidates=visible,
+            remaining_proposals=191,
+            remaining_evaluations=191,
+            remaining_tokens=100_000,
+            remaining_evaluator_seconds=1000.0,
+            recent_outcomes=(outcome,),
+        )
+        prompts[condition] = renderer.render(
+            spec, task_spec, framework_spec, prompt_context
+        )
+
+    assert len({treatment_skeleton(value.text) for value in prompts.values()}) == 1
+    assert prompts[Condition.C1].transition_active
+    assert prompts[Condition.C3].transition_active
+    assert not prompts[Condition.C0].transition_active
+    assert not prompts[Condition.C2].transition_active
+    forbidden = (
+        "adderboard",
+        "experiment",
+        "study",
+        "factorial",
+        "treatment",
+        "pre-registered",
+        "protocol",
+        "condition",
+        "layer a",
+        "c0",
+        "c1",
+        "c2",
+        "c3",
+    )
+    for rendered in prompts.values():
+        lowered = rendered.text.lower()
+        assert not any(term in lowered for term in forbidden)
+        assert "trained autoregressive transformer" in lowered
+        assert "hand-coded addition program" in lowered
+        assert "load-bearing assumption" in lowered or not rendered.transition_active
+        assert "work cycle 9" in lowered
+        assert "<!-- design_context:begin -->" in lowered
+        assert "<!-- next_step_guidance:begin -->" in lowered
+
+
+def test_v15_components_cannot_be_mixed_with_older_profiles() -> None:
+    validate_v15_pairing(
+        protocol_version="1.5",
+        task_adapter=NEUTRAL_TASK_ADAPTER,
+        prompt_profile=NEUTRAL_PROMPT_PROFILE,
+    )
+    with pytest.raises(ValueError, match="subject-neutral task adapter"):
+        validate_v15_pairing(
+            protocol_version="1.5",
+            task_adapter="adderboard_v1",
+            prompt_profile=NEUTRAL_PROMPT_PROFILE,
+        )
+    with pytest.raises(ValueError, match="subject-neutral prompt profile"):
+        validate_v15_pairing(
+            protocol_version="1.5",
+            task_adapter=NEUTRAL_TASK_ADAPTER,
+            prompt_profile="controlled_factorial_continuous_v1",
+        )
+
+
+def test_v15_seed_workspace_is_sanitized_and_decoder_is_protected(
+    tmp_path: Path,
+) -> None:
+    source = tmp_path / "seed-source"
+    for relative, content in {
+        "src/model.py": "class AdditionTransformer:\n    pass\n",
+        "src/data.py": "VALUE = 1\n",
+        "src/train.py": "VALUE = 1\n",
+        "checkpoints/best.pt": "checkpoint",
+        "README.md": "AdderBoard benchmark",
+        "HANDOFF.md": "prior experiment target: 1,644 parameters",
+    }.items():
+        path = source / relative
+        path.parent.mkdir(parents=True, exist_ok=True)
+        path.write_text(content, encoding="utf-8")
+    task_spec = TaskSpec(
+        task_id="ten-digit-addition-transformer",
+        display_name="trained transformer for 10-digit addition",
+        adapter=NEUTRAL_TASK_ADAPTER,
+        seed_source=str(source),
+        editable_paths=("src/model.py", "src/data.py", "src/train.py"),
+        evaluator_command=("python", "evaluate.py"),
+        objective_metric="parameters",
+        objective_direction=ObjectiveDirection.MINIMIZE,
+        qualification_metric="accuracy",
+        qualification_minimum=0.99,
+        public_feedback_metrics=("accuracy", "parameters"),
+        metric_patterns={},
+        final_holdout_command=("python", "holdout.py"),
+        preferred_backend=ExecutionBackend.LOCAL,
+    )
+    destination = tmp_path / "workspace"
+    prepare_seed_workspace(task_spec, destination, repo_root=ROOT)
+    files = {
+        path.relative_to(destination).as_posix()
+        for path in destination.rglob("*")
+        if path.is_file()
+    }
+    assert files == {
+        "src/model.py",
+        "src/data.py",
+        "src/train.py",
+        "checkpoints/best.pt",
+        "submission.py",
+    }
+    wrapper = (destination / "submission.py").read_text(encoding="utf-8")
+    assert wrapper == NEUTRAL_SUBMISSION_WRAPPER
+    assert "AdderBoard" not in wrapper
+    assert "generic autoregressive" in wrapper
+    assert "submission.py" not in task_spec.editable_paths
+
+
+def test_every_scheduled_v15_prompt_and_future_n0_remain_subject_neutral() -> None:
+    renderer = PromptRenderer(TEMPLATES)
+    spec = FactorialSpec.from_toml(V15_PROTOCOL)
+    task_spec = TaskSpec.from_toml(V15_TASK)
+    framework_spec = FrameworkSpec.from_toml(V15_FRAMEWORK)
+    forbidden = (
+        "adderboard",
+        "experiment",
+        "study",
+        "factorial",
+        "treatment",
+        "pre-registered",
+        "protocol",
+        "condition",
+        "layer a",
+        "frozen assumption-changing checkpoint",
+    )
+    visible = (
+        VisibleCandidate(
+            "opaque",
+            -6080.0,
+            {"accuracy": 1.0, "parameters": 6080},
+            0,
+            ".design-references/design-1",
+            "starting design",
+        ),
+    )
+    for opportunity in range(1, 201):
+        for condition in Condition:
+            prompt_context = PromptContext(
+                condition=condition,
+                opportunity=opportunity,
+                selected_parent_id="opaque",
+                visible_candidates=visible,
+                remaining_proposals=201 - opportunity,
+                remaining_evaluations=201 - opportunity,
+                remaining_tokens=500_000_000,
+                remaining_evaluator_seconds=720_000.0,
+            )
+            text = renderer.render(
+                spec, task_spec, framework_spec, prompt_context
+            ).text.lower()
+            assert not any(term in text for term in forbidden)
+
+    n0_context = PromptContext(
+        condition=Condition.C0,
+        opportunity=1,
+        selected_parent_id="opaque",
+        visible_candidates=visible,
+        remaining_proposals=200,
+        remaining_evaluations=200,
+        remaining_tokens=500_000_000,
+        remaining_evaluator_seconds=720_000.0,
+        no_search=True,
+    )
+    n0_text = renderer.render(spec, task_spec, framework_spec, n0_context).text.lower()
+    assert not any(term in n0_text for term in forbidden)
+
+
+def test_v15_contract_rejects_the_observed_carry_transducer(tmp_path: Path) -> None:
+    workspace = tmp_path / "workspace"
+    (workspace / "src").mkdir(parents=True)
+    (workspace / "src/model.py").write_text(
+        "class AdditionTransformer:\n"
+        "    def forward(self, idx):\n"
+        "        carry = (idx[:, 1] + idx[:, 2]).remainder(10)\n"
+        "        return carry\n",
+        encoding="utf-8",
+    )
+    (workspace / "src/data.py").write_text(
+        "def preprocess(a, b):\n    return f'{a}+{b}='\n"
+        "def postprocess(value):\n    return int(value)\n"
+        "def encode(value):\n    return list(value)\n"
+        "def decode(value):\n    return value\n",
+        encoding="utf-8",
+    )
+    error = _source_contract_error(workspace)
+    assert error is not None
+    assert "carry-specific model logic" in error
+
+
+def test_neutral_subject_environment_hides_internal_seed_name() -> None:
+    neutral_workspace = Path("/private/tmp/transformer-optimization/opaque")
+    environment = subject_subprocess_environment(
+        2**40 + 17, workspace=neutral_workspace
+    )
+    assert "C0C3_RUN_SEED" not in environment
+    assert "OLDPWD" not in environment
+    assert environment["PWD"] == str(neutral_workspace)
+    assert environment["OPTIMIZATION_RUN_SEED"] == str(2**40 + 17)
+    assert environment["PYTHONHASHSEED"] == "17"
+
+
+def test_neutral_continuous_workspace_is_opaque_and_refreshes_read_only_refs(
+    tmp_path: Path,
+) -> None:
+    run_dir = tmp_path / "internal-c0c3-experiment-c3"
+    support = tmp_path / "support"
+    snapshot = tmp_path / "snapshot"
+    support.mkdir()
+    snapshot.mkdir()
+    (support / "candidate.py").write_text("VALUE = 0\n", encoding="utf-8")
+    (support / "protected.txt").write_text("fixed\n", encoding="utf-8")
+    (snapshot / "candidate.py").write_text("VALUE = 1\n", encoding="utf-8")
+
+    workspace = _refresh_continuous_workspace(
+        run_dir=run_dir,
+        support_source=support,
+        selected_snapshot=snapshot,
+        editable_paths=("candidate.py",),
+        neutral_subject=True,
+    )
+    assert "c0c3" not in str(workspace).lower()
+    assert "experiment" not in str(workspace).lower()
+    assert "c3" not in workspace.name.lower()
+    reference = workspace / ".design-references/design-1"
+    reference.mkdir(parents=True)
+    (reference / "candidate.py").write_text("VALUE = 2\n", encoding="utf-8")
+    reference.chmod(0o500)
+
+    refreshed = _refresh_continuous_workspace(
+        run_dir=run_dir,
+        support_source=support,
+        selected_snapshot=snapshot,
+        editable_paths=("candidate.py",),
+        neutral_subject=True,
+    )
+    assert refreshed == workspace
+    assert not (workspace / ".design-references").exists()
+    _make_tree_owner_writable(workspace)
+    shutil.rmtree(workspace)
 
 
 def test_single_incumbent_retains_only_strict_improvement(tmp_path: Path) -> None:

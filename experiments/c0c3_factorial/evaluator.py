@@ -134,6 +134,8 @@ class CommandEvaluator:
                 stderr.read_text(encoding="utf-8", errors="replace"),
             )
         )
+        if returncode and "MODEL_CONTRACT_VIOLATION:" in combined:
+            failure_kind = "model_contract"
         metrics: dict[str, float | int | str | bool | None]
         if output_json.is_file():
             payload = json.loads(output_json.read_text(encoding="utf-8"))

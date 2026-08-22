@@ -1,4 +1,4 @@
-# C0–C3 protocols v1.0–v1.4
+# C0–C3 protocols v1.0–v1.5
 
 This document is the human-readable preregistration for the implementation in
 this directory. The executable contract is `FactorialSpec`; a campaign records
@@ -14,7 +14,12 @@ Block 1 C0–C3 is the one-block primary analysis, while N0 and Blocks 2–3 are
 dormant optional extensions. Version 1.4 keeps the same treatment and stage
 scope but lets the four initially concurrent trajectories advance independently
 after their simultaneous start. Results retain their protocol labels and are
-not pooled as interchangeable replications.
+not pooled as interchangeable replications. Version 1.5 changes the
+subject-facing program, task boundary, and execution ownership:
+agents see only an ordinary transformer-optimization job, receive a concise
+condition-private result ledger, and can submit only freshly trained models
+that satisfy a learned-self-attention contract; each scheduled trajectory is
+controlled independently rather than by a four-run campaign process.
 
 ## 1. Research question and unit of analysis
 
@@ -66,9 +71,9 @@ No conversation is resumed between opportunities. Cross-opportunity memory is
 exactly the code, metrics, selection counts, and hypotheses exposed by the
 controller.
 
-### Protocol 1.2–1.4 continuous-session exception
+### Protocol 1.2–1.5 continuous-session exception
 
-Protocols 1.2–1.4 apply only to separate Autoresearch strata. Each starts
+Protocols 1.2–1.5 apply only to separate Autoresearch strata. Each starts
 one persisted Codex session per run at opportunity 1 and resumes that session
 for all later opportunities. Before each resume, the controller reconstructs the
 stable session workspace from the selected candidate, then snapshots and
@@ -78,6 +83,18 @@ including C0, C2, and N0 when N0 is run. In either protocol, the C0/C2
 comparison measures the extra effect of controller-provided portfolio evidence
 over shared transcript memory; it is not a memory-versus-no-memory estimate.
 N0 has no controller search state but is not transcript-free.
+
+Protocol 1.5 additionally renders a subject-neutral program profile. The agent
+is not shown task benchmark names, protocol/study/condition labels, treatment
+terminology, internal candidate IDs, or scheduled-intervention labels. Its
+Codex working directory and seed environment variable are also neutralized.
+Internal metadata remains complete in the campaign outside the subject
+workspace.
+
+Every non-N0 subject-neutral opportunity receives the same bounded, condition-private
+summary of up to twelve preceding outcomes from its own trajectory. This is a
+common online evidence channel, not a fifth factorial factor. Portfolio cells
+still differ only by access to multiple live qualified source branches.
 
 ## 4. Single-incumbent state (C0/C1)
 
@@ -204,13 +221,46 @@ metrics must report per-run wall time and overlap rather than treating a shared
 round as the unit of execution. Its factorial outcomes remain run-level and
 descriptive for its one-block primary stage.
 
-The Block 1 factorial is the prespecified one-block primary analysis. A later
-decision to activate an extension must be timestamped with its reason before
-the first extension opportunity. Extension blocks are compatible replications
-under the same instrument, but if the activation decision used primary results,
-they are adaptively collected and must not be presented as if the original
-primary sample size had always been three blocks. N0 remains descriptive and
-outside the factorial contrasts.
+Protocol 1.5 freezes
+`staged_individually_controlled_trajectories_v1`. Its new task adapter packages
+only `src/model.py`, `src/data.py`,
+`src/train.py`, the immutable seed checkpoint, and a protected neutral decoder.
+It excludes the seed repository's reports and handoff notes, which contain
+prior search suggestions and parameter targets. Before accuracy verification,
+the evaluator rejects direct arithmetic/transducer source patterns, zero-scalar
+saved models, models without positive training provenance, and models whose
+forward pass does not exercise a learned self-attention module. These checks
+are identical for C0–C3 and N0.
+
+Each scheduled trajectory is started and resumed by its own explicit controller
+command. A controller holds only that run's exclusive lock; it neither owns nor
+blocks its C0–C3 peers. The only campaign-wide lock is a short stage-gate check,
+which prevents N0 from beginning before the required factorial trajectories
+finish, and prevents collection after Layer B/C is sealed. Predeclared
+factorial C0–C3 trajectories in different blocks may start concurrently; blocks
+do not share a controller or wait for one another.
+
+A pause is cooperative and occurs only between completed opportunities. The
+operator requests it from a separate terminal; the active Codex/evaluator call
+finishes and remains charged, then the run records `trajectory_paused` before
+another proposal can start. Resume uses the same persistent Codex session and
+next opportunity. Interrupting a controller process is not a pause: use the
+ordinary recovery rule if it leaves an active opportunity.
+
+The scheduled run ID, initial start time, every pause request/acknowledgement,
+resume, stop reason, and completion are append-only provenance in both the run
+directory and `trajectory-lifecycle.jsonl`. Individual launch timing is an
+operator-controlled execution covariate, not a C0–C3 treatment. Start all four
+primary trajectories under one predeclared operational plan, do not alter a
+peer's launch/pause plan based on another run's online outcomes, and report
+per-run lifecycle timing and overlap.
+
+The Block 1 factorial is the prespecified primary analysis. Any additional
+block must be declared before its first opportunity and is a compatible
+replication under the same instrument; predeclared blocks may run concurrently.
+If a block was activated using primary results, it is adaptively collected and
+must not be presented as if the original primary sample size had always
+included it. N0 remains descriptive and outside the factorial contrasts.
 
 `C0C3_RUN_SEED` and `PYTHONHASHSEED` are supplied to Codex and evaluator
 subprocesses. Task code may use `C0C3_RUN_SEED`; task-specific fixed seeds still
@@ -219,11 +269,18 @@ seed through this runner, so model sampling is not deterministic. Blocking,
 identical settings, and replication mitigate that source of variance; they do
 not eliminate it.
 
+The protocol-1.5 subject-facing Codex process instead receives the same value
+under `OPTIMIZATION_RUN_SEED`; `C0C3_RUN_SEED` is removed from that process.
+The evaluator retains the internal seed name for backward-compatible task
+execution.
+
 Use `run-next` or `run-campaign` for protocol 1.0. Use `run-parallel-next` or
 `run-parallel-campaign` for protocol 1.1. Direct `run-one --run-id` is diagnostic
 and can bypass randomized order.
 Use `run-staged-next` or `run-staged-campaign` for protocol 1.3. Use
-`run-staged-independent-campaign` for protocol 1.4; the other orchestrators
+`run-staged-independent-campaign` for protocol 1.4. Use the
+per-run `start-staged-trajectory`, `pause-staged-trajectory`, and
+`resume-staged-trajectory` commands for protocol 1.5; the other orchestrators
 reject its execution-rule identifier.
 
 ## 9. Controls held common within a campaign
@@ -260,9 +317,9 @@ The workshop parallel pilot freezes, per run, 30 opportunities/evaluator calls,
 same 3,600-second evaluator timeout. It uses three blocks and therefore has
 three independent trajectories per factorial cell plus three separate N0 runs.
 
-Protocols 1.2–1.4 freeze 200 opportunities/evaluator calls, 500,000,000
+Protocols 1.2–1.5 freeze 200 opportunities/evaluator calls, 500,000,000
 total reported tokens, 720,000 aggregate evaluator seconds, and the same
-3,600-second evaluator timeout per run. Protocols 1.3 and 1.4 primary stages
+3,600-second evaluator timeout per run. Protocols 1.3–1.5 primary stages
 contain four runs and therefore schedule 800 proposals and 40
 assumption-changing interventions. Dormant extension runs consume no budget
 until explicitly activated.
@@ -294,9 +351,10 @@ Under protocol 1.3, recover every active opportunity and resume the same
 explicit block/stage. Only lagging peers in that stage are selected. Under
 protocol 1.4, recover every active opportunity and resume the same independent
 stage launcher; every unfinished selected trajectory resumes from its own next
-opportunity, without creating a new wave barrier. Neither protocol advances N0
-or another block, and the primary-completion gate remains in force for
-extensions.
+opportunity, without creating a new wave barrier. Under protocol 1.5, recover
+only the affected run, then use `resume-staged-trajectory` for that run ID.
+Neither protocol advances N0 or another block, and the primary-completion gate
+remains in force for extensions.
 
 ## 12. Feedback layers
 
@@ -310,7 +368,7 @@ the human-readable metric.
 ### Layer B — sealed mechanism review
 
 Layer B cannot be exported until every run in the frozen analysis scope is
-completed. For protocols 1.3 and 1.4 that scope is the four Block 1 primary runs plus
+completed. For protocols 1.3–1.5 that scope is the four Block 1 primary runs plus
 every explicitly activated and completed extension stage; dormant extensions
 are excluded. The operator must activate any optional extension before Layer
 B/C is created, after which the runner forbids more collection.
@@ -352,7 +410,7 @@ Any pooled synthesis across tasks/frameworks should be hierarchical or a
 clearly labeled descriptive meta-analysis, not a replacement for stratum-level
 results.
 
-Protocols 1.3 and 1.4 primary stages have one trajectory per cell. Their cell values and
+Protocols 1.3–1.5 primary stages have one trajectory per cell. Their cell values and
 three factorial contrasts are descriptive: there is no between-block sampling
 variance estimate and proposals cannot be substituted as replicates. If later
 blocks are activated, publish the original Block 1 result unchanged, then show

@@ -6,6 +6,7 @@ import fcntl
 import json
 import os
 import threading
+import uuid
 from collections.abc import Iterator
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from contextlib import contextmanager
@@ -18,13 +19,14 @@ from .spec import (
     PARALLEL_EXECUTION_RULE,
     SERIAL_EXECUTION_RULE,
     STAGED_INDEPENDENT_EXECUTION_RULE,
+    STAGED_INDIVIDUAL_EXECUTION_RULE,
     STAGED_PARALLEL_EXECUTION_RULE,
     ExecutionBackend,
     FactorialSpec,
     FrameworkSpec,
     TaskSpec,
 )
-from .state import SearchController, append_jsonl, utc_now
+from .state import SearchController, append_jsonl, atomic_json, utc_now
 
 
 class CampaignLockedError(RuntimeError):
@@ -37,6 +39,14 @@ class ParallelWaveError(RuntimeError):
 
 class IndependentTrajectoryError(RuntimeError):
     """An independently advancing trajectory stopped the staged launcher."""
+
+
+class TrajectoryLockedError(RuntimeError):
+    """Another individually controlled process already owns this trajectory."""
+
+
+class StageGateLockedError(RuntimeError):
+    """Another process is momentarily checking or changing a stage gate."""
 
 
 @dataclass(frozen=True)
@@ -95,6 +105,49 @@ def campaign_lock(campaign_dir: str | Path) -> Iterator[None]:
             handle,
         )
         handle.flush()
+        try:
+            yield
+        finally:
+            fcntl.flock(handle.fileno(), fcntl.LOCK_UN)
+
+
+@contextmanager
+def trajectory_lock(run_dir: str | Path) -> Iterator[None]:
+    """Own one individually controlled trajectory, without blocking its peers."""
+
+    run = Path(run_dir).resolve()
+    path = run / ".trajectory-controller.lock"
+    with path.open("a+", encoding="utf-8") as handle:
+        try:
+            fcntl.flock(handle.fileno(), fcntl.LOCK_EX | fcntl.LOCK_NB)
+        except BlockingIOError as error:
+            raise TrajectoryLockedError(
+                f"trajectory already has an active controller: {run}"
+            ) from error
+        handle.seek(0)
+        handle.truncate()
+        json.dump(
+            {
+                "pid": os.getpid(),
+                "acquired_at": datetime.now(UTC).isoformat(),
+            },
+            handle,
+        )
+        handle.flush()
+        try:
+            yield
+        finally:
+            fcntl.flock(handle.fileno(), fcntl.LOCK_UN)
+
+
+@contextmanager
+def stage_gate_lock(campaign_dir: str | Path) -> Iterator[None]:
+    """Serialize brief eligibility checks while allowing peers to queue."""
+
+    campaign = Path(campaign_dir).resolve()
+    path = campaign / ".stage-gate.lock"
+    with path.open("a+", encoding="utf-8") as handle:
+        fcntl.flock(handle.fileno(), fcntl.LOCK_EX)
         try:
             yield
         finally:
@@ -239,12 +292,14 @@ def _staged_stage_assignments(
     *,
     block: int,
     stage: str,
+    reject_active: bool = True,
 ) -> list[tuple[dict[str, object], SearchController]]:
     """Load a valid, explicit stage without deciding its execution geometry."""
 
     if spec.execution_rule not in {
         STAGED_PARALLEL_EXECUTION_RULE,
         STAGED_INDEPENDENT_EXECUTION_RULE,
+        STAGED_INDIVIDUAL_EXECUTION_RULE,
     }:
         raise ValueError(
             "staged campaign commands require a staged execution rule"
@@ -264,7 +319,7 @@ def _staged_stage_assignments(
         controller = SearchController.load(
             campaign / "runs" / str(assignment["run_id"]), spec
         )
-        if controller.state.active is not None:
+        if reject_active and controller.state.active is not None:
             raise RuntimeError(
                 f"{controller.state.run_id} has an interrupted active opportunity; "
                 "recover it explicitly before campaign execution"
@@ -281,19 +336,27 @@ def _staged_stage_assignments(
             continue
         selected.append((assignment, controller))
 
-    if (block, stage) != (1, FACTORIAL_STAGE) and any(
-        controller.state.status != "completed" for controller in primary_factorial
-    ):
-        raise ValueError(
-            "complete the frozen primary stage (block 1 factorial) before "
-            "starting an optional extension"
-        )
-    if (block, stage) != (1, FACTORIAL_STAGE) and (
+    if stage == NO_SEARCH_STAGE:
+        required_factorial = primary_factorial + [
+            controller
+            for controller in all_factorial
+            if controller not in primary_factorial
+        ]
+        if any(
+            controller.state.status != "completed"
+            for controller in required_factorial
+        ):
+            raise ValueError(
+                "complete the frozen primary stage and this block's factorial "
+                "stage before starting N0"
+            )
+    if (
         (campaign / "sealed-layer-b").exists()
         or (campaign / "sealed-layer-c").exists()
     ):
         raise ValueError(
             "optional extensions must be activated before primary Layer B/C "
+            "outputs are unsealed; new trajectories cannot begin after those "
             "outputs are unsealed"
         )
 
@@ -396,6 +459,305 @@ def staged_independent_trajectories(
         for assignment, controller in selected
         if controller.state.status != "completed"
     )
+
+
+def _individual_assignment(
+    campaign_dir: str | Path,
+    spec: FactorialSpec,
+    *,
+    run_id: str,
+) -> tuple[Path, dict[str, object], str]:
+    """Resolve one individually controlled v1.5 run from immutable schedule data."""
+
+    if spec.execution_rule != STAGED_INDIVIDUAL_EXECUTION_RULE:
+        raise ValueError(
+            "individually controlled trajectory commands require "
+            f"execution_rule={STAGED_INDIVIDUAL_EXECUTION_RULE!r}"
+        )
+    campaign = Path(campaign_dir).resolve()
+    assignment = next(
+        (row for row in _schedule(campaign) if str(row["run_id"]) == run_id),
+        None,
+    )
+    if assignment is None:
+        raise ValueError(f"run ID is not in the campaign schedule: {run_id}")
+    stage = (
+        NO_SEARCH_STAGE if str(assignment["condition"]) == "N0" else FACTORIAL_STAGE
+    )
+    return campaign, assignment, stage
+
+
+def _append_trajectory_lifecycle(
+    campaign: Path,
+    run_dir: Path,
+    *,
+    event: str,
+    assignment: dict[str, object],
+    stage: str,
+    **details: object,
+) -> None:
+    """Write append-only lifecycle provenance without mutating scientific state."""
+
+    record = {
+        "schema_version": "1.0",
+        "event": event,
+        "timestamp": utc_now(),
+        "run_id": str(assignment["run_id"]),
+        "condition": str(assignment["condition"]),
+        "block": int(assignment["block"]),
+        "stage": stage,
+        **details,
+    }
+    append_jsonl(campaign / "trajectory-lifecycle.jsonl", record)
+    append_jsonl(run_dir / "lifecycle.jsonl", record)
+
+
+def _pause_request_path(run_dir: Path) -> Path:
+    return run_dir / "pause-request.json"
+
+
+def _take_pause_request(run_dir: Path) -> dict[str, object] | None:
+    """Atomically claim a request so a concurrent request is never silently lost."""
+
+    request = _pause_request_path(run_dir)
+    claimed = run_dir / f".pause-request-consumed-{uuid.uuid4().hex}.json"
+    try:
+        os.replace(request, claimed)
+    except FileNotFoundError:
+        return None
+    try:
+        payload = json.loads(claimed.read_text(encoding="utf-8"))
+    except (OSError, json.JSONDecodeError):
+        payload = {"reason": "unreadable pause request"}
+    finally:
+        claimed.unlink(missing_ok=True)
+    return payload if isinstance(payload, dict) else {"reason": "invalid pause request"}
+
+
+def request_staged_trajectory_pause(
+    campaign_dir: str | Path,
+    *,
+    spec: FactorialSpec,
+    run_id: str,
+    reason: str,
+) -> dict[str, object]:
+    """Request a cooperative v1.5 pause after the current opportunity commits."""
+
+    if not reason.strip():
+        raise ValueError("pause reason cannot be blank")
+    campaign, assignment, stage = _individual_assignment(
+        campaign_dir, spec, run_id=run_id
+    )
+    run_dir = campaign / "runs" / run_id
+    controller = SearchController.load(run_dir, spec)
+    if controller.state.status == "completed":
+        raise ValueError("completed trajectories cannot be paused")
+    request = {
+        "schema_version": "1.0",
+        "run_id": run_id,
+        "requested_at": utc_now(),
+        "reason": reason.strip(),
+    }
+    atomic_json(_pause_request_path(run_dir), request)
+    _append_trajectory_lifecycle(
+        campaign,
+        run_dir,
+        event="trajectory_pause_requested",
+        assignment=assignment,
+        stage=stage,
+        reason=reason.strip(),
+        active_opportunity=(
+            controller.state.active.index
+            if controller.state.active is not None
+            else None
+        ),
+    )
+    return {
+        "run_id": run_id,
+        "status": "pause_requested",
+        "active_opportunity": (
+            controller.state.active.index
+            if controller.state.active is not None
+            else None
+        ),
+    }
+
+
+def run_staged_individual_trajectory(
+    campaign_dir: str | Path,
+    *,
+    spec: FactorialSpec,
+    task: TaskSpec,
+    framework: FrameworkSpec,
+    repo_root: Path,
+    python_bin: str,
+    run_id: str,
+    resume: bool = False,
+    codex_binary: str = "codex",
+    codex_timeout_seconds: int = 3600,
+) -> dict[str, object]:
+    """Start or resume one v1.5 trajectory without owning any peer trajectory.
+
+    A pause is cooperative: a request is observed only before the next proposal
+    begins, so an in-flight Codex/evaluator call finishes and is recorded normally.
+    """
+
+    if task.preferred_backend is not ExecutionBackend.LOCAL:
+        raise ValueError(
+            "individually controlled trajectories currently require a local task "
+            "backend"
+        )
+    campaign, assignment, stage = _individual_assignment(
+        campaign_dir, spec, run_id=run_id
+    )
+    run_dir = campaign / "runs" / run_id
+    with trajectory_lock(run_dir):
+        with stage_gate_lock(campaign):
+            selected = _staged_stage_assignments(
+                campaign,
+                spec,
+                block=int(assignment["block"]),
+                stage=stage,
+                reject_active=False,
+            )
+            selected_ids = {controller.state.run_id for _, controller in selected}
+            if run_id not in selected_ids:
+                raise RuntimeError("run is not eligible for its frozen stage")
+            controller = SearchController.load(run_dir, spec)
+            if controller.state.active is not None:
+                raise RuntimeError(
+                    "run has an interrupted active opportunity; recover it explicitly "
+                    "before starting or resuming"
+                )
+            if controller.state.status == "completed":
+                return {
+                    "run_id": run_id,
+                    "condition": str(assignment["condition"]),
+                    "status": "completed",
+                    "proposals_used": controller.state.proposals_used,
+                    "completed_opportunities": 0,
+                    "stop_reason": "already_completed",
+                }
+            if not resume and controller.state.proposals_used != 0:
+                raise ValueError(
+                    "an already-started trajectory must use resume-staged-trajectory"
+                )
+            if resume:
+                cleared = _take_pause_request(run_dir)
+                if cleared is not None:
+                    _append_trajectory_lifecycle(
+                        campaign,
+                        run_dir,
+                        event="trajectory_pause_cleared_for_resume",
+                        assignment=assignment,
+                        stage=stage,
+                        prior_reason=str(cleared.get("reason", "[not recorded]")),
+                    )
+            elif _pause_request_path(run_dir).exists():
+                raise RuntimeError(
+                    "a pause request is pending; use resume-staged-trajectory to "
+                    "clear it"
+                )
+            _append_trajectory_lifecycle(
+                campaign,
+                run_dir,
+                event=(
+                    "trajectory_resumed" if resume else "trajectory_started"
+                ),
+                assignment=assignment,
+                stage=stage,
+                starting_opportunity=controller.state.next_opportunity,
+            )
+
+        completed_opportunities = 0
+        while True:
+            controller = SearchController.load(run_dir, spec)
+            if controller.state.active is not None:
+                raise RuntimeError(
+                    "run has an interrupted active opportunity; recover it explicitly"
+                )
+            if controller.state.status == "completed":
+                outcome = {
+                    "run_id": run_id,
+                    "condition": str(assignment["condition"]),
+                    "status": "completed",
+                    "proposals_used": controller.state.proposals_used,
+                    "completed_opportunities": completed_opportunities,
+                    "stop_reason": "budget_completed",
+                }
+                _append_trajectory_lifecycle(
+                    campaign,
+                    run_dir,
+                    event="trajectory_completed",
+                    assignment=assignment,
+                    stage=stage,
+                    **outcome,
+                )
+                return outcome
+            pause_request = _take_pause_request(run_dir)
+            if pause_request is not None:
+                outcome = {
+                    "run_id": run_id,
+                    "condition": str(assignment["condition"]),
+                    "status": "paused",
+                    "proposals_used": controller.state.proposals_used,
+                    "completed_opportunities": completed_opportunities,
+                    "stop_reason": "cooperative_pause",
+                }
+                _append_trajectory_lifecycle(
+                    campaign,
+                    run_dir,
+                    event="trajectory_paused",
+                    assignment=assignment,
+                    stage=stage,
+                    reason=str(pause_request.get("reason", "[not recorded]")),
+                    **outcome,
+                )
+                return outcome
+            try:
+                record = run_one_opportunity(
+                    run_dir,
+                    spec=spec,
+                    task=task,
+                    framework=framework,
+                    repo_root=repo_root,
+                    python_bin=python_bin,
+                    codex_binary=codex_binary,
+                    codex_timeout_seconds=codex_timeout_seconds,
+                )
+            except KeyboardInterrupt:
+                _append_trajectory_lifecycle(
+                    campaign,
+                    run_dir,
+                    event="trajectory_command_interrupted",
+                    assignment=assignment,
+                    stage=stage,
+                    completed_opportunities=completed_opportunities,
+                )
+                raise
+            completed_opportunities += 1
+            if (
+                record.get("evaluation", {}).get("failure_kind") == "provider"
+                and record.get("usage_increment", {}).get("total_tokens", 0) == 0
+            ):
+                controller = SearchController.load(run_dir, spec)
+                outcome = {
+                    "run_id": run_id,
+                    "condition": str(assignment["condition"]),
+                    "status": controller.state.status,
+                    "proposals_used": controller.state.proposals_used,
+                    "completed_opportunities": completed_opportunities,
+                    "stop_reason": "provider_transport_failure",
+                }
+                _append_trajectory_lifecycle(
+                    campaign,
+                    run_dir,
+                    event="trajectory_stopped_provider_failure",
+                    assignment=assignment,
+                    stage=stage,
+                    **outcome,
+                )
+                return outcome
 
 
 def _execute_parallel_wave(

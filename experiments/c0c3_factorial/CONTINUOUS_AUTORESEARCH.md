@@ -35,6 +35,48 @@ without new evidence, and report the old assumption, alternative mechanism,
 and discriminating result. The original transition template remains in force
 for the ephemeral and OpenEvolve protocols.
 
+## Protocol 1.5 subject-neutral program
+
+Protocol 1.5 is a separate prospective stratum. It keeps the protocol-1.4
+continuous sessions, 200-opportunity budgets, factorial mapping, and dormant
+N0/Block 2/Block 3 extensions, but changes subject-visible information, the
+admissible task solution, and execution ownership. It must not be pooled with
+1.4.
+
+Its rendered common program is
+`templates/transformer_optimizer_v1_5/PROGRAM.md`. The agent sees a normal
+engineering objective—reduce the parameter count of a trained transformer for
+10-digit addition while maintaining 99% accuracy. It is not shown AdderBoard,
+experiment/study/protocol/condition terminology, treatment/checkpoint labels,
+internal candidate identifiers, or C0–C3 names. The ordinary and scheduled
+guidance files also use neutral wording. Internal event logs remain complete.
+
+The subject workspace is placed under an opaque neutral temporary path, uses
+`.design-references/` for any read-only alternatives, and receives
+`OPTIMIZATION_RUN_SEED` rather than `C0C3_RUN_SEED`. The sanitized task tree
+excludes historical reports and handoff notes. `submission.py` is protected,
+and the evaluator rejects direct arithmetic/transducer implementations before
+accuracy verification.
+
+Use the protocol, task, and framework files ending in `v1_5` or named
+`ten_digit_addition_transformer.toml`; the exact preparation commands are in
+`RUNBOOK.md`. A fresh calibration and campaign are mandatory.
+
+Each scheduled trajectory has a separate controller command and exclusive run
+lock, so it can be started, cooperatively paused, and resumed without stopping
+or restarting any peer.
+
+The short campaign stage gate prevents N0 from beginning before the required
+factorial trajectories finish, and prevents new collection after Layer B/C
+sealing. Predeclared factorial blocks can begin concurrently; it is an
+eligibility check, not a shared trajectory controller. `trajectory-lifecycle.jsonl`
+records every individual start, pause request, acknowledgement, resume,
+provider stop, and completion.
+
+Use the `v1_5` protocol/framework files and the start/pause/resume commands in
+`RUNBOOK.md`. Start the four primary trajectories under one predeclared
+operational plan and report their lifecycle timing and overlap.
+
 ## Scale and expected cost
 
 The protocol-1.4 campaign pre-creates 15 trajectories so all optional extensions

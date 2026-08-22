@@ -15,8 +15,10 @@ from .artifacts import (
     tree_hash,
 )
 from .evaluator import CommandEvaluator
+from .neutral_task import NEUTRAL_TASK_ADAPTER, validate_v15_pairing
 from .spec import (
     STAGED_INDEPENDENT_EXECUTION_RULE,
+    STAGED_INDIVIDUAL_EXECUTION_RULE,
     STAGED_PARALLEL_EXECUTION_RULE,
     Condition,
     FactorialSpec,
@@ -68,6 +70,10 @@ def prepare_calibration(
 ) -> Path:
     """Create a portable, unevaluated calibration bundle."""
 
+    validate_v15_pairing(
+        protocol_version=spec.protocol_version,
+        task_adapter=task.adapter,
+    )
     output = Path(output_dir).resolve()
     output.mkdir(parents=True, exist_ok=False)
     support = output / "task-support"
@@ -138,7 +144,8 @@ def execute_calibration(
         opportunity_root=output / "evaluation",
         timeout_seconds=spec.budget.evaluator_timeout_seconds,
         run_seed=spec.study_seed,
-        verify_existing_checkpoint=task.adapter == "adderboard_v1",
+        verify_existing_checkpoint=task.adapter
+        in {"adderboard_v1", NEUTRAL_TASK_ADAPTER},
     )
     if not artifacts.evaluation.valid:
         raise RuntimeError(
@@ -200,9 +207,18 @@ def create_campaign(
     repo_root: Path,
     include_no_search: bool = True,
 ) -> Path:
+    validate_v15_pairing(
+        protocol_version=spec.protocol_version,
+        task_adapter=task.adapter,
+        prompt_profile=framework.prompt_profile,
+    )
     if (
         spec.execution_rule
-        in {STAGED_PARALLEL_EXECUTION_RULE, STAGED_INDEPENDENT_EXECUTION_RULE}
+        in {
+            STAGED_PARALLEL_EXECUTION_RULE,
+            STAGED_INDEPENDENT_EXECUTION_RULE,
+            STAGED_INDIVIDUAL_EXECUTION_RULE,
+        }
         and not include_no_search
     ):
         raise ValueError(
@@ -301,6 +317,7 @@ def create_campaign(
     staged = spec.execution_rule in {
         STAGED_PARALLEL_EXECUTION_RULE,
         STAGED_INDEPENDENT_EXECUTION_RULE,
+        STAGED_INDIVIDUAL_EXECUTION_RULE,
     }
     primary_run_ids = [
         str(row["run_id"])

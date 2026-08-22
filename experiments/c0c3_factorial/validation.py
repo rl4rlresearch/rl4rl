@@ -7,16 +7,24 @@ from dataclasses import asdict
 from pathlib import Path
 
 from .artifacts import candidate_hash, scientific_runtime_hash, tree_hash
+from .neutral_task import (
+    NEUTRAL_TASK_ADAPTER,
+    SANITIZED_SEED_PATHS,
+    validate_v15_pairing,
+)
 from .prompts import (
+    NEUTRAL_PROMPT_PROFILE,
     PromptContext,
     PromptRenderer,
     VisibleCandidate,
+    neutral_disclosure_terms,
     treatment_skeleton,
 )
 from .spec import (
     PARALLEL_EXECUTION_RULE,
     SERIAL_EXECUTION_RULE,
     STAGED_INDEPENDENT_EXECUTION_RULE,
+    STAGED_INDIVIDUAL_EXECUTION_RULE,
     STAGED_PARALLEL_EXECUTION_RULE,
     Condition,
     ExecutionBackend,
@@ -39,6 +47,14 @@ def validate_campaign(
     campaign = Path(campaign_dir).resolve()
     manifest = json.loads((campaign / "campaign.json").read_text(encoding="utf-8"))
     errors: list[str] = []
+    try:
+        validate_v15_pairing(
+            protocol_version=spec.protocol_version,
+            task_adapter=task.adapter,
+            prompt_profile=framework.prompt_profile,
+        )
+    except ValueError as error:
+        errors.append(str(error))
     expected_hashes = {
         "protocol_hash": spec.protocol_hash,
         "task_hash": sha256_json(asdict(task)),
@@ -56,6 +72,7 @@ def validate_campaign(
             PARALLEL_EXECUTION_RULE,
             STAGED_PARALLEL_EXECUTION_RULE,
             STAGED_INDEPENDENT_EXECUTION_RULE,
+            STAGED_INDIVIDUAL_EXECUTION_RULE,
         }
         and task.preferred_backend is not ExecutionBackend.LOCAL
     ):
@@ -73,7 +90,11 @@ def validate_campaign(
             if int(row["block"]) == 1 and str(row["condition"]) != "N0"
         ]
         if spec.execution_rule
-        in {STAGED_PARALLEL_EXECUTION_RULE, STAGED_INDEPENDENT_EXECUTION_RULE}
+        in {
+            STAGED_PARALLEL_EXECUTION_RULE,
+            STAGED_INDEPENDENT_EXECUTION_RULE,
+            STAGED_INDIVIDUAL_EXECUTION_RULE,
+        }
         else run_ids
     )
     expected_optional = [
@@ -85,7 +106,11 @@ def validate_campaign(
         errors.append("campaign optional run scope mismatch")
     if (
         spec.execution_rule
-        in {STAGED_PARALLEL_EXECUTION_RULE, STAGED_INDEPENDENT_EXECUTION_RULE}
+        in {
+            STAGED_PARALLEL_EXECUTION_RULE,
+            STAGED_INDEPENDENT_EXECUTION_RULE,
+            STAGED_INDIVIDUAL_EXECUTION_RULE,
+        }
         and not manifest.get("include_no_search")
     ):
         errors.append("staged protocol requires pre-created N0 extensions")
@@ -132,6 +157,29 @@ def validate_campaign(
             errors.append(f"{assignment['run_id']} invalid: {error}")
     if len(support_hashes) != 1:
         errors.append("run task-support trees are not byte-identical")
+    if task.adapter == NEUTRAL_TASK_ADAPTER:
+        expected_subject_files = {
+            *SANITIZED_SEED_PATHS,
+            "submission.py",
+        }
+        actual_subject_files = {
+            path.relative_to(campaign / "runs" / run_ids[0] / "task-support").as_posix()
+            for path in (campaign / "runs" / run_ids[0] / "task-support").rglob("*")
+            if path.is_file()
+        }
+        if actual_subject_files != expected_subject_files:
+            errors.append("neutral task-support tree exposes unexpected files")
+        for relative in sorted(expected_subject_files):
+            if not relative.endswith(".py"):
+                continue
+            source = (
+                campaign / "runs" / run_ids[0] / "task-support" / relative
+            ).read_text(encoding="utf-8", errors="replace")
+            disclosures = neutral_disclosure_terms(source)
+            if disclosures:
+                errors.append(
+                    f"neutral task-support {relative} exposes {list(disclosures)}"
+                )
     if seed_ids != {manifest.get("seed_candidate_id")}:
         errors.append("run seed candidates are not byte-identical")
     if launch_states:
@@ -158,6 +206,13 @@ def validate_campaign(
                 remaining_evaluator_seconds=spec.budget.max_evaluator_seconds,
             )
             prompts[condition] = renderer.render(spec, task, framework, context)
+            if framework.prompt_profile == NEUTRAL_PROMPT_PROFILE:
+                disclosures = neutral_disclosure_terms(prompts[condition].text)
+                if disclosures:
+                    errors.append(
+                        "neutral prompt exposes internal terms at opportunity "
+                        f"{opportunity}: {list(disclosures)}"
+                    )
         if len({treatment_skeleton(value.text) for value in prompts.values()}) != 1:
             errors.append(f"prompt skeleton differs at opportunity {opportunity}")
         if (
@@ -176,6 +231,29 @@ def validate_campaign(
             errors.append(
                 f"proposal-policy factor mismatch at opportunity {opportunity}"
             )
+        if framework.prompt_profile == NEUTRAL_PROMPT_PROFILE:
+            n0_context = PromptContext(
+                condition=Condition.C0,
+                opportunity=opportunity,
+                selected_parent_id="seed",
+                visible_candidates=(
+                    VisibleCandidate(
+                        "seed", 0.0, {task.objective_metric: 0.0}, 0, "design-1"
+                    ),
+                ),
+                remaining_proposals=spec.budget.proposals,
+                remaining_evaluations=spec.budget.candidate_evaluations,
+                remaining_tokens=spec.budget.max_total_tokens,
+                remaining_evaluator_seconds=spec.budget.max_evaluator_seconds,
+                no_search=True,
+            )
+            n0_prompt = renderer.render(spec, task, framework, n0_context)
+            disclosures = neutral_disclosure_terms(n0_prompt.text)
+            if disclosures:
+                errors.append(
+                    "neutral N0 prompt exposes internal terms at opportunity "
+                    f"{opportunity}: {list(disclosures)}"
+                )
     layers_absent = not (
         (campaign / "sealed-layer-b").exists()
         or (campaign / "sealed-layer-c").exists()
@@ -207,6 +285,9 @@ def validate_campaign(
             ),
             "frozen_staged_independent_trajectories": (
                 spec.execution_rule == STAGED_INDEPENDENT_EXECUTION_RULE
+            ),
+            "frozen_staged_individually_controlled_trajectories": (
+                spec.execution_rule == STAGED_INDIVIDUAL_EXECUTION_RULE
             ),
             "layer_b_c_absent_at_launch": layers_absent,
         },

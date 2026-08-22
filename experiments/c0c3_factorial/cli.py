@@ -18,10 +18,12 @@ from .orchestration import (
     STAGED_EXECUTION_STAGES,
     campaign_lock,
     next_run,
+    request_staged_trajectory_pause,
     run_parallel_campaign,
     run_parallel_next,
     run_staged_campaign,
     run_staged_independent_campaign,
+    run_staged_individual_trajectory,
     run_staged_next,
 )
 from .postsearch import export_layer_b_packets, run_layer_c, score_layer_b
@@ -358,6 +360,57 @@ def command_run_staged_independent_campaign(args: argparse.Namespace) -> int:
     return 0
 
 
+def command_start_staged_trajectory(args: argparse.Namespace) -> int:
+    campaign = args.campaign.resolve()
+    spec, task, framework = _load_campaign(campaign)
+    record = run_staged_individual_trajectory(
+        campaign,
+        spec=spec,
+        task=task,
+        framework=framework,
+        repo_root=REPO_ROOT,
+        python_bin=args.python_bin,
+        run_id=args.run_id,
+        resume=False,
+        codex_binary=args.codex_binary,
+        codex_timeout_seconds=args.codex_timeout,
+    )
+    print(json.dumps(record, indent=2, sort_keys=True))
+    return 0
+
+
+def command_resume_staged_trajectory(args: argparse.Namespace) -> int:
+    campaign = args.campaign.resolve()
+    spec, task, framework = _load_campaign(campaign)
+    record = run_staged_individual_trajectory(
+        campaign,
+        spec=spec,
+        task=task,
+        framework=framework,
+        repo_root=REPO_ROOT,
+        python_bin=args.python_bin,
+        run_id=args.run_id,
+        resume=True,
+        codex_binary=args.codex_binary,
+        codex_timeout_seconds=args.codex_timeout,
+    )
+    print(json.dumps(record, indent=2, sort_keys=True))
+    return 0
+
+
+def command_pause_staged_trajectory(args: argparse.Namespace) -> int:
+    campaign = args.campaign.resolve()
+    spec, _task, _framework = _load_campaign(campaign)
+    record = request_staged_trajectory_pause(
+        campaign,
+        spec=spec,
+        run_id=args.run_id,
+        reason=args.reason,
+    )
+    print(json.dumps(record, indent=2, sort_keys=True))
+    return 0
+
+
 def command_status(args: argparse.Namespace) -> int:
     campaign = args.campaign.resolve()
     spec, _task, _framework = _load_campaign(campaign)
@@ -539,6 +592,24 @@ def build_parser() -> argparse.ArgumentParser:
     staged_independent.add_argument("--codex-binary", default="codex")
     staged_independent.add_argument("--codex-timeout", type=int, default=3600)
     staged_independent.set_defaults(handler=command_run_staged_independent_campaign)
+
+    for name, handler in (
+        ("start-staged-trajectory", command_start_staged_trajectory),
+        ("resume-staged-trajectory", command_resume_staged_trajectory),
+    ):
+        trajectory = subparsers.add_parser(name)
+        trajectory.add_argument("--campaign", type=Path, required=True)
+        trajectory.add_argument("--run-id", required=True)
+        trajectory.add_argument("--python-bin", default=sys.executable)
+        trajectory.add_argument("--codex-binary", default="codex")
+        trajectory.add_argument("--codex-timeout", type=int, default=3600)
+        trajectory.set_defaults(handler=handler)
+
+    pause_trajectory = subparsers.add_parser("pause-staged-trajectory")
+    pause_trajectory.add_argument("--campaign", type=Path, required=True)
+    pause_trajectory.add_argument("--run-id", required=True)
+    pause_trajectory.add_argument("--reason", required=True)
+    pause_trajectory.set_defaults(handler=command_pause_staged_trajectory)
 
     status = subparsers.add_parser("status")
     status.add_argument("--campaign", type=Path, required=True)

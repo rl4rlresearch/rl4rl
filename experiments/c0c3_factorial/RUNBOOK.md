@@ -49,6 +49,21 @@ advances only Block 1 C0–C3. Do not add `--without-no-search` when creating th
 campaign: pre-creating N0 under the frozen hashes is what makes a later N0 stage
 comparable without making it part of the primary run.
 
+For the separate subject-neutral protocol-1.5 Block 1 run, use:
+
+```bash
+PROTOCOL=$C0C3/configs/protocols/workshop_primary_block1_independent_continuous_v1_5.toml
+TASK=$C0C3/configs/tasks/ten_digit_addition_transformer.toml
+FRAMEWORK=$C0C3/configs/frameworks/autoresearch_continuous_v1_5.toml
+OUT=data/c0c3/transformer-optimization-v1-5
+```
+
+This preset creates the same dormant extension structure as protocol 1.4, but
+each scheduled run has its own controller and cooperative pause/resume
+lifecycle. It must use a fresh calibration and campaign. Do not reuse
+protocol-1.4 artifacts, and do not expose the internal campaign directory or
+documentation to a subject session.
+
 Verify prerequisites:
 
 ```bash
@@ -256,8 +271,7 @@ result as if three blocks had been the primary sample all along.
 
 ### Protocol 1.4 staged independently advancing primary
 
-Protocol 1.4 uses the current `workshop_primary_block1_independent_continuous_v1`
-preset. Its primary launcher starts C0–C3 together once, then each trajectory
+Protocol 1.4's primary launcher starts C0–C3 together once, then each trajectory
 continues through its own opportunities as soon as its own evaluation finishes.
 There is no per-opportunity round barrier and no N0 call:
 
@@ -291,6 +305,59 @@ $PY -m $CLI run-staged-independent-campaign \
 Record the decision timestamp and reason before the first extension call. An
 outcome-informed decision to activate it is an adaptive extension.
 
+### Protocol 1.5 individually controlled trajectories
+
+Protocol 1.5 does not have one campaign process that owns C0–C3. Start one
+controller per scheduled run ID; each controller runs until its own budget is
+complete or it receives a cooperative pause request. Use one terminal per run
+to start all predeclared Block 1/2/3 C0–C3 run IDs under the same operational
+plan; all such factorial trajectories may run concurrently.
+Find the exact IDs with `status` or `schedule.json`, then run one command per
+terminal:
+
+```bash
+$PY -m $CLI start-staged-trajectory \
+  --campaign "$OUT-campaign" \
+  --run-id '<exact-block-1-c0-run-id>' \
+  --python-bin "$PY"
+```
+
+Repeat with the C1, C2, and C3 run IDs. These commands may run concurrently;
+the lock is per run, not per campaign. A second start for the same run is
+rejected. Do not use `run-staged-independent-campaign` or `run-one` for this
+protocol.
+
+To pause one active trajectory safely, leave its controller terminal running
+and issue this from another terminal:
+
+```bash
+$PY -m $CLI pause-staged-trajectory \
+  --campaign "$OUT-campaign" \
+  --run-id '<exact-run-id>' \
+  --reason 'operator-requested safe pause'
+```
+
+The request does not terminate an active Codex or evaluator call. It takes
+effect before the next opportunity; the controller prints `"status": "paused"`
+when the committed opportunity has finished. Do not use Ctrl-C as a pause. If
+an interruption leaves `state.active` populated, recover that opportunity
+instead.
+
+Resume only that run with:
+
+```bash
+$PY -m $CLI resume-staged-trajectory \
+  --campaign "$OUT-campaign" \
+  --run-id '<exact-run-id>' \
+  --python-bin "$PY"
+```
+
+The continuous Codex session, selected candidate, budgets, and next opportunity
+remain attached to that run. Peers do not stop or restart. N0 remains locked
+until the required factorial trajectories finish, while predeclared factorial
+blocks may run concurrently. Record any adaptive extension decision before
+its first start.
+
 ## 6. Inspect progress without changing it
 
 ```bash
@@ -314,6 +381,9 @@ remain `ready` with zero proposals; this is expected, not a stalled campaign.
 For protocol 1.4, inspect `independent-trajectories.jsonl` instead of
 `parallel-rounds.jsonl`; the four primary run rows need not have matching
 `proposals_used` while the launcher is active.
+For protocol 1.5, inspect `trajectory-lifecycle.jsonl` plus each run's
+`lifecycle.jsonl`; it records start, pause request, pause acknowledgement,
+resume, transport stop, and completion for every independently controlled run.
 
 ## 7. Recover an interrupted active opportunity
 
@@ -346,11 +416,14 @@ For protocol 1.4, recover every active run, then invoke the same
 `run-staged-independent-campaign` block/stage. It starts only the unfinished
 trajectories and each continues from its own next opportunity; it never creates
 or retries a missing synchronized round.
+For protocol 1.5, recover only the affected run, then invoke
+`resume-staged-trajectory` with the same run ID. Do not recover or restart its
+peers.
 
 ## 8. Export and adjudicate Layer B
 
 For protocols 1.0–1.2, wait until `status` shows every run completed. For
-protocols 1.3 or 1.4, first finish Block 1 C0–C3 and decide whether to activate any
+protocols 1.3–1.5, first finish Block 1 C0–C3 and decide whether to activate any
 optional extension. Activate every chosen extension before exporting. If none
 is chosen, the dormant runs remain `ready` and the exporter seals only the four
 frozen primary run IDs recorded in `campaign.json`:
@@ -362,7 +435,7 @@ $PY -m $CLI export-layer-b --campaign "$OUT-campaign"
 This creates opaque, randomly ordered parent/candidate packets and a private
 condition mapping. Do not show reviewers `sealed-layer-b/private/`, event logs,
 run directories, or Layer A scores.
-For protocols 1.3 and 1.4, `sealed-layer-b/scope.json` records the exact primary scope.
+For protocols 1.3–1.5, `sealed-layer-b/scope.json` records the exact primary scope.
 Once Layer B or C is created, the staged runner refuses to start an optional
 extension; this prevents an unblinded primary review from driving additional
 data collection.
@@ -397,7 +470,7 @@ qualified row without a cluster label.
 ## 9. Run sealed Layer C
 
 Layer C is independent of Layer B adjudication but requires the campaign's
-frozen analysis scope to be completed. Under protocols 1.3 and 1.4 that scope is the
+frozen analysis scope to be completed. Under protocols 1.3–1.5 that scope is the
 four Block 1 primary runs; decide on extensions before creating Layer C:
 
 ```bash
