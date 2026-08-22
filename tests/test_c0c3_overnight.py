@@ -8,6 +8,7 @@ from experiments.c0c3_overnight import (
     Job,
     command_for,
     expand_jobs,
+    plans,
     progress_for,
     select_jobs,
 )
@@ -16,6 +17,10 @@ from experiments.c0c3_overnight import (
 def _write_json(path: Path, value: object) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
     path.write_text(json.dumps(value), encoding="utf-8")
+
+
+def test_default_roster_excludes_autoresearch_v14() -> None:
+    assert "autoresearch-v1.4" not in {plan.key for plan in plans()}
 
 
 def test_individual_plan_expands_only_declared_factorial_blocks(tmp_path: Path) -> None:

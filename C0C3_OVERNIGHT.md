@@ -10,16 +10,15 @@ The default roster contains the unfinished runs that remain part of the current
 research plan:
 
 - OpenEvolve workshop campaign: all three blocks, C0–C3 and N0 (15 runs).
-- continuous Autoresearch v1.4 primary: Block 1 C0–C3 only (4 runs).
 - subject-neutral Autoresearch v1.5 with the 6,080-parameter parent: Blocks 1
   and 2, C0–C3 only (8 runs).
 - subject-neutral Autoresearch v1.5 with the 1,644-parameter parent: Block 1
   C0–C3 only (4 runs).
 
-The superseded one-turn parallel Autoresearch campaign is intentionally not in
-this roster. The v1.4 and v1.5 campaigns replaced it as the planned
-Autoresearch work; its stale `running` states do not make it a live overnight
-run. Dormant v1.4/v1.5 N0 and extension blocks also remain dormant.
+The superseded one-turn parallel Autoresearch campaign and the continuous v1.4
+Block 1 campaign are intentionally not in this roster. Their stale `running`
+states do not make them live overnight runs. Dormant v1.5 N0 and extension
+blocks also remain dormant.
 
 ## Start
 
@@ -37,9 +36,8 @@ shell. Closing VS Code or its terminal does not terminate the detached session.
 `--recover-interrupted` authorizes only the protocol's existing
 `recover-active` operation. It never deletes or retries an interrupted
 opportunity. Available Codex usage is charged, an infrastructure-interruption
-record is appended, and the next opportunity is started. This is required for
-the currently interrupted OpenEvolve N0 opportunity and four v1.4
-opportunities.
+record is appended, and the next opportunity is started. This is currently
+required only for the interrupted OpenEvolve N0 opportunity.
 
 Keep the Mac connected to power, keep the lid open, and do not log out or
 reboot. `caffeinate` prevents idle sleep, but macOS can still sleep when a
@@ -78,8 +76,8 @@ architecture_discovery/.venv/bin/python experiments/c0c3_overnight.py stop \
 A group or exact job can be controlled independently:
 
 ```bash
-# Groups: openevolve, autoresearch-v1.4,
-#         autoresearch-v1.5-6080, autoresearch-v1.5-1644
+# Groups: openevolve, autoresearch-v1.5-6080,
+#         autoresearch-v1.5-1644
 architecture_discovery/.venv/bin/python experiments/c0c3_overnight.py pause \
   autoresearch-v1.5-6080 --reason 'operator-requested pause'
 

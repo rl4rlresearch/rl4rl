@@ -84,23 +84,6 @@ def plans() -> tuple[CampaignPlan, ...]:
             mode="parallel-campaign",
         ),
         CampaignPlan(
-            key="autoresearch-v1.4",
-            runtime_root=_env_path(
-                "RL4RL_V14_RUNTIME",
-                Path("/private/tmp/rl4rl-c0c3-autoresearch-continuous"),
-            ),
-            campaign=_env_path(
-                "RL4RL_V14_CAMPAIGN",
-                Path(
-                    "/private/tmp/rl4rl-c0c3-autoresearch-continuous/data/c0c3/"
-                    "workshop-primary-block1-independent-continuous-adderboard-"
-                    "autoresearch-campaign"
-                ),
-            ),
-            mode="independent-campaign",
-            blocks=(1,),
-        ),
-        CampaignPlan(
             key="autoresearch-v1.5-6080",
             runtime_root=_env_path(
                 "RL4RL_V15_RUNTIME",
