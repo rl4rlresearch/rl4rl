@@ -12,12 +12,14 @@ import sys
 import threading
 import time
 from pathlib import Path
+from types import SimpleNamespace
 
 import pytest
 
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
 
+from experiments.c0c3_factorial import task_evaluators
 from experiments.c0c3_factorial.artifacts import (
     candidate_hash,
     materialize_candidate,
@@ -86,6 +88,66 @@ from experiments.c0c3_factorial.spec import (
 )
 from experiments.c0c3_factorial.state import Evaluation, SearchController, Usage
 from experiments.c0c3_factorial.validation import validate_campaign
+
+
+def test_step_zero_best_uses_distinct_trained_final_checkpoint(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    torch = pytest.importorskip("torch")
+    checkpoints = tmp_path / "checkpoints"
+    checkpoints.mkdir()
+    torch.save(
+        {"step": 0, "model_state": {"weight": torch.tensor([0.0])}},
+        checkpoints / "best.pt",
+    )
+    torch.save(
+        {"step": 4999, "model_state": {"weight": torch.tensor([1.0])}},
+        checkpoints / "last.pt",
+    )
+
+    class FakeAttention(torch.nn.Module):
+        def __init__(self) -> None:
+            super().__init__()
+            self.weight = torch.nn.Parameter(torch.eye(4))
+
+        def forward(self, inputs):
+            return inputs @ self.weight
+
+    class FakeModel(torch.nn.Module):
+        def __init__(self) -> None:
+            super().__init__()
+            self.attention = FakeAttention()
+
+        def forward(self, tokens):
+            encoded = torch.nn.functional.one_hot(tokens % 4, num_classes=4)
+            return self.attention(encoded.float())
+
+    submission = SimpleNamespace(
+        BOS_ID=0,
+        preprocess=lambda _a, _b: [1],
+        encode=lambda values: values,
+        build_model=lambda: (FakeModel(), {}),
+        add=lambda _model, _a, _b: -1,
+    )
+    monkeypatch.setattr(task_evaluators, "_load_submission", lambda _path: submission)
+
+    assert task_evaluators._trained_model_contract_error(tmp_path) is None
+
+
+def test_step_zero_best_without_trained_final_checkpoint_is_rejected(
+    tmp_path: Path,
+) -> None:
+    torch = pytest.importorskip("torch")
+    checkpoints = tmp_path / "checkpoints"
+    checkpoints.mkdir()
+    torch.save(
+        {"step": 0, "model_state": {"weight": torch.tensor([0.0])}},
+        checkpoints / "best.pt",
+    )
+
+    assert task_evaluators._trained_model_contract_error(tmp_path) == (
+        "the saved model does not record a positive training step"
+    )
 
 
 def protocol() -> FactorialSpec:

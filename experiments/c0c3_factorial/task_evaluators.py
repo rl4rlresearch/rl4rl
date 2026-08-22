@@ -125,9 +125,46 @@ def _trained_model_contract_error(workspace: Path) -> str | None:
     except Exception as error:  # noqa: BLE001 - convert candidate failure to evidence
         return f"the saved model could not be loaded: {error}"
     step = payload.get("step") if isinstance(payload, dict) else None
-    if isinstance(step, bool) or not isinstance(step, int) or step < 1:
-        return "the saved model does not record a positive training step"
     state = payload.get("model_state") if isinstance(payload, dict) else None
+    if isinstance(step, bool) or not isinstance(step, int) or step < 1:
+        # A legitimately trained but completely unsuccessful candidate can
+        # leave best.pt at the step-0 validation checkpoint.  Require a
+        # distinct positive-step last.pt as durable evidence that training did
+        # occur, then let the normal verifier classify the candidate as a
+        # nonqualification.  This still rejects an untrained or fabricated
+        # step-0-only submission.
+        final_checkpoint = workspace / "checkpoints/last.pt"
+        try:
+            final_payload = torch.load(
+                final_checkpoint, map_location="cpu", weights_only=False
+            )
+        except Exception:  # noqa: BLE001 - absence/corruption is a violation
+            return "the saved model does not record a positive training step"
+        final_step = (
+            final_payload.get("step") if isinstance(final_payload, dict) else None
+        )
+        final_state = (
+            final_payload.get("model_state")
+            if isinstance(final_payload, dict)
+            else None
+        )
+        if (
+            isinstance(final_step, bool)
+            or not isinstance(final_step, int)
+            or final_step < 1
+            or not isinstance(state, dict)
+            or not isinstance(final_state, dict)
+        ):
+            return "the saved model does not record a positive training step"
+        changed = any(
+            isinstance(value, torch.Tensor)
+            and isinstance(final_state.get(name), torch.Tensor)
+            and value.shape == final_state[name].shape
+            and not torch.equal(value, final_state[name])
+            for name, value in state.items()
+        )
+        if not changed:
+            return "the positive-step final checkpoint has no learned changes"
     if not isinstance(state, dict) or not state:
         return "the saved model has no learned state"
     learned_scalars = sum(
