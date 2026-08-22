@@ -91,6 +91,18 @@ def _load_submission(workspace: Path):
     return module
 
 
+def _token_logits(output):
+    """Normalize common decoder outputs to the token-logit tensor."""
+
+    import torch
+
+    if isinstance(output, torch.Tensor):
+        return output
+    if isinstance(output, tuple) and output and isinstance(output[0], torch.Tensor):
+        return output[0]
+    return output
+
+
 def _trained_model_contract_error(workspace: Path) -> str | None:
     import torch
 
@@ -135,7 +147,7 @@ def _trained_model_contract_error(workspace: Path) -> str | None:
             )
             tokens = torch.tensor([input_ids], dtype=torch.long)
             with torch.no_grad():
-                logits = model(tokens)
+                logits = _token_logits(model(tokens))
         finally:
             for handle in handles:
                 handle.remove()
@@ -159,7 +171,7 @@ def _trained_model_contract_error(workspace: Path) -> str | None:
             try:
                 for parameter in attention_parameters:
                     parameter.zero_()
-                ablated_logits = model(tokens)
+                ablated_logits = _token_logits(model(tokens))
             finally:
                 for parameter, saved in zip(
                     attention_parameters, saved_parameters, strict=True
@@ -281,6 +293,69 @@ def evaluate_ten_digit_transformer(args: argparse.Namespace) -> int:
     return 0
 
 
+def evaluate_pair_token_ten_digit_transformer(args: argparse.Namespace) -> int:
+    """Evaluate the frozen pair-token parent under the shared safeguards."""
+
+    workspace = args.workspace.resolve()
+    source_error = _source_contract_error(workspace)
+    if source_error is not None:
+        return _report_contract_violation(source_error)
+
+    train_output = ""
+    if not args.verify_existing_checkpoint:
+        train_exit, train_output = _run(
+            [args.python_bin, "-m", "src.train"], cwd=workspace
+        )
+        if train_exit:
+            return train_exit
+
+    trained_error = _trained_model_contract_error(workspace)
+    if trained_error is not None:
+        return _report_contract_violation(trained_error)
+
+    verify_exit, verify_output = _run(
+        [
+            args.python_bin,
+            str(args.repo_root / "architecture_discovery/vendor/AdderBoard/verify.py"),
+            str(workspace / "submission.py"),
+            "--num-tests",
+            str(args.num_tests),
+            "--seed",
+            str(args.seed),
+        ],
+        cwd=workspace,
+    )
+    accuracy_match = ACCURACY.search(verify_output)
+    parameters_match = PARAMETERS.search(verify_output)
+    if verify_exit or accuracy_match is None or parameters_match is None:
+        return verify_exit or 2
+    steps = [int(value) for value in TRAINING_STEP.findall(train_output)]
+    if args.verify_existing_checkpoint:
+        import torch
+
+        payload = torch.load(
+            workspace / "checkpoints/best.pt",
+            map_location="cpu",
+            weights_only=False,
+        )
+        steps.append(int(payload["step"]))
+    payload = {
+        "schema_version": "1.0",
+        "layer": args.layer,
+        "metrics": {
+            "accuracy": float(accuracy_match.group(3)) / 100.0,
+            "parameters": int(parameters_match.group(1)),
+            "correct": int(accuracy_match.group(1)),
+            "cases": int(accuracy_match.group(2)),
+            "training_steps": max(steps, default=0),
+        },
+    }
+    args.output.write_text(
+        json.dumps(payload, indent=2, sort_keys=True) + "\n", encoding="utf-8"
+    )
+    return 0
+
+
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(description=__doc__)
     subparsers = parser.add_subparsers(dest="command", required=True)
@@ -314,6 +389,21 @@ def build_parser() -> argparse.ArgumentParser:
         subparser.add_argument("--seed", type=int, default=default_seed)
         subparser.add_argument("--verify-existing-checkpoint", action="store_true")
         subparser.set_defaults(handler=evaluate_ten_digit_transformer, layer=layer)
+    for name, layer, default_seed in (
+        ("pair-token-ten-digit-addition", "A", 2025),
+        ("pair-token-ten-digit-addition-holdout", "C", 8_724_319),
+    ):
+        subparser = subparsers.add_parser(name)
+        subparser.add_argument("--workspace", type=Path, required=True)
+        subparser.add_argument("--repo-root", type=Path, required=True)
+        subparser.add_argument("--python-bin", default=sys.executable)
+        subparser.add_argument("--output", type=Path, required=True)
+        subparser.add_argument("--num-tests", type=int, default=10_000)
+        subparser.add_argument("--seed", type=int, default=default_seed)
+        subparser.add_argument("--verify-existing-checkpoint", action="store_true")
+        subparser.set_defaults(
+            handler=evaluate_pair_token_ten_digit_transformer, layer=layer
+        )
     return parser
 
 

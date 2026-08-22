@@ -11,8 +11,8 @@ Minimize the actual number of deduplicated learned model parameters while
 maintaining at least 99% accuracy under the fixed verification process. A
 smaller implementation is useful only when it meets that accuracy requirement.
 
-The starting implementation is a conventional 6,080-parameter decoder-only
-transformer. Do not assume that a local minimum is a global lower bound.
+The starting implementation is a trained decoder-only transformer. Do not
+assume that a local minimum is a global lower bound.
 
 ## Learned-model requirement
 

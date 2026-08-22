@@ -12,6 +12,9 @@ from pathlib import Path
 from .neutral_task import (
     NEUTRAL_SUBMISSION_WRAPPER,
     NEUTRAL_TASK_ADAPTER,
+    PAIR_TOKEN_SANITIZED_SEED_PATHS,
+    PAIR_TOKEN_SUBMISSION_WRAPPER,
+    PAIR_TOKEN_TASK_ADAPTER,
     SANITIZED_SEED_PATHS,
 )
 from .spec import FrameworkKind, FrameworkSpec, TaskSpec, canonical_json, sha256_json
@@ -52,9 +55,19 @@ def prepare_seed_workspace(
     """Copy the immutable task support tree and add task-owned seed glue."""
 
     source = resolve_source(task.seed_source, repo_root=repo_root)
-    if task.adapter == NEUTRAL_TASK_ADAPTER:
+    if task.adapter in {NEUTRAL_TASK_ADAPTER, PAIR_TOKEN_TASK_ADAPTER}:
         destination.mkdir(parents=True, exist_ok=False)
-        for relative in SANITIZED_SEED_PATHS:
+        sanitized_paths = (
+            SANITIZED_SEED_PATHS
+            if task.adapter == NEUTRAL_TASK_ADAPTER
+            else PAIR_TOKEN_SANITIZED_SEED_PATHS
+        )
+        submission_wrapper = (
+            NEUTRAL_SUBMISSION_WRAPPER
+            if task.adapter == NEUTRAL_TASK_ADAPTER
+            else PAIR_TOKEN_SUBMISSION_WRAPPER
+        )
+        for relative in sanitized_paths:
             source_path = source / relative
             if not source_path.is_file() or source_path.is_symlink():
                 raise FileNotFoundError(
@@ -64,7 +77,7 @@ def prepare_seed_workspace(
             destination_path.parent.mkdir(parents=True, exist_ok=True)
             shutil.copy2(source_path, destination_path)
         (destination / "submission.py").write_text(
-            NEUTRAL_SUBMISSION_WRAPPER, encoding="utf-8"
+            submission_wrapper, encoding="utf-8"
         )
     else:
         _copy_source(source, destination)
@@ -112,7 +125,11 @@ def scientific_runtime_hash(
         roots["openevolve_adapter_runtime"] = (
             repo_root / "architecture_discovery/vendor/openevolve/openevolve"
         )
-    if task.adapter in {"adderboard_v1", NEUTRAL_TASK_ADAPTER}:
+    if task.adapter in {
+        "adderboard_v1",
+        NEUTRAL_TASK_ADAPTER,
+        PAIR_TOKEN_TASK_ADAPTER,
+    }:
         roots["adderboard_verifier"] = (
             repo_root / "architecture_discovery/vendor/AdderBoard"
         )
