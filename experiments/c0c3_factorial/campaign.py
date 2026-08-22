@@ -138,6 +138,7 @@ def execute_calibration(
         opportunity_root=output / "evaluation",
         timeout_seconds=spec.budget.evaluator_timeout_seconds,
         run_seed=spec.study_seed,
+        verify_existing_checkpoint=task.adapter == "adderboard_v1",
     )
     if not artifacts.evaluation.valid:
         raise RuntimeError(

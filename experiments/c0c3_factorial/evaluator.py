@@ -81,6 +81,7 @@ class CommandEvaluator:
         opportunity_root: Path,
         timeout_seconds: int,
         run_seed: int | None = None,
+        verify_existing_checkpoint: bool = False,
     ) -> EvaluationArtifacts:
         workspace = opportunity_root / "evaluation-workspace"
         materialize_candidate(
@@ -89,8 +90,10 @@ class CommandEvaluator:
             workspace,
             self.task.editable_paths,
         )
-        # Never let a candidate inherit a checkpoint trained for another source.
-        shutil.rmtree(workspace / "checkpoints", ignore_errors=True)
+        # Candidate proposals always train from scratch.  Calibration is the one
+        # exception: it verifies the immutable task seed's supplied checkpoint.
+        if not verify_existing_checkpoint:
+            shutil.rmtree(workspace / "checkpoints", ignore_errors=True)
         output_json = opportunity_root / "evaluation.json"
         stdout = opportunity_root / "evaluation.stdout.log"
         stderr = opportunity_root / "evaluation.stderr.log"
@@ -101,6 +104,8 @@ class CommandEvaluator:
             repo_root=self.repo_root,
             output=output_json,
         )
+        if verify_existing_checkpoint:
+            command.append("--verify-existing-checkpoint")
         started = time.monotonic()
         try:
             with (

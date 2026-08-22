@@ -30,9 +30,13 @@ def _run(command: list[str], *, cwd: Path) -> tuple[int, str]:
 
 def evaluate_adderboard(args: argparse.Namespace) -> int:
     workspace = args.workspace.resolve()
-    train_exit, train_output = _run([args.python_bin, "src/train.py"], cwd=workspace)
-    if train_exit:
-        return train_exit
+    train_output = ""
+    if not args.verify_existing_checkpoint:
+        train_exit, train_output = _run(
+            [args.python_bin, "src/train.py"], cwd=workspace
+        )
+        if train_exit:
+            return train_exit
     verify_exit, verify_output = _run(
         [
             args.python_bin,
@@ -81,6 +85,11 @@ def build_parser() -> argparse.ArgumentParser:
         subparser.add_argument("--output", type=Path, required=True)
         subparser.add_argument("--num-tests", type=int, default=10_000)
         subparser.add_argument("--seed", type=int, default=default_seed)
+        subparser.add_argument(
+            "--verify-existing-checkpoint",
+            action="store_true",
+            help="Verify the workspace checkpoint without first training a candidate.",
+        )
         subparser.set_defaults(handler=evaluate_adderboard, layer=layer)
     return parser
 

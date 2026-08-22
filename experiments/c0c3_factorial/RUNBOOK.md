@@ -82,9 +82,12 @@ Open it and confirm `calibration_kind` is
 `executed_on_target_backend`, the task is correct, and metrics are plausible.
 AdderBoard must qualify at or above 0.99 accuracy.
 
-One calibration can be reused for both framework campaigns only when protocol,
-task source, task configuration, and backend are identical. A protocol change
-changes the protocol hash and deliberately requires a new calibration.
+For AdderBoard, calibration verifies the immutable seed checkpoint supplied by
+the task source. Candidate opportunities remain fresh-training evaluations and
+never inherit that checkpoint. One calibration can be reused for both framework
+campaigns only when protocol, task source, task configuration, and backend are
+identical. A protocol change changes the protocol hash and deliberately
+requires a new calibration.
 
 For a GPU task that cannot run locally, use the prepare/execute split described
 in [MODAL.md](MODAL.md). Do not calibrate nanoGPT on one GPU type and run its
