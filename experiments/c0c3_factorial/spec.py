@@ -23,6 +23,13 @@ class ProposalPolicy(StrEnum):
     SCHEDULED = "scheduled_assumption_changing"
 
 
+class ConversationMode(StrEnum):
+    """Whether each controller run uses fresh or resumed Codex context."""
+
+    EPHEMERAL = "ephemeral_per_opportunity_v1"
+    CONTINUOUS = "continuous_session_per_run_v1"
+
+
 class Condition(StrEnum):
     C0 = "C0"
     C1 = "C1"
@@ -83,11 +90,18 @@ SINGLE_RETENTION_RULE = "strict_incumbent_improvement_v1"
 FAILURE_RULE = "consume_opportunity_and_evaluation_if_started;never_retain_v1"
 SERIAL_EXECUTION_RULE = "blocked_round_robin_one_opportunity_v1"
 PARALLEL_EXECUTION_RULE = "blocked_parallel_condition_rounds_v1"
+STAGED_PARALLEL_EXECUTION_RULE = "staged_parallel_block_trajectories_v1"
+STAGED_INDEPENDENT_EXECUTION_RULE = "staged_independent_parallel_trajectories_v1"
+STAGED_INDIVIDUAL_EXECUTION_RULE = "staged_individually_controlled_trajectories_v1"
 # Backward-compatible name for the original paper-v1 execution rule.
 EXECUTION_RULE = SERIAL_EXECUTION_RULE
 PROTOCOL_EXECUTION_RULES = {
     "1.0": SERIAL_EXECUTION_RULE,
     "1.1": PARALLEL_EXECUTION_RULE,
+    "1.2": PARALLEL_EXECUTION_RULE,
+    "1.3": STAGED_PARALLEL_EXECUTION_RULE,
+    "1.4": STAGED_INDEPENDENT_EXECUTION_RULE,
+    "1.5": STAGED_INDIVIDUAL_EXECUTION_RULE,
 }
 
 
@@ -168,6 +182,7 @@ class FactorialSpec:
     transition_opportunities: tuple[int, ...]
     model: ModelSpec
     budget: BudgetSpec
+    conversation_mode: ConversationMode = ConversationMode.EPHEMERAL
     retention_rule: str = PORTFOLIO_RETENTION_RULE
     parent_selection_rule: str = PARENT_SELECTION_RULE
     single_retention_rule: str = SINGLE_RETENTION_RULE
@@ -198,6 +213,21 @@ class FactorialSpec:
                 f"protocol {self.protocol_version} requires execution_rule="
                 f"{expected_execution_rule!r}"
             )
+        if (
+            self.protocol_version in {"1.2", "1.3", "1.4", "1.5"}
+            and self.conversation_mode is not ConversationMode.CONTINUOUS
+        ):
+            raise ValueError(
+                f"protocol {self.protocol_version} requires "
+                "continuous_session_per_run_v1"
+            )
+        if (
+            self.protocol_version not in {"1.2", "1.3", "1.4", "1.5"}
+            and self.conversation_mode is not ConversationMode.EPHEMERAL
+        ):
+            raise ValueError(
+                "continuous Codex sessions require a separately versioned protocol"
+            )
         schedule = self.transition_opportunities
         if tuple(sorted(set(schedule))) != schedule:
             raise ValueError("transition schedule must be sorted and unique")
@@ -213,6 +243,7 @@ class FactorialSpec:
     @classmethod
     def from_toml(cls, path: str | Path) -> FactorialSpec:
         payload = tomllib.loads(Path(path).read_text(encoding="utf-8"))
+        payload.setdefault("conversation_mode", ConversationMode.EPHEMERAL.value)
         _strict_keys(
             payload,
             {
@@ -222,6 +253,7 @@ class FactorialSpec:
                 "blocks",
                 "portfolio_capacity",
                 "transition_opportunities",
+                "conversation_mode",
                 "retention_rule",
                 "parent_selection_rule",
                 "single_retention_rule",
@@ -235,6 +267,7 @@ class FactorialSpec:
         model = payload.pop("model")
         budget = payload.pop("budget")
         transition_opportunities = tuple(payload.pop("transition_opportunities"))
+        conversation_mode = ConversationMode(payload.pop("conversation_mode"))
         _strict_keys(
             model,
             {"name", "reasoning_effort", "sandbox", "approval_policy"},
@@ -254,6 +287,7 @@ class FactorialSpec:
         return cls(
             **payload,
             transition_opportunities=transition_opportunities,
+            conversation_mode=conversation_mode,
             model=ModelSpec(**model),
             budget=BudgetSpec(**budget),
         )

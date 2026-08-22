@@ -100,6 +100,9 @@ class AutoresearchAdapter:
         call_id: str,
         timeout_seconds: int,
         run_seed: int,
+        resume_session_id: str | None = None,
+        persist_session: bool = False,
+        neutral_subject: bool = False,
         **_unused: object,
     ) -> ProposalExecution:
         result = self.codex.run(
@@ -111,6 +114,9 @@ class AutoresearchAdapter:
             sandbox="workspace-write",
             run_seed=run_seed,
             timeout_seconds=timeout_seconds,
+            resume_session_id=resume_session_id,
+            persist_session=persist_session,
+            neutral_subject=neutral_subject,
         )
         hypothesis, intended_edit = parse_metadata(result.last_message)
         return ProposalExecution(result, hypothesis, intended_edit)
@@ -149,6 +155,8 @@ class OpenEvolveAdapter:
         call_id: str,
         timeout_seconds: int,
         run_seed: int,
+        resume_session_id: str | None = None,
+        persist_session: bool = False,
         task: TaskSpec,
         visible_workspaces: tuple[Path, ...],
         selected_parent_id: str,
@@ -213,6 +221,8 @@ class OpenEvolveAdapter:
             sandbox="read-only",
             run_seed=run_seed,
             timeout_seconds=timeout_seconds,
+            resume_session_id=resume_session_id,
+            persist_session=persist_session,
         )
         hypothesis, intended_edit = parse_metadata(result.last_message)
         error: str | None = None

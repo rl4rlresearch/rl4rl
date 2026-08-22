@@ -137,6 +137,27 @@ the objective is exact and interpretable, and architectural compression can
 produce multiple mechanisms. It is also narrow and synthetic, so conclusions
 must be checked on a qualitatively different task.
 
+### Protocol-1.5 subject-neutral variant
+
+Configuration: `configs/tasks/ten_digit_addition_transformer.toml`
+
+This variant uses the same fixed 10-digit-addition verifier but deliberately
+does not expose the benchmark name to the research agent. Its task-support tree
+contains only the three editable source files, the immutable seed checkpoint,
+and a protected generic decoder. Historical README, report, plots, result, and
+handoff artifacts are excluded so the subject is not handed prior solutions or
+parameter targets.
+
+`submission.py` is protected. The task evaluator requires positive learned
+parameters, positive training provenance, a learned self-attention module that
+participates in the forward pass, and no recognized direct digit/carry
+transducer in model source. This changes the admissible model class relative to
+`adderboard.toml`, so the two tasks must be analyzed as distinct strata.
+
+Protocol 1.5 also freezes independently controlled trajectory execution and
+lifecycle provenance; those controls do not alter the task or model-validity
+standard described here.
+
 ## 7. Official Karpathy Autoresearch nanoGPT task
 
 Configuration: `configs/tasks/karpathy_nanogpt.toml`

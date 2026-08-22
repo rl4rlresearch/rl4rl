@@ -13,7 +13,8 @@ from pathlib import Path
 
 from .analysis import RunOutcome, estimate, write_estimate
 from .evaluator import CommandEvaluator
-from .spec import FactorialSpec, TaskSpec
+from .orchestration import stage_gate_lock
+from .spec import STAGED_INDIVIDUAL_EXECUTION_RULE, FactorialSpec, TaskSpec
 from .state import SearchController
 
 
@@ -25,18 +26,53 @@ def _completed_runs(
     campaign: Path, spec: FactorialSpec
 ) -> list[tuple[dict[str, object], SearchController]]:
     schedule = _read_json(campaign / "schedule.json")
-    result = []
-    incomplete = []
+    campaign_manifest = _read_json(campaign / "campaign.json")
+    primary_run_ids = {
+        str(run_id)
+        for run_id in campaign_manifest.get(
+            "primary_run_ids",
+            [assignment["run_id"] for assignment in schedule],
+        )
+    }
+    optional_run_ids = {
+        str(run_id) for run_id in campaign_manifest.get("optional_run_ids", [])
+    }
+    loaded: list[tuple[dict[str, object], SearchController]] = []
     for assignment in schedule:
         controller = SearchController.load(
             campaign / "runs" / str(assignment["run_id"]), spec
         )
+        loaded.append((assignment, controller))
+
+    scope_run_ids = set(primary_run_ids)
+    optional_stages: dict[tuple[int, str], list[SearchController]] = {}
+    for assignment, controller in loaded:
+        if controller.state.run_id not in optional_run_ids:
+            continue
+        stage_kind = "no-search" if controller.state.no_search else "factorial"
+        key = (int(assignment["block"]), stage_kind)
+        optional_stages.setdefault(key, []).append(controller)
+    for controllers in optional_stages.values():
+        activated = any(
+            controller.state.status != "ready"
+            or controller.state.proposals_used > 0
+            for controller in controllers
+        )
+        if activated:
+            scope_run_ids.update(controller.state.run_id for controller in controllers)
+
+    result = []
+    incomplete = []
+    for assignment, controller in loaded:
+        if controller.state.run_id not in scope_run_ids:
+            continue
         if controller.state.status != "completed":
             incomplete.append(controller.state.run_id)
         result.append((assignment, controller))
     if incomplete:
         raise RuntimeError(
-            "post-search layers are sealed until every run completes: "
+            "post-search layers are sealed until every run completes within the "
+            "activated analysis scope: "
             + ", ".join(incomplete)
         )
     return result
@@ -51,7 +87,7 @@ def _proposal_events(path: Path) -> list[dict[str, object]]:
     return events
 
 
-def export_layer_b_packets(
+def _export_layer_b_packets_unlocked(
     campaign_dir: str | Path,
     *,
     spec: FactorialSpec,
@@ -133,6 +169,19 @@ def export_layer_b_packets(
         json.dumps(mapping, indent=2, sort_keys=True) + "\n", encoding="utf-8"
     )
     (private / "salt.txt").write_text(salt + "\n", encoding="utf-8")
+    (sealed / "scope.json").write_text(
+        json.dumps(
+            {
+                "schema_version": "1.0",
+                "run_ids": [controller.state.run_id for _, controller in runs],
+                "scope": "campaign_activated_analysis_scope",
+            },
+            indent=2,
+            sort_keys=True,
+        )
+        + "\n",
+        encoding="utf-8",
+    )
     (sealed / "README.md").write_text(
         "# Blinded Layer B packets\n\n"
         "Review packets in `packet_order.tsv` order. Copy "
@@ -145,6 +194,21 @@ def export_layer_b_packets(
         encoding="utf-8",
     )
     return sealed
+
+
+def export_layer_b_packets(
+    campaign_dir: str | Path,
+    *,
+    spec: FactorialSpec,
+    task: TaskSpec,
+) -> Path:
+    """Export Layer B while keeping v1.5's stage gate closed during sealing."""
+
+    campaign = Path(campaign_dir).resolve()
+    if spec.execution_rule == STAGED_INDIVIDUAL_EXECUTION_RULE:
+        with stage_gate_lock(campaign):
+            return _export_layer_b_packets_unlocked(campaign, spec=spec, task=task)
+    return _export_layer_b_packets_unlocked(campaign, spec=spec, task=task)
 
 
 def score_layer_b(
@@ -167,6 +231,9 @@ def score_layer_b(
             f"extra={sorted(set(actual) - expected)}"
         )
     annotations = {str(row["packet_id"]): row for row in rows}
+    scope_run_ids = {
+        str(run_id) for run_id in _read_json(sealed / "scope.json")["run_ids"]
+    }
     clusters: dict[str, set[str]] = {}
     for private in mapping:
         packet_id = str(private["packet_id"])
@@ -191,6 +258,8 @@ def score_layer_b(
     factorial_rows: list[dict[str, object]] = []
     baseline_rows: list[dict[str, object]] = []
     for assignment in schedule:
+        if str(assignment["run_id"]) not in scope_run_ids:
+            continue
         row = {
             "block": assignment["block"],
             "condition": assignment["condition"],
@@ -249,7 +318,7 @@ def _layer_a_selected_candidate_id(controller: SearchController) -> str:
     ).candidate_id
 
 
-def run_layer_c(
+def _run_layer_c_unlocked(
     campaign_dir: str | Path,
     *,
     spec: FactorialSpec,
@@ -298,3 +367,32 @@ def run_layer_c(
         json.dumps(summary, indent=2, sort_keys=True) + "\n", encoding="utf-8"
     )
     return output
+
+
+def run_layer_c(
+    campaign_dir: str | Path,
+    *,
+    spec: FactorialSpec,
+    task: TaskSpec,
+    repo_root: Path,
+    python_bin: str,
+) -> Path:
+    """Run Layer C while keeping v1.5's extension gate closed during sealing."""
+
+    campaign = Path(campaign_dir).resolve()
+    if spec.execution_rule == STAGED_INDIVIDUAL_EXECUTION_RULE:
+        with stage_gate_lock(campaign):
+            return _run_layer_c_unlocked(
+                campaign,
+                spec=spec,
+                task=task,
+                repo_root=repo_root,
+                python_bin=python_bin,
+            )
+    return _run_layer_c_unlocked(
+        campaign,
+        spec=spec,
+        task=task,
+        repo_root=repo_root,
+        python_bin=python_bin,
+    )

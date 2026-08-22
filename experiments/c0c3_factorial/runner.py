@@ -7,6 +7,8 @@ import hashlib
 import json
 import os
 import shutil
+import stat
+import tempfile
 from contextlib import contextmanager
 from datetime import UTC, datetime
 from pathlib import Path
@@ -19,11 +21,23 @@ from .artifacts import (
     scientific_runtime_hash,
     snapshot_candidate,
 )
-from .codex_cli import CodexCli, usage_from_events
+from .codex_cli import CodexCli, session_id_from_events, usage_from_events
 from .evaluator import CommandEvaluator
 from .frameworks import make_framework_adapter
-from .prompts import PromptContext, PromptRenderer, VisibleCandidate
-from .spec import FactorialSpec, FrameworkSpec, TaskSpec
+from .prompts import (
+    NEUTRAL_PROMPT_PROFILE,
+    PromptContext,
+    PromptRenderer,
+    VisibleCandidate,
+    VisibleOutcome,
+)
+from .spec import (
+    ConversationMode,
+    FactorialSpec,
+    FrameworkKind,
+    FrameworkSpec,
+    TaskSpec,
+)
 from .state import Evaluation, SearchController
 
 
@@ -68,6 +82,102 @@ def _hashes(rendered) -> dict[str, str]:
     }
 
 
+def _refresh_continuous_workspace(
+    *,
+    run_dir: Path,
+    support_source: Path,
+    selected_snapshot: Path,
+    editable_paths: tuple[str, ...],
+    neutral_subject: bool = False,
+) -> Path:
+    """Refresh the stable Codex cwd with this opportunity's selected parent.
+
+    ``codex exec resume`` intentionally retains the original working directory.
+    The controller therefore uses one stable, per-run session workspace, while
+    immutable per-opportunity workspaces remain the snapshot/evaluation record.
+    """
+
+    if neutral_subject:
+        neutral_root = (
+            Path(tempfile.gettempdir()) / "transformer-optimization-workspaces"
+        )
+        neutral_root.mkdir(parents=True, exist_ok=True)
+        opaque_id = hashlib.sha256(str(run_dir).encode("utf-8")).hexdigest()[:24]
+        workspace = neutral_root / opaque_id
+    else:
+        workspace = run_dir / ".continuous-codex-workspace"
+    if workspace.exists():
+        if not workspace.is_dir() or workspace.is_symlink():
+            raise RuntimeError("continuous Codex workspace has an unsafe path type")
+        _make_tree_owner_writable(workspace)
+        shutil.rmtree(workspace)
+    materialize_candidate(
+        support_source,
+        selected_snapshot,
+        workspace,
+        editable_paths,
+    )
+    return workspace
+
+
+def _make_tree_owner_writable(root: Path) -> None:
+    """Allow safe cleanup of controller-created read-only reference trees."""
+
+    paths = [root, *root.rglob("*")]
+    for path in reversed(paths):
+        if path.is_symlink():
+            continue
+        path.chmod(path.stat().st_mode | stat.S_IWUSR)
+
+
+def _recent_outcomes(run_dir: Path, *, limit: int = 12) -> tuple[VisibleOutcome, ...]:
+    events = run_dir / "events.jsonl"
+    if not events.is_file():
+        return ()
+    outcomes: list[VisibleOutcome] = []
+    for line in events.read_text(encoding="utf-8", errors="replace").splitlines():
+        try:
+            record = json.loads(line)
+        except json.JSONDecodeError:
+            continue
+        if record.get("event") != "proposal_completed":
+            continue
+        evaluation = record.get("evaluation")
+        if not isinstance(evaluation, dict):
+            continue
+        metrics = evaluation.get("metrics")
+        outcomes.append(
+            VisibleOutcome(
+                opportunity=int(record["opportunity"]),
+                hypothesis=str(record.get("hypothesis", "[not available]")),
+                intended_edit=str(record.get("intended_edit", "[not available]")),
+                metrics=dict(metrics) if isinstance(metrics, dict) else {},
+                valid=bool(evaluation.get("valid")),
+                retained=bool(record.get("retained")),
+                failure_kind=(
+                    str(evaluation["failure_kind"])
+                    if evaluation.get("failure_kind") is not None
+                    else None
+                ),
+            )
+        )
+    return tuple(outcomes[-limit:])
+
+
+def _copy_editable_files(
+    source: Path, destination: Path, editable_paths: tuple[str, ...]
+) -> None:
+    """Copy only the proposed candidate files into an auditable opportunity."""
+
+    for relative in editable_paths:
+        source_file = source / relative
+        destination_file = destination / relative
+        if not source_file.is_file() or source_file.is_symlink():
+            raise ValueError(f"continuous Codex workspace is missing {relative}")
+        destination_file.parent.mkdir(parents=True, exist_ok=True)
+        shutil.copy2(source_file, destination_file)
+
+
 def _run_one_opportunity_unlocked(
     run_dir: str | Path,
     *,
@@ -80,6 +190,13 @@ def _run_one_opportunity_unlocked(
     codex_timeout_seconds: int = 3600,
 ) -> dict[str, object]:
     run_dir = Path(run_dir).resolve()
+    if (
+        spec.conversation_mode is ConversationMode.CONTINUOUS
+        and framework.framework_id is not FrameworkKind.AUTORESEARCH
+    ):
+        raise ValueError(
+            "continuous Codex sessions currently support Autoresearch only"
+        )
     controller = SearchController.load(run_dir, spec)
     run_manifest = _read_json(run_dir / "manifest.json")
     expected_runtime_hash = scientific_runtime_hash(
@@ -112,14 +229,20 @@ def _run_one_opportunity_unlocked(
         workspace,
         task.editable_paths,
     )
-    visible_root = workspace / ".factorial-visible"
+    neutral_subject = framework.prompt_profile == NEUTRAL_PROMPT_PROFILE
+    reference_directory = (
+        ".design-references" if neutral_subject else ".factorial-visible"
+    )
+    visible_root = workspace / reference_directory
     visible_root.mkdir()
     visible_workspaces: list[Path] = []
     visible_candidates: list[VisibleCandidate] = []
     visible_records: list[dict[str, object]] = []
     for index, identifier in enumerate(active.visible_ids, start=1):
         candidate = controller.state.candidates[identifier]
-        destination = visible_root / f"slot-{index}"
+        destination = visible_root / (
+            f"design-{index}" if neutral_subject else f"slot-{index}"
+        )
         materialize_candidate(
             support_source,
             candidate_store / identifier,
@@ -134,7 +257,11 @@ def _run_one_opportunity_unlocked(
                 fitness=candidate.fitness,
                 metrics=candidate.metrics,
                 selected_count=candidate.selected_count,
-                artifact_path=f".factorial-visible/slot-{index}",
+                artifact_path=(
+                    f"{reference_directory}/design-{index}"
+                    if neutral_subject
+                    else f"{reference_directory}/slot-{index}"
+                ),
                 hypothesis=candidate.hypothesis,
             )
         )
@@ -156,6 +283,11 @@ def _run_one_opportunity_unlocked(
         remaining_tokens=int(remaining["tokens"]),
         remaining_evaluator_seconds=float(remaining["evaluator_seconds"]),
         no_search=controller.state.no_search,
+        recent_outcomes=(
+            ()
+            if controller.state.no_search or not neutral_subject
+            else _recent_outcomes(run_dir)
+        ),
     )
     renderer = PromptRenderer(repo_root / "experiments/c0c3_factorial/templates")
     rendered = renderer.render(spec, task, framework, prompt_context)
@@ -164,14 +296,30 @@ def _run_one_opportunity_unlocked(
         json.dumps(_hashes(rendered), indent=2, sort_keys=True) + "\n",
         encoding="utf-8",
     )
-    before_protected = protected_hash(workspace, task.editable_paths)
+    continuous = spec.conversation_mode is ConversationMode.CONTINUOUS
+    codex_workspace = (
+        _refresh_continuous_workspace(
+            run_dir=run_dir,
+            support_source=support_source,
+            selected_snapshot=selected_snapshot,
+            editable_paths=task.editable_paths,
+            neutral_subject=neutral_subject,
+        )
+        if continuous
+        else workspace
+    )
+    if continuous and neutral_subject:
+        reference_target = codex_workspace / reference_directory
+        shutil.copytree(visible_root, reference_target)
+        make_read_only(reference_target)
+    before_protected = protected_hash(codex_workspace, task.editable_paths)
     parent_hash = candidate_hash(workspace, task.editable_paths)
     adapter = make_framework_adapter(
         framework, CodexCli(codex_binary), repo_root=repo_root
     )
     proposal = adapter.propose(
         rendered=rendered,
-        workspace=workspace,
+        workspace=codex_workspace,
         model=spec.model,
         log_root=opportunity_root / "codex",
         call_id=f"proposal-{active.index}",
@@ -181,11 +329,28 @@ def _run_one_opportunity_unlocked(
         selected_parent_id=active.selected_parent_id,
         visible_records=tuple(visible_records),
         run_seed=run_seed,
+        resume_session_id=(
+            controller.state.conversation_session_id if continuous else None
+        ),
+        persist_session=continuous,
+        neutral_subject=neutral_subject,
     )
     protected_changed = (
-        protected_hash(workspace, task.editable_paths) != before_protected
+        protected_hash(codex_workspace, task.editable_paths) != before_protected
     )
     adapter_error = proposal.adapter_error
+    if continuous and proposal.codex.returncode == 0:
+        if proposal.codex.session_id is None:
+            adapter_error = adapter_error or (
+                "Codex did not record a resumable session ID"
+            )
+        else:
+            controller.record_conversation_session(proposal.codex.session_id)
+    if continuous:
+        try:
+            _copy_editable_files(codex_workspace, workspace, task.editable_paths)
+        except (OSError, ValueError) as error:
+            adapter_error = adapter_error or str(error)
     try:
         child_hash = candidate_hash(workspace, task.editable_paths)
     except (OSError, ValueError) as error:
@@ -248,7 +413,9 @@ def _run_one_opportunity_unlocked(
         usage=proposal.codex.usage,
         prompt_hashes=_hashes(rendered),
     )
-    shutil.rmtree(workspace, ignore_errors=True)
+    if workspace.exists():
+        _make_tree_owner_writable(workspace)
+        shutil.rmtree(workspace)
     (opportunity_root / "result.json").write_text(
         json.dumps(record, indent=2, sort_keys=True) + "\n", encoding="utf-8"
     )
@@ -304,6 +471,10 @@ def recover_active_opportunity(
         opportunity_root.mkdir(parents=True, exist_ok=True)
         events = opportunity_root / "codex" / f"proposal-{active.index}.jsonl"
         usage = usage_from_events(events)
+        if spec.conversation_mode is ConversationMode.CONTINUOUS:
+            session_id = session_id_from_events(events)
+            if session_id is not None:
+                controller.record_conversation_session(session_id)
         prompt_manifest = opportunity_root / "prompt_manifest.json"
         prompt_hashes = (
             json.loads(prompt_manifest.read_text(encoding="utf-8"))

@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import os
+from pathlib import Path
 
 
 def controlled_subprocess_environment(run_seed: int | None) -> dict[str, str]:
@@ -22,4 +23,19 @@ def controlled_subprocess_environment(run_seed: int | None) -> dict[str, str]:
         raise ValueError("run_seed must be an integer")
     environment["C0C3_RUN_SEED"] = str(run_seed)
     environment["PYTHONHASHSEED"] = str(run_seed % (2**32))
+    return environment
+
+
+def subject_subprocess_environment(
+    run_seed: int | None, *, workspace: str | Path | None = None
+) -> dict[str, str]:
+    """Expose a neutral seed name to a subject-facing Codex process."""
+
+    environment = controlled_subprocess_environment(run_seed)
+    environment.pop("C0C3_RUN_SEED", None)
+    environment.pop("OLDPWD", None)
+    if workspace is not None:
+        environment["PWD"] = str(Path(workspace))
+    if run_seed is not None:
+        environment["OPTIMIZATION_RUN_SEED"] = str(run_seed)
     return environment

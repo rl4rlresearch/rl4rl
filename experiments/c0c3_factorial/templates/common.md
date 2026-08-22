@@ -12,6 +12,10 @@ do not change the evaluator, budget, protocol, prompt, or logging code.
 
 {framework_contract}
 
+## Conversation continuity
+
+{conversation_contract}
+
 ## Search-state treatment
 
 {search_state}

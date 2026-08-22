@@ -109,6 +109,7 @@ class RunState:
     portfolio_ids: list[str]
     candidates: dict[str, Candidate]
     active: ActiveOpportunity | None = None
+    conversation_session_id: str | None = None
     revision: int = 0
 
     def to_dict(self) -> dict[str, Any]:
@@ -118,6 +119,7 @@ class RunState:
     @classmethod
     def from_dict(cls, value: dict[str, Any]) -> RunState:
         payload = dict(value)
+        payload.setdefault("conversation_session_id", None)
         payload["usage"] = Usage(**payload["usage"])
         payload["candidates"] = {
             key: Candidate(**candidate)
@@ -196,6 +198,7 @@ class SearchController:
             incumbent_id=seed_candidate.candidate_id,
             portfolio_ids=[seed_candidate.candidate_id],
             candidates={seed_candidate.candidate_id: seed_candidate},
+            conversation_session_id=None,
         )
         controller = cls(destination, spec, state)
         controller._write_state()
@@ -265,6 +268,11 @@ class SearchController:
                 raise ValueError("active opportunity index is inconsistent")
             if state.active.selected_parent_id not in state.active.visible_ids:
                 raise ValueError("selected parent must be visible")
+        if state.conversation_session_id is not None and (
+            not isinstance(state.conversation_session_id, str)
+            or not state.conversation_session_id.strip()
+        ):
+            raise ValueError("conversation session ID must be a non-blank string")
 
     def _write_state(self) -> None:
         self._validate()
@@ -286,6 +294,29 @@ class SearchController:
                 - self.state.evaluator_seconds_used,
             ),
         }
+
+    def record_conversation_session(self, session_id: str) -> None:
+        """Durably bind one Codex session to this run before evaluation starts."""
+
+        if not session_id.strip():
+            raise ValueError("conversation session ID cannot be blank")
+        existing = self.state.conversation_session_id
+        if existing is not None and existing != session_id:
+            raise ValueError("a run cannot switch Codex conversation sessions")
+        if existing == session_id:
+            return
+        self.state.conversation_session_id = session_id
+        self._write_state()
+        append_jsonl(
+            self.events_path,
+            {
+                "schema_version": "1.0",
+                "event": "conversation_session_established",
+                "timestamp": utc_now(),
+                "run_id": self.state.run_id,
+                "conversation_session_id": session_id,
+            },
+        )
 
     def _selected_parent(self, visible: list[str]) -> str:
         if self.state.no_search:
@@ -490,6 +521,7 @@ class SearchController:
             "evaluator_seconds_cumulative": self.state.evaluator_seconds_used,
             "remaining_budget": remaining_before_advance,
             "prompt_hashes": dict(sorted(prompt_hashes.items())),
+            "conversation_session_id": self.state.conversation_session_id,
         }
         append_jsonl(self.events_path, record)
         self.state.active = None

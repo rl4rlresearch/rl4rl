@@ -15,7 +15,11 @@ from .artifacts import (
     tree_hash,
 )
 from .evaluator import CommandEvaluator
+from .neutral_task import NEUTRAL_TASK_ADAPTER, validate_v15_pairing
 from .spec import (
+    STAGED_INDEPENDENT_EXECUTION_RULE,
+    STAGED_INDIVIDUAL_EXECUTION_RULE,
+    STAGED_PARALLEL_EXECUTION_RULE,
     Condition,
     FactorialSpec,
     FrameworkSpec,
@@ -66,6 +70,10 @@ def prepare_calibration(
 ) -> Path:
     """Create a portable, unevaluated calibration bundle."""
 
+    validate_v15_pairing(
+        protocol_version=spec.protocol_version,
+        task_adapter=task.adapter,
+    )
     output = Path(output_dir).resolve()
     output.mkdir(parents=True, exist_ok=False)
     support = output / "task-support"
@@ -136,6 +144,8 @@ def execute_calibration(
         opportunity_root=output / "evaluation",
         timeout_seconds=spec.budget.evaluator_timeout_seconds,
         run_seed=spec.study_seed,
+        verify_existing_checkpoint=task.adapter
+        in {"adderboard_v1", NEUTRAL_TASK_ADAPTER},
     )
     if not artifacts.evaluation.valid:
         raise RuntimeError(
@@ -180,7 +190,7 @@ def _load_calibration(
     }
     if mismatch:
         raise ValueError(f"baseline calibration does not match campaign: {mismatch}")
-    if not isinstance(payload.get("fitness"), (int, float)):
+    if not isinstance(payload.get("fitness"), int | float):
         raise ValueError("baseline calibration lacks numeric fitness")
     if not isinstance(payload.get("metrics"), dict):
         raise ValueError("baseline calibration lacks metrics")
@@ -197,6 +207,23 @@ def create_campaign(
     repo_root: Path,
     include_no_search: bool = True,
 ) -> Path:
+    validate_v15_pairing(
+        protocol_version=spec.protocol_version,
+        task_adapter=task.adapter,
+        prompt_profile=framework.prompt_profile,
+    )
+    if (
+        spec.execution_rule
+        in {
+            STAGED_PARALLEL_EXECUTION_RULE,
+            STAGED_INDEPENDENT_EXECUTION_RULE,
+            STAGED_INDIVIDUAL_EXECUTION_RULE,
+        }
+        and not include_no_search
+    ):
+        raise ValueError(
+            "staged protocol requires pre-created N0 extension assignments"
+        )
     output = Path(output_dir).resolve()
     output.mkdir(parents=True, exist_ok=False)
     common_support = output / "task-support"
@@ -287,6 +314,23 @@ def create_campaign(
     _write_json(inputs / "task.json", asdict(task))
     _write_json(inputs / "framework.json", asdict(framework))
     _write_json(output / "schedule.json", schedule)
+    staged = spec.execution_rule in {
+        STAGED_PARALLEL_EXECUTION_RULE,
+        STAGED_INDEPENDENT_EXECUTION_RULE,
+        STAGED_INDIVIDUAL_EXECUTION_RULE,
+    }
+    primary_run_ids = [
+        str(row["run_id"])
+        for row in schedule
+        if int(row["block"]) == 1 and str(row["condition"]) != "N0"
+    ]
+    primary_run_id_set = set(primary_run_ids)
+    all_run_ids = [str(row["run_id"]) for row in schedule]
+    optional_run_ids = [
+        str(row["run_id"])
+        for row in schedule
+        if str(row["run_id"]) not in primary_run_id_set
+    ]
     _write_json(
         output / "campaign.json",
         {
@@ -301,6 +345,8 @@ def create_campaign(
             "seed_candidate_id": candidate_id,
             "include_no_search": include_no_search,
             "run_count": len(schedule),
+            "primary_run_ids": primary_run_ids if staged else all_run_ids,
+            "optional_run_ids": optional_run_ids if staged else [],
         },
     )
     shutil.rmtree(output / "seed-candidate")

@@ -15,15 +15,22 @@ from .campaign import (
     prepare_calibration,
 )
 from .orchestration import (
+    STAGED_EXECUTION_STAGES,
     campaign_lock,
     next_run,
+    request_staged_trajectory_pause,
     run_parallel_campaign,
     run_parallel_next,
+    run_staged_campaign,
+    run_staged_independent_campaign,
+    run_staged_individual_trajectory,
+    run_staged_next,
 )
 from .postsearch import export_layer_b_packets, run_layer_c, score_layer_b
 from .runner import recover_active_opportunity, run_one_opportunity
 from .spec import (
     BudgetSpec,
+    ConversationMode,
     ExecutionBackend,
     FactorialSpec,
     FrameworkKind,
@@ -44,6 +51,7 @@ def _load_spec(path: Path) -> FactorialSpec:
     model = ModelSpec(**protocol.pop("model"))
     budget = BudgetSpec(**protocol.pop("budget"))
     protocol["transition_opportunities"] = tuple(protocol["transition_opportunities"])
+    protocol["conversation_mode"] = ConversationMode(protocol["conversation_mode"])
     return FactorialSpec(**protocol, model=model, budget=budget)
 
 
@@ -267,6 +275,142 @@ def command_run_parallel_campaign(args: argparse.Namespace) -> int:
     return 0
 
 
+def command_run_staged_next(args: argparse.Namespace) -> int:
+    campaign = args.campaign.resolve()
+    spec, task, framework = _load_campaign(campaign)
+    result = run_staged_next(
+        campaign,
+        spec=spec,
+        task=task,
+        framework=framework,
+        repo_root=REPO_ROOT,
+        python_bin=args.python_bin,
+        block=args.block,
+        stage=args.stage,
+        codex_binary=args.codex_binary,
+        codex_timeout_seconds=args.codex_timeout,
+    )
+    if result is None:
+        print(f"block {args.block} stage {args.stage} completed")
+    else:
+        print(json.dumps(result, indent=2, sort_keys=True))
+    return 0
+
+
+def command_run_staged_campaign(args: argparse.Namespace) -> int:
+    campaign = args.campaign.resolve()
+    spec, task, framework = _load_campaign(campaign)
+    completed = 0
+    for result in run_staged_campaign(
+        campaign,
+        spec=spec,
+        task=task,
+        framework=framework,
+        repo_root=REPO_ROOT,
+        python_bin=args.python_bin,
+        block=args.block,
+        stage=args.stage,
+        codex_binary=args.codex_binary,
+        codex_timeout_seconds=args.codex_timeout,
+        max_block_rounds=args.max_block_rounds,
+    ):
+        completed += 1
+        factorial = ",".join(
+            str(record["condition"]) for record in result["factorial_records"]
+        )
+        print(
+            f"stage={result['execution_stage']} "
+            f"opportunity={result['opportunity']} "
+            f"parallel_conditions={factorial or '-'} "
+            f"n0={'yes' if result['no_search_record'] is not None else 'no'}",
+            flush=True,
+        )
+    if completed == 0:
+        print(f"block {args.block} stage {args.stage} completed", flush=True)
+    return 0
+
+
+def command_run_staged_independent_campaign(args: argparse.Namespace) -> int:
+    campaign = args.campaign.resolve()
+    spec, task, framework = _load_campaign(campaign)
+    completed = 0
+    for result in run_staged_independent_campaign(
+        campaign,
+        spec=spec,
+        task=task,
+        framework=framework,
+        repo_root=REPO_ROOT,
+        python_bin=args.python_bin,
+        block=args.block,
+        stage=args.stage,
+        codex_binary=args.codex_binary,
+        codex_timeout_seconds=args.codex_timeout,
+    ):
+        completed += 1
+        print(
+            f"stage={result['execution_stage']} "
+            f"run_id={result['run_id']} "
+            f"condition={result['condition']} "
+            f"proposals_used={result['proposals_used']} "
+            f"status={result['status']}",
+            flush=True,
+        )
+    if completed == 0:
+        print(f"block {args.block} stage {args.stage} completed", flush=True)
+    return 0
+
+
+def command_start_staged_trajectory(args: argparse.Namespace) -> int:
+    campaign = args.campaign.resolve()
+    spec, task, framework = _load_campaign(campaign)
+    record = run_staged_individual_trajectory(
+        campaign,
+        spec=spec,
+        task=task,
+        framework=framework,
+        repo_root=REPO_ROOT,
+        python_bin=args.python_bin,
+        run_id=args.run_id,
+        resume=False,
+        codex_binary=args.codex_binary,
+        codex_timeout_seconds=args.codex_timeout,
+    )
+    print(json.dumps(record, indent=2, sort_keys=True))
+    return 0
+
+
+def command_resume_staged_trajectory(args: argparse.Namespace) -> int:
+    campaign = args.campaign.resolve()
+    spec, task, framework = _load_campaign(campaign)
+    record = run_staged_individual_trajectory(
+        campaign,
+        spec=spec,
+        task=task,
+        framework=framework,
+        repo_root=REPO_ROOT,
+        python_bin=args.python_bin,
+        run_id=args.run_id,
+        resume=True,
+        codex_binary=args.codex_binary,
+        codex_timeout_seconds=args.codex_timeout,
+    )
+    print(json.dumps(record, indent=2, sort_keys=True))
+    return 0
+
+
+def command_pause_staged_trajectory(args: argparse.Namespace) -> int:
+    campaign = args.campaign.resolve()
+    spec, _task, _framework = _load_campaign(campaign)
+    record = request_staged_trajectory_pause(
+        campaign,
+        spec=spec,
+        run_id=args.run_id,
+        reason=args.reason,
+    )
+    print(json.dumps(record, indent=2, sort_keys=True))
+    return 0
+
+
 def command_status(args: argparse.Namespace) -> int:
     campaign = args.campaign.resolve()
     spec, _task, _framework = _load_campaign(campaign)
@@ -416,6 +560,56 @@ def build_parser() -> argparse.ArgumentParser:
         if name == "run-parallel-campaign":
             run.add_argument("--max-block-rounds", type=int)
         run.set_defaults(handler=handler)
+
+    for name, handler in (
+        ("run-staged-next", command_run_staged_next),
+        ("run-staged-campaign", command_run_staged_campaign),
+    ):
+        run = subparsers.add_parser(name)
+        run.add_argument("--campaign", type=Path, required=True)
+        run.add_argument("--block", type=int, required=True)
+        run.add_argument(
+            "--stage",
+            choices=sorted(STAGED_EXECUTION_STAGES),
+            required=True,
+        )
+        run.add_argument("--python-bin", default=sys.executable)
+        run.add_argument("--codex-binary", default="codex")
+        run.add_argument("--codex-timeout", type=int, default=3600)
+        if name == "run-staged-campaign":
+            run.add_argument("--max-block-rounds", type=int)
+        run.set_defaults(handler=handler)
+
+    staged_independent = subparsers.add_parser("run-staged-independent-campaign")
+    staged_independent.add_argument("--campaign", type=Path, required=True)
+    staged_independent.add_argument("--block", type=int, required=True)
+    staged_independent.add_argument(
+        "--stage",
+        choices=sorted(STAGED_EXECUTION_STAGES),
+        required=True,
+    )
+    staged_independent.add_argument("--python-bin", default=sys.executable)
+    staged_independent.add_argument("--codex-binary", default="codex")
+    staged_independent.add_argument("--codex-timeout", type=int, default=3600)
+    staged_independent.set_defaults(handler=command_run_staged_independent_campaign)
+
+    for name, handler in (
+        ("start-staged-trajectory", command_start_staged_trajectory),
+        ("resume-staged-trajectory", command_resume_staged_trajectory),
+    ):
+        trajectory = subparsers.add_parser(name)
+        trajectory.add_argument("--campaign", type=Path, required=True)
+        trajectory.add_argument("--run-id", required=True)
+        trajectory.add_argument("--python-bin", default=sys.executable)
+        trajectory.add_argument("--codex-binary", default="codex")
+        trajectory.add_argument("--codex-timeout", type=int, default=3600)
+        trajectory.set_defaults(handler=handler)
+
+    pause_trajectory = subparsers.add_parser("pause-staged-trajectory")
+    pause_trajectory.add_argument("--campaign", type=Path, required=True)
+    pause_trajectory.add_argument("--run-id", required=True)
+    pause_trajectory.add_argument("--reason", required=True)
+    pause_trajectory.set_defaults(handler=command_pause_staged_trajectory)
 
     status = subparsers.add_parser("status")
     status.add_argument("--campaign", type=Path, required=True)
