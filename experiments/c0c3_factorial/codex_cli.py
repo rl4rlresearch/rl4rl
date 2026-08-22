@@ -86,12 +86,29 @@ class CodexCli:
         persist_session: bool = False,
         neutral_subject: bool = False,
     ) -> CodexResult:
+        workspace = workspace.resolve()
+        if not workspace.is_dir() or workspace.is_symlink():
+            raise ValueError(f"Codex workspace is missing or unsafe: {workspace}")
         log_root.mkdir(parents=True, exist_ok=True)
         events = log_root / f"{call_id}.jsonl"
         stderr = log_root / f"{call_id}.stderr.log"
         last_message = log_root / f"{call_id}.last-message.md"
         if any(path.exists() for path in (events, stderr, last_message)):
             raise FileExistsError(f"Codex call ID already exists: {call_id}")
+        isolated_options = [
+            "--ignore-user-config",
+            "--ignore-rules",
+            "--strict-config",
+            "-c",
+            'sandbox_workspace_write.network_access=false',
+            "-c",
+            'sandbox_workspace_write.exclude_tmpdir_env_var=true',
+            "-c",
+            'sandbox_workspace_write.exclude_slash_tmp=true',
+            "-c",
+            'shell_environment_policy.exclude=["CODEX_HOME","HOME","OLDPWD",'
+            '"C0C3_RUN_SEED"]',
+        ]
         if resume_session_id is None:
             command = [
                 self.binary,
@@ -107,6 +124,7 @@ class CodexCli:
                 str(last_message),
                 "--sandbox",
                 sandbox or model.sandbox,
+                *isolated_options,
                 "--skip-git-repo-check",
                 "--cd",
                 str(workspace),
@@ -128,6 +146,9 @@ class CodexCli:
                 f'model_reasoning_effort="{model.reasoning_effort}"',
                 "-c",
                 f'approval_policy="{model.approval_policy}"',
+                "-c",
+                f'sandbox_mode="{sandbox or model.sandbox}"',
+                *isolated_options,
                 "--json",
                 "--output-last-message",
                 str(last_message),
@@ -154,11 +175,18 @@ class CodexCli:
                         stderr=stderr_handle,
                         env=(
                             subject_subprocess_environment(
-                                run_seed, workspace=workspace
+                                run_seed,
+                                workspace=workspace,
                             )
                             if neutral_subject
                             else controlled_subprocess_environment(run_seed)
                         ),
+                        # ``codex exec resume`` has no --cd option. PWD in the
+                        # environment is only a string and does not change the
+                        # operating-system cwd, so every invocation must set it
+                        # here. This is also the primary workspace-write sandbox
+                        # root for resumed turns.
+                        cwd=workspace,
                         timeout=timeout_seconds,
                         check=False,
                     )
@@ -180,5 +208,5 @@ class CodexCli:
             usage=usage_from_events(events),
             events_path=events,
             stderr_path=stderr,
-            session_id=session_id_from_events(events) or resume_session_id,
+            session_id=session_id_from_events(events),
         )

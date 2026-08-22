@@ -5,8 +5,10 @@ from __future__ import annotations
 
 import argparse
 import ast
+import hashlib
 import importlib.util
 import json
+import random
 import re
 import subprocess
 import sys
@@ -14,7 +16,7 @@ from pathlib import Path
 
 ACCURACY = re.compile(r"Results: (\d+)/(\d+) correct \(([0-9.]+)%\)")
 PARAMETERS = re.compile(r"Parameters \(unique\):\s*(\d+)")
-TRAINING_STEP = re.compile(r"\bstep\s+(\d+)\b")
+TRAINING_STEP = re.compile(r"\bstep(?:\s*=\s*|\s+)(\d+)\b")
 FORBIDDEN_MODEL_PATTERNS = {
     "carry-specific model logic": re.compile(r"\bcarry\b", re.IGNORECASE),
     "finite-state arithmetic": re.compile(
@@ -75,6 +77,15 @@ def _source_contract_error(workspace: Path) -> str | None:
                 if {"a", "b"}.issubset(names):
                     return f"src/data.py {node.name} directly adds the operands"
     return None
+
+
+def _source_hashes(workspace: Path) -> dict[str, str]:
+    return {
+        path.relative_to(workspace).as_posix(): hashlib.sha256(
+            path.read_bytes()
+        ).hexdigest()
+        for path in sorted((workspace / "src").glob("*.py"))
+    }
 
 
 def _load_submission(workspace: Path):
@@ -179,6 +190,33 @@ def _trained_model_contract_error(workspace: Path) -> str | None:
                     parameter.copy_(saved)
         if torch.allclose(logits, ablated_logits, rtol=1e-5, atol=1e-6):
             return "token logits do not materially depend on learned self-attention"
+
+        rng = random.Random(9_417_203)
+        probes = [
+            (rng.randrange(10**10), rng.randrange(10**10)) for _ in range(64)
+        ]
+        normal_correct = sum(
+            submission.add(model, a, b) == a + b for a, b in probes
+        )
+        with torch.no_grad():
+            try:
+                for parameter in attention_parameters:
+                    parameter.zero_()
+                ablated_correct = sum(
+                    submission.add(model, a, b) == a + b for a, b in probes
+                )
+            finally:
+                for parameter, saved in zip(
+                    attention_parameters, saved_parameters, strict=True
+                ):
+                    parameter.copy_(saved)
+        if normal_correct >= 60 and (
+            ablated_correct > 16 or normal_correct - ablated_correct < 32
+        ):
+            return (
+                "exact additions remain too accurate when learned self-attention "
+                "is ablated"
+            )
     except Exception as error:  # noqa: BLE001 - convert candidate failure to evidence
         return f"the trained transformer contract check failed: {error}"
     return None
@@ -239,12 +277,20 @@ def evaluate_ten_digit_transformer(args: argparse.Namespace) -> int:
         return _report_contract_violation(source_error)
 
     train_output = ""
+    source_hashes = _source_hashes(workspace)
     if not args.verify_existing_checkpoint:
         train_exit, train_output = _run(
             [args.python_bin, "src/train.py"], cwd=workspace
         )
         if train_exit:
             return train_exit
+        if _source_hashes(workspace) != source_hashes:
+            return _report_contract_violation(
+                "training modified source files during evaluation"
+            )
+        source_error = _source_contract_error(workspace)
+        if source_error is not None:
+            return _report_contract_violation(source_error)
 
     trained_error = _trained_model_contract_error(workspace)
     if trained_error is not None:
@@ -302,12 +348,20 @@ def evaluate_pair_token_ten_digit_transformer(args: argparse.Namespace) -> int:
         return _report_contract_violation(source_error)
 
     train_output = ""
+    source_hashes = _source_hashes(workspace)
     if not args.verify_existing_checkpoint:
         train_exit, train_output = _run(
             [args.python_bin, "-m", "src.train"], cwd=workspace
         )
         if train_exit:
             return train_exit
+        if _source_hashes(workspace) != source_hashes:
+            return _report_contract_violation(
+                "training modified source files during evaluation"
+            )
+        source_error = _source_contract_error(workspace)
+        if source_error is not None:
+            return _report_contract_violation(source_error)
 
     trained_error = _trained_model_contract_error(workspace)
     if trained_error is not None:

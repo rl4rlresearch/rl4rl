@@ -32,6 +32,7 @@ from .prompts import (
     VisibleOutcome,
 )
 from .spec import (
+    EVALUATOR_CONCURRENCY_BY_PROTOCOL,
     ConversationMode,
     FactorialSpec,
     FrameworkKind,
@@ -73,6 +74,47 @@ def _read_json(path: Path) -> dict[str, object]:
     return json.loads(path.read_text(encoding="utf-8"))
 
 
+def _register_conversation_session(run_dir: Path, session_id: str) -> None:
+    """Atomically prove that one persisted Codex thread belongs to one run."""
+
+    campaign = run_dir.parent.parent
+    registry_path = campaign / ".conversation-session-registry.json"
+    lock_path = campaign / ".conversation-session-registry.lock"
+    with lock_path.open("a+", encoding="utf-8") as lock_handle:
+        fcntl.flock(lock_handle.fileno(), fcntl.LOCK_EX)
+        try:
+            registry = (
+                json.loads(registry_path.read_text(encoding="utf-8"))
+                if registry_path.is_file()
+                else {}
+            )
+            if not isinstance(registry, dict):
+                raise RuntimeError("conversation session registry is invalid")
+            owner = registry.get(session_id)
+            if owner is not None and owner != run_dir.name:
+                raise RuntimeError(
+                    "Codex conversation session is already owned by another run"
+                )
+            owned_ids = [
+                key for key, value in registry.items() if value == run_dir.name
+            ]
+            if owned_ids and session_id not in owned_ids:
+                raise RuntimeError(
+                    "run attempted to switch Codex conversation sessions"
+                )
+            registry[session_id] = run_dir.name
+            temporary = registry_path.with_name(
+                f".{registry_path.name}.{os.getpid()}.tmp"
+            )
+            temporary.write_text(
+                json.dumps(registry, indent=2, sort_keys=True) + "\n",
+                encoding="utf-8",
+            )
+            os.replace(temporary, registry_path)
+        finally:
+            fcntl.flock(lock_handle.fileno(), fcntl.LOCK_UN)
+
+
 def _hashes(rendered) -> dict[str, str]:
     return {
         "common_template_sha256": rendered.common_template_sha256,
@@ -80,6 +122,14 @@ def _hashes(rendered) -> dict[str, str]:
         "proposal_policy_sha256": rendered.proposal_policy_sha256,
         "prompt_sha256": rendered.prompt_sha256,
     }
+
+
+def _opaque_run_id(run_dir: Path) -> str:
+    return (
+        hashlib.sha256(str(run_dir).encode()).hexdigest().translate(
+            str.maketrans({"c": "w", "0": "q", "1": "r", "2": "s", "3": "t"})
+        )[:24]
+    )
 
 
 def _refresh_continuous_workspace(
@@ -92,9 +142,10 @@ def _refresh_continuous_workspace(
 ) -> Path:
     """Refresh the stable Codex cwd with this opportunity's selected parent.
 
-    ``codex exec resume`` intentionally retains the original working directory.
-    The controller therefore uses one stable, per-run session workspace, while
+    The controller uses one stable, opaque, per-run session workspace, while
     immutable per-opportunity workspaces remain the snapshot/evaluation record.
+    Every initial and resumed Codex subprocess is also launched with this path
+    as its real operating-system cwd.
     """
 
     if neutral_subject:
@@ -102,7 +153,7 @@ def _refresh_continuous_workspace(
             Path(tempfile.gettempdir()) / "transformer-optimization-workspaces"
         )
         neutral_root.mkdir(parents=True, exist_ok=True)
-        opaque_id = hashlib.sha256(str(run_dir).encode("utf-8")).hexdigest()[:24]
+        opaque_id = _opaque_run_id(run_dir)
         workspace = neutral_root / opaque_id
     else:
         workspace = run_dir / ".continuous-codex-workspace"
@@ -117,6 +168,11 @@ def _refresh_continuous_workspace(
         workspace,
         editable_paths,
     )
+    identity = hashlib.sha256(f"workspace:{run_dir}".encode()).hexdigest()
+    (workspace / ".workspace-identity").write_text(identity + "\n", encoding="utf-8")
+    for path in workspace.rglob("*"):
+        if path.is_symlink():
+            raise RuntimeError("continuous Codex workspace contains a symlink")
     return workspace
 
 
@@ -317,6 +373,9 @@ def _run_one_opportunity_unlocked(
     adapter = make_framework_adapter(
         framework, CodexCli(codex_binary), repo_root=repo_root
     )
+    requested_session_id = (
+        controller.state.conversation_session_id if continuous else None
+    )
     proposal = adapter.propose(
         rendered=rendered,
         workspace=codex_workspace,
@@ -329,9 +388,7 @@ def _run_one_opportunity_unlocked(
         selected_parent_id=active.selected_parent_id,
         visible_records=tuple(visible_records),
         run_seed=run_seed,
-        resume_session_id=(
-            controller.state.conversation_session_id if continuous else None
-        ),
+        resume_session_id=requested_session_id,
         persist_session=continuous,
         neutral_subject=neutral_subject,
     )
@@ -339,13 +396,27 @@ def _run_one_opportunity_unlocked(
         protected_hash(codex_workspace, task.editable_paths) != before_protected
     )
     adapter_error = proposal.adapter_error
-    if continuous and proposal.codex.returncode == 0:
+    if continuous:
         if proposal.codex.session_id is None:
+            if proposal.codex.returncode == 0:
+                adapter_error = adapter_error or (
+                    "Codex did not record a resumable session ID"
+                )
+        elif (
+            requested_session_id is not None
+            and proposal.codex.session_id != requested_session_id
+        ):
             adapter_error = adapter_error or (
-                "Codex did not record a resumable session ID"
+                "Codex resumed a different conversation session"
             )
         else:
-            controller.record_conversation_session(proposal.codex.session_id)
+            try:
+                _register_conversation_session(
+                    run_dir, proposal.codex.session_id
+                )
+                controller.record_conversation_session(proposal.codex.session_id)
+            except (OSError, RuntimeError, ValueError) as error:
+                adapter_error = adapter_error or str(error)
     if continuous:
         try:
             _copy_editable_files(codex_workspace, workspace, task.editable_paths)
@@ -391,11 +462,20 @@ def _run_one_opportunity_unlocked(
             ),
         )
     else:
+        max_parallel_evaluators = EVALUATOR_CONCURRENCY_BY_PROTOCOL.get(
+            spec.protocol_version
+        )
         evaluator = CommandEvaluator(
             task=task,
             support_source=support_source,
             repo_root=repo_root,
             python_bin=python_bin,
+            slot_root=(
+                run_dir.parent.parent / ".evaluator-slots"
+                if max_parallel_evaluators is not None
+                else None
+            ),
+            max_parallel_evaluators=max_parallel_evaluators,
         )
         evaluated = evaluator.evaluate(
             candidate_snapshot=candidate_snapshot,
@@ -474,6 +554,7 @@ def recover_active_opportunity(
         if spec.conversation_mode is ConversationMode.CONTINUOUS:
             session_id = session_id_from_events(events)
             if session_id is not None:
+                _register_conversation_session(resolved, session_id)
                 controller.record_conversation_session(session_id)
         prompt_manifest = opportunity_root / "prompt_manifest.json"
         prompt_hashes = (

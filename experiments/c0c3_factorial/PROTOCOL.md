@@ -1,4 +1,4 @@
-# C0–C3 protocols v1.0–v1.5
+# C0–C3 protocols v1.0–v1.6
 
 This document is the human-readable preregistration for the implementation in
 this directory. The executable contract is `FactorialSpec`; a campaign records
@@ -20,6 +20,11 @@ agents see only an ordinary transformer-optimization job, receive a concise
 condition-private result ledger, and can submit only freshly trained models
 that satisfy a learned-self-attention contract; each scheduled trajectory is
 controlled independently rather than by a four-run campaign process.
+Version 1.6 prospectively replaces the failed 1,644-parent launch with three
+predeclared blocks and a confined continuous-session runtime. It fixes resumed
+process cwd ownership, isolates Codex configuration and thread identity, freezes
+inference preprocessing, strengthens fresh-training/attention-dependence checks,
+and caps concurrent local evaluators at three while all twelve controllers run.
 
 ## 1. Research question and unit of analysis
 
@@ -71,9 +76,9 @@ No conversation is resumed between opportunities. Cross-opportunity memory is
 exactly the code, metrics, selection counts, and hypotheses exposed by the
 controller.
 
-### Protocol 1.2–1.5 continuous-session exception
+### Protocol 1.2–1.6 continuous-session exception
 
-Protocols 1.2–1.5 apply only to separate Autoresearch strata. Each starts
+Protocols 1.2–1.6 apply only to separate Autoresearch strata. Each starts
 one persisted Codex session per run at opportunity 1 and resumes that session
 for all later opportunities. Before each resume, the controller reconstructs the
 stable session workspace from the selected candidate, then snapshots and
@@ -258,6 +263,24 @@ per-run lifecycle timing and overlap.
 The Block 1 factorial is the prespecified primary analysis. Any additional
 block must be declared before its first opportunity and is a compatible
 replication under the same instrument; predeclared blocks may run concurrently.
+
+Protocol 1.6 freezes
+`staged_confined_individually_controlled_trajectories_v1`. All three blocks are
+declared before launch and all twelve C0–C3 controllers may advance
+independently. Each run owns a unique persisted Codex thread recorded in an
+atomic campaign registry. Initial and resumed invocations execute with the
+opaque workspace as their real operating-system cwd; user config, project/user
+rules, online access, and writable temporary roots outside that workspace are
+disabled. A mismatched or reused thread ID invalidates the proposal.
+
+The v1.6 task freezes `src/data.py` as protected inference preprocessing; only
+`src/model.py` and `src/train.py` are candidate files. Candidate evaluation
+removes every supplied checkpoint before training, rejects source mutation
+during training, requires a positive-step learned checkpoint, and checks that
+exact addition accuracy collapses when learned attention is ablated. At most
+three v1.6 evaluators hold campaign-local file-lock slots concurrently. Waiting
+for a slot occurs outside evaluator timeout and evaluator-budget accounting;
+Codex proposal generation and trajectory ownership remain fully parallel.
 If a block was activated using primary results, it is adaptively collected and
 must not be presented as if the original primary sample size had always
 included it. N0 remains descriptive and outside the factorial contrasts.
@@ -269,7 +292,7 @@ seed through this runner, so model sampling is not deterministic. Blocking,
 identical settings, and replication mitigate that source of variance; they do
 not eliminate it.
 
-The protocol-1.5 subject-facing Codex process instead receives the same value
+The protocol-1.5/1.6 subject-facing Codex process instead receives the same value
 under `OPTIMIZATION_RUN_SEED`; `C0C3_RUN_SEED` is removed from that process.
 The evaluator retains the internal seed name for backward-compatible task
 execution.
@@ -280,7 +303,7 @@ and can bypass randomized order.
 Use `run-staged-next` or `run-staged-campaign` for protocol 1.3. Use
 `run-staged-independent-campaign` for protocol 1.4. Use the
 per-run `start-staged-trajectory`, `pause-staged-trajectory`, and
-`resume-staged-trajectory` commands for protocol 1.5; the other orchestrators
+`resume-staged-trajectory` commands for protocols 1.5–1.6; the other orchestrators
 reject its execution-rule identifier.
 
 ## 9. Controls held common within a campaign
@@ -317,7 +340,7 @@ The workshop parallel pilot freezes, per run, 30 opportunities/evaluator calls,
 same 3,600-second evaluator timeout. It uses three blocks and therefore has
 three independent trajectories per factorial cell plus three separate N0 runs.
 
-Protocols 1.2–1.5 freeze 200 opportunities/evaluator calls, 500,000,000
+Protocols 1.2–1.6 freeze 200 opportunities/evaluator calls, 500,000,000
 total reported tokens, 720,000 aggregate evaluator seconds, and the same
 3,600-second evaluator timeout per run. Protocols 1.3–1.5 primary stages
 contain four runs and therefore schedule 800 proposals and 40
@@ -353,6 +376,9 @@ protocol 1.4, recover every active opportunity and resume the same independent
 stage launcher; every unfinished selected trajectory resumes from its own next
 opportunity, without creating a new wave barrier. Under protocol 1.5, recover
 only the affected run, then use `resume-staged-trajectory` for that run ID.
+Protocol 1.6 uses the same charged recovery rule; its durable supervisor
+automatically performs that explicit recovery after an unexpected controller
+exit and restarts only the affected run.
 Neither protocol advances N0 or another block, and the primary-completion gate
 remains in force for extensions.
 
@@ -372,6 +398,8 @@ completed. For protocols 1.3–1.5 that scope is the four Block 1 primary runs p
 every explicitly activated and completed extension stage; dormant extensions
 are excluded. The operator must activate any optional extension before Layer
 B/C is created, after which the runner forbids more collection.
+For protocol 1.6 the frozen factorial scope is all twelve C0–C3 runs across its
+three prospectively declared blocks; dormant N0 assignments remain excluded.
 Every valid proposal becomes an opaque packet containing parent and candidate
 source plus the stated hypothesis/edit. Condition, run, opportunity, and Layer
 A scores are hidden. Independent reviewers decide whether the delta is a

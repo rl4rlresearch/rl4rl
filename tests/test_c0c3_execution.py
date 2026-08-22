@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import concurrent.futures
 import csv
 import importlib.util
 import json
@@ -315,10 +316,12 @@ last = pathlib.Path(args[args.index('--output-last-message') + 1])
 if 'resume' in args:
     assert '--cd' not in args
     workspace = pathlib.Path(session_workspace.read_text())
+    assert pathlib.Path.cwd() == workspace
     mode = 'resume'
 else:
     assert '--ephemeral' not in args
     workspace = pathlib.Path(args[args.index('--cd') + 1])
+    assert pathlib.Path.cwd() == workspace
     session_workspace.write_text(str(workspace))
     mode = 'initial'
 _prompt = sys.stdin.read()
@@ -592,6 +595,51 @@ def test_evaluator_preserves_symlinked_virtualenv_interpreter(
     assert Path(evaluator.python_bin).resolve() == Path(sys.executable).resolve()
 
 
+def test_evaluator_slot_serializes_trainers_without_charging_queue_time(
+    tmp_path: Path,
+) -> None:
+    seed_source = make_seed(tmp_path / "source")
+    evaluator_source = seed_source / "evaluate.py"
+    evaluator_source.write_text(
+        "import time\ntime.sleep(0.2)\n" + evaluator_source.read_text(),
+        encoding="utf-8",
+    )
+    candidate_id, snapshot = snapshot_candidate(
+        seed_source, tmp_path / "candidates", ("candidate.py",)
+    )
+    assert candidate_id
+    evaluator = CommandEvaluator(
+        task=task(seed_source),
+        support_source=seed_source,
+        repo_root=ROOT,
+        python_bin=sys.executable,
+        slot_root=tmp_path / "slots",
+        max_parallel_evaluators=1,
+    )
+
+    started = time.monotonic()
+    with concurrent.futures.ThreadPoolExecutor(max_workers=2) as pool:
+        futures = [
+            pool.submit(
+                evaluator.evaluate,
+                candidate_snapshot=snapshot,
+                opportunity_root=tmp_path / f"opportunity-{index}",
+                timeout_seconds=2,
+            )
+            for index in range(2)
+        ]
+        results = [future.result() for future in futures]
+    elapsed = time.monotonic() - started
+
+    assert elapsed >= 0.35
+    assert all(result.evaluation.valid for result in results)
+    assert all(result.evaluation.evaluator_seconds < 0.5 for result in results)
+    assert all(
+        (tmp_path / f"opportunity-{index}" / "evaluator-queue.json").is_file()
+        for index in range(2)
+    )
+
+
 def test_codex_transport_campaign_and_one_real_controller_step(
     tmp_path: Path,
 ) -> None:
@@ -719,6 +767,11 @@ def test_continuous_autoresearch_resumes_one_codex_session_per_run(
         .splitlines()
     ]
     assert [entry["mode"] for entry in invocations] == ["initial", "resume"]
+    for entry in invocations:
+        assert "--ignore-user-config" in entry["args"]
+        assert "--ignore-rules" in entry["args"]
+        assert "--strict-config" in entry["args"]
+        assert "sandbox_workspace_write.network_access=false" in entry["args"]
 
 
 def test_portable_calibration_can_execute_on_a_later_backend(tmp_path: Path) -> None:

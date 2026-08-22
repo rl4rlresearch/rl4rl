@@ -33,6 +33,9 @@ if PROFILE == "primary":
 elif PROFILE == "1644-extension":
     DEFAULT_CONTROL_ROOT = REPO_ROOT / "data/c0c3/overnight-control-1644-extension"
     DEFAULT_SCREEN_SESSION = "rl4rl-c0c3-1644-extension"
+elif PROFILE == "1644-confined":
+    DEFAULT_CONTROL_ROOT = REPO_ROOT / "data/c0c3/overnight-control-1644-confined"
+    DEFAULT_SCREEN_SESSION = "rl4rl-c0c3-1644-confined"
 else:
     raise RuntimeError(f"unknown overnight profile: {PROFILE}")
 CONTROL_ROOT = Path(
@@ -100,6 +103,25 @@ def plans(profile: str | None = None) -> tuple[CampaignPlan, ...]:
                 ),
                 mode="individual-trajectories",
                 blocks=(2, 3),
+            ),
+        )
+    if selected_profile == "1644-confined":
+        return (
+            CampaignPlan(
+                key="autoresearch-v1.6-1644-confined",
+                runtime_root=_env_path(
+                    "RL4RL_V16_1644_RUNTIME",
+                    Path("/private/tmp/rl4rl-c0c3-v16-confined"),
+                ),
+                campaign=_env_path(
+                    "RL4RL_V16_1644_CAMPAIGN",
+                    Path(
+                        "/private/tmp/"
+                        "rl4rl-v16-codex1644-confined-campaign-live-20260822a"
+                    ),
+                ),
+                mode="individual-trajectories",
+                blocks=(1, 2, 3),
             ),
         )
     if selected_profile != "primary":
@@ -478,8 +500,10 @@ def process_alive(pid: int | None) -> bool:
         return False
     try:
         os.kill(pid, 0)
-    except (ProcessLookupError, PermissionError):
+    except ProcessLookupError:
         return False
+    except PermissionError:
+        return True
     return True
 
 

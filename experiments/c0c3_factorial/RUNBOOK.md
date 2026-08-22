@@ -358,6 +358,27 @@ until the required factorial trajectories finish, while predeclared factorial
 blocks may run concurrently. Record any adaptive extension decision before
 its first start.
 
+### Protocol 1.6 confined three-block trajectories
+
+Use the same individual `start-staged-trajectory`,
+`pause-staged-trajectory`, and `resume-staged-trajectory` commands as protocol
+1.5. Create a fresh calibration and campaign with
+`workshop_codex1644_confined_v1_6.toml`,
+`ten_digit_addition_pair_transformer_codex1644_confined.toml`, and
+`autoresearch_confined_v1_6.toml`. The campaign must contain three blocks and
+the operational roster must select exactly C0–C3 from Blocks 1–3 (twelve jobs),
+never N0. All twelve controllers may run simultaneously. The runtime admits at
+most three evaluator processes through crash-releasing file locks, so a queued
+trainer is healthy and does not spend its evaluator timeout while waiting.
+
+For detached local operation use `experiments/c0c3_overnight.py` with
+`RL4RL_OVERNIGHT_PROFILE=1644-confined`. Run `check` before `start`, then start
+with `--recover-interrupted --all-running`. The supervisor uses `screen` plus
+`caffeinate`, records a heartbeat and child PID for every trajectory, and
+automatically charges/recoveries an interrupted opportunity before relaunching
+only that trajectory. Inspect its `status`, `supervisor.log`, per-job logs, the
+campaign thread registry, and each run's `state.json`/`events.jsonl`.
+
 ## 6. Inspect progress without changing it
 
 ```bash
@@ -381,7 +402,7 @@ remain `ready` with zero proposals; this is expected, not a stalled campaign.
 For protocol 1.4, inspect `independent-trajectories.jsonl` instead of
 `parallel-rounds.jsonl`; the four primary run rows need not have matching
 `proposals_used` while the launcher is active.
-For protocol 1.5, inspect `trajectory-lifecycle.jsonl` plus each run's
+For protocols 1.5–1.6, inspect `trajectory-lifecycle.jsonl` plus each run's
 `lifecycle.jsonl`; it records start, pause request, pause acknowledgement,
 resume, transport stop, and completion for every independently controlled run.
 
@@ -416,7 +437,7 @@ For protocol 1.4, recover every active run, then invoke the same
 `run-staged-independent-campaign` block/stage. It starts only the unfinished
 trajectories and each continues from its own next opportunity; it never creates
 or retries a missing synchronized round.
-For protocol 1.5, recover only the affected run, then invoke
+For protocols 1.5–1.6, recover only the affected run, then invoke
 `resume-staged-trajectory` with the same run ID. Do not recover or restart its
 peers.
 

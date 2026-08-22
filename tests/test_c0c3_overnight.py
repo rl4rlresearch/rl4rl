@@ -31,6 +31,14 @@ def test_1644_extension_profile_contains_only_extension_blocks() -> None:
     assert roster[0].blocks == (2, 3)
 
 
+def test_1644_confined_profile_declares_all_three_blocks() -> None:
+    roster = plans("1644-confined")
+
+    assert len(roster) == 1
+    assert roster[0].key == "autoresearch-v1.6-1644-confined"
+    assert roster[0].blocks == (1, 2, 3)
+
+
 def test_individual_plan_expands_only_declared_factorial_blocks(tmp_path: Path) -> None:
     campaign = tmp_path / "campaign"
     _write_json(

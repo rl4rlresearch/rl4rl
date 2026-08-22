@@ -26,7 +26,7 @@ and is never included in the 2×2 contrasts.
    extension interfaces.
 4. [MODAL.md](MODAL.md) — target-backend calibration, persistent volumes, and
    serialized GPU execution for protocol 1.0. Parallel protocols 1.1, 1.3,
-   1.4 and 1.5 are currently local-only.
+   1.4, 1.5, and 1.6 are currently local-only.
 5. [PAPER_NOTES.md](PAPER_NOTES.md) — literature, hypotheses, reviewer rubric,
    figures, statistical cautions, and paper-writing checklist.
 
@@ -94,6 +94,15 @@ Future coding agents must also follow [AGENTS.md](AGENTS.md).
   ownership changed. Its primary stage remains Block 1 C0–C3; N0 and Blocks 2–3
   are pre-created extensions; predeclared factorial blocks may be launched
   concurrently, while N0 remains dormant unless explicitly activated.
+- `configs/protocols/workshop_codex1644_confined_v1_6.toml` is the replacement
+  three-block 1,644-parent campaign. It preserves the v1.5 C0–C3 treatments and
+  200-cycle continuous trajectories, but binds resumed processes to their real
+  opaque cwd, disables user configuration/rules/network and extra temporary
+  writable roots, registers one unique Codex thread per run, freezes inference
+  preprocessing, retrains from an empty checkpoint directory, and allows at
+  most three local evaluators at once. All twelve C0–C3 trajectories may remain
+  active concurrently; the evaluator limit is condition-common machine-load
+  control rather than a trajectory barrier.
 
 Run the dev protocol end to end before spending on the paper protocol. Do not
 reinterpret dev results as a pilot effect estimate: its transition density and
@@ -111,14 +120,14 @@ budget are intentionally unlike the paper protocol.
 - Use `run-staged-next`/`run-staged-campaign` for protocol 1.3. Use
   `run-staged-independent-campaign` for protocol 1.4. Use
   `start-staged-trajectory`, `pause-staged-trajectory`, and
-  `resume-staged-trajectory` for protocol 1.5. Each primary Block 1 factorial
+  `resume-staged-trajectory` for protocols 1.5–1.6. Each primary Block 1 factorial
   stage must complete before an optional stage can start.
 - Never expose Layer B annotations or Layer C results until every run in the
   campaign is completed.
 - Do not delete, retry, or reuse a failed opportunity. Use `recover-active` for
   an interrupted active opportunity; the opportunity remains charged.
 - Do not run the same campaign from local and Modal storage simultaneously.
-- Keep one campaign orchestrator process for protocols 1.1–1.4. Protocol 1.5
+- Keep one campaign orchestrator process for protocols 1.1–1.4. Protocols 1.5–1.6
   instead authorizes one controller per scheduled run; a per-run lock rejects a
   second controller for the same trajectory, while peers may operate in parallel.
 - Do not pool task or framework strata as if they were interchangeable

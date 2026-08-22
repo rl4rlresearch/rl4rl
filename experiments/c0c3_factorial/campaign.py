@@ -17,9 +17,7 @@ from .artifacts import (
 from .evaluator import CommandEvaluator
 from .neutral_task import NEUTRAL_TASK_ADAPTER, validate_v15_pairing
 from .spec import (
-    STAGED_INDEPENDENT_EXECUTION_RULE,
-    STAGED_INDIVIDUAL_EXECUTION_RULE,
-    STAGED_PARALLEL_EXECUTION_RULE,
+    STAGED_EXECUTION_RULES,
     Condition,
     FactorialSpec,
     FrameworkSpec,
@@ -214,11 +212,7 @@ def create_campaign(
     )
     if (
         spec.execution_rule
-        in {
-            STAGED_PARALLEL_EXECUTION_RULE,
-            STAGED_INDEPENDENT_EXECUTION_RULE,
-            STAGED_INDIVIDUAL_EXECUTION_RULE,
-        }
+        in STAGED_EXECUTION_RULES
         and not include_no_search
     ):
         raise ValueError(
@@ -314,11 +308,7 @@ def create_campaign(
     _write_json(inputs / "task.json", asdict(task))
     _write_json(inputs / "framework.json", asdict(framework))
     _write_json(output / "schedule.json", schedule)
-    staged = spec.execution_rule in {
-        STAGED_PARALLEL_EXECUTION_RULE,
-        STAGED_INDEPENDENT_EXECUTION_RULE,
-        STAGED_INDIVIDUAL_EXECUTION_RULE,
-    }
+    staged = spec.execution_rule in STAGED_EXECUTION_RULES
     primary_run_ids = [
         str(row["run_id"])
         for row in schedule

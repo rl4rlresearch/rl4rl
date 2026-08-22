@@ -34,10 +34,12 @@ from experiments.c0c3_factorial.prompts import (
 from experiments.c0c3_factorial.runner import (
     _make_tree_owner_writable,
     _refresh_continuous_workspace,
+    _register_conversation_session,
 )
 from experiments.c0c3_factorial.spec import (
     PARALLEL_EXECUTION_RULE,
     SERIAL_EXECUTION_RULE,
+    STAGED_CONFINED_INDIVIDUAL_EXECUTION_RULE,
     STAGED_INDEPENDENT_EXECUTION_RULE,
     STAGED_INDIVIDUAL_EXECUTION_RULE,
     STAGED_PARALLEL_EXECUTION_RULE,
@@ -59,7 +61,10 @@ from experiments.c0c3_factorial.state import (
     SearchController,
     Usage,
 )
-from experiments.c0c3_factorial.task_evaluators import _source_contract_error
+from experiments.c0c3_factorial.task_evaluators import (
+    TRAINING_STEP,
+    _source_contract_error,
+)
 
 TEMPLATES = ROOT / "experiments/c0c3_factorial/templates"
 STAGED_CONTINUOUS_PROTOCOL = (
@@ -86,6 +91,16 @@ V15_FRAMEWORK = (
     ROOT
     / "experiments/c0c3_factorial/configs/frameworks"
     / "autoresearch_continuous_v1_5.toml"
+)
+V16_PROTOCOL = (
+    ROOT
+    / "experiments/c0c3_factorial/configs/protocols"
+    / "workshop_codex1644_confined_v1_6.toml"
+)
+V16_TASK = (
+    ROOT
+    / "experiments/c0c3_factorial/configs/tasks"
+    / "ten_digit_addition_pair_transformer_codex1644_confined.toml"
 )
 
 
@@ -382,6 +397,23 @@ def test_v15_components_cannot_be_mixed_with_older_profiles() -> None:
         )
 
 
+def test_v16_freezes_confined_three_block_runtime_and_inference_data() -> None:
+    spec = FactorialSpec.from_toml(V16_PROTOCOL)
+    task_spec = TaskSpec.from_toml(V16_TASK)
+
+    assert spec.protocol_version == "1.6"
+    assert spec.execution_rule == STAGED_CONFINED_INDIVIDUAL_EXECUTION_RULE
+    assert spec.blocks == 3
+    assert spec.budget.proposals == 200
+    assert spec.transition_opportunities == tuple(range(10, 201, 10))
+    assert task_spec.editable_paths == ("src/model.py", "src/train.py")
+    assert list(TRAINING_STEP.findall("step= 9 step 10 step=11")) == [
+        "9",
+        "10",
+        "11",
+    ]
+
+
 def test_v15_seed_workspace_is_sanitized_and_decoder_is_protected(
     tmp_path: Path,
 ) -> None:
@@ -565,6 +597,22 @@ def test_neutral_continuous_workspace_is_opaque_and_refreshes_read_only_refs(
     assert not (workspace / ".design-references").exists()
     _make_tree_owner_writable(workspace)
     shutil.rmtree(workspace)
+
+
+def test_conversation_session_registry_rejects_cross_run_reuse(
+    tmp_path: Path,
+) -> None:
+    first = tmp_path / "campaign/runs/run-a"
+    second = tmp_path / "campaign/runs/run-b"
+    first.mkdir(parents=True)
+    second.mkdir(parents=True)
+
+    _register_conversation_session(first, "thread-one")
+    _register_conversation_session(first, "thread-one")
+    with pytest.raises(RuntimeError, match="owned by another run"):
+        _register_conversation_session(second, "thread-one")
+    with pytest.raises(RuntimeError, match="switch"):
+        _register_conversation_session(first, "thread-two")
 
 
 def test_single_incumbent_retains_only_strict_improvement(tmp_path: Path) -> None:

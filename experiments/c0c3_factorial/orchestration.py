@@ -16,10 +16,11 @@ from pathlib import Path
 
 from .runner import run_one_opportunity
 from .spec import (
+    INDIVIDUAL_EXECUTION_RULES,
     PARALLEL_EXECUTION_RULE,
     SERIAL_EXECUTION_RULE,
+    STAGED_EXECUTION_RULES,
     STAGED_INDEPENDENT_EXECUTION_RULE,
-    STAGED_INDIVIDUAL_EXECUTION_RULE,
     STAGED_PARALLEL_EXECUTION_RULE,
     ExecutionBackend,
     FactorialSpec,
@@ -296,11 +297,7 @@ def _staged_stage_assignments(
 ) -> list[tuple[dict[str, object], SearchController]]:
     """Load a valid, explicit stage without deciding its execution geometry."""
 
-    if spec.execution_rule not in {
-        STAGED_PARALLEL_EXECUTION_RULE,
-        STAGED_INDEPENDENT_EXECUTION_RULE,
-        STAGED_INDIVIDUAL_EXECUTION_RULE,
-    }:
+    if spec.execution_rule not in STAGED_EXECUTION_RULES:
         raise ValueError(
             "staged campaign commands require a staged execution rule"
         )
@@ -469,10 +466,10 @@ def _individual_assignment(
 ) -> tuple[Path, dict[str, object], str]:
     """Resolve one individually controlled v1.5 run from immutable schedule data."""
 
-    if spec.execution_rule != STAGED_INDIVIDUAL_EXECUTION_RULE:
+    if spec.execution_rule not in INDIVIDUAL_EXECUTION_RULES:
         raise ValueError(
             "individually controlled trajectory commands require "
-            f"execution_rule={STAGED_INDIVIDUAL_EXECUTION_RULE!r}"
+            f"one of execution_rule={sorted(INDIVIDUAL_EXECUTION_RULES)!r}"
         )
     campaign = Path(campaign_dir).resolve()
     assignment = next(

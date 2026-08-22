@@ -9,6 +9,8 @@ from pathlib import Path
 from .artifacts import candidate_hash, scientific_runtime_hash, tree_hash
 from .neutral_task import (
     NEUTRAL_TASK_ADAPTER,
+    PAIR_TOKEN_SANITIZED_SEED_PATHS,
+    PAIR_TOKEN_TASK_ADAPTER,
     SANITIZED_SEED_PATHS,
     validate_v15_pairing,
 )
@@ -21,10 +23,12 @@ from .prompts import (
     treatment_skeleton,
 )
 from .spec import (
+    INDIVIDUAL_EXECUTION_RULES,
     PARALLEL_EXECUTION_RULE,
     SERIAL_EXECUTION_RULE,
+    STAGED_CONFINED_INDIVIDUAL_EXECUTION_RULE,
+    STAGED_EXECUTION_RULES,
     STAGED_INDEPENDENT_EXECUTION_RULE,
-    STAGED_INDIVIDUAL_EXECUTION_RULE,
     STAGED_PARALLEL_EXECUTION_RULE,
     Condition,
     ExecutionBackend,
@@ -70,9 +74,7 @@ def validate_campaign(
         spec.execution_rule
         in {
             PARALLEL_EXECUTION_RULE,
-            STAGED_PARALLEL_EXECUTION_RULE,
-            STAGED_INDEPENDENT_EXECUTION_RULE,
-            STAGED_INDIVIDUAL_EXECUTION_RULE,
+            *STAGED_EXECUTION_RULES,
         }
         and task.preferred_backend is not ExecutionBackend.LOCAL
     ):
@@ -90,11 +92,7 @@ def validate_campaign(
             if int(row["block"]) == 1 and str(row["condition"]) != "N0"
         ]
         if spec.execution_rule
-        in {
-            STAGED_PARALLEL_EXECUTION_RULE,
-            STAGED_INDEPENDENT_EXECUTION_RULE,
-            STAGED_INDIVIDUAL_EXECUTION_RULE,
-        }
+        in STAGED_EXECUTION_RULES
         else run_ids
     )
     expected_optional = [
@@ -106,11 +104,7 @@ def validate_campaign(
         errors.append("campaign optional run scope mismatch")
     if (
         spec.execution_rule
-        in {
-            STAGED_PARALLEL_EXECUTION_RULE,
-            STAGED_INDEPENDENT_EXECUTION_RULE,
-            STAGED_INDIVIDUAL_EXECUTION_RULE,
-        }
+        in STAGED_EXECUTION_RULES
         and not manifest.get("include_no_search")
     ):
         errors.append("staged protocol requires pre-created N0 extensions")
@@ -157,9 +151,14 @@ def validate_campaign(
             errors.append(f"{assignment['run_id']} invalid: {error}")
     if len(support_hashes) != 1:
         errors.append("run task-support trees are not byte-identical")
-    if task.adapter == NEUTRAL_TASK_ADAPTER:
+    if task.adapter in {NEUTRAL_TASK_ADAPTER, PAIR_TOKEN_TASK_ADAPTER}:
+        sanitized_paths = (
+            SANITIZED_SEED_PATHS
+            if task.adapter == NEUTRAL_TASK_ADAPTER
+            else PAIR_TOKEN_SANITIZED_SEED_PATHS
+        )
         expected_subject_files = {
-            *SANITIZED_SEED_PATHS,
+            *sanitized_paths,
             "submission.py",
         }
         actual_subject_files = {
@@ -287,7 +286,11 @@ def validate_campaign(
                 spec.execution_rule == STAGED_INDEPENDENT_EXECUTION_RULE
             ),
             "frozen_staged_individually_controlled_trajectories": (
-                spec.execution_rule == STAGED_INDIVIDUAL_EXECUTION_RULE
+                spec.execution_rule in INDIVIDUAL_EXECUTION_RULES
+            ),
+            "confined_continuous_sessions": (
+                spec.execution_rule
+                == STAGED_CONFINED_INDIVIDUAL_EXECUTION_RULE
             ),
             "layer_b_c_absent_at_launch": layers_absent,
         },

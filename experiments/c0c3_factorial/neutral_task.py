@@ -5,7 +5,7 @@ from __future__ import annotations
 NEUTRAL_TASK_ADAPTER = "ten_digit_addition_transformer_v1"
 PAIR_TOKEN_TASK_ADAPTER = "ten_digit_addition_pair_transformer_v1"
 NEUTRAL_PROMPT_PROFILE = "trained_transformer_optimizer_v1_5"
-SUBJECT_NEUTRAL_PROTOCOL_VERSIONS = frozenset({"1.5"})
+SUBJECT_NEUTRAL_PROTOCOL_VERSIONS = frozenset({"1.5", "1.6"})
 SUBJECT_NEUTRAL_TASK_ADAPTERS = frozenset(
     {NEUTRAL_TASK_ADAPTER, PAIR_TOKEN_TASK_ADAPTER}
 )

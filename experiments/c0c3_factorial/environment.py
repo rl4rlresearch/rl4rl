@@ -27,7 +27,9 @@ def controlled_subprocess_environment(run_seed: int | None) -> dict[str, str]:
 
 
 def subject_subprocess_environment(
-    run_seed: int | None, *, workspace: str | Path | None = None
+    run_seed: int | None,
+    *,
+    workspace: str | Path | None = None,
 ) -> dict[str, str]:
     """Expose a neutral seed name to a subject-facing Codex process."""
 

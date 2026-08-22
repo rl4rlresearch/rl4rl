@@ -14,7 +14,7 @@ from pathlib import Path
 from .analysis import RunOutcome, estimate, write_estimate
 from .evaluator import CommandEvaluator
 from .orchestration import stage_gate_lock
-from .spec import STAGED_INDIVIDUAL_EXECUTION_RULE, FactorialSpec, TaskSpec
+from .spec import INDIVIDUAL_EXECUTION_RULES, FactorialSpec, TaskSpec
 from .state import SearchController
 
 
@@ -205,7 +205,7 @@ def export_layer_b_packets(
     """Export Layer B while keeping v1.5's stage gate closed during sealing."""
 
     campaign = Path(campaign_dir).resolve()
-    if spec.execution_rule == STAGED_INDIVIDUAL_EXECUTION_RULE:
+    if spec.execution_rule in INDIVIDUAL_EXECUTION_RULES:
         with stage_gate_lock(campaign):
             return _export_layer_b_packets_unlocked(campaign, spec=spec, task=task)
     return _export_layer_b_packets_unlocked(campaign, spec=spec, task=task)
@@ -380,7 +380,7 @@ def run_layer_c(
     """Run Layer C while keeping v1.5's extension gate closed during sealing."""
 
     campaign = Path(campaign_dir).resolve()
-    if spec.execution_rule == STAGED_INDIVIDUAL_EXECUTION_RULE:
+    if spec.execution_rule in INDIVIDUAL_EXECUTION_RULES:
         with stage_gate_lock(campaign):
             return _run_layer_c_unlocked(
                 campaign,

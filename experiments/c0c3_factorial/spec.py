@@ -93,6 +93,27 @@ PARALLEL_EXECUTION_RULE = "blocked_parallel_condition_rounds_v1"
 STAGED_PARALLEL_EXECUTION_RULE = "staged_parallel_block_trajectories_v1"
 STAGED_INDEPENDENT_EXECUTION_RULE = "staged_independent_parallel_trajectories_v1"
 STAGED_INDIVIDUAL_EXECUTION_RULE = "staged_individually_controlled_trajectories_v1"
+STAGED_CONFINED_INDIVIDUAL_EXECUTION_RULE = (
+    "staged_confined_individually_controlled_trajectories_v1"
+)
+STAGED_EXECUTION_RULES = frozenset(
+    {
+        STAGED_PARALLEL_EXECUTION_RULE,
+        STAGED_INDEPENDENT_EXECUTION_RULE,
+        STAGED_INDIVIDUAL_EXECUTION_RULE,
+        STAGED_CONFINED_INDIVIDUAL_EXECUTION_RULE,
+    }
+)
+INDIVIDUAL_EXECUTION_RULES = frozenset(
+    {
+        STAGED_INDIVIDUAL_EXECUTION_RULE,
+        STAGED_CONFINED_INDIVIDUAL_EXECUTION_RULE,
+    }
+)
+# Protocol 1.6 permits every Codex trajectory to think concurrently while
+# bounding local trainers. This avoids timeout artifacts from twelve training
+# jobs oversubscribing one laptop and is identical in every factorial cell.
+EVALUATOR_CONCURRENCY_BY_PROTOCOL = {"1.6": 3}
 # Backward-compatible name for the original paper-v1 execution rule.
 EXECUTION_RULE = SERIAL_EXECUTION_RULE
 PROTOCOL_EXECUTION_RULES = {
@@ -102,6 +123,7 @@ PROTOCOL_EXECUTION_RULES = {
     "1.3": STAGED_PARALLEL_EXECUTION_RULE,
     "1.4": STAGED_INDEPENDENT_EXECUTION_RULE,
     "1.5": STAGED_INDIVIDUAL_EXECUTION_RULE,
+    "1.6": STAGED_CONFINED_INDIVIDUAL_EXECUTION_RULE,
 }
 
 
@@ -214,7 +236,7 @@ class FactorialSpec:
                 f"{expected_execution_rule!r}"
             )
         if (
-            self.protocol_version in {"1.2", "1.3", "1.4", "1.5"}
+            self.protocol_version in {"1.2", "1.3", "1.4", "1.5", "1.6"}
             and self.conversation_mode is not ConversationMode.CONTINUOUS
         ):
             raise ValueError(
@@ -222,7 +244,7 @@ class FactorialSpec:
                 "continuous_session_per_run_v1"
             )
         if (
-            self.protocol_version not in {"1.2", "1.3", "1.4", "1.5"}
+            self.protocol_version not in {"1.2", "1.3", "1.4", "1.5", "1.6"}
             and self.conversation_mode is not ConversationMode.EPHEMERAL
         ):
             raise ValueError(

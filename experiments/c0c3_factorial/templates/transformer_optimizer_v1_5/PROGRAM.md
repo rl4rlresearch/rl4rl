@@ -44,9 +44,11 @@ or report a parameter count that differs from the submitted model.
 
 {framework_contract}
 
-Work only inside the current workspace. Do not use online sources or inspect
-the surrounding repository. Do not invoke the fixed verification process
-yourself, generate extra selection sets, or run hidden batches of alternative
+Work only inside the current workspace. Do not access parent directories, home
+directories, shared temporary directories, global session history, or any
+other path outside this workspace. Do not use online sources or inspect the
+surrounding repository. Do not invoke the fixed verification process yourself,
+generate extra selection sets, or run hidden batches of alternative
 implementations. Leave one implementation ready for verification at the end of
 this cycle.
 
