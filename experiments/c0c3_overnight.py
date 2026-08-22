@@ -26,13 +26,26 @@ from typing import Any
 
 REPO_ROOT = Path(__file__).resolve().parents[1]
 PYTHON_BIN = REPO_ROOT / "architecture_discovery/.venv/bin/python"
-CONTROL_ROOT = REPO_ROOT / "data/c0c3/overnight-control"
+PROFILE = os.environ.get("RL4RL_OVERNIGHT_PROFILE", "primary")
+if PROFILE == "primary":
+    DEFAULT_CONTROL_ROOT = REPO_ROOT / "data/c0c3/overnight-control"
+    DEFAULT_SCREEN_SESSION = "rl4rl-c0c3-overnight"
+elif PROFILE == "1644-extension":
+    DEFAULT_CONTROL_ROOT = REPO_ROOT / "data/c0c3/overnight-control-1644-extension"
+    DEFAULT_SCREEN_SESSION = "rl4rl-c0c3-1644-extension"
+else:
+    raise RuntimeError(f"unknown overnight profile: {PROFILE}")
+CONTROL_ROOT = Path(
+    os.environ.get("RL4RL_OVERNIGHT_CONTROL_ROOT", str(DEFAULT_CONTROL_ROOT))
+).expanduser().resolve()
 DESIRED_PATH = CONTROL_ROOT / "desired.json"
 STATUS_PATH = CONTROL_ROOT / "status.json"
 SUPERVISOR_LOCK = CONTROL_ROOT / "supervisor.lock"
 CONTROL_LOCK = CONTROL_ROOT / "control.lock"
 SUPERVISOR_LOG = CONTROL_ROOT / "supervisor.log"
-SCREEN_SESSION = "rl4rl-c0c3-overnight"
+SCREEN_SESSION = os.environ.get(
+    "RL4RL_OVERNIGHT_SCREEN_SESSION", DEFAULT_SCREEN_SESSION
+)
 SCHEMA_VERSION = "1.0"
 POLL_SECONDS = 2.0
 MAX_BACKOFF_SECONDS = 30 * 60
@@ -66,9 +79,31 @@ def _env_path(name: str, default: Path) -> Path:
     return Path(os.environ.get(name, str(default))).expanduser().resolve()
 
 
-def plans() -> tuple[CampaignPlan, ...]:
+def plans(profile: str | None = None) -> tuple[CampaignPlan, ...]:
     """Return the intended overnight roster, excluding superseded campaigns."""
 
+    selected_profile = profile or PROFILE
+    if selected_profile == "1644-extension":
+        return (
+            CampaignPlan(
+                key="autoresearch-v1.5-1644-extension",
+                runtime_root=_env_path(
+                    "RL4RL_V15_1644_RUNTIME",
+                    Path("/private/tmp/rl4rl-c0c3-v15-codex1644"),
+                ),
+                campaign=_env_path(
+                    "RL4RL_V15_1644_EXTENSION_CAMPAIGN",
+                    Path(
+                        "/private/tmp/"
+                        "rl4rl-v15-codex1644-extension-campaign-live-20260822a"
+                    ),
+                ),
+                mode="individual-trajectories",
+                blocks=(2, 3),
+            ),
+        )
+    if selected_profile != "primary":
+        raise RuntimeError(f"unknown overnight profile: {selected_profile}")
     return (
         CampaignPlan(
             key="openevolve",

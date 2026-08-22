@@ -18,7 +18,33 @@ research plan:
 The superseded one-turn parallel Autoresearch campaign and the continuous v1.4
 Block 1 campaign are intentionally not in this roster. Their stale `running`
 states do not make them live overnight runs. Dormant v1.5 N0 and extension
-blocks also remain dormant.
+blocks are not part of the primary profile.
+
+The separately frozen 1,644-parent Blocks 2 and 3 extension uses its own
+supervisor profile. It has an independent process namespace and control files,
+so it can run alongside the primary roster without restarting or interrupting
+any primary controller:
+
+```bash
+RL4RL_OVERNIGHT_PROFILE=1644-extension \
+  architecture_discovery/.venv/bin/python experiments/c0c3_overnight.py \
+  start --recover-interrupted --all-running
+```
+
+Its status and control commands use the same profile prefix, for example:
+
+```bash
+RL4RL_OVERNIGHT_PROFILE=1644-extension \
+  architecture_discovery/.venv/bin/python experiments/c0c3_overnight.py status
+RL4RL_OVERNIGHT_PROFILE=1644-extension \
+  architecture_discovery/.venv/bin/python experiments/c0c3_overnight.py pause \
+  --reason 'operator-requested pause'
+```
+
+Extension control artifacts are under
+`data/c0c3/overnight-control-1644-extension/`. The profile deliberately starts
+only C0-C3 from Blocks 2 and 3; it does not start the duplicate dormant Block 1
+assignments or any N0 assignments in the three-block campaign.
 
 ## Start
 

@@ -23,6 +23,14 @@ def test_default_roster_excludes_autoresearch_v14() -> None:
     assert "autoresearch-v1.4" not in {plan.key for plan in plans()}
 
 
+def test_1644_extension_profile_contains_only_extension_blocks() -> None:
+    roster = plans("1644-extension")
+
+    assert len(roster) == 1
+    assert roster[0].key == "autoresearch-v1.5-1644-extension"
+    assert roster[0].blocks == (2, 3)
+
+
 def test_individual_plan_expands_only_declared_factorial_blocks(tmp_path: Path) -> None:
     campaign = tmp_path / "campaign"
     _write_json(
