@@ -416,7 +416,7 @@ Use the same individual `start-staged-trajectory`,
 the operational roster must select exactly C0–C3 from Blocks 1–3 (twelve jobs),
 never N0. All twelve controllers may run simultaneously. The runtime admits at
 most three evaluator processes from this campaign through crash-releasing file
-locks. Each evaluator also acquires one of eight host-wide slots shared by every
+locks. Each evaluator also acquires one of twelve host-wide slots shared by every
 local protocol-1.6/1.7/2.0/2.1 campaign, so starting another campaign cannot
 silently double Mac training concurrency. A queued trainer is healthy and does
 not spend its evaluator timeout or evaluator-time budget while waiting.
@@ -550,7 +550,7 @@ Inspect the shared local pool at any time without changing it:
 $PY -m $CLI local-evaluator-status
 ```
 
-The JSON reports eight host slots and the opportunity holding each occupied
+The JSON reports twelve host slots and the opportunity holding each occupied
 slot. `experiments/c0c3_overnight.py status` also prints the compact occupied
 count. Protocols 1.7 and 2.1 set their campaign-local limit equal to their
 declared block count; older campaigns retain their frozen local limit. Queue waiting happens before

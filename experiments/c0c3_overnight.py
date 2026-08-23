@@ -84,6 +84,20 @@ SCREEN_SESSION = os.environ.get(
 SCHEMA_VERSION = "1.0"
 POLL_SECONDS = 2.0
 MAX_BACKOFF_SECONDS = 30 * 60
+SHARED_LOCAL_EVALUATOR_CAPACITY_ENV = "RL4RL_SHARED_LOCAL_EVALUATOR_CAPACITY"
+SHARED_LOCAL_EVALUATOR_CAPACITY = int(
+    os.environ.get(SHARED_LOCAL_EVALUATOR_CAPACITY_ENV, "12")
+)
+if SHARED_LOCAL_EVALUATOR_CAPACITY < 1:
+    raise RuntimeError(f"{SHARED_LOCAL_EVALUATOR_CAPACITY_ENV} must be positive")
+RUNTIME_CLI_BOOTSTRAP = (
+    "import os;"
+    "from experiments.c0c3_factorial import evaluator;"
+    "evaluator.SHARED_LOCAL_EVALUATOR_CAPACITY="
+    f"int(os.environ[{SHARED_LOCAL_EVALUATOR_CAPACITY_ENV!r}]);"
+    "from experiments.c0c3_factorial.cli import main;"
+    "raise SystemExit(main())"
+)
 
 
 @dataclasses.dataclass(frozen=True)
@@ -468,7 +482,11 @@ def automatic_pause_reason(job: Job) -> str | None:
 
 
 def cli_prefix(job: Job) -> list[str]:
-    return [str(PYTHON_BIN), "-m", "experiments.c0c3_factorial.cli"]
+    # The scheduler ceiling is an operational host policy, deliberately kept
+    # outside each campaign's hashed scientific runtime.  The bootstrap imports
+    # the frozen runtime from ``job.runtime_root`` and changes only the global
+    # file-lock pool size before invoking the unchanged CLI.
+    return [str(PYTHON_BIN), "-c", RUNTIME_CLI_BOOTSTRAP]
 
 
 def command_for(job: Job) -> list[str]:
@@ -504,6 +522,9 @@ def command_for(job: Job) -> list[str]:
 
 def command_environment(job: Job) -> dict[str, str]:
     environment = os.environ.copy()
+    environment[SHARED_LOCAL_EVALUATOR_CAPACITY_ENV] = str(
+        SHARED_LOCAL_EVALUATOR_CAPACITY
+    )
     if job.group in {
         "autoresearch-v1.7",
         "autoresearch-v1.7-nanogpt",
@@ -1150,9 +1171,16 @@ def command_status(_args: argparse.Namespace) -> int:
         f"supervisor={'running' if live else 'not-running'} "
         f"pid={supervisor_pid or '-'} heartbeat={heartbeat or '-'}"
     )
-    if PROFILE in {"autoresearch-v1.7", "openevolve-v2.1"}:
+    if PROFILE in {
+        "autoresearch-v1.7",
+        "autoresearch-v1.7-nanogpt",
+        "openevolve-v2.1",
+        "openevolve-v2.1-nanogpt",
+    }:
         print(f"codex_service_tier={service_tier()}")
-    scheduler = shared_local_evaluator_status()
+    scheduler = shared_local_evaluator_status(
+        capacity=SHARED_LOCAL_EVALUATOR_CAPACITY
+    )
     print(
         "local_evaluators="
         f"{scheduler['occupied']}/{scheduler['capacity']} "
@@ -1197,7 +1225,12 @@ def command_shutdown(_args: argparse.Namespace) -> int:
 
 
 def command_fast_mode(args: argparse.Namespace) -> int:
-    if PROFILE not in {"autoresearch-v1.7", "openevolve-v2.1"}:
+    if PROFILE not in {
+        "autoresearch-v1.7",
+        "autoresearch-v1.7-nanogpt",
+        "openevolve-v2.1",
+        "openevolve-v2.1-nanogpt",
+    }:
         raise SystemExit("fast-mode control is available for v1.7 and v2.1 profiles")
     CONTROL_ROOT.mkdir(parents=True, exist_ok=True)
     if args.action == "status":

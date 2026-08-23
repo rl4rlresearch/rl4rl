@@ -26,7 +26,7 @@ predeclared blocks and a confined continuous-session runtime. It fixes resumed
 process cwd ownership, isolates Codex configuration and thread identity, freezes
 inference preprocessing, strengthens fresh-training/attention-dependence checks,
 and caps concurrent local evaluators at three per campaign while all twelve
-controllers run. Local campaigns also enter one eight-slot host scheduler.
+controllers run. Local campaigns also enter one twelve-slot host scheduler.
 Version 2.0 is the prospective controlled OpenEvolve replacement. It removes N0,
 uses the 1,644-parameter pair-token parent and 5,000-step training path, gives
 each proposal a bounded ephemeral session with structured trajectory evidence,
@@ -323,7 +323,7 @@ removes every supplied checkpoint before training, rejects source mutation
 during training, requires a positive-step learned checkpoint, and checks that
 exact addition accuracy collapses when learned attention is ablated. At most
 three v1.6 evaluators hold campaign-local file-lock slots concurrently. Every
-local protocol-1.6/1.7/2.0/2.1 evaluator must also hold one of eight host-wide
+local protocol-1.6/1.7/2.0/2.1 evaluator must also hold one of twelve host-wide
 file-lock slots shared across campaigns. Both leases release automatically on
 process exit. Waiting for either slot occurs outside evaluator timeout and
 evaluator-budget accounting; Codex proposal generation and trajectory
@@ -365,7 +365,7 @@ Protocol 2.0 freezes
 trajectories across three blocks are declared before launch and are controlled,
 paused, resumed, and recovered independently. There is no block or opportunity
 barrier. At most three evaluators from this campaign may train concurrently,
-and every local evaluator also enters the shared eight-slot host scheduler;
+and every local evaluator also enters the shared twelve-slot host scheduler;
 proposal generation remains independently parallel. A durable supervisor may relaunch only a
 trajectory whose writer is confirmed absent, using the charged recovery rule.
 
@@ -388,7 +388,7 @@ not disclosed to the subject.
 
 The shared local scheduler is an operational machine-load control, not a
 factorial treatment. Protocols 1.7/2.1 use one campaign slot per declared block;
-older campaigns retain their frozen ceiling. It enforces eight local
+older campaigns retain their frozen ceiling. It enforces twelve local
 evaluations across all participating campaigns combined.
 It does not schedule Codex calls, alter proposal order or parent selection,
 charge queue time, or change evaluator seeds, commands, timeouts, and budgets.

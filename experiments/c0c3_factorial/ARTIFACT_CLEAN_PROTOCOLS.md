@@ -67,7 +67,7 @@ preflight remain unchanged.
 V2.1 retains v2.0's internal 100M-token safety ceiling, 200 proposal/evaluation
 limits, evaluator-time limit, and optional evaluator-only Modal transport.
 V1.7 and v2.1 set campaign-local evaluator capacity equal to the campaign's
-predeclared block count and join the eight-slot host scheduler shared with other
+predeclared block count and join the twelve-slot host scheduler shared with other
 active local campaigns.
 None of those resource values is shown to the subject.
 
@@ -148,6 +148,6 @@ configs/frameworks/openevolve_nanogpt_v2_1.toml
 Codex and campaign state stay local. Training is sent to the dedicated
 `rl4rl-c0c3-nanogpt-evaluator-v1` Modal service, which permits at most three
 H100 workers. Its leases use only the nanoGPT campaign pool and do not consume
-the Mac's eight local evaluator slots. Every call is recorded in
+the Mac's twelve local evaluator slots. Every call is recorded in
 `modal-usage.jsonl`; Modal Usage & Billing remains authoritative for credits and
 spend.

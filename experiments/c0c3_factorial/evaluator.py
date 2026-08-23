@@ -21,7 +21,7 @@ from .environment import controlled_subprocess_environment
 from .spec import ObjectiveDirection, TaskSpec
 from .state import Evaluation
 
-SHARED_LOCAL_EVALUATOR_CAPACITY = 8
+SHARED_LOCAL_EVALUATOR_CAPACITY = 12
 SHARED_LOCAL_EVALUATOR_ROOT_ENV = "RL4RL_SHARED_LOCAL_EVALUATOR_ROOT"
 
 
