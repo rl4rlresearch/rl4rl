@@ -109,6 +109,11 @@ V16_TASK = (
     / "experiments/c0c3_factorial/configs/tasks"
     / "ten_digit_addition_pair_transformer_codex1644_confined.toml"
 )
+V16_FRAMEWORK = (
+    ROOT
+    / "experiments/c0c3_factorial/configs/frameworks"
+    / "autoresearch_confined_v1_6.toml"
+)
 OPENEVOLVE_V2_PROTOCOL = (
     ROOT
     / "experiments/c0c3_factorial/configs/protocols"
@@ -439,6 +444,105 @@ def test_v16_freezes_confined_three_block_runtime_and_inference_data() -> None:
         "adderboard",
         "benchmark",
     )
+
+
+def test_v16_token_threshold_prompt_phases_are_uniform_and_minimal() -> None:
+    spec = FactorialSpec.from_toml(V16_PROTOCOL)
+    task_spec = TaskSpec.from_toml(V16_TASK)
+    framework_spec = FrameworkSpec.from_toml(V16_FRAMEWORK)
+    renderer = PromptRenderer(TEMPLATES)
+    visible = (
+        VisibleCandidate(
+            "opaque",
+            -1644.0,
+            {"accuracy": 1.0, "parameters": 1644},
+            0,
+            ".design-references/design-1",
+            "starting design",
+        ),
+    )
+
+    def rendered(condition: Condition, *, hide: bool, notice: bool) -> str:
+        return renderer.render(
+            spec,
+            task_spec,
+            framework_spec,
+            PromptContext(
+                condition=condition,
+                opportunity=50,
+                selected_parent_id="opaque",
+                visible_candidates=visible,
+                remaining_proposals=151,
+                remaining_evaluations=151,
+                remaining_tokens=0 if hide else 10_000,
+                remaining_evaluator_seconds=500_000.0,
+                hide_token_budget=hide,
+                token_budget_continuation_notice=notice,
+            ),
+        ).text
+
+    for condition in Condition:
+        before = rendered(condition, hide=False, notice=False)
+        first_after = rendered(condition, hide=True, notice=True)
+        later = rendered(condition, hide=True, notice=False)
+        assert "tokens=10000" in before
+        assert "tokens=" not in first_after
+        assert first_after.count(
+            "You are allowed to continue past the previously stated token budget."
+        ) == 1
+        assert "tokens=" not in later
+        assert "token budget" not in later.lower()
+
+
+def test_v16_token_threshold_returns_once_then_continues(tmp_path: Path) -> None:
+    base = FactorialSpec.from_toml(V16_PROTOCOL)
+    spec = FactorialSpec(
+        **{
+            **base.__dict__,
+            "blocks": 1,
+            "budget": BudgetSpec(
+                proposals=2,
+                candidate_evaluations=2,
+                max_total_tokens=10,
+                max_evaluator_seconds=100.0,
+                evaluator_timeout_seconds=10,
+            ),
+            "transition_opportunities": (1, 2),
+        }
+    )
+    controller = SearchController.create(
+        tmp_path / "v16",
+        spec,
+        run_id="v16-c0",
+        condition=Condition.C0,
+        seed_candidate=seed(),
+    )
+    controller.begin()
+    controller.complete(
+        candidate_id="first",
+        artifact_path="candidates/first",
+        hypothesis="first",
+        intended_edit="first",
+        evaluation=Evaluation(True, 1.0, {"score": 1.0}, 1.0),
+        usage=Usage(input_tokens=11),
+        prompt_hashes={},
+    )
+    assert controller.state.status == "token_threshold_reached"
+    assert not controller.state.token_budget_continuation_notice_sent
+
+    controller.begin()
+    controller.record_token_budget_continuation_notice()
+    controller.complete(
+        candidate_id="second",
+        artifact_path="candidates/second",
+        hypothesis="second",
+        intended_edit="second",
+        evaluation=Evaluation(True, 2.0, {"score": 2.0}, 1.0),
+        usage=Usage(input_tokens=11),
+        prompt_hashes={},
+    )
+    assert controller.state.token_budget_continuation_notice_sent
+    assert controller.state.status == "completed"
 
 
 def test_openevolve_v2_is_ephemeral_c0c3_only_and_subject_neutral() -> None:

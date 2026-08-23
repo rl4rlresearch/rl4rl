@@ -308,6 +308,16 @@ If a block was activated using primary results, it is adaptively collected and
 must not be presented as if the original primary sample size had always
 included it. N0 remains descriptive and outside the factorial contrasts.
 
+Protocol 1.6 uses 500,000,000 reported tokens as a common subject-visible phase
+threshold rather than a hard stopping budget. Before a run reaches the
+threshold, prompts expose the ordinary decreasing token remainder. Crossing the
+threshold ends that controller invocation. On the first resumed opportunity,
+the prompt omits token accounting and says only that the run may continue past
+the previously stated token budget. That notice is recorded once. Every later
+prompt omits all token-budget language. The rule is identical for all twelve
+C0–C3 trajectories; proposal, evaluation, and evaluator-time budgets remain
+hard limits.
+
 Protocol 2.0 freezes
 `confined_individually_controlled_c0c3_only_trajectories_v2`. All twelve C0–C3
 trajectories across three blocks are declared before launch and are controlled,
@@ -380,12 +390,16 @@ The workshop parallel pilot freezes, per run, 30 opportunities/evaluator calls,
 same 3,600-second evaluator timeout. It uses three blocks and therefore has
 three independent trajectories per factorial cell plus three separate N0 runs.
 
-Protocols 1.2–1.6 freeze 200 opportunities/evaluator calls, 500,000,000
+Protocols 1.2–1.5 freeze 200 opportunities/evaluator calls, 500,000,000
 total reported tokens, 720,000 aggregate evaluator seconds, and the same
 3,600-second evaluator timeout per run. Protocols 1.3–1.5 primary stages
 contain four runs and therefore schedule 800 proposals and 40
 assumption-changing interventions. Dormant extension runs consume no budget
 until explicitly activated.
+
+Protocol 1.6 freezes 200 opportunities/evaluator calls and 720,000 aggregate
+evaluator seconds per run. Its 500,000,000-token value is the two-phase prompt
+threshold described above, not a total-token stopping ceiling.
 
 Protocol 2.0 freezes 200 opportunities/evaluator calls, 100,000,000 total
 reported tokens, 360,000 aggregate evaluator seconds, and 1,800 seconds per
@@ -394,9 +408,11 @@ and twenty assumption-changing opportunities per C1/C3 trajectory. There is no
 N0 budget. The lower token ceiling reflects bounded ephemeral prompts rather
 than an intended difference among cells.
 
-A new opportunity cannot start after any remaining budget reaches zero. One
-already-started Codex or evaluator call may overshoot a ceiling; its actual usage
-is logged and the run then completes. There is no performance-based early stop.
+A new opportunity cannot start after any applicable hard budget reaches zero.
+One already-started Codex or evaluator call may overshoot a hard ceiling; its
+actual usage is logged and the run then completes. Protocol 1.6's token
+threshold instead returns once and resumes under its post-threshold prompt
+phase. There is no performance-based early stop.
 
 ## 11. Failures and recovery
 

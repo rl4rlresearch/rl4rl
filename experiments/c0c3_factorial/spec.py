@@ -219,6 +219,12 @@ class FactorialSpec:
     execution_rule: str = EXECUTION_RULE
     include_no_search: bool = True
 
+    @property
+    def continues_after_token_threshold(self) -> bool:
+        """Whether the configured token value is a prompt-phase threshold only."""
+
+        return self.protocol_version == "1.6"
+
     def __post_init__(self) -> None:
         if self.protocol_version not in PROTOCOL_EXECUTION_RULES:
             raise ValueError("unsupported protocol version")

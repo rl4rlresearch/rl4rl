@@ -737,11 +737,29 @@ def run_staged_individual_trajectory(
                 )
                 raise
             completed_opportunities += 1
+            controller = SearchController.load(run_dir, spec)
+            if controller.state.status == "token_threshold_reached":
+                outcome = {
+                    "run_id": run_id,
+                    "condition": str(assignment["condition"]),
+                    "status": "token_threshold_reached",
+                    "proposals_used": controller.state.proposals_used,
+                    "completed_opportunities": completed_opportunities,
+                    "stop_reason": "subject_visible_token_threshold",
+                }
+                _append_trajectory_lifecycle(
+                    campaign,
+                    run_dir,
+                    event="trajectory_token_threshold_reached",
+                    assignment=assignment,
+                    stage=stage,
+                    **outcome,
+                )
+                return outcome
             if (
                 record.get("evaluation", {}).get("failure_kind") == "provider"
                 and record.get("usage_increment", {}).get("total_tokens", 0) == 0
             ):
-                controller = SearchController.load(run_dir, spec)
                 outcome = {
                     "run_id": run_id,
                     "condition": str(assignment["condition"]),

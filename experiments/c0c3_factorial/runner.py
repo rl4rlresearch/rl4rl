@@ -391,6 +391,14 @@ def _run_one_opportunity_unlocked(
             }
         )
     remaining = controller.remaining()
+    after_token_threshold = (
+        spec.continues_after_token_threshold
+        and controller.state.usage.total_tokens >= spec.budget.max_total_tokens
+    )
+    show_token_continuation_notice = (
+        after_token_threshold
+        and not controller.state.token_budget_continuation_notice_sent
+    )
     prompt_context = PromptContext(
         condition=controller.condition,
         opportunity=active.index,
@@ -400,6 +408,8 @@ def _run_one_opportunity_unlocked(
         remaining_evaluations=int(remaining["evaluations"]),
         remaining_tokens=int(remaining["tokens"]),
         remaining_evaluator_seconds=float(remaining["evaluator_seconds"]),
+        hide_token_budget=after_token_threshold,
+        token_budget_continuation_notice=show_token_continuation_notice,
         no_search=controller.state.no_search,
         recent_outcomes=(
             ()
@@ -419,6 +429,8 @@ def _run_one_opportunity_unlocked(
         json.dumps(_hashes(rendered), indent=2, sort_keys=True) + "\n",
         encoding="utf-8",
     )
+    if show_token_continuation_notice:
+        controller.record_token_budget_continuation_notice()
     continuous = spec.conversation_mode is ConversationMode.CONTINUOUS
     codex_workspace = (
         _refresh_continuous_workspace(

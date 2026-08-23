@@ -393,6 +393,11 @@ the operational roster must select exactly C0–C3 from Blocks 1–3 (twelve job
 never N0. All twelve controllers may run simultaneously. The runtime admits at
 most three evaluator processes through crash-releasing file locks, so a queued
 trainer is healthy and does not spend its evaluator timeout while waiting.
+At 500M reported tokens, each controller exits normally with
+`token_threshold_reached`; the durable supervisor resumes that run. Its first
+resumed prompt contains the one continuation notice, and subsequent prompts
+contain no token-budget field or language. Do not manually retry or delete the
+threshold-crossing opportunity.
 
 For detached local operation use `experiments/c0c3_overnight.py` with
 `RL4RL_OVERNIGHT_PROFILE=1644-confined`. Run `check` before `start`, then start

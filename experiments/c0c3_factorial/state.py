@@ -110,6 +110,7 @@ class RunState:
     candidates: dict[str, Candidate]
     active: ActiveOpportunity | None = None
     conversation_session_id: str | None = None
+    token_budget_continuation_notice_sent: bool = False
     revision: int = 0
 
     def to_dict(self) -> dict[str, Any]:
@@ -120,6 +121,7 @@ class RunState:
     def from_dict(cls, value: dict[str, Any]) -> RunState:
         payload = dict(value)
         payload.setdefault("conversation_session_id", None)
+        payload.setdefault("token_budget_continuation_notice_sent", False)
         payload["usage"] = Usage(**payload["usage"])
         payload["candidates"] = {
             key: Candidate(**candidate)
@@ -233,7 +235,12 @@ class SearchController:
         state = self.state
         if state.schema_version != "1.0":
             raise ValueError("unsupported run-state version")
-        if state.status not in {"ready", "running", "completed"}:
+        if state.status not in {
+            "ready",
+            "running",
+            "token_threshold_reached",
+            "completed",
+        }:
             raise ValueError("invalid run status")
         if not 1 <= state.next_opportunity <= self.spec.budget.proposals + 1:
             raise ValueError("next opportunity is outside the frozen budget")
@@ -256,10 +263,12 @@ class SearchController:
             state.incumbent_id
         ]:
             raise ValueError("single-incumbent condition exposed multiple candidates")
-        # One in-flight call may overshoot the token ceiling. Completion is
-        # allowed, but no new opportunity can begin.
+        # One in-flight call may overshoot a hard token ceiling. Protocol 1.6
+        # instead treats this value as the boundary between its two prompt
+        # phases and resumes with one continuation notice.
         if (
-            state.usage.total_tokens > self.spec.budget.max_total_tokens
+            not self.spec.continues_after_token_threshold
+            and state.usage.total_tokens > self.spec.budget.max_total_tokens
             and state.active is not None
         ):
             raise ValueError("active call exists after token budget exhaustion")
@@ -318,6 +327,30 @@ class SearchController:
             },
         )
 
+    def record_token_budget_continuation_notice(self) -> None:
+        """Record the one subject-facing notice after v1.6 crosses its threshold."""
+
+        if not self.spec.continues_after_token_threshold:
+            raise ValueError("token-threshold continuation is not enabled")
+        if self.state.token_budget_continuation_notice_sent:
+            return
+        if self.state.usage.total_tokens < self.spec.budget.max_total_tokens:
+            raise ValueError("token threshold has not been reached")
+        self.state.token_budget_continuation_notice_sent = True
+        self._write_state()
+        append_jsonl(
+            self.events_path,
+            {
+                "schema_version": "1.0",
+                "event": "token_budget_continuation_notice_sent",
+                "timestamp": utc_now(),
+                "run_id": self.state.run_id,
+                "opportunity": self.state.next_opportunity,
+                "token_threshold": self.spec.budget.max_total_tokens,
+                "tokens_used": self.state.usage.total_tokens,
+            },
+        )
+
     def _selected_parent(self, visible: list[str]) -> str:
         if self.state.no_search:
             # Independent proposals always start at the frozen seed.
@@ -356,7 +389,10 @@ class SearchController:
         if (
             remaining["proposals"] <= 0
             or remaining["evaluations"] <= 0
-            or remaining["tokens"] <= 0
+            or (
+                remaining["tokens"] <= 0
+                and not self.spec.continues_after_token_threshold
+            )
             or remaining["evaluator_seconds"] <= 0
         ):
             self.state.status = "completed"
@@ -532,11 +568,20 @@ class SearchController:
         self.state.next_opportunity += 1
         exhausted = (
             self.state.next_opportunity > self.spec.budget.proposals
-            or self.state.usage.total_tokens >= self.spec.budget.max_total_tokens
             or self.state.evaluator_seconds_used
             >= self.spec.budget.max_evaluator_seconds
         )
         if exhausted:
+            self.state.status = "completed"
+        elif (
+            self.spec.continues_after_token_threshold
+            and not self.state.token_budget_continuation_notice_sent
+            and self.state.usage.total_tokens >= self.spec.budget.max_total_tokens
+        ):
+            self.state.status = "token_threshold_reached"
+            record["token_threshold_reached"] = True
+        elif self.state.usage.total_tokens >= self.spec.budget.max_total_tokens:
+            # Non-v1.6 protocols retain the original hard token stop.
             self.state.status = "completed"
         self._write_state()
         return record

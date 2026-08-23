@@ -104,7 +104,10 @@ Future coding agents must also follow [AGENTS.md](AGENTS.md).
   preprocessing, retrains from an empty checkpoint directory, and allows at
   most three local evaluators at once. All twelve C0–C3 trajectories may remain
   active concurrently; the evaluator limit is condition-common machine-load
-  control rather than a trajectory barrier.
+  control rather than a trajectory barrier. Its 500M-token value is a common
+  subject-visible phase threshold: the controller returns at the crossing,
+  resumes once with a minimal continuation notice, and omits token-budget
+  language from every later prompt.
 - `configs/protocols/controlled_openevolve_transformer_v2.toml` is the
   prospective controlled OpenEvolve replacement: three C0–C3-only blocks, 200
   bounded ephemeral proposals per run, the 1,644-parameter/5,000-step parent,

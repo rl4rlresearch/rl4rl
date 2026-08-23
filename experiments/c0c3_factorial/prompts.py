@@ -87,6 +87,8 @@ class PromptContext:
     remaining_evaluations: int
     remaining_tokens: int
     remaining_evaluator_seconds: float
+    hide_token_budget: bool = False
+    token_budget_continuation_notice: bool = False
     no_search: bool = False
     recent_outcomes: tuple[VisibleOutcome, ...] = ()
     mechanism_ledger: str = "No earlier mechanism result is available."
@@ -453,12 +455,21 @@ class PromptRenderer:
                     "" if neutral else self.ordinary
                 )
         if neutral:
-            budget = (
-                f"work_cycles={context.remaining_proposals}; "
-                f"verifications={context.remaining_evaluations}; "
-                f"tokens={context.remaining_tokens}; "
+            budget_parts = [
+                f"work_cycles={context.remaining_proposals}",
+                f"verifications={context.remaining_evaluations}",
+            ]
+            if not context.hide_token_budget:
+                budget_parts.append(f"tokens={context.remaining_tokens}")
+            budget_parts.append(
                 f"verification_seconds={context.remaining_evaluator_seconds:.3f}"
             )
+            budget = "; ".join(budget_parts)
+            if context.token_budget_continuation_notice:
+                budget += (
+                    "\nYou are allowed to continue past the previously stated "
+                    "token budget."
+                )
             slots = self._neutral_slots(
                 context.visible_candidates,
                 spec.portfolio_capacity,
@@ -491,13 +502,22 @@ class PromptRenderer:
                 budget_status=budget,
             )
         else:
-            budget = (
-                f"proposals_remaining={context.remaining_proposals}; "
-                f"evaluations_remaining={context.remaining_evaluations}; "
-                f"tokens_remaining={context.remaining_tokens}; "
+            budget_parts = [
+                f"proposals_remaining={context.remaining_proposals}",
+                f"evaluations_remaining={context.remaining_evaluations}",
+            ]
+            if not context.hide_token_budget:
+                budget_parts.append(f"tokens_remaining={context.remaining_tokens}")
+            budget_parts.append(
                 "evaluator_seconds_remaining="
                 f"{context.remaining_evaluator_seconds:.3f}"
             )
+            budget = "; ".join(budget_parts)
+            if context.token_budget_continuation_notice:
+                budget += (
+                    "\nYou are allowed to continue past the previously stated "
+                    "token budget."
+                )
             common_template = self.common_template
             text = common_template.format(
                 search_state=(
