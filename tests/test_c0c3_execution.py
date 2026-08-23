@@ -1240,6 +1240,52 @@ def test_nanogpt_hybrid_transport_uses_dedicated_h100_service() -> None:
     assert function_name == "evaluate_candidate"
 
 
+def test_hybrid_usage_receipts_support_calibration_and_search_paths(
+    tmp_path: Path,
+) -> None:
+    calibration_evaluation = tmp_path / "calibration" / "evaluation"
+    calibration_evaluation.mkdir(parents=True)
+    ModalCommandEvaluator._record_usage(
+        calibration_evaluation,
+        call_id="calibration-call",
+        local_wall_seconds=12.0,
+        worker_seconds=11.0,
+        gpu_name="H100",
+        status="completed",
+        app_name=NANOGPT_APP_NAME,
+        function_name="evaluate_candidate",
+    )
+    calibration_record = json.loads(
+        (calibration_evaluation / "modal-usage.json").read_text()
+    )
+    assert calibration_record["record_kind"] == "baseline_calibration"
+    assert calibration_record["run_id"] == "[calibration]"
+    assert calibration_record["opportunity"] == 0
+    assert (tmp_path / "calibration/modal-usage.jsonl").is_file()
+
+    search_evaluation = (
+        tmp_path / "campaign/runs/example/opportunities/0007"
+    )
+    search_evaluation.mkdir(parents=True)
+    ModalCommandEvaluator._record_usage(
+        search_evaluation,
+        call_id="search-call",
+        local_wall_seconds=22.0,
+        worker_seconds=21.0,
+        gpu_name="H100",
+        status="completed",
+        app_name=NANOGPT_APP_NAME,
+        function_name="evaluate_candidate",
+    )
+    search_record = json.loads(
+        (search_evaluation / "modal-usage.json").read_text()
+    )
+    assert search_record["record_kind"] == "candidate_evaluation"
+    assert search_record["run_id"] == "example"
+    assert search_record["opportunity"] == 7
+    assert (tmp_path / "campaign/modal-usage.jsonl").is_file()
+
+
 def test_runtime_hash_change_fails_validation_and_execution(tmp_path: Path) -> None:
     seed_source = make_seed(tmp_path / "source")
     baseline = calibrate_task(

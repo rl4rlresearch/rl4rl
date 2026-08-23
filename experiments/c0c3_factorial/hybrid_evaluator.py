@@ -194,12 +194,25 @@ class ModalCommandEvaluator(CommandEvaluator):
         app_name: str,
         function_name: str,
     ) -> None:
-        campaign = opportunity_root.parents[3]
+        if opportunity_root.name.isdigit():
+            ledger_root = opportunity_root.parents[3]
+            run_id = opportunity_root.parents[1].name
+            opportunity = int(opportunity_root.name)
+            record_kind = "candidate_evaluation"
+        else:
+            # Target-backend calibration uses ``<calibration>/evaluation`` rather
+            # than ``runs/<run>/opportunities/<NNNN>``. Keep its receipt inside
+            # the calibration bundle and do not pretend it is a search proposal.
+            ledger_root = opportunity_root.parent
+            run_id = "[calibration]"
+            opportunity = 0
+            record_kind = "baseline_calibration"
         record = {
             "schema_version": "1.0",
             "call_id": call_id,
-            "run_id": opportunity_root.parents[1].name,
-            "opportunity": int(opportunity_root.name),
+            "record_kind": record_kind,
+            "run_id": run_id,
+            "opportunity": opportunity,
             "app": app_name,
             "function": function_name,
             "status": status,
@@ -207,7 +220,7 @@ class ModalCommandEvaluator(CommandEvaluator):
             "worker_seconds": worker_seconds,
             "gpu_name": gpu_name,
         }
-        append_jsonl(campaign / "modal-usage.jsonl", record)
+        append_jsonl(ledger_root / "modal-usage.jsonl", record)
         (opportunity_root / "modal-usage.json").write_text(
             json.dumps(record, indent=2, sort_keys=True) + "\n",
             encoding="utf-8",
