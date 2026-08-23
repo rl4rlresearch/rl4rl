@@ -47,11 +47,11 @@ def test_1644_confined_fresh_profile_is_independent_and_declares_three_blocks() 
     assert len(roster) == 1
     assert roster[0].key == "autoresearch-v1.6-1644-confined-fresh"
     assert roster[0].blocks == (1, 2, 3)
-    assert roster[0].pause_after_proposals == 100
+    assert roster[0].pause_after_proposals == 75
     assert roster[0].campaign.name.endswith("campaign-fresh-20260822c")
 
 
-def test_fresh_profile_jobs_inherit_proposal_100_pause_boundary(
+def test_fresh_profile_jobs_inherit_proposal_75_pause_boundary(
     tmp_path: Path,
 ) -> None:
     campaign = tmp_path / "campaign"
@@ -65,16 +65,16 @@ def test_fresh_profile_jobs_inherit_proposal_100_pause_boundary(
         campaign=campaign,
         mode="individual-trajectories",
         blocks=(1,),
-        pause_after_proposals=100,
+        pause_after_proposals=75,
     )
 
     jobs = expand_jobs((plan,))
 
     assert len(jobs) == 1
-    assert jobs[0].pause_after_proposals == 100
+    assert jobs[0].pause_after_proposals == 75
 
 
-def test_automatic_pause_arms_during_proposal_100(tmp_path: Path) -> None:
+def test_automatic_pause_arms_during_configured_proposal(tmp_path: Path) -> None:
     campaign = tmp_path / "campaign"
     run_id = "b1-C0"
     _write_json(
@@ -90,22 +90,22 @@ def test_automatic_pause_arms_during_proposal_100(tmp_path: Path) -> None:
         mode="individual-trajectories",
         run_id=run_id,
         blocks=(1,),
-        pause_after_proposals=100,
+        pause_after_proposals=75,
     )
     _write_json(
         state_path,
-        {"proposals_used": 99, "active": {"index": 99}},
+        {"proposals_used": 74, "active": {"index": 74}},
     )
     assert automatic_pause_reason(job) is None
 
     _write_json(
         state_path,
-        {"proposals_used": 99, "active": {"index": 100}},
+        {"proposals_used": 74, "active": {"index": 75}},
     )
-    assert automatic_pause_reason(job) == "automatic pause after proposal 100"
+    assert automatic_pause_reason(job) == "automatic pause after proposal 75"
 
-    _write_json(state_path, {"proposals_used": 100, "active": None})
-    assert automatic_pause_reason(job) == "automatic pause after proposal 100"
+    _write_json(state_path, {"proposals_used": 75, "active": None})
+    assert automatic_pause_reason(job) == "automatic pause after proposal 75"
 
 
 def test_openevolve_v2_profile_declares_three_individually_controlled_blocks() -> None:

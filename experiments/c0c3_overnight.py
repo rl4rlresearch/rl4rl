@@ -157,7 +157,7 @@ def plans(profile: str | None = None) -> tuple[CampaignPlan, ...]:
                 ),
                 mode="individual-trajectories",
                 blocks=(1, 2, 3),
-                pause_after_proposals=100,
+                pause_after_proposals=75,
             ),
         )
     if selected_profile == "openevolve-v2":
