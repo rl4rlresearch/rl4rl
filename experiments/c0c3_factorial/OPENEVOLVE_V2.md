@@ -101,6 +101,13 @@ an infrastructure failure, not a candidate result. Use the separately
 calibrated Modal L4 task below, or define and preregister another hardware
 stratum, rather than silently falling back inside an MPS campaign.
 
+Codex's restricted command sandbox can hide Metal even on a supported Apple
+Silicon Mac. A false result inside that sandbox does not mean PyTorch is
+misinstalled. Run the probe and the detached supervisor from an ordinary VS
+Code/macOS terminal. The `openevolve-v2` supervisor profile repeats a real
+tensor-allocation probe during both `check` and `start`, so a process that
+cannot access the frozen accelerator fails before any proposal is consumed.
+
 Do not pass `--without-no-search`: protocol 2.0 already freezes N0 as absent,
 and campaign creation records that composition in its hashes and manifest.
 

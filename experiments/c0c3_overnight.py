@@ -423,6 +423,30 @@ _spec, task, framework = _load_campaign(campaign)
 print(scientific_runtime_hash(repo_root, task=task, framework=framework))
 """
 
+ACCELERATOR_PROBE = r"""
+import json
+import sys
+import torch
+device = sys.argv[1]
+available = (
+    torch.backends.mps.is_available()
+    if device == "mps"
+    else torch.cuda.is_available()
+    if device == "cuda"
+    else True
+)
+result = {
+    "device": device,
+    "available": bool(available),
+    "torch": torch.__version__,
+}
+if available and device in {"mps", "cuda"}:
+    tensor = torch.ones(4, device=device)
+    result["smoke_sum"] = float(tensor.sum().item())
+print(json.dumps(result, sort_keys=True))
+raise SystemExit(0 if available else 2)
+"""
+
 
 def runtime_hash(job: Job) -> str:
     result = subprocess.run(
@@ -437,6 +461,44 @@ def runtime_hash(job: Job) -> str:
             f"runtime hash probe failed for {job.group}: {result.stderr.strip()}"
         )
     return result.stdout.strip().splitlines()[-1]
+
+
+def required_local_accelerator(campaign: Path) -> str | None:
+    """Return a frozen local training device, excluding remote evaluators."""
+
+    task = read_json(campaign / "inputs/task.json", {})
+    if not isinstance(task, dict) or task.get("preferred_backend") != "local":
+        return None
+    command = task.get("evaluator_command")
+    if not isinstance(command, list) or "--train-device" not in command:
+        return None
+    index = command.index("--train-device")
+    if index + 1 >= len(command):
+        return None
+    device = str(command[index + 1])
+    return device if device in {"mps", "cuda"} else None
+
+
+def accelerator_error(job: Job) -> str | None:
+    device = required_local_accelerator(job.campaign)
+    if device is None:
+        return None
+    result = subprocess.run(
+        [str(PYTHON_BIN), "-c", ACCELERATOR_PROBE, device],
+        cwd=job.runtime_root,
+        text=True,
+        capture_output=True,
+        check=False,
+    )
+    if result.returncode == 0:
+        return None
+    details = (result.stdout + result.stderr).strip()
+    return (
+        f"local {device} accelerator is unavailable to the supervisor process "
+        f"for {job.group}: {details or 'probe returned no details'}. "
+        "Launch from an ordinary terminal with accelerator access or use a "
+        "separately calibrated remote-backend campaign."
+    )
 
 
 def preflight(jobs: list[Job], *, allow_active: bool) -> list[str]:
@@ -477,6 +539,9 @@ def preflight(jobs: list[Job], *, allow_active: bool) -> list[str]:
                     )
             except RuntimeError as error:
                 errors.append(str(error))
+            hardware_error = accelerator_error(job)
+            if hardware_error is not None:
+                errors.append(hardware_error)
         if not allow_active:
             active = active_run_ids(job)
             if active:

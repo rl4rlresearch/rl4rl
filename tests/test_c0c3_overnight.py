@@ -10,6 +10,7 @@ from experiments.c0c3_overnight import (
     expand_jobs,
     plans,
     progress_for,
+    required_local_accelerator,
     select_jobs,
 )
 
@@ -58,6 +59,32 @@ def test_openevolve_v2_profile_declares_three_individually_controlled_blocks() -
     assert roster[0].campaign.name == (
         "controlled-openevolve-transformer-v2-mps-campaign"
     )
+
+
+def test_local_accelerator_is_derived_from_frozen_task_input(tmp_path: Path) -> None:
+    campaign = tmp_path / "campaign"
+    _write_json(
+        campaign / "inputs/task.json",
+        {
+            "preferred_backend": "local",
+            "evaluator_command": ["python", "train.py", "--train-device", "mps"],
+        },
+    )
+    assert required_local_accelerator(campaign) == "mps"
+
+    _write_json(
+        campaign / "inputs/task.json",
+        {
+            "preferred_backend": "hybrid_modal",
+            "evaluator_command": [
+                "python",
+                "train.py",
+                "--train-device",
+                "cuda",
+            ],
+        },
+    )
+    assert required_local_accelerator(campaign) is None
 
 
 def test_individual_plan_expands_only_declared_factorial_blocks(tmp_path: Path) -> None:

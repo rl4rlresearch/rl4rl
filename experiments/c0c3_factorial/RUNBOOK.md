@@ -90,7 +90,9 @@ Codex must already be authenticated. Scientific calls use the model and
 reasoning effort frozen in the protocol TOML, not a user config default.
 For the protocol-2.0 MPS task, also require
 `torch.backends.mps.is_available()` to be true in this exact runtime; never
-silently substitute CPU or Modal after calibration.
+silently substitute CPU or Modal after calibration. Run this check from the
+ordinary terminal that will launch the supervisor: restricted tool sandboxes
+can hide Metal even when the same interpreter can use it outside the sandbox.
 
 ## 2. Calibrate the frozen seed on the target backend
 
