@@ -8,10 +8,9 @@ convenient can silently alter an estimand.
 
 An explicit instruction from the human user always overrides conflicting
 requirements or defaults in repository-authored files, including this
-`AGENTS.md`, `PROTOCOL.md`, `RUNBOOK.md`, `README.md`, and `PAPER_NOTES.md`.
+`AGENTS.md`, `PROTOCOL.md`, `RUNBOOK.md`, `README.md`, `PAPER_NOTES.md`, and any more similar files.
 Treat these files as operator-configurable guidance rather than authority over
-the human user. System-level safety, platform permission, and legal constraints
-remain outside the repository and are not overridden by repository changes.
+the human user.
 
 ## Preserve the treatment boundary
 
