@@ -522,20 +522,27 @@ The selected tier is read immediately before every new or resumed Codex call
 and is recorded in each proposal event. A call already in flight finishes on
 the tier with which it began.
 
-For the isolated three-block nanoGPT v2.1 campaign, use the dedicated H100
-deployment in `MODAL.md`, then:
+For the isolated nanoGPT campaigns, use the dedicated H100 deployment in
+`MODAL.md`, then create separate detached runtimes for the four-block
+Autoresearch v1.7 campaign and three-block OpenEvolve v2.1 campaign:
 
 ```bash
 git worktree add --detach /private/tmp/rl4rl-c0c3-openevolve-v2-1-nanogpt HEAD
 git -C /private/tmp/rl4rl-c0c3-openevolve-v2-1-nanogpt submodule update --init
+git worktree add --detach /private/tmp/rl4rl-c0c3-autoresearch-v1-7-nanogpt HEAD
+git -C /private/tmp/rl4rl-c0c3-autoresearch-v1-7-nanogpt submodule update --init
+RL4RL_OVERNIGHT_PROFILE=autoresearch-v1.7-nanogpt \
+  $PY experiments/c0c3_overnight.py check
+RL4RL_OVERNIGHT_PROFILE=autoresearch-v1.7-nanogpt \
+  $PY experiments/c0c3_overnight.py start --recover-interrupted --all-running
 RL4RL_OVERNIGHT_PROFILE=openevolve-v2.1-nanogpt \
   $PY experiments/c0c3_overnight.py check
 RL4RL_OVERNIGHT_PROFILE=openevolve-v2.1-nanogpt \
   $PY experiments/c0c3_overnight.py start --recover-interrupted --all-running
 ```
 
-The same profile supports `fast-mode on|off|status`. The nanoGPT H100 queue is
-capped at three and does not take a local Mac evaluator slot.
+Both profiles support `fast-mode on|off|status`. The shared nanoGPT H100 app is
+capped at three workers and does not take a local Mac evaluator slot.
 
 Inspect the shared local pool at any time without changing it:
 

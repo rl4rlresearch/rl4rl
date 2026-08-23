@@ -297,8 +297,10 @@ evaluation. Use `configs/tasks/karpathy_nanogpt_source_only_h100.toml` for both
 calibration and campaign creation. Local calibration invokes the deployed H100
 function; a baseline produced on another GPU type is not interchangeable.
 
-The three-block v2.1 supervisor profile is
-`RL4RL_OVERNIGHT_PROFILE=openevolve-v2.1-nanogpt`. Its local per-campaign lease
-limits outstanding remote calls to three even if more Codex proposals finish
-at once. Review recorded worker seconds with `modal-usage` and check the Modal
-Usage & Billing page for authoritative remaining credits.
+The four-block v1.7 and three-block v2.1 supervisor profiles are
+`RL4RL_OVERNIGHT_PROFILE=autoresearch-v1.7-nanogpt` and
+`RL4RL_OVERNIGHT_PROFILE=openevolve-v2.1-nanogpt`. Both submit to the same
+dedicated app, whose hard three-worker cap bounds aggregate H100 concurrency
+even when more proposals finish at once. Review recorded worker seconds with
+`modal-usage` and check the Modal Usage & Billing page for authoritative
+remaining credits.

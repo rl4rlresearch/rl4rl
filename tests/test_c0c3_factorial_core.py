@@ -258,12 +258,12 @@ def test_artifact_clean_presets_start_fast_with_requested_block_counts() -> None
     assert (v21.blocks, v21.model.service_tier) == (5, "fast")
 
 
-def test_nanogpt_artifact_clean_presets_are_three_fast_h100_blocks() -> None:
+def test_nanogpt_artifact_clean_presets_have_requested_fast_h100_blocks() -> None:
     v17 = FactorialSpec.from_toml(NANOGPT_V17_PROTOCOL)
     v21 = FactorialSpec.from_toml(NANOGPT_V21_PROTOCOL)
     task_spec = TaskSpec.from_toml(NANOGPT_TASK)
 
-    assert (v17.blocks, v17.model.service_tier) == (3, "fast")
+    assert (v17.blocks, v17.model.service_tier) == (4, "fast")
     assert (v21.blocks, v21.model.service_tier) == (3, "fast")
     assert task_spec.adapter == NANOGPT_TASK_ADAPTER
     assert task_spec.preferred_backend is ExecutionBackend.HYBRID_MODAL

@@ -57,6 +57,11 @@ elif PROFILE == "autoresearch-v1.7":
 elif PROFILE == "openevolve-v2.1":
     DEFAULT_CONTROL_ROOT = REPO_ROOT / "data/c0c3/overnight-control-openevolve-v2-1"
     DEFAULT_SCREEN_SESSION = "rl4rl-c0c3-openevolve-v2-1"
+elif PROFILE == "autoresearch-v1.7-nanogpt":
+    DEFAULT_CONTROL_ROOT = (
+        REPO_ROOT / "data/c0c3/overnight-control-autoresearch-v1-7-nanogpt"
+    )
+    DEFAULT_SCREEN_SESSION = "rl4rl-c0c3-autoresearch-v1-7-nanogpt"
 elif PROFILE == "openevolve-v2.1-nanogpt":
     DEFAULT_CONTROL_ROOT = (
         REPO_ROOT / "data/c0c3/overnight-control-openevolve-v2-1-nanogpt"
@@ -222,6 +227,23 @@ def plans(profile: str | None = None) -> tuple[CampaignPlan, ...]:
                 ),
                 mode="individual-trajectories",
                 blocks=(1, 2, 3, 4, 5),
+            ),
+        )
+    if selected_profile == "autoresearch-v1.7-nanogpt":
+        return (
+            CampaignPlan(
+                key="autoresearch-v1.7-nanogpt",
+                runtime_root=_env_path(
+                    "RL4RL_AUTORESEARCH_V17_NANOGPT_RUNTIME",
+                    Path("/private/tmp/rl4rl-c0c3-autoresearch-v1-7-nanogpt"),
+                ),
+                campaign=_env_path(
+                    "RL4RL_AUTORESEARCH_V17_NANOGPT_CAMPAIGN",
+                    REPO_ROOT
+                    / "data/c0c3/nanogpt-autoresearch-v1-7-h100-campaign",
+                ),
+                mode="individual-trajectories",
+                blocks=(1, 2, 3, 4),
             ),
         )
     if selected_profile == "openevolve-v2.1-nanogpt":
@@ -484,6 +506,7 @@ def command_environment(job: Job) -> dict[str, str]:
     environment = os.environ.copy()
     if job.group in {
         "autoresearch-v1.7",
+        "autoresearch-v1.7-nanogpt",
         "openevolve-v2.1",
         "openevolve-v2.1-nanogpt",
     }:
@@ -505,6 +528,7 @@ def service_tier() -> str:
 def ensure_service_tier_control() -> None:
     if PROFILE not in {
         "autoresearch-v1.7",
+        "autoresearch-v1.7-nanogpt",
         "openevolve-v2.1",
         "openevolve-v2.1-nanogpt",
     }:
