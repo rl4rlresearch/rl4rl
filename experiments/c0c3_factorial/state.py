@@ -267,7 +267,7 @@ class SearchController:
         # instead treats this value as the boundary between its two prompt
         # phases and resumes with one continuation notice.
         if (
-            not self.spec.continues_after_token_threshold
+            self.spec.enforces_hard_token_limit
             and state.usage.total_tokens > self.spec.budget.max_total_tokens
             and state.active is not None
         ):
@@ -391,7 +391,7 @@ class SearchController:
             or remaining["evaluations"] <= 0
             or (
                 remaining["tokens"] <= 0
-                and not self.spec.continues_after_token_threshold
+                and self.spec.enforces_hard_token_limit
             )
             or remaining["evaluator_seconds"] <= 0
         ):
@@ -581,7 +581,7 @@ class SearchController:
             self.state.status = "token_threshold_reached"
             record["token_threshold_reached"] = True
         elif (
-            not self.spec.continues_after_token_threshold
+            self.spec.enforces_hard_token_limit
             and self.state.usage.total_tokens >= self.spec.budget.max_total_tokens
         ):
             # Non-v1.6 protocols retain the original hard token stop.

@@ -1,9 +1,13 @@
-# Controlled OpenEvolve transformer protocol v2
+# Controlled OpenEvolve transformer protocols v2.0 and v2.1
 
 Protocol 2.0 is a prospective, scientifically separate OpenEvolve stratum. It
 keeps the C0–C3 2×2 question and removes N0 entirely. It must not be pooled with
 the legacy protocol-1.1 OpenEvolve campaign, whose task surface allowed direct
 arithmetic transducers and whose 30,000-step failures consumed many hours.
+Protocol 2.1 is the prospective source-only, artifact-clean successor. It keeps
+the same execution geometry and validity checks but removes unnecessary
+controller information and prompt duplication. Use 2.1 for new artifact-clean
+collection; existing 2.0 campaigns remain scientifically separate.
 
 ## Frozen design
 
@@ -14,7 +18,8 @@ arithmetic transducers and whose 30,000-step failures consumed many hours.
 - GPT-5.6 Sol xhigh for every proposal.
 - A fresh bounded Codex call per proposal. Cross-proposal continuity is the
   selected source, all retained designs, the last twelve outcomes, and a compact
-  free-form mechanism ledger; raw conversation history is not resumed.
+  free-form mechanism ledger in v2.0; v2.1 records mechanisms once in its recent
+  outcomes and has no duplicate ledger. Raw conversation history is not resumed.
 - One independently supervised process per trajectory. All twelve processes may
   generate proposals concurrently, while at most three evaluators train at once.
 - The 1,644-parameter pair-token transformer is the common seed. Its ordinary
@@ -38,6 +43,12 @@ mutation, zero learned state, absent or unused self-attention, and models whose
 accuracy remains high when attention is ablated. Layer A uses the fixed seed
 2025 set; sealed Layer C uses disjoint seed 8,724,319.
 
+V2.1 receives source and verified public metrics but never the supplied trained
+checkpoint. It also receives no proposal/horizon/resource counters, prompt-slot
+markers, empty design placeholders, selection counts, nonpublic `cases` or
+`correct` fields, raw runner errors, filesystem paths that do not exist, or
+run-derived environment seed. See `ARTIFACT_CLEAN_PROTOCOLS.md`.
+
 ## Controlled OpenEvolve boundary
 
 This is the controlled OpenEvolve proposal adapter, not native end-to-end
@@ -52,6 +63,10 @@ The subject supplies a free-form mechanism name, falsifiable hypothesis,
 intended edit, and evidence citation. No fixed mechanism-family menu is shown.
 Those fields provide auditable provenance and a bounded ledger without
 restricting which mechanisms may be proposed.
+
+In v2.1 the current/reference source, public design evidence, metadata contract,
+and SEARCH/REPLACE contract each appear once. V2.0's repeated mechanism ledger,
+metrics, and adapter-appended response reminder are not rendered.
 
 ## Failure and speed controls
 
@@ -111,6 +126,18 @@ cannot access the frozen accelerator fails before any proposal is consumed.
 Do not pass `--without-no-search`: protocol 2.0 already freezes N0 as absent,
 and campaign creation records that composition in its hashes and manifest.
 
+For v2.1, replace the three frozen inputs and output prefix above with:
+
+```bash
+PROTOCOL=$C0C3/configs/protocols/controlled_openevolve_transformer_v2_1.toml
+TASK=$C0C3/configs/tasks/ten_digit_addition_pair_transformer_openevolve_v2_1_mps.toml
+FRAMEWORK=$C0C3/configs/frameworks/openevolve_v2_1.toml
+OUT=data/c0c3/controlled-openevolve-transformer-v2-1-mps
+```
+
+Use the `openevolve-v2.1` supervisor profile and detached runtime path shown in
+`RUNBOOK.md`. V2.1 also freezes N0 as absent.
+
 Create a detached runtime from the exact committed launch revision, then use
 the durable supervisor:
 
@@ -157,3 +184,7 @@ It is not an invoice and does not include all warm-idle, storage, credits, or
 workspace-wide use. Use Modal's Usage & Billing page or `modal billing` for the
 authoritative account balance and set the workspace/environment budget before
 launch.
+
+For v2.1 Modal collection, use
+`ten_digit_addition_pair_transformer_openevolve_v2_1_modal.toml`; do not reuse a
+v2.0 or MPS calibration.

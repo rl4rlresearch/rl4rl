@@ -13,7 +13,7 @@ scheduled pressure to change architectural assumptions, or their interaction
 increases the number of distinct, valid mechanism families an agent discovers.
 The primary outcome is **distinct Layer-B-qualified mechanism clusters per
 run**. Protocols 1.0–1.6 can include an independent-proposal no-search baseline,
-N0, outside the 2×2 contrasts. Prospective OpenEvolve protocol 2.0 removes N0.
+N0, outside the 2×2 contrasts. Protocols 1.7, 2.0, and 2.1 contain only C0–C3.
 
 ## Read in this order
 
@@ -29,8 +29,10 @@ N0, outside the 2×2 contrasts. Prospective OpenEvolve protocol 2.0 removes N0.
    1.4, 1.5, and 1.6 are currently local-only.
 5. [PAPER_NOTES.md](PAPER_NOTES.md) — literature, hypotheses, reviewer rubric,
    figures, statistical cautions, and paper-writing checklist.
-6. [OPENEVOLVE_V2.md](OPENEVOLVE_V2.md) — the no-N0, validity-constrained,
-   faster controlled OpenEvolve protocol and launch commands.
+6. [OPENEVOLVE_V2.md](OPENEVOLVE_V2.md) — the no-N0, validity-constrained
+   controlled OpenEvolve protocols and launch commands.
+7. [ARTIFACT_CLEAN_PROTOCOLS.md](ARTIFACT_CLEAN_PROTOCOLS.md) — the v1.7 and
+   v2.1 source-only subject boundary and prompt-cleanliness guarantees.
 
 Future coding agents must also follow [AGENTS.md](AGENTS.md).
 
@@ -114,6 +116,14 @@ Future coding agents must also follow [AGENTS.md](AGENTS.md).
   neutral prompts, strict patch/source preflight, trained-attention checks,
   three evaluator slots, independent supervision, and optional evaluator-only
   Modal L4 offload. It is a new stratum and cannot be pooled with protocol 1.1.
+- `configs/protocols/workshop_codex1644_source_only_v1_7.toml` is the
+  artifact-clean continuous Autoresearch successor. It has twelve primary
+  C0–C3 trajectories, no N0, no subject-visible resource/horizon accounting,
+  source-only workspaces, and no token-based stop.
+- `configs/protocols/controlled_openevolve_transformer_v2_1.toml` is the
+  artifact-clean ephemeral OpenEvolve successor. It preserves v2.0's search
+  geometry and evaluator controls while removing subject-visible orchestration
+  artifacts and redundant prompt composition.
 
 Run the dev protocol end to end before spending on the paper protocol. Do not
 reinterpret dev results as a pilot effect estimate: its transition density and
@@ -134,17 +144,18 @@ budget are intentionally unlike the paper protocol.
 - Use `run-staged-next`/`run-staged-campaign` for protocol 1.3. Use
   `run-staged-independent-campaign` for protocol 1.4. Use
   `start-staged-trajectory`, `pause-staged-trajectory`, and
-  `resume-staged-trajectory` for protocols 1.5–1.6 and 2.0. Protocol 2.0 has no
-  optional N0 stage and freezes all three C0–C3 blocks as its analysis scope.
+  `resume-staged-trajectory` for protocols 1.5–1.7 and 2.0–2.1. Protocols 1.7,
+  2.0, and 2.1 have no optional N0 stage and freeze all three C0–C3 blocks as
+  their analysis scope.
 - Never expose Layer B annotations or Layer C results until every run in the
   campaign is completed.
 - Do not delete, retry, or reuse a failed opportunity. Use `recover-active` for
   an interrupted active opportunity; the opportunity remains charged.
 - Do not run the same campaign from local and Modal storage simultaneously.
 - Keep one campaign orchestrator process for protocols 1.1–1.4. Protocols
-  1.5–1.6 and 2.0 instead authorize one controller per scheduled run; a per-run
-  lock rejects a second controller for the same trajectory, while peers may
-  operate in parallel.
+  1.5–1.7 and 2.0–2.1 instead authorize one controller per scheduled run; a
+  per-run lock rejects a second controller for the same trajectory, while peers
+  may operate in parallel.
 - Do not pool task or framework strata as if they were interchangeable
   replications. Report each task × framework stratum, then synthesize effects.
 

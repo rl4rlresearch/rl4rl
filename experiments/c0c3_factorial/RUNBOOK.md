@@ -78,6 +78,29 @@ ephemeral Codex proposals, the 1,644-parameter pair-token parent, and a strict
 5,000-step-compatible learned-transformer evaluator. See
 [OPENEVOLVE_V2.md](OPENEVOLVE_V2.md) before calibration or launch.
 
+For artifact-clean continuous Autoresearch protocol 1.7, use:
+
+```bash
+PROTOCOL=$C0C3/configs/protocols/workshop_codex1644_source_only_v1_7.toml
+TASK=$C0C3/configs/tasks/ten_digit_addition_pair_transformer_codex1644_source_only.toml
+FRAMEWORK=$C0C3/configs/frameworks/autoresearch_confined_v1_7.toml
+OUT=data/c0c3/transformer-optimization-v1-7-source-only
+```
+
+For artifact-clean controlled OpenEvolve protocol 2.1, use:
+
+```bash
+PROTOCOL=$C0C3/configs/protocols/controlled_openevolve_transformer_v2_1.toml
+TASK=$C0C3/configs/tasks/ten_digit_addition_pair_transformer_openevolve_v2_1_mps.toml
+FRAMEWORK=$C0C3/configs/frameworks/openevolve_v2_1.toml
+OUT=data/c0c3/controlled-openevolve-transformer-v2-1-mps
+```
+
+Both require a fresh calibration and campaign. They create twelve primary
+C0–C3 runs, no N0, and never copy the supplied trained checkpoint into a
+subject workspace. Read [ARTIFACT_CLEAN_PROTOCOLS.md](ARTIFACT_CLEAN_PROTOCOLS.md)
+before launch.
+
 Verify prerequisites:
 
 ```bash
@@ -142,8 +165,8 @@ $PY -m $CLI create \
 
 By default protocols 1.0–1.6 create C0–C3 plus N0 in every block.
 `--without-no-search` is available only for engineering diagnostics in those
-protocols. Protocol 2.0 freezes `include_no_search=false`, creates only C0–C3,
-and rejects an attempted N0 override.
+protocols. Protocols 1.7, 2.0, and 2.1 freeze `include_no_search=false`, create
+only C0–C3, and reject an attempted N0 override.
 
 Campaign contents include:
 
@@ -444,6 +467,35 @@ MPS and Modal require distinct calibrations and campaigns. The local ledger is
 not the authoritative account balance; use Modal Usage & Billing and set a hard
 workspace or environment budget before launching.
 
+### Protocols 1.7 and 2.1 artifact-clean trajectories
+
+Use the same individual start/pause/resume and charged recovery commands as
+protocols 1.6 and 2.0. All twelve C0–C3 run IDs are primary scope and no N0
+exists. Create a detached runtime at the exact committed launch revision, then
+use the corresponding durable supervisor profile:
+
+```bash
+# Autoresearch 1.7
+git worktree add --detach /private/tmp/rl4rl-c0c3-autoresearch-v1-7 HEAD
+RL4RL_OVERNIGHT_PROFILE=autoresearch-v1.7 \
+  $PY experiments/c0c3_overnight.py check
+RL4RL_OVERNIGHT_PROFILE=autoresearch-v1.7 \
+  $PY experiments/c0c3_overnight.py start --recover-interrupted --all-running
+
+# OpenEvolve 2.1
+git worktree add --detach /private/tmp/rl4rl-c0c3-openevolve-v2-1 HEAD
+RL4RL_OVERNIGHT_PROFILE=openevolve-v2.1 \
+  $PY experiments/c0c3_overnight.py check
+RL4RL_OVERNIGHT_PROFILE=openevolve-v2.1 \
+  $PY experiments/c0c3_overnight.py start --recover-interrupted --all-running
+```
+
+Override the prospective default campaign paths only before the supervisor
+starts with `RL4RL_AUTORESEARCH_V17_CAMPAIGN` or
+`RL4RL_OPENEVOLVE_V21_CAMPAIGN`. Use the matching `*_RUNTIME` variable when the
+detached worktree is elsewhere. Run `check` before `start`; it verifies the
+campaign inputs and local accelerator without changing trajectory state.
+
 ## 6. Inspect progress without changing it
 
 ```bash
@@ -467,8 +519,8 @@ remain `ready` with zero proposals; this is expected, not a stalled campaign.
 For protocol 1.4, inspect `independent-trajectories.jsonl` instead of
 `parallel-rounds.jsonl`; the four primary run rows need not have matching
 `proposals_used` while the launcher is active.
-For protocols 1.5–1.6 and 2.0, inspect `trajectory-lifecycle.jsonl` plus each run's
-`lifecycle.jsonl`; it records start, pause request, pause acknowledgement,
+For protocols 1.5–1.7 and 2.0–2.1, inspect `trajectory-lifecycle.jsonl` plus each
+run's `lifecycle.jsonl`; it records start, pause request, pause acknowledgement,
 resume, transport stop, and completion for every independently controlled run.
 
 ## 7. Recover an interrupted active opportunity
@@ -502,7 +554,7 @@ For protocol 1.4, recover every active run, then invoke the same
 `run-staged-independent-campaign` block/stage. It starts only the unfinished
 trajectories and each continues from its own next opportunity; it never creates
 or retries a missing synchronized round.
-For protocols 1.5–1.6 and 2.0, recover only the affected run, then invoke
+For protocols 1.5–1.7 and 2.0–2.1, recover only the affected run, then invoke
 `resume-staged-trajectory` with the same run ID. Do not recover or restart its
 peers.
 

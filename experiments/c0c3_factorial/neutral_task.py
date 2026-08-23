@@ -5,14 +5,33 @@ from __future__ import annotations
 NEUTRAL_TASK_ADAPTER = "ten_digit_addition_transformer_v1"
 PAIR_TOKEN_TASK_ADAPTER = "ten_digit_addition_pair_transformer_v1"
 PAIR_TOKEN_TASK_ADAPTER_V2 = "ten_digit_addition_pair_transformer_v2"
+PAIR_TOKEN_TASK_ADAPTER_V3 = "ten_digit_addition_pair_transformer_v3"
 NEUTRAL_PROMPT_PROFILE = "trained_transformer_optimizer_v1_5"
 OPENEVOLVE_V2_PROMPT_PROFILE = "trained_transformer_openevolve_v2"
-SUBJECT_NEUTRAL_PROTOCOL_VERSIONS = frozenset({"1.5", "1.6", "2.0"})
+AUTORESEARCH_V17_PROMPT_PROFILE = "trained_transformer_optimizer_v1_7"
+OPENEVOLVE_V21_PROMPT_PROFILE = "trained_transformer_openevolve_v2_1"
+SUBJECT_NEUTRAL_PROTOCOL_VERSIONS = frozenset(
+    {"1.5", "1.6", "1.7", "2.0", "2.1"}
+)
 SUBJECT_NEUTRAL_PROMPT_PROFILES = frozenset(
-    {NEUTRAL_PROMPT_PROFILE, OPENEVOLVE_V2_PROMPT_PROFILE}
+    {
+        NEUTRAL_PROMPT_PROFILE,
+        OPENEVOLVE_V2_PROMPT_PROFILE,
+        AUTORESEARCH_V17_PROMPT_PROFILE,
+        OPENEVOLVE_V21_PROMPT_PROFILE,
+    }
 )
 SUBJECT_NEUTRAL_TASK_ADAPTERS = frozenset(
-    {NEUTRAL_TASK_ADAPTER, PAIR_TOKEN_TASK_ADAPTER, PAIR_TOKEN_TASK_ADAPTER_V2}
+    {
+        NEUTRAL_TASK_ADAPTER,
+        PAIR_TOKEN_TASK_ADAPTER,
+        PAIR_TOKEN_TASK_ADAPTER_V2,
+        PAIR_TOKEN_TASK_ADAPTER_V3,
+    }
+)
+ARTIFACT_CLEAN_PROTOCOL_VERSIONS = frozenset({"1.7", "2.1"})
+ARTIFACT_CLEAN_PROMPT_PROFILES = frozenset(
+    {AUTORESEARCH_V17_PROMPT_PROFILE, OPENEVOLVE_V21_PROMPT_PROFILE}
 )
 
 SANITIZED_SEED_PATHS = (
@@ -31,6 +50,13 @@ PAIR_TOKEN_SANITIZED_SEED_PATHS = (
     "checkpoints/best.pt",
 )
 
+# Protocols 1.7 and 2.1 provide source and verified public results, never a
+# pretrained checkpoint. Calibration and every candidate evaluation train in a
+# separate evaluator workspace from a fresh initialization.
+PAIR_TOKEN_SOURCE_ONLY_SEED_PATHS = tuple(
+    path for path in PAIR_TOKEN_SANITIZED_SEED_PATHS if path != "checkpoints/best.pt"
+)
+
 
 def validate_v15_pairing(
     *,
@@ -41,9 +67,11 @@ def validate_v15_pairing(
     """Fail closed if subject-neutral components are mixed with older strata."""
 
     is_subject_neutral = protocol_version in SUBJECT_NEUTRAL_PROTOCOL_VERSIONS
-    expected_adapter = (
-        PAIR_TOKEN_TASK_ADAPTER_V2 if protocol_version == "2.0" else None
-    )
+    expected_adapter = {
+        "1.7": PAIR_TOKEN_TASK_ADAPTER_V3,
+        "2.0": PAIR_TOKEN_TASK_ADAPTER_V2,
+        "2.1": PAIR_TOKEN_TASK_ADAPTER_V3,
+    }.get(protocol_version)
     if expected_adapter is not None and task_adapter != expected_adapter:
         raise ValueError(
             f"protocol {protocol_version} requires task adapter {expected_adapter}"
@@ -58,11 +86,11 @@ def validate_v15_pairing(
         )
     if prompt_profile is None:
         return
-    expected_profile = (
-        OPENEVOLVE_V2_PROMPT_PROFILE
-        if protocol_version == "2.0"
-        else NEUTRAL_PROMPT_PROFILE
-    )
+    expected_profile = {
+        "1.7": AUTORESEARCH_V17_PROMPT_PROFILE,
+        "2.0": OPENEVOLVE_V2_PROMPT_PROFILE,
+        "2.1": OPENEVOLVE_V21_PROMPT_PROFILE,
+    }.get(protocol_version, NEUTRAL_PROMPT_PROFILE)
     if is_subject_neutral and prompt_profile != expected_profile:
         raise ValueError(
             "subject-neutral prompt profile mismatch: "

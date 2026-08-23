@@ -10,8 +10,10 @@ from .artifacts import candidate_hash, scientific_runtime_hash, tree_hash
 from .neutral_task import (
     NEUTRAL_TASK_ADAPTER,
     PAIR_TOKEN_SANITIZED_SEED_PATHS,
+    PAIR_TOKEN_SOURCE_ONLY_SEED_PATHS,
     PAIR_TOKEN_TASK_ADAPTER,
     PAIR_TOKEN_TASK_ADAPTER_V2,
+    PAIR_TOKEN_TASK_ADAPTER_V3,
     SANITIZED_SEED_PATHS,
     SUBJECT_NEUTRAL_PROMPT_PROFILES,
     validate_v15_pairing,
@@ -95,16 +97,18 @@ def validate_campaign(
         )
     if (
         task.preferred_backend is ExecutionBackend.HYBRID_MODAL
-        and spec.protocol_version != "2.0"
+        and spec.protocol_version not in {"2.0", "2.1"}
     ):
-        errors.append("hybrid Modal evaluation is frozen only for protocol 2.0")
+        errors.append(
+            "hybrid Modal evaluation is frozen only for protocols 2.0 and 2.1"
+        )
     schedule = json.loads((campaign / "schedule.json").read_text(encoding="utf-8"))
     run_ids = [str(row["run_id"]) for row in schedule]
     if len(run_ids) != len(set(run_ids)):
         errors.append("campaign schedule contains duplicate run IDs")
     expected_primary = (
         run_ids
-        if spec.protocol_version == "2.0"
+        if spec.c0c3_only
         else
         [
             str(row["run_id"])
@@ -128,7 +132,7 @@ def validate_campaign(
         spec.execution_rule
         in STAGED_EXECUTION_RULES
         and not manifest.get("include_no_search")
-        and spec.protocol_version != "2.0"
+        and not spec.c0c3_only
     ):
         errors.append("staged protocol requires pre-created N0 extensions")
     for block in range(1, spec.blocks + 1):
@@ -178,12 +182,14 @@ def validate_campaign(
         NEUTRAL_TASK_ADAPTER,
         PAIR_TOKEN_TASK_ADAPTER,
         PAIR_TOKEN_TASK_ADAPTER_V2,
+        PAIR_TOKEN_TASK_ADAPTER_V3,
     }:
-        sanitized_paths = (
-            SANITIZED_SEED_PATHS
-            if task.adapter == NEUTRAL_TASK_ADAPTER
-            else PAIR_TOKEN_SANITIZED_SEED_PATHS
-        )
+        if task.adapter == NEUTRAL_TASK_ADAPTER:
+            sanitized_paths = SANITIZED_SEED_PATHS
+        elif task.adapter == PAIR_TOKEN_TASK_ADAPTER_V3:
+            sanitized_paths = PAIR_TOKEN_SOURCE_ONLY_SEED_PATHS
+        else:
+            sanitized_paths = PAIR_TOKEN_SANITIZED_SEED_PATHS
         expected_subject_files = {
             *sanitized_paths,
             "submission.py",
@@ -239,7 +245,12 @@ def validate_campaign(
                         "neutral prompt exposes internal terms at opportunity "
                         f"{opportunity}: {list(disclosures)}"
                     )
-        if len({treatment_skeleton(value.text) for value in prompts.values()}) != 1:
+        skeletons = {
+            value.treatment_skeleton_sha256
+            or treatment_skeleton(value.text)
+            for value in prompts.values()
+        }
+        if len(skeletons) != 1:
             errors.append(f"prompt skeleton differs at opportunity {opportunity}")
         if (
             prompts[Condition.C0].search_state_sha256

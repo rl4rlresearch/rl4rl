@@ -30,14 +30,24 @@ def subject_subprocess_environment(
     run_seed: int | None,
     *,
     workspace: str | Path | None = None,
+    expose_run_seed: bool = True,
 ) -> dict[str, str]:
-    """Expose a neutral seed name to a subject-facing Codex process."""
+    """Build the subject environment without exposing internal seed labels."""
 
     environment = controlled_subprocess_environment(run_seed)
     environment.pop("C0C3_RUN_SEED", None)
     environment.pop("OLDPWD", None)
     if workspace is not None:
-        environment["PWD"] = str(Path(workspace))
-    if run_seed is not None:
+        subject_workspace = Path(workspace)
+        environment["PWD"] = str(subject_workspace)
+        if not expose_run_seed:
+            cache = subject_workspace / ".subject-cache"
+            cache.mkdir(parents=True, exist_ok=True)
+            environment["TMPDIR"] = str(cache)
+            environment["XDG_CACHE_HOME"] = str(cache)
+    if run_seed is not None and expose_run_seed:
         environment["OPTIMIZATION_RUN_SEED"] = str(run_seed)
+    else:
+        environment.pop("OPTIMIZATION_RUN_SEED", None)
+        environment.pop("PYTHONHASHSEED", None)
     return environment

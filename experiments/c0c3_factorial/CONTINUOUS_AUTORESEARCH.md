@@ -77,6 +77,26 @@ Use the `v1_5` protocol/framework files and the start/pause/resume commands in
 `RUNBOOK.md`. Start the four primary trajectories under one predeclared
 operational plan and report their lifecycle timing and overlap.
 
+## Protocol 1.7 source-only subject boundary
+
+Protocol 1.7 is the artifact-clean successor to the confined v1.6 campaign. It
+keeps one continuous conversation per trajectory, independent per-run
+ownership, three evaluator slots, and the 200-opportunity schedule. All three
+C0–C3 blocks are primary and N0 is absent.
+
+The first turn receives the complete task contract. Each resumed turn receives
+only the current available designs, the single newly available verification
+result, and scheduled direction when applicable. Resource/horizon counters,
+prompt markers, empty design slots, selection counts, private metrics, raw
+runner errors, and repeated twelve-result history are absent. Flexible metadata
+extraction preserves free-form summaries without requiring exact response
+labels.
+
+The subject workspace has no supplied checkpoint, run seed, or
+`.workspace-identity`. It receives a neutral local Git baseline and
+workspace-confined cache directories. See `ARTIFACT_CLEAN_PROTOCOLS.md` and use
+the v1.7 protocol/task/framework presets in `RUNBOOK.md`.
+
 ## Scale and expected cost
 
 The protocol-1.4 campaign pre-creates 15 trajectories so all optional extensions

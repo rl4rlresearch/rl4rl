@@ -1,4 +1,4 @@
-"""Deployed Modal L4 worker for evaluator-only protocol-2.0 execution."""
+"""Deployed Modal L4 worker for evaluator-only protocol-2.0/2.1 execution."""
 
 from __future__ import annotations
 

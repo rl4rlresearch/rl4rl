@@ -75,6 +75,16 @@ previous/top/inspiration sections. Codex runs ephemerally in an opaque,
 read-only, network-disabled workspace; only the resulting patch is applied to
 the candidate workspace. See [OPENEVOLVE_V2.md](OPENEVOLVE_V2.md).
 
+### Protocol-2.1 artifact-clean OpenEvolve adapter
+
+Configuration: `configs/frameworks/openevolve_v2_1.toml`
+
+The v2.1 adapter keeps the same OpenEvolve sampler and strict patch parser while
+rendering source, public evidence, mechanism history, and response requirements
+once each. It receives no controller budgets/horizon, selection counts, raw
+runner fields, nonexistent reference paths, run seed, or trained checkpoint.
+See [ARTIFACT_CLEAN_PROTOCOLS.md](ARTIFACT_CLEAN_PROTOCOLS.md).
+
 ## 4. Adding another research framework
 
 Adding MAP-Elites, Go-Explore, Islands, curiosity, or another Heuresis-style
@@ -183,6 +193,19 @@ strict fresh best/last checkpoint provenance, source immutability, learned
 attention execution/ablation, and a disjoint final seed. The MPS and Modal L4
 variants are hardware-specific strata and require separate calibration and
 campaigns; their results are not interchangeable replications.
+
+### Protocol-1.7/2.1 source-only pair-token variants
+
+Configurations:
+
+- `configs/tasks/ten_digit_addition_pair_transformer_codex1644_source_only.toml`
+- `configs/tasks/ten_digit_addition_pair_transformer_openevolve_v2_1_mps.toml`
+- `configs/tasks/ten_digit_addition_pair_transformer_openevolve_v2_1_modal.toml`
+
+These use task adapter `ten_digit_addition_pair_transformer_v3`. It copies the
+protected source and decoder wrapper but never copies the seed's
+`checkpoints/best.pt`. Baseline calibration and every candidate evaluation
+therefore train in evaluator-owned workspaces from fresh initialization.
 
 ## 7. Official Karpathy Autoresearch nanoGPT task
 

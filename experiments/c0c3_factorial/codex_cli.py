@@ -85,6 +85,7 @@ class CodexCli:
         resume_session_id: str | None = None,
         persist_session: bool = False,
         neutral_subject: bool = False,
+        artifact_clean_subject: bool = False,
     ) -> CodexResult:
         workspace = workspace.resolve()
         if not workspace.is_dir() or workspace.is_symlink():
@@ -95,6 +96,19 @@ class CodexCli:
         last_message = log_root / f"{call_id}.last-message.md"
         if any(path.exists() for path in (events, stderr, last_message)):
             raise FileExistsError(f"Codex call ID already exists: {call_id}")
+        excluded_environment_names = [
+            "CODEX_HOME",
+            "HOME",
+            "OLDPWD",
+            "C0C3_RUN_SEED",
+        ]
+        if artifact_clean_subject:
+            excluded_environment_names.extend(
+                ["OPTIMIZATION_RUN_SEED", "PYTHONHASHSEED"]
+            )
+        excluded_environment = json.dumps(
+            excluded_environment_names, separators=(",", ":")
+        )
         isolated_options = [
             "--ignore-user-config",
             "--ignore-rules",
@@ -106,8 +120,7 @@ class CodexCli:
             "-c",
             'sandbox_workspace_write.exclude_slash_tmp=true',
             "-c",
-            'shell_environment_policy.exclude=["CODEX_HOME","HOME","OLDPWD",'
-            '"C0C3_RUN_SEED"]',
+            f"shell_environment_policy.exclude={excluded_environment}",
         ]
         if resume_session_id is None:
             command = [
@@ -177,6 +190,7 @@ class CodexCli:
                             subject_subprocess_environment(
                                 run_seed,
                                 workspace=workspace,
+                                expose_run_seed=not artifact_clean_subject,
                             )
                             if neutral_subject
                             else controlled_subprocess_environment(run_seed)

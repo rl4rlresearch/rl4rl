@@ -5,7 +5,7 @@ evaluator, event logger, runtime-hash gate, recovery rule, and `run-next`
 orchestrator used locally. `modal_app.py` is transport and compute provisioning,
 not a second scientific implementation.
 
-Protocol 2.0 also provides a separate **hybrid evaluator-only** path documented
+Protocols 2.0 and 2.1 also provide a separate **hybrid evaluator-only** path documented
 in [OPENEVOLVE_V2.md](OPENEVOLVE_V2.md). In that path Codex and campaign state
 remain local; a deployed Modal L4 function receives only one immutable
 candidate/support bundle and returns evaluator artifacts. Do not confuse it
@@ -251,7 +251,7 @@ Record:
 - local validation receipt and all campaign hashes;
 - confirmation that only one mutation writer was active.
 
-## 12. Protocol-2.0 evaluator-only deployment
+## 12. Protocol-2.0/2.1 evaluator-only deployment
 
 The lab account owner should create a dedicated environment and hard budget,
 then deploy once:
@@ -266,7 +266,9 @@ L4 containers, uses no Codex/OpenAI secret, disables Modal retries, and has a
 five-minute maximum idle scaledown window. Local calls use Modal API tokens from
 the active profile or `MODAL_TOKEN_ID`/`MODAL_TOKEN_SECRET`.
 
-Use the protocol-2.0 Modal task TOML for both calibration and campaign creation.
+Use the matching protocol-2.0 or source-only protocol-2.1 Modal task TOML for
+both calibration and campaign creation. Never reuse calibration across those
+protocol/task hashes.
 Each remote call appends `modal-usage.jsonl` to the local campaign. Summarize it
 with `c0c3_factorial.cli modal-usage`; use `modal billing` or the Usage & Billing
 dashboard for authoritative spend, credits, and remaining budget.

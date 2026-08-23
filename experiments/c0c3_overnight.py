@@ -44,6 +44,12 @@ elif PROFILE == "1644-confined-fresh":
 elif PROFILE == "openevolve-v2":
     DEFAULT_CONTROL_ROOT = REPO_ROOT / "data/c0c3/overnight-control-openevolve-v2"
     DEFAULT_SCREEN_SESSION = "rl4rl-c0c3-openevolve-v2"
+elif PROFILE == "autoresearch-v1.7":
+    DEFAULT_CONTROL_ROOT = REPO_ROOT / "data/c0c3/overnight-control-autoresearch-v1-7"
+    DEFAULT_SCREEN_SESSION = "rl4rl-c0c3-autoresearch-v1-7"
+elif PROFILE == "openevolve-v2.1":
+    DEFAULT_CONTROL_ROOT = REPO_ROOT / "data/c0c3/overnight-control-openevolve-v2-1"
+    DEFAULT_SCREEN_SESSION = "rl4rl-c0c3-openevolve-v2-1"
 else:
     raise RuntimeError(f"unknown overnight profile: {PROFILE}")
 CONTROL_ROOT = Path(
@@ -163,6 +169,40 @@ def plans(profile: str | None = None) -> tuple[CampaignPlan, ...]:
                     "RL4RL_OPENEVOLVE_V2_CAMPAIGN",
                     REPO_ROOT
                     / "data/c0c3/controlled-openevolve-transformer-v2-mps-campaign",
+                ),
+                mode="individual-trajectories",
+                blocks=(1, 2, 3),
+            ),
+        )
+    if selected_profile == "autoresearch-v1.7":
+        return (
+            CampaignPlan(
+                key="autoresearch-v1.7",
+                runtime_root=_env_path(
+                    "RL4RL_AUTORESEARCH_V17_RUNTIME",
+                    Path("/private/tmp/rl4rl-c0c3-autoresearch-v1-7"),
+                ),
+                campaign=_env_path(
+                    "RL4RL_AUTORESEARCH_V17_CAMPAIGN",
+                    REPO_ROOT
+                    / "data/c0c3/transformer-optimization-v1-7-source-only-campaign",
+                ),
+                mode="individual-trajectories",
+                blocks=(1, 2, 3),
+            ),
+        )
+    if selected_profile == "openevolve-v2.1":
+        return (
+            CampaignPlan(
+                key="openevolve-v2.1",
+                runtime_root=_env_path(
+                    "RL4RL_OPENEVOLVE_V21_RUNTIME",
+                    Path("/private/tmp/rl4rl-c0c3-openevolve-v2-1"),
+                ),
+                campaign=_env_path(
+                    "RL4RL_OPENEVOLVE_V21_CAMPAIGN",
+                    REPO_ROOT
+                    / "data/c0c3/controlled-openevolve-transformer-v2-1-mps-campaign",
                 ),
                 mode="individual-trajectories",
                 blocks=(1, 2, 3),

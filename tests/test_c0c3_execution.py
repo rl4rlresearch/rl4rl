@@ -51,10 +51,12 @@ from experiments.c0c3_factorial.hybrid_evaluator import (
 )
 from experiments.c0c3_factorial.modal_app import safe_campaign_path
 from experiments.c0c3_factorial.neutral_task import (
+    AUTORESEARCH_V17_PROMPT_PROFILE,
     NEUTRAL_PROMPT_PROFILE,
     NEUTRAL_TASK_ADAPTER,
     OPENEVOLVE_V2_PROMPT_PROFILE,
     PAIR_TOKEN_TASK_ADAPTER_V2,
+    PAIR_TOKEN_TASK_ADAPTER_V3,
 )
 from experiments.c0c3_factorial.orchestration import (
     FACTORIAL_STAGE,
@@ -86,6 +88,7 @@ from experiments.c0c3_factorial.runner import (
 from experiments.c0c3_factorial.spec import (
     OPENEVOLVE_V2_EXECUTION_RULE,
     PARALLEL_EXECUTION_RULE,
+    STAGED_CONFINED_INDIVIDUAL_EXECUTION_RULE,
     STAGED_INDEPENDENT_EXECUTION_RULE,
     STAGED_INDIVIDUAL_EXECUTION_RULE,
     STAGED_PARALLEL_EXECUTION_RULE,
@@ -378,6 +381,42 @@ def openevolve_v2_framework() -> FrameworkSpec:
         adapter="controlled_openevolve_prompt_diff_v2",
         prompt_profile=OPENEVOLVE_V2_PROMPT_PROFILE,
         edit_mode="search_replace_diff",
+    )
+
+
+def openevolve_v21_task(seed_source: Path) -> TaskSpec:
+    base = openevolve_v2_task(seed_source)
+    return TaskSpec(**{**base.__dict__, "adapter": PAIR_TOKEN_TASK_ADAPTER_V3})
+
+
+def artifact_clean_task(seed_source: Path) -> TaskSpec:
+    command = (
+        "{python}",
+        "-c",
+        (
+            "import json,sys; "
+            "open(sys.argv[1], 'w').write(json.dumps("
+            "{{'metrics': "
+            "{{'accuracy': 1.0, 'parameters': 1644, 'training_steps': 1, "
+            "'cases': 10010, 'correct': 10010}}}}))"
+        ),
+        "{output}",
+    )
+    return TaskSpec(
+        task_id="artifact-clean-pair-transformer",
+        display_name="transformer for 10-digit addition",
+        adapter=PAIR_TOKEN_TASK_ADAPTER_V3,
+        seed_source=str(seed_source),
+        editable_paths=("src/model.py", "src/train.py"),
+        evaluator_command=command,
+        objective_metric="parameters",
+        objective_direction=ObjectiveDirection.MINIMIZE,
+        qualification_metric="accuracy",
+        qualification_minimum=0.99,
+        public_feedback_metrics=("accuracy", "parameters", "training_steps"),
+        metric_patterns={},
+        final_holdout_command=command,
+        preferred_backend=ExecutionBackend.LOCAL,
     )
 
 
@@ -1244,6 +1283,130 @@ def test_openevolve_v2_adapter_uses_bounded_neutral_strict_patch_prompt(
     assert prompt.count("===== FILE: src/model.py =====") == 1
     assert "OpenEvolve" not in prompt
     assert "MECHANISM, HYPOTHESIS, INTENDED_EDIT, and EVIDENCE" in prompt
+
+
+def test_openevolve_v21_adapter_uses_one_clean_prompt_contract(
+    tmp_path: Path,
+) -> None:
+    if importlib.util.find_spec("dacite") is None:
+        pytest.skip("OpenEvolve dependencies live in architecture_discovery/.venv")
+    workspace = make_pair_token_seed(tmp_path / "workspace")
+    visible = make_pair_token_seed(tmp_path / "visible")
+    reference = make_pair_token_seed(tmp_path / "reference")
+    fake_codex = make_fake_v2_diff_codex(tmp_path / "fake-v21-diff-codex")
+    adapter = OpenEvolveAdapter(
+        CodexCli(str(fake_codex)),
+        vendor_root=ROOT / "architecture_discovery/vendor/openevolve",
+        v2=True,
+        v21=True,
+        template_root=ROOT / "experiments/c0c3_factorial/templates/openevolve_v2_1",
+    )
+    response_contract = "Return these short metadata lines"
+    rendered = RenderedPrompt(
+        text=(
+            "Optimize a learned transformer without external access.\n"
+            f"{response_contract}."
+        ),
+        common_template_sha256="a",
+        search_state_sha256="b",
+        proposal_policy_sha256="c",
+        prompt_sha256="d",
+        transition_active=False,
+    )
+    result = adapter.propose(
+        rendered=rendered,
+        workspace=workspace,
+        model=ModelSpec("gpt-fake", "high"),
+        log_root=tmp_path / "logs",
+        call_id="proposal-1",
+        timeout_seconds=10,
+        task=openevolve_v21_task(workspace),
+        visible_workspaces=(visible, reference),
+        selected_parent_id="seed",
+        visible_records=(
+            {
+                "candidate_id": "seed",
+                "metrics": {"accuracy": 1.0, "parameters": 1644},
+            },
+            {
+                "candidate_id": "reference",
+                "metrics": {"accuracy": 0.995, "parameters": 1600},
+            },
+        ),
+        run_seed=42,
+        neutral_subject=True,
+        artifact_clean_subject=True,
+    )
+
+    assert result.adapter_error is None
+    prompt = fake_codex.with_suffix(".prompt.md").read_text()
+    assert prompt.count(response_contract) == 1
+    assert prompt.count("===== FILE: src/model.py =====") == 2
+    assert "REFERENCE DESIGN 1" in prompt
+    assert "VERIFIED VALUES" not in prompt
+    assert ".design-references" not in prompt
+    assert "followed by one or more exact SEARCH/REPLACE blocks" not in prompt
+
+
+def test_v17_campaign_is_source_only_c0c3_and_launch_valid(
+    tmp_path: Path,
+) -> None:
+    seed_source = make_pair_token_seed(tmp_path / "source")
+    spec = FactorialSpec(
+        protocol_version="1.7",
+        study_id="artifact-clean-launch-test",
+        study_seed=20260824,
+        blocks=1,
+        portfolio_capacity=4,
+        transition_opportunities=(1,),
+        conversation_mode=ConversationMode.CONTINUOUS,
+        model=ModelSpec("gpt-fake", "xhigh"),
+        budget=BudgetSpec(
+            proposals=1,
+            candidate_evaluations=1,
+            max_total_tokens=10,
+            max_evaluator_seconds=100.0,
+            evaluator_timeout_seconds=10,
+        ),
+        execution_rule=STAGED_CONFINED_INDIVIDUAL_EXECUTION_RULE,
+        include_no_search=False,
+    )
+    task_spec = artifact_clean_task(seed_source)
+    framework_spec = FrameworkSpec(
+        framework_id=FrameworkKind.AUTORESEARCH,
+        adapter="codex_direct_editor_confined_session_resume_v2",
+        prompt_profile=AUTORESEARCH_V17_PROMPT_PROFILE,
+        edit_mode="direct_workspace",
+    )
+    calibration = calibrate_task(
+        tmp_path / "calibration",
+        spec=spec,
+        task=task_spec,
+        repo_root=ROOT,
+        python_bin=sys.executable,
+    )
+    campaign = create_campaign(
+        tmp_path / "campaign",
+        spec=spec,
+        task=task_spec,
+        framework=framework_spec,
+        calibration_path=calibration,
+        repo_root=ROOT,
+    )
+    report = validate_campaign(
+        campaign,
+        spec=spec,
+        task=task_spec,
+        framework=framework_spec,
+        repo_root=ROOT,
+    )
+    schedule = json.loads((campaign / "schedule.json").read_text())
+
+    assert report["valid"], report["errors"]
+    assert len(schedule) == 4
+    assert {row["condition"] for row in schedule} == {"C0", "C1", "C2", "C3"}
+    for run in (campaign / "runs").iterdir():
+        assert not (run / "task-support/checkpoints").exists()
 
 
 def test_layer_b_is_sealed_until_completion_then_scores_factorial(

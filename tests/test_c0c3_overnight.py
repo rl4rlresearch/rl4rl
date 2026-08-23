@@ -61,6 +61,18 @@ def test_openevolve_v2_profile_declares_three_individually_controlled_blocks() -
     )
 
 
+def test_artifact_clean_profiles_declare_all_primary_blocks() -> None:
+    for profile, key in (
+        ("autoresearch-v1.7", "autoresearch-v1.7"),
+        ("openevolve-v2.1", "openevolve-v2.1"),
+    ):
+        roster = plans(profile)
+        assert len(roster) == 1
+        assert roster[0].key == key
+        assert roster[0].mode == "individual-trajectories"
+        assert roster[0].blocks == (1, 2, 3)
+
+
 def test_local_accelerator_is_derived_from_frozen_task_input(tmp_path: Path) -> None:
     campaign = tmp_path / "campaign"
     _write_json(

@@ -13,15 +13,23 @@ from .neutral_task import (
     NEUTRAL_SUBMISSION_WRAPPER,
     NEUTRAL_TASK_ADAPTER,
     PAIR_TOKEN_SANITIZED_SEED_PATHS,
+    PAIR_TOKEN_SOURCE_ONLY_SEED_PATHS,
     PAIR_TOKEN_SUBMISSION_WRAPPER,
     PAIR_TOKEN_TASK_ADAPTER,
     PAIR_TOKEN_TASK_ADAPTER_V2,
+    PAIR_TOKEN_TASK_ADAPTER_V3,
     SANITIZED_SEED_PATHS,
 )
 from .spec import FrameworkKind, FrameworkSpec, TaskSpec, canonical_json, sha256_json
 
 _ENV_REFERENCE = re.compile(r"^\$\{([A-Z][A-Z0-9_]*)\}$")
-_IGNORED_PARTS = {".git", "__pycache__", ".pytest_cache", ".ruff_cache"}
+_IGNORED_PARTS = {
+    ".git",
+    ".subject-cache",
+    "__pycache__",
+    ".pytest_cache",
+    ".ruff_cache",
+}
 
 
 def resolve_source(value: str, *, repo_root: Path) -> Path:
@@ -60,13 +68,15 @@ def prepare_seed_workspace(
         NEUTRAL_TASK_ADAPTER,
         PAIR_TOKEN_TASK_ADAPTER,
         PAIR_TOKEN_TASK_ADAPTER_V2,
+        PAIR_TOKEN_TASK_ADAPTER_V3,
     }:
         destination.mkdir(parents=True, exist_ok=False)
-        sanitized_paths = (
-            SANITIZED_SEED_PATHS
-            if task.adapter == NEUTRAL_TASK_ADAPTER
-            else PAIR_TOKEN_SANITIZED_SEED_PATHS
-        )
+        if task.adapter == NEUTRAL_TASK_ADAPTER:
+            sanitized_paths = SANITIZED_SEED_PATHS
+        elif task.adapter == PAIR_TOKEN_TASK_ADAPTER_V3:
+            sanitized_paths = PAIR_TOKEN_SOURCE_ONLY_SEED_PATHS
+        else:
+            sanitized_paths = PAIR_TOKEN_SANITIZED_SEED_PATHS
         submission_wrapper = (
             NEUTRAL_SUBMISSION_WRAPPER
             if task.adapter == NEUTRAL_TASK_ADAPTER
@@ -135,6 +145,7 @@ def scientific_runtime_hash(
         NEUTRAL_TASK_ADAPTER,
         PAIR_TOKEN_TASK_ADAPTER,
         PAIR_TOKEN_TASK_ADAPTER_V2,
+        PAIR_TOKEN_TASK_ADAPTER_V3,
     }:
         roots["adderboard_verifier"] = (
             repo_root / "architecture_discovery/vendor/AdderBoard"

@@ -8,12 +8,13 @@ from dataclasses import dataclass
 from pathlib import Path
 
 from .neutral_task import (
-    NEUTRAL_PROMPT_PROFILE as _NEUTRAL_PROMPT_PROFILE,
-)
-from .neutral_task import (
+    ARTIFACT_CLEAN_PROMPT_PROFILES,
+    AUTORESEARCH_V17_PROMPT_PROFILE,
     OPENEVOLVE_V2_PROMPT_PROFILE,
+    OPENEVOLVE_V21_PROMPT_PROFILE,
     SUBJECT_NEUTRAL_PROMPT_PROFILES,
 )
+from .neutral_task import NEUTRAL_PROMPT_PROFILE as _NEUTRAL_PROMPT_PROFILE
 from .spec import (
     Condition,
     ConversationMode,
@@ -102,6 +103,7 @@ class RenderedPrompt:
     proposal_policy_sha256: str
     prompt_sha256: str
     transition_active: bool
+    treatment_skeleton_sha256: str = ""
 
 
 class PromptRenderer:
@@ -132,6 +134,23 @@ class PromptRenderer:
         ).read_text(encoding="utf-8")
         self.openevolve_v2_transition = (
             openevolve_root / "assumption_changing.md"
+        ).read_text(encoding="utf-8").strip()
+        autoresearch_v17_root = root / "transformer_optimizer_v1_7"
+        self.autoresearch_v17_initial_template = (
+            autoresearch_v17_root / "PROGRAM.md"
+        ).read_text(encoding="utf-8")
+        self.autoresearch_v17_continue_template = (
+            autoresearch_v17_root / "CONTINUE.md"
+        ).read_text(encoding="utf-8")
+        self.autoresearch_v17_transition = (
+            autoresearch_v17_root / "assumption_changing.md"
+        ).read_text(encoding="utf-8").strip()
+        openevolve_v21_root = root / "transformer_optimizer_openevolve_v2_1"
+        self.openevolve_v21_common_template = (
+            openevolve_v21_root / "PROGRAM.md"
+        ).read_text(encoding="utf-8")
+        self.openevolve_v21_transition = (
+            openevolve_v21_root / "assumption_changing.md"
         ).read_text(encoding="utf-8").strip()
         self._require_tokens(
             self.common_template,
@@ -172,6 +191,35 @@ class PromptRenderer:
                 "{proposal_guidance}",
                 "{opportunity}",
                 "{budget_status}",
+            },
+        )
+        self._require_tokens(
+            self.autoresearch_v17_initial_template,
+            {
+                "{task_contract}",
+                "{framework_contract}",
+                "{conversation_contract}",
+                "{design_context}",
+                "{recent_outcomes}",
+                "{proposal_guidance_section}",
+            },
+        )
+        self._require_tokens(
+            self.autoresearch_v17_continue_template,
+            {
+                "{design_context}",
+                "{recent_outcomes}",
+                "{proposal_guidance_section}",
+            },
+        )
+        self._require_tokens(
+            self.openevolve_v21_common_template,
+            {
+                "{task_contract}",
+                "{framework_contract}",
+                "{design_context}",
+                "{recent_outcomes}",
+                "{proposal_guidance_section}",
             },
         )
 
@@ -297,6 +345,19 @@ class PromptRenderer:
         )
 
     @staticmethod
+    def _clean_search_state(condition: Condition) -> str:
+        if condition.has_portfolio:
+            return (
+                "The current editable design and the qualified reference designs "
+                "below are available as technical evidence. Edit only the current "
+                "workspace."
+            )
+        return (
+            "The current editable design is provided. No reference design is "
+            "available."
+        )
+
+    @staticmethod
     def _slots(candidates: tuple[VisibleCandidate, ...], capacity: int) -> str:
         if len(candidates) > capacity:
             raise ValueError("visible portfolio exceeds frozen K")
@@ -389,6 +450,121 @@ class PromptRenderer:
             )
         return "\n\n".join(rows)
 
+    @staticmethod
+    def _public_metrics(
+        metrics: dict[str, float | int | str | bool | None],
+        task: TaskSpec,
+    ) -> dict[str, float | int | str | bool | None]:
+        return {
+            name: metrics[name]
+            for name in task.public_feedback_metrics
+            if name in metrics
+        }
+
+    @classmethod
+    def _clean_slots(
+        cls,
+        candidates: tuple[VisibleCandidate, ...],
+        *,
+        selected_parent_id: str,
+        task: TaskSpec,
+        include_source_paths: bool,
+    ) -> str:
+        current = [
+            candidate
+            for candidate in candidates
+            if candidate.candidate_id == selected_parent_id
+        ]
+        if len(current) != 1:
+            raise ValueError("available designs must contain the selected design once")
+        references = [
+            candidate
+            for candidate in candidates
+            if candidate.candidate_id != selected_parent_id
+        ]
+        rows: list[str] = []
+        for label, candidate in [
+            ("CURRENT DESIGN", current[0]),
+            *[
+                (f"REFERENCE DESIGN {index}", candidate)
+                for index, candidate in enumerate(references, start=1)
+            ],
+        ]:
+            metrics = json.dumps(
+                cls._public_metrics(candidate.metrics, task), sort_keys=True
+            )
+            parts = [label, f"verified_results: {metrics}"]
+            hypothesis = candidate.hypothesis.strip()
+            if hypothesis and not hypothesis.startswith("[missing"):
+                if hypothesis == "frozen seed baseline":
+                    hypothesis = "starting design"
+                parts.append(f"prior_hypothesis: {hypothesis}")
+            if include_source_paths and label != "CURRENT DESIGN":
+                parts.append(f"source: {candidate.artifact_path}")
+            rows.append("\n".join(parts))
+        return "\n\n".join(rows)
+
+    @staticmethod
+    def _clean_failure_result(outcome: VisibleOutcome) -> str:
+        messages = {
+            "nonqualification": "did not meet the accuracy requirement",
+            "unmatched_diff": "the patch search text did not match the source",
+            "ambiguous_diff": "the patch search text matched more than once",
+            "empty_search": "the patch contained an empty search section",
+            "malformed_diff": "the patch format was malformed",
+            "invalid_diff": "the patch could not be applied",
+            "source_preflight": "the edited source did not pass submission checks",
+            "model_contract": (
+                "the trained implementation did not satisfy the learned-model "
+                "requirement"
+            ),
+            "timeout": "training did not finish within the verification time limit",
+            "duplicate": "the edit reproduced a previously verified implementation",
+            "provider": "no usable edit was produced",
+            "infrastructure_interruption": "no usable edit was produced",
+        }
+        return messages.get(
+            outcome.failure_kind or "",
+            "the implementation could not be verified",
+        )
+
+    @classmethod
+    def _clean_recent_outcomes(
+        cls,
+        outcomes: tuple[VisibleOutcome, ...],
+        task: TaskSpec,
+    ) -> str:
+        if not outcomes:
+            return "No earlier verification result is available."
+        rows: list[str] = []
+        for outcome in outcomes:
+            if outcome.valid and outcome.retained:
+                result = "met the accuracy requirement and became an available design"
+            elif outcome.valid:
+                result = (
+                    "met the accuracy requirement but was not a strict improvement"
+                )
+            else:
+                result = cls._clean_failure_result(outcome)
+            parts = ["RECENT RESULT"]
+            for label, value, omitted in (
+                ("hypothesis", outcome.hypothesis, "[missing hypothesis]"),
+                ("change", outcome.intended_edit, "[missing intended edit]"),
+                ("mechanism", outcome.mechanism, "[not recorded]"),
+                ("evidence_used", outcome.evidence, "[not recorded]"),
+            ):
+                normalized = value.strip()
+                if normalized and normalized != omitted:
+                    parts.append(f"{label}: {normalized}")
+            parts.append(f"result: {result}")
+            metrics = cls._public_metrics(outcome.metrics, task)
+            if metrics:
+                parts.append(
+                    f"reported_values: {json.dumps(metrics, sort_keys=True)}"
+                )
+            rows.append("\n".join(parts))
+        return "\n\n".join(rows)
+
     def render(
         self,
         spec: FactorialSpec,
@@ -397,7 +573,14 @@ class PromptRenderer:
         context: PromptContext,
     ) -> RenderedPrompt:
         neutral = framework.prompt_profile in SUBJECT_NEUTRAL_PROMPT_PROFILES
+        artifact_clean = framework.prompt_profile in ARTIFACT_CLEAN_PROMPT_PROFILES
+        autoresearch_v17 = (
+            framework.prompt_profile == AUTORESEARCH_V17_PROMPT_PROFILE
+        )
         openevolve_v2 = framework.prompt_profile == OPENEVOLVE_V2_PROMPT_PROFILE
+        openevolve_v21 = (
+            framework.prompt_profile == OPENEVOLVE_V21_PROMPT_PROFILE
+        )
         transition_active = (
             False
             if context.no_search
@@ -430,18 +613,32 @@ class PromptRenderer:
                 )
         else:
             search_state = (
-                self._neutral_search_state(
-                    context.condition, spec.portfolio_capacity
+                self._clean_search_state(context.condition)
+                if artifact_clean
+                else (
+                    self._neutral_search_state(
+                        context.condition, spec.portfolio_capacity
+                    )
+                    if neutral
+                    else self._search_state(
+                        context.condition, spec.portfolio_capacity
+                    )
                 )
-                if neutral
-                else self._search_state(context.condition, spec.portfolio_capacity)
             )
             if transition_active:
                 if neutral:
                     proposal_policy = (
-                        self.openevolve_v2_transition
-                        if openevolve_v2
-                        else self.neutral_transition
+                        self.autoresearch_v17_transition
+                        if autoresearch_v17
+                        else (
+                            self.openevolve_v21_transition
+                            if openevolve_v21
+                            else (
+                                self.openevolve_v2_transition
+                                if openevolve_v2
+                                else self.neutral_transition
+                            )
+                        )
                     )
                 else:
                     proposal_policy = (
@@ -454,7 +651,50 @@ class PromptRenderer:
                 proposal_policy = (
                     "" if neutral else self.ordinary
                 )
-        if neutral:
+        treatment_skeleton_sha256 = ""
+        if artifact_clean:
+            include_source_paths = autoresearch_v17
+            design_context = (
+                f"{search_state}\n\n"
+                + self._clean_slots(
+                    context.visible_candidates,
+                    selected_parent_id=context.selected_parent_id,
+                    task=task,
+                    include_source_paths=include_source_paths,
+                )
+            )
+            guidance_section = (
+                f"## Direction\n\n{proposal_policy}" if proposal_policy else ""
+            )
+            if autoresearch_v17:
+                common_template = (
+                    self.autoresearch_v17_initial_template
+                    if context.opportunity == 1
+                    else self.autoresearch_v17_continue_template
+                )
+            else:
+                common_template = self.openevolve_v21_common_template
+            values = {
+                "task_contract": self._neutral_task_contract(task),
+                "framework_contract": self._neutral_framework_contract(framework),
+                "conversation_contract": self._neutral_conversation_contract(spec),
+                "design_context": design_context,
+                "recent_outcomes": self._clean_recent_outcomes(
+                    () if context.no_search else context.recent_outcomes,
+                    task,
+                ),
+                "proposal_guidance_section": guidance_section,
+            }
+            text = common_template.format(**values)
+            skeleton_values = dict(values)
+            skeleton_values["design_context"] = "[DESIGN CONTEXT REDACTED]"
+            skeleton_values["proposal_guidance_section"] = (
+                "[DIRECTION REDACTED]"
+            )
+            treatment_skeleton_sha256 = self._hash(
+                common_template.format(**skeleton_values)
+            )
+        elif neutral:
             budget_parts = [
                 f"work_cycles={context.remaining_proposals}",
                 f"verifications={context.remaining_evaluations}",
@@ -543,6 +783,7 @@ class PromptRenderer:
             proposal_policy_sha256=self._hash(proposal_policy),
             prompt_sha256=self._hash(text),
             transition_active=transition_active,
+            treatment_skeleton_sha256=treatment_skeleton_sha256,
         )
 
 

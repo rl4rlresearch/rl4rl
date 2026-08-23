@@ -19,6 +19,10 @@ _MECHANISM = re.compile(r"^MECHANISM:\s*(.+)$", re.MULTILINE)
 _EVIDENCE = re.compile(r"^EVIDENCE:\s*(.+)$", re.MULTILINE)
 _FILE_OPEN = re.compile(r"^===== FILE: (?P<path>[^\n]+) =====$")
 _FILE_CLOSE = "===== END FILE ====="
+_MARKDOWN_FIELD = re.compile(
+    r"^(?:#{1,6}\s*)?(?:\*\*)?(?P<label>[A-Za-z _-]+?)(?:\*\*)?\s*:\s*(?P<value>.+)$",
+    re.MULTILINE,
+)
 
 
 @dataclass(frozen=True)
@@ -39,6 +43,52 @@ def parse_metadata(message: str) -> tuple[str, str]:
         hypothesis.group(1).strip() if hypothesis else "[missing hypothesis]",
         intended_edit.group(1).strip() if intended_edit else "[missing intended edit]",
     )
+
+
+def parse_flexible_metadata(message: str) -> tuple[str, str]:
+    """Recover useful Autoresearch provenance without imposing a wire format."""
+
+    fields: dict[str, str] = {}
+    for match in _MARKDOWN_FIELD.finditer(message):
+        label = " ".join(match.group("label").casefold().split())
+        fields.setdefault(label, match.group("value").strip())
+
+    hypothesis = fields.get("hypothesis")
+    intended_edit = next(
+        (
+            fields[label]
+            for label in ("intended edit", "what changed", "change", "changed")
+            if label in fields
+        ),
+        None,
+    )
+    useful_lines = [
+        line.strip(" -*#\t")
+        for line in message.splitlines()
+        if line.strip(" -*#\t")
+    ]
+    if hypothesis is None:
+        hypothesis = next(
+            (
+                line
+                for line in useful_lines
+                if "hypothes" in line.casefold()
+            ),
+            useful_lines[0] if useful_lines else "No summary was returned.",
+        )
+    if intended_edit is None:
+        intended_edit = next(
+            (
+                line
+                for line in useful_lines
+                if any(
+                    word in line.casefold()
+                    for word in ("changed", "implemented", "modified", "edited")
+                )
+            ),
+            " ".join(useful_lines[:3]) or "No edit summary was returned.",
+        )
+    return hypothesis[:1000], intended_edit[:1000]
 
 
 def parse_v2_metadata(message: str) -> tuple[str, str, str, str]:
@@ -133,8 +183,9 @@ def unbundle_workspace(
 class AutoresearchAdapter:
     """Karpathy-style direct edit of the selected candidate."""
 
-    def __init__(self, codex: CodexCli) -> None:
+    def __init__(self, codex: CodexCli, *, flexible_metadata: bool = False) -> None:
         self.codex = codex
+        self.flexible_metadata = flexible_metadata
 
     def propose(
         self,
@@ -149,6 +200,7 @@ class AutoresearchAdapter:
         resume_session_id: str | None = None,
         persist_session: bool = False,
         neutral_subject: bool = False,
+        artifact_clean_subject: bool = False,
         **_unused: object,
     ) -> ProposalExecution:
         result = self.codex.run(
@@ -163,8 +215,12 @@ class AutoresearchAdapter:
             resume_session_id=resume_session_id,
             persist_session=persist_session,
             neutral_subject=neutral_subject,
+            artifact_clean_subject=artifact_clean_subject,
         )
-        hypothesis, intended_edit = parse_metadata(result.last_message)
+        metadata_parser = (
+            parse_flexible_metadata if self.flexible_metadata else parse_metadata
+        )
+        hypothesis, intended_edit = metadata_parser(result.last_message)
         return ProposalExecution(result, hypothesis, intended_edit)
 
 
@@ -183,11 +239,13 @@ class OpenEvolveAdapter:
         *,
         vendor_root: Path,
         v2: bool = False,
+        v21: bool = False,
         template_root: Path | None = None,
     ) -> None:
         self.codex = codex
         self.vendor_root = vendor_root
         self.v2 = v2
+        self.v21 = v21
         self.template_root = template_root
 
     def _imports(self):
@@ -217,6 +275,7 @@ class OpenEvolveAdapter:
         selected_parent_id: str,
         visible_records: tuple[dict[str, object], ...],
         neutral_subject: bool = False,
+        artifact_clean_subject: bool = False,
         **_unused: object,
     ) -> ProposalExecution:
         PromptConfig, PromptSampler, apply_diff, extract_diffs = self._imports()
@@ -252,8 +311,25 @@ class OpenEvolveAdapter:
             for record in visible_records
             if record["candidate_id"] == selected_parent_id
         )
-        design_programs = "No alternative retained design is available."
-        if self.v2:
+        design_programs = (
+            "" if self.v21 else "No alternative retained design is available."
+        )
+        if self.v21:
+            alternatives = []
+            reference_index = 0
+            for program in programs:
+                if program["id"] == selected_parent_id:
+                    continue
+                reference_index += 1
+                alternatives.append(
+                    f"REFERENCE DESIGN {reference_index}\n"
+                    f"```text\n{program['code']}\n```"
+                )
+            if alternatives:
+                design_programs = "# Reference source\n\n" + "\n\n".join(
+                    alternatives
+                )
+        elif self.v2:
             alternatives = []
             for program in programs:
                 if program["id"] == selected_parent_id:
@@ -294,11 +370,13 @@ class OpenEvolveAdapter:
             if self.v2
             else "HYPOTHESIS and INTENDED_EDIT"
         )
-        combined_prompt = (
-            f"{sampled['system']}\n\n{sampled['user']}\n\n"
-            f"Return {required_metadata} metadata lines, followed by one or more "
-            "exact SEARCH/REPLACE blocks."
-        )
+        combined_prompt = f"{sampled['system']}\n\n{sampled['user']}"
+        if not self.v21:
+            combined_prompt += (
+                "\n\n"
+                f"Return {required_metadata} metadata lines, followed by one or "
+                "more exact SEARCH/REPLACE blocks."
+            )
         if self.v2:
             prompt_workspace = Path(
                 tempfile.mkdtemp(prefix="transformer-design-cycle-")
@@ -318,6 +396,7 @@ class OpenEvolveAdapter:
             resume_session_id=resume_session_id,
             persist_session=persist_session,
             neutral_subject=neutral_subject,
+            artifact_clean_subject=artifact_clean_subject,
         )
         if self.v2:
             hypothesis, intended_edit, mechanism, evidence = parse_v2_metadata(
@@ -378,15 +457,27 @@ def make_framework_adapter(
     framework: FrameworkSpec, codex: CodexCli, *, repo_root: Path
 ) -> AutoresearchAdapter | OpenEvolveAdapter:
     if framework.framework_id is FrameworkKind.AUTORESEARCH:
-        return AutoresearchAdapter(codex)
+        return AutoresearchAdapter(
+            codex,
+            flexible_metadata=(
+                framework.adapter == "codex_direct_editor_confined_session_resume_v2"
+            ),
+        )
     if framework.framework_id is FrameworkKind.OPENEVOLVE:
-        v2 = framework.adapter == "controlled_openevolve_prompt_diff_v2"
+        v21 = framework.adapter == "controlled_openevolve_prompt_diff_v2_1"
+        v2 = framework.adapter in {
+            "controlled_openevolve_prompt_diff_v2",
+            "controlled_openevolve_prompt_diff_v2_1",
+        }
         return OpenEvolveAdapter(
             codex,
             vendor_root=repo_root / "architecture_discovery/vendor/openevolve",
             v2=v2,
+            v21=v21,
             template_root=(
-                repo_root / "experiments/c0c3_factorial/templates/openevolve_v2"
+                repo_root
+                / "experiments/c0c3_factorial/templates"
+                / ("openevolve_v2_1" if v21 else "openevolve_v2")
                 if v2
                 else None
             ),

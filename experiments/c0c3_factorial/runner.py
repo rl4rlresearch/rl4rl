@@ -8,6 +8,7 @@ import json
 import os
 import shutil
 import stat
+import subprocess
 import tempfile
 from contextlib import contextmanager
 from datetime import UTC, datetime
@@ -25,7 +26,9 @@ from .codex_cli import CodexCli, session_id_from_events, usage_from_events
 from .evaluator import make_command_evaluator
 from .frameworks import make_framework_adapter
 from .neutral_task import (
+    ARTIFACT_CLEAN_PROMPT_PROFILES,
     PAIR_TOKEN_TASK_ADAPTER_V2,
+    PAIR_TOKEN_TASK_ADAPTER_V3,
     SUBJECT_NEUTRAL_PROMPT_PROFILES,
 )
 from .prompts import (
@@ -125,6 +128,7 @@ def _hashes(rendered) -> dict[str, str]:
         "search_state_sha256": rendered.search_state_sha256,
         "proposal_policy_sha256": rendered.proposal_policy_sha256,
         "prompt_sha256": rendered.prompt_sha256,
+        "treatment_skeleton_sha256": rendered.treatment_skeleton_sha256,
     }
 
 
@@ -143,6 +147,7 @@ def _refresh_continuous_workspace(
     selected_snapshot: Path,
     editable_paths: tuple[str, ...],
     neutral_subject: bool = False,
+    artifact_clean_subject: bool = False,
 ) -> Path:
     """Refresh the stable Codex cwd with this opportunity's selected parent.
 
@@ -172,12 +177,49 @@ def _refresh_continuous_workspace(
         workspace,
         editable_paths,
     )
-    identity = hashlib.sha256(f"workspace:{run_dir}".encode()).hexdigest()
-    (workspace / ".workspace-identity").write_text(identity + "\n", encoding="utf-8")
+    if artifact_clean_subject:
+        _initialize_subject_git_workspace(workspace)
+    else:
+        identity = hashlib.sha256(f"workspace:{run_dir}".encode()).hexdigest()
+        (workspace / ".workspace-identity").write_text(
+            identity + "\n", encoding="utf-8"
+        )
     for path in workspace.rglob("*"):
         if path.is_symlink():
             raise RuntimeError("continuous Codex workspace contains a symlink")
     return workspace
+
+
+def _initialize_subject_git_workspace(workspace: Path) -> None:
+    """Provide ordinary local source history without experiment metadata."""
+
+    commands = (
+        ("git", "init", "--quiet"),
+        ("git", "add", "--all"),
+        (
+            "git",
+            "-c",
+            "user.name=Workspace",
+            "-c",
+            "user.email=workspace@local.invalid",
+            "commit",
+            "--quiet",
+            "-m",
+            "Starting source",
+        ),
+    )
+    for command in commands:
+        subprocess.run(
+            command,
+            cwd=workspace,
+            check=True,
+            stdout=subprocess.DEVNULL,
+            stderr=subprocess.PIPE,
+            text=True,
+        )
+    exclude = workspace / ".git/info/exclude"
+    with exclude.open("a", encoding="utf-8") as handle:
+        handle.write("\n.design-references/\n.subject-cache/\n")
 
 
 def _make_tree_owner_writable(root: Path) -> None:
@@ -348,6 +390,9 @@ def _run_one_opportunity_unlocked(
         task.editable_paths,
     )
     neutral_subject = framework.prompt_profile in SUBJECT_NEUTRAL_PROMPT_PROFILES
+    artifact_clean_subject = (
+        framework.prompt_profile in ARTIFACT_CLEAN_PROMPT_PROFILES
+    )
     reference_directory = (
         ".design-references" if neutral_subject else ".factorial-visible"
     )
@@ -386,7 +431,15 @@ def _run_one_opportunity_unlocked(
         visible_records.append(
             {
                 "candidate_id": identifier,
-                "metrics": candidate.metrics,
+                "metrics": (
+                    {
+                        name: candidate.metrics[name]
+                        for name in task.public_feedback_metrics
+                        if name in candidate.metrics
+                    }
+                    if artifact_clean_subject
+                    else candidate.metrics
+                ),
                 "hypothesis": candidate.hypothesis,
             }
         )
@@ -414,7 +467,15 @@ def _run_one_opportunity_unlocked(
         recent_outcomes=(
             ()
             if controller.state.no_search or not neutral_subject
-            else _recent_outcomes(run_dir)
+            else _recent_outcomes(
+                run_dir,
+                limit=(
+                    1
+                    if artifact_clean_subject
+                    and framework.framework_id is FrameworkKind.AUTORESEARCH
+                    else 12
+                ),
+            )
         ),
         mechanism_ledger=(
             _mechanism_ledger(run_dir)
@@ -439,6 +500,7 @@ def _run_one_opportunity_unlocked(
             selected_snapshot=selected_snapshot,
             editable_paths=task.editable_paths,
             neutral_subject=neutral_subject,
+            artifact_clean_subject=artifact_clean_subject,
         )
         if continuous
         else workspace
@@ -470,6 +532,7 @@ def _run_one_opportunity_unlocked(
         resume_session_id=requested_session_id,
         persist_session=continuous,
         neutral_subject=neutral_subject,
+        artifact_clean_subject=artifact_clean_subject,
     )
     protected_changed = (
         protected_hash(codex_workspace, task.editable_paths) != before_protected
@@ -529,7 +592,8 @@ def _run_one_opportunity_unlocked(
     if (
         proposal.codex.returncode == 0
         and adapter_error is None
-        and task.adapter == PAIR_TOKEN_TASK_ADAPTER_V2
+        and task.adapter
+        in {PAIR_TOKEN_TASK_ADAPTER_V2, PAIR_TOKEN_TASK_ADAPTER_V3}
     ):
         preflight_error = preflight_candidate_source(workspace)
     if proposal.codex.returncode != 0 or adapter_error or preflight_error:

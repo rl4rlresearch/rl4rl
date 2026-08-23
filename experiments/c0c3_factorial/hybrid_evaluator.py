@@ -1,4 +1,4 @@
-"""Local Codex / deployed-Modal evaluator transport for protocol 2.0."""
+"""Local Codex / deployed-Modal evaluator transport for protocols 2.0–2.1."""
 
 from __future__ import annotations
 

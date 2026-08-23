@@ -119,7 +119,12 @@ INDIVIDUAL_EXECUTION_RULES = frozenset(
 # Protocol 1.6 permits every Codex trajectory to think concurrently while
 # bounding local trainers. This avoids timeout artifacts from twelve training
 # jobs oversubscribing one laptop and is identical in every factorial cell.
-EVALUATOR_CONCURRENCY_BY_PROTOCOL = {"1.6": 3, "2.0": 3}
+EVALUATOR_CONCURRENCY_BY_PROTOCOL = {
+    "1.6": 3,
+    "1.7": 3,
+    "2.0": 3,
+    "2.1": 3,
+}
 # Backward-compatible name for the original paper-v1 execution rule.
 EXECUTION_RULE = SERIAL_EXECUTION_RULE
 PROTOCOL_EXECUTION_RULES = {
@@ -130,7 +135,9 @@ PROTOCOL_EXECUTION_RULES = {
     "1.4": STAGED_INDEPENDENT_EXECUTION_RULE,
     "1.5": STAGED_INDIVIDUAL_EXECUTION_RULE,
     "1.6": STAGED_CONFINED_INDIVIDUAL_EXECUTION_RULE,
+    "1.7": STAGED_CONFINED_INDIVIDUAL_EXECUTION_RULE,
     "2.0": OPENEVOLVE_V2_EXECUTION_RULE,
+    "2.1": OPENEVOLVE_V2_EXECUTION_RULE,
 }
 
 
@@ -225,6 +232,18 @@ class FactorialSpec:
 
         return self.protocol_version == "1.6"
 
+    @property
+    def enforces_hard_token_limit(self) -> bool:
+        """Whether token accounting can stop a run from starting proposals."""
+
+        return self.protocol_version not in {"1.6", "1.7"}
+
+    @property
+    def c0c3_only(self) -> bool:
+        """Whether the protocol excludes N0 and freezes all factorial runs."""
+
+        return self.protocol_version in {"1.7", "2.0", "2.1"}
+
     def __post_init__(self) -> None:
         if self.protocol_version not in PROTOCOL_EXECUTION_RULES:
             raise ValueError("unsupported protocol version")
@@ -252,7 +271,8 @@ class FactorialSpec:
                 f"{expected_execution_rule!r}"
             )
         if (
-            self.protocol_version in {"1.2", "1.3", "1.4", "1.5", "1.6"}
+            self.protocol_version
+            in {"1.2", "1.3", "1.4", "1.5", "1.6", "1.7"}
             and self.conversation_mode is not ConversationMode.CONTINUOUS
         ):
             raise ValueError(
@@ -260,19 +280,25 @@ class FactorialSpec:
                 "continuous_session_per_run_v1"
             )
         if (
-            self.protocol_version not in {"1.2", "1.3", "1.4", "1.5", "1.6"}
+            self.protocol_version
+            not in {"1.2", "1.3", "1.4", "1.5", "1.6", "1.7"}
             and self.conversation_mode is not ConversationMode.EPHEMERAL
         ):
             raise ValueError(
                 "continuous Codex sessions require a separately versioned protocol"
             )
-        if self.protocol_version == "2.0":
-            if self.include_no_search:
-                raise ValueError("protocol 2.0 removes the N0 no-search baseline")
-            if self.conversation_mode is not ConversationMode.EPHEMERAL:
-                raise ValueError(
-                    "protocol 2.0 requires bounded ephemeral proposal sessions"
-                )
+        if self.c0c3_only and self.include_no_search:
+            raise ValueError(
+                f"protocol {self.protocol_version} removes the N0 no-search baseline"
+            )
+        if (
+            self.protocol_version in {"2.0", "2.1"}
+            and self.conversation_mode is not ConversationMode.EPHEMERAL
+        ):
+            raise ValueError(
+                f"protocol {self.protocol_version} requires bounded ephemeral "
+                "proposal sessions"
+            )
         schedule = self.transition_opportunities
         if tuple(sorted(set(schedule))) != schedule:
             raise ValueError("transition schedule must be sorted and unique")

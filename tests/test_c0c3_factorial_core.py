@@ -19,12 +19,18 @@ from experiments.c0c3_factorial.environment import (
     controlled_subprocess_environment,
     subject_subprocess_environment,
 )
-from experiments.c0c3_factorial.frameworks import _strict_apply_diff
+from experiments.c0c3_factorial.frameworks import (
+    _strict_apply_diff,
+    parse_flexible_metadata,
+)
 from experiments.c0c3_factorial.neutral_task import (
+    AUTORESEARCH_V17_PROMPT_PROFILE,
     NEUTRAL_SUBMISSION_WRAPPER,
     NEUTRAL_TASK_ADAPTER,
     OPENEVOLVE_V2_PROMPT_PROFILE,
+    OPENEVOLVE_V21_PROMPT_PROFILE,
     PAIR_TOKEN_TASK_ADAPTER_V2,
+    PAIR_TOKEN_TASK_ADAPTER_V3,
     validate_v15_pairing,
 )
 from experiments.c0c3_factorial.prompts import (
@@ -128,6 +134,36 @@ OPENEVOLVE_V2_FRAMEWORK = (
     ROOT
     / "experiments/c0c3_factorial/configs/frameworks"
     / "openevolve_v2.toml"
+)
+V17_PROTOCOL = (
+    ROOT
+    / "experiments/c0c3_factorial/configs/protocols"
+    / "workshop_codex1644_source_only_v1_7.toml"
+)
+V17_TASK = (
+    ROOT
+    / "experiments/c0c3_factorial/configs/tasks"
+    / "ten_digit_addition_pair_transformer_codex1644_source_only.toml"
+)
+V17_FRAMEWORK = (
+    ROOT
+    / "experiments/c0c3_factorial/configs/frameworks"
+    / "autoresearch_confined_v1_7.toml"
+)
+OPENEVOLVE_V21_PROTOCOL = (
+    ROOT
+    / "experiments/c0c3_factorial/configs/protocols"
+    / "controlled_openevolve_transformer_v2_1.toml"
+)
+OPENEVOLVE_V21_TASK = (
+    ROOT
+    / "experiments/c0c3_factorial/configs/tasks"
+    / "ten_digit_addition_pair_transformer_openevolve_v2_1_mps.toml"
+)
+OPENEVOLVE_V21_FRAMEWORK = (
+    ROOT
+    / "experiments/c0c3_factorial/configs/frameworks"
+    / "openevolve_v2_1.toml"
 )
 
 
@@ -632,6 +668,267 @@ def test_openevolve_v2_pairing_rejects_old_components() -> None:
             task_adapter=PAIR_TOKEN_TASK_ADAPTER_V2,
             prompt_profile=NEUTRAL_PROMPT_PROFILE,
         )
+
+
+@pytest.mark.parametrize(
+    ("protocol_path", "task_path", "framework_path", "expected_profile"),
+    (
+        (V17_PROTOCOL, V17_TASK, V17_FRAMEWORK, AUTORESEARCH_V17_PROMPT_PROFILE),
+        (
+            OPENEVOLVE_V21_PROTOCOL,
+            OPENEVOLVE_V21_TASK,
+            OPENEVOLVE_V21_FRAMEWORK,
+            OPENEVOLVE_V21_PROMPT_PROFILE,
+        ),
+    ),
+)
+def test_artifact_clean_protocol_prompts_hide_controller_state(
+    protocol_path: Path,
+    task_path: Path,
+    framework_path: Path,
+    expected_profile: str,
+) -> None:
+    spec = FactorialSpec.from_toml(protocol_path)
+    task_spec = TaskSpec.from_toml(task_path)
+    framework_spec = FrameworkSpec.from_toml(framework_path)
+    assert spec.c0c3_only
+    assert not spec.include_no_search
+    assert framework_spec.prompt_profile == expected_profile
+    assert task_spec.adapter == PAIR_TOKEN_TASK_ADAPTER_V3
+
+    visible = (
+        VisibleCandidate(
+            "selected",
+            -1644.0,
+            {
+                "accuracy": 1.0,
+                "parameters": 1644,
+                "training_steps": 4999,
+                "cases": 10010,
+                "correct": 10010,
+            },
+            17,
+            ".design-references/design-1",
+            "frozen seed baseline",
+        ),
+    )
+    outcome = VisibleOutcome(
+        opportunity=9,
+        hypothesis="test a smaller representation",
+        intended_edit="reduce one learned projection",
+        metrics={
+            "accuracy": 0.98,
+            "parameters": 1600,
+            "training_steps": 4999,
+            "cases": 10010,
+            "correct": 9810,
+            "adapter_error": "internal implementation detail",
+        },
+        valid=False,
+        retained=False,
+        failure_kind="nonqualification",
+        mechanism="smaller projection",
+        evidence="the current design qualifies",
+    )
+    rendered = {}
+    for condition in Condition:
+        rendered[condition] = PromptRenderer(TEMPLATES).render(
+            spec,
+            task_spec,
+            framework_spec,
+            PromptContext(
+                condition=condition,
+                opportunity=10,
+                selected_parent_id="selected",
+                visible_candidates=visible,
+                remaining_proposals=191,
+                remaining_evaluations=191,
+                remaining_tokens=12_345,
+                remaining_evaluator_seconds=67_890.123,
+                recent_outcomes=(outcome,),
+                mechanism_ledger="INTERNAL LEDGER",
+            ),
+        )
+
+    assert len(
+        {value.treatment_skeleton_sha256 for value in rendered.values()}
+    ) == 1
+    for condition, value in rendered.items():
+        text = value.text
+        assert value.treatment_skeleton_sha256
+        for forbidden in (
+            "Work cycle:",
+            "WORK CYCLE ",
+            "Remaining capacity:",
+            "tokens=",
+            "verification_seconds=",
+            "DESIGN_CONTEXT",
+            "NEXT_STEP_GUIDANCE",
+            "times_used_as_starting_point",
+            "[no design provided]",
+            '"cases":',
+            '"correct":',
+            "adapter_error",
+            "INTERNAL LEDGER",
+            "frozen seed baseline",
+        ):
+            assert forbidden not in text
+        if condition in {Condition.C1, Condition.C3}:
+            assert "## Direction" in text
+        else:
+            assert "## Direction" not in text
+    if expected_profile == OPENEVOLVE_V21_PROMPT_PROFILE:
+        assert ".design-references" not in rendered[Condition.C3].text
+
+
+def test_v17_uses_full_initial_contract_then_only_new_state() -> None:
+    spec = FactorialSpec.from_toml(V17_PROTOCOL)
+    task_spec = TaskSpec.from_toml(V17_TASK)
+    framework_spec = FrameworkSpec.from_toml(V17_FRAMEWORK)
+    visible = (
+        VisibleCandidate(
+            "selected",
+            -1644.0,
+            {"accuracy": 1.0, "parameters": 1644, "training_steps": 4999},
+            0,
+            ".design-references/design-1",
+            "starting design",
+        ),
+    )
+
+    def prompt(opportunity: int) -> str:
+        return PromptRenderer(TEMPLATES).render(
+            spec,
+            task_spec,
+            framework_spec,
+            PromptContext(
+                condition=Condition.C0,
+                opportunity=opportunity,
+                selected_parent_id="selected",
+                visible_candidates=visible,
+                remaining_proposals=200,
+                remaining_evaluations=200,
+                remaining_tokens=0,
+                remaining_evaluator_seconds=0.0,
+            ),
+        ).text
+
+    initial = prompt(1)
+    continuation = prompt(2)
+    assert "## Learned-model requirement" in initial
+    assert "## Learned-model requirement" not in continuation
+    assert "Remaining capacity" not in initial + continuation
+    assert "token" not in continuation.casefold()
+
+
+def test_v17_metadata_is_flexible_without_missing_placeholders() -> None:
+    hypothesis, edit = parse_flexible_metadata(
+        "## Summary\nImplemented a narrower learned projection.\n"
+        "The hypothesis is that the current accuracy margin can absorb it.\n"
+    )
+    assert hypothesis != "[missing hypothesis]"
+    assert edit != "[missing intended edit]"
+    assert "hypothesis" in hypothesis.casefold()
+    assert "implemented" in edit.casefold()
+
+
+def test_source_only_task_never_copies_the_supplied_checkpoint(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    source = tmp_path / "source"
+    for relative, content in {
+        "src/__init__.py": "",
+        "src/model.py": "class ModelConfig: pass\nclass TinyDecoderLM: pass\n",
+        "src/data.py": (
+            "BOS_ID = 0\n"
+            "def preprocess(a,b): return []\n"
+            "def postprocess(x): return x\n"
+        ),
+        "src/eval.py": "VALUE = 1\n",
+        "src/train.py": "VALUE = 1\n",
+        "checkpoints/best.pt": "pretrained weights",
+    }.items():
+        path = source / relative
+        path.parent.mkdir(parents=True, exist_ok=True)
+        path.write_text(content, encoding="utf-8")
+    monkeypatch.setenv("ADDERBOARD_CODEX_1644_SOURCE", str(source))
+    task_spec = TaskSpec.from_toml(V17_TASK)
+    destination = tmp_path / "subject-support"
+    prepare_seed_workspace(task_spec, destination, repo_root=ROOT)
+    assert not (destination / "checkpoints").exists()
+    assert (destination / "src/model.py").is_file()
+    assert (destination / "submission.py").is_file()
+
+
+def test_artifact_clean_subject_environment_and_workspace_hide_run_identity(
+    tmp_path: Path,
+) -> None:
+    support = tmp_path / "support"
+    snapshot = tmp_path / "snapshot"
+    support.mkdir()
+    snapshot.mkdir()
+    (support / "candidate.py").write_text("VALUE = 0\n", encoding="utf-8")
+    (snapshot / "candidate.py").write_text("VALUE = 1\n", encoding="utf-8")
+    workspace = _refresh_continuous_workspace(
+        run_dir=tmp_path / "internal-experiment-c3",
+        support_source=support,
+        selected_snapshot=snapshot,
+        editable_paths=("candidate.py",),
+        neutral_subject=True,
+        artifact_clean_subject=True,
+    )
+    environment = subject_subprocess_environment(
+        123456,
+        workspace=workspace,
+        expose_run_seed=False,
+    )
+    assert "OPTIMIZATION_RUN_SEED" not in environment
+    assert "C0C3_RUN_SEED" not in environment
+    assert "PYTHONHASHSEED" not in environment
+    assert not (workspace / ".workspace-identity").exists()
+    assert (workspace / ".git").is_dir()
+    assert Path(environment["TMPDIR"]).is_relative_to(workspace)
+    _make_tree_owner_writable(workspace)
+    shutil.rmtree(workspace)
+
+
+def test_v17_token_accounting_never_stops_the_proposal_horizon(
+    tmp_path: Path,
+) -> None:
+    base = FactorialSpec.from_toml(V17_PROTOCOL)
+    spec = FactorialSpec(
+        **{
+            **base.__dict__,
+            "blocks": 1,
+            "budget": BudgetSpec(
+                proposals=2,
+                candidate_evaluations=2,
+                max_total_tokens=10,
+                max_evaluator_seconds=100.0,
+                evaluator_timeout_seconds=10,
+            ),
+            "transition_opportunities": (1, 2),
+        }
+    )
+    controller = SearchController.create(
+        tmp_path / "v17",
+        spec,
+        run_id="v17-c0",
+        condition=Condition.C0,
+        seed_candidate=seed(),
+    )
+    controller.begin()
+    controller.complete(
+        candidate_id="first",
+        artifact_path="candidates/first",
+        hypothesis="first",
+        intended_edit="first",
+        evaluation=Evaluation(True, 1.0, {"score": 1.0}, 1.0),
+        usage=Usage(input_tokens=11),
+        prompt_hashes={},
+    )
+    assert controller.state.status == "running"
+    assert controller.begin().index == 2
 
 
 def test_openevolve_v2_diff_preflight_is_strict() -> None:

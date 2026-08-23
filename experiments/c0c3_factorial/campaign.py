@@ -214,14 +214,16 @@ def create_campaign(
         include_no_search = spec.include_no_search
     if (
         include_no_search != spec.include_no_search
-        and spec.protocol_version == "2.0"
+        and spec.c0c3_only
     ):
-        raise ValueError("protocol 2.0 campaign composition forbids N0")
+        raise ValueError(
+            f"protocol {spec.protocol_version} campaign composition forbids N0"
+        )
     if (
         spec.execution_rule
         in STAGED_EXECUTION_RULES
         and not include_no_search
-        and spec.protocol_version != "2.0"
+        and not spec.c0c3_only
     ):
         raise ValueError(
             "staged protocol requires pre-created N0 extension assignments"
@@ -319,7 +321,7 @@ def create_campaign(
     staged = spec.execution_rule in STAGED_EXECUTION_RULES
     primary_run_ids = (
         [str(row["run_id"]) for row in schedule]
-        if spec.protocol_version == "2.0"
+        if spec.c0c3_only
         else [
             str(row["run_id"])
             for row in schedule
