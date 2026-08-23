@@ -1,0 +1,24 @@
+task_id = "karpathy_nanogpt_source_only_h100"
+display_name = "Fixed-time single-H100 language-model pretraining"
+adapter = "karpathy_nanogpt_source_only_v1"
+seed_source = "architecture_discovery/vendor/autoresearch"
+editable_paths = ["train.py"]
+evaluator_command = ["{python}", "train.py"]
+objective_metric = "val_bpb"
+objective_direction = "minimize"
+public_feedback_metrics = [
+  "val_bpb", "training_seconds", "peak_vram_mb", "mfu_percent",
+  "total_tokens_M", "num_steps", "num_params_M", "depth",
+]
+final_holdout_command = ["{python}", "train.py"]
+preferred_backend = "hybrid_modal"
+
+[metric_patterns]
+val_bpb = "^val_bpb:\\s*([0-9.]+)"
+training_seconds = "^training_seconds:\\s*([0-9.]+)"
+peak_vram_mb = "^peak_vram_mb:\\s*([0-9.]+)"
+mfu_percent = "^mfu_percent:\\s*([0-9.]+)"
+total_tokens_M = "^total_tokens_M:\\s*([0-9.]+)"
+num_steps = "^num_steps:\\s*([0-9.]+)"
+num_params_M = "^num_params_M:\\s*([0-9.]+)"
+depth = "^depth:\\s*([0-9.]+)"

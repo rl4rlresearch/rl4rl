@@ -125,6 +125,11 @@ def test_artifact_clean_profiles_declare_all_primary_blocks() -> None:
     for profile, key, blocks in (
         ("autoresearch-v1.7", "autoresearch-v1.7", (1, 2)),
         ("openevolve-v2.1", "openevolve-v2.1", (1, 2, 3, 4, 5)),
+        (
+            "openevolve-v2.1-nanogpt",
+            "openevolve-v2.1-nanogpt",
+            (1, 2, 3),
+        ),
     ):
         roster = plans(profile)
         assert len(roster) == 1
@@ -134,7 +139,11 @@ def test_artifact_clean_profiles_declare_all_primary_blocks() -> None:
 
 
 def test_artifact_clean_jobs_receive_main_operator_prompt_root(tmp_path: Path) -> None:
-    for group in ("autoresearch-v1.7", "openevolve-v2.1"):
+    for group in (
+        "autoresearch-v1.7",
+        "openevolve-v2.1",
+        "openevolve-v2.1-nanogpt",
+    ):
         job = Job(
             key=f"{group}:b01-c0",
             group=group,

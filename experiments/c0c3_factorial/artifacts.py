@@ -12,6 +12,8 @@ from pathlib import Path
 from .neutral_task import (
     ARTIFACT_CLEAN_ASSUMPTION_PROMPT_PATHS,
     ARTIFACT_CLEAN_PROMPT_PROFILES,
+    NANOGPT_SOURCE_ONLY_SEED_PATHS,
+    NANOGPT_TASK_ADAPTER,
     NEUTRAL_SUBMISSION_WRAPPER,
     NEUTRAL_TASK_ADAPTER,
     PAIR_TOKEN_SANITIZED_SEED_PATHS,
@@ -71,31 +73,34 @@ def prepare_seed_workspace(
         PAIR_TOKEN_TASK_ADAPTER,
         PAIR_TOKEN_TASK_ADAPTER_V2,
         PAIR_TOKEN_TASK_ADAPTER_V3,
+        NANOGPT_TASK_ADAPTER,
     }:
         destination.mkdir(parents=True, exist_ok=False)
-        if task.adapter == NEUTRAL_TASK_ADAPTER:
+        if task.adapter == NANOGPT_TASK_ADAPTER:
+            sanitized_paths = NANOGPT_SOURCE_ONLY_SEED_PATHS
+            submission_wrapper = None
+        elif task.adapter == NEUTRAL_TASK_ADAPTER:
             sanitized_paths = SANITIZED_SEED_PATHS
+            submission_wrapper = NEUTRAL_SUBMISSION_WRAPPER
         elif task.adapter == PAIR_TOKEN_TASK_ADAPTER_V3:
             sanitized_paths = PAIR_TOKEN_SOURCE_ONLY_SEED_PATHS
+            submission_wrapper = PAIR_TOKEN_SUBMISSION_WRAPPER
         else:
             sanitized_paths = PAIR_TOKEN_SANITIZED_SEED_PATHS
-        submission_wrapper = (
-            NEUTRAL_SUBMISSION_WRAPPER
-            if task.adapter == NEUTRAL_TASK_ADAPTER
-            else PAIR_TOKEN_SUBMISSION_WRAPPER
-        )
+            submission_wrapper = PAIR_TOKEN_SUBMISSION_WRAPPER
         for relative in sanitized_paths:
             source_path = source / relative
             if not source_path.is_file() or source_path.is_symlink():
                 raise FileNotFoundError(
-                    f"neutral task seed is missing safe source file {relative}"
+                    f"artifact-clean task seed is missing safe source file {relative}"
                 )
             destination_path = destination / relative
             destination_path.parent.mkdir(parents=True, exist_ok=True)
             shutil.copy2(source_path, destination_path)
-        (destination / "submission.py").write_text(
-            submission_wrapper, encoding="utf-8"
-        )
+        if submission_wrapper is not None:
+            (destination / "submission.py").write_text(
+                submission_wrapper, encoding="utf-8"
+            )
     else:
         _copy_source(source, destination)
     if task.adapter == "adderboard_v1":

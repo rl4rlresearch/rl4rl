@@ -57,6 +57,11 @@ elif PROFILE == "autoresearch-v1.7":
 elif PROFILE == "openevolve-v2.1":
     DEFAULT_CONTROL_ROOT = REPO_ROOT / "data/c0c3/overnight-control-openevolve-v2-1"
     DEFAULT_SCREEN_SESSION = "rl4rl-c0c3-openevolve-v2-1"
+elif PROFILE == "openevolve-v2.1-nanogpt":
+    DEFAULT_CONTROL_ROOT = (
+        REPO_ROOT / "data/c0c3/overnight-control-openevolve-v2-1-nanogpt"
+    )
+    DEFAULT_SCREEN_SESSION = "rl4rl-c0c3-openevolve-v2-1-nanogpt"
 else:
     raise RuntimeError(f"unknown overnight profile: {PROFILE}")
 CONTROL_ROOT = Path(
@@ -217,6 +222,23 @@ def plans(profile: str | None = None) -> tuple[CampaignPlan, ...]:
                 ),
                 mode="individual-trajectories",
                 blocks=(1, 2, 3, 4, 5),
+            ),
+        )
+    if selected_profile == "openevolve-v2.1-nanogpt":
+        return (
+            CampaignPlan(
+                key="openevolve-v2.1-nanogpt",
+                runtime_root=_env_path(
+                    "RL4RL_OPENEVOLVE_V21_NANOGPT_RUNTIME",
+                    Path("/private/tmp/rl4rl-c0c3-openevolve-v2-1-nanogpt"),
+                ),
+                campaign=_env_path(
+                    "RL4RL_OPENEVOLVE_V21_NANOGPT_CAMPAIGN",
+                    REPO_ROOT
+                    / "data/c0c3/nanogpt-openevolve-v2-1-h100-campaign",
+                ),
+                mode="individual-trajectories",
+                blocks=(1, 2, 3),
             ),
         )
     if selected_profile != "primary":
@@ -460,7 +482,11 @@ def command_for(job: Job) -> list[str]:
 
 def command_environment(job: Job) -> dict[str, str]:
     environment = os.environ.copy()
-    if job.group in {"autoresearch-v1.7", "openevolve-v2.1"}:
+    if job.group in {
+        "autoresearch-v1.7",
+        "openevolve-v2.1",
+        "openevolve-v2.1-nanogpt",
+    }:
         environment["RL4RL_C0C3_OPERATOR_PROMPT_ROOT"] = str(
             REPO_ROOT / "experiments/c0c3_factorial/templates"
         )
@@ -477,7 +503,11 @@ def service_tier() -> str:
 
 
 def ensure_service_tier_control() -> None:
-    if PROFILE not in {"autoresearch-v1.7", "openevolve-v2.1"}:
+    if PROFILE not in {
+        "autoresearch-v1.7",
+        "openevolve-v2.1",
+        "openevolve-v2.1-nanogpt",
+    }:
         return
     if not SERVICE_TIER_PATH.exists():
         atomic_json(

@@ -6,10 +6,13 @@ NEUTRAL_TASK_ADAPTER = "ten_digit_addition_transformer_v1"
 PAIR_TOKEN_TASK_ADAPTER = "ten_digit_addition_pair_transformer_v1"
 PAIR_TOKEN_TASK_ADAPTER_V2 = "ten_digit_addition_pair_transformer_v2"
 PAIR_TOKEN_TASK_ADAPTER_V3 = "ten_digit_addition_pair_transformer_v3"
+NANOGPT_TASK_ADAPTER = "karpathy_nanogpt_source_only_v1"
 NEUTRAL_PROMPT_PROFILE = "trained_transformer_optimizer_v1_5"
 OPENEVOLVE_V2_PROMPT_PROFILE = "trained_transformer_openevolve_v2"
 AUTORESEARCH_V17_PROMPT_PROFILE = "trained_transformer_optimizer_v1_7"
 OPENEVOLVE_V21_PROMPT_PROFILE = "trained_transformer_openevolve_v2_1"
+NANOGPT_AUTORESEARCH_V17_PROMPT_PROFILE = "nanogpt_optimizer_v1_7"
+NANOGPT_OPENEVOLVE_V21_PROMPT_PROFILE = "nanogpt_openevolve_v2_1"
 SUBJECT_NEUTRAL_PROTOCOL_VERSIONS = frozenset(
     {"1.5", "1.6", "1.7", "2.0", "2.1"}
 )
@@ -19,6 +22,8 @@ SUBJECT_NEUTRAL_PROMPT_PROFILES = frozenset(
         OPENEVOLVE_V2_PROMPT_PROFILE,
         AUTORESEARCH_V17_PROMPT_PROFILE,
         OPENEVOLVE_V21_PROMPT_PROFILE,
+        NANOGPT_AUTORESEARCH_V17_PROMPT_PROFILE,
+        NANOGPT_OPENEVOLVE_V21_PROMPT_PROFILE,
     }
 )
 SUBJECT_NEUTRAL_TASK_ADAPTERS = frozenset(
@@ -31,7 +36,12 @@ SUBJECT_NEUTRAL_TASK_ADAPTERS = frozenset(
 )
 ARTIFACT_CLEAN_PROTOCOL_VERSIONS = frozenset({"1.7", "2.1"})
 ARTIFACT_CLEAN_PROMPT_PROFILES = frozenset(
-    {AUTORESEARCH_V17_PROMPT_PROFILE, OPENEVOLVE_V21_PROMPT_PROFILE}
+    {
+        AUTORESEARCH_V17_PROMPT_PROFILE,
+        OPENEVOLVE_V21_PROMPT_PROFILE,
+        NANOGPT_AUTORESEARCH_V17_PROMPT_PROFILE,
+        NANOGPT_OPENEVOLVE_V21_PROMPT_PROFILE,
+    }
 )
 ARTIFACT_CLEAN_ASSUMPTION_PROMPT_PATHS = {
     AUTORESEARCH_V17_PROMPT_PROFILE: (
@@ -39,6 +49,12 @@ ARTIFACT_CLEAN_ASSUMPTION_PROMPT_PATHS = {
     ),
     OPENEVOLVE_V21_PROMPT_PROFILE: (
         "transformer_optimizer_openevolve_v2_1/assumption_changing.md"
+    ),
+    NANOGPT_AUTORESEARCH_V17_PROMPT_PROFILE: (
+        "nanogpt_optimizer_v1_7/assumption_changing.md"
+    ),
+    NANOGPT_OPENEVOLVE_V21_PROMPT_PROFILE: (
+        "nanogpt_optimizer_openevolve_v2_1/assumption_changing.md"
     ),
 }
 OPERATOR_PROMPT_ROOT_ENV = "RL4RL_C0C3_OPERATOR_PROMPT_ROOT"
@@ -66,6 +82,14 @@ PAIR_TOKEN_SOURCE_ONLY_SEED_PATHS = tuple(
     path for path in PAIR_TOKEN_SANITIZED_SEED_PATHS if path != "checkpoints/best.pt"
 )
 
+# Protocols 1.7 and 2.1 expose only the official research program and its fixed
+# evaluator utilities. Human/agent instructions and repository history are not
+# copied into subject workspaces.
+NANOGPT_SOURCE_ONLY_SEED_PATHS = (
+    "prepare.py",
+    "train.py",
+)
+
 
 def validate_v15_pairing(
     *,
@@ -76,16 +100,26 @@ def validate_v15_pairing(
     """Fail closed if subject-neutral components are mixed with older strata."""
 
     is_subject_neutral = protocol_version in SUBJECT_NEUTRAL_PROTOCOL_VERSIONS
-    expected_adapter = {
-        "1.7": PAIR_TOKEN_TASK_ADAPTER_V3,
-        "2.0": PAIR_TOKEN_TASK_ADAPTER_V2,
-        "2.1": PAIR_TOKEN_TASK_ADAPTER_V3,
+    allowed_adapters = {
+        "1.7": {PAIR_TOKEN_TASK_ADAPTER_V3, NANOGPT_TASK_ADAPTER},
+        "2.0": {PAIR_TOKEN_TASK_ADAPTER_V2},
+        "2.1": {PAIR_TOKEN_TASK_ADAPTER_V3, NANOGPT_TASK_ADAPTER},
     }.get(protocol_version)
-    if expected_adapter is not None and task_adapter != expected_adapter:
+    if allowed_adapters is not None and task_adapter not in allowed_adapters:
+        if len(allowed_adapters) == 1:
+            required = next(iter(allowed_adapters))
+            raise ValueError(
+                f"protocol {protocol_version} requires task adapter {required}"
+            )
         raise ValueError(
-            f"protocol {protocol_version} requires task adapter {expected_adapter}"
+            f"protocol {protocol_version} requires one of task adapters "
+            f"{sorted(allowed_adapters)}"
         )
-    if is_subject_neutral and task_adapter not in SUBJECT_NEUTRAL_TASK_ADAPTERS:
+    if (
+        is_subject_neutral
+        and task_adapter not in SUBJECT_NEUTRAL_TASK_ADAPTERS
+        and task_adapter != NANOGPT_TASK_ADAPTER
+    ):
         raise ValueError(
             "subject-neutral protocols require the subject-neutral task adapter"
         )
@@ -96,10 +130,18 @@ def validate_v15_pairing(
     if prompt_profile is None:
         return
     expected_profile = {
-        "1.7": AUTORESEARCH_V17_PROMPT_PROFILE,
-        "2.0": OPENEVOLVE_V2_PROMPT_PROFILE,
-        "2.1": OPENEVOLVE_V21_PROMPT_PROFILE,
-    }.get(protocol_version, NEUTRAL_PROMPT_PROFILE)
+        ("1.7", PAIR_TOKEN_TASK_ADAPTER_V3): AUTORESEARCH_V17_PROMPT_PROFILE,
+        (
+            "1.7",
+            NANOGPT_TASK_ADAPTER,
+        ): NANOGPT_AUTORESEARCH_V17_PROMPT_PROFILE,
+        ("2.0", PAIR_TOKEN_TASK_ADAPTER_V2): OPENEVOLVE_V2_PROMPT_PROFILE,
+        ("2.1", PAIR_TOKEN_TASK_ADAPTER_V3): OPENEVOLVE_V21_PROMPT_PROFILE,
+        (
+            "2.1",
+            NANOGPT_TASK_ADAPTER,
+        ): NANOGPT_OPENEVOLVE_V21_PROMPT_PROFILE,
+    }.get((protocol_version, task_adapter), NEUTRAL_PROMPT_PROFILE)
     if is_subject_neutral and prompt_profile != expected_profile:
         raise ValueError(
             "subject-neutral prompt profile mismatch: "

@@ -12,11 +12,26 @@ from dataclasses import asdict
 from pathlib import Path
 
 from .evaluator import CommandEvaluator, EvaluationArtifacts
+from .neutral_task import NANOGPT_TASK_ADAPTER
 from .state import Evaluation, append_jsonl
 
 APP_NAME = "rl4rl-c0c3-hybrid-evaluator-v2"
 FUNCTION_NAME = "evaluate_candidate"
+NANOGPT_APP_NAME = "rl4rl-c0c3-nanogpt-evaluator-v1"
+NANOGPT_FUNCTION_NAME = "evaluate_candidate"
 MAX_ARCHIVE_BYTES = 16 * 1024 * 1024
+
+
+def _remote_target(task_adapter: str) -> tuple[str, str]:
+    if task_adapter == NANOGPT_TASK_ADAPTER:
+        return (
+            os.environ.get("C0C3_NANOGPT_MODAL_APP", NANOGPT_APP_NAME),
+            os.environ.get("C0C3_NANOGPT_MODAL_FUNCTION", NANOGPT_FUNCTION_NAME),
+        )
+    return (
+        os.environ.get("C0C3_MODAL_APP", APP_NAME),
+        os.environ.get("C0C3_MODAL_FUNCTION", FUNCTION_NAME),
+    )
 
 
 def _archive_inputs(
@@ -83,6 +98,7 @@ class ModalCommandEvaluator(CommandEvaluator):
 
         payload = _archive_inputs(self.support_source, candidate_snapshot)
         call_id = uuid.uuid4().hex
+        app_name, function_name = _remote_target(self.task.adapter)
         started = time.monotonic()
         # This lease limits remote calls within the campaign. Modal workers do
         # not consume a local GPU slot in the shared host scheduler.
@@ -91,8 +107,8 @@ class ModalCommandEvaluator(CommandEvaluator):
         ):
             try:
                 function = modal.Function.from_name(
-                    os.environ.get("C0C3_MODAL_APP", APP_NAME),
-                    os.environ.get("C0C3_MODAL_FUNCTION", FUNCTION_NAME),
+                    app_name,
+                    function_name,
                     environment_name=os.environ.get("MODAL_ENVIRONMENT") or None,
                 )
                 response = function.remote(
@@ -133,6 +149,8 @@ class ModalCommandEvaluator(CommandEvaluator):
                     worker_seconds=None,
                     gpu_name=None,
                     status="failed",
+                    app_name=app_name,
+                    function_name=function_name,
                 )
                 return EvaluationArtifacts(evaluation, stdout, stderr, workspace)
 
@@ -154,6 +172,8 @@ class ModalCommandEvaluator(CommandEvaluator):
             worker_seconds=float(response.get("worker_seconds", 0.0)),
             gpu_name=str(response.get("gpu_name", "unknown")),
             status="completed",
+            app_name=app_name,
+            function_name=function_name,
         )
         return EvaluationArtifacts(
             evaluation=evaluation,
@@ -171,6 +191,8 @@ class ModalCommandEvaluator(CommandEvaluator):
         worker_seconds: float | None,
         gpu_name: str | None,
         status: str,
+        app_name: str,
+        function_name: str,
     ) -> None:
         campaign = opportunity_root.parents[3]
         record = {
@@ -178,8 +200,8 @@ class ModalCommandEvaluator(CommandEvaluator):
             "call_id": call_id,
             "run_id": opportunity_root.parents[1].name,
             "opportunity": int(opportunity_root.name),
-            "app": os.environ.get("C0C3_MODAL_APP", APP_NAME),
-            "function": os.environ.get("C0C3_MODAL_FUNCTION", FUNCTION_NAME),
+            "app": app_name,
+            "function": function_name,
             "status": status,
             "local_wall_seconds": local_wall_seconds,
             "worker_seconds": worker_seconds,

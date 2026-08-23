@@ -29,6 +29,9 @@ from experiments.c0c3_factorial.frameworks import (
 )
 from experiments.c0c3_factorial.neutral_task import (
     AUTORESEARCH_V17_PROMPT_PROFILE,
+    NANOGPT_AUTORESEARCH_V17_PROMPT_PROFILE,
+    NANOGPT_OPENEVOLVE_V21_PROMPT_PROFILE,
+    NANOGPT_TASK_ADAPTER,
     NEUTRAL_SUBMISSION_WRAPPER,
     NEUTRAL_TASK_ADAPTER,
     OPENEVOLVE_V2_PROMPT_PROFILE,
@@ -174,6 +177,31 @@ OPENEVOLVE_V21_FRAMEWORK = (
     / "experiments/c0c3_factorial/configs/frameworks"
     / "openevolve_v2_1.toml"
 )
+NANOGPT_V17_PROTOCOL = (
+    ROOT
+    / "experiments/c0c3_factorial/configs/protocols"
+    / "nanogpt_autoresearch_v1_7.toml"
+)
+NANOGPT_V21_PROTOCOL = (
+    ROOT
+    / "experiments/c0c3_factorial/configs/protocols"
+    / "nanogpt_openevolve_v2_1.toml"
+)
+NANOGPT_TASK = (
+    ROOT
+    / "experiments/c0c3_factorial/configs/tasks"
+    / "karpathy_nanogpt_source_only_h100.toml"
+)
+NANOGPT_V17_FRAMEWORK = (
+    ROOT
+    / "experiments/c0c3_factorial/configs/frameworks"
+    / "autoresearch_nanogpt_v1_7.toml"
+)
+NANOGPT_V21_FRAMEWORK = (
+    ROOT
+    / "experiments/c0c3_factorial/configs/frameworks"
+    / "openevolve_nanogpt_v2_1.toml"
+)
 
 
 def protocol(*, proposals: int = 4, capacity: int = 2) -> FactorialSpec:
@@ -223,6 +251,78 @@ def test_artifact_clean_presets_start_fast_with_requested_block_counts() -> None
     assert (v21.blocks, v21.model.service_tier) == (5, "fast")
 
 
+def test_nanogpt_artifact_clean_presets_are_three_fast_h100_blocks() -> None:
+    v17 = FactorialSpec.from_toml(NANOGPT_V17_PROTOCOL)
+    v21 = FactorialSpec.from_toml(NANOGPT_V21_PROTOCOL)
+    task_spec = TaskSpec.from_toml(NANOGPT_TASK)
+
+    assert (v17.blocks, v17.model.service_tier) == (3, "fast")
+    assert (v21.blocks, v21.model.service_tier) == (3, "fast")
+    assert task_spec.adapter == NANOGPT_TASK_ADAPTER
+    assert task_spec.preferred_backend is ExecutionBackend.HYBRID_MODAL
+
+
+@pytest.mark.parametrize(
+    ("protocol_path", "framework_path", "expected_profile"),
+    (
+        (
+            NANOGPT_V17_PROTOCOL,
+            NANOGPT_V17_FRAMEWORK,
+            NANOGPT_AUTORESEARCH_V17_PROMPT_PROFILE,
+        ),
+        (
+            NANOGPT_V21_PROTOCOL,
+            NANOGPT_V21_FRAMEWORK,
+            NANOGPT_OPENEVOLVE_V21_PROMPT_PROFILE,
+        ),
+    ),
+)
+def test_nanogpt_artifact_clean_prompts_are_task_specific_and_hide_run_state(
+    protocol_path: Path,
+    framework_path: Path,
+    expected_profile: str,
+) -> None:
+    spec = FactorialSpec.from_toml(protocol_path)
+    task_spec = TaskSpec.from_toml(NANOGPT_TASK)
+    framework_spec = FrameworkSpec.from_toml(framework_path)
+    validate_v15_pairing(
+        protocol_version=spec.protocol_version,
+        task_adapter=task_spec.adapter,
+        prompt_profile=framework_spec.prompt_profile,
+    )
+    assert framework_spec.prompt_profile == expected_profile
+
+    prompt = PromptRenderer(TEMPLATES).render(
+        spec,
+        task_spec,
+        framework_spec,
+        PromptContext(
+            condition=Condition.C3,
+            opportunity=10,
+            selected_parent_id="seed",
+            visible_candidates=(
+                VisibleCandidate(
+                    "seed",
+                    -1.0,
+                    {"val_bpb": 1.0, "training_seconds": 300.0},
+                    0,
+                    ".design-references/design-1",
+                ),
+            ),
+            remaining_proposals=191,
+            remaining_evaluations=191,
+            remaining_tokens=123,
+            remaining_evaluator_seconds=456.0,
+        ),
+    )
+
+    assert "val_bpb" in prompt.text
+    assert "language model represents context or computes predictions" in prompt.text
+    assert "tokens=" not in prompt.text
+    assert "Remaining capacity" not in prompt.text
+    assert not neutral_source_disclosure_terms(prompt.text)
+
+
 def test_service_tier_control_can_switch_a_fast_model(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch
 ) -> None:
@@ -235,6 +335,30 @@ def test_service_tier_control_can_switch_a_fast_model(
     assert selected_service_tier(model) == "default"
     control.write_text('{"service_tier":"fast"}\n', encoding="utf-8")
     assert selected_service_tier(model) == "fast"
+
+
+def test_nanogpt_source_only_workspace_excludes_human_prompt_artifacts(
+    tmp_path: Path,
+) -> None:
+    source = tmp_path / "source"
+    source.mkdir()
+    for name in ("prepare.py", "train.py", "program.md", "README.md"):
+        (source / name).write_text(f"# {name}\n", encoding="utf-8")
+    configured = TaskSpec.from_toml(NANOGPT_TASK)
+    task_spec = TaskSpec(
+        **{
+            **configured.__dict__,
+            "seed_source": str(source),
+        }
+    )
+
+    destination = tmp_path / "workspace"
+    prepare_seed_workspace(task_spec, destination, repo_root=ROOT)
+
+    assert sorted(path.name for path in destination.iterdir()) == [
+        "prepare.py",
+        "train.py",
+    ]
 
 
 def task() -> TaskSpec:

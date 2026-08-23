@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+# ruff: noqa: E501
 """Read-only, locally served trajectory dashboard for live C0-C3 campaigns.
 
 The server reads campaign logs only when a browser requests ``/api/data``.  It
@@ -16,12 +17,20 @@ from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
 from typing import Any
 
-
 REPO_ROOT = Path(__file__).resolve().parents[1]
 DEFAULT_AUTORESEARCH = Path(
     "/private/tmp/rl4rl-v16-codex1644-confined-campaign-fresh-20260822c"
 )
 DEFAULT_OPENEVOLVE = REPO_ROOT / "data/c0c3/controlled-openevolve-transformer-v2-mps-campaign"
+DEFAULT_AUTORESEARCH_V17 = (
+    REPO_ROOT / "data/c0c3/transformer-optimization-v1-7-source-only-campaign"
+)
+DEFAULT_OPENEVOLVE_V21 = (
+    REPO_ROOT / "data/c0c3/controlled-openevolve-transformer-v2-1-mps-campaign"
+)
+DEFAULT_OPENEVOLVE_V21_NANOGPT = (
+    REPO_ROOT / "data/c0c3/nanogpt-openevolve-v2-1-h100-campaign"
+)
 
 # These are display-only price weights, not a billing record.  They match the
 # previous trajectory visualizer's token-cost convention and can be overridden.
@@ -60,7 +69,7 @@ def parse_timestamp(value: Any) -> datetime | None:
         return None
 
 
-def parameter_at_seed(state: dict[str, Any]) -> int | None:
+def metric_at_seed(state: dict[str, Any], objective_metric: str) -> float | None:
     candidates = state.get("candidates", {})
     if not isinstance(candidates, dict):
         return None
@@ -68,8 +77,9 @@ def parameter_at_seed(state: dict[str, Any]) -> int | None:
         if not isinstance(candidate, dict) or candidate.get("created_opportunity") != 0:
             continue
         metrics = candidate.get("metrics", {})
-        if isinstance(metrics, dict) and isinstance(metrics.get("parameters"), int):
-            return metrics["parameters"]
+        value = metrics.get(objective_metric) if isinstance(metrics, dict) else None
+        if isinstance(value, int | float) and not isinstance(value, bool):
+            return float(value)
     return None
 
 
@@ -92,7 +102,13 @@ def compact_label(run_id: str) -> str:
     return f"{block}-{condition}"
 
 
-def build_run(run_dir: Path, prices: dict[str, float]) -> dict[str, Any] | None:
+def build_run(
+    run_dir: Path,
+    prices: dict[str, float],
+    *,
+    objective_metric: str,
+    objective_direction: str,
+) -> dict[str, Any] | None:
     state = read_json(run_dir / "state.json", {})
     if not isinstance(state, dict):
         return None
@@ -103,8 +119,8 @@ def build_run(run_dir: Path, prices: dict[str, float]) -> dict[str, Any] | None:
     events = iter_jsonl(run_dir / "events.jsonl")
     started: dict[int, datetime] = {}
     elapsed_seconds = 0.0
-    seed_parameters = parameter_at_seed(state)
-    best_parameters = seed_parameters
+    seed_objective = metric_at_seed(state, objective_metric)
+    best_objective = seed_objective
     points: list[dict[str, float | int]] = []
     for event in events:
         opportunity = event.get("opportunity")
@@ -120,24 +136,35 @@ def build_run(run_dir: Path, prices: dict[str, float]) -> dict[str, Any] | None:
             elapsed_seconds += max(0.0, (timestamp - started[opportunity]).total_seconds())
         evaluation = event.get("evaluation", {})
         metrics = evaluation.get("metrics", {}) if isinstance(evaluation, dict) else {}
-        parameters = metrics.get("parameters") if isinstance(metrics, dict) else None
-        if isinstance(evaluation, dict) and evaluation.get("valid") and isinstance(parameters, int):
-            best_parameters = parameters if best_parameters is None else min(best_parameters, parameters)
+        objective = metrics.get(objective_metric) if isinstance(metrics, dict) else None
+        if (
+            isinstance(evaluation, dict)
+            and evaluation.get("valid")
+            and isinstance(objective, int | float)
+            and not isinstance(objective, bool)
+        ):
+            value = float(objective)
+            if best_objective is None:
+                best_objective = value
+            elif objective_direction == "maximize":
+                best_objective = max(best_objective, value)
+            else:
+                best_objective = min(best_objective, value)
         usage = event.get("usage_cumulative", {})
         usage = usage if isinstance(usage, dict) else {}
-        if best_parameters is not None:
+        if best_objective is not None:
             points.append(
                 {
                     "proposal": opportunity,
                     "active_hours": round(elapsed_seconds / 3600, 6),
                     "token_cost": round(weighted_cost(usage, prices), 6),
-                    "parameters": best_parameters,
+                    "objective": best_objective,
                 }
             )
-    if seed_parameters is not None:
+    if seed_objective is not None:
         points.insert(
             0,
-            {"proposal": 0, "active_hours": 0.0, "token_cost": 0.0, "parameters": seed_parameters},
+            {"proposal": 0, "active_hours": 0.0, "token_cost": 0.0, "objective": seed_objective},
         )
     usage = state.get("usage", {})
     usage = usage if isinstance(usage, dict) else {}
@@ -148,14 +175,30 @@ def build_run(run_dir: Path, prices: dict[str, float]) -> dict[str, Any] | None:
         "status": state.get("status", "unknown"),
         "proposals_used": state.get("proposals_used", 0),
         "total_tokens": int(usage.get("input_tokens", 0) or 0) + int(usage.get("output_tokens", 0) or 0),
-        "lowest_parameters": min((point["parameters"] for point in points), default=None),
+        "best_objective": best_objective,
+        "lowest_parameters": (
+            best_objective if objective_metric == "parameters" else None
+        ),
         "points": points,
     }
 
 
 def campaign_data(campaign: Path, prices: dict[str, float]) -> dict[str, Any]:
     runs_root = campaign / "runs"
-    runs = [build_run(path, prices) for path in sorted(runs_root.glob("*")) if path.is_dir()]
+    task = read_json(campaign / "inputs/task.json", {})
+    task = task if isinstance(task, dict) else {}
+    objective_metric = str(task.get("objective_metric", "parameters"))
+    objective_direction = str(task.get("objective_direction", "minimize"))
+    runs = [
+        build_run(
+            path,
+            prices,
+            objective_metric=objective_metric,
+            objective_direction=objective_direction,
+        )
+        for path in sorted(runs_root.glob("*"))
+        if path.is_dir()
+    ]
     factorial_runs = [
         run
         for run in runs
@@ -164,16 +207,19 @@ def campaign_data(campaign: Path, prices: dict[str, float]) -> dict[str, Any]:
     return {
         "campaign": str(campaign),
         "available": campaign.is_dir(),
+        "objective_metric": objective_metric,
+        "objective_direction": objective_direction,
         "runs": factorial_runs,
     }
 
 
-def dashboard_data(autoresearch: Path, openevolve: Path, prices: dict[str, float]) -> dict[str, Any]:
+def dashboard_data(campaigns: dict[str, Path], prices: dict[str, float]) -> dict[str, Any]:
     return {
         "generated_at": datetime.now().astimezone().isoformat(),
         "price_per_million": prices,
-        "autoresearch": campaign_data(autoresearch, prices),
-        "openevolve_v2": campaign_data(openevolve, prices),
+        "campaigns": {
+            key: campaign_data(path, prices) for key, path in campaigns.items()
+        },
     }
 
 
@@ -197,16 +243,16 @@ PAGE = r'''<!doctype html>
 <div id="content"></div>
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
 <script>
-const conditionColors = {C0:['#60a5fa','#2563eb','#1d4ed8'],C1:['#fb923c','#ea580c','#c2410c'],C2:['#c084fc','#9333ea','#7e22ce'],C3:['#4ade80','#16a34a','#15803d']};
+const conditionColors = {C0:['#93c5fd','#60a5fa','#3b82f6','#2563eb','#1d4ed8'],C1:['#fed7aa','#fdba74','#fb923c','#f97316','#c2410c'],C2:['#e9d5ff','#d8b4fe','#c084fc','#a855f7','#7e22ce'],C3:['#bbf7d0','#86efac','#4ade80','#22c55e','#15803d']};
 const charts=[];
-function color(run) { const match=run.label.match(/^B(\d+)/); return (conditionColors[run.condition]||['#ddd'])[match ? (Number(match[1])-1)%3 : 0]; }
-function chartOptions(xTitle) { return {responsive:true, maintainAspectRatio:false, parsing:false, plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>`${c.dataset.label}: ${Number(c.raw.y).toLocaleString()} parameters`}}}, scales:{x:{type:'linear',min:0,title:{display:true,text:xTitle}},y:{min:0,title:{display:true,text:'Best valid parameters'}}}}; }
-function makeChart(canvas, runs, xKey, title) { return new Chart(canvas,{type:'line',data:{datasets:runs.filter(r=>r.points.length).map(r=>({label:r.label,data:r.points.map(p=>({x:p[xKey],y:p.parameters})),borderColor:color(r),backgroundColor:color(r),borderWidth:2,pointRadius:2,tension:.12}))},options:chartOptions(title)}); }
+function color(run) { const family=conditionColors[run.condition]||['#ddd']; const match=run.label.match(/^B(\d+)/); return family[match ? (Number(match[1])-1)%family.length : 0]; }
+function chartOptions(xTitle,yTitle) { return {responsive:true, maintainAspectRatio:false, parsing:false, plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>`${c.dataset.label}: ${Number(c.raw.y).toLocaleString()} ${yTitle}`}}}, scales:{x:{type:'linear',min:0,title:{display:true,text:xTitle}},y:{min:0,title:{display:true,text:`Best valid ${yTitle}`}}}}; }
+function makeChart(canvas, runs, xKey, title, objectiveMetric) { return new Chart(canvas,{type:'line',data:{datasets:runs.filter(r=>r.points.length).map(r=>({label:r.label,data:r.points.map(p=>({x:p[xKey],y:p.objective})),borderColor:color(r),backgroundColor:color(r),borderWidth:2,pointRadius:2,tension:.12}))},options:chartOptions(title,objectiveMetric)}); }
 function section(key, title, payload) {
   if (!payload.available) return `<section class="section"><h2>${title}</h2><p class="sub">Campaign directory is not available: ${payload.campaign}</p></section>`;
   const id=key.replace(/[^a-z0-9]/g,''); const legend=payload.runs.map(r=>`<span class="key"><i class="dot" style="background:${color(r)}"></i>${r.label}</span>`).join('');
-  const rows=payload.runs.map(r=>`<tr><td>${r.label}</td><td>${r.condition}</td><td>${r.status}</td><td>${r.proposals_used}</td><td>${r.total_tokens.toLocaleString()}</td><td>${r.lowest_parameters===null?'—':r.lowest_parameters.toLocaleString()}</td></tr>`).join('');
-  return `<section class="section"><h2>${title}</h2><p class="sub">${payload.campaign}</p><div class="legend">${legend}</div><div class="charts"><div class="chart"><canvas id="${id}-proposal"></canvas></div><div class="chart"><canvas id="${id}-cost"></canvas></div><div class="chart"><canvas id="${id}-time"></canvas></div></div><table><thead><tr><th>Run</th><th>Condition</th><th>Status</th><th>Proposals</th><th>Reported tokens</th><th>Lowest parameters</th></tr></thead><tbody>${rows}</tbody></table></section>`;
+  const rows=payload.runs.map(r=>`<tr><td>${r.label}</td><td>${r.condition}</td><td>${r.status}</td><td>${r.proposals_used}</td><td>${r.total_tokens.toLocaleString()}</td><td>${r.best_objective===null?'—':Number(r.best_objective).toLocaleString()}</td></tr>`).join('');
+  return `<section class="section"><h2>${title}</h2><p class="sub">${payload.campaign}</p><div class="legend">${legend}</div><div class="charts"><div class="chart"><canvas id="${id}-proposal"></canvas></div><div class="chart"><canvas id="${id}-cost"></canvas></div><div class="chart"><canvas id="${id}-time"></canvas></div></div><table><thead><tr><th>Run</th><th>Condition</th><th>Status</th><th>Proposals</th><th>Reported tokens</th><th>Best ${payload.objective_metric}</th></tr></thead><tbody>${rows}</tbody></table></section>`;
 }
 async function refresh() {
   document.getElementById('refresh').disabled=true;
@@ -214,8 +260,9 @@ async function refresh() {
     const data=await fetch('/api/data',{cache:'no-store'}).then(r=>r.json());
     charts.splice(0).forEach(c=>c.destroy());
     document.getElementById('stamp').textContent='Updated '+new Date(data.generated_at).toLocaleString();
-    document.getElementById('content').innerHTML=section('autoresearch','Autoresearch',data.autoresearch)+section('openevolve','OpenEvolve v2',data.openevolve_v2);
-    [['autoresearch',data.autoresearch],['openevolve',data.openevolve_v2]].forEach(([id,p])=>{ if(!p.available)return; charts.push(makeChart(document.getElementById(id+'-proposal'),p.runs,'proposal','Proposal')); charts.push(makeChart(document.getElementById(id+'-cost'),p.runs,'token_cost','Price-weighted token cost (USD)')); charts.push(makeChart(document.getElementById(id+'-time'),p.runs,'active_hours','Active wall-clock time (hours)')); });
+    const sections=[['autoresearchv16','Autoresearch v1.6',data.campaigns.autoresearch_v16],['openevolvev2','OpenEvolve v2.0',data.campaigns.openevolve_v2],['autoresearchv17','Autoresearch v1.7 · addition',data.campaigns.autoresearch_v17],['openevolvev21','OpenEvolve v2.1 · addition',data.campaigns.openevolve_v21],['openevolvev21nanogpt','OpenEvolve v2.1 · nanoGPT H100',data.campaigns.openevolve_v21_nanogpt]];
+    document.getElementById('content').innerHTML=sections.map(([id,title,p])=>section(id,title,p)).join('');
+    sections.forEach(([id,_title,p])=>{ if(!p.available)return; charts.push(makeChart(document.getElementById(id+'-proposal'),p.runs,'proposal','Proposal',p.objective_metric)); charts.push(makeChart(document.getElementById(id+'-cost'),p.runs,'token_cost','Price-weighted token cost (USD)',p.objective_metric)); charts.push(makeChart(document.getElementById(id+'-time'),p.runs,'active_hours','Active wall-clock time (hours)',p.objective_metric)); });
   } catch (error) { document.getElementById('stamp').textContent='Refresh failed: '+error.message; }
   finally { document.getElementById('refresh').disabled=false; }
 }
@@ -223,7 +270,7 @@ document.getElementById('refresh').addEventListener('click',refresh); refresh();
 </script>'''
 
 
-def make_handler(autoresearch: Path, openevolve: Path, prices: dict[str, float]):
+def make_handler(campaigns: dict[str, Path], prices: dict[str, float]):
     class Handler(BaseHTTPRequestHandler):
         def send_payload(self, body: bytes, content_type: str) -> None:
             self.send_response(HTTPStatus.OK)
@@ -237,7 +284,7 @@ def make_handler(autoresearch: Path, openevolve: Path, prices: dict[str, float])
             if self.path in {"/", "/index.html"}:
                 self.send_payload(PAGE.encode("utf-8"), "text/html; charset=utf-8")
             elif self.path == "/api/data":
-                payload = json.dumps(dashboard_data(autoresearch, openevolve, prices)).encode("utf-8")
+                payload = json.dumps(dashboard_data(campaigns, prices)).encode("utf-8")
                 self.send_payload(payload, "application/json; charset=utf-8")
             else:
                 self.send_error(HTTPStatus.NOT_FOUND)
@@ -254,6 +301,17 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--port", default=8765, type=int)
     parser.add_argument("--autoresearch-campaign", type=Path, default=DEFAULT_AUTORESEARCH)
     parser.add_argument("--openevolve-campaign", type=Path, default=DEFAULT_OPENEVOLVE)
+    parser.add_argument(
+        "--autoresearch-v17-campaign", type=Path, default=DEFAULT_AUTORESEARCH_V17
+    )
+    parser.add_argument(
+        "--openevolve-v21-campaign", type=Path, default=DEFAULT_OPENEVOLVE_V21
+    )
+    parser.add_argument(
+        "--openevolve-v21-nanogpt-campaign",
+        type=Path,
+        default=DEFAULT_OPENEVOLVE_V21_NANOGPT,
+    )
     parser.add_argument("--input-per-million", type=float, default=DEFAULT_PRICE_PER_MILLION["input"])
     parser.add_argument("--cached-input-per-million", type=float, default=DEFAULT_PRICE_PER_MILLION["cached_input"])
     parser.add_argument("--output-per-million", type=float, default=DEFAULT_PRICE_PER_MILLION["output"])
@@ -263,10 +321,22 @@ def parse_args() -> argparse.Namespace:
 def main() -> None:
     args = parse_args()
     prices = {"input": args.input_per_million, "cached_input": args.cached_input_per_million, "output": args.output_per_million}
-    server = ThreadingHTTPServer((args.host, args.port), make_handler(args.autoresearch_campaign, args.openevolve_campaign, prices))
+    campaigns = {
+        "autoresearch_v16": args.autoresearch_campaign,
+        "openevolve_v2": args.openevolve_campaign,
+        "autoresearch_v17": args.autoresearch_v17_campaign,
+        "openevolve_v21": args.openevolve_v21_campaign,
+        "openevolve_v21_nanogpt": args.openevolve_v21_nanogpt_campaign,
+    }
+    server = ThreadingHTTPServer(
+        (args.host, args.port), make_handler(campaigns, prices)
+    )
     print(f"Dashboard: http://{args.host}:{args.port}")
     print(f"Autoresearch: {args.autoresearch_campaign}")
     print(f"OpenEvolve v2: {args.openevolve_campaign}")
+    print(f"Autoresearch v1.7: {args.autoresearch_v17_campaign}")
+    print(f"OpenEvolve v2.1: {args.openevolve_v21_campaign}")
+    print(f"OpenEvolve v2.1 nanoGPT: {args.openevolve_v21_nanogpt_campaign}")
     try:
         server.serve_forever()
     except KeyboardInterrupt:

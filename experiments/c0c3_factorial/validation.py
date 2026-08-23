@@ -8,6 +8,8 @@ from pathlib import Path
 
 from .artifacts import candidate_hash, scientific_runtime_hash, tree_hash
 from .neutral_task import (
+    NANOGPT_SOURCE_ONLY_SEED_PATHS,
+    NANOGPT_TASK_ADAPTER,
     NEUTRAL_TASK_ADAPTER,
     PAIR_TOKEN_SANITIZED_SEED_PATHS,
     PAIR_TOKEN_SOURCE_ONLY_SEED_PATHS,
@@ -184,25 +186,34 @@ def validate_campaign(
         PAIR_TOKEN_TASK_ADAPTER,
         PAIR_TOKEN_TASK_ADAPTER_V2,
         PAIR_TOKEN_TASK_ADAPTER_V3,
+        NANOGPT_TASK_ADAPTER,
     }:
-        if task.adapter == NEUTRAL_TASK_ADAPTER:
+        if task.adapter == NANOGPT_TASK_ADAPTER:
+            sanitized_paths = NANOGPT_SOURCE_ONLY_SEED_PATHS
+        elif task.adapter == NEUTRAL_TASK_ADAPTER:
             sanitized_paths = SANITIZED_SEED_PATHS
         elif task.adapter == PAIR_TOKEN_TASK_ADAPTER_V3:
             sanitized_paths = PAIR_TOKEN_SOURCE_ONLY_SEED_PATHS
         else:
             sanitized_paths = PAIR_TOKEN_SANITIZED_SEED_PATHS
-        expected_subject_files = {
-            *sanitized_paths,
-            "submission.py",
-        }
+        expected_subject_files = set(sanitized_paths)
+        if task.adapter != NANOGPT_TASK_ADAPTER:
+            expected_subject_files.add("submission.py")
         actual_subject_files = {
             path.relative_to(campaign / "runs" / run_ids[0] / "task-support").as_posix()
             for path in (campaign / "runs" / run_ids[0] / "task-support").rglob("*")
             if path.is_file()
         }
         if actual_subject_files != expected_subject_files:
-            errors.append("neutral task-support tree exposes unexpected files")
-        for relative in sorted(expected_subject_files):
+                errors.append(
+                    "artifact-clean task-support tree exposes unexpected files"
+                )
+        source_paths_to_audit = (
+            ()
+            if task.adapter == NANOGPT_TASK_ADAPTER
+            else sorted(expected_subject_files)
+        )
+        for relative in source_paths_to_audit:
             if not relative.endswith(".py"):
                 continue
             source = (

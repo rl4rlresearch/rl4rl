@@ -46,13 +46,16 @@ from experiments.c0c3_factorial.frameworks import (
     unbundle_workspace,
 )
 from experiments.c0c3_factorial.hybrid_evaluator import (
+    NANOGPT_APP_NAME,
     ModalCommandEvaluator,
     _archive_inputs,
     _extract_outputs,
+    _remote_target,
 )
 from experiments.c0c3_factorial.modal_app import safe_campaign_path
 from experiments.c0c3_factorial.neutral_task import (
     AUTORESEARCH_V17_PROMPT_PROFILE,
+    NANOGPT_TASK_ADAPTER,
     NEUTRAL_PROMPT_PROFILE,
     NEUTRAL_TASK_ADAPTER,
     OPENEVOLVE_V2_PROMPT_PROFILE,
@@ -1228,6 +1231,13 @@ def test_hybrid_modal_backend_uses_evaluator_only_transport(tmp_path: Path) -> N
     )
 
     assert isinstance(evaluator, ModalCommandEvaluator)
+
+
+def test_nanogpt_hybrid_transport_uses_dedicated_h100_service() -> None:
+    app_name, function_name = _remote_target(NANOGPT_TASK_ADAPTER)
+
+    assert app_name == NANOGPT_APP_NAME
+    assert function_name == "evaluate_candidate"
 
 
 def test_runtime_hash_change_fails_validation_and_execution(tmp_path: Path) -> None:

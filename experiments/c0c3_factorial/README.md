@@ -131,6 +131,12 @@ Future coding agents must also follow [AGENTS.md](AGENTS.md).
   has five blocks/twenty trajectories. In both 1.7 and 2.1, the main
   checkout's assumption-changing template remains live until each trajectory's
   first start and is then hashed and frozen privately for that trajectory.
+- `configs/protocols/nanogpt_autoresearch_v1_7.toml` and
+  `configs/protocols/nanogpt_openevolve_v2_1.toml` apply the same artifact-clean
+  C0–C3 factors to a pinned, source-only official nanoGPT task. Codex remains
+  local; a dedicated three-worker H100 evaluator service owns fixed-time
+  training and is isolated from addition campaigns and local Mac evaluator
+  slots.
 
 Run the dev protocol end to end before spending on the paper protocol. Do not
 reinterpret dev results as a pilot effect estimate: its transition density and

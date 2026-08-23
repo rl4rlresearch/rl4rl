@@ -276,3 +276,29 @@ with `c0c3_factorial.cli modal-usage`; use `modal billing` or the Usage & Billin
 dashboard for authoritative spend, credits, and remaining budget.
 
 These facts belong in the reproducibility appendix and artifact archive.
+
+## 13. Dedicated source-only nanoGPT H100 evaluator
+
+The artifact-clean nanoGPT task keeps Codex and C0–C3 state local and uses a
+separate H100 app. It does not share the addition-task L4 app or the Mac's local
+evaluator slots. The lab account owner should first create a hard Modal budget,
+then deploy and prepare the pinned cache once:
+
+```bash
+MODAL=architecture_discovery/.venv/bin/modal
+$MODAL deploy -m experiments.c0c3_factorial.modal_nanogpt_app
+$MODAL run -m experiments.c0c3_factorial.modal_nanogpt_app::prepare_cache \
+  --num-shards 10
+```
+
+The app `rl4rl-c0c3-nanogpt-evaluator-v1` permits at most three concurrent H100
+workers, disables retries, and mounts the prepared cache read-only during
+evaluation. Use `configs/tasks/karpathy_nanogpt_source_only_h100.toml` for both
+calibration and campaign creation. Local calibration invokes the deployed H100
+function; a baseline produced on another GPU type is not interchangeable.
+
+The three-block v2.1 supervisor profile is
+`RL4RL_OVERNIGHT_PROFILE=openevolve-v2.1-nanogpt`. Its local per-campaign lease
+limits outstanding remote calls to three even if more Codex proposals finish
+at once. Review recorded worker seconds with `modal-usage` and check the Modal
+Usage & Billing page for authoritative remaining credits.

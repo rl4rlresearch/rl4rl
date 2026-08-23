@@ -257,6 +257,21 @@ unseen-distribution generalization. Report it as such. Creating a new hidden
 shard would change the upstream task and must be preregistered as a future task
 version rather than improvised after seeing results.
 
+### Protocol-1.7/2.1 source-only H100 variant
+
+Configuration: `configs/tasks/karpathy_nanogpt_source_only_h100.toml`
+
+This variant pins the official source as a repository submodule and copies only
+`train.py` plus protected `prepare.py` utilities into each task workspace. It
+excludes upstream human prompt files, prior results, documentation, and Git
+history. Separate v1.7 direct-edit and v2.1 SEARCH/REPLACE prompt profiles state
+the fixed-time `val_bpb` objective without exposing C0–C3 orchestration state.
+
+Codex remains local. Evaluation uses a dedicated three-container H100 Modal app
+and a three-slot nanoGPT campaign queue; it does not consume the shared local
+Mac evaluator pool or reuse the addition-task L4 service. Calibration and every
+candidate must use that same H100 service and pinned cache.
+
 ## 8. Adding another ML task
 
 Prefer tasks with:

@@ -78,7 +78,9 @@ individual trajectory first starts. The ordinary files in the main checkout
 are the live source:
 
 - `templates/transformer_optimizer_v1_7/assumption_changing.md`;
-- `templates/transformer_optimizer_openevolve_v2_1/assumption_changing.md`.
+- `templates/transformer_optimizer_openevolve_v2_1/assumption_changing.md`;
+- `templates/nanogpt_optimizer_v1_7/assumption_changing.md`;
+- `templates/nanogpt_optimizer_openevolve_v2_1/assumption_changing.md`.
 
 Saving either file is sufficient; staging or committing it is not required for
 an unstarted trajectory to receive the new text. At `trajectory_started`, the
@@ -123,3 +125,29 @@ five; neither has N0. Both start in Codex Fast mode, with a controller-side
 switch that takes effect on the next Codex call. Use the ordinary calibration,
 creation, validation, and individual trajectory start/pause/resume commands in
 `RUNBOOK.md`.
+
+## Source-only nanoGPT task
+
+Protocols 1.7 and 2.1 also support the pinned official Karpathy Autoresearch
+source as a separate H100 task stratum. The subject receives only `train.py`
+and the protected `prepare.py` utilities; upstream `program.md`, README, Git
+history, and prior results are excluded. The objective is lower `val_bpb` after
+the official five-minute measured training window. Addition and nanoGPT never
+share task support, calibration, candidate state, or campaign directories.
+
+The matching files are:
+
+```text
+configs/protocols/nanogpt_autoresearch_v1_7.toml
+configs/protocols/nanogpt_openevolve_v2_1.toml
+configs/tasks/karpathy_nanogpt_source_only_h100.toml
+configs/frameworks/autoresearch_nanogpt_v1_7.toml
+configs/frameworks/openevolve_nanogpt_v2_1.toml
+```
+
+Codex and campaign state stay local. Training is sent to the dedicated
+`rl4rl-c0c3-nanogpt-evaluator-v1` Modal service, which permits at most three
+H100 workers. Its leases use only the nanoGPT campaign pool and do not consume
+the Mac's eight local evaluator slots. Every call is recorded in
+`modal-usage.jsonl`; Modal Usage & Billing remains authoritative for credits and
+spend.
