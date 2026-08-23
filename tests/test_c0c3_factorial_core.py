@@ -501,8 +501,8 @@ def test_v16_token_threshold_returns_once_then_continues(tmp_path: Path) -> None
             **base.__dict__,
             "blocks": 1,
             "budget": BudgetSpec(
-                proposals=2,
-                candidate_evaluations=2,
+                proposals=3,
+                candidate_evaluations=3,
                 max_total_tokens=10,
                 max_evaluator_seconds=100.0,
                 evaluator_timeout_seconds=10,
@@ -542,6 +542,18 @@ def test_v16_token_threshold_returns_once_then_continues(tmp_path: Path) -> None
         prompt_hashes={},
     )
     assert controller.state.token_budget_continuation_notice_sent
+    assert controller.state.status == "running"
+
+    controller.begin()
+    controller.complete(
+        candidate_id="third",
+        artifact_path="candidates/third",
+        hypothesis="third",
+        intended_edit="third",
+        evaluation=Evaluation(True, 3.0, {"score": 3.0}, 1.0),
+        usage=Usage(input_tokens=11),
+        prompt_hashes={},
+    )
     assert controller.state.status == "completed"
 
 

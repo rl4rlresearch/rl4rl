@@ -580,7 +580,10 @@ class SearchController:
         ):
             self.state.status = "token_threshold_reached"
             record["token_threshold_reached"] = True
-        elif self.state.usage.total_tokens >= self.spec.budget.max_total_tokens:
+        elif (
+            not self.spec.continues_after_token_threshold
+            and self.state.usage.total_tokens >= self.spec.budget.max_total_tokens
+        ):
             # Non-v1.6 protocols retain the original hard token stop.
             self.state.status = "completed"
         self._write_state()

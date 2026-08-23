@@ -52,11 +52,11 @@ def scheduled_run_dirs(campaign: Path) -> list[Path]:
 
 
 def factorial_run_dirs(campaign: Path) -> list[Path]:
+    schedule = json.loads((campaign / "schedule.json").read_text(encoding="utf-8"))
     return [
-        run_dir
-        for run_dir in scheduled_run_dirs(campaign)
-        if read_json(run_dir / "manifest.json").get("condition")
-        in {"C0", "C1", "C2", "C3"}
+        campaign / "runs" / str(assignment["run_id"])
+        for assignment in schedule
+        if assignment.get("condition") in {"C0", "C1", "C2", "C3"}
     ]
 
 
@@ -139,6 +139,111 @@ def sync_manifest_hashes(
             "run_state_changed": False,
         },
     )
+    return summary
+
+
+def repair_post_notice_completion(
+    campaign: Path, runtime_root: Path, *, dry_run: bool
+) -> dict[str, Any]:
+    """Reopen v1.6 runs stopped by the post-notice token-guard defect."""
+
+    campaign = campaign.resolve()
+    runtime_root = runtime_root.resolve()
+    all_run_dirs = scheduled_run_dirs(campaign)
+    run_dirs = factorial_run_dirs(campaign)
+    spec, task, framework = _load_campaign(campaign)
+    if spec.protocol_version != "1.6" or not spec.continues_after_token_threshold:
+        raise ValueError("campaign is not using the v1.6 continuation rule")
+    if len(run_dirs) != 12:
+        raise ValueError(f"expected twelve C0-C3 runs, found {len(run_dirs)}")
+    for run_dir in run_dirs:
+        state = read_json(run_dir / "state.json")
+        if state.get("status") != "completed" or state.get("active") is not None:
+            raise RuntimeError(f"run is not safely stopped: {run_dir.name}")
+        if not state.get("token_budget_continuation_notice_sent", False):
+            raise RuntimeError(f"continuation notice was not sent: {run_dir.name}")
+        usage = state.get("usage", {})
+        tokens = int(usage.get("input_tokens", 0)) + int(
+            usage.get("output_tokens", 0)
+        )
+        if tokens < spec.budget.max_total_tokens:
+            raise RuntimeError(f"run is below the token threshold: {run_dir.name}")
+        if int(state.get("next_opportunity", 0)) > spec.budget.proposals:
+            raise RuntimeError(f"proposal budget is exhausted: {run_dir.name}")
+        if int(state.get("evaluator_calls_used", 0)) >= (
+            spec.budget.candidate_evaluations
+        ):
+            raise RuntimeError(f"evaluation budget is exhausted: {run_dir.name}")
+        if float(state.get("evaluator_seconds_used", 0.0)) >= (
+            spec.budget.max_evaluator_seconds
+        ):
+            raise RuntimeError(f"evaluator-time budget is exhausted: {run_dir.name}")
+
+    campaign_record = read_json(campaign / "campaign.json")
+    old_runtime_hash = str(campaign_record["scientific_runtime_hash"])
+    new_runtime_hash = scientific_runtime_hash(
+        runtime_root, task=task, framework=framework
+    )
+    timestamp = utc_now()
+    summary = {
+        "campaign": str(campaign),
+        "dry_run": dry_run,
+        "run_count": len(run_dirs),
+        "old_scientific_runtime_hash": old_runtime_hash,
+        "new_scientific_runtime_hash": new_runtime_hash,
+    }
+    if dry_run:
+        return summary
+
+    repair_root = (
+        campaign
+        / "operator-amendments"
+        / f"{timestamp.replace(':', '-')}-post-notice-guard-repair"
+    )
+    states_root = repair_root / "states-before"
+    manifests_root = repair_root / "manifests-before"
+    states_root.mkdir(parents=True, exist_ok=False)
+    manifests_root.mkdir()
+    shutil.copy2(campaign / "campaign.json", repair_root / "campaign.json.before")
+    for run_dir in run_dirs:
+        shutil.copy2(run_dir / "state.json", states_root / f"{run_dir.name}.json")
+    for run_dir in all_run_dirs:
+        shutil.copy2(
+            run_dir / "manifest.json", manifests_root / f"{run_dir.name}.json"
+        )
+
+    campaign_record["scientific_runtime_hash"] = new_runtime_hash
+    atomic_json(campaign / "campaign.json", campaign_record)
+    for run_dir in all_run_dirs:
+        manifest = read_json(run_dir / "manifest.json")
+        manifest["scientific_runtime_hash"] = new_runtime_hash
+        atomic_json(run_dir / "manifest.json", manifest)
+    campaign_event = {
+        "schema_version": "1.0",
+        "event": "post_threshold_completion_guard_corrected",
+        "timestamp": timestamp,
+        "affected_run_ids": [run_dir.name for run_dir in run_dirs],
+        "old_scientific_runtime_hash": old_runtime_hash,
+        "new_scientific_runtime_hash": new_runtime_hash,
+        "preserved_completed_opportunities": True,
+    }
+    append_jsonl(campaign / "protocol-amendments.jsonl", campaign_event)
+    atomic_json(repair_root / "repair.json", campaign_event)
+    for run_dir in run_dirs:
+        state = read_json(run_dir / "state.json")
+        state["status"] = "running"
+        state["revision"] = int(state.get("revision", 0)) + 1
+        atomic_json(run_dir / "state.json", state)
+        run_event = {
+            "schema_version": "1.0",
+            "event": "post_threshold_completion_reopened",
+            "timestamp": timestamp,
+            "run_id": run_dir.name,
+            "next_opportunity": state["next_opportunity"],
+            "continuation_notice_already_sent": True,
+        }
+        append_jsonl(run_dir / "events.jsonl", run_event)
+        append_jsonl(run_dir / "lifecycle.jsonl", run_event)
     return summary
 
 
@@ -234,7 +339,9 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--campaign", type=Path, required=True)
     parser.add_argument("--runtime-root", type=Path, required=True)
     parser.add_argument("--apply", action="store_true")
-    parser.add_argument("--sync-manifests-only", action="store_true")
+    mode = parser.add_mutually_exclusive_group()
+    mode.add_argument("--sync-manifests-only", action="store_true")
+    mode.add_argument("--repair-post-notice-completion", action="store_true")
     return parser.parse_args()
 
 
@@ -242,6 +349,12 @@ def main() -> None:
     args = parse_args()
     if args.sync_manifests_only:
         result = sync_manifest_hashes(
+            args.campaign,
+            args.runtime_root,
+            dry_run=not args.apply,
+        )
+    elif args.repair_post_notice_completion:
+        result = repair_post_notice_completion(
             args.campaign,
             args.runtime_root,
             dry_run=not args.apply,
