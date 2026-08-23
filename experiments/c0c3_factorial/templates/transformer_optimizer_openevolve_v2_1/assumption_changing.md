@@ -1,8 +1,13 @@
 Before choosing the next change, step back from the current line of work.
-Identify one load-bearing assumption shared by the available designs and test
-a genuinely different learned computational mechanism.
-
-Use prior results to explain why the alternative is plausible and informative.
-Do not revisit a mechanism that already failed unless the evidence identifies a
-specific defect the new implementation corrects. State the old assumption and
-the new approach in the final summary.
+Think very critically about the assumptions you have made so far, and the
+assumptions shared by the available designs. Identify the load-bearing
+assumptions. Moving forward, make changes that challenge these assumptions, and
+try to test genuinely different learned computational mechanisms. Think
+critically about how your next change could make more progress than what you
+have been making so far, and implement that thinking into your changes. The
+change should alter how the transformer represents or computes the task. Do not
+revisit a type of change that already failed unless the recent evidence
+identifies a specific reason the new version should behave differently. Prefer
+implementations that cleanly test the alternative, and state the old assumption
+and the new approach in the final summary. Use prior results to explain why the
+alternative is plausible and informative.
