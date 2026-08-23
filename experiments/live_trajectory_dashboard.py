@@ -28,6 +28,9 @@ DEFAULT_AUTORESEARCH_V17 = (
 DEFAULT_OPENEVOLVE_V21 = (
     REPO_ROOT / "data/c0c3/controlled-openevolve-transformer-v2-1-mps-campaign"
 )
+DEFAULT_AUTORESEARCH_V17_NANOGPT = (
+    REPO_ROOT / "data/c0c3/nanogpt-autoresearch-v1-7-h100-campaign"
+)
 DEFAULT_OPENEVOLVE_V21_NANOGPT = (
     REPO_ROOT / "data/c0c3/nanogpt-openevolve-v2-1-h100-campaign"
 )
@@ -270,7 +273,7 @@ async function refresh() {
     charts.splice(0).forEach(c=>c.destroy());
     document.getElementById('stamp').textContent='Updated '+new Date(data.generated_at).toLocaleString();
     const campaigns=data.campaigns||{};
-    const sections=[['autoresearchv16','Autoresearch v1.6',campaigns.autoresearch_v16||data.autoresearch],['openevolvev2','OpenEvolve v2.0',campaigns.openevolve_v2||data.openevolve_v2],['autoresearchv17','Autoresearch v1.7 · addition',campaigns.autoresearch_v17],['openevolvev21','OpenEvolve v2.1 · addition',campaigns.openevolve_v21],['openevolvev21nanogpt','OpenEvolve v2.1 · nanoGPT H100',campaigns.openevolve_v21_nanogpt]];
+    const sections=[['autoresearchv16','Autoresearch v1.6',campaigns.autoresearch_v16||data.autoresearch],['openevolvev2','OpenEvolve v2.0',campaigns.openevolve_v2||data.openevolve_v2],['autoresearchv17','Autoresearch v1.7 · addition',campaigns.autoresearch_v17],['openevolvev21','OpenEvolve v2.1 · addition',campaigns.openevolve_v21],['autoresearchv17nanogpt','Autoresearch v1.7 · nanoGPT H100',campaigns.autoresearch_v17_nanogpt],['openevolvev21nanogpt','OpenEvolve v2.1 · nanoGPT H100',campaigns.openevolve_v21_nanogpt]];
     document.getElementById('content').innerHTML=sections.map(([id,title,p])=>section(id,title,p)).join('');
     sections.forEach(([id,_title,p])=>{ if(!p||!p.available)return; charts.push(makeChart(document.getElementById(id+'-proposal'),p.runs,'proposal','Proposal',p.objective_metric)); charts.push(makeChart(document.getElementById(id+'-cost'),p.runs,'token_cost','Price-weighted token cost (USD)',p.objective_metric)); charts.push(makeChart(document.getElementById(id+'-time'),p.runs,'active_hours','Active wall-clock time (hours)',p.objective_metric)); });
   } catch (error) { document.getElementById('stamp').textContent='Refresh failed: '+error.message; }
@@ -318,6 +321,11 @@ def parse_args() -> argparse.Namespace:
         "--openevolve-v21-campaign", type=Path, default=DEFAULT_OPENEVOLVE_V21
     )
     parser.add_argument(
+        "--autoresearch-v17-nanogpt-campaign",
+        type=Path,
+        default=DEFAULT_AUTORESEARCH_V17_NANOGPT,
+    )
+    parser.add_argument(
         "--openevolve-v21-nanogpt-campaign",
         type=Path,
         default=DEFAULT_OPENEVOLVE_V21_NANOGPT,
@@ -336,6 +344,7 @@ def main() -> None:
         "openevolve_v2": args.openevolve_campaign,
         "autoresearch_v17": args.autoresearch_v17_campaign,
         "openevolve_v21": args.openevolve_v21_campaign,
+        "autoresearch_v17_nanogpt": args.autoresearch_v17_nanogpt_campaign,
         "openevolve_v21_nanogpt": args.openevolve_v21_nanogpt_campaign,
     }
     server = ThreadingHTTPServer(
@@ -346,6 +355,7 @@ def main() -> None:
     print(f"OpenEvolve v2: {args.openevolve_campaign}")
     print(f"Autoresearch v1.7: {args.autoresearch_v17_campaign}")
     print(f"OpenEvolve v2.1: {args.openevolve_v21_campaign}")
+    print(f"Autoresearch v1.7 nanoGPT: {args.autoresearch_v17_nanogpt_campaign}")
     print(f"OpenEvolve v2.1 nanoGPT: {args.openevolve_v21_nanogpt_campaign}")
     try:
         server.serve_forever()

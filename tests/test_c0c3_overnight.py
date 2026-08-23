@@ -4,6 +4,9 @@ import json
 from pathlib import Path
 
 from experiments.c0c3_overnight import (
+    RUNTIME_CLI_BOOTSTRAP,
+    SHARED_LOCAL_EVALUATOR_CAPACITY,
+    SHARED_LOCAL_EVALUATOR_CAPACITY_ENV,
     CampaignPlan,
     Job,
     automatic_pause_reason,
@@ -126,6 +129,11 @@ def test_artifact_clean_profiles_declare_all_primary_blocks() -> None:
         ("autoresearch-v1.7", "autoresearch-v1.7", (1, 2)),
         ("openevolve-v2.1", "openevolve-v2.1", (1, 2, 3, 4, 5)),
         (
+            "autoresearch-v1.7-nanogpt",
+            "autoresearch-v1.7-nanogpt",
+            (1, 2, 3, 4),
+        ),
+        (
             "openevolve-v2.1-nanogpt",
             "openevolve-v2.1-nanogpt",
             (1, 2, 3),
@@ -141,6 +149,7 @@ def test_artifact_clean_profiles_declare_all_primary_blocks() -> None:
 def test_artifact_clean_jobs_receive_main_operator_prompt_root(tmp_path: Path) -> None:
     for group in (
         "autoresearch-v1.7",
+        "autoresearch-v1.7-nanogpt",
         "openevolve-v2.1",
         "openevolve-v2.1-nanogpt",
     ):
@@ -156,6 +165,12 @@ def test_artifact_clean_jobs_receive_main_operator_prompt_root(tmp_path: Path) -
         assert environment["RL4RL_C0C3_OPERATOR_PROMPT_ROOT"].endswith(
             "experiments/c0c3_factorial/templates"
         )
+        assert environment[SHARED_LOCAL_EVALUATOR_CAPACITY_ENV] == "12"
+
+
+def test_operational_runtime_bootstrap_raises_host_scheduler_to_twelve() -> None:
+    assert SHARED_LOCAL_EVALUATOR_CAPACITY == 12
+    assert "SHARED_LOCAL_EVALUATOR_CAPACITY" in RUNTIME_CLI_BOOTSTRAP
 
 
 def test_local_accelerator_is_derived_from_frozen_task_input(tmp_path: Path) -> None:

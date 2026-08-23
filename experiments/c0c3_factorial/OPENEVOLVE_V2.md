@@ -23,7 +23,7 @@ collection; existing 2.0 campaigns remain scientifically separate.
   outcomes and has no duplicate ledger. Raw conversation history is not resumed.
 - One independently supervised process per trajectory. All processes may
   generate proposals concurrently. V2.0 retains three campaign evaluator slots;
-  v2.1 uses one per declared block. All local campaigns share eight host slots.
+  v2.1 uses one per declared block. All local campaigns share twelve host slots.
 - The 1,644-parameter pair-token transformer is the common seed. Its ordinary
   training path is 5,000 steps rather than the legacy 6,080-parent 30,000-step
   path. The evaluator timeout is 1,800 seconds.

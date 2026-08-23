@@ -46,6 +46,14 @@ from .spec import (
 from .state import SearchController
 
 
+def hybrid_modal_pairing_is_frozen(*, protocol_version: str, task_adapter: str) -> bool:
+    """Return whether a protocol/task pair prospectively defines Modal transport."""
+
+    return protocol_version in {"2.0", "2.1"} or (
+        protocol_version == "1.7" and task_adapter == NANOGPT_TASK_ADAPTER
+    )
+
+
 def neutral_source_disclosure_terms(source: str) -> tuple[str, ...]:
     """Audit code without treating ordinary c0/c1/c2/c3 variables as labels."""
 
@@ -100,10 +108,13 @@ def validate_campaign(
         )
     if (
         task.preferred_backend is ExecutionBackend.HYBRID_MODAL
-        and spec.protocol_version not in {"2.0", "2.1"}
+        and not hybrid_modal_pairing_is_frozen(
+            protocol_version=spec.protocol_version,
+            task_adapter=task.adapter,
+        )
     ):
         errors.append(
-            "hybrid Modal evaluation is frozen only for protocols 2.0 and 2.1"
+            "hybrid Modal evaluation is not frozen for this protocol/task pairing"
         )
     schedule = json.loads((campaign / "schedule.json").read_text(encoding="utf-8"))
     run_ids = [str(row["run_id"]) for row in schedule]

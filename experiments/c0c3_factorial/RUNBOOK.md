@@ -416,7 +416,7 @@ Use the same individual `start-staged-trajectory`,
 the operational roster must select exactly C0–C3 from Blocks 1–3 (twelve jobs),
 never N0. All twelve controllers may run simultaneously. The runtime admits at
 most three evaluator processes from this campaign through crash-releasing file
-locks. Each evaluator also acquires one of eight host-wide slots shared by every
+locks. Each evaluator also acquires one of twelve host-wide slots shared by every
 local protocol-1.6/1.7/2.0/2.1 campaign, so starting another campaign cannot
 silently double Mac training concurrency. A queued trainer is healthy and does
 not spend its evaluator timeout or evaluator-time budget while waiting.
@@ -522,20 +522,27 @@ The selected tier is read immediately before every new or resumed Codex call
 and is recorded in each proposal event. A call already in flight finishes on
 the tier with which it began.
 
-For the isolated three-block nanoGPT v2.1 campaign, use the dedicated H100
-deployment in `MODAL.md`, then:
+For the isolated nanoGPT campaigns, use the dedicated H100 deployment in
+`MODAL.md`, then create separate detached runtimes for the four-block
+Autoresearch v1.7 campaign and three-block OpenEvolve v2.1 campaign:
 
 ```bash
 git worktree add --detach /private/tmp/rl4rl-c0c3-openevolve-v2-1-nanogpt HEAD
 git -C /private/tmp/rl4rl-c0c3-openevolve-v2-1-nanogpt submodule update --init
+git worktree add --detach /private/tmp/rl4rl-c0c3-autoresearch-v1-7-nanogpt HEAD
+git -C /private/tmp/rl4rl-c0c3-autoresearch-v1-7-nanogpt submodule update --init
+RL4RL_OVERNIGHT_PROFILE=autoresearch-v1.7-nanogpt \
+  $PY experiments/c0c3_overnight.py check
+RL4RL_OVERNIGHT_PROFILE=autoresearch-v1.7-nanogpt \
+  $PY experiments/c0c3_overnight.py start --recover-interrupted --all-running
 RL4RL_OVERNIGHT_PROFILE=openevolve-v2.1-nanogpt \
   $PY experiments/c0c3_overnight.py check
 RL4RL_OVERNIGHT_PROFILE=openevolve-v2.1-nanogpt \
   $PY experiments/c0c3_overnight.py start --recover-interrupted --all-running
 ```
 
-The same profile supports `fast-mode on|off|status`. The nanoGPT H100 queue is
-capped at three and does not take a local Mac evaluator slot.
+Both profiles support `fast-mode on|off|status`. The shared nanoGPT H100 app is
+capped at three workers and does not take a local Mac evaluator slot.
 
 Inspect the shared local pool at any time without changing it:
 
@@ -543,7 +550,7 @@ Inspect the shared local pool at any time without changing it:
 $PY -m $CLI local-evaluator-status
 ```
 
-The JSON reports eight host slots and the opportunity holding each occupied
+The JSON reports twelve host slots and the opportunity holding each occupied
 slot. `experiments/c0c3_overnight.py status` also prints the compact occupied
 count. Protocols 1.7 and 2.1 set their campaign-local limit equal to their
 declared block count; older campaigns retain their frozen local limit. Queue waiting happens before

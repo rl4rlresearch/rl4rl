@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import io
 import json
+import os
 import subprocess
 import tempfile
 import time
@@ -27,6 +28,28 @@ REMOTE_REPO = Path("/opt/rl4rl")
 REMOTE_AUTORESEARCH = Path("/opt/autoresearch")
 LOCAL_REPO = Path(__file__).resolve().parents[2]
 CACHE_VOLUME_NAME = "rl4rl-autoresearch-cache"
+NANOGPT_BASE_IMAGE = "ubuntu:22.04"
+NANOGPT_APT_PACKAGES = ("build-essential", "ca-certificates")
+NANOGPT_KERNEL_REPO = "varunneal/flash-attention-3"
+NANOGPT_KERNEL_PREFETCH_COMMAND = (
+    "python -c 'from kernels.utils import install_kernel; "
+    f'install_kernel("{NANOGPT_KERNEL_REPO}", "main")\''
+)
+AUTORESEARCH_LOCKED_DEPENDENCIES = (
+    # Match the direct Python 3.12 resolutions in the pinned upstream
+    # ``uv.lock``. Broad lower bounds are not reproducible: kernels 0.16 added
+    # a publisher-trust check that rejects the upstream FA3 import used by the
+    # frozen train.py, whereas the locked 0.12.1 environment is compatible.
+    "kernels==0.12.1",
+    "matplotlib==3.10.8",
+    "numpy==2.4.2",
+    "pandas==3.0.1",
+    "pyarrow==23.0.1",
+    "requests==2.32.5",
+    "rustbpe==0.1.0",
+    "tiktoken==0.12.0",
+    "torch==2.9.1",
+)
 
 
 def _extract_inputs(payload: bytes, destination: Path) -> None:
@@ -69,19 +92,18 @@ def _archive_outputs(root: Path) -> bytes:
 
 if modal is not None:
     image = (
-        modal.Image.debian_slim(python_version="3.12")
+        # The official precompiled Hopper FA3 extension requires glibc >=2.32.
+        # Modal's default slim base currently exposes glibc 2.31; Ubuntu 22.04
+        # provides glibc 2.35 while leaving the frozen task source unchanged.
+        modal.Image.from_registry(NANOGPT_BASE_IMAGE, add_python="3.12")
+        .apt_install(*NANOGPT_APT_PACKAGES)
         .pip_install(
-            "kernels>=0.11.7",
-            "matplotlib>=3.10.8",
-            "numpy>=2.2.6",
-            "pandas>=2.3.3",
-            "pyarrow>=21.0.0",
-            "requests>=2.32.0",
-            "rustbpe>=0.1.0",
-            "tiktoken>=0.11.0",
-            "torch==2.9.1",
+            *AUTORESEARCH_LOCKED_DEPENDENCIES,
             extra_index_url="https://download.pytorch.org/whl/cu128",
         )
+        # Resolve the official Hopper kernel during the non-GPU image build.
+        # Evaluators then load it offline from the immutable image layer.
+        .run_commands(NANOGPT_KERNEL_PREFETCH_COMMAND)
         .add_local_dir(
             str(LOCAL_REPO / "experiments"),
             remote_path=str(REMOTE_REPO / "experiments"),
@@ -157,6 +179,7 @@ if modal is not None:
             TaskSpec,
         )
 
+        os.environ["HF_HUB_OFFLINE"] = "1"
         started = time.monotonic()
         with tempfile.TemporaryDirectory(prefix=f"nanogpt-{call_id}-") as temporary:
             root = Path(temporary)
