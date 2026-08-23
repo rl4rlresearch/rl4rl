@@ -214,13 +214,22 @@ def campaign_data(campaign: Path, prices: dict[str, float]) -> dict[str, Any]:
 
 
 def dashboard_data(campaigns: dict[str, Path], prices: dict[str, float]) -> dict[str, Any]:
-    return {
+    campaign_payloads = {
+        key: campaign_data(path, prices) for key, path in campaigns.items()
+    }
+    payload = {
+        "schema_version": "2.0",
         "generated_at": datetime.now().astimezone().isoformat(),
         "price_per_million": prices,
-        "campaigns": {
-            key: campaign_data(path, prices) for key, path in campaigns.items()
-        },
+        "campaigns": campaign_payloads,
     }
+    # Keep tabs loaded before the multi-campaign dashboard upgrade functional.
+    # Those clients refresh in place and still read these two top-level keys.
+    if "autoresearch_v16" in campaign_payloads:
+        payload["autoresearch"] = campaign_payloads["autoresearch_v16"]
+    if "openevolve_v2" in campaign_payloads:
+        payload["openevolve_v2"] = campaign_payloads["openevolve_v2"]
+    return payload
 
 
 PAGE = r'''<!doctype html>
@@ -249,7 +258,7 @@ function color(run) { const family=conditionColors[run.condition]||['#ddd']; con
 function chartOptions(xTitle,yTitle) { return {responsive:true, maintainAspectRatio:false, parsing:false, plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>`${c.dataset.label}: ${Number(c.raw.y).toLocaleString()} ${yTitle}`}}}, scales:{x:{type:'linear',min:0,title:{display:true,text:xTitle}},y:{min:0,title:{display:true,text:`Best valid ${yTitle}`}}}}; }
 function makeChart(canvas, runs, xKey, title, objectiveMetric) { return new Chart(canvas,{type:'line',data:{datasets:runs.filter(r=>r.points.length).map(r=>({label:r.label,data:r.points.map(p=>({x:p[xKey],y:p.objective})),borderColor:color(r),backgroundColor:color(r),borderWidth:2,pointRadius:2,tension:.12}))},options:chartOptions(title,objectiveMetric)}); }
 function section(key, title, payload) {
-  if (!payload.available) return `<section class="section"><h2>${title}</h2><p class="sub">Campaign directory is not available: ${payload.campaign}</p></section>`;
+  if (!payload || !payload.available) { const campaign=payload?.campaign||'Not configured'; return `<section class="section"><h2>${title}</h2><p class="sub">Campaign directory is not available: ${campaign}</p></section>`; }
   const id=key.replace(/[^a-z0-9]/g,''); const legend=payload.runs.map(r=>`<span class="key"><i class="dot" style="background:${color(r)}"></i>${r.label}</span>`).join('');
   const rows=payload.runs.map(r=>`<tr><td>${r.label}</td><td>${r.condition}</td><td>${r.status}</td><td>${r.proposals_used}</td><td>${r.total_tokens.toLocaleString()}</td><td>${r.best_objective===null?'—':Number(r.best_objective).toLocaleString()}</td></tr>`).join('');
   return `<section class="section"><h2>${title}</h2><p class="sub">${payload.campaign}</p><div class="legend">${legend}</div><div class="charts"><div class="chart"><canvas id="${id}-proposal"></canvas></div><div class="chart"><canvas id="${id}-cost"></canvas></div><div class="chart"><canvas id="${id}-time"></canvas></div></div><table><thead><tr><th>Run</th><th>Condition</th><th>Status</th><th>Proposals</th><th>Reported tokens</th><th>Best ${payload.objective_metric}</th></tr></thead><tbody>${rows}</tbody></table></section>`;
@@ -260,9 +269,10 @@ async function refresh() {
     const data=await fetch('/api/data',{cache:'no-store'}).then(r=>r.json());
     charts.splice(0).forEach(c=>c.destroy());
     document.getElementById('stamp').textContent='Updated '+new Date(data.generated_at).toLocaleString();
-    const sections=[['autoresearchv16','Autoresearch v1.6',data.campaigns.autoresearch_v16],['openevolvev2','OpenEvolve v2.0',data.campaigns.openevolve_v2],['autoresearchv17','Autoresearch v1.7 · addition',data.campaigns.autoresearch_v17],['openevolvev21','OpenEvolve v2.1 · addition',data.campaigns.openevolve_v21],['openevolvev21nanogpt','OpenEvolve v2.1 · nanoGPT H100',data.campaigns.openevolve_v21_nanogpt]];
+    const campaigns=data.campaigns||{};
+    const sections=[['autoresearchv16','Autoresearch v1.6',campaigns.autoresearch_v16||data.autoresearch],['openevolvev2','OpenEvolve v2.0',campaigns.openevolve_v2||data.openevolve_v2],['autoresearchv17','Autoresearch v1.7 · addition',campaigns.autoresearch_v17],['openevolvev21','OpenEvolve v2.1 · addition',campaigns.openevolve_v21],['openevolvev21nanogpt','OpenEvolve v2.1 · nanoGPT H100',campaigns.openevolve_v21_nanogpt]];
     document.getElementById('content').innerHTML=sections.map(([id,title,p])=>section(id,title,p)).join('');
-    sections.forEach(([id,_title,p])=>{ if(!p.available)return; charts.push(makeChart(document.getElementById(id+'-proposal'),p.runs,'proposal','Proposal',p.objective_metric)); charts.push(makeChart(document.getElementById(id+'-cost'),p.runs,'token_cost','Price-weighted token cost (USD)',p.objective_metric)); charts.push(makeChart(document.getElementById(id+'-time'),p.runs,'active_hours','Active wall-clock time (hours)',p.objective_metric)); });
+    sections.forEach(([id,_title,p])=>{ if(!p||!p.available)return; charts.push(makeChart(document.getElementById(id+'-proposal'),p.runs,'proposal','Proposal',p.objective_metric)); charts.push(makeChart(document.getElementById(id+'-cost'),p.runs,'token_cost','Price-weighted token cost (USD)',p.objective_metric)); charts.push(makeChart(document.getElementById(id+'-time'),p.runs,'active_hours','Active wall-clock time (hours)',p.objective_metric)); });
   } catch (error) { document.getElementById('stamp').textContent='Refresh failed: '+error.message; }
   finally { document.getElementById('refresh').disabled=false; }
 }
