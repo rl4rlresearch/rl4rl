@@ -1286,6 +1286,117 @@ def test_hybrid_usage_receipts_support_calibration_and_search_paths(
     assert (tmp_path / "campaign/modal-usage.jsonl").is_file()
 
 
+def test_nanogpt_calibration_round_trip_accepts_modal_response(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    seed_source = tmp_path / "autoresearch"
+    seed_source.mkdir()
+    (seed_source / "prepare.py").write_text("# fixed evaluator utility\n")
+    (seed_source / "train.py").write_text("# editable research program\n")
+    task_spec = TaskSpec(
+        task_id="nanogpt-calibration-test",
+        display_name="fixed-time language-model pretraining",
+        adapter=NANOGPT_TASK_ADAPTER,
+        seed_source=str(seed_source),
+        editable_paths=("train.py",),
+        evaluator_command=("{python}", "train.py"),
+        objective_metric="val_bpb",
+        objective_direction=ObjectiveDirection.MINIMIZE,
+        qualification_metric=None,
+        qualification_minimum=None,
+        public_feedback_metrics=("val_bpb", "training_seconds"),
+        metric_patterns={},
+        final_holdout_command=("{python}", "train.py"),
+        preferred_backend=ExecutionBackend.HYBRID_MODAL,
+    )
+    spec = FactorialSpec(
+        **{
+            **openevolve_v2_protocol().__dict__,
+            "protocol_version": "2.1",
+            "study_id": "nanogpt-calibration-test",
+        }
+    )
+    output_archive = io.BytesIO()
+    with zipfile.ZipFile(output_archive, "w") as archive:
+        archive.writestr("evaluation.stdout.log", "val_bpb: 1.234000\n")
+        archive.writestr("evaluation.stderr.log", "")
+
+    calls: list[tuple[str, str, dict[str, object]]] = []
+
+    class FakeFunction:
+        @staticmethod
+        def from_name(
+            app_name: str,
+            function_name: str,
+            *,
+            environment_name: str | None,
+        ) -> FakeFunction:
+            calls.append(
+                (
+                    app_name,
+                    function_name,
+                    {"environment_name": environment_name},
+                )
+            )
+            return FakeFunction()
+
+        def remote(
+            self,
+            payload: bytes,
+            task_payload: dict[str, object],
+            timeout_seconds: int,
+            run_seed: int | None,
+            call_id: str,
+        ) -> dict[str, object]:
+            assert payload
+            assert task_payload["adapter"] == NANOGPT_TASK_ADAPTER
+            assert timeout_seconds == spec.budget.evaluator_timeout_seconds
+            assert run_seed == spec.study_seed
+            assert call_id
+            return {
+                "evaluation": {
+                    "valid": True,
+                    "fitness": -1.234,
+                    "metrics": {
+                        "val_bpb": 1.234,
+                        "training_seconds": 300.0,
+                    },
+                    "evaluator_seconds": 300.0,
+                    "evaluator_calls": 1,
+                    "failure_kind": None,
+                },
+                "artifacts": output_archive.getvalue(),
+                "worker_seconds": 301.0,
+                "gpu_name": "NVIDIA H100 80GB HBM3",
+            }
+
+    monkeypatch.setitem(sys.modules, "modal", SimpleNamespace(Function=FakeFunction))
+    calibration = prepare_calibration(
+        tmp_path / "calibration",
+        spec=spec,
+        task=task_spec,
+        repo_root=ROOT,
+    )
+    baseline_path = execute_calibration(
+        calibration,
+        spec=spec,
+        task=task_spec,
+        repo_root=ROOT,
+        python_bin=sys.executable,
+    )
+
+    baseline = json.loads(baseline_path.read_text())
+    usage = json.loads((calibration / "evaluation/modal-usage.json").read_text())
+    assert calls == [
+        (NANOGPT_APP_NAME, "evaluate_candidate", {"environment_name": None})
+    ]
+    assert baseline["calibration_kind"] == "executed_on_target_backend"
+    assert baseline["metrics"]["val_bpb"] == pytest.approx(1.234)
+    assert usage["record_kind"] == "baseline_calibration"
+    assert usage["gpu_name"] == "NVIDIA H100 80GB HBM3"
+    assert (calibration / "modal-usage.jsonl").is_file()
+
+
 def test_runtime_hash_change_fails_validation_and_execution(tmp_path: Path) -> None:
     seed_source = make_seed(tmp_path / "source")
     baseline = calibrate_task(
