@@ -72,18 +72,59 @@ def parse_timestamp(value: Any) -> datetime | None:
         return None
 
 
-def metric_at_seed(state: dict[str, Any], objective_metric: str) -> float | None:
+def numeric(value: Any) -> float | None:
+    if isinstance(value, int | float) and not isinstance(value, bool):
+        return float(value)
+    return None
+
+
+def seed_candidate(state: dict[str, Any]) -> dict[str, Any] | None:
     candidates = state.get("candidates", {})
     if not isinstance(candidates, dict):
         return None
     for candidate in candidates.values():
         if not isinstance(candidate, dict) or candidate.get("created_opportunity") != 0:
             continue
-        metrics = candidate.get("metrics", {})
-        value = metrics.get(objective_metric) if isinstance(metrics, dict) else None
-        if isinstance(value, int | float) and not isinstance(value, bool):
-            return float(value)
+        return candidate
     return None
+
+
+def metric_at_seed(state: dict[str, Any], objective_metric: str) -> float | None:
+    candidate = seed_candidate(state)
+    metrics = candidate.get("metrics", {}) if isinstance(candidate, dict) else {}
+    return numeric(metrics.get(objective_metric)) if isinstance(metrics, dict) else None
+
+
+def numeric_metrics(value: Any) -> dict[str, float]:
+    if not isinstance(value, dict):
+        return {}
+    return {
+        str(key): number
+        for key, raw in value.items()
+        if (number := numeric(raw)) is not None
+    }
+
+
+def usage_value(usage: dict[str, Any], key: str) -> int:
+    value = usage.get(key, 0)
+    return int(value) if isinstance(value, int | float) and not isinstance(value, bool) else 0
+
+
+def normalized_usage(value: Any) -> dict[str, int]:
+    usage = value if isinstance(value, dict) else {}
+    result = {
+        key: usage_value(usage, key)
+        for key in (
+            "input_tokens",
+            "cached_input_tokens",
+            "output_tokens",
+            "reasoning_output_tokens",
+        )
+    }
+    result["total_tokens"] = usage_value(usage, "total_tokens") or (
+        result["input_tokens"] + result["output_tokens"]
+    )
+    return result
 
 
 def weighted_cost(usage: dict[str, Any], prices: dict[str, float]) -> float:
@@ -124,7 +165,11 @@ def build_run(
     elapsed_seconds = 0.0
     seed_objective = metric_at_seed(state, objective_metric)
     best_objective = seed_objective
-    points: list[dict[str, float | int]] = []
+    points: list[dict[str, Any]] = []
+    latest_event_at: str | None = None
+    valid_proposals = 0
+    retained_proposals = 0
+    latest_raw_objective: float | None = None
     for event in events:
         opportunity = event.get("opportunity")
         if not isinstance(opportunity, int):
@@ -135,50 +180,135 @@ def build_run(
             continue
         if event.get("event") != "proposal_completed":
             continue
+        if isinstance(event.get("timestamp"), str):
+            latest_event_at = event["timestamp"]
         if timestamp is not None and opportunity in started:
             elapsed_seconds += max(0.0, (timestamp - started[opportunity]).total_seconds())
         evaluation = event.get("evaluation", {})
         metrics = evaluation.get("metrics", {}) if isinstance(evaluation, dict) else {}
-        objective = metrics.get(objective_metric) if isinstance(metrics, dict) else None
-        if (
-            isinstance(evaluation, dict)
-            and evaluation.get("valid")
-            and isinstance(objective, int | float)
-            and not isinstance(objective, bool)
-        ):
-            value = float(objective)
+        metrics = numeric_metrics(metrics)
+        objective = numeric(metrics.get(objective_metric))
+        valid = bool(isinstance(evaluation, dict) and evaluation.get("valid"))
+        retained = bool(event.get("retained"))
+        if valid:
+            valid_proposals += 1
+        if retained:
+            retained_proposals += 1
+        if objective is not None:
+            latest_raw_objective = objective
+        if valid and objective is not None:
+            value = objective
             if best_objective is None:
                 best_objective = value
             elif objective_direction == "maximize":
                 best_objective = max(best_objective, value)
             else:
                 best_objective = min(best_objective, value)
-        usage = event.get("usage_cumulative", {})
-        usage = usage if isinstance(usage, dict) else {}
-        if best_objective is not None:
-            points.append(
-                {
-                    "proposal": opportunity,
-                    "active_hours": round(elapsed_seconds / 3600, 6),
-                    "token_cost": round(weighted_cost(usage, prices), 6),
-                    "objective": best_objective,
-                }
+        usage = normalized_usage(event.get("usage_cumulative"))
+        usage_increment = normalized_usage(event.get("usage_increment"))
+        evaluator_seconds = numeric(event.get("evaluator_seconds_cumulative")) or 0.0
+        evaluator_seconds_increment = numeric(event.get("evaluator_seconds_increment")) or 0.0
+        evaluator_calls = numeric(event.get("evaluator_calls_cumulative")) or 0.0
+        evaluator_calls_increment = numeric(event.get("evaluator_calls_increment")) or 0.0
+        improvement: float | None = None
+        improvement_percent: float | None = None
+        if seed_objective is not None and best_objective is not None:
+            improvement = (
+                best_objective - seed_objective
+                if objective_direction == "maximize"
+                else seed_objective - best_objective
             )
+            if seed_objective != 0:
+                improvement_percent = improvement / abs(seed_objective) * 100
+        points.append(
+            {
+                "proposal": opportunity,
+                "active_hours": round(elapsed_seconds / 3600, 6),
+                "active_seconds": round(elapsed_seconds, 6),
+                "token_cost": round(weighted_cost(usage, prices), 6),
+                "incremental_token_cost": round(weighted_cost(usage_increment, prices), 6),
+                **usage,
+                **{f"incremental_{key}": value for key, value in usage_increment.items()},
+                "evaluator_seconds": evaluator_seconds,
+                "incremental_evaluator_seconds": evaluator_seconds_increment,
+                "evaluator_calls": evaluator_calls,
+                "incremental_evaluator_calls": evaluator_calls_increment,
+                "best_objective": best_objective,
+                "raw_objective": objective,
+                "fitness": numeric(evaluation.get("fitness")) if isinstance(evaluation, dict) else None,
+                "objective_improvement": improvement,
+                "objective_improvement_percent": improvement_percent,
+                "metrics": metrics,
+                "valid": valid,
+                "retained": retained,
+                "retention_decision": event.get("retention_decision"),
+                "failure_kind": evaluation.get("failure_kind") if isinstance(evaluation, dict) else None,
+                "proposal_type": event.get("proposal_type"),
+                "hypothesis": event.get("hypothesis"),
+                "mechanism": event.get("mechanism"),
+                "timestamp": event.get("timestamp"),
+                "is_seed": False,
+            }
+        )
     if seed_objective is not None:
+        candidate = seed_candidate(state) or {}
+        seed_metrics = numeric_metrics(candidate.get("metrics"))
         points.insert(
             0,
-            {"proposal": 0, "active_hours": 0.0, "token_cost": 0.0, "objective": seed_objective},
+            {
+                "proposal": 0,
+                "active_hours": 0.0,
+                "active_seconds": 0.0,
+                "token_cost": 0.0,
+                "incremental_token_cost": 0.0,
+                "input_tokens": 0,
+                "cached_input_tokens": 0,
+                "output_tokens": 0,
+                "reasoning_output_tokens": 0,
+                "total_tokens": 0,
+                "incremental_input_tokens": 0,
+                "incremental_cached_input_tokens": 0,
+                "incremental_output_tokens": 0,
+                "incremental_reasoning_output_tokens": 0,
+                "incremental_total_tokens": 0,
+                "evaluator_seconds": 0.0,
+                "incremental_evaluator_seconds": 0.0,
+                "evaluator_calls": 0.0,
+                "incremental_evaluator_calls": 0.0,
+                "best_objective": seed_objective,
+                "raw_objective": seed_objective,
+                "fitness": numeric(candidate.get("fitness")),
+                "objective_improvement": 0.0,
+                "objective_improvement_percent": 0.0,
+                "metrics": seed_metrics,
+                "valid": True,
+                "retained": True,
+                "retention_decision": "frozen_seed",
+                "failure_kind": None,
+                "proposal_type": "seed",
+                "hypothesis": candidate.get("hypothesis"),
+                "mechanism": None,
+                "timestamp": None,
+                "is_seed": True,
+            },
         )
-    usage = state.get("usage", {})
-    usage = usage if isinstance(usage, dict) else {}
+    usage = normalized_usage(state.get("usage"))
     return {
         "run_id": run_id,
         "label": compact_label(run_id),
         "condition": condition.upper(),
         "status": state.get("status", "unknown"),
         "proposals_used": state.get("proposals_used", 0),
-        "total_tokens": int(usage.get("input_tokens", 0) or 0) + int(usage.get("output_tokens", 0) or 0),
+        "total_tokens": usage["total_tokens"],
+        "token_cost": round(weighted_cost(usage, prices), 6),
         "best_objective": best_objective,
+        "seed_objective": seed_objective,
+        "latest_raw_objective": latest_raw_objective,
+        "valid_proposals": valid_proposals,
+        "invalid_proposals": max(0, len(points) - (1 if seed_objective is not None else 0) - valid_proposals),
+        "retained_proposals": retained_proposals,
+        "active_hours": round(elapsed_seconds / 3600, 6),
+        "latest_event_at": latest_event_at,
         "lowest_parameters": (
             best_objective if objective_metric == "parameters" else None
         ),
@@ -207,11 +337,54 @@ def campaign_data(campaign: Path, prices: dict[str, float]) -> dict[str, Any]:
         for run in runs
         if run is not None and run["condition"] in {"C0", "C1", "C2", "C3"}
     ]
+    observed_metrics = sorted(
+        {
+            key
+            for run in factorial_runs
+            for point in run["points"]
+            for key in point.get("metrics", {})
+        }
+    )
+    metric_labels = {
+        "active_hours": "Active wall-clock time (hours)",
+        "active_seconds": "Active wall-clock time (seconds)",
+        "best_objective": f"Best valid {objective_metric}",
+        "cached_input_tokens": "Cumulative cached input tokens",
+        "evaluator_calls": "Cumulative evaluator calls",
+        "evaluator_seconds": "Cumulative evaluator time (seconds)",
+        "fitness": "Proposal fitness",
+        "incremental_cached_input_tokens": "Cached input tokens this proposal",
+        "incremental_evaluator_calls": "Evaluator calls this proposal",
+        "incremental_evaluator_seconds": "Evaluator time this proposal (seconds)",
+        "incremental_input_tokens": "Input tokens this proposal",
+        "incremental_output_tokens": "Output tokens this proposal",
+        "incremental_reasoning_output_tokens": "Reasoning output tokens this proposal",
+        "incremental_token_cost": "Price-weighted token cost this proposal (USD)",
+        "incremental_total_tokens": "Total tokens this proposal",
+        "input_tokens": "Cumulative input tokens",
+        "objective_improvement": f"Best {objective_metric} improvement from seed",
+        "objective_improvement_percent": f"Best {objective_metric} improvement from seed (%)",
+        "output_tokens": "Cumulative output tokens",
+        "proposal": "Proposal index",
+        "raw_objective": f"Proposal {objective_metric} (all outcomes)",
+        "reasoning_output_tokens": "Cumulative reasoning output tokens",
+        "token_cost": "Cumulative price-weighted token cost (USD)",
+        "total_tokens": "Cumulative total tokens",
+    }
+    axis_catalog = [
+        {"key": key, "label": label}
+        for key, label in metric_labels.items()
+    ] + [
+        {"key": f"metric:{metric}", "label": f"Proposal metric · {metric}"}
+        for metric in observed_metrics
+    ]
     return {
         "campaign": str(campaign),
         "available": campaign.is_dir(),
         "objective_metric": objective_metric,
         "objective_direction": objective_direction,
+        "axis_catalog": axis_catalog,
+        "observed_metrics": observed_metrics,
         "runs": factorial_runs,
     }
 
@@ -221,7 +394,7 @@ def dashboard_data(campaigns: dict[str, Path], prices: dict[str, float]) -> dict
         key: campaign_data(path, prices) for key, path in campaigns.items()
     }
     payload = {
-        "schema_version": "2.0",
+        "schema_version": "3.0",
         "generated_at": datetime.now().astimezone().isoformat(),
         "price_per_million": prices,
         "campaigns": campaign_payloads,
@@ -235,52 +408,11 @@ def dashboard_data(campaigns: dict[str, Path], prices: dict[str, float]) -> dict
     return payload
 
 
-PAGE = r'''<!doctype html>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>RL4RL live trajectories</title>
-<style>
-  :root { color-scheme: dark; font-family: ui-sans-serif, system-ui, sans-serif; background:#0d1117; color:#e6edf3; }
-  body { max-width:1500px; margin:0 auto; padding:24px; } h1,h2 { margin:0 0 7px; } .sub { color:#9da7b5; margin:0 0 16px; }
-  button { padding:8px 12px; margin-right:10px; border-radius:6px; border:1px solid #49566b; background:#1a2332; color:inherit; cursor:pointer; }
-  .stamp { color:#9da7b5; font-size:13px; } .section { margin-top:30px; border-top:1px solid #30363d; padding-top:20px; }
-  .charts { display:grid; grid-template-columns:repeat(3,minmax(300px,1fr)); gap:16px; } .chart { min-height:310px; }
-  table { width:100%; border-collapse:collapse; margin-top:15px; font-size:13px; } th,td { border-bottom:1px solid #30363d; padding:7px; text-align:right; } th:first-child,td:first-child { text-align:left; }
-  .legend { display:flex; gap:12px; flex-wrap:wrap; margin:10px 0; } .key { display:inline-flex; align-items:center; gap:5px; font-size:12px; } .dot { width:10px; height:10px; border-radius:50%; }
-  @media (max-width:980px) { .charts { grid-template-columns:1fr; } } 
-</style>
-<h1>RL4RL live trajectories</h1>
-<p class="sub">Read-only dashboard. Refresh rereads the campaign logs; automatic refresh runs every 30 seconds.</p>
-<button id="refresh">Refresh now</button><span class="stamp" id="stamp">Loading…</span>
-<div id="content"></div>
-<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
-<script>
-const conditionColors = {C0:['#93c5fd','#60a5fa','#3b82f6','#2563eb','#1d4ed8'],C1:['#fed7aa','#fdba74','#fb923c','#f97316','#c2410c'],C2:['#e9d5ff','#d8b4fe','#c084fc','#a855f7','#7e22ce'],C3:['#bbf7d0','#86efac','#4ade80','#22c55e','#15803d']};
-const charts=[];
-function color(run) { const family=conditionColors[run.condition]||['#ddd']; const match=run.label.match(/^B(\d+)/); return family[match ? (Number(match[1])-1)%family.length : 0]; }
-function chartOptions(xTitle,yTitle) { return {responsive:true, maintainAspectRatio:false, parsing:false, plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>`${c.dataset.label}: ${Number(c.raw.y).toLocaleString()} ${yTitle}`}}}, scales:{x:{type:'linear',min:0,title:{display:true,text:xTitle}},y:{min:0,title:{display:true,text:`Best valid ${yTitle}`}}}}; }
-function makeChart(canvas, runs, xKey, title, objectiveMetric) { return new Chart(canvas,{type:'line',data:{datasets:runs.filter(r=>r.points.length).map(r=>({label:r.label,data:r.points.map(p=>({x:p[xKey],y:p.objective})),borderColor:color(r),backgroundColor:color(r),borderWidth:2,pointRadius:2,tension:.12}))},options:chartOptions(title,objectiveMetric)}); }
-function section(key, title, payload) {
-  if (!payload || !payload.available) { const campaign=payload?.campaign||'Not configured'; return `<section class="section"><h2>${title}</h2><p class="sub">Campaign directory is not available: ${campaign}</p></section>`; }
-  const id=key.replace(/[^a-z0-9]/g,''); const legend=payload.runs.map(r=>`<span class="key"><i class="dot" style="background:${color(r)}"></i>${r.label}</span>`).join('');
-  const rows=payload.runs.map(r=>`<tr><td>${r.label}</td><td>${r.condition}</td><td>${r.status}</td><td>${r.proposals_used}</td><td>${r.total_tokens.toLocaleString()}</td><td>${r.best_objective===null?'—':Number(r.best_objective).toLocaleString()}</td></tr>`).join('');
-  return `<section class="section"><h2>${title}</h2><p class="sub">${payload.campaign}</p><div class="legend">${legend}</div><div class="charts"><div class="chart"><canvas id="${id}-proposal"></canvas></div><div class="chart"><canvas id="${id}-cost"></canvas></div><div class="chart"><canvas id="${id}-time"></canvas></div></div><table><thead><tr><th>Run</th><th>Condition</th><th>Status</th><th>Proposals</th><th>Reported tokens</th><th>Best ${payload.objective_metric}</th></tr></thead><tbody>${rows}</tbody></table></section>`;
-}
-async function refresh() {
-  document.getElementById('refresh').disabled=true;
-  try {
-    const data=await fetch('/api/data',{cache:'no-store'}).then(r=>r.json());
-    charts.splice(0).forEach(c=>c.destroy());
-    document.getElementById('stamp').textContent='Updated '+new Date(data.generated_at).toLocaleString();
-    const campaigns=data.campaigns||{};
-    const sections=[['autoresearchv16','Autoresearch v1.6',campaigns.autoresearch_v16||data.autoresearch],['openevolvev2','OpenEvolve v2.0',campaigns.openevolve_v2||data.openevolve_v2],['autoresearchv17','Autoresearch v1.7 · addition',campaigns.autoresearch_v17],['openevolvev21','OpenEvolve v2.1 · addition',campaigns.openevolve_v21],['autoresearchv17nanogpt','Autoresearch v1.7 · nanoGPT H100',campaigns.autoresearch_v17_nanogpt],['openevolvev21nanogpt','OpenEvolve v2.1 · nanoGPT H100',campaigns.openevolve_v21_nanogpt]];
-    document.getElementById('content').innerHTML=sections.map(([id,title,p])=>section(id,title,p)).join('');
-    sections.forEach(([id,_title,p])=>{ if(!p||!p.available)return; charts.push(makeChart(document.getElementById(id+'-proposal'),p.runs,'proposal','Proposal',p.objective_metric)); charts.push(makeChart(document.getElementById(id+'-cost'),p.runs,'token_cost','Price-weighted token cost (USD)',p.objective_metric)); charts.push(makeChart(document.getElementById(id+'-time'),p.runs,'active_hours','Active wall-clock time (hours)',p.objective_metric)); });
-  } catch (error) { document.getElementById('stamp').textContent='Refresh failed: '+error.message; }
-  finally { document.getElementById('refresh').disabled=false; }
-}
-document.getElementById('refresh').addEventListener('click',refresh); refresh(); setInterval(refresh,30000);
-</script>'''
+# Keep the interactive client in a standalone file so browser behavior can be
+# linted and tested independently of the read-only Python log server.
+PAGE = (Path(__file__).with_name("live_trajectory_dashboard.html")).read_text(
+    encoding="utf-8"
+)
 
 
 def make_handler(campaigns: dict[str, Path], prices: dict[str, float]):

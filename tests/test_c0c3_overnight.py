@@ -2,7 +2,9 @@ from __future__ import annotations
 
 import json
 from pathlib import Path
+from types import SimpleNamespace
 
+import experiments.c0c3_overnight as overnight
 from experiments.c0c3_overnight import (
     RUNTIME_CLI_BOOTSTRAP,
     SHARED_LOCAL_EVALUATOR_CAPACITY,
@@ -23,6 +25,34 @@ from experiments.c0c3_overnight import (
 def _write_json(path: Path, value: object) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
     path.write_text(json.dumps(value), encoding="utf-8")
+
+
+def test_screen_running_requires_an_exact_session_name(monkeypatch) -> None:
+    monkeypatch.setattr(overnight, "SCREEN_SESSION", "rl4rl-c0c3-autoresearch-v1-7")
+    monkeypatch.setattr(
+        overnight.subprocess,
+        "run",
+        lambda *args, **kwargs: SimpleNamespace(
+            stdout=(
+                "\t77885.rl4rl-c0c3-autoresearch-v1-7-nanogpt\t(Detached)\n"
+            ),
+            stderr="",
+        ),
+    )
+    assert overnight.screen_running() is False
+
+
+def test_screen_running_accepts_the_exact_numbered_session(monkeypatch) -> None:
+    monkeypatch.setattr(overnight, "SCREEN_SESSION", "rl4rl-c0c3-autoresearch-v1-7")
+    monkeypatch.setattr(
+        overnight.subprocess,
+        "run",
+        lambda *args, **kwargs: SimpleNamespace(
+            stdout="\t89460.rl4rl-c0c3-autoresearch-v1-7\t(Detached)\n",
+            stderr="",
+        ),
+    )
+    assert overnight.screen_running() is True
 
 
 def test_default_roster_excludes_autoresearch_v14() -> None:
@@ -171,6 +201,38 @@ def test_artifact_clean_jobs_receive_main_operator_prompt_root(tmp_path: Path) -
 def test_operational_runtime_bootstrap_raises_host_scheduler_to_twelve() -> None:
     assert SHARED_LOCAL_EVALUATOR_CAPACITY == 12
     assert "SHARED_LOCAL_EVALUATOR_CAPACITY" in RUNTIME_CLI_BOOTSTRAP
+
+
+def test_recovery_and_pause_subprocesses_receive_scheduler_capacity(
+    tmp_path: Path, monkeypatch
+) -> None:
+    job = Job(
+        key="v16:b01-c0",
+        group="v16",
+        runtime_root=tmp_path,
+        campaign=tmp_path / "campaign",
+        mode="individual-trajectories",
+        run_id="b01-c0",
+    )
+    environments: list[dict[str, str]] = []
+
+    def fake_run(*args, **kwargs):
+        environments.append(kwargs["env"])
+        return SimpleNamespace(returncode=0, stdout="ok")
+
+    monkeypatch.setattr(overnight, "CONTROL_ROOT", tmp_path / "control")
+    monkeypatch.setattr(overnight, "active_run_ids", lambda _job: ["b01-c0"])
+    monkeypatch.setattr(overnight.subprocess, "run", fake_run)
+    supervisor = overnight.Supervisor([job], recover_interrupted=True)
+
+    supervisor.recover(job, reason="test recovery")
+    supervisor.request_cooperative_pause(job, "test pause")
+
+    assert len(environments) == 2
+    assert all(
+        environment[SHARED_LOCAL_EVALUATOR_CAPACITY_ENV] == "12"
+        for environment in environments
+    )
 
 
 def test_local_accelerator_is_derived_from_frozen_task_input(tmp_path: Path) -> None:

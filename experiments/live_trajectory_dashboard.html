@@ -1,0 +1,204 @@
+<!doctype html>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>RL4RL live trajectories</title>
+<style>
+  :root { color-scheme:dark; font-family:ui-sans-serif,system-ui,sans-serif; background:#0d1117; color:#e6edf3; }
+  * { box-sizing:border-box; }
+  body { max-width:1700px; margin:0 auto; padding:24px; }
+  h1,h2 { margin:0; } h2 { font-size:21px; }
+  button,select,input { font:inherit; }
+  button,select { padding:7px 10px; border-radius:6px; border:1px solid #49566b; background:#1a2332; color:inherit; }
+  button { cursor:pointer; } button:hover { border-color:#7d8da5; } button:disabled { cursor:wait; opacity:.62; }
+  label { font-size:12px; color:#aab4c3; }
+  .topbar { display:flex; align-items:center; gap:10px; flex-wrap:wrap; margin:14px 0 4px; }
+  .sub,.stamp,.path { color:#9da7b5; } .sub { margin:6px 0 14px; } .stamp { font-size:13px; }
+  .section { margin-top:30px; border-top:1px solid #30363d; padding-top:20px; }
+  .section-head { display:flex; justify-content:space-between; gap:16px; align-items:flex-start; flex-wrap:wrap; }
+  .path { font:11px ui-monospace,SFMono-Regular,Menlo,monospace; margin:5px 0 0; overflow-wrap:anywhere; }
+  .health { display:inline-flex; align-items:center; gap:6px; border:1px solid #345047; background:#132820; color:#9de2bd; border-radius:999px; padding:4px 9px; font-size:12px; }
+  .controls { display:flex; flex-wrap:wrap; align-items:end; gap:9px 12px; padding:12px; margin:13px 0; border:1px solid #30363d; border-radius:8px; background:#111821; }
+  .control { display:grid; gap:4px; } .control select { max-width:280px; }
+  .checks { display:flex; align-items:center; gap:9px; flex-wrap:wrap; min-height:34px; }
+  .checks label { color:#d0d7de; display:inline-flex; align-items:center; gap:4px; }
+  input[type=checkbox] { accent-color:#58a6ff; }
+  input[type=search] { width:150px; padding:7px 9px; border-radius:6px; border:1px solid #49566b; background:#0d1117; color:inherit; }
+  .stats { display:grid; grid-template-columns:repeat(6,minmax(125px,1fr)); gap:8px; margin:10px 0 14px; }
+  .stat { border:1px solid #30363d; border-radius:7px; padding:9px 11px; background:#0f151e; }
+  .stat b { display:block; font-size:17px; margin-top:2px; } .stat span { color:#8b98a9; font-size:11px; }
+  .legend { display:flex; gap:7px; flex-wrap:wrap; margin:9px 0 13px; }
+  .key { display:inline-flex; align-items:center; gap:5px; font-size:12px; padding:4px 7px; margin:0; background:#111821; }
+  .key.off { opacity:.35; text-decoration:line-through; } .dot { width:9px; height:9px; border-radius:50%; }
+  .charts { display:grid; grid-template-columns:repeat(3,minmax(300px,1fr)); gap:16px; }
+  .chart-card { min-width:0; border:1px solid #30363d; border-radius:8px; padding:10px; background:#0f151e; }
+  .chart-head { display:flex; align-items:center; justify-content:space-between; gap:8px; margin-bottom:7px; }
+  .chart-head strong { font-size:13px; } .chart-head select { max-width:72%; font-size:12px; padding:5px 7px; }
+  .chart { height:330px; min-height:330px; max-height:330px; position:relative; contain:layout size; overflow:hidden; }
+  .table-tools { display:flex; justify-content:space-between; gap:10px; align-items:center; flex-wrap:wrap; margin-top:16px; }
+  .table-wrap { overflow-x:auto; }
+  table { width:100%; border-collapse:collapse; margin-top:8px; font-size:12px; white-space:nowrap; }
+  th,td { border-bottom:1px solid #30363d; padding:7px; text-align:right; }
+  th:first-child,td:first-child { text-align:left; } th button { border:0; padding:0; background:none; font-weight:650; color:#c9d1d9; }
+  .empty { border:1px dashed #3a4555; border-radius:8px; padding:16px; color:#9da7b5; margin-top:10px; }
+  .note { font-size:11px; color:#8b98a9; margin:7px 0 0; }
+  @media (max-width:1100px) { .charts { grid-template-columns:1fr; } .stats { grid-template-columns:repeat(2,1fr); } }
+  @media (max-width:600px) { body { padding:14px; } .stats { grid-template-columns:1fr 1fr; } }
+</style>
+<h1>RL4RL live trajectories</h1>
+<p class="sub">Read-only, log-backed dashboard. Default charts preserve the familiar proposal, token-cost, and active-time views; hollow markers show every proposal outcome while solid lines show the best valid trajectory.</p>
+<div class="topbar">
+  <button id="refresh">Refresh now</button>
+  <label>Auto-refresh <select id="auto-refresh"><option value="0">Off</option><option value="15">15 sec</option><option value="30" selected>30 sec</option><option value="60">1 min</option><option value="120">2 min</option></select></label>
+  <span class="stamp" id="stamp">Loading…</span>
+</div>
+<div id="content"></div>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
+<script>
+'use strict';
+const conditionColors={C0:['#93c5fd','#60a5fa','#3b82f6','#2563eb','#1d4ed8'],C1:['#fed7aa','#fdba74','#fb923c','#f97316','#c2410c'],C2:['#e9d5ff','#d8b4fe','#c084fc','#a855f7','#7e22ce'],C3:['#bbf7d0','#86efac','#4ade80','#22c55e','#15803d']};
+const campaignDefs=[
+  ['autoresearchv16','Autoresearch v1.6','autoresearch_v16','autoresearch'],
+  ['openevolvev2','OpenEvolve v2.0','openevolve_v2','openevolve_v2'],
+  ['autoresearchv17','Autoresearch v1.7 · addition','autoresearch_v17'],
+  ['openevolvev21','OpenEvolve v2.1 · addition','openevolve_v21'],
+  ['autoresearchv17nanogpt','Autoresearch v1.7 · nanoGPT H100','autoresearch_v17_nanogpt'],
+  ['openevolvev21nanogpt','OpenEvolve v2.1 · nanoGPT H100','openevolve_v21_nanogpt']
+];
+const charts=new Map();
+const states={};
+let latestData=null;
+let refreshTimer=null;
+let refreshing=false;
+
+function html(value){return String(value??'').replace(/[&<>"']/g,ch=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]));}
+function finite(value){const number=Number(value);return value===null||value===''||!Number.isFinite(number)?null:number;}
+function color(run){const family=conditionColors[run.condition]||['#c9d1d9'];const match=run.label.match(/^B(\d+)/);return family[match?(Number(match[1])-1)%family.length:0];}
+function valueAt(point,key){if(key.startsWith('metric:'))return finite(point.metrics?.[key.slice(7)]);return finite(point[key]);}
+function labelFor(payload,key){return payload.axis_catalog?.find(item=>item.key===key)?.label||key;}
+function fmt(value,key=''){const n=finite(value);if(n===null)return '—';if(key.includes('cost'))return '$'+n.toLocaleString(undefined,{minimumFractionDigits:2,maximumFractionDigits:4});if(key.includes('percent'))return n.toLocaleString(undefined,{maximumFractionDigits:2})+'%';if(key.includes('tokens')||key==='proposal'||key==='evaluator_calls')return Math.round(n).toLocaleString();return n.toLocaleString(undefined,{maximumFractionDigits:5});}
+function defaultState(){return {y:'best_objective',xs:['proposal','token_cost','active_hours'],filter:'all',proposalType:'all',conditions:['C0','C1','C2','C3'],hiddenRuns:[],showSeed:true,connect:true,overlay:true,query:'',sort:'label',sortDirection:1};}
+function stateFor(id,payload){if(!states[id])states[id]=defaultState();const keys=new Set((payload.axis_catalog||[]).map(item=>item.key));if(!keys.has(states[id].y))states[id].y='best_objective';states[id].xs=states[id].xs.map((key,index)=>keys.has(key)?key:['proposal','token_cost','active_hours'][index]);return states[id];}
+function axisOptions(payload,selected){return (payload.axis_catalog||[]).map(item=>`<option value="${html(item.key)}"${item.key===selected?' selected':''}>${html(item.label)}</option>`).join('');}
+function proposalTypes(payload){return [...new Set(payload.runs.flatMap(run=>run.points.map(point=>point.proposal_type)).filter(type=>type&&type!=='seed'))].sort();}
+
+function sectionHtml(id,title,payload){
+  if(!payload||!payload.available)return `<section class="section"><h2>${html(title)}</h2><div class="empty">Campaign directory is not available: ${html(payload?.campaign||'not configured')}</div></section>`;
+  const state=stateFor(id,payload);
+  const types=proposalTypes(payload);
+  const legend=payload.runs.map(run=>`<button class="key${state.hiddenRuns.includes(run.run_id)?' off':''}" data-run="${html(run.run_id)}"><i class="dot" style="background:${color(run)}"></i>${html(run.label)}</button>`).join('');
+  const checks=['C0','C1','C2','C3'].map(condition=>`<label><input type="checkbox" data-condition="${condition}"${state.conditions.includes(condition)?' checked':''}>${condition}</label>`).join('');
+  const typeOptions=['<option value="all">All proposal types</option>',...types.map(type=>`<option value="${html(type)}"${state.proposalType===type?' selected':''}>${html(type)}</option>`)].join('');
+  const columns=[['label','Run'],['condition','Condition'],['status','Status'],['proposals_used','Proposals'],['valid_rate','Valid'],['retained_proposals','Retained'],['total_tokens','Reported tokens'],['token_cost','Token cost'],['active_hours','Active hours'],['best_objective','Best '+payload.objective_metric],['latest_raw_objective','Latest raw']];
+  return `<section class="section" id="${id}-section">
+    <div class="section-head"><div><h2>${html(title)}</h2><p class="path">${html(payload.campaign)}</p></div><span class="health">● ${payload.runs.length} runs · live logs</span></div>
+    <div class="controls">
+      <div class="control"><label>Y metric</label><select data-control="y">${axisOptions(payload,state.y)}</select></div>
+      <div class="control"><label>Proposal outcomes</label><select data-control="filter"><option value="all">All outcomes</option><option value="valid">Valid only</option><option value="invalid">Invalid only</option><option value="retained">Retained only</option></select></div>
+      <div class="control"><label>Proposal type</label><select data-control="proposalType">${typeOptions}</select></div>
+      <div class="control"><label>Conditions</label><div class="checks">${checks}</div></div>
+      <div class="checks"><label><input type="checkbox" data-control="showSeed"${state.showSeed?' checked':''}>Seed</label><label><input type="checkbox" data-control="connect"${state.connect?' checked':''}>Connect</label><label><input type="checkbox" data-control="overlay"${state.overlay?' checked':''}>Raw outcome overlay</label></div>
+      <button data-action="reset">Reset view</button><button data-action="csv">Export visible CSV</button><button data-action="json">Export JSON</button>
+    </div>
+    <div class="stats" id="${id}-stats"></div>
+    <div class="legend" id="${id}-legend">${legend}</div>
+    <div class="charts">${state.xs.map((xKey,index)=>`<div class="chart-card"><div class="chart-head"><strong>Chart ${index+1}</strong><select data-x="${index}">${axisOptions(payload,xKey)}</select></div><div class="chart"><canvas id="${id}-chart-${index}"></canvas></div></div>`).join('')}</div>
+    <p class="note">Marker key: ◆ seed · × invalid · ▲ retained · ○ other valid. Both axes always include zero. Paused time and gaps between completed proposals are excluded from active wall-clock time.</p>
+    <div class="table-tools"><strong>Run summary</strong><input type="search" data-control="query" value="${html(state.query)}" placeholder="Filter runs"></div>
+    <div class="table-wrap"><table><thead><tr>${columns.map(([key,label])=>`<th><button data-sort="${key}">${html(label)}</button></th>`).join('')}</tr></thead><tbody id="${id}-rows"></tbody></table></div>
+  </section>`;
+}
+
+function pointAllowed(point,state){
+  if(point.is_seed)return state.showSeed;
+  if(state.filter==='valid'&&!point.valid)return false;
+  if(state.filter==='invalid'&&point.valid)return false;
+  if(state.filter==='retained'&&!point.retained)return false;
+  return state.proposalType==='all'||point.proposal_type===state.proposalType;
+}
+function visibleRuns(payload,state){return payload.runs.filter(run=>state.conditions.includes(run.condition)&&!state.hiddenRuns.includes(run.run_id));}
+function chartPoint(point,xKey,yKey){const x=valueAt(point,xKey),y=valueAt(point,yKey);return x===null||y===null?null:{x,y,point};}
+function pointStyle(context){const point=context.raw?.point;if(!point)return 'circle';if(point.is_seed)return 'rectRot';if(!point.valid)return 'crossRot';if(point.retained)return 'triangle';return 'circle';}
+function pointRadius(context){const point=context.raw?.point;if(!point)return 2;if(point.is_seed)return 4;if(!point.valid)return 5;if(point.retained)return 4;return 3;}
+function dataset(run,points,xKey,yKey,state,role='metric'){
+  const shade=color(run);
+  return {label:run.label+(role==='raw'?' · raw outcomes':''),role,data:points.map(point=>chartPoint(point,xKey,yKey)).filter(Boolean),showLine:role!=='raw'&&state.connect,borderColor:shade,backgroundColor:role==='raw'?'#0d1117':shade,pointBorderColor:shade,pointBackgroundColor:context=>context.raw?.point?.valid===false?'#0d1117':(role==='raw'?'#0d1117':shade),borderWidth:role==='raw'?0:2,pointBorderWidth:role==='raw'?2:1,pointStyle,pointRadius,pointHoverRadius:7,tension:.12,spanGaps:true};
+}
+function chartOptions(payload,xKey,yKey){
+  return {responsive:true,maintainAspectRatio:false,resizeDelay:150,animation:false,normalized:true,parsing:false,interaction:{mode:'nearest',intersect:false},plugins:{legend:{display:false},tooltip:{callbacks:{title:items=>items.length?`${items[0].raw.point.is_seed?'Seed':'Proposal '+items[0].raw.point.proposal}`:'',label:context=>`${context.dataset.label}: ${fmt(context.raw.y,yKey)}`,afterLabel:context=>{const p=context.raw.point;return [`valid: ${p.valid?'yes':'no'} · retained: ${p.retained?'yes':'no'}`,`raw: ${fmt(p.raw_objective,'raw_objective')} · best: ${fmt(p.best_objective,'best_objective')}`,`cost: ${fmt(p.token_cost,'token_cost')} · tokens: ${fmt(p.total_tokens,'total_tokens')} · active: ${fmt(p.active_hours,'active_hours')} h`,p.failure_kind?`failure: ${p.failure_kind}`:''].filter(Boolean);}}}},scales:{x:{type:'linear',beginAtZero:true,title:{display:true,text:labelFor(payload,xKey)},ticks:{maxTicksLimit:8}},y:{beginAtZero:true,title:{display:true,text:labelFor(payload,yKey)},ticks:{maxTicksLimit:8}}}};
+}
+function drawCharts(id,payload){
+  const state=states[id],runs=visibleRuns(payload,state);
+  state.xs.forEach((xKey,index)=>{
+    const chartId=`${id}-chart-${index}`;
+    charts.get(chartId)?.destroy();
+    const canvas=document.getElementById(chartId);if(!canvas)return;
+    const datasets=[];
+    for(const run of runs){
+      const points=run.points.filter(point=>pointAllowed(point,state));
+      datasets.push(dataset(run,points,xKey,state.y,state));
+      if(state.y==='best_objective'&&state.overlay)datasets.push(dataset(run,points.filter(point=>!point.is_seed),xKey,'raw_objective',state,'raw'));
+    }
+    charts.set(chartId,new Chart(canvas,{type:'line',data:{datasets},options:chartOptions(payload,xKey,state.y)}));
+  });
+}
+function overallBest(runs,direction){const values=runs.map(run=>finite(run.best_objective)).filter(value=>value!==null);if(!values.length)return null;return direction==='maximize'?Math.max(...values):Math.min(...values);}
+function drawStats(id,payload){
+  const state=states[id],runs=visibleRuns(payload,state);
+  const proposals=runs.reduce((sum,run)=>sum+Number(run.proposals_used||0),0),valid=runs.reduce((sum,run)=>sum+Number(run.valid_proposals||0),0),retained=runs.reduce((sum,run)=>sum+Number(run.retained_proposals||0),0),tokens=runs.reduce((sum,run)=>sum+Number(run.total_tokens||0),0);
+  const values=[['Visible runs',runs.length],['Completed proposals',proposals.toLocaleString()],['Valid rate',proposals?(100*valid/proposals).toFixed(1)+'%':'—'],['Retained proposals',retained.toLocaleString()],['Best '+payload.objective_metric,fmt(overallBest(runs,payload.objective_direction),'best_objective')],['Reported tokens',tokens.toLocaleString()]];
+  document.getElementById(id+'-stats').innerHTML=values.map(([label,value])=>`<div class="stat"><span>${html(label)}</span><b>${html(value)}</b></div>`).join('');
+}
+function comparable(run,key){if(key==='valid_rate')return run.proposals_used?run.valid_proposals/run.proposals_used:-1;return run[key];}
+function drawTable(id,payload){
+  const state=states[id],query=state.query.trim().toLowerCase();
+  const runs=visibleRuns(payload,state).filter(run=>!query||run.label.toLowerCase().includes(query)||run.condition.toLowerCase().includes(query)||String(run.status).toLowerCase().includes(query));
+  runs.sort((a,b)=>{const av=comparable(a,state.sort),bv=comparable(b,state.sort);if(typeof av==='number'&&typeof bv==='number')return (av-bv)*state.sortDirection;return String(av??'').localeCompare(String(bv??''))*state.sortDirection;});
+  document.getElementById(id+'-rows').innerHTML=runs.map(run=>`<tr><td>${html(run.label)}</td><td>${html(run.condition)}</td><td>${html(run.status)}</td><td>${fmt(run.proposals_used,'proposal')}</td><td>${run.proposals_used?(100*run.valid_proposals/run.proposals_used).toFixed(1)+'%':'—'}</td><td>${fmt(run.retained_proposals,'proposal')}</td><td>${fmt(run.total_tokens,'total_tokens')}</td><td>${fmt(run.token_cost,'token_cost')}</td><td>${fmt(run.active_hours,'active_hours')}</td><td>${fmt(run.best_objective,'best_objective')}</td><td>${fmt(run.latest_raw_objective,'raw_objective')}</td></tr>`).join('');
+}
+function drawLegend(id){const state=states[id];document.querySelectorAll(`#${id}-legend [data-run]`).forEach(button=>button.classList.toggle('off',state.hiddenRuns.includes(button.dataset.run)));}
+function redraw(id,payload){drawCharts(id,payload);drawStats(id,payload);drawTable(id,payload);drawLegend(id);}
+
+function download(name,type,body){const url=URL.createObjectURL(new Blob([body],{type}));const link=document.createElement('a');link.href=url;link.download=name;link.click();setTimeout(()=>URL.revokeObjectURL(url),0);}
+function exportCampaign(id,payload,format){
+  const state=states[id],runs=visibleRuns(payload,state);
+  if(format==='json'){download(`${id}-visible.json`,'application/json',JSON.stringify({generated_at:latestData.generated_at,view:state,campaign:payload.campaign,runs},null,2));return;}
+  const metricKeys=payload.observed_metrics||[];
+  const columns=['run','condition','proposal','proposal_type','valid','retained','failure_kind','raw_objective','best_objective','fitness','active_hours','token_cost','incremental_token_cost','total_tokens','input_tokens','cached_input_tokens','output_tokens','reasoning_output_tokens','evaluator_seconds',...metricKeys.map(key=>'metric_'+key)];
+  const quote=value=>`"${String(value??'').replaceAll('"','""')}"`;
+  const rows=[columns.join(',')];
+  for(const run of runs)for(const point of run.points.filter(item=>pointAllowed(item,state))){const values={run:run.label,condition:run.condition,...point,...Object.fromEntries(metricKeys.map(key=>['metric_'+key,point.metrics?.[key]]))};rows.push(columns.map(key=>quote(values[key])).join(','));}
+  download(`${id}-visible.csv`,'text/csv',rows.join('\n'));
+}
+function attachSection(id,payload){
+  const root=document.getElementById(id+'-section'),state=states[id];if(!root)return;
+  root.querySelector('[data-control="filter"]').value=state.filter;
+  root.querySelector('[data-control="proposalType"]').value=state.proposalType;
+  root.querySelectorAll('[data-control]').forEach(control=>control.addEventListener('change',()=>{const key=control.dataset.control;if(['showSeed','connect','overlay'].includes(key))state[key]=control.checked;else state[key]=control.value;redraw(id,payload);}));
+  root.querySelectorAll('[data-condition]').forEach(control=>control.addEventListener('change',()=>{state.conditions=control.checked?[...new Set([...state.conditions,control.dataset.condition])]:state.conditions.filter(value=>value!==control.dataset.condition);redraw(id,payload);}));
+  root.querySelectorAll('[data-x]').forEach(control=>control.addEventListener('change',()=>{state.xs[Number(control.dataset.x)]=control.value;drawCharts(id,payload);}));
+  root.querySelectorAll('[data-run]').forEach(button=>button.addEventListener('click',()=>{state.hiddenRuns=state.hiddenRuns.includes(button.dataset.run)?state.hiddenRuns.filter(value=>value!==button.dataset.run):[...state.hiddenRuns,button.dataset.run];redraw(id,payload);}));
+  root.querySelectorAll('[data-sort]').forEach(button=>button.addEventListener('click',()=>{const key=button.dataset.sort;if(state.sort===key)state.sortDirection*=-1;else{state.sort=key;state.sortDirection=1;}drawTable(id,payload);}));
+  root.querySelector('[data-control="query"]').addEventListener('input',event=>{state.query=event.target.value;drawTable(id,payload);});
+  root.querySelector('[data-action="reset"]').addEventListener('click',()=>{states[id]=defaultState();render();});
+  root.querySelector('[data-action="csv"]').addEventListener('click',()=>exportCampaign(id,payload,'csv'));
+  root.querySelector('[data-action="json"]').addEventListener('click',()=>exportCampaign(id,payload,'json'));
+  redraw(id,payload);
+}
+function campaignsFrom(data){const campaigns=data.campaigns||{};return campaignDefs.map(([id,title,key,legacy])=>[id,title,campaigns[key]||(legacy?data[legacy]:null)]);}
+function render(){
+  if(!latestData)return;
+  charts.forEach(chart=>chart.destroy());charts.clear();
+  const sections=campaignsFrom(latestData);
+  document.getElementById('content').innerHTML=sections.map(([id,title,payload])=>sectionHtml(id,title,payload)).join('');
+  sections.forEach(([id,_title,payload])=>{if(payload?.available)attachSection(id,payload);});
+}
+async function refresh(){
+  if(refreshing)return;refreshing=true;const button=document.getElementById('refresh');button.disabled=true;button.textContent='Refreshing…';
+  try{const response=await fetch('/api/data',{cache:'no-store'});if(!response.ok)throw new Error(`HTTP ${response.status}`);latestData=await response.json();render();const available=Object.values(latestData.campaigns||{}).filter(value=>value?.available).length;document.getElementById('stamp').textContent=`Updated ${new Date(latestData.generated_at).toLocaleString()} · ${available} campaigns`;}catch(error){document.getElementById('stamp').textContent='Refresh failed: '+error.message;}finally{refreshing=false;button.disabled=false;button.textContent='Refresh now';}
+}
+function setAutoRefresh(){if(refreshTimer)clearInterval(refreshTimer);const seconds=Number(document.getElementById('auto-refresh').value);if(seconds>0)refreshTimer=setInterval(refresh,seconds*1000);}
+document.getElementById('refresh').addEventListener('click',refresh);
+document.getElementById('auto-refresh').addEventListener('change',setAutoRefresh);
+document.addEventListener('visibilitychange',()=>{if(!document.hidden)refresh();});
+if(typeof Chart==='undefined')document.getElementById('stamp').textContent='Chart library failed to load';else{setAutoRefresh();refresh();}
+</script>

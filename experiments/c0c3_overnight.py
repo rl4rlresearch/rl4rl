@@ -855,6 +855,7 @@ class Supervisor:
             result = subprocess.run(
                 recover_command(job, run_id, reason),
                 cwd=job.runtime_root,
+                env=command_environment(job),
                 text=True,
                 stdout=subprocess.PIPE,
                 stderr=subprocess.STDOUT,
@@ -871,6 +872,7 @@ class Supervisor:
         result = subprocess.run(
             pause_command(job, reason),
             cwd=job.runtime_root,
+            env=command_environment(job),
             text=True,
             stdout=subprocess.PIPE,
             stderr=subprocess.STDOUT,
@@ -964,10 +966,10 @@ class Supervisor:
                 except RuntimeError as error:
                     self.update(job, actual="recovery-error", last_error=str(error))
                     self.log(str(error))
-                    time.sleep(min(backoff, 300.0))
+                    self.stop_event.wait(min(backoff, 300.0))
                     continue
                 self.update(job, actual="backing-off", backoff_seconds=backoff)
-                time.sleep(backoff)
+                self.stop_event.wait(backoff)
                 continue
 
             try:
@@ -1002,7 +1004,7 @@ class Supervisor:
                     last_error=f"{type(error).__name__}: {error}",
                 )
                 self.log(f"launch error for {job.key}: {type(error).__name__}: {error}")
-                time.sleep(backoff)
+                self.stop_event.wait(backoff)
                 backoff = min(MAX_BACKOFF_SECONDS, max(30.0, backoff * 2.0))
 
     def write_status(self) -> None:
@@ -1060,7 +1062,15 @@ def screen_running() -> bool:
         capture_output=True,
         check=False,
     )
-    return SCREEN_SESSION in (result.stdout + result.stderr)
+    for line in (result.stdout + result.stderr).splitlines():
+        fields = line.strip().split()
+        if not fields:
+            continue
+        numbered_session = fields[0]
+        _pid, separator, session_name = numbered_session.partition(".")
+        if separator and session_name == SCREEN_SESSION:
+            return True
+    return False
 
 
 def command_check(args: argparse.Namespace) -> int:
