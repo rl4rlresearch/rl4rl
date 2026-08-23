@@ -96,7 +96,10 @@ from experiments.c0c3_factorial.task_evaluators import (
     _source_contract_error,
     preflight_candidate_source,
 )
-from experiments.c0c3_factorial.validation import neutral_source_disclosure_terms
+from experiments.c0c3_factorial.validation import (
+    hybrid_modal_pairing_is_frozen,
+    neutral_source_disclosure_terms,
+)
 
 TEMPLATES = ROOT / "experiments/c0c3_factorial/templates"
 STAGED_CONTINUOUS_PROTOCOL = (
@@ -267,6 +270,19 @@ def test_nanogpt_artifact_clean_presets_have_requested_fast_h100_blocks() -> Non
     assert (v21.blocks, v21.model.service_tier) == (3, "fast")
     assert task_spec.adapter == NANOGPT_TASK_ADAPTER
     assert task_spec.preferred_backend is ExecutionBackend.HYBRID_MODAL
+    validate_v15_pairing(
+        protocol_version=v17.protocol_version,
+        task_adapter=task_spec.adapter,
+        prompt_profile=FrameworkSpec.from_toml(NANOGPT_V17_FRAMEWORK).prompt_profile,
+    )
+    assert hybrid_modal_pairing_is_frozen(
+        protocol_version=v17.protocol_version,
+        task_adapter=task_spec.adapter,
+    )
+    assert not hybrid_modal_pairing_is_frozen(
+        protocol_version=v17.protocol_version,
+        task_adapter=PAIR_TOKEN_TASK_ADAPTER_V3,
+    )
 
 
 def test_nanogpt_modal_image_uses_pinned_upstream_direct_dependencies() -> None:
