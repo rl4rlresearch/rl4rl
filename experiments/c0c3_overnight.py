@@ -75,6 +75,7 @@ class CampaignPlan:
     campaign: Path
     mode: str
     blocks: tuple[int, ...] = ()
+    pause_after_proposals: int | None = None
 
 
 @dataclasses.dataclass(frozen=True)
@@ -86,6 +87,7 @@ class Job:
     mode: str
     run_id: str | None = None
     blocks: tuple[int, ...] = ()
+    pause_after_proposals: int | None = None
 
 
 def utc_now() -> str:
@@ -155,6 +157,7 @@ def plans(profile: str | None = None) -> tuple[CampaignPlan, ...]:
                 ),
                 mode="individual-trajectories",
                 blocks=(1, 2, 3),
+                pause_after_proposals=100,
             ),
         )
     if selected_profile == "openevolve-v2":
@@ -299,6 +302,7 @@ def expand_jobs(campaign_plans: tuple[CampaignPlan, ...] | None = None) -> list[
                     campaign=plan.campaign,
                     mode=plan.mode,
                     blocks=plan.blocks,
+                    pause_after_proposals=plan.pause_after_proposals,
                 )
             )
             continue
@@ -317,6 +321,7 @@ def expand_jobs(campaign_plans: tuple[CampaignPlan, ...] | None = None) -> list[
                     mode=plan.mode,
                     run_id=run_id,
                     blocks=(block,),
+                    pause_after_proposals=plan.pause_after_proposals,
                 )
             )
     return expanded
@@ -388,6 +393,26 @@ def active_run_ids(job: Job) -> list[str]:
         for run_dir in targeted_run_dirs(job)
         if state_for(run_dir).get("active") is not None
     ]
+
+
+def automatic_pause_reason(job: Job) -> str | None:
+    """Arm a cooperative pause while the configured final proposal is active."""
+
+    limit = job.pause_after_proposals
+    if limit is None:
+        return None
+    for run_dir in targeted_run_dirs(job):
+        state = state_for(run_dir)
+        proposals_used = int(state.get("proposals_used", 0))
+        active = state.get("active")
+        active_index = (
+            int(active.get("index", 0)) if isinstance(active, dict) else None
+        )
+        if proposals_used >= limit or (
+            active_index is not None and active_index >= limit
+        ):
+            return f"automatic pause after proposal {limit}"
+    return None
 
 
 def cli_prefix(job: Job) -> list[str]:
@@ -753,6 +778,18 @@ class Supervisor:
             desired, reason = desired_for(job)
             with self.lock:
                 process = self.processes.get(job.key)
+
+            if desired == "running":
+                automatic_reason = automatic_pause_reason(job)
+                if automatic_reason is not None:
+                    set_desired(
+                        self.jobs,
+                        [job.key],
+                        "paused",
+                        automatic_reason,
+                    )
+                    desired, reason = "paused", automatic_reason
+                    self.log(f"armed {job.key}: {automatic_reason}")
 
             if desired != "running":
                 if process is not None and process.poll() is None:
