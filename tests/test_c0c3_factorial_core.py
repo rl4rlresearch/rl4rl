@@ -27,6 +27,13 @@ from experiments.c0c3_factorial.frameworks import (
     _strict_apply_diff,
     parse_flexible_metadata,
 )
+from experiments.c0c3_factorial.modal_nanogpt_app import (
+    AUTORESEARCH_LOCKED_DEPENDENCIES,
+    NANOGPT_APT_PACKAGES,
+    NANOGPT_BASE_IMAGE,
+    NANOGPT_KERNEL_PREFETCH_COMMAND,
+    NANOGPT_KERNEL_REPO,
+)
 from experiments.c0c3_factorial.neutral_task import (
     AUTORESEARCH_V17_PROMPT_PROFILE,
     NANOGPT_AUTORESEARCH_V17_PROMPT_PROFILE,
@@ -260,6 +267,24 @@ def test_nanogpt_artifact_clean_presets_are_three_fast_h100_blocks() -> None:
     assert (v21.blocks, v21.model.service_tier) == (3, "fast")
     assert task_spec.adapter == NANOGPT_TASK_ADAPTER
     assert task_spec.preferred_backend is ExecutionBackend.HYBRID_MODAL
+
+
+def test_nanogpt_modal_image_uses_pinned_upstream_direct_dependencies() -> None:
+    assert NANOGPT_BASE_IMAGE == "ubuntu:22.04"
+    assert NANOGPT_APT_PACKAGES == ("build-essential", "ca-certificates")
+    assert NANOGPT_KERNEL_REPO == "varunneal/flash-attention-3"
+    assert NANOGPT_KERNEL_REPO in NANOGPT_KERNEL_PREFETCH_COMMAND
+    assert AUTORESEARCH_LOCKED_DEPENDENCIES == (
+        "kernels==0.12.1",
+        "matplotlib==3.10.8",
+        "numpy==2.4.2",
+        "pandas==3.0.1",
+        "pyarrow==23.0.1",
+        "requests==2.32.5",
+        "rustbpe==0.1.0",
+        "tiktoken==0.12.0",
+        "torch==2.9.1",
+    )
 
 
 @pytest.mark.parametrize(
