@@ -140,7 +140,9 @@ def command_create(args: argparse.Namespace) -> int:
         framework=framework,
         calibration_path=args.baseline,
         repo_root=REPO_ROOT,
-        include_no_search=not args.without_no_search,
+        include_no_search=(
+            False if args.without_no_search else spec.include_no_search
+        ),
     )
     print(output)
     return 0
@@ -436,6 +438,45 @@ def command_status(args: argparse.Namespace) -> int:
     return 0
 
 
+def command_modal_usage(args: argparse.Namespace) -> int:
+    campaign = args.campaign.resolve()
+    path = campaign / "modal-usage.jsonl"
+    records = []
+    if path.is_file():
+        for line in path.read_text(encoding="utf-8", errors="replace").splitlines():
+            try:
+                value = json.loads(line)
+            except json.JSONDecodeError:
+                continue
+            if isinstance(value, dict):
+                records.append(value)
+    by_gpu: dict[str, float] = {}
+    for record in records:
+        gpu = str(record.get("gpu_name") or "unknown")
+        seconds = record.get("worker_seconds")
+        if isinstance(seconds, int | float) and not isinstance(seconds, bool):
+            by_gpu[gpu] = by_gpu.get(gpu, 0.0) + float(seconds)
+    payload = {
+        "schema_version": "1.0",
+        "campaign": str(campaign),
+        "calls": len(records),
+        "completed_calls": sum(
+            record.get("status") == "completed" for record in records
+        ),
+        "failed_calls": sum(record.get("status") == "failed" for record in records),
+        "worker_seconds": sum(by_gpu.values()),
+        "worker_hours": sum(by_gpu.values()) / 3600.0,
+        "worker_seconds_by_gpu": by_gpu,
+        "note": (
+            "This is campaign-attributed GPU wall time, not the Modal invoice. "
+            "Use `modal billing` or the Usage & Billing dashboard for credits, "
+            "storage, warm-idle time, and account limits."
+        ),
+    }
+    print(json.dumps(payload, indent=2, sort_keys=True))
+    return 0
+
+
 def command_validate(args: argparse.Namespace) -> int:
     campaign = args.campaign.resolve()
     spec, task, framework = _load_campaign(campaign)
@@ -614,6 +655,10 @@ def build_parser() -> argparse.ArgumentParser:
     status = subparsers.add_parser("status")
     status.add_argument("--campaign", type=Path, required=True)
     status.set_defaults(handler=command_status)
+
+    modal_usage = subparsers.add_parser("modal-usage")
+    modal_usage.add_argument("--campaign", type=Path, required=True)
+    modal_usage.set_defaults(handler=command_modal_usage)
 
     validate = subparsers.add_parser("validate")
     validate.add_argument("--campaign", type=Path, required=True)

@@ -5,12 +5,14 @@ from __future__ import annotations
 import concurrent.futures
 import csv
 import importlib.util
+import io
 import json
 import shutil
 import stat
 import sys
 import threading
 import time
+import zipfile
 from pathlib import Path
 from types import SimpleNamespace
 
@@ -32,17 +34,27 @@ from experiments.c0c3_factorial.campaign import (
     prepare_calibration,
 )
 from experiments.c0c3_factorial.codex_cli import CodexCli
-from experiments.c0c3_factorial.evaluator import CommandEvaluator
+from experiments.c0c3_factorial.evaluator import (
+    CommandEvaluator,
+    make_command_evaluator,
+)
 from experiments.c0c3_factorial.frameworks import (
     OpenEvolveAdapter,
     bundle_workspace,
     parse_metadata,
     unbundle_workspace,
 )
+from experiments.c0c3_factorial.hybrid_evaluator import (
+    ModalCommandEvaluator,
+    _archive_inputs,
+    _extract_outputs,
+)
 from experiments.c0c3_factorial.modal_app import safe_campaign_path
 from experiments.c0c3_factorial.neutral_task import (
     NEUTRAL_PROMPT_PROFILE,
     NEUTRAL_TASK_ADAPTER,
+    OPENEVOLVE_V2_PROMPT_PROFILE,
+    PAIR_TOKEN_TASK_ADAPTER_V2,
 )
 from experiments.c0c3_factorial.orchestration import (
     FACTORIAL_STAGE,
@@ -72,6 +84,7 @@ from experiments.c0c3_factorial.runner import (
     run_one_opportunity,
 )
 from experiments.c0c3_factorial.spec import (
+    OPENEVOLVE_V2_EXECUTION_RULE,
     PARALLEL_EXECUTION_RULE,
     STAGED_INDEPENDENT_EXECUTION_RULE,
     STAGED_INDIVIDUAL_EXECUTION_RULE,
@@ -294,6 +307,78 @@ def make_neutral_seed(root: Path) -> Path:
     (root / "src" / "train.py").write_text("VALUE = 1\n", encoding="utf-8")
     (root / "checkpoints" / "best.pt").write_text("seed", encoding="utf-8")
     return root
+
+
+def make_pair_token_seed(root: Path) -> Path:
+    for relative, source in {
+        "src/__init__.py": "",
+        "src/model.py": (
+            "class ModelConfig:\n    pass\nclass TinyDecoderLM:\n    pass\n"
+        ),
+        "src/data.py": (
+            "BOS_ID = 0\n"
+            "def preprocess(a, b):\n    return [a, b]\n"
+            "def postprocess(value):\n    return value\n"
+        ),
+        "src/eval.py": "VALUE = 1\n",
+        "src/train.py": "VALUE = 1\n",
+        "checkpoints/best.pt": "seed-checkpoint",
+    }.items():
+        path = root / relative
+        path.parent.mkdir(parents=True, exist_ok=True)
+        path.write_text(source, encoding="utf-8")
+    return root
+
+
+def openevolve_v2_protocol(*, blocks: int = 3) -> FactorialSpec:
+    return FactorialSpec(
+        protocol_version="2.0",
+        study_id="openevolve-v2-execution-test",
+        study_seed=20260823,
+        blocks=blocks,
+        portfolio_capacity=4,
+        transition_opportunities=(1,),
+        conversation_mode=ConversationMode.EPHEMERAL,
+        model=ModelSpec("gpt-fake", "xhigh"),
+        budget=BudgetSpec(
+            proposals=1,
+            candidate_evaluations=1,
+            max_total_tokens=1000,
+            max_evaluator_seconds=100.0,
+            evaluator_timeout_seconds=10,
+        ),
+        execution_rule=OPENEVOLVE_V2_EXECUTION_RULE,
+        include_no_search=False,
+    )
+
+
+def openevolve_v2_task(seed_source: Path) -> TaskSpec:
+    command = ("{python}", "-c", "raise SystemExit(0)")
+    return TaskSpec(
+        task_id="pair-transformer-v2-test",
+        display_name="trained transformer for 10-digit addition",
+        adapter=PAIR_TOKEN_TASK_ADAPTER_V2,
+        seed_source=str(seed_source),
+        editable_paths=("src/model.py", "src/train.py"),
+        evaluator_command=command,
+        objective_metric="parameters",
+        objective_direction=ObjectiveDirection.MINIMIZE,
+        qualification_metric="accuracy",
+        qualification_minimum=0.99,
+        public_feedback_metrics=("accuracy", "parameters", "training_steps"),
+        metric_patterns={},
+        final_holdout_command=command,
+        preferred_backend=ExecutionBackend.LOCAL,
+    )
+
+
+def openevolve_v2_framework() -> FrameworkSpec:
+    return FrameworkSpec(
+        framework_id=FrameworkKind.OPENEVOLVE,
+        adapter="controlled_openevolve_prompt_diff_v2",
+        prompt_profile=OPENEVOLVE_V2_PROMPT_PROFILE,
+        edit_mode="search_replace_diff",
+    )
 
 
 def neutral_task(seed_source: Path) -> TaskSpec:
@@ -590,6 +675,36 @@ print(json.dumps({{'type': 'turn.completed', 'usage': {{
     return path
 
 
+def make_fake_v2_diff_codex(path: Path) -> Path:
+    prompt_log = path.with_suffix(".prompt.md")
+    path.write_text(
+        f"""#!{sys.executable}
+import json
+import pathlib
+import sys
+
+args = sys.argv[1:]
+last = pathlib.Path(args[args.index('--output-last-message') + 1])
+prompt = sys.stdin.read()
+pathlib.Path({str(prompt_log)!r}).write_text(prompt)
+last.write_text(
+    'MECHANISM: change the training constant\\n'
+    'HYPOTHESIS: changing the constant exercises strict patching\\n'
+    'INTENDED_EDIT: set the training constant to two\\n'
+    'EVIDENCE: the supplied parent contains the old constant\\n'
+    '<<<<<<< SEARCH\\nVALUE = 1\\n=======\\nVALUE = 2\\n>>>>>>> REPLACE\\n'
+)
+print(json.dumps({{'type': 'turn.completed', 'usage': {{
+    'input_tokens': 8, 'cached_input_tokens': 2, 'output_tokens': 4,
+    'reasoning_output_tokens': 1
+}}}}))
+""",
+        encoding="utf-8",
+    )
+    path.chmod(path.stat().st_mode | stat.S_IXUSR)
+    return path
+
+
 def test_candidate_snapshot_and_bundle_round_trip(tmp_path: Path) -> None:
     workspace = make_seed(tmp_path / "seed")
     identifier, snapshot = snapshot_candidate(
@@ -857,6 +972,123 @@ def test_portable_calibration_can_execute_on_a_later_backend(tmp_path: Path) -> 
     )
 
 
+def test_openevolve_v2_campaign_is_twelve_primary_c0c3_runs_without_n0(
+    tmp_path: Path,
+) -> None:
+    spec = openevolve_v2_protocol()
+    seed_source = make_pair_token_seed(tmp_path / "source")
+    task_spec = openevolve_v2_task(seed_source)
+    framework_spec = openevolve_v2_framework()
+    calibration = prepare_calibration(
+        tmp_path / "calibration",
+        spec=spec,
+        task=task_spec,
+        repo_root=ROOT,
+    )
+    prepared = json.loads((calibration / "calibration.json").read_text())
+    baseline = {
+        "schema_version": "1.0",
+        "task_id": task_spec.task_id,
+        "candidate_id": prepared["candidate_id"],
+        "support_tree_sha256": prepared["support_tree_sha256"],
+        "fitness": -1644.0,
+        "metrics": {
+            "accuracy": 1.0,
+            "parameters": 1644,
+            "training_steps": 5000,
+        },
+        "evaluator_seconds": 0.0,
+        "protocol_hash": spec.protocol_hash,
+        "calibration_kind": "executed_on_target_backend",
+    }
+    baseline_path = calibration / "baseline.json"
+    baseline_path.write_text(
+        json.dumps(baseline, indent=2, sort_keys=True) + "\n",
+        encoding="utf-8",
+    )
+
+    campaign = create_campaign(
+        tmp_path / "campaign",
+        spec=spec,
+        task=task_spec,
+        framework=framework_spec,
+        calibration_path=baseline_path,
+        repo_root=ROOT,
+    )
+    schedule = json.loads((campaign / "schedule.json").read_text())
+    manifest = json.loads((campaign / "campaign.json").read_text())
+
+    assert len(schedule) == 12
+    assert {row["condition"] for row in schedule} == {"C0", "C1", "C2", "C3"}
+    assert all(
+        sorted(row["condition"] for row in schedule if row["block"] == block)
+        == ["C0", "C1", "C2", "C3"]
+        for block in (1, 2, 3)
+    )
+    assert manifest["include_no_search"] is False
+    assert manifest["primary_run_ids"] == [row["run_id"] for row in schedule]
+    assert manifest["optional_run_ids"] == []
+    assert validate_campaign(
+        campaign,
+        spec=spec,
+        task=task_spec,
+        framework=framework_spec,
+        repo_root=ROOT,
+    )["valid"] is True
+
+    with pytest.raises(ValueError, match="forbids N0"):
+        create_campaign(
+            tmp_path / "invalid-campaign",
+            spec=spec,
+            task=task_spec,
+            framework=framework_spec,
+            calibration_path=baseline_path,
+            repo_root=ROOT,
+            include_no_search=True,
+        )
+
+
+def test_hybrid_modal_transport_archives_only_explicit_inputs_and_is_fail_closed(
+    tmp_path: Path,
+) -> None:
+    support = tmp_path / "support"
+    candidate = tmp_path / "candidate"
+    support.mkdir()
+    candidate.mkdir()
+    (support / "protected.py").write_text("VALUE = 1\n", encoding="utf-8")
+    (candidate / "model.py").write_text("VALUE = 2\n", encoding="utf-8")
+
+    payload = _archive_inputs(support, candidate)
+    with zipfile.ZipFile(io.BytesIO(payload)) as archive:
+        assert set(archive.namelist()) == {
+            "candidate/model.py",
+            "support/protected.py",
+        }
+
+    unsafe = io.BytesIO()
+    with zipfile.ZipFile(unsafe, "w") as archive:
+        archive.writestr("../outside.txt", "unsafe")
+    with pytest.raises(ValueError, match="unsafe archive path"):
+        _extract_outputs(unsafe.getvalue(), tmp_path / "outputs")
+    assert not (tmp_path / "outside.txt").exists()
+
+
+def test_hybrid_modal_backend_uses_evaluator_only_transport(tmp_path: Path) -> None:
+    task_spec = openevolve_v2_task(make_pair_token_seed(tmp_path / "source"))
+    hybrid_task = TaskSpec(
+        **{**task_spec.__dict__, "preferred_backend": ExecutionBackend.HYBRID_MODAL}
+    )
+
+    evaluator = make_command_evaluator(
+        task=hybrid_task,
+        support_source=tmp_path / "support",
+        repo_root=ROOT,
+        python_bin=sys.executable,
+    )
+
+    assert isinstance(evaluator, ModalCommandEvaluator)
+
+
 def test_runtime_hash_change_fails_validation_and_execution(tmp_path: Path) -> None:
     seed_source = make_seed(tmp_path / "source")
     baseline = calibrate_task(
@@ -960,6 +1192,58 @@ def test_controlled_openevolve_uses_vendor_prompt_and_diff_primitives(
     )
     assert result.adapter_error is None
     assert (workspace / "candidate.py").read_text() == "SCORE = 1\n"
+
+
+def test_openevolve_v2_adapter_uses_bounded_neutral_strict_patch_prompt(
+    tmp_path: Path,
+) -> None:
+    if importlib.util.find_spec("dacite") is None:
+        pytest.skip("OpenEvolve dependencies live in architecture_discovery/.venv")
+    workspace = make_pair_token_seed(tmp_path / "workspace")
+    visible = make_pair_token_seed(tmp_path / "visible")
+    fake_codex = make_fake_v2_diff_codex(tmp_path / "fake-v2-diff-codex")
+    adapter = OpenEvolveAdapter(
+        CodexCli(str(fake_codex)),
+        vendor_root=ROOT / "architecture_discovery/vendor/openevolve",
+        v2=True,
+        template_root=ROOT / "experiments/c0c3_factorial/templates/openevolve_v2",
+    )
+    rendered = RenderedPrompt(
+        text="Optimize a learned transformer without external access.",
+        common_template_sha256="a",
+        search_state_sha256="b",
+        proposal_policy_sha256="c",
+        prompt_sha256="d",
+        transition_active=False,
+    )
+    result = adapter.propose(
+        rendered=rendered,
+        workspace=workspace,
+        model=ModelSpec("gpt-fake", "high"),
+        log_root=tmp_path / "logs",
+        call_id="proposal-1",
+        timeout_seconds=10,
+        task=openevolve_v2_task(workspace),
+        visible_workspaces=(visible,),
+        selected_parent_id="seed",
+        visible_records=(
+            {
+                "candidate_id": "seed",
+                "metrics": {"accuracy": 1.0, "parameters": 1644},
+            },
+        ),
+        run_seed=42,
+        neutral_subject=True,
+    )
+
+    assert result.adapter_error is None
+    assert result.mechanism == "change the training constant"
+    assert result.evidence == "the supplied parent contains the old constant"
+    assert (workspace / "src/train.py").read_text() == "VALUE = 2\n"
+    prompt = fake_codex.with_suffix(".prompt.md").read_text()
+    assert prompt.count("===== FILE: src/model.py =====") == 1
+    assert "OpenEvolve" not in prompt
+    assert "MECHANISM, HYPOTHESIS, INTENDED_EDIT, and EVIDENCE" in prompt
 
 
 def test_layer_b_is_sealed_until_completion_then_scores_factorial(

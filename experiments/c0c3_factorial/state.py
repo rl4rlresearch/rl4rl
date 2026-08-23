@@ -422,6 +422,8 @@ class SearchController:
         evaluation: Evaluation,
         usage: Usage,
         prompt_hashes: dict[str, str],
+        mechanism: str = "[not recorded]",
+        evidence: str = "[not recorded]",
     ) -> dict[str, Any]:
         active = self.state.active
         if active is None:
@@ -502,6 +504,8 @@ class SearchController:
             ),
             "hypothesis": hypothesis,
             "intended_edit": intended_edit,
+            "mechanism": mechanism,
+            "evidence": evidence,
             "candidate_id": candidate_id,
             "parent_ids": [active.selected_parent_id],
             "artifact_path": artifact_path,

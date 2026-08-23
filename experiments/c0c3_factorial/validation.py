@@ -11,11 +11,12 @@ from .neutral_task import (
     NEUTRAL_TASK_ADAPTER,
     PAIR_TOKEN_SANITIZED_SEED_PATHS,
     PAIR_TOKEN_TASK_ADAPTER,
+    PAIR_TOKEN_TASK_ADAPTER_V2,
     SANITIZED_SEED_PATHS,
+    SUBJECT_NEUTRAL_PROMPT_PROFILES,
     validate_v15_pairing,
 )
 from .prompts import (
-    NEUTRAL_PROMPT_PROFILE,
     PromptContext,
     PromptRenderer,
     VisibleCandidate,
@@ -86,16 +87,25 @@ def validate_campaign(
             PARALLEL_EXECUTION_RULE,
             *STAGED_EXECUTION_RULES,
         }
-        and task.preferred_backend is not ExecutionBackend.LOCAL
+        and task.preferred_backend
+        not in {ExecutionBackend.LOCAL, ExecutionBackend.HYBRID_MODAL}
     ):
         errors.append(
             "parallel condition rounds currently require a local task backend"
         )
+    if (
+        task.preferred_backend is ExecutionBackend.HYBRID_MODAL
+        and spec.protocol_version != "2.0"
+    ):
+        errors.append("hybrid Modal evaluation is frozen only for protocol 2.0")
     schedule = json.loads((campaign / "schedule.json").read_text(encoding="utf-8"))
     run_ids = [str(row["run_id"]) for row in schedule]
     if len(run_ids) != len(set(run_ids)):
         errors.append("campaign schedule contains duplicate run IDs")
     expected_primary = (
+        run_ids
+        if spec.protocol_version == "2.0"
+        else
         [
             str(row["run_id"])
             for row in schedule
@@ -112,10 +122,13 @@ def validate_campaign(
         errors.append("campaign primary run scope mismatch")
     if manifest.get("optional_run_ids") != expected_optional:
         errors.append("campaign optional run scope mismatch")
+    if manifest.get("include_no_search") != spec.include_no_search:
+        errors.append("campaign N0 composition differs from the frozen protocol")
     if (
         spec.execution_rule
         in STAGED_EXECUTION_RULES
         and not manifest.get("include_no_search")
+        and spec.protocol_version != "2.0"
     ):
         errors.append("staged protocol requires pre-created N0 extensions")
     for block in range(1, spec.blocks + 1):
@@ -161,7 +174,11 @@ def validate_campaign(
             errors.append(f"{assignment['run_id']} invalid: {error}")
     if len(support_hashes) != 1:
         errors.append("run task-support trees are not byte-identical")
-    if task.adapter in {NEUTRAL_TASK_ADAPTER, PAIR_TOKEN_TASK_ADAPTER}:
+    if task.adapter in {
+        NEUTRAL_TASK_ADAPTER,
+        PAIR_TOKEN_TASK_ADAPTER,
+        PAIR_TOKEN_TASK_ADAPTER_V2,
+    }:
         sanitized_paths = (
             SANITIZED_SEED_PATHS
             if task.adapter == NEUTRAL_TASK_ADAPTER
@@ -215,7 +232,7 @@ def validate_campaign(
                 remaining_evaluator_seconds=spec.budget.max_evaluator_seconds,
             )
             prompts[condition] = renderer.render(spec, task, framework, context)
-            if framework.prompt_profile == NEUTRAL_PROMPT_PROFILE:
+            if framework.prompt_profile in SUBJECT_NEUTRAL_PROMPT_PROFILES:
                 disclosures = neutral_disclosure_terms(prompts[condition].text)
                 if disclosures:
                     errors.append(
@@ -240,7 +257,9 @@ def validate_campaign(
             errors.append(
                 f"proposal-policy factor mismatch at opportunity {opportunity}"
             )
-        if framework.prompt_profile == NEUTRAL_PROMPT_PROFILE:
+        if framework.prompt_profile in SUBJECT_NEUTRAL_PROMPT_PROFILES:
+            if not spec.include_no_search:
+                continue
             n0_context = PromptContext(
                 condition=Condition.C0,
                 opportunity=opportunity,
@@ -302,6 +321,7 @@ def validate_campaign(
                 spec.execution_rule
                 == STAGED_CONFINED_INDIVIDUAL_EXECUTION_RULE
             ),
+            "n0_removed_by_protocol": not spec.include_no_search,
             "layer_b_c_absent_at_launch": layers_absent,
         },
     }

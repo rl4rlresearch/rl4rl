@@ -41,6 +41,9 @@ elif PROFILE == "1644-confined-fresh":
         REPO_ROOT / "data/c0c3/overnight-control-1644-confined-fresh"
     )
     DEFAULT_SCREEN_SESSION = "rl4rl-c0c3-1644-confined-fresh"
+elif PROFILE == "openevolve-v2":
+    DEFAULT_CONTROL_ROOT = REPO_ROOT / "data/c0c3/overnight-control-openevolve-v2"
+    DEFAULT_SCREEN_SESSION = "rl4rl-c0c3-openevolve-v2"
 else:
     raise RuntimeError(f"unknown overnight profile: {PROFILE}")
 CONTROL_ROOT = Path(
@@ -143,6 +146,23 @@ def plans(profile: str | None = None) -> tuple[CampaignPlan, ...]:
                         "/private/tmp/"
                         "rl4rl-v16-codex1644-confined-campaign-fresh-20260822c"
                     ),
+                ),
+                mode="individual-trajectories",
+                blocks=(1, 2, 3),
+            ),
+        )
+    if selected_profile == "openevolve-v2":
+        return (
+            CampaignPlan(
+                key="openevolve-v2",
+                runtime_root=_env_path(
+                    "RL4RL_OPENEVOLVE_V2_RUNTIME",
+                    Path("/private/tmp/rl4rl-c0c3-openevolve-v2"),
+                ),
+                campaign=_env_path(
+                    "RL4RL_OPENEVOLVE_V2_CAMPAIGN",
+                    REPO_ROOT
+                    / "data/c0c3/controlled-openevolve-transformer-v2-mps-campaign",
                 ),
                 mode="individual-trajectories",
                 blocks=(1, 2, 3),

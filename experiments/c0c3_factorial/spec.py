@@ -78,6 +78,7 @@ class FrameworkKind(StrEnum):
 class ExecutionBackend(StrEnum):
     LOCAL = "local"
     MODAL = "modal"
+    HYBRID_MODAL = "hybrid_modal"
 
 
 PORTFOLIO_RETENTION_RULE = (
@@ -96,24 +97,29 @@ STAGED_INDIVIDUAL_EXECUTION_RULE = "staged_individually_controlled_trajectories_
 STAGED_CONFINED_INDIVIDUAL_EXECUTION_RULE = (
     "staged_confined_individually_controlled_trajectories_v1"
 )
+OPENEVOLVE_V2_EXECUTION_RULE = (
+    "confined_individually_controlled_c0c3_only_trajectories_v2"
+)
 STAGED_EXECUTION_RULES = frozenset(
     {
         STAGED_PARALLEL_EXECUTION_RULE,
         STAGED_INDEPENDENT_EXECUTION_RULE,
         STAGED_INDIVIDUAL_EXECUTION_RULE,
         STAGED_CONFINED_INDIVIDUAL_EXECUTION_RULE,
+        OPENEVOLVE_V2_EXECUTION_RULE,
     }
 )
 INDIVIDUAL_EXECUTION_RULES = frozenset(
     {
         STAGED_INDIVIDUAL_EXECUTION_RULE,
         STAGED_CONFINED_INDIVIDUAL_EXECUTION_RULE,
+        OPENEVOLVE_V2_EXECUTION_RULE,
     }
 )
 # Protocol 1.6 permits every Codex trajectory to think concurrently while
 # bounding local trainers. This avoids timeout artifacts from twelve training
 # jobs oversubscribing one laptop and is identical in every factorial cell.
-EVALUATOR_CONCURRENCY_BY_PROTOCOL = {"1.6": 3}
+EVALUATOR_CONCURRENCY_BY_PROTOCOL = {"1.6": 3, "2.0": 3}
 # Backward-compatible name for the original paper-v1 execution rule.
 EXECUTION_RULE = SERIAL_EXECUTION_RULE
 PROTOCOL_EXECUTION_RULES = {
@@ -124,6 +130,7 @@ PROTOCOL_EXECUTION_RULES = {
     "1.4": STAGED_INDEPENDENT_EXECUTION_RULE,
     "1.5": STAGED_INDIVIDUAL_EXECUTION_RULE,
     "1.6": STAGED_CONFINED_INDIVIDUAL_EXECUTION_RULE,
+    "2.0": OPENEVOLVE_V2_EXECUTION_RULE,
 }
 
 
@@ -210,6 +217,7 @@ class FactorialSpec:
     single_retention_rule: str = SINGLE_RETENTION_RULE
     failure_rule: str = FAILURE_RULE
     execution_rule: str = EXECUTION_RULE
+    include_no_search: bool = True
 
     def __post_init__(self) -> None:
         if self.protocol_version not in PROTOCOL_EXECUTION_RULES:
@@ -229,6 +237,8 @@ class FactorialSpec:
             raise ValueError("unknown single-incumbent retention rule")
         if self.failure_rule != FAILURE_RULE:
             raise ValueError("unknown failure rule")
+        if not isinstance(self.include_no_search, bool):
+            raise ValueError("include_no_search must be boolean")
         expected_execution_rule = PROTOCOL_EXECUTION_RULES[self.protocol_version]
         if self.execution_rule != expected_execution_rule:
             raise ValueError(
@@ -250,6 +260,13 @@ class FactorialSpec:
             raise ValueError(
                 "continuous Codex sessions require a separately versioned protocol"
             )
+        if self.protocol_version == "2.0":
+            if self.include_no_search:
+                raise ValueError("protocol 2.0 removes the N0 no-search baseline")
+            if self.conversation_mode is not ConversationMode.EPHEMERAL:
+                raise ValueError(
+                    "protocol 2.0 requires bounded ephemeral proposal sessions"
+                )
         schedule = self.transition_opportunities
         if tuple(sorted(set(schedule))) != schedule:
             raise ValueError("transition schedule must be sorted and unique")
@@ -266,6 +283,7 @@ class FactorialSpec:
     def from_toml(cls, path: str | Path) -> FactorialSpec:
         payload = tomllib.loads(Path(path).read_text(encoding="utf-8"))
         payload.setdefault("conversation_mode", ConversationMode.EPHEMERAL.value)
+        payload.setdefault("include_no_search", True)
         _strict_keys(
             payload,
             {
@@ -281,6 +299,7 @@ class FactorialSpec:
                 "single_retention_rule",
                 "failure_rule",
                 "execution_rule",
+                "include_no_search",
                 "model",
                 "budget",
             },

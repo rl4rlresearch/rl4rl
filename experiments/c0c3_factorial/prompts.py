@@ -7,7 +7,13 @@ import json
 from dataclasses import dataclass
 from pathlib import Path
 
-from .neutral_task import NEUTRAL_PROMPT_PROFILE
+from .neutral_task import (
+    NEUTRAL_PROMPT_PROFILE as _NEUTRAL_PROMPT_PROFILE,
+)
+from .neutral_task import (
+    OPENEVOLVE_V2_PROMPT_PROFILE,
+    SUBJECT_NEUTRAL_PROMPT_PROFILES,
+)
 from .spec import (
     Condition,
     ConversationMode,
@@ -21,6 +27,9 @@ SEARCH_SLOT_OPEN = "<!-- TREATMENT:SEARCH_STATE:BEGIN -->"
 SEARCH_SLOT_CLOSE = "<!-- TREATMENT:SEARCH_STATE:END -->"
 POLICY_SLOT_OPEN = "<!-- TREATMENT:PROPOSAL_POLICY:BEGIN -->"
 POLICY_SLOT_CLOSE = "<!-- TREATMENT:PROPOSAL_POLICY:END -->"
+
+# Backward-compatible public location used by existing analysis/tests.
+NEUTRAL_PROMPT_PROFILE = _NEUTRAL_PROMPT_PROFILE
 
 NEUTRAL_SEARCH_SLOT_OPEN = "<!-- DESIGN_CONTEXT:BEGIN -->"
 NEUTRAL_SEARCH_SLOT_CLOSE = "<!-- DESIGN_CONTEXT:END -->"
@@ -64,6 +73,8 @@ class VisibleOutcome:
     valid: bool
     retained: bool
     failure_kind: str | None
+    mechanism: str = "[not recorded]"
+    evidence: str = "[not recorded]"
 
 
 @dataclass(frozen=True)
@@ -78,6 +89,7 @@ class PromptContext:
     remaining_evaluator_seconds: float
     no_search: bool = False
     recent_outcomes: tuple[VisibleOutcome, ...] = ()
+    mechanism_ledger: str = "No earlier mechanism result is available."
 
 
 @dataclass(frozen=True)
@@ -112,6 +124,13 @@ class PromptRenderer:
         self.neutral_transition = (
             neutral_root / "assumption_changing.md"
         ).read_text(encoding="utf-8").strip()
+        openevolve_root = root / "transformer_optimizer_openevolve_v2"
+        self.openevolve_v2_common_template = (
+            openevolve_root / "PROGRAM.md"
+        ).read_text(encoding="utf-8")
+        self.openevolve_v2_transition = (
+            openevolve_root / "assumption_changing.md"
+        ).read_text(encoding="utf-8").strip()
         self._require_tokens(
             self.common_template,
             {
@@ -134,6 +153,20 @@ class PromptRenderer:
                 "{conversation_contract}",
                 "{design_context}",
                 "{recent_outcomes}",
+                "{proposal_guidance}",
+                "{opportunity}",
+                "{budget_status}",
+            },
+        )
+        self._require_tokens(
+            self.openevolve_v2_common_template,
+            {
+                "{task_contract}",
+                "{framework_contract}",
+                "{conversation_contract}",
+                "{design_context}",
+                "{recent_outcomes}",
+                "{mechanism_ledger}",
                 "{proposal_guidance}",
                 "{opportunity}",
                 "{budget_status}",
@@ -193,7 +226,12 @@ class PromptRenderer:
         )
 
     @staticmethod
-    def _neutral_framework_contract(_framework: FrameworkSpec) -> str:
+    def _neutral_framework_contract(framework: FrameworkSpec) -> str:
+        if framework.framework_id is FrameworkKind.OPENEVOLVE:
+            return (
+                "Propose changes through exact SEARCH/REPLACE blocks. The patching "
+                "interface applies them to the supplied editable source."
+            )
         return (
             "Edit the current source tree directly. Leave the one finished change "
             "in the workspace for the verification process."
@@ -342,6 +380,8 @@ class PromptRenderer:
                 f"WORK CYCLE {outcome.opportunity}\n"
                 f"hypothesis: {outcome.hypothesis}\n"
                 f"change: {outcome.intended_edit}\n"
+                f"mechanism: {outcome.mechanism}\n"
+                f"evidence_used: {outcome.evidence}\n"
                 f"result: {result}\n"
                 f"reported_values: {json.dumps(outcome.metrics, sort_keys=True)}"
             )
@@ -354,7 +394,8 @@ class PromptRenderer:
         framework: FrameworkSpec,
         context: PromptContext,
     ) -> RenderedPrompt:
-        neutral = framework.prompt_profile == NEUTRAL_PROMPT_PROFILE
+        neutral = framework.prompt_profile in SUBJECT_NEUTRAL_PROMPT_PROFILES
+        openevolve_v2 = framework.prompt_profile == OPENEVOLVE_V2_PROMPT_PROFILE
         transition_active = (
             False
             if context.no_search
@@ -395,7 +436,11 @@ class PromptRenderer:
             )
             if transition_active:
                 if neutral:
-                    proposal_policy = self.neutral_transition
+                    proposal_policy = (
+                        self.openevolve_v2_transition
+                        if openevolve_v2
+                        else self.neutral_transition
+                    )
                 else:
                     proposal_policy = (
                         self.continuous_autoresearch_transition
@@ -427,7 +472,11 @@ class PromptRenderer:
                 f"{NEUTRAL_POLICY_SLOT_OPEN}\n{proposal_policy}\n"
                 f"{NEUTRAL_POLICY_SLOT_CLOSE}"
             )
-            common_template = self.neutral_common_template
+            common_template = (
+                self.openevolve_v2_common_template
+                if openevolve_v2
+                else self.neutral_common_template
+            )
             text = common_template.format(
                 task_contract=self._neutral_task_contract(task),
                 framework_contract=self._neutral_framework_contract(framework),
@@ -436,6 +485,7 @@ class PromptRenderer:
                 recent_outcomes=self._neutral_recent_outcomes(
                     () if context.no_search else context.recent_outcomes
                 ),
+                mechanism_ledger=context.mechanism_ledger,
                 proposal_guidance=guidance,
                 opportunity=context.opportunity,
                 budget_status=budget,

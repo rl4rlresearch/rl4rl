@@ -48,6 +48,18 @@ def test_1644_confined_fresh_profile_is_independent_and_declares_three_blocks() 
     assert roster[0].campaign.name.endswith("campaign-fresh-20260822c")
 
 
+def test_openevolve_v2_profile_declares_three_individually_controlled_blocks() -> None:
+    roster = plans("openevolve-v2")
+
+    assert len(roster) == 1
+    assert roster[0].key == "openevolve-v2"
+    assert roster[0].mode == "individual-trajectories"
+    assert roster[0].blocks == (1, 2, 3)
+    assert roster[0].campaign.name == (
+        "controlled-openevolve-transformer-v2-mps-campaign"
+    )
+
+
 def test_individual_plan_expands_only_declared_factorial_blocks(tmp_path: Path) -> None:
     campaign = tmp_path / "campaign"
     _write_json(

@@ -22,10 +22,13 @@ from .artifacts import (
     snapshot_candidate,
 )
 from .codex_cli import CodexCli, session_id_from_events, usage_from_events
-from .evaluator import CommandEvaluator
+from .evaluator import make_command_evaluator
 from .frameworks import make_framework_adapter
+from .neutral_task import (
+    PAIR_TOKEN_TASK_ADAPTER_V2,
+    SUBJECT_NEUTRAL_PROMPT_PROFILES,
+)
 from .prompts import (
-    NEUTRAL_PROMPT_PROFILE,
     PromptContext,
     PromptRenderer,
     VisibleCandidate,
@@ -40,6 +43,7 @@ from .spec import (
     TaskSpec,
 )
 from .state import Evaluation, SearchController
+from .task_evaluators import preflight_candidate_source
 
 
 class RunLockedError(RuntimeError):
@@ -215,9 +219,67 @@ def _recent_outcomes(run_dir: Path, *, limit: int = 12) -> tuple[VisibleOutcome,
                     if evaluation.get("failure_kind") is not None
                     else None
                 ),
+                mechanism=str(record.get("mechanism", "[not recorded]")),
+                evidence=str(record.get("evidence", "[not recorded]")),
             )
         )
     return tuple(outcomes[-limit:])
+
+
+def _mechanism_ledger(run_dir: Path, *, limit: int = 24) -> str:
+    """Summarize free-form mechanism provenance without replaying raw history."""
+
+    events = run_dir / "events.jsonl"
+    if not events.is_file():
+        return "No earlier mechanism result is available."
+    grouped: dict[str, dict[str, object]] = {}
+    order: list[str] = []
+    for line in events.read_text(encoding="utf-8", errors="replace").splitlines():
+        try:
+            record = json.loads(line)
+        except json.JSONDecodeError:
+            continue
+        if record.get("event") != "proposal_completed":
+            continue
+        label = str(record.get("mechanism", "[not recorded]")).strip()
+        key = label.casefold()
+        if key not in grouped:
+            grouped[key] = {"label": label, "attempts": 0}
+            order.append(key)
+        summary = grouped[key]
+        summary["attempts"] = int(summary["attempts"]) + 1
+        evaluation = record.get("evaluation")
+        valid = isinstance(evaluation, dict) and bool(evaluation.get("valid"))
+        summary["last_result"] = (
+            "qualified"
+            if valid
+            else str(
+                evaluation.get("failure_kind", "failed")
+                if isinstance(evaluation, dict)
+                else "failed"
+            )
+        )
+        if valid and isinstance(evaluation, dict):
+            metrics = evaluation.get("metrics")
+            if isinstance(metrics, dict) and isinstance(
+                metrics.get("parameters"), int | float
+            ):
+                value = int(metrics["parameters"])
+                previous = summary.get("best_parameters")
+                summary["best_parameters"] = (
+                    value if not isinstance(previous, int) else min(previous, value)
+                )
+    if not grouped:
+        return "No earlier mechanism result is available."
+    rows = []
+    for key in order[-limit:]:
+        value = grouped[key]
+        best = value.get("best_parameters", "none")
+        rows.append(
+            f"- {value['label']}: attempts={value['attempts']}; "
+            f"last={value['last_result']}; best_qualified_parameters={best}"
+        )
+    return "\n".join(rows)
 
 
 def _copy_editable_files(
@@ -285,7 +347,7 @@ def _run_one_opportunity_unlocked(
         workspace,
         task.editable_paths,
     )
-    neutral_subject = framework.prompt_profile == NEUTRAL_PROMPT_PROFILE
+    neutral_subject = framework.prompt_profile in SUBJECT_NEUTRAL_PROMPT_PROFILES
     reference_directory = (
         ".design-references" if neutral_subject else ".factorial-visible"
     )
@@ -343,6 +405,11 @@ def _run_one_opportunity_unlocked(
             ()
             if controller.state.no_search or not neutral_subject
             else _recent_outcomes(run_dir)
+        ),
+        mechanism_ledger=(
+            _mechanism_ledger(run_dir)
+            if framework.adapter == "controlled_openevolve_prompt_diff_v2"
+            else "No earlier mechanism result is available."
         ),
     )
     renderer = PromptRenderer(repo_root / "experiments/c0c3_factorial/templates")
@@ -446,26 +513,41 @@ def _run_one_opportunity_unlocked(
                 f"duplicate:{candidate_id}:{controller.state.run_id}:{active.index}"
             ).encode()
         ).hexdigest()
-    if proposal.codex.returncode != 0 or adapter_error:
+    preflight_error = None
+    if (
+        proposal.codex.returncode == 0
+        and adapter_error is None
+        and task.adapter == PAIR_TOKEN_TASK_ADAPTER_V2
+    ):
+        preflight_error = preflight_candidate_source(workspace)
+    if proposal.codex.returncode != 0 or adapter_error or preflight_error:
+        failure_kind = (
+            "provider"
+            if proposal.codex.returncode != 0
+            else (
+                "source_preflight"
+                if preflight_error is not None
+                else proposal.adapter_failure_kind or "invalid_candidate"
+            )
+        )
         evaluation = Evaluation(
             valid=False,
             fitness=None,
             metrics={
                 "codex_returncode": proposal.codex.returncode,
                 "adapter_error": adapter_error,
+                "preflight_error": preflight_error,
                 "protected_changed": protected_changed,
             },
             evaluator_seconds=0.0,
             evaluator_calls=0,
-            failure_kind=(
-                "provider" if proposal.codex.returncode != 0 else "invalid_candidate"
-            ),
+            failure_kind=failure_kind,
         )
     else:
         max_parallel_evaluators = EVALUATOR_CONCURRENCY_BY_PROTOCOL.get(
             spec.protocol_version
         )
-        evaluator = CommandEvaluator(
+        evaluator = make_command_evaluator(
             task=task,
             support_source=support_source,
             repo_root=repo_root,
@@ -492,6 +574,8 @@ def _run_one_opportunity_unlocked(
         evaluation=evaluation,
         usage=proposal.codex.usage,
         prompt_hashes=_hashes(rendered),
+        mechanism=proposal.mechanism,
+        evidence=proposal.evidence,
     )
     if workspace.exists():
         _make_tree_owner_writable(workspace)

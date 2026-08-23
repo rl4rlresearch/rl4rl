@@ -64,6 +64,20 @@ lifecycle. It must use a fresh calibration and campaign. Do not reuse
 protocol-1.4 artifacts, and do not expose the internal campaign directory or
 documentation to a subject session.
 
+For prospective controlled OpenEvolve protocol 2.0, use:
+
+```bash
+PROTOCOL=$C0C3/configs/protocols/controlled_openevolve_transformer_v2.toml
+TASK=$C0C3/configs/tasks/ten_digit_addition_pair_transformer_openevolve_v2_mps.toml
+FRAMEWORK=$C0C3/configs/frameworks/openevolve_v2.toml
+OUT=data/c0c3/controlled-openevolve-transformer-v2-mps
+```
+
+Protocol 2.0 creates three C0–C3-only blocks and no N0. It uses bounded
+ephemeral Codex proposals, the 1,644-parameter pair-token parent, and a strict
+5,000-step-compatible learned-transformer evaluator. See
+[OPENEVOLVE_V2.md](OPENEVOLVE_V2.md) before calibration or launch.
+
 Verify prerequisites:
 
 ```bash
@@ -74,6 +88,9 @@ $PY -m pytest -q tests/test_c0c3_factorial_core.py tests/test_c0c3_execution.py
 
 Codex must already be authenticated. Scientific calls use the model and
 reasoning effort frozen in the protocol TOML, not a user config default.
+For the protocol-2.0 MPS task, also require
+`torch.backends.mps.is_available()` to be true in this exact runtime; never
+silently substitute CPU or Modal after calibration.
 
 ## 2. Calibrate the frozen seed on the target backend
 
@@ -119,8 +136,10 @@ $PY -m $CLI create \
   --output "$OUT-campaign"
 ```
 
-By default this creates C0–C3 plus N0 in every block. `--without-no-search` is
-available only for engineering diagnostics; paper campaigns include N0.
+By default protocols 1.0–1.6 create C0–C3 plus N0 in every block.
+`--without-no-search` is available only for engineering diagnostics in those
+protocols. Protocol 2.0 freezes `include_no_search=false`, creates only C0–C3,
+and rejects an attempted N0 override.
 
 Campaign contents include:
 
@@ -379,6 +398,43 @@ automatically charges/recoveries an interrupted opportunity before relaunching
 only that trajectory. Inspect its `status`, `supervisor.log`, per-job logs, the
 campaign thread registry, and each run's `state.json`/`events.jsonl`.
 
+### Protocol 2.0 controlled OpenEvolve trajectories
+
+Use the same individual start/pause/resume commands as protocol 1.6. All twelve
+C0–C3 run IDs are primary scope and may be supervised independently; no N0 run
+exists. For detached local MPS operation, first create a detached worktree at
+the exact committed launch revision, then use the `openevolve-v2` supervisor
+profile:
+
+```bash
+git worktree add --detach /private/tmp/rl4rl-c0c3-openevolve-v2 HEAD
+
+RL4RL_OVERNIGHT_PROFILE=openevolve-v2 \
+  $PY experiments/c0c3_overnight.py check
+
+RL4RL_OVERNIGHT_PROFILE=openevolve-v2 \
+  $PY experiments/c0c3_overnight.py start \
+  --recover-interrupted --all-running
+```
+
+Set `RL4RL_OPENEVOLVE_V2_CAMPAIGN` or `RL4RL_OPENEVOLVE_V2_RUNTIME` only before
+the supervisor starts if nondefault paths are required. Use the same environment
+variables for later status/pause/resume operations. The v2 profile does not
+touch the primary or v1.6 profiles.
+
+For evaluator-only Modal L4 offload, deploy `modal_hybrid_app.py`, select the
+v2 Modal task TOML before calibration, and retain local Codex execution. Inspect
+campaign-attributed GPU time with:
+
+```bash
+$PY -m $CLI modal-usage --campaign "$OUT-campaign"
+architecture_discovery/.venv/bin/modal billing --help
+```
+
+MPS and Modal require distinct calibrations and campaigns. The local ledger is
+not the authoritative account balance; use Modal Usage & Billing and set a hard
+workspace or environment budget before launching.
+
 ## 6. Inspect progress without changing it
 
 ```bash
@@ -402,7 +458,7 @@ remain `ready` with zero proposals; this is expected, not a stalled campaign.
 For protocol 1.4, inspect `independent-trajectories.jsonl` instead of
 `parallel-rounds.jsonl`; the four primary run rows need not have matching
 `proposals_used` while the launcher is active.
-For protocols 1.5–1.6, inspect `trajectory-lifecycle.jsonl` plus each run's
+For protocols 1.5–1.6 and 2.0, inspect `trajectory-lifecycle.jsonl` plus each run's
 `lifecycle.jsonl`; it records start, pause request, pause acknowledgement,
 resume, transport stop, and completion for every independently controlled run.
 
@@ -437,7 +493,7 @@ For protocol 1.4, recover every active run, then invoke the same
 `run-staged-independent-campaign` block/stage. It starts only the unfinished
 trajectories and each continues from its own next opportunity; it never creates
 or retries a missing synchronized round.
-For protocols 1.5–1.6, recover only the affected run, then invoke
+For protocols 1.5–1.6 and 2.0, recover only the affected run, then invoke
 `resume-staged-trajectory` with the same run ID. Do not recover or restart its
 peers.
 

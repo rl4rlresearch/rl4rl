@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import json
+import re
 import shutil
 import sys
 from pathlib import Path
@@ -18,9 +19,12 @@ from experiments.c0c3_factorial.environment import (
     controlled_subprocess_environment,
     subject_subprocess_environment,
 )
+from experiments.c0c3_factorial.frameworks import _strict_apply_diff
 from experiments.c0c3_factorial.neutral_task import (
     NEUTRAL_SUBMISSION_WRAPPER,
     NEUTRAL_TASK_ADAPTER,
+    OPENEVOLVE_V2_PROMPT_PROFILE,
+    PAIR_TOKEN_TASK_ADAPTER_V2,
     validate_v15_pairing,
 )
 from experiments.c0c3_factorial.prompts import (
@@ -37,6 +41,7 @@ from experiments.c0c3_factorial.runner import (
     _register_conversation_session,
 )
 from experiments.c0c3_factorial.spec import (
+    OPENEVOLVE_V2_EXECUTION_RULE,
     PARALLEL_EXECUTION_RULE,
     SERIAL_EXECUTION_RULE,
     STAGED_CONFINED_INDIVIDUAL_EXECUTION_RULE,
@@ -64,6 +69,7 @@ from experiments.c0c3_factorial.state import (
 from experiments.c0c3_factorial.task_evaluators import (
     TRAINING_STEP,
     _source_contract_error,
+    preflight_candidate_source,
 )
 from experiments.c0c3_factorial.validation import neutral_source_disclosure_terms
 
@@ -102,6 +108,21 @@ V16_TASK = (
     ROOT
     / "experiments/c0c3_factorial/configs/tasks"
     / "ten_digit_addition_pair_transformer_codex1644_confined.toml"
+)
+OPENEVOLVE_V2_PROTOCOL = (
+    ROOT
+    / "experiments/c0c3_factorial/configs/protocols"
+    / "controlled_openevolve_transformer_v2.toml"
+)
+OPENEVOLVE_V2_TASK = (
+    ROOT
+    / "experiments/c0c3_factorial/configs/tasks"
+    / "ten_digit_addition_pair_transformer_openevolve_v2_mps.toml"
+)
+OPENEVOLVE_V2_FRAMEWORK = (
+    ROOT
+    / "experiments/c0c3_factorial/configs/frameworks"
+    / "openevolve_v2.toml"
 )
 
 
@@ -418,6 +439,118 @@ def test_v16_freezes_confined_three_block_runtime_and_inference_data() -> None:
         "adderboard",
         "benchmark",
     )
+
+
+def test_openevolve_v2_is_ephemeral_c0c3_only_and_subject_neutral() -> None:
+    spec = FactorialSpec.from_toml(OPENEVOLVE_V2_PROTOCOL)
+    task_spec = TaskSpec.from_toml(OPENEVOLVE_V2_TASK)
+    framework_spec = FrameworkSpec.from_toml(OPENEVOLVE_V2_FRAMEWORK)
+
+    assert spec.protocol_version == "2.0"
+    assert spec.execution_rule == OPENEVOLVE_V2_EXECUTION_RULE
+    assert spec.conversation_mode is ConversationMode.EPHEMERAL
+    assert spec.include_no_search is False
+    assert spec.blocks == 3
+    assert spec.budget.proposals == 200
+    assert spec.budget.evaluator_timeout_seconds == 1800
+    assert spec.transition_opportunities == tuple(range(10, 201, 10))
+    assert task_spec.adapter == PAIR_TOKEN_TASK_ADAPTER_V2
+    assert task_spec.editable_paths == ("src/model.py", "src/train.py")
+    assert framework_spec.prompt_profile == OPENEVOLVE_V2_PROMPT_PROFILE
+
+    visible = (
+        VisibleCandidate(
+            "opaque",
+            -1644.0,
+            {"accuracy": 1.0, "parameters": 1644, "training_steps": 5000},
+            1,
+            ".design-references/design-1",
+            "starting design",
+        ),
+    )
+    prompts = {}
+    for condition in Condition:
+        prompt_context = PromptContext(
+            condition=condition,
+            opportunity=10,
+            selected_parent_id="opaque",
+            visible_candidates=visible,
+            remaining_proposals=191,
+            remaining_evaluations=191,
+            remaining_tokens=99_000_000,
+            remaining_evaluator_seconds=350_000.0,
+            mechanism_ledger=(
+                "- learned positional routing: attempts=2; last=qualified; "
+                "best_qualified_parameters=1500"
+            ),
+        )
+        prompts[condition] = PromptRenderer(TEMPLATES).render(
+            spec, task_spec, framework_spec, prompt_context
+        )
+    assert len({treatment_skeleton(value.text) for value in prompts.values()}) == 1
+    assert prompts[Condition.C1].transition_active
+    assert prompts[Condition.C3].transition_active
+    assert not prompts[Condition.C0].transition_active
+    assert not prompts[Condition.C2].transition_active
+    for rendered in prompts.values():
+        assert not neutral_source_disclosure_terms(rendered.text)
+        assert "free-form name" in rendered.text
+        assert "checkpoints/last.pt" in rendered.text
+
+
+def test_openevolve_v2_pairing_rejects_old_components() -> None:
+    validate_v15_pairing(
+        protocol_version="2.0",
+        task_adapter=PAIR_TOKEN_TASK_ADAPTER_V2,
+        prompt_profile=OPENEVOLVE_V2_PROMPT_PROFILE,
+    )
+    with pytest.raises(ValueError, match="requires task adapter"):
+        validate_v15_pairing(
+            protocol_version="2.0",
+            task_adapter=NEUTRAL_TASK_ADAPTER,
+            prompt_profile=OPENEVOLVE_V2_PROMPT_PROFILE,
+        )
+    with pytest.raises(ValueError, match="subject-neutral prompt profile"):
+        validate_v15_pairing(
+            protocol_version="2.0",
+            task_adapter=PAIR_TOKEN_TASK_ADAPTER_V2,
+            prompt_profile=NEUTRAL_PROMPT_PROFILE,
+        )
+
+
+def test_openevolve_v2_diff_preflight_is_strict() -> None:
+    def extract(value: str) -> list[tuple[str, str]]:
+        return [
+            (match[0].rstrip(), match[1].rstrip())
+            for match in re.findall(
+                r"<<<<<<< SEARCH\n(.*?)=======\n(.*?)>>>>>>> REPLACE",
+                value,
+                re.DOTALL,
+            )
+        ]
+    original = "alpha\nbeta\ngamma"
+    valid = "<<<<<<< SEARCH\nbeta\n=======\ndelta\n>>>>>>> REPLACE"
+    assert _strict_apply_diff(original, valid, extract) == "alpha\ndelta\ngamma"
+    with pytest.raises(ValueError, match="did not match"):
+        _strict_apply_diff(original, valid.replace("beta", "missing"), extract)
+    with pytest.raises(ValueError, match="ambiguously"):
+        _strict_apply_diff("same\nsame", valid.replace("beta", "same"), extract)
+
+
+def test_openevolve_v2_source_preflight_rejects_before_training(
+    tmp_path: Path,
+) -> None:
+    workspace = tmp_path / "workspace"
+    (workspace / "src").mkdir(parents=True)
+    (workspace / "src/model.py").write_text("class Model:\n    pass\n")
+    (workspace / "src/train.py").write_text("def broken(:\n    pass\n")
+    (workspace / "src/data.py").write_text(
+        "def preprocess(a, b):\n    return (a, b)\n"
+        "def postprocess(value):\n    return value\n"
+    )
+    error = preflight_candidate_source(workspace)
+    assert error is not None
+    assert "does not compile" in error
 
 
 def test_v15_seed_workspace_is_sanitized_and_decoder_is_protected(

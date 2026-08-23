@@ -12,8 +12,8 @@ The scientific question is whether access to multiple live research branches,
 scheduled pressure to change architectural assumptions, or their interaction
 increases the number of distinct, valid mechanism families an agent discovers.
 The primary outcome is **distinct Layer-B-qualified mechanism clusters per
-run**. An independent-proposal no-search baseline, N0, is measured separately
-and is never included in the 2×2 contrasts.
+run**. Protocols 1.0–1.6 can include an independent-proposal no-search baseline,
+N0, outside the 2×2 contrasts. Prospective OpenEvolve protocol 2.0 removes N0.
 
 ## Read in this order
 
@@ -29,6 +29,8 @@ and is never included in the 2×2 contrasts.
    1.4, 1.5, and 1.6 are currently local-only.
 5. [PAPER_NOTES.md](PAPER_NOTES.md) — literature, hypotheses, reviewer rubric,
    figures, statistical cautions, and paper-writing checklist.
+6. [OPENEVOLVE_V2.md](OPENEVOLVE_V2.md) — the no-N0, validity-constrained,
+   faster controlled OpenEvolve protocol and launch commands.
 
 Future coding agents must also follow [AGENTS.md](AGENTS.md).
 
@@ -103,6 +105,12 @@ Future coding agents must also follow [AGENTS.md](AGENTS.md).
   most three local evaluators at once. All twelve C0–C3 trajectories may remain
   active concurrently; the evaluator limit is condition-common machine-load
   control rather than a trajectory barrier.
+- `configs/protocols/controlled_openevolve_transformer_v2.toml` is the
+  prospective controlled OpenEvolve replacement: three C0–C3-only blocks, 200
+  bounded ephemeral proposals per run, the 1,644-parameter/5,000-step parent,
+  neutral prompts, strict patch/source preflight, trained-attention checks,
+  three evaluator slots, independent supervision, and optional evaluator-only
+  Modal L4 offload. It is a new stratum and cannot be pooled with protocol 1.1.
 
 Run the dev protocol end to end before spending on the paper protocol. Do not
 reinterpret dev results as a pilot effect estimate: its transition density and
@@ -120,16 +128,17 @@ budget are intentionally unlike the paper protocol.
 - Use `run-staged-next`/`run-staged-campaign` for protocol 1.3. Use
   `run-staged-independent-campaign` for protocol 1.4. Use
   `start-staged-trajectory`, `pause-staged-trajectory`, and
-  `resume-staged-trajectory` for protocols 1.5–1.6. Each primary Block 1 factorial
-  stage must complete before an optional stage can start.
+  `resume-staged-trajectory` for protocols 1.5–1.6 and 2.0. Protocol 2.0 has no
+  optional N0 stage and freezes all three C0–C3 blocks as its analysis scope.
 - Never expose Layer B annotations or Layer C results until every run in the
   campaign is completed.
 - Do not delete, retry, or reuse a failed opportunity. Use `recover-active` for
   an interrupted active opportunity; the opportunity remains charged.
 - Do not run the same campaign from local and Modal storage simultaneously.
-- Keep one campaign orchestrator process for protocols 1.1–1.4. Protocols 1.5–1.6
-  instead authorizes one controller per scheduled run; a per-run lock rejects a
-  second controller for the same trajectory, while peers may operate in parallel.
+- Keep one campaign orchestrator process for protocols 1.1–1.4. Protocols
+  1.5–1.6 and 2.0 instead authorize one controller per scheduled run; a per-run
+  lock rejects a second controller for the same trajectory, while peers may
+  operate in parallel.
 - Do not pool task or framework strata as if they were interchangeable
   replications. Report each task × framework stratum, then synthesize effects.
 

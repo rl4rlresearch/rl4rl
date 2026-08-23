@@ -14,7 +14,7 @@ from .artifacts import (
     snapshot_candidate,
     tree_hash,
 )
-from .evaluator import CommandEvaluator
+from .evaluator import make_command_evaluator
 from .neutral_task import NEUTRAL_TASK_ADAPTER, validate_v15_pairing
 from .spec import (
     STAGED_EXECUTION_RULES,
@@ -131,7 +131,7 @@ def execute_calibration(
     snapshot = output / "candidates" / candidate_id
     if not snapshot.is_dir():
         raise FileNotFoundError("prepared calibration candidate snapshot is missing")
-    evaluator = CommandEvaluator(
+    evaluator = make_command_evaluator(
         task=task,
         support_source=support,
         repo_root=repo_root,
@@ -203,17 +203,25 @@ def create_campaign(
     framework: FrameworkSpec,
     calibration_path: str | Path,
     repo_root: Path,
-    include_no_search: bool = True,
+    include_no_search: bool | None = None,
 ) -> Path:
     validate_v15_pairing(
         protocol_version=spec.protocol_version,
         task_adapter=task.adapter,
         prompt_profile=framework.prompt_profile,
     )
+    if include_no_search is None:
+        include_no_search = spec.include_no_search
+    if (
+        include_no_search != spec.include_no_search
+        and spec.protocol_version == "2.0"
+    ):
+        raise ValueError("protocol 2.0 campaign composition forbids N0")
     if (
         spec.execution_rule
         in STAGED_EXECUTION_RULES
         and not include_no_search
+        and spec.protocol_version != "2.0"
     ):
         raise ValueError(
             "staged protocol requires pre-created N0 extension assignments"
@@ -309,11 +317,15 @@ def create_campaign(
     _write_json(inputs / "framework.json", asdict(framework))
     _write_json(output / "schedule.json", schedule)
     staged = spec.execution_rule in STAGED_EXECUTION_RULES
-    primary_run_ids = [
-        str(row["run_id"])
-        for row in schedule
-        if int(row["block"]) == 1 and str(row["condition"]) != "N0"
-    ]
+    primary_run_ids = (
+        [str(row["run_id"]) for row in schedule]
+        if spec.protocol_version == "2.0"
+        else [
+            str(row["run_id"])
+            for row in schedule
+            if int(row["block"]) == 1 and str(row["condition"]) != "N0"
+        ]
+    )
     primary_run_id_set = set(primary_run_ids)
     all_run_ids = [str(row["run_id"]) for row in schedule]
     optional_run_ids = [

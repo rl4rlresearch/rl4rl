@@ -63,6 +63,18 @@ the paper should call it the **controlled OpenEvolve proposal adapter**.
 
 Edit mode: `search_replace_diff`.
 
+### Protocol-2.0 controlled OpenEvolve adapter
+
+Configuration: `configs/frameworks/openevolve_v2.toml`
+
+The v2 adapter keeps OpenEvolve's prompt sampler and SEARCH/REPLACE interface,
+but uses a subject-neutral transformer program, strict all-block patch
+application, free-form mechanism provenance, and a bounded evidence ledger. It
+shows each retained source once instead of copying the same programs into
+previous/top/inspiration sections. Codex runs ephemerally in an opaque,
+read-only, network-disabled workspace; only the resulting patch is applied to
+the candidate workspace. See [OPENEVOLVE_V2.md](OPENEVOLVE_V2.md).
+
 ## 4. Adding another research framework
 
 Adding MAP-Elites, Go-Explore, Islands, curiosity, or another Heuresis-style
@@ -157,6 +169,20 @@ transducer in model source. This changes the admissible model class relative to
 Protocol 1.5 also freezes independently controlled trajectory execution and
 lifecycle provenance; those controls do not alter the task or model-validity
 standard described here.
+
+### Protocol-2.0 pair-token variants
+
+Configurations:
+
+- `configs/tasks/ten_digit_addition_pair_transformer_openevolve_v2_mps.toml`
+- `configs/tasks/ten_digit_addition_pair_transformer_openevolve_v2_modal.toml`
+
+Both use the 1,644-parameter pair-token parent, protect `src/data.py`, and expose
+only `src/model.py` and `src/train.py`. They add deterministic source preflight,
+strict fresh best/last checkpoint provenance, source immutability, learned
+attention execution/ablation, and a disjoint final seed. The MPS and Modal L4
+variants are hardware-specific strata and require separate calibration and
+campaigns; their results are not interchangeable replications.
 
 ## 7. Official Karpathy Autoresearch nanoGPT task
 

@@ -12,7 +12,7 @@ from dataclasses import asdict, replace
 from pathlib import Path
 
 from .analysis import RunOutcome, estimate, write_estimate
-from .evaluator import CommandEvaluator
+from .evaluator import make_command_evaluator
 from .orchestration import stage_gate_lock
 from .spec import INDIVIDUAL_EXECUTION_RULES, FactorialSpec, TaskSpec
 from .state import SearchController
@@ -337,7 +337,7 @@ def _run_layer_c_unlocked(
     for assignment, controller in runs:
         run_dir = campaign / "runs" / controller.state.run_id
         selected_candidate_id = _layer_a_selected_candidate_id(controller)
-        evaluator = CommandEvaluator(
+        evaluator = make_command_evaluator(
             task=final_task,
             support_source=run_dir / "task-support",
             repo_root=repo_root,

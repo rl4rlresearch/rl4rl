@@ -1,4 +1,4 @@
-# C0–C3 protocols v1.0–v1.6
+# C0–C3 protocols v1.0–v2.0
 
 This document is the human-readable preregistration for the implementation in
 this directory. The executable contract is `FactorialSpec`; a campaign records
@@ -25,6 +25,11 @@ predeclared blocks and a confined continuous-session runtime. It fixes resumed
 process cwd ownership, isolates Codex configuration and thread identity, freezes
 inference preprocessing, strengthens fresh-training/attention-dependence checks,
 and caps concurrent local evaluators at three while all twelve controllers run.
+Version 2.0 is the prospective controlled OpenEvolve replacement. It removes N0,
+uses the 1,644-parameter pair-token parent and 5,000-step training path, gives
+each proposal a bounded ephemeral session with structured trajectory evidence,
+and adds strict patch/source preflight plus optional evaluator-only Modal L4
+offload. All three C0–C3 blocks are frozen primary data.
 
 ## 1. Research question and unit of analysis
 
@@ -101,6 +106,19 @@ summary of up to twelve preceding outcomes from its own trajectory. This is a
 common online evidence channel, not a fifth factorial factor. Portfolio cells
 still differ only by access to multiple live qualified source branches.
 
+### Protocol 2.0 bounded OpenEvolve exception
+
+Protocol 2.0 uses a fresh ephemeral Codex call for every proposal. It provides
+structured continuity common to all four cells: the selected source, all
+retained source branches permitted by the search-state factor, the last twelve
+outcomes, and a bounded ledger of subject-defined mechanism names and results.
+It never resumes raw conversation history.
+
+The subject-neutral v2 prompt and opaque read-only Codex cwd expose no benchmark,
+study, treatment, condition, or C0–C3 labels. OpenEvolve's prompt sampler and
+SEARCH/REPLACE representation remain, but native database selection and
+retention remain disabled because those are the randomized C0–C3 factors.
+
 ## 4. Single-incumbent state (C0/C1)
 
 Only the incumbent is visible and selected. A valid child replaces it if and
@@ -169,6 +187,10 @@ cannot change later N0 prompts. At the end of search, the best Layer-A-valid N0
 candidate may be selected offline for Layer C. This post-search selection does
 not make proposal generation adaptive. N0 is reported separately and excluded
 from all factorial contrasts.
+
+Protocol 2.0 contains no N0 assignment, dormant stage, output row, or compute
+budget. Its campaign manifest must record `include_no_search=false`; creation
+and validation fail closed if an N0 run is requested or present.
 
 ## 8. Randomization, blocking, and seeds
 
@@ -285,6 +307,23 @@ If a block was activated using primary results, it is adaptively collected and
 must not be presented as if the original primary sample size had always
 included it. N0 remains descriptive and outside the factorial contrasts.
 
+Protocol 2.0 freezes
+`confined_individually_controlled_c0c3_only_trajectories_v2`. All twelve C0–C3
+trajectories across three blocks are declared before launch and are controlled,
+paused, resumed, and recovered independently. There is no block or opportunity
+barrier. At most three evaluators may train concurrently; proposal generation
+remains independently parallel. A durable supervisor may relaunch only a
+trajectory whose writer is confirmed absent, using the charged recovery rule.
+
+Only `src/model.py` and `src/train.py` are editable. Every OpenEvolve patch block
+must be well formed, nonempty, and match exactly once after earlier blocks are
+applied. Syntax and recognized direct-solver patterns are checked before an
+evaluator call. Candidate training starts from an empty checkpoint directory,
+may run for at most 1,800 seconds, and must produce both a valid best checkpoint
+and a positive-step last checkpoint. Training-time source hashes, learned-state
+checks, exercised self-attention, attention ablation, and disjoint Layer C are
+mandatory and condition-common.
+
 `C0C3_RUN_SEED` and `PYTHONHASHSEED` are supplied to Codex and evaluator
 subprocesses. Task code may use `C0C3_RUN_SEED`; task-specific fixed seeds still
 take precedence where declared. The Codex provider does not expose a generation
@@ -292,7 +331,7 @@ seed through this runner, so model sampling is not deterministic. Blocking,
 identical settings, and replication mitigate that source of variance; they do
 not eliminate it.
 
-The protocol-1.5/1.6 subject-facing Codex process instead receives the same value
+The protocol-1.5/1.6/2.0 subject-facing Codex process instead receives the same value
 under `OPTIMIZATION_RUN_SEED`; `C0C3_RUN_SEED` is removed from that process.
 The evaluator retains the internal seed name for backward-compatible task
 execution.
@@ -303,8 +342,8 @@ and can bypass randomized order.
 Use `run-staged-next` or `run-staged-campaign` for protocol 1.3. Use
 `run-staged-independent-campaign` for protocol 1.4. Use the
 per-run `start-staged-trajectory`, `pause-staged-trajectory`, and
-`resume-staged-trajectory` commands for protocols 1.5–1.6; the other orchestrators
-reject its execution-rule identifier.
+`resume-staged-trajectory` commands for protocols 1.5–1.6 and 2.0; the other
+orchestrators reject their execution-rule identifiers.
 
 ## 9. Controls held common within a campaign
 
@@ -347,6 +386,13 @@ contain four runs and therefore schedule 800 proposals and 40
 assumption-changing interventions. Dormant extension runs consume no budget
 until explicitly activated.
 
+Protocol 2.0 freezes 200 opportunities/evaluator calls, 100,000,000 total
+reported tokens, 360,000 aggregate evaluator seconds, and 1,800 seconds per
+evaluator invocation per run. It schedules 2,400 proposals across twelve runs
+and twenty assumption-changing opportunities per C1/C3 trajectory. There is no
+N0 budget. The lower token ceiling reflects bounded ephemeral prompts rather
+than an intended difference among cells.
+
 A new opportunity cannot start after any remaining budget reaches zero. One
 already-started Codex or evaluator call may overshoot a ceiling; its actual usage
 is logged and the run then completes. There is no performance-based early stop.
@@ -381,6 +427,11 @@ automatically performs that explicit recovery after an unexpected controller
 exit and restarts only the affected run.
 Neither protocol advances N0 or another block, and the primary-completion gate
 remains in force for extensions.
+Protocol 2.0 uses the same charged recovery and per-run supervisor behavior.
+Malformed patches, source failures, nonqualification, and model-contract
+failures are never retried. A remote evaluator transport failure is recorded
+separately as infrastructure; it still consumes the started proposal and
+evaluator call and is not silently replayed.
 
 ## 12. Feedback layers
 
@@ -400,6 +451,8 @@ are excluded. The operator must activate any optional extension before Layer
 B/C is created, after which the runner forbids more collection.
 For protocol 1.6 the frozen factorial scope is all twelve C0–C3 runs across its
 three prospectively declared blocks; dormant N0 assignments remain excluded.
+For protocol 2.0 the frozen scope is also all twelve C0–C3 runs, but no dormant
+N0 assignment exists.
 Every valid proposal becomes an opaque packet containing parent and candidate
 source plus the stated hypothesis/edit. Condition, run, opportunity, and Layer
 A scores are hidden. Independent reviewers decide whether the delta is a
@@ -427,7 +480,7 @@ stratum:
 1. Publish the four cell means and all run-level counts.
 2. Publish the three prespecified contrasts and within-block contrasts generated
    by `analysis.py`.
-3. Show N0 separately.
+3. Show N0 separately when the protocol includes it; protocol 2.0 has no N0.
 4. Report invalid-proposal rate, qualification rate, tokens, evaluator calls,
    evaluator time, and termination reason as process/efficiency outcomes.
 5. Do not treat proposals as independent samples or inflate `n` with packets.

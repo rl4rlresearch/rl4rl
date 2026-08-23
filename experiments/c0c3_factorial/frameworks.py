@@ -5,6 +5,7 @@ from __future__ import annotations
 import re
 import shutil
 import sys
+import tempfile
 from dataclasses import dataclass
 from pathlib import Path
 
@@ -14,6 +15,8 @@ from .spec import FrameworkKind, FrameworkSpec, ModelSpec, TaskSpec
 
 _HYPOTHESIS = re.compile(r"^HYPOTHESIS:\s*(.+)$", re.MULTILINE)
 _INTENDED_EDIT = re.compile(r"^INTENDED_EDIT:\s*(.+)$", re.MULTILINE)
+_MECHANISM = re.compile(r"^MECHANISM:\s*(.+)$", re.MULTILINE)
+_EVIDENCE = re.compile(r"^EVIDENCE:\s*(.+)$", re.MULTILINE)
 _FILE_OPEN = re.compile(r"^===== FILE: (?P<path>[^\n]+) =====$")
 _FILE_CLOSE = "===== END FILE ====="
 
@@ -24,6 +27,9 @@ class ProposalExecution:
     hypothesis: str
     intended_edit: str
     adapter_error: str | None = None
+    adapter_failure_kind: str | None = None
+    mechanism: str = "[not recorded]"
+    evidence: str = "[not recorded]"
 
 
 def parse_metadata(message: str) -> tuple[str, str]:
@@ -33,6 +39,46 @@ def parse_metadata(message: str) -> tuple[str, str]:
         hypothesis.group(1).strip() if hypothesis else "[missing hypothesis]",
         intended_edit.group(1).strip() if intended_edit else "[missing intended edit]",
     )
+
+
+def parse_v2_metadata(message: str) -> tuple[str, str, str, str]:
+    hypothesis, intended_edit = parse_metadata(message)
+    mechanism = _MECHANISM.search(message)
+    evidence = _EVIDENCE.search(message)
+    return (
+        hypothesis,
+        intended_edit,
+        mechanism.group(1).strip() if mechanism else "[missing mechanism]",
+        evidence.group(1).strip() if evidence else "[missing evidence]",
+    )
+
+
+def _strict_apply_diff(
+    original: str,
+    response: str,
+    extract_diffs,
+) -> str:
+    """Apply every OpenEvolve block exactly once or fail before evaluation."""
+
+    blocks = extract_diffs(response)
+    marker_counts = (
+        response.count("<<<<<<< SEARCH"),
+        response.count("=======\n"),
+        response.count(">>>>>>> REPLACE"),
+    )
+    if not blocks or marker_counts != (len(blocks), len(blocks), len(blocks)):
+        raise ValueError("malformed SEARCH/REPLACE block structure")
+    result = original
+    for index, (search, replacement) in enumerate(blocks, start=1):
+        if not search.strip():
+            raise ValueError(f"diff block {index} has an empty SEARCH section")
+        occurrences = result.count(search)
+        if occurrences == 0:
+            raise ValueError(f"diff block {index} SEARCH did not match")
+        if occurrences > 1:
+            raise ValueError(f"diff block {index} SEARCH matched ambiguously")
+        result = result.replace(search, replacement, 1)
+    return result
 
 
 def bundle_workspace(workspace: Path, editable_paths: tuple[str, ...]) -> str:
@@ -131,9 +177,18 @@ class OpenEvolveAdapter:
     its mutation parser. This follows FML-bench's strategy/infrastructure split.
     """
 
-    def __init__(self, codex: CodexCli, *, vendor_root: Path) -> None:
+    def __init__(
+        self,
+        codex: CodexCli,
+        *,
+        vendor_root: Path,
+        v2: bool = False,
+        template_root: Path | None = None,
+    ) -> None:
         self.codex = codex
         self.vendor_root = vendor_root
+        self.v2 = v2
+        self.template_root = template_root
 
     def _imports(self):
         value = str(self.vendor_root)
@@ -161,6 +216,7 @@ class OpenEvolveAdapter:
         visible_workspaces: tuple[Path, ...],
         selected_parent_id: str,
         visible_records: tuple[dict[str, object], ...],
+        neutral_subject: bool = False,
         **_unused: object,
     ) -> ProposalExecution:
         PromptConfig, PromptSampler, apply_diff, extract_diffs = self._imports()
@@ -179,9 +235,14 @@ class OpenEvolveAdapter:
                 }
             )
         prompt_config = PromptConfig(
+            template_dir=(
+                str(self.template_root)
+                if self.v2 and self.template_root is not None
+                else None
+            ),
             system_message=rendered.text,
-            num_top_programs=len(programs),
-            num_diverse_programs=max(0, len(programs) - 1),
+            num_top_programs=0 if self.v2 else len(programs),
+            num_diverse_programs=0 if self.v2 else max(0, len(programs) - 1),
             use_template_stochasticity=False,
             include_artifacts=False,
         )
@@ -191,27 +252,60 @@ class OpenEvolveAdapter:
             for record in visible_records
             if record["candidate_id"] == selected_parent_id
         )
+        design_programs = "No alternative retained design is available."
+        if self.v2:
+            alternatives = []
+            for program in programs:
+                if program["id"] == selected_parent_id:
+                    continue
+                alternatives.append(
+                    "VERIFIED VALUES: "
+                    f"{program['metrics']}\n```text\n{program['code']}\n```"
+                )
+            if alternatives:
+                design_programs = "\n\n".join(alternatives)
         sampled = sampler.build_prompt(
             current_program=parent_bundle,
             parent_program=parent_bundle,
             program_metrics=parent_record["metrics"],
-            previous_programs=programs,
-            top_programs=programs,
-            inspirations=[
-                program for program in programs if program["id"] != selected_parent_id
-            ],
+            previous_programs=[] if self.v2 else programs,
+            top_programs=[] if self.v2 else programs,
+            inspirations=(
+                []
+                if self.v2
+                else [
+                    program
+                    for program in programs
+                    if program["id"] != selected_parent_id
+                ]
+            ),
             language="text",
             evolution_round=int(call_id.rsplit("-", 1)[-1]),
             diff_based_evolution=True,
             feature_dimensions=[],
+            template_key="diff_user" if self.v2 else None,
+            design_programs=design_programs,
+            search_marker="<<<<<<< SEARCH",
+            divider_marker="=======",
+            replace_marker=">>>>>>> REPLACE",
+        )
+        required_metadata = (
+            "MECHANISM, HYPOTHESIS, INTENDED_EDIT, and EVIDENCE"
+            if self.v2
+            else "HYPOTHESIS and INTENDED_EDIT"
         )
         combined_prompt = (
             f"{sampled['system']}\n\n{sampled['user']}\n\n"
-            "Return HYPOTHESIS and INTENDED_EDIT metadata lines, followed by one "
-            "or more exact OpenEvolve SEARCH/REPLACE blocks."
+            f"Return {required_metadata} metadata lines, followed by one or more "
+            "exact SEARCH/REPLACE blocks."
         )
-        prompt_workspace = log_root / f"{call_id}-prompt-workspace"
-        prompt_workspace.mkdir(parents=True, exist_ok=False)
+        if self.v2:
+            prompt_workspace = Path(
+                tempfile.mkdtemp(prefix="transformer-design-cycle-")
+            )
+        else:
+            prompt_workspace = log_root / f"{call_id}-prompt-workspace"
+            prompt_workspace.mkdir(parents=True, exist_ok=False)
         result = self.codex.run(
             prompt=combined_prompt,
             workspace=prompt_workspace,
@@ -223,22 +317,61 @@ class OpenEvolveAdapter:
             timeout_seconds=timeout_seconds,
             resume_session_id=resume_session_id,
             persist_session=persist_session,
+            neutral_subject=neutral_subject,
         )
-        hypothesis, intended_edit = parse_metadata(result.last_message)
+        if self.v2:
+            hypothesis, intended_edit, mechanism, evidence = parse_v2_metadata(
+                result.last_message
+            )
+        else:
+            hypothesis, intended_edit = parse_metadata(result.last_message)
+            mechanism, evidence = "[not recorded]", "[not recorded]"
         error: str | None = None
-        if result.returncode == 0:
+        failure_kind: str | None = None
+        if self.v2 and result.returncode == 0 and any(
+            value.startswith("[missing")
+            for value in (hypothesis, intended_edit, mechanism, evidence)
+        ):
+            error = "OpenEvolve response omitted required proposal metadata"
+            failure_kind = "missing_metadata"
+        if result.returncode == 0 and error is None:
             try:
                 diffs = extract_diffs(result.last_message)
                 if not diffs:
                     raise ValueError("OpenEvolve response contained no valid diff")
-                child_bundle = apply_diff(parent_bundle, result.last_message)
+                child_bundle = (
+                    _strict_apply_diff(
+                        parent_bundle,
+                        result.last_message,
+                        extract_diffs,
+                    )
+                    if self.v2
+                    else apply_diff(parent_bundle, result.last_message)
+                )
                 if child_bundle == parent_bundle:
                     raise ValueError("OpenEvolve diff did not match selected parent")
                 unbundle_workspace(child_bundle, workspace, task.editable_paths)
             except (OSError, ValueError) as exception:
                 error = str(exception)
+                lowered = error.lower()
+                if "malformed" in lowered or "no valid diff" in lowered:
+                    failure_kind = "malformed_diff"
+                elif "ambiguously" in lowered:
+                    failure_kind = "ambiguous_diff"
+                elif "did not match" in lowered:
+                    failure_kind = "unmatched_diff"
+                else:
+                    failure_kind = "invalid_diff"
         shutil.rmtree(prompt_workspace, ignore_errors=True)
-        return ProposalExecution(result, hypothesis, intended_edit, error)
+        return ProposalExecution(
+            result,
+            hypothesis,
+            intended_edit,
+            error,
+            failure_kind,
+            mechanism,
+            evidence,
+        )
 
 
 def make_framework_adapter(
@@ -247,8 +380,15 @@ def make_framework_adapter(
     if framework.framework_id is FrameworkKind.AUTORESEARCH:
         return AutoresearchAdapter(codex)
     if framework.framework_id is FrameworkKind.OPENEVOLVE:
+        v2 = framework.adapter == "controlled_openevolve_prompt_diff_v2"
         return OpenEvolveAdapter(
             codex,
             vendor_root=repo_root / "architecture_discovery/vendor/openevolve",
+            v2=v2,
+            template_root=(
+                repo_root / "experiments/c0c3_factorial/templates/openevolve_v2"
+                if v2
+                else None
+            ),
         )
     raise ValueError(f"unsupported framework {framework.framework_id}")

@@ -307,6 +307,8 @@ def _staged_stage_assignments(
         raise ValueError(
             f"stage must be one of {sorted(STAGED_EXECUTION_STAGES)}"
         )
+    if stage == NO_SEARCH_STAGE and not spec.include_no_search:
+        raise ValueError("this protocol has no N0 no-search stage")
 
     campaign = Path(campaign_dir).resolve()
     selected: list[tuple[dict[str, object], SearchController]] = []
@@ -599,10 +601,12 @@ def run_staged_individual_trajectory(
     begins, so an in-flight Codex/evaluator call finishes and is recorded normally.
     """
 
-    if task.preferred_backend is not ExecutionBackend.LOCAL:
+    if task.preferred_backend not in {
+        ExecutionBackend.LOCAL,
+        ExecutionBackend.HYBRID_MODAL,
+    }:
         raise ValueError(
-            "individually controlled trajectories currently require a local task "
-            "backend"
+            "individually controlled trajectories require local Codex execution"
         )
     campaign, assignment, stage = _individual_assignment(
         campaign_dir, spec, run_id=run_id

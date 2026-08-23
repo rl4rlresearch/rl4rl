@@ -266,3 +266,31 @@ class CommandEvaluator:
             failure_kind=None if valid else failure_kind,
         )
         return EvaluationArtifacts(evaluation, stdout, stderr, workspace)
+
+
+def make_command_evaluator(
+    *,
+    task: TaskSpec,
+    support_source: Path,
+    repo_root: Path,
+    python_bin: str,
+    slot_root: Path | None = None,
+    max_parallel_evaluators: int | None = None,
+) -> CommandEvaluator:
+    """Construct the evaluator transport frozen by the task specification."""
+
+    from .spec import ExecutionBackend
+
+    arguments = {
+        "task": task,
+        "support_source": support_source,
+        "repo_root": repo_root,
+        "python_bin": python_bin,
+        "slot_root": slot_root,
+        "max_parallel_evaluators": max_parallel_evaluators,
+    }
+    if task.preferred_backend is ExecutionBackend.HYBRID_MODAL:
+        from .hybrid_evaluator import ModalCommandEvaluator
+
+        return ModalCommandEvaluator(**arguments)
+    return CommandEvaluator(**arguments)

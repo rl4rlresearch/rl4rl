@@ -15,6 +15,7 @@ from .neutral_task import (
     PAIR_TOKEN_SANITIZED_SEED_PATHS,
     PAIR_TOKEN_SUBMISSION_WRAPPER,
     PAIR_TOKEN_TASK_ADAPTER,
+    PAIR_TOKEN_TASK_ADAPTER_V2,
     SANITIZED_SEED_PATHS,
 )
 from .spec import FrameworkKind, FrameworkSpec, TaskSpec, canonical_json, sha256_json
@@ -55,7 +56,11 @@ def prepare_seed_workspace(
     """Copy the immutable task support tree and add task-owned seed glue."""
 
     source = resolve_source(task.seed_source, repo_root=repo_root)
-    if task.adapter in {NEUTRAL_TASK_ADAPTER, PAIR_TOKEN_TASK_ADAPTER}:
+    if task.adapter in {
+        NEUTRAL_TASK_ADAPTER,
+        PAIR_TOKEN_TASK_ADAPTER,
+        PAIR_TOKEN_TASK_ADAPTER_V2,
+    }:
         destination.mkdir(parents=True, exist_ok=False)
         sanitized_paths = (
             SANITIZED_SEED_PATHS
@@ -129,6 +134,7 @@ def scientific_runtime_hash(
         "adderboard_v1",
         NEUTRAL_TASK_ADAPTER,
         PAIR_TOKEN_TASK_ADAPTER,
+        PAIR_TOKEN_TASK_ADAPTER_V2,
     }:
         roots["adderboard_verifier"] = (
             repo_root / "architecture_discovery/vendor/AdderBoard"

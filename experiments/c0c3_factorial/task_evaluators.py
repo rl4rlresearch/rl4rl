@@ -79,6 +79,20 @@ def _source_contract_error(workspace: Path) -> str | None:
     return None
 
 
+def preflight_candidate_source(workspace: Path) -> str | None:
+    """Reject deterministic source defects before a training process starts."""
+
+    for relative in ("src/model.py", "src/train.py"):
+        path = workspace / relative
+        if not path.is_file() or path.is_symlink():
+            return f"{relative} is missing or unsafe"
+        try:
+            compile(path.read_text(encoding="utf-8"), relative, "exec")
+        except (OSError, SyntaxError, UnicodeError) as error:
+            return f"{relative} does not compile: {error}"
+    return _source_contract_error(workspace)
+
+
 def _source_hashes(workspace: Path) -> dict[str, str]:
     return {
         path.relative_to(workspace).as_posix(): hashlib.sha256(
@@ -114,7 +128,9 @@ def _token_logits(output):
     return output
 
 
-def _trained_model_contract_error(workspace: Path) -> str | None:
+def _trained_model_contract_error(
+    workspace: Path, *, require_last_checkpoint: bool = False
+) -> str | None:
     import torch
 
     checkpoint = workspace / "checkpoints/best.pt"
@@ -126,6 +142,30 @@ def _trained_model_contract_error(workspace: Path) -> str | None:
         return f"the saved model could not be loaded: {error}"
     step = payload.get("step") if isinstance(payload, dict) else None
     state = payload.get("model_state") if isinstance(payload, dict) else None
+    if require_last_checkpoint:
+        final_checkpoint = workspace / "checkpoints/last.pt"
+        try:
+            final_payload = torch.load(
+                final_checkpoint, map_location="cpu", weights_only=False
+            )
+        except Exception:  # noqa: BLE001 - absence/corruption is a violation
+            return "training did not create a valid checkpoints/last.pt"
+        final_step = (
+            final_payload.get("step") if isinstance(final_payload, dict) else None
+        )
+        final_state = (
+            final_payload.get("model_state")
+            if isinstance(final_payload, dict)
+            else None
+        )
+        if (
+            isinstance(final_step, bool)
+            or not isinstance(final_step, int)
+            or final_step < 1
+            or not isinstance(final_state, dict)
+            or not final_state
+        ):
+            return "checkpoints/last.pt does not record a positive training step"
     if isinstance(step, bool) or not isinstance(step, int) or step < 1:
         # A legitimately trained but completely unsuccessful candidate can
         # leave best.pt at the step-0 validation checkpoint.  Require a
@@ -387,9 +427,11 @@ def evaluate_pair_token_ten_digit_transformer(args: argparse.Namespace) -> int:
     train_output = ""
     source_hashes = _source_hashes(workspace)
     if not args.verify_existing_checkpoint:
-        train_exit, train_output = _run(
-            [args.python_bin, "-m", "src.train"], cwd=workspace
-        )
+        train_command = [args.python_bin, "-m", "src.train"]
+        train_device = getattr(args, "train_device", None)
+        if train_device:
+            train_command.extend(("--device", train_device))
+        train_exit, train_output = _run(train_command, cwd=workspace)
         if train_exit:
             return train_exit
         if _source_hashes(workspace) != source_hashes:
@@ -400,7 +442,12 @@ def evaluate_pair_token_ten_digit_transformer(args: argparse.Namespace) -> int:
         if source_error is not None:
             return _report_contract_violation(source_error)
 
-    trained_error = _trained_model_contract_error(workspace)
+    trained_error = _trained_model_contract_error(
+        workspace,
+        require_last_checkpoint=bool(
+            getattr(args, "require_last_checkpoint", False)
+        ),
+    )
     if trained_error is not None:
         return _report_contract_violation(trained_error)
 
@@ -483,6 +530,8 @@ def build_parser() -> argparse.ArgumentParser:
     for name, layer, default_seed in (
         ("pair-token-ten-digit-addition", "A", 2025),
         ("pair-token-ten-digit-addition-holdout", "C", 8_724_319),
+        ("pair-token-ten-digit-addition-v2", "A", 2025),
+        ("pair-token-ten-digit-addition-v2-holdout", "C", 8_724_319),
     ):
         subparser = subparsers.add_parser(name)
         subparser.add_argument("--workspace", type=Path, required=True)
@@ -492,8 +541,13 @@ def build_parser() -> argparse.ArgumentParser:
         subparser.add_argument("--num-tests", type=int, default=10_000)
         subparser.add_argument("--seed", type=int, default=default_seed)
         subparser.add_argument("--verify-existing-checkpoint", action="store_true")
+        subparser.add_argument(
+            "--train-device", choices=("cpu", "mps", "cuda"), default=None
+        )
         subparser.set_defaults(
-            handler=evaluate_pair_token_ten_digit_transformer, layer=layer
+            handler=evaluate_pair_token_ten_digit_transformer,
+            layer=layer,
+            require_last_checkpoint="-v2" in name,
         )
     return parser
 

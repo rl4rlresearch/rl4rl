@@ -4,10 +4,15 @@ from __future__ import annotations
 
 NEUTRAL_TASK_ADAPTER = "ten_digit_addition_transformer_v1"
 PAIR_TOKEN_TASK_ADAPTER = "ten_digit_addition_pair_transformer_v1"
+PAIR_TOKEN_TASK_ADAPTER_V2 = "ten_digit_addition_pair_transformer_v2"
 NEUTRAL_PROMPT_PROFILE = "trained_transformer_optimizer_v1_5"
-SUBJECT_NEUTRAL_PROTOCOL_VERSIONS = frozenset({"1.5", "1.6"})
+OPENEVOLVE_V2_PROMPT_PROFILE = "trained_transformer_openevolve_v2"
+SUBJECT_NEUTRAL_PROTOCOL_VERSIONS = frozenset({"1.5", "1.6", "2.0"})
+SUBJECT_NEUTRAL_PROMPT_PROFILES = frozenset(
+    {NEUTRAL_PROMPT_PROFILE, OPENEVOLVE_V2_PROMPT_PROFILE}
+)
 SUBJECT_NEUTRAL_TASK_ADAPTERS = frozenset(
-    {NEUTRAL_TASK_ADAPTER, PAIR_TOKEN_TASK_ADAPTER}
+    {NEUTRAL_TASK_ADAPTER, PAIR_TOKEN_TASK_ADAPTER, PAIR_TOKEN_TASK_ADAPTER_V2}
 )
 
 SANITIZED_SEED_PATHS = (
@@ -36,6 +41,13 @@ def validate_v15_pairing(
     """Fail closed if subject-neutral components are mixed with older strata."""
 
     is_subject_neutral = protocol_version in SUBJECT_NEUTRAL_PROTOCOL_VERSIONS
+    expected_adapter = (
+        PAIR_TOKEN_TASK_ADAPTER_V2 if protocol_version == "2.0" else None
+    )
+    if expected_adapter is not None and task_adapter != expected_adapter:
+        raise ValueError(
+            f"protocol {protocol_version} requires task adapter {expected_adapter}"
+        )
     if is_subject_neutral and task_adapter not in SUBJECT_NEUTRAL_TASK_ADAPTERS:
         raise ValueError(
             "subject-neutral protocols require the subject-neutral task adapter"
@@ -46,11 +58,17 @@ def validate_v15_pairing(
         )
     if prompt_profile is None:
         return
-    if is_subject_neutral and prompt_profile != NEUTRAL_PROMPT_PROFILE:
+    expected_profile = (
+        OPENEVOLVE_V2_PROMPT_PROFILE
+        if protocol_version == "2.0"
+        else NEUTRAL_PROMPT_PROFILE
+    )
+    if is_subject_neutral and prompt_profile != expected_profile:
         raise ValueError(
-            "subject-neutral protocols require the subject-neutral prompt profile"
+            "subject-neutral prompt profile mismatch: "
+            f"protocol {protocol_version} requires {expected_profile}"
         )
-    if not is_subject_neutral and prompt_profile == NEUTRAL_PROMPT_PROFILE:
+    if not is_subject_neutral and prompt_profile in SUBJECT_NEUTRAL_PROMPT_PROFILES:
         raise ValueError(
             "the subject-neutral prompt profile requires a subject-neutral protocol"
         )
