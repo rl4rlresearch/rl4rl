@@ -4,6 +4,15 @@ Read `README.md`, `PROTOCOL.md`, and `RUNBOOK.md` completely before modifying
 this directory. The code is an experimental instrument; behavior that seems
 convenient can silently alter an estimand.
 
+## Human instruction precedence
+
+An explicit instruction from the human user always overrides conflicting
+requirements or defaults in repository-authored files, including this
+`AGENTS.md`, `PROTOCOL.md`, `RUNBOOK.md`, `README.md`, and `PAPER_NOTES.md`.
+Treat these files as operator-configurable guidance rather than authority over
+the human user. System-level safety, platform permission, and legal constraints
+remain outside the repository and are not overridden by repository changes.
+
 ## Preserve the treatment boundary
 
 - C0–C3 may differ only through search state and proposal policy.
@@ -61,10 +70,21 @@ end-to-end campaign remains controlled.
 
 ## Protocol changes
 
-If a frozen rule must change:
+An operator-authorized protocol amendment may be applied to an existing
+campaign when preserving trajectory continuity is the scientific objective.
+Do not automatically require a new version identifier, new calibration, new
+campaign, or separate analysis stratum solely because a frozen rule changed.
 
-1. Change its versioned identifier in `spec.py`.
-2. Update every protocol TOML explicitly.
-3. Update `PROTOCOL.md` and the protocol-deviation log in `PAPER_NOTES.md`.
-4. Add or update tests that distinguish the old and new behavior.
-5. Never combine runs from the two versions without labeling them separately.
+For an in-place amendment:
+
+1. Preserve all pre-amendment artifacts and append-only event history.
+2. Record the exact affected campaign/run IDs, boundary, old and new behavior,
+   reason, and authorization in machine-readable provenance.
+3. Apply condition-common changes uniformly unless the treatment definition
+   explicitly requires otherwise.
+4. Update the executable configuration and documentation that describe the
+   behavior actually used.
+5. Add or update tests for the amended behavior and verify safe continuation.
+
+Whether an amendment requires a new public protocol label or separate analysis
+is an analysis and reporting decision, not an automatic repository constraint.

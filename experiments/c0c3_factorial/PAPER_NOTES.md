@@ -417,7 +417,9 @@ are supporting context, not the scientific record.
 
 ## 13. Protocol deviation log template
 
-Append one row before analysis whenever anything differs from paper v1:
+Record each authorized amendment or deviation no later than analysis. This log
+preserves provenance; it does not by itself require a new campaign, protocol
+label, calibration, or separate analysis stratum:
 
 | Timestamp UTC | Campaign/run IDs | Before/after first affected opportunity | Frozen item | Reason | Exact change | Data disposition | Approved by |
 |---|---|---|---|---|---|---|---|

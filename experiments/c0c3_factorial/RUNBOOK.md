@@ -120,8 +120,10 @@ For AdderBoard, calibration verifies the immutable seed checkpoint supplied by
 the task source. Candidate opportunities remain fresh-training evaluations and
 never inherit that checkpoint. One calibration can be reused for both framework
 campaigns only when protocol, task source, task configuration, and backend are
-identical. A protocol change changes the protocol hash and deliberately
-requires a new calibration.
+identical. A protocol change changes the protocol hash. Use a new calibration
+when the amendment can affect calibration validity or backend comparability;
+otherwise an operator-authorized in-place continuation may retain the original
+calibration with the amendment boundary recorded.
 
 For a GPU task that cannot run locally, use the prepare/execute split described
 in [MODAL.md](MODAL.md). Do not calibrate nanoGPT on one GPU type and run its

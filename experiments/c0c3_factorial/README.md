@@ -118,9 +118,12 @@ budget are intentionally unlike the paper protocol.
 
 ## Non-negotiable invariants
 
-- Create and validate a new campaign after any protocol, prompt, adapter,
-  evaluator, task-support, or controller change. Runtime hashes deliberately
-  make old campaigns refuse the new code.
+- Protocol, prompt, adapter, evaluator, task-support, and controller changes may
+  continue in an existing campaign when explicitly authorized by the operator.
+  Preserve old artifacts, record the exact amendment boundary and affected run
+  IDs, update the campaign's executable metadata consistently, and validate the
+  continuation path before restarting writers. A fresh campaign remains an
+  available design choice, not an automatic requirement.
 - Use `run-next`/`run-campaign` for protocol 1.0 and
   `run-parallel-next`/`run-parallel-campaign` for protocol 1.1. Each command
   rejects a campaign frozen to the other rule. `run-one` and `run --run-id`

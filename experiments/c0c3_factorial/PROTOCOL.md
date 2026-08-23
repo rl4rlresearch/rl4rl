@@ -1,10 +1,11 @@
 # C0–C3 protocols v1.0–v2.0
 
-This document is the human-readable preregistration for the implementation in
-this directory. The executable contract is `FactorialSpec`; a campaign records
-its canonical protocol hash, task hash, framework hash, starting-artifact hash,
-and scientific-runtime hash. Disagreement between this document and executable
-state is a protocol deviation that must be disclosed, not silently repaired.
+This document describes the implemented protocol. The executable contract is
+`FactorialSpec`; a campaign records its canonical protocol hash, task hash,
+framework hash, starting-artifact hash, and scientific-runtime hash. Authorized
+in-place amendments are permitted when trajectory continuity is required. They
+must preserve prior artifacts and record their exact boundary and behavior in
+machine-readable provenance so later reporting can describe what actually ran.
 Version 1.0 is the 100-opportunity serial paper protocol. Version 1.1 is the
 separate 30-opportunity synchronized-parallel workshop pilot. Version 1.2 is
 the separate 200-opportunity continuous-session Autoresearch protocol with an
@@ -504,9 +505,12 @@ runs are not imputed into the confirmatory estimate. If external failure makes a
 campaign incomplete, report it and either finish under the frozen recovery rule
 or label the campaign non-confirmatory.
 
-Any change after the first run under a protocol—including model alias behavior, prompts,
-`K`, schedule, selection, retention, evaluator, public metrics, timeout, task
-source, dependency environment, or runtime code—creates a new protocol version.
-Do not merge protocol-1.1 pilot runs into paper v1. A cross-protocol comparison
-may be reported only as an explicitly labeled sensitivity analysis with a
-deviation record.
+Changes after the first run—including model alias behavior, prompts, `K`,
+schedule, selection, retention, evaluator, public metrics, budgets, timeout,
+task source, dependency environment, or runtime code—may be applied as
+operator-authorized in-place amendments. Preserve the pre-change artifacts,
+record the affected run IDs and first affected opportunity, and make the
+post-change behavior explicit. A new protocol version, campaign, calibration,
+or analysis stratum is optional rather than automatic; choose those boundaries
+according to the scientific question and disclose the executed history in any
+analysis that uses the affected data.
