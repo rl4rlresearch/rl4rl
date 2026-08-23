@@ -272,7 +272,26 @@ and a three-slot nanoGPT campaign queue; it does not consume the shared local
 Mac evaluator pool or reuse the addition-task L4 service. Calibration and every
 candidate must use that same H100 service and pinned cache.
 
-## 8. Adding another ML task
+## 8. Fixed-exposure Fashion-MNIST task
+
+Configuration: `configs/tasks/fashion_mnist_source_only_mps.toml`
+
+This source-only local-MPS stratum exposes one editable `train.py`, like the
+nanoGPT task, while a protected evaluator owns the data and training loop. The
+agent can change the learned model, optimizer, loss, augmentation, batch size,
+gradient clipping, and schedule. Every candidate receives exactly 100,000
+examples from a frozen 50,000-image training subset. The remaining 10,000
+official training images are public validation; the official test set remains
+sealed for Layer C.
+
+The scalar `validation_score` exactly implements correct-count-first and
+cross-entropy-second lexicographic selection. The 250,000-parameter ceiling and
+90-second timeout are condition-common validity/compute guards, not secondary
+objectives. Both v1.7 direct-edit and v2.1 SEARCH/REPLACE strata use the shared
+local evaluator scheduler. See [FASHION_MNIST.md](FASHION_MNIST.md) for the
+full contract and commands.
+
+## 9. Adding another ML task
 
 Prefer tasks with:
 

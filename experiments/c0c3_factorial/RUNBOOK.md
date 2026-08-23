@@ -544,6 +544,23 @@ RL4RL_OVERNIGHT_PROFILE=openevolve-v2.1-nanogpt \
 Both profiles support `fast-mode on|off|status`. The shared nanoGPT H100 app is
 capped at three workers and does not take a local Mac evaluator slot.
 
+For the separate fixed-exposure Fashion-MNIST strata, first follow
+[FASHION_MNIST.md](FASHION_MNIST.md) to download and checksum the data, run two
+protocol-specific MPS calibrations, create and validate the four-block v1.7 and
+three-block v2.1 campaigns, and create their detached runtimes. Their durable
+profiles are:
+
+```bash
+RL4RL_OVERNIGHT_PROFILE=autoresearch-v1.7-fashion-mnist \
+  $PY experiments/c0c3_overnight.py check
+RL4RL_OVERNIGHT_PROFILE=openevolve-v2.1-fashion-mnist \
+  $PY experiments/c0c3_overnight.py check
+```
+
+The corresponding `start --recover-interrupted --all-running` commands are
+intentionally separate from preparation. Both use the shared local evaluator
+pool and a stable dataset cache path; they do not invoke Modal.
+
 Inspect the shared local pool at any time without changing it:
 
 ```bash

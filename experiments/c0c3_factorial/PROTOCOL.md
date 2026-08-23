@@ -465,6 +465,10 @@ threshold described above, not a total-token stopping ceiling.
 Protocol 1.7 freezes 200 opportunities/evaluator calls and 720,000 aggregate
 evaluator seconds per run. Token use is accounted but has no stopping or prompt
 role. Its addition-task preset has two C0–C3 blocks, 1,600 proposals, and no N0.
+Its Fashion-MNIST preset instead has four blocks and a 24,000-second aggregate
+evaluator budget per run; the v2.1 Fashion-MNIST preset has three blocks and the
+same task-specific evaluator budget. Both retain 200 proposals per trajectory,
+no N0, and the same every-tenth-opportunity intervention schedule as nanoGPT.
 
 Protocols 2.0 and 2.1 freeze 200 opportunities/evaluator calls, 100,000,000 total
 reported tokens, 360,000 aggregate evaluator seconds, and 1,800 seconds per
@@ -555,7 +559,9 @@ evaluate the online incumbent. N0 evaluates its post-search best Layer-A-valid
 independent proposal when N0 is included in that scope. AdderBoard uses a
 disjoint verifier seed. Official Karpathy Autoresearch currently repeats the
 pinned validation procedure, so it is a replication check, not an unseen
-holdout; the paper must use that terminology.
+holdout; the paper must use that terminology. Fashion-MNIST instead retrains
+the selected source under the frozen 100,000-example exposure and evaluates the
+untouched official 10,000-image test split, which is never used by Layer A.
 
 ## 13. Confirmatory analysis
 

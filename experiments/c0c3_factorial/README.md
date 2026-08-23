@@ -137,6 +137,13 @@ Future coding agents must also follow [AGENTS.md](AGENTS.md).
   local; a dedicated three-worker H100 evaluator service owns fixed-time
   training and is isolated from addition campaigns and local Mac evaluator
   slots.
+- `configs/protocols/fashion_mnist_autoresearch_v1_7.toml` and
+  `configs/protocols/fashion_mnist_openevolve_v2_1.toml` mirror nanoGPT's
+  four-block/three-block artifact-clean geometry for fixed-exposure local-MPS
+  image classification. The evaluator owns a frozen 50k/10k split, exactly
+  100,000 presented training examples, and the sealed official test set. See
+  [FASHION_MNIST.md](FASHION_MNIST.md); setup does not download, calibrate, or
+  launch this task automatically.
 
 Run the dev protocol end to end before spending on the paper protocol. Do not
 reinterpret dev results as a pilot effect estimate: its transition density and

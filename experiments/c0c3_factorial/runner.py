@@ -24,9 +24,11 @@ from .artifacts import (
 )
 from .codex_cli import CodexCli, session_id_from_events, usage_from_events
 from .evaluator import make_command_evaluator
+from .fashion_mnist import preflight_candidate_source as preflight_fashion_mnist
 from .frameworks import make_framework_adapter
 from .neutral_task import (
     ARTIFACT_CLEAN_PROMPT_PROFILES,
+    FASHION_MNIST_TASK_ADAPTER,
     PAIR_TOKEN_TASK_ADAPTER_V2,
     PAIR_TOKEN_TASK_ADAPTER_V3,
     SUBJECT_NEUTRAL_PROMPT_PROFILES,
@@ -610,6 +612,12 @@ def _run_one_opportunity_unlocked(
         in {PAIR_TOKEN_TASK_ADAPTER_V2, PAIR_TOKEN_TASK_ADAPTER_V3}
     ):
         preflight_error = preflight_candidate_source(workspace)
+    elif (
+        proposal.codex.returncode == 0
+        and adapter_error is None
+        and task.adapter == FASHION_MNIST_TASK_ADAPTER
+    ):
+        preflight_error = preflight_fashion_mnist(workspace)
     if proposal.codex.returncode != 0 or adapter_error or preflight_error:
         failure_kind = (
             "provider"
