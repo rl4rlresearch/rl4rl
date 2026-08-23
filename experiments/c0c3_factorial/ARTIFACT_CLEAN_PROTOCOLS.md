@@ -65,9 +65,10 @@ not appended again by the adapter. The strict exact-once patch parser and source
 preflight remain unchanged.
 
 V2.1 retains v2.0's internal 100M-token safety ceiling, 200 proposal/evaluation
-limits, evaluator-time limit, three campaign-local evaluator slots, and
-optional evaluator-only Modal transport. V1.7 and local V2.1 evaluations also
-join the six-slot host scheduler shared with other active local campaigns.
+limits, evaluator-time limit, and optional evaluator-only Modal transport.
+V1.7 and v2.1 set campaign-local evaluator capacity equal to the campaign's
+predeclared block count and join the eight-slot host scheduler shared with other
+active local campaigns.
 None of those resource values is shown to the subject.
 
 ## Assumption-prompt editing boundary
@@ -117,6 +118,8 @@ For evaluator-only Modal L4, replace the v2.1 MPS task with
 `ten_digit_addition_pair_transformer_openevolve_v2_1_modal.toml` and perform a
 separate target-backend calibration.
 
-Both protocols freeze three C0–C3-only blocks: twelve primary trajectories and
-no N0 assignment. Use the ordinary calibration, creation, validation, and
-individual trajectory start/pause/resume commands in `RUNBOOK.md`.
+The addition-task v1.7 preset freezes two C0–C3-only blocks and v2.1 freezes
+five; neither has N0. Both start in Codex Fast mode, with a controller-side
+switch that takes effect on the next Codex call. Use the ordinary calibration,
+creation, validation, and individual trajectory start/pause/resume commands in
+`RUNBOOK.md`.

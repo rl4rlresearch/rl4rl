@@ -634,8 +634,10 @@ def _run_one_opportunity_unlocked(
             failure_kind=failure_kind,
         )
     else:
-        max_parallel_evaluators = EVALUATOR_CONCURRENCY_BY_PROTOCOL.get(
-            spec.protocol_version
+        max_parallel_evaluators = (
+            spec.blocks
+            if spec.protocol_version in {"1.7", "2.1"}
+            else EVALUATOR_CONCURRENCY_BY_PROTOCOL.get(spec.protocol_version)
         )
         evaluator = make_command_evaluator(
             task=task,
@@ -664,6 +666,7 @@ def _run_one_opportunity_unlocked(
         evaluation=evaluation,
         usage=proposal.codex.usage,
         prompt_hashes=_hashes(rendered),
+        codex_service_tier=proposal.codex.service_tier,
         mechanism=proposal.mechanism,
         evidence=proposal.evidence,
     )

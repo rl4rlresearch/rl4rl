@@ -18,6 +18,7 @@ from experiments.c0c3_factorial.artifacts import (
     prepare_seed_workspace,
     scientific_runtime_hash,
 )
+from experiments.c0c3_factorial.codex_cli import selected_service_tier
 from experiments.c0c3_factorial.environment import (
     controlled_subprocess_environment,
     subject_subprocess_environment,
@@ -212,6 +213,28 @@ def test_protocol_version_freezes_its_execution_rule() -> None:
         }
     )
     assert parallel.execution_rule == PARALLEL_EXECUTION_RULE
+
+
+def test_artifact_clean_presets_start_fast_with_requested_block_counts() -> None:
+    v17 = FactorialSpec.from_toml(V17_PROTOCOL)
+    v21 = FactorialSpec.from_toml(OPENEVOLVE_V21_PROTOCOL)
+
+    assert (v17.blocks, v17.model.service_tier) == (2, "fast")
+    assert (v21.blocks, v21.model.service_tier) == (5, "fast")
+
+
+def test_service_tier_control_can_switch_a_fast_model(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    control = tmp_path / "service-tier.json"
+    monkeypatch.setenv("RL4RL_C0C3_SERVICE_TIER_CONTROL", str(control))
+    model = ModelSpec("gpt-test", "high", service_tier="fast")
+
+    assert selected_service_tier(model) == "fast"
+    control.write_text('{"service_tier":"default"}\n', encoding="utf-8")
+    assert selected_service_tier(model) == "default"
+    control.write_text('{"service_tier":"fast"}\n', encoding="utf-8")
+    assert selected_service_tier(model) == "fast"
 
 
 def task() -> TaskSpec:

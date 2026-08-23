@@ -49,7 +49,7 @@ Future coding agents must also follow [AGENTS.md](AGENTS.md).
 - `campaign.py`: portable calibration and immutable campaign construction.
 - `runner.py`: one locked proposal/evaluation opportunity.
 - `evaluator.py`: campaign-local evaluator limits plus one crash-releasing,
-  six-slot host scheduler shared by every local 1.6/1.7/2.0/2.1 campaign.
+  eight-slot host scheduler shared by every local 1.6/1.7/2.0/2.1 campaign.
 - `orchestration.py`: versioned serial, synchronized-wave, and independently
   advancing parallel execution, plus campaign writer locks and append-only
   execution provenance.
@@ -107,7 +107,7 @@ Future coding agents must also follow [AGENTS.md](AGENTS.md).
   writable roots, registers one unique Codex thread per run, freezes inference
   preprocessing, retrains from an empty checkpoint directory, and allows at
   most three local evaluators from that campaign at once. All local campaigns
-  also share one six-slot host scheduler. All twelve C0–C3 trajectories may
+  also share one eight-slot host scheduler. All twelve C0–C3 trajectories may
   remain active concurrently; evaluator queueing is condition-common
   machine-load control rather than a trajectory barrier. Its 500M-token value is a common
   subject-visible phase threshold: the controller returns at the crossing,
@@ -117,17 +117,18 @@ Future coding agents must also follow [AGENTS.md](AGENTS.md).
   prospective controlled OpenEvolve replacement: three C0–C3-only blocks, 200
   bounded ephemeral proposals per run, the 1,644-parameter/5,000-step parent,
   neutral prompts, strict patch/source preflight, trained-attention checks,
-  three campaign-local evaluator slots, the shared six-slot host scheduler,
+  three campaign-local evaluator slots, the shared eight-slot host scheduler,
   independent supervision, and optional evaluator-only Modal L4 offload. It is
   a new stratum and cannot be pooled with protocol 1.1.
 - `configs/protocols/workshop_codex1644_source_only_v1_7.toml` is the
-  artifact-clean continuous Autoresearch successor. It has twelve primary
-  C0–C3 trajectories, no N0, no subject-visible resource/horizon accounting,
-  source-only workspaces, and no token-based stop.
+  artifact-clean continuous Autoresearch successor. Its current addition-task
+  preset has two blocks/eight primary trajectories, no N0, no subject-visible
+  resource/horizon accounting, source-only workspaces, and no token-based stop.
 - `configs/protocols/controlled_openevolve_transformer_v2_1.toml` is the
   artifact-clean ephemeral OpenEvolve successor. It preserves v2.0's search
   geometry and evaluator controls while removing subject-visible orchestration
-  artifacts and redundant prompt composition. In both 1.7 and 2.1, the main
+  artifacts and redundant prompt composition; its current addition-task preset
+  has five blocks/twenty trajectories. In both 1.7 and 2.1, the main
   checkout's assumption-changing template remains live until each trajectory's
   first start and is then hashed and frozen privately for that trajectory.
 
@@ -151,8 +152,8 @@ budget are intentionally unlike the paper protocol.
   `run-staged-independent-campaign` for protocol 1.4. Use
   `start-staged-trajectory`, `pause-staged-trajectory`, and
   `resume-staged-trajectory` for protocols 1.5–1.7 and 2.0–2.1. Protocols 1.7,
-  2.0, and 2.1 have no optional N0 stage and freeze all three C0–C3 blocks as
-  their analysis scope.
+  2.0, and 2.1 have no optional N0 stage and freeze every campaign-declared
+  C0–C3 block as their analysis scope.
 - Never expose Layer B annotations or Layer C results until every run in the
   campaign is completed.
 - Do not delete, retry, or reuse a failed opportunity. Use `recover-active` for

@@ -16,6 +16,23 @@ from .environment import (
 from .spec import ModelSpec
 from .state import Usage
 
+SERVICE_TIER_CONTROL_ENV = "RL4RL_C0C3_SERVICE_TIER_CONTROL"
+
+
+def selected_service_tier(model: ModelSpec) -> str:
+    """Read the operator control at each call so running campaigns can switch."""
+
+    selected = model.service_tier
+    control = os.environ.get(SERVICE_TIER_CONTROL_ENV)
+    if control:
+        path = Path(control).expanduser()
+        if path.is_file():
+            payload = json.loads(path.read_text(encoding="utf-8"))
+            selected = str(payload.get("service_tier", selected))
+    if selected not in {"default", "fast"}:
+        raise ValueError(f"unsupported Codex service tier: {selected}")
+    return selected
+
 
 @dataclass(frozen=True)
 class CodexResult:
@@ -25,6 +42,7 @@ class CodexResult:
     events_path: Path
     stderr_path: Path
     session_id: str | None
+    service_tier: str
 
 
 def session_id_from_events(path: Path) -> str | None:
@@ -109,6 +127,13 @@ class CodexCli:
         excluded_environment = json.dumps(
             excluded_environment_names, separators=(",", ":")
         )
+        service_tier = selected_service_tier(model)
+        service_tier_options = [
+            "-c",
+            f'service_tier="{service_tier}"',
+            "-c",
+            f"features.fast_mode={'true' if service_tier == 'fast' else 'false'}",
+        ]
         isolated_options = [
             "--ignore-user-config",
             "--ignore-rules",
@@ -132,6 +157,7 @@ class CodexCli:
                 f'model_reasoning_effort="{model.reasoning_effort}"',
                 "-c",
                 f'approval_policy="{model.approval_policy}"',
+                *service_tier_options,
                 "--json",
                 "--output-last-message",
                 str(last_message),
@@ -159,6 +185,7 @@ class CodexCli:
                 f'model_reasoning_effort="{model.reasoning_effort}"',
                 "-c",
                 f'approval_policy="{model.approval_policy}"',
+                *service_tier_options,
                 "-c",
                 f'sandbox_mode="{sandbox or model.sandbox}"',
                 *isolated_options,
@@ -223,4 +250,5 @@ class CodexCli:
             events_path=events,
             stderr_path=stderr,
             session_id=session_id_from_events(events),
+            service_tier=service_tier,
         )

@@ -21,7 +21,7 @@ from .environment import controlled_subprocess_environment
 from .spec import ObjectiveDirection, TaskSpec
 from .state import Evaluation
 
-SHARED_LOCAL_EVALUATOR_CAPACITY = 6
+SHARED_LOCAL_EVALUATOR_CAPACITY = 8
 SHARED_LOCAL_EVALUATOR_ROOT_ENV = "RL4RL_SHARED_LOCAL_EVALUATOR_ROOT"
 
 
@@ -110,10 +110,11 @@ def _ensure_shared_scheduler(root: Path, capacity: int) -> None:
         fcntl.flock(handle.fileno(), fcntl.LOCK_EX)
         if config_path.is_file():
             payload = json.loads(config_path.read_text(encoding="utf-8"))
-            if payload.get("capacity") != capacity:
+            configured_capacity = int(payload.get("capacity", 0))
+            if configured_capacity > capacity:
                 raise RuntimeError(
                     "shared local evaluator scheduler capacity mismatch: "
-                    f"expected {capacity}, found {payload.get('capacity')}"
+                    f"requested at least {capacity}, found {configured_capacity}"
                 )
         else:
             config_path.write_text(

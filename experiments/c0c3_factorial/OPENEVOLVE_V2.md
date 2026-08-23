@@ -11,7 +11,8 @@ collection; existing 2.0 campaigns remain scientifically separate.
 
 ## Frozen design
 
-- Three paired blocks, four C0–C3 trajectories per block, and no N0 assignment.
+- V2.0 uses three paired blocks; the v2.1 addition preset uses five. Both have
+  four C0–C3 trajectories per block and no N0 assignment.
 - `K=4`, the existing fair lineage selector, and strict lineage-local retention.
 - 200 proposal opportunities per trajectory, with C1/C3 assumption changes at
   every tenth opportunity.
@@ -20,9 +21,9 @@ collection; existing 2.0 campaigns remain scientifically separate.
   selected source, all retained designs, the last twelve outcomes, and a compact
   free-form mechanism ledger in v2.0; v2.1 records mechanisms once in its recent
   outcomes and has no duplicate ledger. Raw conversation history is not resumed.
-- One independently supervised process per trajectory. All twelve processes may
-  generate proposals concurrently, while at most three evaluators from the
-  campaign train at once and all local campaigns share six host slots.
+- One independently supervised process per trajectory. All processes may
+  generate proposals concurrently. V2.0 retains three campaign evaluator slots;
+  v2.1 uses one per declared block. All local campaigns share eight host slots.
 - The 1,644-parameter pair-token transformer is the common seed. Its ordinary
   training path is 5,000 steps rather than the legacy 6,080-parent 30,000-step
   path. The evaluator timeout is 1,800 seconds.

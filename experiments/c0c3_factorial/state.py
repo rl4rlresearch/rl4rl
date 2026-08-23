@@ -458,6 +458,7 @@ class SearchController:
         evaluation: Evaluation,
         usage: Usage,
         prompt_hashes: dict[str, str],
+        codex_service_tier: str = "default",
         mechanism: str = "[not recorded]",
         evidence: str = "[not recorded]",
     ) -> dict[str, Any]:
@@ -561,6 +562,7 @@ class SearchController:
             "evaluator_seconds_cumulative": self.state.evaluator_seconds_used,
             "remaining_budget": remaining_before_advance,
             "prompt_hashes": dict(sorted(prompt_hashes.items())),
+            "codex_service_tier": codex_service_tier,
             "conversation_session_id": self.state.conversation_session_id,
         }
         append_jsonl(self.events_path, record)

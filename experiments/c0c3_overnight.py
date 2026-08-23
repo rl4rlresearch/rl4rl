@@ -67,6 +67,7 @@ STATUS_PATH = CONTROL_ROOT / "status.json"
 SUPERVISOR_LOCK = CONTROL_ROOT / "supervisor.lock"
 CONTROL_LOCK = CONTROL_ROOT / "control.lock"
 SUPERVISOR_LOG = CONTROL_ROOT / "supervisor.log"
+SERVICE_TIER_PATH = CONTROL_ROOT / "service-tier.json"
 SCREEN_SESSION = os.environ.get(
     "RL4RL_OVERNIGHT_SCREEN_SESSION", DEFAULT_SCREEN_SESSION
 )
@@ -198,7 +199,7 @@ def plans(profile: str | None = None) -> tuple[CampaignPlan, ...]:
                     / "data/c0c3/transformer-optimization-v1-7-source-only-campaign",
                 ),
                 mode="individual-trajectories",
-                blocks=(1, 2, 3),
+                blocks=(1, 2),
             ),
         )
     if selected_profile == "openevolve-v2.1":
@@ -215,7 +216,7 @@ def plans(profile: str | None = None) -> tuple[CampaignPlan, ...]:
                     / "data/c0c3/controlled-openevolve-transformer-v2-1-mps-campaign",
                 ),
                 mode="individual-trajectories",
-                blocks=(1, 2, 3),
+                blocks=(1, 2, 3, 4, 5),
             ),
         )
     if selected_profile != "primary":
@@ -463,7 +464,31 @@ def command_environment(job: Job) -> dict[str, str]:
         environment["RL4RL_C0C3_OPERATOR_PROMPT_ROOT"] = str(
             REPO_ROOT / "experiments/c0c3_factorial/templates"
         )
+        environment["RL4RL_C0C3_SERVICE_TIER_CONTROL"] = str(SERVICE_TIER_PATH)
     return environment
+
+
+def service_tier() -> str:
+    payload = read_json(SERVICE_TIER_PATH, {})
+    selected = str(payload.get("service_tier", "fast"))
+    if selected not in {"default", "fast"}:
+        raise RuntimeError(f"invalid service tier control: {selected}")
+    return selected
+
+
+def ensure_service_tier_control() -> None:
+    if PROFILE not in {"autoresearch-v1.7", "openevolve-v2.1"}:
+        return
+    if not SERVICE_TIER_PATH.exists():
+        atomic_json(
+            SERVICE_TIER_PATH,
+            {
+                "schema_version": "1.0",
+                "service_tier": "fast",
+                "updated_at": utc_now(),
+                "reason": "initial artifact-clean campaign default",
+            },
+        )
 
 
 def recover_command(job: Job, run_id: str, reason: str) -> list[str]:
@@ -985,6 +1010,7 @@ def command_check(args: argparse.Namespace) -> int:
 
 def command_start(args: argparse.Namespace) -> int:
     CONTROL_ROOT.mkdir(parents=True, exist_ok=True)
+    ensure_service_tier_control()
     jobs = expand_jobs()
     if screen_running():
         raise SystemExit(f"screen session {SCREEN_SESSION!r} is already running")
@@ -1024,6 +1050,7 @@ def command_start(args: argparse.Namespace) -> int:
 
 def command_daemon(args: argparse.Namespace) -> int:
     CONTROL_ROOT.mkdir(parents=True, exist_ok=True)
+    ensure_service_tier_control()
     with SUPERVISOR_LOCK.open("a+", encoding="utf-8") as handle:
         try:
             fcntl.flock(handle.fileno(), fcntl.LOCK_EX | fcntl.LOCK_NB)
@@ -1069,6 +1096,8 @@ def command_status(_args: argparse.Namespace) -> int:
         f"supervisor={'running' if live else 'not-running'} "
         f"pid={supervisor_pid or '-'} heartbeat={heartbeat or '-'}"
     )
+    if PROFILE in {"autoresearch-v1.7", "openevolve-v2.1"}:
+        print(f"codex_service_tier={service_tier()}")
     scheduler = shared_local_evaluator_status()
     print(
         "local_evaluators="
@@ -1113,6 +1142,28 @@ def command_shutdown(_args: argparse.Namespace) -> int:
     return 0
 
 
+def command_fast_mode(args: argparse.Namespace) -> int:
+    if PROFILE not in {"autoresearch-v1.7", "openevolve-v2.1"}:
+        raise SystemExit("fast-mode control is available for v1.7 and v2.1 profiles")
+    CONTROL_ROOT.mkdir(parents=True, exist_ok=True)
+    if args.action == "status":
+        ensure_service_tier_control()
+        print(service_tier())
+        return 0
+    selected = "fast" if args.action == "on" else "default"
+    atomic_json(
+        SERVICE_TIER_PATH,
+        {
+            "schema_version": "1.0",
+            "service_tier": selected,
+            "updated_at": utc_now(),
+            "reason": f"operator requested fast mode {args.action}",
+        },
+    )
+    print(selected)
+    return 0
+
+
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(description=__doc__)
     subparsers = parser.add_subparsers(dest="command", required=True)
@@ -1141,6 +1192,10 @@ def build_parser() -> argparse.ArgumentParser:
 
     shutdown = subparsers.add_parser("shutdown")
     shutdown.set_defaults(handler=command_shutdown)
+
+    fast_mode = subparsers.add_parser("fast-mode")
+    fast_mode.add_argument("action", choices=("on", "off", "status"))
+    fast_mode.set_defaults(handler=command_fast_mode)
     return parser
 
 

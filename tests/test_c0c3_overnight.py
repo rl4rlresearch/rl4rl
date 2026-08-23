@@ -122,15 +122,15 @@ def test_openevolve_v2_profile_declares_three_individually_controlled_blocks() -
 
 
 def test_artifact_clean_profiles_declare_all_primary_blocks() -> None:
-    for profile, key in (
-        ("autoresearch-v1.7", "autoresearch-v1.7"),
-        ("openevolve-v2.1", "openevolve-v2.1"),
+    for profile, key, blocks in (
+        ("autoresearch-v1.7", "autoresearch-v1.7", (1, 2)),
+        ("openevolve-v2.1", "openevolve-v2.1", (1, 2, 3, 4, 5)),
     ):
         roster = plans(profile)
         assert len(roster) == 1
         assert roster[0].key == key
         assert roster[0].mode == "individual-trajectories"
-        assert roster[0].blocks == (1, 2, 3)
+        assert roster[0].blocks == blocks
 
 
 def test_artifact_clean_jobs_receive_main_operator_prompt_root(tmp_path: Path) -> None:

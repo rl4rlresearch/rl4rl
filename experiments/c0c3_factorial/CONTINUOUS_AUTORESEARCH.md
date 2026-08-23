@@ -81,7 +81,7 @@ operational plan and report their lifecycle timing and overlap.
 
 Protocol 1.7 is the artifact-clean successor to the confined v1.6 campaign. It
 keeps one continuous conversation per trajectory, independent per-run
-ownership, three campaign evaluator slots, the six-slot shared local host
+ownership, three campaign evaluator slots, the eight-slot shared local host
 scheduler, and the 200-opportunity schedule. All three C0–C3 blocks are primary
 and N0 is absent.
 

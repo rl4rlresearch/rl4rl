@@ -96,9 +96,10 @@ FRAMEWORK=$C0C3/configs/frameworks/openevolve_v2_1.toml
 OUT=data/c0c3/controlled-openevolve-transformer-v2-1-mps
 ```
 
-Both require a fresh calibration and campaign. They create twelve primary
-C0–C3 runs, no N0, and never copy the supplied trained checkpoint into a
-subject workspace. Read [ARTIFACT_CLEAN_PROTOCOLS.md](ARTIFACT_CLEAN_PROTOCOLS.md)
+Both require a fresh calibration and campaign. The addition-task v1.7 preset
+creates two blocks/eight runs; the v2.1 preset creates five blocks/twenty runs.
+Neither creates N0 or copies the supplied trained checkpoint into a subject
+workspace. Read [ARTIFACT_CLEAN_PROTOCOLS.md](ARTIFACT_CLEAN_PROTOCOLS.md)
 before launch.
 
 Verify prerequisites:
@@ -415,7 +416,7 @@ Use the same individual `start-staged-trajectory`,
 the operational roster must select exactly C0–C3 from Blocks 1–3 (twelve jobs),
 never N0. All twelve controllers may run simultaneously. The runtime admits at
 most three evaluator processes from this campaign through crash-releasing file
-locks. Each evaluator also acquires one of six host-wide slots shared by every
+locks. Each evaluator also acquires one of eight host-wide slots shared by every
 local protocol-1.6/1.7/2.0/2.1 campaign, so starting another campaign cannot
 silently double Mac training concurrency. A queued trainer is healthy and does
 not spend its evaluator timeout or evaluator-time budget while waiting.
@@ -508,16 +509,29 @@ zero proposals and have never started; started or resumed trajectories retain
 their original snapshot. See `ARTIFACT_CLEAN_PROTOCOLS.md` for the exact files
 and provenance behavior.
 
+Both presets start Codex in Fast mode. Change subsequent Codex calls without
+pausing or restarting the supervisor:
+
+```bash
+RL4RL_OVERNIGHT_PROFILE=autoresearch-v1.7 $PY experiments/c0c3_overnight.py fast-mode off
+RL4RL_OVERNIGHT_PROFILE=openevolve-v2.1 $PY experiments/c0c3_overnight.py fast-mode off
+# Replace `off` with `on` or `status` as needed.
+```
+
+The selected tier is read immediately before every new or resumed Codex call
+and is recorded in each proposal event. A call already in flight finishes on
+the tier with which it began.
+
 Inspect the shared local pool at any time without changing it:
 
 ```bash
 $PY -m $CLI local-evaluator-status
 ```
 
-The JSON reports six host slots and the opportunity holding each occupied
+The JSON reports eight host slots and the opportunity holding each occupied
 slot. `experiments/c0c3_overnight.py status` also prints the compact occupied
-count. The existing three-slot campaign pool remains in force, so one campaign
-cannot take more than three of the six host slots. Queue waiting happens before
+count. Protocols 1.7 and 2.1 set their campaign-local limit equal to their
+declared block count; older campaigns retain their frozen local limit. Queue waiting happens before
 the evaluator clock starts. Modal evaluator-only campaigns do not take local
 host slots.
 

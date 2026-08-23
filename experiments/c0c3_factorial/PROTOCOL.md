@@ -26,7 +26,7 @@ predeclared blocks and a confined continuous-session runtime. It fixes resumed
 process cwd ownership, isolates Codex configuration and thread identity, freezes
 inference preprocessing, strengthens fresh-training/attention-dependence checks,
 and caps concurrent local evaluators at three per campaign while all twelve
-controllers run. Local campaigns also enter one six-slot host scheduler.
+controllers run. Local campaigns also enter one eight-slot host scheduler.
 Version 2.0 is the prospective controlled OpenEvolve replacement. It removes N0,
 uses the 1,644-parameter pair-token parent and 5,000-step training path, gives
 each proposal a bounded ephemeral session with structured trajectory evidence,
@@ -34,8 +34,8 @@ and adds strict patch/source preflight plus optional evaluator-only Modal L4
 offload. All three C0–C3 blocks are frozen primary data.
 Version 1.7 is the source-only, artifact-clean continuous Autoresearch
 successor. Version 2.1 applies the same subject-boundary cleanup to bounded
-OpenEvolve while retaining its patch interface and evaluator controls. Both
-contain twelve primary C0–C3 trajectories and no N0.
+OpenEvolve while retaining its patch interface and evaluator controls. Their
+task-specific presets freeze every declared C0–C3 block as primary and omit N0.
 
 ## 1. Research question and unit of analysis
 
@@ -323,7 +323,7 @@ removes every supplied checkpoint before training, rejects source mutation
 during training, requires a positive-step learned checkpoint, and checks that
 exact addition accuracy collapses when learned attention is ablated. At most
 three v1.6 evaluators hold campaign-local file-lock slots concurrently. Every
-local protocol-1.6/1.7/2.0/2.1 evaluator must also hold one of six host-wide
+local protocol-1.6/1.7/2.0/2.1 evaluator must also hold one of eight host-wide
 file-lock slots shared across campaigns. Both leases release automatically on
 process exit. Waiting for either slot occurs outside evaluator timeout and
 evaluator-budget accounting; Codex proposal generation and trajectory
@@ -343,8 +343,8 @@ C0–C3 trajectories; proposal, evaluation, and evaluator-time budgets remain
 hard limits.
 
 Protocol 1.7 uses the same independently controlled, confined continuous
-execution geometry but freezes all three C0–C3 blocks as primary scope and
-removes N0. The subject receives the complete task contract once, followed by
+execution geometry but freezes every campaign-declared C0–C3 block as primary
+scope and removes N0. The subject receives the complete task contract once, followed by
 incremental current-design and newly available result messages. Prompt-region
 markers, opportunity/resource accounting, empty population slots, selection
 counts, nonpublic metrics, internal runner errors, and repeated history are not
@@ -365,7 +365,7 @@ Protocol 2.0 freezes
 trajectories across three blocks are declared before launch and are controlled,
 paused, resumed, and recovered independently. There is no block or opportunity
 barrier. At most three evaluators from this campaign may train concurrently,
-and every local evaluator also enters the shared six-slot host scheduler;
+and every local evaluator also enters the shared eight-slot host scheduler;
 proposal generation remains independently parallel. A durable supervisor may relaunch only a
 trajectory whose writer is confirmed absent, using the charged recovery rule.
 
@@ -387,8 +387,9 @@ contract appears once. Its internal token ceiling remains a safety stop but is
 not disclosed to the subject.
 
 The shared local scheduler is an operational machine-load control, not a
-factorial treatment. It preserves every campaign's three-slot ceiling while
-enforcing six local evaluations across all participating campaigns combined.
+factorial treatment. Protocols 1.7/2.1 use one campaign slot per declared block;
+older campaigns retain their frozen ceiling. It enforces eight local
+evaluations across all participating campaigns combined.
 It does not schedule Codex calls, alter proposal order or parent selection,
 charge queue time, or change evaluator seeds, commands, timeouts, and budgets.
 Evaluator-only Modal calls retain their campaign remote-call limit but do not
@@ -463,14 +464,15 @@ threshold described above, not a total-token stopping ceiling.
 
 Protocol 1.7 freezes 200 opportunities/evaluator calls and 720,000 aggregate
 evaluator seconds per run. Token use is accounted but has no stopping or prompt
-role. Its three C0–C3 blocks schedule 2,400 proposals and contain no N0.
+role. Its addition-task preset has two C0–C3 blocks, 1,600 proposals, and no N0.
 
 Protocols 2.0 and 2.1 freeze 200 opportunities/evaluator calls, 100,000,000 total
 reported tokens, 360,000 aggregate evaluator seconds, and 1,800 seconds per
-evaluator invocation per run. It schedules 2,400 proposals across twelve runs
-and twenty assumption-changing opportunities per C1/C3 trajectory. There is no
-N0 budget. The lower token ceiling reflects bounded ephemeral prompts rather
-than an intended difference among cells.
+evaluator invocation per run. V2.0 schedules 2,400 proposals across twelve
+runs; the v2.1 addition preset schedules 4,000 across twenty. Each C1/C3
+trajectory has twenty assumption-changing opportunities. There is no N0 budget.
+The lower token ceiling reflects bounded ephemeral prompts rather than an
+intended difference among cells.
 
 A new opportunity cannot start after any applicable hard budget reaches zero.
 One already-started Codex or evaluator call may overshoot a hard ceiling; its
@@ -534,8 +536,8 @@ are excluded. The operator must activate any optional extension before Layer
 B/C is created, after which the runner forbids more collection.
 For protocol 1.6 the frozen factorial scope is all twelve C0–C3 runs across its
 three prospectively declared blocks; dormant N0 assignments remain excluded.
-For protocols 1.7, 2.0, and 2.1 the frozen scope is all twelve C0–C3 runs and no
-dormant N0 assignment exists.
+For protocols 1.7, 2.0, and 2.1 the frozen scope is every campaign-declared
+C0–C3 run and no dormant N0 assignment exists.
 Every valid proposal becomes an opaque packet containing parent and candidate
 source plus the stated hypothesis/edit. Condition, run, opportunity, and Layer
 A scores are hidden. Independent reviewers decide whether the delta is a

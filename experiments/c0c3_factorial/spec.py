@@ -121,9 +121,7 @@ INDIVIDUAL_EXECUTION_RULES = frozenset(
 # jobs oversubscribing one laptop and is identical in every factorial cell.
 EVALUATOR_CONCURRENCY_BY_PROTOCOL = {
     "1.6": 3,
-    "1.7": 3,
     "2.0": 3,
-    "2.1": 3,
 }
 # Backward-compatible name for the original paper-v1 execution rule.
 EXECUTION_RULE = SERIAL_EXECUTION_RULE
@@ -170,6 +168,7 @@ class ModelSpec:
     reasoning_effort: str
     sandbox: str = "workspace-write"
     approval_policy: str = "never"
+    service_tier: str = "default"
 
     def __post_init__(self) -> None:
         if not self.name.strip():
@@ -187,6 +186,8 @@ class ModelSpec:
             raise ValueError("scientific runs permit read-only or workspace-write only")
         if self.approval_policy != "never":
             raise ValueError("non-interactive runs require approval_policy='never'")
+        if self.service_tier not in {"default", "fast"}:
+            raise ValueError("service_tier must be 'default' or 'fast'")
 
 
 @dataclass(frozen=True)
@@ -338,12 +339,19 @@ class FactorialSpec:
             "factorial protocol",
         )
         model = payload.pop("model")
+        model.setdefault("service_tier", "default")
         budget = payload.pop("budget")
         transition_opportunities = tuple(payload.pop("transition_opportunities"))
         conversation_mode = ConversationMode(payload.pop("conversation_mode"))
         _strict_keys(
             model,
-            {"name", "reasoning_effort", "sandbox", "approval_policy"},
+            {
+                "name",
+                "reasoning_effort",
+                "sandbox",
+                "approval_policy",
+                "service_tier",
+            },
             "model",
         )
         _strict_keys(
