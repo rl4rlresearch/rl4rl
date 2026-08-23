@@ -46,14 +46,18 @@ def utc_now() -> str:
     return dt.datetime.now(dt.UTC).isoformat()
 
 
-def factorial_run_dirs(campaign: Path) -> list[Path]:
+def scheduled_run_dirs(campaign: Path) -> list[Path]:
     schedule = json.loads((campaign / "schedule.json").read_text(encoding="utf-8"))
-    result = []
-    for assignment in schedule:
-        if assignment.get("condition") not in {"C0", "C1", "C2", "C3"}:
-            continue
-        result.append(campaign / "runs" / str(assignment["run_id"]))
-    return result
+    return [campaign / "runs" / str(assignment["run_id"]) for assignment in schedule]
+
+
+def factorial_run_dirs(campaign: Path) -> list[Path]:
+    return [
+        run_dir
+        for run_dir in scheduled_run_dirs(campaign)
+        if read_json(run_dir / "manifest.json").get("condition")
+        in {"C0", "C1", "C2", "C3"}
+    ]
 
 
 def validate_transition(campaign: Path, run_dirs: list[Path]) -> int:
@@ -84,9 +88,64 @@ def validate_transition(campaign: Path, run_dirs: list[Path]) -> int:
     return threshold
 
 
+def sync_manifest_hashes(
+    campaign: Path, runtime_root: Path, *, dry_run: bool
+) -> dict[str, Any]:
+    """Synchronize campaign-wide manifests without touching any run state."""
+
+    campaign = campaign.resolve()
+    runtime_root = runtime_root.resolve()
+    _spec, task, framework = _load_campaign(campaign)
+    expected_hash = scientific_runtime_hash(
+        runtime_root, task=task, framework=framework
+    )
+    mismatched = [
+        run_dir
+        for run_dir in scheduled_run_dirs(campaign)
+        if read_json(run_dir / "manifest.json").get("scientific_runtime_hash")
+        != expected_hash
+    ]
+    timestamp = utc_now()
+    summary = {
+        "campaign": str(campaign),
+        "dry_run": dry_run,
+        "expected_scientific_runtime_hash": expected_hash,
+        "mismatched_manifest_count": len(mismatched),
+        "mismatched_run_ids": [run_dir.name for run_dir in mismatched],
+    }
+    if dry_run or not mismatched:
+        return summary
+
+    backup_root = (
+        campaign
+        / "operator-amendments"
+        / f"{timestamp.replace(':', '-')}-manifest-sync"
+    )
+    backup_root.mkdir(parents=True, exist_ok=False)
+    for run_dir in mismatched:
+        manifest_path = run_dir / "manifest.json"
+        shutil.copy2(manifest_path, backup_root / f"{run_dir.name}.json")
+        manifest = read_json(manifest_path)
+        manifest["scientific_runtime_hash"] = expected_hash
+        atomic_json(manifest_path, manifest)
+    append_jsonl(
+        campaign / "protocol-amendments.jsonl",
+        {
+            "schema_version": "1.0",
+            "event": "campaign_manifest_hashes_synchronized",
+            "timestamp": timestamp,
+            "run_ids": [run_dir.name for run_dir in mismatched],
+            "scientific_runtime_hash": expected_hash,
+            "run_state_changed": False,
+        },
+    )
+    return summary
+
+
 def amend(campaign: Path, runtime_root: Path, *, dry_run: bool) -> dict[str, Any]:
     campaign = campaign.resolve()
     runtime_root = runtime_root.resolve()
+    all_run_dirs = scheduled_run_dirs(campaign)
     run_dirs = factorial_run_dirs(campaign)
     threshold = validate_transition(campaign, run_dirs)
     _spec, task, framework = _load_campaign(campaign)
@@ -119,6 +178,7 @@ def amend(campaign: Path, runtime_root: Path, *, dry_run: bool) -> dict[str, Any
     manifests_root.mkdir()
     for run_dir in run_dirs:
         shutil.copy2(run_dir / "state.json", states_root / f"{run_dir.name}.json")
+    for run_dir in all_run_dirs:
         shutil.copy2(
             run_dir / "manifest.json", manifests_root / f"{run_dir.name}.json"
         )
@@ -144,10 +204,11 @@ def amend(campaign: Path, runtime_root: Path, *, dry_run: bool) -> dict[str, Any
     append_jsonl(campaign / "protocol-amendments.jsonl", amendment_event)
     atomic_json(amendment_root / "amendment.json", amendment_event)
 
-    for run_dir in run_dirs:
+    for run_dir in all_run_dirs:
         manifest = read_json(run_dir / "manifest.json")
         manifest["scientific_runtime_hash"] = new_runtime_hash
         atomic_json(run_dir / "manifest.json", manifest)
+    for run_dir in run_dirs:
         state = read_json(run_dir / "state.json")
         state["status"] = "token_threshold_reached"
         state["token_budget_continuation_notice_sent"] = False
@@ -173,16 +234,24 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--campaign", type=Path, required=True)
     parser.add_argument("--runtime-root", type=Path, required=True)
     parser.add_argument("--apply", action="store_true")
+    parser.add_argument("--sync-manifests-only", action="store_true")
     return parser.parse_args()
 
 
 def main() -> None:
     args = parse_args()
-    result = amend(
-        args.campaign,
-        args.runtime_root,
-        dry_run=not args.apply,
-    )
+    if args.sync_manifests_only:
+        result = sync_manifest_hashes(
+            args.campaign,
+            args.runtime_root,
+            dry_run=not args.apply,
+        )
+    else:
+        result = amend(
+            args.campaign,
+            args.runtime_root,
+            dry_run=not args.apply,
+        )
     print(json.dumps(result, indent=2, sort_keys=True))
 
 
