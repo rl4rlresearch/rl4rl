@@ -14,6 +14,7 @@ from .campaign import (
     execute_calibration,
     prepare_calibration,
 )
+from .evaluator import shared_local_evaluator_status
 from .orchestration import (
     STAGED_EXECUTION_STAGES,
     campaign_lock,
@@ -477,6 +478,11 @@ def command_modal_usage(args: argparse.Namespace) -> int:
     return 0
 
 
+def command_local_evaluator_status(_args: argparse.Namespace) -> int:
+    print(json.dumps(shared_local_evaluator_status(), indent=2, sort_keys=True))
+    return 0
+
+
 def command_validate(args: argparse.Namespace) -> int:
     campaign = args.campaign.resolve()
     spec, task, framework = _load_campaign(campaign)
@@ -659,6 +665,9 @@ def build_parser() -> argparse.ArgumentParser:
     modal_usage = subparsers.add_parser("modal-usage")
     modal_usage.add_argument("--campaign", type=Path, required=True)
     modal_usage.set_defaults(handler=command_modal_usage)
+
+    local_evaluator_status = subparsers.add_parser("local-evaluator-status")
+    local_evaluator_status.set_defaults(handler=command_local_evaluator_status)
 
     validate = subparsers.add_parser("validate")
     validate.add_argument("--campaign", type=Path, required=True)

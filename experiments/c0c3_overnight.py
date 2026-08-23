@@ -25,6 +25,13 @@ from pathlib import Path
 from typing import Any
 
 REPO_ROOT = Path(__file__).resolve().parents[1]
+if str(REPO_ROOT) not in sys.path:
+    sys.path.insert(0, str(REPO_ROOT))
+
+from experiments.c0c3_factorial.evaluator import (  # noqa: E402
+    shared_local_evaluator_status,
+)
+
 PYTHON_BIN = REPO_ROOT / "architecture_discovery/.venv/bin/python"
 PROFILE = os.environ.get("RL4RL_OVERNIGHT_PROFILE", "primary")
 if PROFILE == "primary":
@@ -1051,6 +1058,12 @@ def command_status(_args: argparse.Namespace) -> int:
     print(
         f"supervisor={'running' if live else 'not-running'} "
         f"pid={supervisor_pid or '-'} heartbeat={heartbeat or '-'}"
+    )
+    scheduler = shared_local_evaluator_status()
+    print(
+        "local_evaluators="
+        f"{scheduler['occupied']}/{scheduler['capacity']} "
+        f"available={scheduler['available']} root={scheduler['root']}"
     )
     print("job\tdesired\tactual\tpid\tproposals\ttokens\tlowest_params\tactive")
     desired = load_desired(jobs)

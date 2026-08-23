@@ -414,8 +414,11 @@ Use the same individual `start-staged-trajectory`,
 `autoresearch_confined_v1_6.toml`. The campaign must contain three blocks and
 the operational roster must select exactly C0–C3 from Blocks 1–3 (twelve jobs),
 never N0. All twelve controllers may run simultaneously. The runtime admits at
-most three evaluator processes through crash-releasing file locks, so a queued
-trainer is healthy and does not spend its evaluator timeout while waiting.
+most three evaluator processes from this campaign through crash-releasing file
+locks. Each evaluator also acquires one of six host-wide slots shared by every
+local protocol-1.6/1.7/2.0/2.1 campaign, so starting another campaign cannot
+silently double Mac training concurrency. A queued trainer is healthy and does
+not spend its evaluator timeout or evaluator-time budget while waiting.
 At 500M reported tokens, each controller exits normally with
 `token_threshold_reached`; the durable supervisor resumes that run. Its first
 resumed prompt contains the one continuation notice, and subsequent prompts
@@ -495,6 +498,19 @@ starts with `RL4RL_AUTORESEARCH_V17_CAMPAIGN` or
 `RL4RL_OPENEVOLVE_V21_CAMPAIGN`. Use the matching `*_RUNTIME` variable when the
 detached worktree is elsewhere. Run `check` before `start`; it verifies the
 campaign inputs and local accelerator without changing trajectory state.
+
+Inspect the shared local pool at any time without changing it:
+
+```bash
+$PY -m $CLI local-evaluator-status
+```
+
+The JSON reports six host slots and the opportunity holding each occupied
+slot. `experiments/c0c3_overnight.py status` also prints the compact occupied
+count. The existing three-slot campaign pool remains in force, so one campaign
+cannot take more than three of the six host slots. Queue waiting happens before
+the evaluator clock starts. Modal evaluator-only campaigns do not take local
+host slots.
 
 ## 6. Inspect progress without changing it
 

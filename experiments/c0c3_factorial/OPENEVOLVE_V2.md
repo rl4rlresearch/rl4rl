@@ -21,7 +21,8 @@ collection; existing 2.0 campaigns remain scientifically separate.
   free-form mechanism ledger in v2.0; v2.1 records mechanisms once in its recent
   outcomes and has no duplicate ledger. Raw conversation history is not resumed.
 - One independently supervised process per trajectory. All twelve processes may
-  generate proposals concurrently, while at most three evaluators train at once.
+  generate proposals concurrently, while at most three evaluators from the
+  campaign train at once and all local campaigns share six host slots.
 - The 1,644-parameter pair-token transformer is the common seed. Its ordinary
   training path is 5,000 steps rather than the legacy 6,080-parent 30,000-step
   path. The evaluator timeout is 1,800 seconds.

@@ -65,9 +65,10 @@ not appended again by the adapter. The strict exact-once patch parser and source
 preflight remain unchanged.
 
 V2.1 retains v2.0's internal 100M-token safety ceiling, 200 proposal/evaluation
-limits, evaluator-time limit, three local evaluator slots, and optional
-evaluator-only Modal transport. None of those resource values is shown to the
-subject.
+limits, evaluator-time limit, three campaign-local evaluator slots, and
+optional evaluator-only Modal transport. V1.7 and local V2.1 evaluations also
+join the six-slot host scheduler shared with other active local campaigns.
+None of those resource values is shown to the subject.
 
 ## Frozen presets
 

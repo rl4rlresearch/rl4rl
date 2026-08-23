@@ -25,7 +25,8 @@ Version 1.6 prospectively replaces the failed 1,644-parent launch with three
 predeclared blocks and a confined continuous-session runtime. It fixes resumed
 process cwd ownership, isolates Codex configuration and thread identity, freezes
 inference preprocessing, strengthens fresh-training/attention-dependence checks,
-and caps concurrent local evaluators at three while all twelve controllers run.
+and caps concurrent local evaluators at three per campaign while all twelve
+controllers run. Local campaigns also enter one six-slot host scheduler.
 Version 2.0 is the prospective controlled OpenEvolve replacement. It removes N0,
 uses the 1,644-parameter pair-token parent and 5,000-step training path, gives
 each proposal a bounded ephemeral session with structured trajectory evidence,
@@ -313,9 +314,12 @@ The v1.6 task freezes `src/data.py` as protected inference preprocessing; only
 removes every supplied checkpoint before training, rejects source mutation
 during training, requires a positive-step learned checkpoint, and checks that
 exact addition accuracy collapses when learned attention is ablated. At most
-three v1.6 evaluators hold campaign-local file-lock slots concurrently. Waiting
-for a slot occurs outside evaluator timeout and evaluator-budget accounting;
-Codex proposal generation and trajectory ownership remain fully parallel.
+three v1.6 evaluators hold campaign-local file-lock slots concurrently. Every
+local protocol-1.6/1.7/2.0/2.1 evaluator must also hold one of six host-wide
+file-lock slots shared across campaigns. Both leases release automatically on
+process exit. Waiting for either slot occurs outside evaluator timeout and
+evaluator-budget accounting; Codex proposal generation and trajectory
+ownership remain fully parallel.
 If a block was activated using primary results, it is adaptively collected and
 must not be presented as if the original primary sample size had always
 included it. N0 remains descriptive and outside the factorial contrasts.
@@ -352,8 +356,9 @@ Protocol 2.0 freezes
 `confined_individually_controlled_c0c3_only_trajectories_v2`. All twelve C0–C3
 trajectories across three blocks are declared before launch and are controlled,
 paused, resumed, and recovered independently. There is no block or opportunity
-barrier. At most three evaluators may train concurrently; proposal generation
-remains independently parallel. A durable supervisor may relaunch only a
+barrier. At most three evaluators from this campaign may train concurrently,
+and every local evaluator also enters the shared six-slot host scheduler;
+proposal generation remains independently parallel. A durable supervisor may relaunch only a
 trajectory whose writer is confirmed absent, using the charged recovery rule.
 
 Only `src/model.py` and `src/train.py` are editable. Every OpenEvolve patch block
@@ -372,6 +377,14 @@ evidence and reference source are each rendered once; recent outcomes carry
 mechanism information without a second mechanism ledger; the patch/metadata
 contract appears once. Its internal token ceiling remains a safety stop but is
 not disclosed to the subject.
+
+The shared local scheduler is an operational machine-load control, not a
+factorial treatment. It preserves every campaign's three-slot ceiling while
+enforcing six local evaluations across all participating campaigns combined.
+It does not schedule Codex calls, alter proposal order or parent selection,
+charge queue time, or change evaluator seeds, commands, timeouts, and budgets.
+Evaluator-only Modal calls retain their campaign remote-call limit but do not
+consume a local host slot.
 
 `C0C3_RUN_SEED` and `PYTHONHASHSEED` are supplied to evaluator and legacy
 non-neutral subprocesses. Task code may use `C0C3_RUN_SEED`; task-specific fixed

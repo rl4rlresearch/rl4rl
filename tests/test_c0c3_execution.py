@@ -37,6 +37,7 @@ from experiments.c0c3_factorial.codex_cli import CodexCli
 from experiments.c0c3_factorial.evaluator import (
     CommandEvaluator,
     make_command_evaluator,
+    shared_local_evaluator_status,
 )
 from experiments.c0c3_factorial.frameworks import (
     OpenEvolveAdapter,
@@ -854,6 +855,107 @@ def test_evaluator_slot_serializes_trainers_without_charging_queue_time(
         (tmp_path / f"opportunity-{index}" / "evaluator-queue.json").is_file()
         for index in range(2)
     )
+
+
+def test_shared_evaluator_slots_serialize_distinct_campaigns(
+    tmp_path: Path,
+) -> None:
+    seed_source = make_seed(tmp_path / "source")
+    evaluator_source = seed_source / "evaluate.py"
+    evaluator_source.write_text(
+        "import time\ntime.sleep(0.2)\n" + evaluator_source.read_text(),
+        encoding="utf-8",
+    )
+    _candidate_id, snapshot = snapshot_candidate(
+        seed_source, tmp_path / "candidates", ("candidate.py",)
+    )
+    shared_root = tmp_path / "shared-slots"
+    evaluators = [
+        CommandEvaluator(
+            task=task(seed_source),
+            support_source=seed_source,
+            repo_root=ROOT,
+            python_bin=sys.executable,
+            slot_root=tmp_path / f"campaign-{index}-slots",
+            max_parallel_evaluators=2,
+            shared_slot_root=shared_root,
+            max_shared_parallel_evaluators=1,
+        )
+        for index in range(2)
+    ]
+
+    started = time.monotonic()
+    with concurrent.futures.ThreadPoolExecutor(max_workers=2) as pool:
+        futures = [
+            pool.submit(
+                evaluator.evaluate,
+                candidate_snapshot=snapshot,
+                opportunity_root=tmp_path / f"shared-opportunity-{index}",
+                timeout_seconds=2,
+            )
+            for index, evaluator in enumerate(evaluators)
+        ]
+        results = [future.result() for future in futures]
+    elapsed = time.monotonic() - started
+
+    assert elapsed >= 0.35
+    assert all(result.evaluation.valid for result in results)
+    queues = [
+        json.loads(
+            (tmp_path / f"shared-opportunity-{index}" / "evaluator-queue.json")
+            .read_text(encoding="utf-8")
+        )
+        for index in range(2)
+    ]
+    assert all(queue["schema_version"] == "2.0" for queue in queues)
+    assert all(queue["shared_capacity"] == 1 for queue in queues)
+    assert all(Path(queue["shared_slot"]).parent == shared_root for queue in queues)
+
+
+def test_shared_evaluator_status_and_remote_bypass(tmp_path: Path) -> None:
+    seed_source = make_seed(tmp_path / "source")
+    shared_root = tmp_path / "shared-slots"
+    local = CommandEvaluator(
+        task=task(seed_source),
+        support_source=seed_source,
+        repo_root=ROOT,
+        python_bin=sys.executable,
+        slot_root=tmp_path / "local-campaign-slots",
+        max_parallel_evaluators=1,
+        shared_slot_root=shared_root,
+        max_shared_parallel_evaluators=1,
+    )
+    remote = CommandEvaluator(
+        task=task(seed_source),
+        support_source=seed_source,
+        repo_root=ROOT,
+        python_bin=sys.executable,
+        slot_root=tmp_path / "remote-campaign-slots",
+        max_parallel_evaluators=1,
+        shared_slot_root=shared_root,
+        max_shared_parallel_evaluators=1,
+    )
+    local_opportunity = tmp_path / "local-opportunity"
+    remote_opportunity = tmp_path / "remote-opportunity"
+    local_opportunity.mkdir()
+    remote_opportunity.mkdir()
+
+    with local._evaluation_slot(local_opportunity):
+        status = shared_local_evaluator_status(shared_root, capacity=1)
+        assert status["occupied"] == 1
+        assert status["available"] == 0
+        assert status["slots"][0]["holder"]["opportunity_root"] == str(
+            local_opportunity
+        )
+
+        started = time.monotonic()
+        with remote._evaluation_slot(
+            remote_opportunity, include_shared_local_pool=False
+        ):
+            pass
+        assert time.monotonic() - started < 0.1
+
+    assert shared_local_evaluator_status(shared_root, capacity=1)["occupied"] == 0
 
 
 def test_codex_transport_campaign_and_one_real_controller_step(

@@ -84,7 +84,11 @@ class ModalCommandEvaluator(CommandEvaluator):
         payload = _archive_inputs(self.support_source, candidate_snapshot)
         call_id = uuid.uuid4().hex
         started = time.monotonic()
-        with self._evaluation_slot(opportunity_root):
+        # This lease limits remote calls within the campaign. Modal workers do
+        # not consume a local GPU slot in the shared host scheduler.
+        with self._evaluation_slot(
+            opportunity_root, include_shared_local_pool=False
+        ):
             try:
                 function = modal.Function.from_name(
                     os.environ.get("C0C3_MODAL_APP", APP_NAME),

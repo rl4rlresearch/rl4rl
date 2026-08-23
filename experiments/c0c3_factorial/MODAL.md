@@ -265,6 +265,8 @@ The deployed app is `rl4rl-c0c3-hybrid-evaluator-v2`; it permits at most three
 L4 containers, uses no Codex/OpenAI secret, disables Modal retries, and has a
 five-minute maximum idle scaledown window. Local calls use Modal API tokens from
 the active profile or `MODAL_TOKEN_ID`/`MODAL_TOKEN_SECRET`.
+Remote evaluator leases do not consume the six-slot local Mac scheduler; their
+three-call campaign limit remains separate.
 
 Use the matching protocol-2.0 or source-only protocol-2.1 Modal task TOML for
 both calibration and campaign creation. Never reuse calibration across those

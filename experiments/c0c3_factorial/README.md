@@ -48,6 +48,8 @@ Future coding agents must also follow [AGENTS.md](AGENTS.md).
   SEARCH/REPLACE adapters.
 - `campaign.py`: portable calibration and immutable campaign construction.
 - `runner.py`: one locked proposal/evaluation opportunity.
+- `evaluator.py`: campaign-local evaluator limits plus one crash-releasing,
+  six-slot host scheduler shared by every local 1.6/1.7/2.0/2.1 campaign.
 - `orchestration.py`: versioned serial, synchronized-wave, and independently
   advancing parallel execution, plus campaign writer locks and append-only
   execution provenance.
@@ -104,9 +106,10 @@ Future coding agents must also follow [AGENTS.md](AGENTS.md).
   opaque cwd, disables user configuration/rules/network and extra temporary
   writable roots, registers one unique Codex thread per run, freezes inference
   preprocessing, retrains from an empty checkpoint directory, and allows at
-  most three local evaluators at once. All twelve C0–C3 trajectories may remain
-  active concurrently; the evaluator limit is condition-common machine-load
-  control rather than a trajectory barrier. Its 500M-token value is a common
+  most three local evaluators from that campaign at once. All local campaigns
+  also share one six-slot host scheduler. All twelve C0–C3 trajectories may
+  remain active concurrently; evaluator queueing is condition-common
+  machine-load control rather than a trajectory barrier. Its 500M-token value is a common
   subject-visible phase threshold: the controller returns at the crossing,
   resumes once with a minimal continuation notice, and omits token-budget
   language from every later prompt.
@@ -114,8 +117,9 @@ Future coding agents must also follow [AGENTS.md](AGENTS.md).
   prospective controlled OpenEvolve replacement: three C0–C3-only blocks, 200
   bounded ephemeral proposals per run, the 1,644-parameter/5,000-step parent,
   neutral prompts, strict patch/source preflight, trained-attention checks,
-  three evaluator slots, independent supervision, and optional evaluator-only
-  Modal L4 offload. It is a new stratum and cannot be pooled with protocol 1.1.
+  three campaign-local evaluator slots, the shared six-slot host scheduler,
+  independent supervision, and optional evaluator-only Modal L4 offload. It is
+  a new stratum and cannot be pooled with protocol 1.1.
 - `configs/protocols/workshop_codex1644_source_only_v1_7.toml` is the
   artifact-clean continuous Autoresearch successor. It has twelve primary
   C0–C3 trajectories, no N0, no subject-visible resource/horizon accounting,
