@@ -132,6 +132,14 @@ mechanism/formatting sections. It supplies source-only starting material and
 does not expose a checkpoint or run-derived seed. See
 `ARTIFACT_CLEAN_PROTOCOLS.md` for the complete subject boundary.
 
+For protocols 1.7 and 2.1, the assumption-changing policy file is live until
+each trajectory's first start. First start snapshots its exact bytes and hash
+for every opportunity in that trajectory. Later operator edits are therefore
+picked up automatically by every still-unstarted trajectory but never alter a
+started trajectory. These two files are excluded from the scientific-runtime
+hash only because the per-trajectory prompt snapshot hash is authoritative;
+all other runtime inputs retain their normal hash gate.
+
 ## 4. Single-incumbent state (C0/C1)
 
 Only the incumbent is visible and selected. A valid child replaces it if and

@@ -70,6 +70,31 @@ optional evaluator-only Modal transport. V1.7 and local V2.1 evaluations also
 join the six-slot host scheduler shared with other active local campaigns.
 None of those resource values is shown to the subject.
 
+## Assumption-prompt editing boundary
+
+The v1.7 and v2.1 assumption-changing templates are operator-editable until an
+individual trajectory first starts. The ordinary files in the main checkout
+are the live source:
+
+- `templates/transformer_optimizer_v1_7/assumption_changing.md`;
+- `templates/transformer_optimizer_openevolve_v2_1/assumption_changing.md`.
+
+Saving either file is sufficient; staging or committing it is not required for
+an unstarted trajectory to receive the new text. At `trajectory_started`, the
+controller copies the applicable file into that run's `subject-prompt/`
+directory and records its SHA-256 in the lifecycle event. Every later
+opportunity in that trajectory uses this private snapshot, so an operator edit
+cannot silently change a trajectory already in progress. The two live files
+are excluded from the artifact-clean scientific-runtime hash because their
+per-trajectory snapshot hashes are the authoritative prompt provenance; all
+other controller and prompt files remain runtime-hashed normally.
+
+The durable v1.7/v2.1 supervisor passes the main checkout's template directory
+to detached runtimes automatically. Direct starts also discover it from a
+campaign stored beneath the main repository; an explicit
+`RL4RL_C0C3_OPERATOR_PROMPT_ROOT` is available only for campaigns stored
+elsewhere.
+
 ## Frozen presets
 
 Autoresearch:

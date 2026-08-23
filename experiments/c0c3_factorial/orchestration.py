@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import fcntl
+import hashlib
 import json
 import os
 import threading
@@ -14,6 +15,11 @@ from dataclasses import dataclass
 from datetime import UTC, datetime
 from pathlib import Path
 
+from .prompts import (
+    FROZEN_ASSUMPTION_PROMPT,
+    FROZEN_ASSUMPTION_PROMPT_MANIFEST,
+    artifact_clean_assumption_prompt_source,
+)
 from .runner import run_one_opportunity
 from .spec import (
     INDIVIDUAL_EXECUTION_RULES,
@@ -515,6 +521,45 @@ def _pause_request_path(run_dir: Path) -> Path:
     return run_dir / "pause-request.json"
 
 
+def _freeze_artifact_clean_assumption_prompt(
+    *,
+    campaign: Path,
+    run_dir: Path,
+    repo_root: Path,
+    framework: FrameworkSpec,
+) -> dict[str, object] | None:
+    """Snapshot the live operator prompt exactly once, at trajectory start."""
+
+    source = artifact_clean_assumption_prompt_source(
+        campaign=campaign,
+        repo_root=repo_root,
+        framework=framework,
+    )
+    if source is None:
+        return None
+    target = run_dir / FROZEN_ASSUMPTION_PROMPT
+    manifest_path = run_dir / FROZEN_ASSUMPTION_PROMPT_MANIFEST
+    if target.exists() or manifest_path.exists():
+        raise RuntimeError(
+            "an unstarted trajectory already has a subject-prompt snapshot"
+        )
+    content = source.read_bytes()
+    prompt_sha256 = hashlib.sha256(content).hexdigest()
+    target.parent.mkdir(parents=True, exist_ok=False)
+    temporary = target.with_name(f".{target.name}.partial-{uuid.uuid4().hex}")
+    temporary.write_bytes(content)
+    os.replace(temporary, target)
+    manifest = {
+        "schema_version": "1.0",
+        "frozen_at": utc_now(),
+        "prompt_profile": framework.prompt_profile,
+        "source_path": str(source),
+        "sha256": prompt_sha256,
+    }
+    atomic_json(manifest_path, manifest)
+    return manifest
+
+
 def _take_pause_request(run_dir: Path) -> dict[str, object] | None:
     """Atomically claim a request so a concurrent request is never silently lost."""
 
@@ -659,6 +704,16 @@ def run_staged_individual_trajectory(
                     "a pause request is pending; use resume-staged-trajectory to "
                     "clear it"
                 )
+            prompt_snapshot = (
+                _freeze_artifact_clean_assumption_prompt(
+                    campaign=campaign,
+                    run_dir=run_dir,
+                    repo_root=repo_root,
+                    framework=framework,
+                )
+                if not resume and controller.state.proposals_used == 0
+                else None
+            )
             _append_trajectory_lifecycle(
                 campaign,
                 run_dir,
@@ -668,6 +723,11 @@ def run_staged_individual_trajectory(
                 assignment=assignment,
                 stage=stage,
                 starting_opportunity=controller.state.next_opportunity,
+                assumption_prompt_sha256=(
+                    prompt_snapshot.get("sha256")
+                    if prompt_snapshot is not None
+                    else None
+                ),
             )
 
         completed_opportunities = 0

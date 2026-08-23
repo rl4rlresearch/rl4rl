@@ -7,6 +7,7 @@ from experiments.c0c3_overnight import (
     CampaignPlan,
     Job,
     automatic_pause_reason,
+    command_environment,
     command_for,
     expand_jobs,
     plans,
@@ -130,6 +131,22 @@ def test_artifact_clean_profiles_declare_all_primary_blocks() -> None:
         assert roster[0].key == key
         assert roster[0].mode == "individual-trajectories"
         assert roster[0].blocks == (1, 2, 3)
+
+
+def test_artifact_clean_jobs_receive_main_operator_prompt_root(tmp_path: Path) -> None:
+    for group in ("autoresearch-v1.7", "openevolve-v2.1"):
+        job = Job(
+            key=f"{group}:b01-c0",
+            group=group,
+            runtime_root=tmp_path,
+            campaign=tmp_path / "campaign",
+            mode="individual-trajectories",
+            run_id="b01-c0",
+        )
+        environment = command_environment(job)
+        assert environment["RL4RL_C0C3_OPERATOR_PROMPT_ROOT"].endswith(
+            "experiments/c0c3_factorial/templates"
+        )
 
 
 def test_local_accelerator_is_derived_from_frozen_task_input(tmp_path: Path) -> None:

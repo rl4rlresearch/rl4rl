@@ -127,7 +127,9 @@ Future coding agents must also follow [AGENTS.md](AGENTS.md).
 - `configs/protocols/controlled_openevolve_transformer_v2_1.toml` is the
   artifact-clean ephemeral OpenEvolve successor. It preserves v2.0's search
   geometry and evaluator controls while removing subject-visible orchestration
-  artifacts and redundant prompt composition.
+  artifacts and redundant prompt composition. In both 1.7 and 2.1, the main
+  checkout's assumption-changing template remains live until each trajectory's
+  first start and is then hashed and frozen privately for that trajectory.
 
 Run the dev protocol end to end before spending on the paper protocol. Do not
 reinterpret dev results as a pilot effect estimate: its transition density and

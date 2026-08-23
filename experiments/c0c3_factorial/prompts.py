@@ -4,14 +4,17 @@ from __future__ import annotations
 
 import hashlib
 import json
+import os
 from dataclasses import dataclass
 from pathlib import Path
 
 from .neutral_task import (
+    ARTIFACT_CLEAN_ASSUMPTION_PROMPT_PATHS,
     ARTIFACT_CLEAN_PROMPT_PROFILES,
     AUTORESEARCH_V17_PROMPT_PROFILE,
     OPENEVOLVE_V2_PROMPT_PROFILE,
     OPENEVOLVE_V21_PROMPT_PROFILE,
+    OPERATOR_PROMPT_ROOT_ENV,
     SUBJECT_NEUTRAL_PROMPT_PROFILES,
 )
 from .neutral_task import NEUTRAL_PROMPT_PROFILE as _NEUTRAL_PROMPT_PROFILE
@@ -53,6 +56,41 @@ NEUTRAL_DISCLOSURE_TERMS = (
     "c2",
     "c3",
 )
+
+FROZEN_ASSUMPTION_PROMPT = Path("subject-prompt/assumption_changing.md")
+FROZEN_ASSUMPTION_PROMPT_MANIFEST = Path("subject-prompt/manifest.json")
+
+
+def artifact_clean_assumption_prompt_source(
+    *, campaign: Path, repo_root: Path, framework: FrameworkSpec
+) -> Path | None:
+    """Resolve the operator-editable prompt used when a trajectory first starts."""
+
+    relative = ARTIFACT_CLEAN_ASSUMPTION_PROMPT_PATHS.get(framework.prompt_profile)
+    if relative is None:
+        return None
+    roots: list[Path] = []
+    configured = os.environ.get(OPERATOR_PROMPT_ROOT_ENV)
+    if configured:
+        roots.append(Path(configured).expanduser().resolve())
+    roots.extend(
+        parent / "experiments/c0c3_factorial/templates"
+        for parent in campaign.resolve().parents
+    )
+    roots.append(repo_root / "experiments/c0c3_factorial/templates")
+    seen: set[Path] = set()
+    for root in roots:
+        root = root.resolve()
+        if root in seen:
+            continue
+        seen.add(root)
+        source = root / relative
+        if source.is_file() and not source.is_symlink():
+            return source
+    raise FileNotFoundError(
+        f"operator assumption prompt is missing for {framework.prompt_profile}: "
+        f"{relative}"
+    )
 
 
 @dataclass(frozen=True)
@@ -109,8 +147,23 @@ class RenderedPrompt:
 class PromptRenderer:
     """Render all cells from one common template and two variable slots."""
 
-    def __init__(self, template_root: str | Path) -> None:
+    def __init__(
+        self,
+        template_root: str | Path,
+        *,
+        artifact_clean_transition_override: str | Path | None = None,
+    ) -> None:
         root = Path(template_root)
+        transition_override = (
+            Path(artifact_clean_transition_override)
+            if artifact_clean_transition_override is not None
+            else None
+        )
+        override_text = (
+            transition_override.read_text(encoding="utf-8").strip()
+            if transition_override is not None
+            else None
+        )
         self.common_template = (root / "common.md").read_text(encoding="utf-8")
         self.ordinary = (root / "ordinary.md").read_text(encoding="utf-8").strip()
         self.transition = (
@@ -143,15 +196,23 @@ class PromptRenderer:
             autoresearch_v17_root / "CONTINUE.md"
         ).read_text(encoding="utf-8")
         self.autoresearch_v17_transition = (
-            autoresearch_v17_root / "assumption_changing.md"
-        ).read_text(encoding="utf-8").strip()
+            override_text
+            if override_text is not None
+            else (autoresearch_v17_root / "assumption_changing.md")
+            .read_text(encoding="utf-8")
+            .strip()
+        )
         openevolve_v21_root = root / "transformer_optimizer_openevolve_v2_1"
         self.openevolve_v21_common_template = (
             openevolve_v21_root / "PROGRAM.md"
         ).read_text(encoding="utf-8")
         self.openevolve_v21_transition = (
-            openevolve_v21_root / "assumption_changing.md"
-        ).read_text(encoding="utf-8").strip()
+            override_text
+            if override_text is not None
+            else (openevolve_v21_root / "assumption_changing.md")
+            .read_text(encoding="utf-8")
+            .strip()
+        )
         self._require_tokens(
             self.common_template,
             {

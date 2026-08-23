@@ -10,6 +10,8 @@ import stat
 from pathlib import Path
 
 from .neutral_task import (
+    ARTIFACT_CLEAN_ASSUMPTION_PROMPT_PATHS,
+    ARTIFACT_CLEAN_PROMPT_PROFILES,
     NEUTRAL_SUBMISSION_WRAPPER,
     NEUTRAL_TASK_ADAPTER,
     PAIR_TOKEN_SANITIZED_SEED_PATHS,
@@ -117,10 +119,14 @@ def _iter_files(root: Path) -> list[Path]:
     )
 
 
-def tree_hash(root: Path) -> str:
+def tree_hash(
+    root: Path, *, ignored_relative_paths: frozenset[str] = frozenset()
+) -> str:
     digest = hashlib.sha256()
     for path in _iter_files(root):
         relative = path.relative_to(root).as_posix()
+        if relative in ignored_relative_paths:
+            continue
         digest.update(relative.encode("utf-8"))
         digest.update(b"\0")
         digest.update(path.read_bytes())
@@ -151,10 +157,23 @@ def scientific_runtime_hash(
             repo_root / "architecture_discovery/vendor/AdderBoard"
         )
     hashes = {}
+    live_prompt_paths = (
+        frozenset(
+            f"templates/{relative}"
+            for relative in ARTIFACT_CLEAN_ASSUMPTION_PROMPT_PATHS.values()
+        )
+        if framework.prompt_profile in ARTIFACT_CLEAN_PROMPT_PROFILES
+        else frozenset()
+    )
     for label, root in roots.items():
         if not root.is_dir():
             raise FileNotFoundError(f"scientific runtime root is missing: {root}")
-        hashes[label] = tree_hash(root)
+        hashes[label] = tree_hash(
+            root,
+            ignored_relative_paths=(
+                live_prompt_paths if label == "factorial_controller" else frozenset()
+            ),
+        )
     return sha256_json(hashes)
 
 

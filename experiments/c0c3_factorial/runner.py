@@ -32,6 +32,7 @@ from .neutral_task import (
     SUBJECT_NEUTRAL_PROMPT_PROFILES,
 )
 from .prompts import (
+    FROZEN_ASSUMPTION_PROMPT,
     PromptContext,
     PromptRenderer,
     VisibleCandidate,
@@ -483,7 +484,20 @@ def _run_one_opportunity_unlocked(
             else "No earlier mechanism result is available."
         ),
     )
-    renderer = PromptRenderer(repo_root / "experiments/c0c3_factorial/templates")
+    frozen_transition = run_dir / FROZEN_ASSUMPTION_PROMPT
+    if (
+        framework.prompt_profile in ARTIFACT_CLEAN_PROMPT_PROFILES
+        and not frozen_transition.is_file()
+    ):
+        raise RuntimeError(
+            "artifact-clean trajectory lacks its start-time assumption prompt snapshot"
+        )
+    renderer = PromptRenderer(
+        repo_root / "experiments/c0c3_factorial/templates",
+        artifact_clean_transition_override=(
+            frozen_transition if frozen_transition.is_file() else None
+        ),
+    )
     rendered = renderer.render(spec, task, framework, prompt_context)
     (opportunity_root / "prompt.md").write_text(rendered.text, encoding="utf-8")
     (opportunity_root / "prompt_manifest.json").write_text(

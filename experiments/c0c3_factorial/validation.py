@@ -22,6 +22,7 @@ from .prompts import (
     PromptContext,
     PromptRenderer,
     VisibleCandidate,
+    artifact_clean_assumption_prompt_source,
     neutral_disclosure_terms,
     treatment_skeleton,
 )
@@ -219,7 +220,14 @@ def validate_campaign(
             "launch validation requires untouched ready runs: "
             + ", ".join(launch_states)
         )
-    renderer = PromptRenderer(repo_root / "experiments/c0c3_factorial/templates")
+    renderer = PromptRenderer(
+        repo_root / "experiments/c0c3_factorial/templates",
+        artifact_clean_transition_override=artifact_clean_assumption_prompt_source(
+            campaign=campaign,
+            repo_root=repo_root,
+            framework=framework,
+        ),
+    )
     for opportunity in range(1, spec.budget.proposals + 1):
         prompts = {}
         for condition in Condition:

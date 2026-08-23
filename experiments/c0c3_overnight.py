@@ -457,6 +457,15 @@ def command_for(job: Job) -> list[str]:
     raise RuntimeError(f"unknown job mode: {job.mode}")
 
 
+def command_environment(job: Job) -> dict[str, str]:
+    environment = os.environ.copy()
+    if job.group in {"autoresearch-v1.7", "openevolve-v2.1"}:
+        environment["RL4RL_C0C3_OPERATOR_PROMPT_ROOT"] = str(
+            REPO_ROOT / "experiments/c0c3_factorial/templates"
+        )
+    return environment
+
+
 def recover_command(job: Job, run_id: str, reason: str) -> list[str]:
     return cli_prefix(job) + [
         "recover-active",
@@ -873,6 +882,7 @@ class Supervisor:
                     process = subprocess.Popen(
                         command,
                         cwd=job.runtime_root,
+                        env=command_environment(job),
                         stdin=subprocess.DEVNULL,
                         stdout=handle,
                         stderr=subprocess.STDOUT,

@@ -33,6 +33,15 @@ ARTIFACT_CLEAN_PROTOCOL_VERSIONS = frozenset({"1.7", "2.1"})
 ARTIFACT_CLEAN_PROMPT_PROFILES = frozenset(
     {AUTORESEARCH_V17_PROMPT_PROFILE, OPENEVOLVE_V21_PROMPT_PROFILE}
 )
+ARTIFACT_CLEAN_ASSUMPTION_PROMPT_PATHS = {
+    AUTORESEARCH_V17_PROMPT_PROFILE: (
+        "transformer_optimizer_v1_7/assumption_changing.md"
+    ),
+    OPENEVOLVE_V21_PROMPT_PROFILE: (
+        "transformer_optimizer_openevolve_v2_1/assumption_changing.md"
+    ),
+}
+OPERATOR_PROMPT_ROOT_ENV = "RL4RL_C0C3_OPERATOR_PROMPT_ROOT"
 
 SANITIZED_SEED_PATHS = (
     "src/model.py",

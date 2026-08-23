@@ -14,7 +14,10 @@ ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
 
 from experiments.c0c3_factorial.analysis import RunOutcome, estimate
-from experiments.c0c3_factorial.artifacts import prepare_seed_workspace
+from experiments.c0c3_factorial.artifacts import (
+    prepare_seed_workspace,
+    scientific_runtime_hash,
+)
 from experiments.c0c3_factorial.environment import (
     controlled_subprocess_environment,
     subject_subprocess_environment,
@@ -33,12 +36,17 @@ from experiments.c0c3_factorial.neutral_task import (
     PAIR_TOKEN_TASK_ADAPTER_V3,
     validate_v15_pairing,
 )
+from experiments.c0c3_factorial.orchestration import (
+    _freeze_artifact_clean_assumption_prompt,
+)
 from experiments.c0c3_factorial.prompts import (
+    FROZEN_ASSUMPTION_PROMPT,
     NEUTRAL_PROMPT_PROFILE,
     PromptContext,
     PromptRenderer,
     VisibleCandidate,
     VisibleOutcome,
+    artifact_clean_assumption_prompt_source,
     treatment_skeleton,
 )
 from experiments.c0c3_factorial.runner import (
@@ -232,6 +240,99 @@ def framework() -> FrameworkSpec:
         prompt_profile="controlled_v1",
         edit_mode="direct_workspace",
     )
+
+
+def test_artifact_clean_assumption_prompts_are_live_until_trajectory_start(
+    tmp_path: Path,
+) -> None:
+    main_repo = tmp_path / "main"
+    campaign = main_repo / "data/c0c3/campaign"
+    runtime = tmp_path / "detached-runtime"
+    relative = Path("transformer_optimizer_v1_7/assumption_changing.md")
+    source = main_repo / "experiments/c0c3_factorial/templates" / relative
+    detached_source = runtime / "experiments/c0c3_factorial/templates" / relative
+    source.parent.mkdir(parents=True)
+    detached_source.parent.mkdir(parents=True)
+    source.write_text("first live prompt\n", encoding="utf-8")
+    detached_source.write_text("stale detached prompt\n", encoding="utf-8")
+    framework_spec = FrameworkSpec(
+        framework_id=FrameworkKind.AUTORESEARCH,
+        adapter="codex_direct_editor_confined_session_resume_v2",
+        prompt_profile=AUTORESEARCH_V17_PROMPT_PROFILE,
+        edit_mode="direct_workspace",
+    )
+
+    assert artifact_clean_assumption_prompt_source(
+        campaign=campaign,
+        repo_root=runtime,
+        framework=framework_spec,
+    ) == source
+
+    first_run = campaign / "runs/first"
+    first_run.mkdir(parents=True)
+    first_manifest = _freeze_artifact_clean_assumption_prompt(
+        campaign=campaign,
+        run_dir=first_run,
+        repo_root=runtime,
+        framework=framework_spec,
+    )
+    source.write_text("second live prompt\n", encoding="utf-8")
+    second_run = campaign / "runs/second"
+    second_run.mkdir(parents=True)
+    second_manifest = _freeze_artifact_clean_assumption_prompt(
+        campaign=campaign,
+        run_dir=second_run,
+        repo_root=runtime,
+        framework=framework_spec,
+    )
+
+    assert (first_run / FROZEN_ASSUMPTION_PROMPT).read_text() == "first live prompt\n"
+    assert (second_run / FROZEN_ASSUMPTION_PROMPT).read_text() == "second live prompt\n"
+    assert first_manifest["sha256"] != second_manifest["sha256"]
+
+
+@pytest.mark.parametrize(
+    "prompt_profile",
+    [AUTORESEARCH_V17_PROMPT_PROFILE, OPENEVOLVE_V21_PROMPT_PROFILE],
+)
+def test_artifact_clean_runtime_hash_excludes_live_assumption_files(
+    tmp_path: Path, prompt_profile: str
+) -> None:
+    controller = tmp_path / "experiments/c0c3_factorial"
+    first = controller / "templates/transformer_optimizer_v1_7/assumption_changing.md"
+    second = (
+        controller
+        / "templates/transformer_optimizer_openevolve_v2_1/assumption_changing.md"
+    )
+    first.parent.mkdir(parents=True)
+    second.parent.mkdir(parents=True)
+    first.write_text("one\n", encoding="utf-8")
+    second.write_text("two\n", encoding="utf-8")
+    (controller / "controller.py").write_text("VALUE = 1\n", encoding="utf-8")
+    framework_spec = FrameworkSpec(
+        framework_id=FrameworkKind.AUTORESEARCH,
+        adapter="codex_direct_editor_v1",
+        prompt_profile=prompt_profile,
+        edit_mode="direct_workspace",
+    )
+    original = scientific_runtime_hash(
+        tmp_path,
+        task=task(),
+        framework=framework_spec,
+    )
+    first.write_text("changed one\n", encoding="utf-8")
+    second.write_text("changed two\n", encoding="utf-8")
+    assert scientific_runtime_hash(
+        tmp_path,
+        task=task(),
+        framework=framework_spec,
+    ) == original
+    (controller / "controller.py").write_text("VALUE = 2\n", encoding="utf-8")
+    assert scientific_runtime_hash(
+        tmp_path,
+        task=task(),
+        framework=framework_spec,
+    ) != original
 
 
 def seed() -> Candidate:

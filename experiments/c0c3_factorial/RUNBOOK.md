@@ -499,6 +499,15 @@ starts with `RL4RL_AUTORESEARCH_V17_CAMPAIGN` or
 detached worktree is elsewhere. Run `check` before `start`; it verifies the
 campaign inputs and local accelerator without changing trajectory state.
 
+Before a trajectory's first start, the assumption-changing template remains
+live in the main checkout. Save edits directly to the applicable v1.7 or v2.1
+`assumption_changing.md`; no Git staging, commit, detached-worktree sync, or
+accept-changes step is required. The first start snapshots the current text and
+hash into that run. Subsequent edits apply only to trajectories that still have
+zero proposals and have never started; started or resumed trajectories retain
+their original snapshot. See `ARTIFACT_CLEAN_PROTOCOLS.md` for the exact files
+and provenance behavior.
+
 Inspect the shared local pool at any time without changing it:
 
 ```bash
