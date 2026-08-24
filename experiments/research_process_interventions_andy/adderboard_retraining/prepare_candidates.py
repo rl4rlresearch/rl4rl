@@ -34,7 +34,7 @@ def main() -> None:
 
     repo_root = args.repo_root.expanduser().resolve()
     runtime = repo_root / "architecture_discovery"
-    experiment_root = repo_root / "experiments/research_process_interventions"
+    experiment_root = repo_root / "experiments/research_process_interventions_andy"
     trajectory_path = experiment_root / "dashboard/app/data/trajectories.json"
     downloads = runtime / "outputs/development/modal_downloads"
     if not trajectory_path.is_file() or not downloads.is_dir():

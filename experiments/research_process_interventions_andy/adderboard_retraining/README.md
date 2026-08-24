@@ -27,7 +27,7 @@ From the repository root:
 ```bash
 MODAL_PROFILE=scalingintelligence MODAL_ENVIRONMENT=main \
   architecture_discovery/.venv/bin/modal run \
-  experiments/research_process_interventions/adderboard_retraining/modal_retrain.py \
+  experiments/research_process_interventions_andy/adderboard_retraining/modal_retrain.py \
   --action plan --stage screen
 ```
 
@@ -42,7 +42,7 @@ It refuses to overwrite a nonempty candidate directory.
 
 ```bash
 architecture_discovery/.venv/bin/python \
-  experiments/research_process_interventions/adderboard_retraining/prepare_candidates.py \
+  experiments/research_process_interventions_andy/adderboard_retraining/prepare_candidates.py \
   --output /tmp/rl4rl-candidate-rebuild
 ```
 

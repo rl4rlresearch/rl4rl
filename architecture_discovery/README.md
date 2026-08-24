@@ -2,7 +2,7 @@
 
 The actual data and idea trajectories from the eight-run research-process pilot
 are documented in
-[`pilot_results.md`](../experiments/research_process_interventions/reports/pilot_results.md).
+[`pilot_results.md`](../experiments/research_process_interventions_andy/reports/pilot_results.md).
 The interventions are an opt-in layer around the existing AutoResearch and
 OpenEvolve controllers; ordinary runs remain unchanged.
 
@@ -84,7 +84,7 @@ the same placeholder in the frozen command so the manifest, challenge schedule,
 and controller cannot silently disagree:
 
 ```bash
-python ../experiments/research_process_interventions/run.py plan-full \
+python ../experiments/research_process_interventions_andy/run.py plan-full \
   --study-id size-process-v1 \
   --framework autoresearch \
   --output-dir outputs/process/size-process-v1 \

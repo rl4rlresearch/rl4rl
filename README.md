@@ -31,7 +31,7 @@ Start with the provider-free checks and approval gates in
 
 The intervention study, its configurations, trajectory dashboard, frozen
 candidate architectures, retraining launcher, and result reports are grouped in
-[`experiments/research_process_interventions/`](experiments/research_process_interventions/README.md).
+[`experiments/research_process_interventions_andy/`](experiments/research_process_interventions_andy/README.md).
 
 ## Quick start
 

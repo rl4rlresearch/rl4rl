@@ -26,7 +26,7 @@ From the repository root:
 
 ```bash
 architecture_discovery/.venv/bin/python \
-  experiments/research_process_interventions/run.py --help
+  experiments/research_process_interventions_andy/run.py --help
 ```
 
 For a concrete full-trajectory planning example, see
@@ -39,7 +39,7 @@ The dashboard dataset contains 24 runs: two frameworks, four intervention
 conditions, and horizons of 8, 12, and 20 proposals. Start it with:
 
 ```bash
-cd experiments/research_process_interventions/dashboard
+cd experiments/research_process_interventions_andy/dashboard
 npm install
 npm run dev
 ```
