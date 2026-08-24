@@ -1745,8 +1745,16 @@ def _validated_partial_action_core(
                 ) from error
         selected.append(value)
     harness = payload["harness"]
-    if harness is not None and harness not in CANARY_ORDER:
-        raise ModalActionJournalIntegrityError(f"{field}.harness is invalid")
+    if harness is not None:
+        try:
+            if action == EVOLUTION_ACTION:
+                EvolutionRunSpec.parse(harness)
+            elif harness not in CANARY_ORDER:
+                raise ValueError("unsupported harness")
+        except (TypeError, ValueError) as error:
+            raise ModalActionJournalIntegrityError(
+                f"{field}.harness is invalid"
+            ) from error
     return action, selected[0], selected[1], selected[2], harness
 
 

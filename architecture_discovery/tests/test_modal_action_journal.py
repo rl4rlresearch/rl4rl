@@ -1338,6 +1338,25 @@ def test_partial_preownership_global_rejection_is_closed_rejection(
     assert scan.attempts[0].disposition == "rejected"
 
 
+def test_partial_preownership_rejection_accepts_evolution_harness() -> None:
+    assert journal._validated_partial_action_core(
+        {
+            "action": "evolve",
+            "run_id": "evolution-preflight-rejection",
+            "source_run_id": None,
+            "verifier_run_id": None,
+            "harness": "greedy_autoresearch-n12",
+        },
+        field="terminal",
+    ) == (
+        "evolve",
+        "evolution-preflight-rejection",
+        None,
+        None,
+        "greedy_autoresearch-n12",
+    )
+
+
 def test_partial_preownership_rejection_cannot_hide_owned_reservation(
     tmp_path: Path,
 ) -> None:
