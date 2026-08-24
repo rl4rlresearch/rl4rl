@@ -1,0 +1,249 @@
+{
+  "schema_name": "architecture_tensor_graph",
+  "schema_version": "1.0",
+  "graph_id": "attention_only_multidepth_decoder_v1",
+  "input_node_id": "tokens",
+  "output_node_id": "readout",
+  "nodes": [
+    {
+      "node_id": "tokens",
+      "kind": "input",
+      "input_shapes": [],
+      "output_shape": ["Batch", "Time"],
+      "attributes": {}
+    },
+    {
+      "node_id": "token_embedding",
+      "kind": "token_embedding",
+      "input_shapes": [["Batch", "Time"]],
+      "output_shape": ["Batch", "Time", 16],
+      "attributes": {
+        "vocab": 15
+      }
+    },
+    {
+      "node_id": "position",
+      "kind": "positional",
+      "input_shapes": [["Batch", "Time", 16]],
+      "output_shape": ["Batch", "Time", 16],
+      "attributes": {
+        "mechanism": "sinusoidal"
+      }
+    },
+    {
+      "node_id": "block1_norm",
+      "kind": "normalization",
+      "input_shapes": [["Batch", "Time", 16]],
+      "output_shape": ["Batch", "Time", 16],
+      "attributes": {
+        "affine": true,
+        "epsilon": 0.00001,
+        "mechanism": "layer_norm"
+      }
+    },
+    {
+      "node_id": "block1_attention",
+      "kind": "attention",
+      "input_shapes": [["Batch", "Time", 16]],
+      "output_shape": ["Batch", "Time", 16],
+      "attributes": {
+        "bias": false,
+        "causal": true,
+        "heads": 2
+      }
+    },
+    {
+      "node_id": "block1_output",
+      "kind": "algebraic",
+      "input_shapes": [
+        ["Batch", "Time", 16],
+        ["Batch", "Time", 16]
+      ],
+      "output_shape": ["Batch", "Time", 16],
+      "attributes": {
+        "mechanism": "add"
+      }
+    },
+    {
+      "node_id": "block2_norm",
+      "kind": "normalization",
+      "input_shapes": [["Batch", "Time", 16]],
+      "output_shape": ["Batch", "Time", 16],
+      "attributes": {
+        "affine": true,
+        "epsilon": 0.00001,
+        "mechanism": "layer_norm"
+      }
+    },
+    {
+      "node_id": "block2_attention",
+      "kind": "attention",
+      "input_shapes": [["Batch", "Time", 16]],
+      "output_shape": ["Batch", "Time", 16],
+      "attributes": {
+        "bias": false,
+        "causal": true,
+        "heads": 2
+      }
+    },
+    {
+      "node_id": "block2_output",
+      "kind": "algebraic",
+      "input_shapes": [
+        ["Batch", "Time", 16],
+        ["Batch", "Time", 16]
+      ],
+      "output_shape": ["Batch", "Time", 16],
+      "attributes": {
+        "mechanism": "add"
+      }
+    },
+    {
+      "node_id": "depth_mix",
+      "kind": "routing",
+      "input_shapes": [
+        ["Batch", "Time", 16],
+        ["Batch", "Time", 16]
+      ],
+      "output_shape": ["Batch", "Time", 16],
+      "attributes": {
+        "mechanism": "fixed_mix",
+        "weights": [0.5, 0.5]
+      }
+    },
+    {
+      "node_id": "final_norm",
+      "kind": "normalization",
+      "input_shapes": [["Batch", "Time", 16]],
+      "output_shape": ["Batch", "Time", 16],
+      "attributes": {
+        "affine": true,
+        "epsilon": 0.00001,
+        "mechanism": "layer_norm"
+      }
+    },
+    {
+      "node_id": "readout",
+      "kind": "readout",
+      "input_shapes": [["Batch", "Time", 16]],
+      "output_shape": ["Batch", "Time", 15],
+      "attributes": {
+        "bias": false,
+        "tie_embedding": "token_embedding",
+        "vocab": 15
+      }
+    }
+  ],
+  "edges": [
+    {
+      "source": "tokens",
+      "target": "token_embedding",
+      "target_port": 0,
+      "kind": "data"
+    },
+    {
+      "source": "token_embedding",
+      "target": "position",
+      "target_port": 0,
+      "kind": "data"
+    },
+    {
+      "source": "position",
+      "target": "block1_norm",
+      "target_port": 0,
+      "kind": "data"
+    },
+    {
+      "source": "block1_norm",
+      "target": "block1_attention",
+      "target_port": 0,
+      "kind": "data"
+    },
+    {
+      "source": "position",
+      "target": "block1_output",
+      "target_port": 0,
+      "kind": "residual"
+    },
+    {
+      "source": "block1_attention",
+      "target": "block1_output",
+      "target_port": 1,
+      "kind": "data"
+    },
+    {
+      "source": "block1_output",
+      "target": "block2_norm",
+      "target_port": 0,
+      "kind": "data"
+    },
+    {
+      "source": "block2_norm",
+      "target": "block2_attention",
+      "target_port": 0,
+      "kind": "data"
+    },
+    {
+      "source": "block1_output",
+      "target": "block2_output",
+      "target_port": 0,
+      "kind": "residual"
+    },
+    {
+      "source": "block2_attention",
+      "target": "block2_output",
+      "target_port": 1,
+      "kind": "data"
+    },
+    {
+      "source": "block1_output",
+      "target": "depth_mix",
+      "target_port": 0,
+      "kind": "routing"
+    },
+    {
+      "source": "block2_output",
+      "target": "depth_mix",
+      "target_port": 1,
+      "kind": "routing"
+    },
+    {
+      "source": "depth_mix",
+      "target": "final_norm",
+      "target_port": 0,
+      "kind": "data"
+    },
+    {
+      "source": "final_norm",
+      "target": "readout",
+      "target_port": 0,
+      "kind": "data"
+    }
+  ],
+  "metadata": {
+    "architecture": "two-layer pre-normalized causal attention-only decoder with fixed multidepth readout mixing",
+    "author": "anadim, declarative experiment wrapper",
+    "max_sequence_length": 35,
+    "mechanism_hypothesis": "Removing positionwise feed-forward branches preserves token identity and reduces optimization burden while causal attention supplies the carry information needed for addition.",
+    "name": "Attention-Only Multidepth Decoder",
+    "parameter_count_role": "constrained_search_objective",
+    "tokenization": "digit_reversed_output",
+    "tricks": [
+      "reversed output digits",
+      "autoregressive carry propagation",
+      "attention-only residual blocks",
+      "fixed multidepth representation mixing"
+    ],
+    "vocab_size": 15,
+    "research_current_explanation": "The accepted multidepth decoder remained valid but achieved zero public accuracy, so its feed-forward transformations have no positive public support.",
+    "research_evidence": "The recent visible candidate executed successfully and was eligible, while both public accuracy and search score were zero.",
+    "research_next_experiment": "Remove both positionwise feed-forward branches while retaining two causal attention residual stages and the same fixed multidepth readout mix.",
+    "research_expected_result": "The smaller attention-only graph may train more directly by preserving digit features while still propagating carry context across positions.",
+    "research_decision_rule": "Reject the candidate if it loses eligibility; among eligible candidates prefer the lower trusted parameter count, with public accuracy breaking an exact size tie.",
+    "research_previous_interpretation": "The recent result confirms validity but provides no evidence that feed-forward branches improve addition accuracy.",
+    "research_previous_changed": "yes",
+    "research_challenged_assumption": "The current direction assumes positionwise feed-forward transformations are necessary for converting attended representations into useful carry states.",
+    "research_alternative_explanation": "Addition may be dominated by causal information routing, and feed-forward branches may obscure digit identity while adding unnecessary parameters.",
+    "research_discriminating_evidence": "Eligibility with fewer parameters and non-decreased public accuracy favors attention-only processing; lost eligibility or lower accuracy favors retaining feed-forward transformations."
+  }
+}

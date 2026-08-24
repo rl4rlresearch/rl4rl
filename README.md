@@ -29,6 +29,10 @@ equivalents. No paid run or scientific launch is authorized by the migration.
 Start with the provider-free checks and approval gates in
 [architecture_discovery/README.md](architecture_discovery/README.md).
 
+The intervention study, its configurations, trajectory dashboard, frozen
+candidate architectures, retraining launcher, and result reports are grouped in
+[`experiments/research_process_interventions/`](experiments/research_process_interventions/README.md).
+
 ## Quick start
 
 Python 3.11 or newer and [uv](https://docs.astral.sh/uv/) are recommended.

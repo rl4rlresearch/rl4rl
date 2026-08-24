@@ -18,9 +18,9 @@ bundles. Rebuild it from downloaded artifacts with:
 
 ```bash
 python3 scripts/build_trajectory_assets.py \
-  --downloads-root ../architecture_discovery/outputs/development/modal_downloads \
+  --downloads-root ../../../architecture_discovery/outputs/development/modal_downloads \
   --output-json app/data/trajectories.json \
-  --report ../ARCHITECTURE_TRAJECTORIES_8_12_20.md
+  --report ../reports/architecture_trajectories_8_12_20.md
 ```
 
 The generator requires the complete 24-cell matrix and exactly 320 proposal

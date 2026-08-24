@@ -1,0 +1,130 @@
+{
+  "schema_name": "architecture_tensor_graph",
+  "schema_version": "1.0",
+  "graph_id": "compact_residual_attention_decoder_v1",
+  "input_node_id": "tokens",
+  "output_node_id": "readout",
+  "nodes": [
+    {
+      "node_id": "tokens",
+      "kind": "input",
+      "input_shapes": [],
+      "output_shape": ["Batch", "Time"],
+      "attributes": {}
+    },
+    {
+      "node_id": "token_embedding",
+      "kind": "token_embedding",
+      "input_shapes": [["Batch", "Time"]],
+      "output_shape": ["Batch", "Time", 2],
+      "attributes": {
+        "vocab": 15
+      }
+    },
+    {
+      "node_id": "position",
+      "kind": "positional",
+      "input_shapes": [["Batch", "Time", 2]],
+      "output_shape": ["Batch", "Time", 2],
+      "attributes": {
+        "mechanism": "sinusoidal"
+      }
+    },
+    {
+      "node_id": "carry_attention",
+      "kind": "attention",
+      "input_shapes": [["Batch", "Time", 2]],
+      "output_shape": ["Batch", "Time", 2],
+      "attributes": {
+        "bias": false,
+        "causal": true,
+        "heads": 1
+      }
+    },
+    {
+      "node_id": "attention_residual",
+      "kind": "algebraic",
+      "input_shapes": [
+        ["Batch", "Time", 2],
+        ["Batch", "Time", 2]
+      ],
+      "output_shape": ["Batch", "Time", 2],
+      "attributes": {
+        "mechanism": "add"
+      }
+    },
+    {
+      "node_id": "readout",
+      "kind": "readout",
+      "input_shapes": [["Batch", "Time", 2]],
+      "output_shape": ["Batch", "Time", 15],
+      "attributes": {
+        "bias": false,
+        "tie_embedding": "token_embedding",
+        "vocab": 15
+      }
+    }
+  ],
+  "edges": [
+    {
+      "source": "tokens",
+      "target": "token_embedding",
+      "target_port": 0,
+      "kind": "data"
+    },
+    {
+      "source": "token_embedding",
+      "target": "position",
+      "target_port": 0,
+      "kind": "data"
+    },
+    {
+      "source": "position",
+      "target": "carry_attention",
+      "target_port": 0,
+      "kind": "data"
+    },
+    {
+      "source": "position",
+      "target": "attention_residual",
+      "target_port": 0,
+      "kind": "residual"
+    },
+    {
+      "source": "carry_attention",
+      "target": "attention_residual",
+      "target_port": 1,
+      "kind": "data"
+    },
+    {
+      "source": "attention_residual",
+      "target": "readout",
+      "target_port": 0,
+      "kind": "data"
+    }
+  ],
+  "metadata": {
+    "architecture": "width-2 residual causal attention bottleneck with tied readout",
+    "author": "anadim, declarative experiment wrapper",
+    "max_sequence_length": 35,
+    "mechanism_hypothesis": "A single narrow residual attention path can preserve eligibility while eliminating parameters from depth routing, feed-forward layers, learned positions, and normalization.",
+    "name": "Compact Residual Attention AdderBoard Decoder",
+    "parameter_count_role": "constrained_search_objective",
+    "tokenization": "digit_reversed_output",
+    "tricks": [
+      "reversed output digits",
+      "autoregressive carry propagation"
+    ],
+    "vocab_size": 15,
+    "research_current_explanation": "The model retains a direct token-and-position path while one causal attention operation supplies prefix-dependent carry information.",
+    "research_evidence": "The visible control executed successfully, was transformer-valid and eligible, but had public accuracy 0.0. There is therefore no public evidence that its additional decoder depth improved task accuracy.",
+    "research_next_experiment": "Replace the routed two-block decoder with a width-2, one-head, sinusoidal residual attention bottleneck tied directly to the readout.",
+    "research_expected_result": "The candidate should preserve execution and transformer eligibility with a substantially lower trusted parameter count; its residual path may also ease optimization relative to the deeper control.",
+    "research_decision_rule": "Retain if the public eligibility threshold is preserved and the trusted parameter count decreases; use public accuracy only to distinguish equal-size eligible architectures.",
+    "research_previous_interpretation": "The conventional causal decoder was structurally valid and eligible, but its 0.0 public accuracy did not demonstrate a benefit from added depth.",
+    "research_previous_changed": "yes",
+    "research_challenged_assumption": "not_requested",
+    "research_alternative_explanation": "not_requested",
+    "research_discriminating_evidence": "not_requested"
+  }
+}
