@@ -1,0 +1,204 @@
+# Continuous-session Autoresearch protocol
+
+`workshop_primary_block1_independent_continuous_v1.toml` is the current
+protocol-1.4 launch preset. It must never be pooled with the ephemeral-session
+protocol 1.1, full synchronized protocol 1.2, or the otherwise matched
+protocol-1.3 synchronized-wave preset as if their execution plans were
+identical.
+
+Every run begins one non-ephemeral Codex session at opportunity 1. The runner
+stores its thread ID in `runs/<run-id>/state.json` and uses `codex exec resume`
+for opportunities 2–200. Codex therefore retains the conversation transcript
+within each trajectory. The primary stage contains C0–C3 only; an optional N0
+trajectory would also be continuous if activated later.
+
+Before each resumed turn, the controller reconstructs a stable per-run Codex
+workspace from that opportunity's selected candidate. The controller then
+copies only the editable candidate files back into the immutable,
+per-opportunity workspace used for snapshotting and evaluation. The current
+filesystem and structured Layer A state remain the authoritative candidate
+record, not files remembered from a prior turn.
+
+Consequences for interpretation:
+
+- C0 versus C2 estimates the added effect of controller-provided portfolio
+  evidence over a shared continuous conversation, not memory versus no memory.
+- N0 is not part of the primary stage. If activated later, it has no
+  controller-supplied adaptive state but is not transcript-free.
+- C1 and C3 alone receive the identical scheduled assumption-changing text at
+  every tenth opportunity: 10, 20, ..., 200.
+
+Protocols 1.2–1.4 use an Autoresearch-only intervention template. It asks the
+agent to identify a load-bearing assumption from the visible evidence, test a
+different computational mechanism, avoid mechanism families already tested
+without new evidence, and report the old assumption, alternative mechanism,
+and discriminating result. The original transition template remains in force
+for the ephemeral and OpenEvolve protocols.
+
+## Protocol 1.5 subject-neutral program
+
+Protocol 1.5 is a separate prospective stratum. It keeps the protocol-1.4
+continuous sessions, 200-opportunity budgets, factorial mapping, and dormant
+N0/Block 2/Block 3 extensions, but changes subject-visible information, the
+admissible task solution, and execution ownership. It must not be pooled with
+1.4.
+
+Its rendered common program is
+`templates/transformer_optimizer_v1_5/PROGRAM.md`. The agent sees a normal
+engineering objective—reduce the parameter count of a trained transformer for
+10-digit addition while maintaining 99% accuracy. It is not shown AdderBoard,
+experiment/study/protocol/condition terminology, treatment/checkpoint labels,
+internal candidate identifiers, or C0–C3 names. The ordinary and scheduled
+guidance files also use neutral wording. Internal event logs remain complete.
+
+The subject workspace is placed under an opaque neutral temporary path, uses
+`.design-references/` for any read-only alternatives, and receives
+`OPTIMIZATION_RUN_SEED` rather than `C0C3_RUN_SEED`. The sanitized task tree
+excludes historical reports and handoff notes. `submission.py` is protected,
+and the evaluator rejects direct arithmetic/transducer implementations before
+accuracy verification.
+
+Use the protocol, task, and framework files ending in `v1_5` or named
+`ten_digit_addition_transformer.toml`; the exact preparation commands are in
+`RUNBOOK.md`. A fresh calibration and campaign are mandatory.
+
+Each scheduled trajectory has a separate controller command and exclusive run
+lock, so it can be started, cooperatively paused, and resumed without stopping
+or restarting any peer.
+
+The short campaign stage gate prevents N0 from beginning before the required
+factorial trajectories finish, and prevents new collection after Layer B/C
+sealing. Predeclared factorial blocks can begin concurrently; it is an
+eligibility check, not a shared trajectory controller. `trajectory-lifecycle.jsonl`
+records every individual start, pause request, acknowledgement, resume,
+provider stop, and completion.
+
+Use the `v1_5` protocol/framework files and the start/pause/resume commands in
+`RUNBOOK.md`. Start the four primary trajectories under one predeclared
+operational plan and report their lifecycle timing and overlap.
+
+## Protocol 1.7 source-only subject boundary
+
+Protocol 1.7 is the artifact-clean successor to the confined v1.6 campaign. It
+keeps one continuous conversation per trajectory, independent per-run
+ownership, three campaign evaluator slots, the twelve-slot shared local host
+scheduler, and the 200-opportunity schedule. All three C0–C3 blocks are primary
+and N0 is absent.
+
+The first turn receives the complete task contract. Each resumed turn receives
+only the current available designs, the single newly available verification
+result, and scheduled direction when applicable. Resource/horizon counters,
+prompt markers, empty design slots, selection counts, private metrics, raw
+runner errors, and repeated twelve-result history are absent. Flexible metadata
+extraction preserves free-form summaries without requiring exact response
+labels.
+
+The subject workspace has no supplied checkpoint, run seed, or
+`.workspace-identity`. It receives a neutral local Git baseline and
+workspace-confined cache directories. See `ARTIFACT_CLEAN_PROTOCOLS.md` and use
+the v1.7 protocol/task/framework presets in `RUNBOOK.md`.
+
+## Scale and expected cost
+
+The protocol-1.4 campaign pre-creates 15 trajectories so all optional extensions
+share frozen hashes and block seeds, but the primary launch advances only the
+four Block 1 factorial trajectories. It therefore schedules 800 primary Codex
+proposals, up to 800 evaluator calls, and 40 scheduled interventions. No N0 or
+Block 2/3 call occurs during the primary stage. C0–C3 start behind one initial
+barrier, then each trajectory immediately begins its own next opportunity as
+soon as its own prior evaluator completes; there is no repeated four-run wave
+barrier.
+
+The first 14 completed opportunities in the earlier ephemeral C0–C3
+Autoresearch campaign averaged about 251,000 accounted tokens, 21.8 minutes
+wall time, and 19.7 evaluator minutes per proposal. The historical continuous
+Sol xhigh pilots used about 0.50–1.93 million accounted tokens per macro
+attempt, including their extra agent interactions and automation polling. The
+continuous factorial runner has one bounded Codex turn per proposal, so its
+later-turn cost is uncertain; the 500-million-token per-run ceiling is a
+capacity limit, not a forecast.
+
+At the current 19.7-minute evaluator mean, the primary stage represents roughly
+263 aggregate evaluator-hours. The earlier three four-run synchronized waves
+took 19.7–29.9 minutes, averaging 24.0 minutes. Holding that early four-way
+rate fixed gives about 80 hours (roughly 2.7–4.2 days across the observed range)
+for the primary stage. Independent trajectories eliminate idle time at each
+wave boundary, but still share the same four-way MPS contention, so treat a
+three-to-five-day wall-clock budget as prudent until the first ten proposals per
+trajectory are observed.
+
+Every valid proposal is evaluated in a fresh evaluator workspace; trained
+checkpoints are not retained as candidate artifacts or inherited by a later
+proposal. The run may become faster only if an agent changes the model or
+training schedule in a way that legitimately reduces evaluator work, not via
+automatic checkpoint continuation.
+
+At 251,000 tokens per fresh ephemeral proposal, 800 calls would be about 201
+million accounted tokens. Historical continuous-pilot averages imply roughly
+0.40–1.54 billion, but include growing transcripts, polling, and automations and
+therefore are not a direct forecast. The 500-million-token per-run ceiling is a
+capacity limit rather than an intended spend. Measure the first ten
+opportunities of each trajectory before projecting the remainder.
+
+Block 1 is the frozen one-block primary analysis, with one trajectory per cell.
+It has no between-block replication, so its factorial contrasts are descriptive.
+The campaign retains dormant Block 1 N0 and Blocks 2–3. They are valid later
+extensions under the same instrument, but an outcome-dependent decision to run
+them must be disclosed as adaptive rather than represented as an original
+three-block confirmatory design.
+
+Prepare—but do not launch—the campaign with a fresh calibration because this
+protocol has a distinct hash:
+
+```bash
+PY=architecture_discovery/.venv/bin/python
+CLI=experiments.c0c3_factorial.cli
+C0C3=experiments/c0c3_factorial
+PROTOCOL=$C0C3/configs/protocols/workshop_primary_block1_independent_continuous_v1.toml
+TASK=$C0C3/configs/tasks/adderboard.toml
+FRAMEWORK=$C0C3/configs/frameworks/autoresearch_continuous.toml
+OUT=data/c0c3/workshop-primary-block1-independent-continuous-adderboard-autoresearch
+
+$PY -m $CLI calibrate \
+  --protocol "$PROTOCOL" --task "$TASK" \
+  --output "$OUT-calibration" --python-bin "$PY"
+
+$PY -m $CLI create \
+  --protocol "$PROTOCOL" --task "$TASK" --framework "$FRAMEWORK" \
+  --baseline "$OUT-calibration/baseline.json" --output "$OUT-campaign"
+
+$PY -m $CLI validate --campaign "$OUT-campaign"
+```
+
+After reviewing the frozen inputs and validation report, launch with
+exactly:
+
+```bash
+$PY -m $CLI run-staged-independent-campaign \
+  --campaign "$OUT-campaign" --python-bin "$PY" \
+  --block 1 --stage factorial
+```
+
+This starts four concurrent C0–C3 trajectories and no N0. Each trajectory runs
+its own 200 opportunities continuously without waiting for its peers at an
+opportunity boundary. `status` will continue to show the eleven dormant
+extension runs as `ready`; that is expected and consumes no tokens or evaluator
+time. Do not use `run-parallel-campaign`, `run-staged-campaign`, or four
+independent `run-one` processes.
+
+Only after the primary stage completes, an optional stage can be activated with
+the same campaign and hashes, for example:
+
+```bash
+# Optional descriptive Block 1 N0
+$PY -m $CLI run-staged-independent-campaign \
+  --campaign "$OUT-campaign" --python-bin "$PY" \
+  --block 1 --stage no-search
+
+# Optional Block 2 factorial replication
+$PY -m $CLI run-staged-independent-campaign \
+  --campaign "$OUT-campaign" --python-bin "$PY" \
+  --block 2 --stage factorial
+```
+
+Timestamp the extension decision and reason before invoking either command.

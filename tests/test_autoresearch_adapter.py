@@ -19,3 +19,19 @@ def test_parse_autoresearch_tsv(tmp_path: Path) -> None:
     assert events[0].status == EventStatus.ACCEPTED
     assert events[1].status == EventStatus.REJECTED
     assert not events[1].parent_ids
+
+
+def test_parse_autoresearch_tsv_accepts_blank_measurements_for_errors(
+    tmp_path: Path,
+) -> None:
+    source = tmp_path / "results.tsv"
+    source.write_text(
+        "commit\taccuracy\tparameters\tstatus\tdescription\n"
+        "crash-1\t\t\terror\ttraining crashed before a checkpoint\n"
+    )
+
+    events = parse_autoresearch_tsv(source, run_id="replication-1")
+
+    assert events[0].architecture.accuracy is None
+    assert events[0].architecture.parameters is None
+    assert events[0].status.value == "error"

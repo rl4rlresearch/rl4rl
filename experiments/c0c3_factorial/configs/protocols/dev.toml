@@ -1,0 +1,24 @@
+protocol_version = "1.0"
+study_id = "c0c3-dev"
+study_seed = 20260820
+blocks = 1
+portfolio_capacity = 4
+transition_opportunities = [2, 4]
+retention_rule = "fill_open_slots_then_replace_selected_lineage_on_strict_improvement_v1"
+parent_selection_rule = "fill_from_seed_then_least_selected_lineage_then_best_then_oldest_then_id_v1"
+single_retention_rule = "strict_incumbent_improvement_v1"
+failure_rule = "consume_opportunity_and_evaluation_if_started;never_retain_v1"
+execution_rule = "blocked_round_robin_one_opportunity_v1"
+
+[model]
+name = "gpt-5.6-terra"
+reasoning_effort = "high"
+sandbox = "workspace-write"
+approval_policy = "never"
+
+[budget]
+proposals = 4
+candidate_evaluations = 4
+max_total_tokens = 2000000
+max_evaluator_seconds = 14400.0
+evaluator_timeout_seconds = 3600

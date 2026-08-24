@@ -1,0 +1,27 @@
+protocol_version = "1.7"
+study_id = "nanogpt-autoresearch-v1-7-h100"
+study_seed = 20260824
+blocks = 4
+portfolio_capacity = 4
+transition_opportunities = [10, 20, 30, 40, 50, 60, 70, 80, 90, 100, 110, 120, 130, 140, 150, 160, 170, 180, 190, 200]
+conversation_mode = "continuous_session_per_run_v1"
+retention_rule = "fill_open_slots_then_replace_selected_lineage_on_strict_improvement_v1"
+parent_selection_rule = "fill_from_seed_then_least_selected_lineage_then_best_then_oldest_then_id_v1"
+single_retention_rule = "strict_incumbent_improvement_v1"
+failure_rule = "consume_opportunity_and_evaluation_if_started;never_retain_v1"
+execution_rule = "staged_confined_individually_controlled_trajectories_v1"
+include_no_search = false
+
+[model]
+name = "gpt-5.6-sol"
+reasoning_effort = "xhigh"
+sandbox = "workspace-write"
+approval_policy = "never"
+service_tier = "fast"
+
+[budget]
+proposals = 200
+candidate_evaluations = 200
+max_total_tokens = 500000000
+max_evaluator_seconds = 720000.0
+evaluator_timeout_seconds = 1200

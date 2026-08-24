@@ -61,6 +61,15 @@ uv run rl4rl parse-autoresearch path/to/results.tsv \
 The adapter does not invent ancestry. Supply a parent column in the TSV or join
 the normalized events against the full Git graph in a later ingestion step.
 
+## Run the original AdderBoard Autoresearch pilot
+
+The inherited trajectory-analysis brief uses parameter count as the objective:
+minimize unique parameters subject to official qualification. The runnable,
+five-attempt local pilot for that historical protocol lives in
+[`experiments/autoresearch_pilot/README.md`](experiments/autoresearch_pilot/README.md).
+It is intentionally separate from `architecture_discovery/`, whose current
+causal protocol treats parameter count as descriptive metadata only.
+
 To generate the starter figures (requires the `analysis` extra):
 
 ```bash
