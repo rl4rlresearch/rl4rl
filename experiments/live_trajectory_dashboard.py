@@ -10,7 +10,9 @@ any campaign artifact, so it is safe to use while controllers are running.
 from __future__ import annotations
 
 import argparse
+import gzip
 import json
+from contextlib import suppress
 from datetime import datetime
 from http import HTTPStatus
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
@@ -33,6 +35,12 @@ DEFAULT_AUTORESEARCH_V17_NANOGPT = (
 )
 DEFAULT_OPENEVOLVE_V21_NANOGPT = (
     REPO_ROOT / "data/c0c3/nanogpt-openevolve-v2-1-h100-campaign"
+)
+DEFAULT_AUTORESEARCH_V17_FASHION_MNIST = (
+    REPO_ROOT / "data/c0c3/fashion-mnist-autoresearch-v1-7-mps-campaign"
+)
+DEFAULT_OPENEVOLVE_V21_FASHION_MNIST = (
+    REPO_ROOT / "data/c0c3/fashion-mnist-openevolve-v2-1-mps-campaign"
 )
 
 # These are display-only price weights, not a billing record.  They match the
@@ -144,6 +152,28 @@ def compact_label(run_id: str) -> str:
     block = next((part.upper() for part in parts if len(part) == 3 and part.startswith("b") and part[1:].isdigit()), "B??")
     condition = next((part.upper() for part in parts if part in {"c0", "c1", "c2", "c3"}), "C?")
     return f"{block}-{condition}"
+
+
+def display_status(run_dir: Path, scientific_status: Any) -> str:
+    """Return the operator-facing lifecycle status without changing run state.
+
+    A cooperatively paused trajectory deliberately keeps ``state.json`` marked
+    ``running`` so the controller can resume it.  The lifecycle log is the
+    authoritative record of whether that runnable trajectory is currently
+    paused or in the process of pausing.
+    """
+    status = scientific_status if isinstance(scientific_status, str) else "unknown"
+    if status != "running":
+        return status
+    for event in reversed(iter_jsonl(run_dir / "lifecycle.jsonl")):
+        event_name = event.get("event")
+        if event_name == "trajectory_paused":
+            return "paused"
+        if event_name == "trajectory_pause_requested":
+            return "pausing"
+        if event_name in {"trajectory_resumed", "trajectory_started"}:
+            break
+    return status
 
 
 def build_run(
@@ -293,11 +323,13 @@ def build_run(
             },
         )
     usage = normalized_usage(state.get("usage"))
+    scientific_status = state.get("status", "unknown")
     return {
         "run_id": run_id,
         "label": compact_label(run_id),
         "condition": condition.upper(),
-        "status": state.get("status", "unknown"),
+        "status": display_status(run_dir, scientific_status),
+        "scientific_status": scientific_status,
         "proposals_used": state.get("proposals_used", 0),
         "total_tokens": usage["total_tokens"],
         "token_cost": round(weighted_cost(usage, prices), 6),
@@ -415,21 +447,40 @@ PAGE = (Path(__file__).with_name("live_trajectory_dashboard.html")).read_text(
 )
 
 
+def encode_response(body: bytes, accept_encoding: str) -> tuple[bytes, str | None]:
+    """Compress large responses when the client supports gzip."""
+    if len(body) >= 1024 and "gzip" in accept_encoding.lower():
+        return gzip.compress(body, compresslevel=5), "gzip"
+    return body, None
+
+
 def make_handler(campaigns: dict[str, Path], prices: dict[str, float]):
     class Handler(BaseHTTPRequestHandler):
         def send_payload(self, body: bytes, content_type: str) -> None:
+            body, content_encoding = encode_response(
+                body, self.headers.get("Accept-Encoding", "")
+            )
             self.send_response(HTTPStatus.OK)
             self.send_header("Content-Type", content_type)
             self.send_header("Cache-Control", "no-store")
+            self.send_header("Access-Control-Allow-Origin", "*")
+            self.send_header("Vary", "Accept-Encoding")
+            if content_encoding:
+                self.send_header("Content-Encoding", content_encoding)
             self.send_header("Content-Length", str(len(body)))
             self.end_headers()
-            self.wfile.write(body)
+            # A reload can abandon an in-flight multi-megabyte response.  The
+            # dashboard server should remain healthy when that happens.
+            with suppress(BrokenPipeError, ConnectionResetError):
+                self.wfile.write(body)
 
         def do_GET(self) -> None:  # noqa: N802
             if self.path in {"/", "/index.html"}:
                 self.send_payload(PAGE.encode("utf-8"), "text/html; charset=utf-8")
             elif self.path == "/api/data":
-                payload = json.dumps(dashboard_data(campaigns, prices)).encode("utf-8")
+                payload = json.dumps(
+                    dashboard_data(campaigns, prices), separators=(",", ":")
+                ).encode("utf-8")
                 self.send_payload(payload, "application/json; charset=utf-8")
             else:
                 self.send_error(HTTPStatus.NOT_FOUND)
@@ -462,6 +513,16 @@ def parse_args() -> argparse.Namespace:
         type=Path,
         default=DEFAULT_OPENEVOLVE_V21_NANOGPT,
     )
+    parser.add_argument(
+        "--autoresearch-v17-fashion-mnist-campaign",
+        type=Path,
+        default=DEFAULT_AUTORESEARCH_V17_FASHION_MNIST,
+    )
+    parser.add_argument(
+        "--openevolve-v21-fashion-mnist-campaign",
+        type=Path,
+        default=DEFAULT_OPENEVOLVE_V21_FASHION_MNIST,
+    )
     parser.add_argument("--input-per-million", type=float, default=DEFAULT_PRICE_PER_MILLION["input"])
     parser.add_argument("--cached-input-per-million", type=float, default=DEFAULT_PRICE_PER_MILLION["cached_input"])
     parser.add_argument("--output-per-million", type=float, default=DEFAULT_PRICE_PER_MILLION["output"])
@@ -478,6 +539,12 @@ def main() -> None:
         "openevolve_v21": args.openevolve_v21_campaign,
         "autoresearch_v17_nanogpt": args.autoresearch_v17_nanogpt_campaign,
         "openevolve_v21_nanogpt": args.openevolve_v21_nanogpt_campaign,
+        "autoresearch_v17_fashion_mnist": (
+            args.autoresearch_v17_fashion_mnist_campaign
+        ),
+        "openevolve_v21_fashion_mnist": (
+            args.openevolve_v21_fashion_mnist_campaign
+        ),
     }
     server = ThreadingHTTPServer(
         (args.host, args.port), make_handler(campaigns, prices)
@@ -489,6 +556,14 @@ def main() -> None:
     print(f"OpenEvolve v2.1: {args.openevolve_v21_campaign}")
     print(f"Autoresearch v1.7 nanoGPT: {args.autoresearch_v17_nanogpt_campaign}")
     print(f"OpenEvolve v2.1 nanoGPT: {args.openevolve_v21_nanogpt_campaign}")
+    print(
+        "Autoresearch v1.7 Fashion-MNIST: "
+        f"{args.autoresearch_v17_fashion_mnist_campaign}"
+    )
+    print(
+        "OpenEvolve v2.1 Fashion-MNIST: "
+        f"{args.openevolve_v21_fashion_mnist_campaign}"
+    )
     try:
         server.serve_forever()
     except KeyboardInterrupt:

@@ -62,13 +62,20 @@ const campaignDefs=[
   ['autoresearchv17','Autoresearch v1.7 · addition','autoresearch_v17'],
   ['openevolvev21','OpenEvolve v2.1 · addition','openevolve_v21'],
   ['autoresearchv17nanogpt','Autoresearch v1.7 · nanoGPT H100','autoresearch_v17_nanogpt'],
-  ['openevolvev21nanogpt','OpenEvolve v2.1 · nanoGPT H100','openevolve_v21_nanogpt']
+  ['openevolvev21nanogpt','OpenEvolve v2.1 · nanoGPT H100','openevolve_v21_nanogpt'],
+  ['autoresearchv17fashionmnist','Autoresearch v1.7 · Fashion-MNIST MPS','autoresearch_v17_fashion_mnist'],
+  ['openevolvev21fashionmnist','OpenEvolve v2.1 · Fashion-MNIST MPS','openevolve_v21_fashion_mnist']
 ];
 const charts=new Map();
 const states={};
+const visibleSections=new Set();
+const payloadsById=new Map();
+const apiUrl=location.protocol==='file:'?'http://127.0.0.1:8765/api/data':'/api/data';
 let latestData=null;
 let refreshTimer=null;
 let refreshing=false;
+let sectionObserver=null;
+let chartLoadPromise=null;
 
 function html(value){return String(value??'').replace(/[&<>"']/g,ch=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]));}
 function finite(value){const number=Number(value);return value===null||value===''||!Number.isFinite(number)?null:number;}
@@ -76,8 +83,10 @@ function color(run){const family=conditionColors[run.condition]||['#c9d1d9'];con
 function valueAt(point,key){if(key.startsWith('metric:'))return finite(point.metrics?.[key.slice(7)]);return finite(point[key]);}
 function labelFor(payload,key){return payload.axis_catalog?.find(item=>item.key===key)?.label||key;}
 function fmt(value,key=''){const n=finite(value);if(n===null)return '—';if(key.includes('cost'))return '$'+n.toLocaleString(undefined,{minimumFractionDigits:2,maximumFractionDigits:4});if(key.includes('percent'))return n.toLocaleString(undefined,{maximumFractionDigits:2})+'%';if(key.includes('tokens')||key==='proposal'||key==='evaluator_calls')return Math.round(n).toLocaleString();return n.toLocaleString(undefined,{maximumFractionDigits:5});}
-function defaultState(){return {y:'best_objective',xs:['proposal','token_cost','active_hours'],filter:'all',proposalType:'all',conditions:['C0','C1','C2','C3'],hiddenRuns:[],showSeed:true,connect:true,overlay:true,query:'',sort:'label',sortDirection:1};}
-function stateFor(id,payload){if(!states[id])states[id]=defaultState();const keys=new Set((payload.axis_catalog||[]).map(item=>item.key));if(!keys.has(states[id].y))states[id].y='best_objective';states[id].xs=states[id].xs.map((key,index)=>keys.has(key)?key:['proposal','token_cost','active_hours'][index]);return states[id];}
+function median(values){const sorted=values.map(finite).filter(value=>value!==null).sort((a,b)=>a-b);if(!sorted.length)return null;const middle=Math.floor(sorted.length/2);return sorted.length%2?sorted[middle]:(sorted[middle-1]+sorted[middle])/2;}
+function conditionColor(condition){const family=conditionColors[condition]||['#c9d1d9'];return family[Math.floor(family.length/2)];}
+function defaultState(){return {y:'best_objective',yScale:'zero',seriesMode:'runs',xs:['proposal','token_cost','active_hours'],filter:'all',proposalType:'all',conditions:['C0','C1','C2','C3'],hiddenRuns:[],showSeed:true,connect:true,overlay:true,query:'',sort:'label',sortDirection:1};}
+function stateFor(id,payload){if(!states[id])states[id]=defaultState();if(!['zero','data'].includes(states[id].yScale))states[id].yScale='zero';if(!['runs','conditionMedian'].includes(states[id].seriesMode))states[id].seriesMode='runs';const keys=new Set((payload.axis_catalog||[]).map(item=>item.key));if(!keys.has(states[id].y))states[id].y='best_objective';states[id].xs=states[id].xs.map((key,index)=>keys.has(key)?key:['proposal','token_cost','active_hours'][index]);return states[id];}
 function axisOptions(payload,selected){return (payload.axis_catalog||[]).map(item=>`<option value="${html(item.key)}"${item.key===selected?' selected':''}>${html(item.label)}</option>`).join('');}
 function proposalTypes(payload){return [...new Set(payload.runs.flatMap(run=>run.points.map(point=>point.proposal_type)).filter(type=>type&&type!=='seed'))].sort();}
 
@@ -85,7 +94,9 @@ function sectionHtml(id,title,payload){
   if(!payload||!payload.available)return `<section class="section"><h2>${html(title)}</h2><div class="empty">Campaign directory is not available: ${html(payload?.campaign||'not configured')}</div></section>`;
   const state=stateFor(id,payload);
   const types=proposalTypes(payload);
-  const legend=payload.runs.map(run=>`<button class="key${state.hiddenRuns.includes(run.run_id)?' off':''}" data-run="${html(run.run_id)}"><i class="dot" style="background:${color(run)}"></i>${html(run.label)}</button>`).join('');
+  const legend=state.seriesMode==='conditionMedian'
+    ? ['C0','C1','C2','C3'].map(condition=>{const count=payload.runs.filter(run=>run.condition===condition).length;return `<span class="key${state.conditions.includes(condition)?'':' off'}" data-aggregate-condition="${condition}"><i class="dot" style="background:${conditionColor(condition)}"></i>${condition} median · ${count} run${count===1?'':'s'}</span>`;}).join('')
+    : payload.runs.map(run=>`<button class="key${state.hiddenRuns.includes(run.run_id)?' off':''}" data-run="${html(run.run_id)}"><i class="dot" style="background:${color(run)}"></i>${html(run.label)}</button>`).join('');
   const checks=['C0','C1','C2','C3'].map(condition=>`<label><input type="checkbox" data-condition="${condition}"${state.conditions.includes(condition)?' checked':''}>${condition}</label>`).join('');
   const typeOptions=['<option value="all">All proposal types</option>',...types.map(type=>`<option value="${html(type)}"${state.proposalType===type?' selected':''}>${html(type)}</option>`)].join('');
   const columns=[['label','Run'],['condition','Condition'],['status','Status'],['proposals_used','Proposals'],['valid_rate','Valid'],['retained_proposals','Retained'],['total_tokens','Reported tokens'],['token_cost','Token cost'],['active_hours','Active hours'],['best_objective','Best '+payload.objective_metric],['latest_raw_objective','Latest raw']];
@@ -93,16 +104,18 @@ function sectionHtml(id,title,payload){
     <div class="section-head"><div><h2>${html(title)}</h2><p class="path">${html(payload.campaign)}</p></div><span class="health">● ${payload.runs.length} runs · live logs</span></div>
     <div class="controls">
       <div class="control"><label>Y metric</label><select data-control="y">${axisOptions(payload,state.y)}</select></div>
+      <div class="control"><label>Y-axis range</label><select data-control="yScale"><option value="zero"${state.yScale==='zero'?' selected':''}>Start at zero</option><option value="data"${state.yScale==='data'?' selected':''}>Fit visible data</option></select></div>
+      <div class="control"><label>Lines</label><select data-control="seriesMode"><option value="runs"${state.seriesMode==='runs'?' selected':''}>Individual runs</option><option value="conditionMedian"${state.seriesMode==='conditionMedian'?' selected':''}>Condition median</option></select></div>
       <div class="control"><label>Proposal outcomes</label><select data-control="filter"><option value="all">All outcomes</option><option value="valid">Valid only</option><option value="invalid">Invalid only</option><option value="retained">Retained only</option></select></div>
       <div class="control"><label>Proposal type</label><select data-control="proposalType">${typeOptions}</select></div>
       <div class="control"><label>Conditions</label><div class="checks">${checks}</div></div>
-      <div class="checks"><label><input type="checkbox" data-control="showSeed"${state.showSeed?' checked':''}>Seed</label><label><input type="checkbox" data-control="connect"${state.connect?' checked':''}>Connect</label><label><input type="checkbox" data-control="overlay"${state.overlay?' checked':''}>Raw outcome overlay</label></div>
+      <div class="checks"><label><input type="checkbox" data-control="showSeed"${state.showSeed?' checked':''}>Seed</label><label><input type="checkbox" data-control="connect"${state.connect?' checked':''}>Connect</label><label><input type="checkbox" data-control="overlay"${state.overlay?' checked':''}${state.seriesMode==='conditionMedian'?' disabled':''}>Raw outcome overlay</label></div>
       <button data-action="reset">Reset view</button><button data-action="csv">Export visible CSV</button><button data-action="json">Export JSON</button>
     </div>
     <div class="stats" id="${id}-stats"></div>
     <div class="legend" id="${id}-legend">${legend}</div>
     <div class="charts">${state.xs.map((xKey,index)=>`<div class="chart-card"><div class="chart-head"><strong>Chart ${index+1}</strong><select data-x="${index}">${axisOptions(payload,xKey)}</select></div><div class="chart"><canvas id="${id}-chart-${index}"></canvas></div></div>`).join('')}</div>
-    <p class="note">Marker key: ◆ seed · × invalid · ▲ retained · ○ other valid. Both axes always include zero. Paused time and gaps between completed proposals are excluded from active wall-clock time.</p>
+    <p class="note">Marker key: ● seed or retained · × invalid · ○ other valid. Condition median aligns runs by proposal number and takes the median X and Y across that condition's visible outcomes; the tooltip reports how many runs contributed. X always includes zero; Y follows the selected range. Paused time and gaps between completed proposals are excluded from active wall-clock time.</p>
     <div class="table-tools"><strong>Run summary</strong><input type="search" data-control="query" value="${html(state.query)}" placeholder="Filter runs"></div>
     <div class="table-wrap"><table><thead><tr>${columns.map(([key,label])=>`<th><button data-sort="${key}">${html(label)}</button></th>`).join('')}</tr></thead><tbody id="${id}-rows"></tbody></table></div>
   </section>`;
@@ -115,31 +128,58 @@ function pointAllowed(point,state){
   if(state.filter==='retained'&&!point.retained)return false;
   return state.proposalType==='all'||point.proposal_type===state.proposalType;
 }
-function visibleRuns(payload,state){return payload.runs.filter(run=>state.conditions.includes(run.condition)&&!state.hiddenRuns.includes(run.run_id));}
+function visibleRuns(payload,state){return payload.runs.filter(run=>state.conditions.includes(run.condition)&&(state.seriesMode==='conditionMedian'||!state.hiddenRuns.includes(run.run_id)));}
 function chartPoint(point,xKey,yKey){const x=valueAt(point,xKey),y=valueAt(point,yKey);return x===null||y===null?null:{x,y,point};}
-function pointStyle(context){const point=context.raw?.point;if(!point)return 'circle';if(point.is_seed)return 'rectRot';if(!point.valid)return 'crossRot';if(point.retained)return 'triangle';return 'circle';}
-function pointRadius(context){const point=context.raw?.point;if(!point)return 2;if(point.is_seed)return 4;if(!point.valid)return 5;if(point.retained)return 4;return 3;}
+function pointStyle(context){const point=context.raw?.point;if(!point)return 'circle';if(!point.valid)return 'crossRot';return 'circle';}
+function pointRadius(context){const point=context.raw?.point;if(!point)return 2;if(point.aggregate||point.is_seed)return 4;if(!point.valid)return 5;if(point.retained)return 4;return 3;}
 function dataset(run,points,xKey,yKey,state,role='metric'){
   const shade=color(run);
   return {label:run.label+(role==='raw'?' · raw outcomes':''),role,data:points.map(point=>chartPoint(point,xKey,yKey)).filter(Boolean),showLine:role!=='raw'&&state.connect,borderColor:shade,backgroundColor:role==='raw'?'#0d1117':shade,pointBorderColor:shade,pointBackgroundColor:context=>context.raw?.point?.valid===false?'#0d1117':(role==='raw'?'#0d1117':shade),borderWidth:role==='raw'?0:2,pointBorderWidth:role==='raw'?2:1,pointStyle,pointRadius,pointHoverRadius:7,tension:.12,spanGaps:true};
 }
-function chartOptions(payload,xKey,yKey){
-  return {responsive:true,maintainAspectRatio:false,resizeDelay:150,animation:false,normalized:true,parsing:false,interaction:{mode:'nearest',intersect:false},plugins:{legend:{display:false},tooltip:{callbacks:{title:items=>items.length?`${items[0].raw.point.is_seed?'Seed':'Proposal '+items[0].raw.point.proposal}`:'',label:context=>`${context.dataset.label}: ${fmt(context.raw.y,yKey)}`,afterLabel:context=>{const p=context.raw.point;return [`valid: ${p.valid?'yes':'no'} · retained: ${p.retained?'yes':'no'}`,`raw: ${fmt(p.raw_objective,'raw_objective')} · best: ${fmt(p.best_objective,'best_objective')}`,`cost: ${fmt(p.token_cost,'token_cost')} · tokens: ${fmt(p.total_tokens,'total_tokens')} · active: ${fmt(p.active_hours,'active_hours')} h`,p.failure_kind?`failure: ${p.failure_kind}`:''].filter(Boolean);}}}},scales:{x:{type:'linear',beginAtZero:true,title:{display:true,text:labelFor(payload,xKey)},ticks:{maxTicksLimit:8}},y:{beginAtZero:true,title:{display:true,text:labelFor(payload,yKey)},ticks:{maxTicksLimit:8}}}};
+function aggregateDataset(condition,runs,xKey,yKey,state){
+  const byProposal=new Map();
+  for(const run of runs)for(const point of run.points.filter(item=>pointAllowed(item,state))){
+    const plotted=chartPoint(point,xKey,yKey);if(!plotted)continue;
+    if(!byProposal.has(point.proposal))byProposal.set(point.proposal,[]);
+    byProposal.get(point.proposal).push(plotted);
+  }
+  const data=[...byProposal.entries()].sort(([a],[b])=>a-b).map(([proposal,items])=>{
+    const sourcePoints=items.map(item=>item.point);
+    const aggregatePoint={proposal,aggregate:true,is_seed:proposal===0,valid:true,retained:true,member_count:items.length,condition_run_count:runs.length,raw_objective:median(sourcePoints.map(point=>point.raw_objective)),best_objective:median(sourcePoints.map(point=>point.best_objective)),token_cost:median(sourcePoints.map(point=>point.token_cost)),total_tokens:median(sourcePoints.map(point=>point.total_tokens)),active_hours:median(sourcePoints.map(point=>point.active_hours)),failure_kind:null};
+    return {x:median(items.map(item=>item.x)),y:median(items.map(item=>item.y)),point:aggregatePoint};
+  }).filter(point=>point.x!==null&&point.y!==null);
+  const shade=conditionColor(condition);
+  return {label:`${condition} median (${runs.length} runs)`,role:'aggregate',data,showLine:state.connect,borderColor:shade,backgroundColor:shade,pointBorderColor:shade,pointBackgroundColor:shade,borderWidth:3,pointBorderWidth:1,pointStyle:'circle',pointRadius,pointHoverRadius:7,tension:.12,spanGaps:true};
+}
+function chartOptions(payload,xKey,yKey,yScale){
+  return {responsive:true,maintainAspectRatio:false,resizeDelay:150,animation:false,normalized:true,parsing:false,interaction:{mode:'nearest',intersect:false},plugins:{legend:{display:false},tooltip:{callbacks:{title:items=>items.length?`${items[0].raw.point.is_seed?'Seed':'Proposal '+items[0].raw.point.proposal}`:'',label:context=>`${context.dataset.label}: ${fmt(context.raw.y,yKey)}`,afterLabel:context=>{const p=context.raw.point;if(p.aggregate)return [`median of ${p.member_count}/${p.condition_run_count} runs at this proposal`,`median raw: ${fmt(p.raw_objective,'raw_objective')} · median best: ${fmt(p.best_objective,'best_objective')}`,`median cost: ${fmt(p.token_cost,'token_cost')} · tokens: ${fmt(p.total_tokens,'total_tokens')} · active: ${fmt(p.active_hours,'active_hours')} h`];return [`valid: ${p.valid?'yes':'no'} · retained: ${p.retained?'yes':'no'}`,`raw: ${fmt(p.raw_objective,'raw_objective')} · best: ${fmt(p.best_objective,'best_objective')}`,`cost: ${fmt(p.token_cost,'token_cost')} · tokens: ${fmt(p.total_tokens,'total_tokens')} · active: ${fmt(p.active_hours,'active_hours')} h`,p.failure_kind?`failure: ${p.failure_kind}`:''].filter(Boolean);}}}},scales:{x:{type:'linear',beginAtZero:true,title:{display:true,text:labelFor(payload,xKey)},ticks:{maxTicksLimit:8}},y:{beginAtZero:yScale==='zero',title:{display:true,text:labelFor(payload,yKey)},ticks:{maxTicksLimit:8}}}};
 }
 function drawCharts(id,payload){
+  if(typeof Chart==='undefined')return;
   const state=states[id],runs=visibleRuns(payload,state);
   state.xs.forEach((xKey,index)=>{
     const chartId=`${id}-chart-${index}`;
     charts.get(chartId)?.destroy();
     const canvas=document.getElementById(chartId);if(!canvas)return;
     const datasets=[];
-    for(const run of runs){
-      const points=run.points.filter(point=>pointAllowed(point,state));
-      datasets.push(dataset(run,points,xKey,state.y,state));
-      if(state.y==='best_objective'&&state.overlay)datasets.push(dataset(run,points.filter(point=>!point.is_seed),xKey,'raw_objective',state,'raw'));
+    if(state.seriesMode==='conditionMedian'){
+      for(const condition of state.conditions){const conditionRuns=runs.filter(run=>run.condition===condition);if(conditionRuns.length)datasets.push(aggregateDataset(condition,conditionRuns,xKey,state.y,state));}
+    }else{
+      for(const run of runs){
+        const points=run.points.filter(point=>pointAllowed(point,state));
+        datasets.push(dataset(run,points,xKey,state.y,state));
+        if(state.y==='best_objective'&&state.overlay)datasets.push(dataset(run,points.filter(point=>!point.is_seed),xKey,'raw_objective',state,'raw'));
+      }
     }
-    charts.set(chartId,new Chart(canvas,{type:'line',data:{datasets},options:chartOptions(payload,xKey,state.y)}));
+    charts.set(chartId,new Chart(canvas,{type:'line',data:{datasets},options:chartOptions(payload,xKey,state.y,state.yScale)}));
   });
+}
+function destroySectionCharts(id){
+  for(let index=0;index<3;index++){
+    const chartId=`${id}-chart-${index}`;
+    charts.get(chartId)?.destroy();
+    charts.delete(chartId);
+  }
 }
 function overallBest(runs,direction){const values=runs.map(run=>finite(run.best_objective)).filter(value=>value!==null);if(!values.length)return null;return direction==='maximize'?Math.max(...values):Math.min(...values);}
 function drawStats(id,payload){
@@ -155,8 +195,8 @@ function drawTable(id,payload){
   runs.sort((a,b)=>{const av=comparable(a,state.sort),bv=comparable(b,state.sort);if(typeof av==='number'&&typeof bv==='number')return (av-bv)*state.sortDirection;return String(av??'').localeCompare(String(bv??''))*state.sortDirection;});
   document.getElementById(id+'-rows').innerHTML=runs.map(run=>`<tr><td>${html(run.label)}</td><td>${html(run.condition)}</td><td>${html(run.status)}</td><td>${fmt(run.proposals_used,'proposal')}</td><td>${run.proposals_used?(100*run.valid_proposals/run.proposals_used).toFixed(1)+'%':'—'}</td><td>${fmt(run.retained_proposals,'proposal')}</td><td>${fmt(run.total_tokens,'total_tokens')}</td><td>${fmt(run.token_cost,'token_cost')}</td><td>${fmt(run.active_hours,'active_hours')}</td><td>${fmt(run.best_objective,'best_objective')}</td><td>${fmt(run.latest_raw_objective,'raw_objective')}</td></tr>`).join('');
 }
-function drawLegend(id){const state=states[id];document.querySelectorAll(`#${id}-legend [data-run]`).forEach(button=>button.classList.toggle('off',state.hiddenRuns.includes(button.dataset.run)));}
-function redraw(id,payload){drawCharts(id,payload);drawStats(id,payload);drawTable(id,payload);drawLegend(id);}
+function drawLegend(id){const state=states[id];document.querySelectorAll(`#${id}-legend [data-run]`).forEach(button=>button.classList.toggle('off',state.hiddenRuns.includes(button.dataset.run)));document.querySelectorAll(`#${id}-legend [data-aggregate-condition]`).forEach(item=>item.classList.toggle('off',!state.conditions.includes(item.dataset.aggregateCondition)));}
+function redraw(id,payload){if(visibleSections.has(id))drawCharts(id,payload);drawStats(id,payload);drawTable(id,payload);drawLegend(id);}
 
 function download(name,type,body){const url=URL.createObjectURL(new Blob([body],{type}));const link=document.createElement('a');link.href=url;link.download=name;link.click();setTimeout(()=>URL.revokeObjectURL(url),0);}
 function exportCampaign(id,payload,format){
@@ -173,7 +213,7 @@ function attachSection(id,payload){
   const root=document.getElementById(id+'-section'),state=states[id];if(!root)return;
   root.querySelector('[data-control="filter"]').value=state.filter;
   root.querySelector('[data-control="proposalType"]').value=state.proposalType;
-  root.querySelectorAll('[data-control]').forEach(control=>control.addEventListener('change',()=>{const key=control.dataset.control;if(['showSeed','connect','overlay'].includes(key))state[key]=control.checked;else state[key]=control.value;redraw(id,payload);}));
+  root.querySelectorAll('[data-control]').forEach(control=>control.addEventListener('change',()=>{const key=control.dataset.control;if(['showSeed','connect','overlay'].includes(key))state[key]=control.checked;else state[key]=control.value;if(key==='seriesMode')render();else redraw(id,payload);}));
   root.querySelectorAll('[data-condition]').forEach(control=>control.addEventListener('change',()=>{state.conditions=control.checked?[...new Set([...state.conditions,control.dataset.condition])]:state.conditions.filter(value=>value!==control.dataset.condition);redraw(id,payload);}));
   root.querySelectorAll('[data-x]').forEach(control=>control.addEventListener('change',()=>{state.xs[Number(control.dataset.x)]=control.value;drawCharts(id,payload);}));
   root.querySelectorAll('[data-run]').forEach(button=>button.addEventListener('click',()=>{state.hiddenRuns=state.hiddenRuns.includes(button.dataset.run)?state.hiddenRuns.filter(value=>value!==button.dataset.run):[...state.hiddenRuns,button.dataset.run];redraw(id,payload);}));
@@ -185,20 +225,63 @@ function attachSection(id,payload){
   redraw(id,payload);
 }
 function campaignsFrom(data){const campaigns=data.campaigns||{};return campaignDefs.map(([id,title,key,legacy])=>[id,title,campaigns[key]||(legacy?data[legacy]:null)]);}
+function observeSections(sections){
+  sectionObserver?.disconnect();
+  visibleSections.clear();
+  payloadsById.clear();
+  sections.forEach(([id,_title,payload])=>{if(payload?.available)payloadsById.set(id,payload);});
+  if(!('IntersectionObserver' in window)){
+    payloadsById.forEach((payload,id)=>{visibleSections.add(id);drawCharts(id,payload);});
+    return;
+  }
+  sectionObserver=new IntersectionObserver(entries=>{
+    for(const entry of entries){
+      const id=entry.target.id.replace(/-section$/,'');
+      const payload=payloadsById.get(id);
+      if(!payload)continue;
+      if(entry.isIntersecting){visibleSections.add(id);requestAnimationFrame(()=>drawCharts(id,payload));}
+      else{visibleSections.delete(id);destroySectionCharts(id);}
+    }
+  },{rootMargin:'500px 0px'});
+  payloadsById.forEach((_payload,id)=>sectionObserver.observe(document.getElementById(id+'-section')));
+}
 function render(){
   if(!latestData)return;
+  sectionObserver?.disconnect();
   charts.forEach(chart=>chart.destroy());charts.clear();
   const sections=campaignsFrom(latestData);
   document.getElementById('content').innerHTML=sections.map(([id,title,payload])=>sectionHtml(id,title,payload)).join('');
   sections.forEach(([id,_title,payload])=>{if(payload?.available)attachSection(id,payload);});
+  observeSections(sections);
+}
+function loadScript(url){
+  return new Promise((resolve,reject)=>{
+    const script=document.createElement('script');
+    const timeout=setTimeout(()=>{script.remove();reject(new Error('chart library timed out'));},12000);
+    script.src=url;script.async=true;
+    script.onload=()=>{clearTimeout(timeout);resolve();};
+    script.onerror=()=>{clearTimeout(timeout);script.remove();reject(new Error('chart library failed to load'));};
+    document.head.appendChild(script);
+  });
+}
+function ensureChartLibrary(){
+  if(typeof Chart!=='undefined')return Promise.resolve(true);
+  if(chartLoadPromise)return chartLoadPromise;
+  chartLoadPromise=loadScript('https://unpkg.com/chart.js@4.4.4/dist/chart.umd.min.js').then(()=>{
+    if(typeof Chart==='undefined')throw new Error('chart library unavailable');
+    payloadsById.forEach((payload,id)=>{if(visibleSections.has(id))drawCharts(id,payload);});
+    return true;
+  }).catch(error=>{chartLoadPromise=null;throw error;});
+  return chartLoadPromise;
 }
 async function refresh(){
   if(refreshing)return;refreshing=true;const button=document.getElementById('refresh');button.disabled=true;button.textContent='Refreshing…';
-  try{const response=await fetch('/api/data',{cache:'no-store'});if(!response.ok)throw new Error(`HTTP ${response.status}`);latestData=await response.json();render();const available=Object.values(latestData.campaigns||{}).filter(value=>value?.available).length;document.getElementById('stamp').textContent=`Updated ${new Date(latestData.generated_at).toLocaleString()} · ${available} campaigns`;}catch(error){document.getElementById('stamp').textContent='Refresh failed: '+error.message;}finally{refreshing=false;button.disabled=false;button.textContent='Refresh now';}
+  const controller=new AbortController();const timeout=setTimeout(()=>controller.abort(),25000);
+  try{const response=await fetch(apiUrl,{cache:'no-store',signal:controller.signal});if(!response.ok)throw new Error(`HTTP ${response.status}`);latestData=await response.json();render();const available=Object.values(latestData.campaigns||{}).filter(value=>value?.available).length;document.getElementById('stamp').textContent=`Updated ${new Date(latestData.generated_at).toLocaleString()} · ${available} campaigns`;if(typeof Chart==='undefined')ensureChartLibrary().catch(error=>{document.getElementById('stamp').textContent+=` · charts unavailable (${error.message}); Refresh now will retry`;});}catch(error){document.getElementById('stamp').textContent='Refresh failed: '+(error.name==='AbortError'?'request timed out; try again':error.message);}finally{clearTimeout(timeout);refreshing=false;button.disabled=false;button.textContent='Refresh now';}
 }
-function setAutoRefresh(){if(refreshTimer)clearInterval(refreshTimer);const seconds=Number(document.getElementById('auto-refresh').value);if(seconds>0)refreshTimer=setInterval(refresh,seconds*1000);}
+function setAutoRefresh(){if(refreshTimer)clearInterval(refreshTimer);const seconds=Number(document.getElementById('auto-refresh').value);if(seconds>0)refreshTimer=setInterval(()=>{if(!document.hidden)refresh();},seconds*1000);}
 document.getElementById('refresh').addEventListener('click',refresh);
 document.getElementById('auto-refresh').addEventListener('change',setAutoRefresh);
 document.addEventListener('visibilitychange',()=>{if(!document.hidden)refresh();});
-if(typeof Chart==='undefined')document.getElementById('stamp').textContent='Chart library failed to load';else{setAutoRefresh();refresh();}
+setAutoRefresh();refresh();
 </script>
