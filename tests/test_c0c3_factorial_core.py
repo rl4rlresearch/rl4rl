@@ -18,10 +18,18 @@ from experiments.c0c3_factorial.artifacts import (
     prepare_seed_workspace,
     scientific_runtime_hash,
 )
+from experiments.c0c3_factorial.campaign import create_campaign, prepare_calibration
 from experiments.c0c3_factorial.codex_cli import selected_service_tier
 from experiments.c0c3_factorial.environment import (
     controlled_subprocess_environment,
     subject_subprocess_environment,
+)
+from experiments.c0c3_factorial.fashion_mnist import (
+    planned_optimizer_steps,
+    validation_score,
+)
+from experiments.c0c3_factorial.fashion_mnist import (
+    preflight_candidate_source as preflight_fashion_mnist,
 )
 from experiments.c0c3_factorial.frameworks import (
     _strict_apply_diff,
@@ -36,6 +44,9 @@ from experiments.c0c3_factorial.modal_nanogpt_app import (
 )
 from experiments.c0c3_factorial.neutral_task import (
     AUTORESEARCH_V17_PROMPT_PROFILE,
+    FASHION_MNIST_AUTORESEARCH_V17_PROMPT_PROFILE,
+    FASHION_MNIST_OPENEVOLVE_V21_PROMPT_PROFILE,
+    FASHION_MNIST_TASK_ADAPTER,
     NANOGPT_AUTORESEARCH_V17_PROMPT_PROFILE,
     NANOGPT_OPENEVOLVE_V21_PROMPT_PROFILE,
     NANOGPT_TASK_ADAPTER,
@@ -99,6 +110,7 @@ from experiments.c0c3_factorial.task_evaluators import (
 from experiments.c0c3_factorial.validation import (
     hybrid_modal_pairing_is_frozen,
     neutral_source_disclosure_terms,
+    validate_campaign,
 )
 
 TEMPLATES = ROOT / "experiments/c0c3_factorial/templates"
@@ -212,6 +224,31 @@ NANOGPT_V21_FRAMEWORK = (
     / "experiments/c0c3_factorial/configs/frameworks"
     / "openevolve_nanogpt_v2_1.toml"
 )
+FASHION_MNIST_V17_PROTOCOL = (
+    ROOT
+    / "experiments/c0c3_factorial/configs/protocols"
+    / "fashion_mnist_autoresearch_v1_7.toml"
+)
+FASHION_MNIST_V21_PROTOCOL = (
+    ROOT
+    / "experiments/c0c3_factorial/configs/protocols"
+    / "fashion_mnist_openevolve_v2_1.toml"
+)
+FASHION_MNIST_TASK = (
+    ROOT
+    / "experiments/c0c3_factorial/configs/tasks"
+    / "fashion_mnist_source_only_mps.toml"
+)
+FASHION_MNIST_V17_FRAMEWORK = (
+    ROOT
+    / "experiments/c0c3_factorial/configs/frameworks"
+    / "autoresearch_fashion_mnist_v1_7.toml"
+)
+FASHION_MNIST_V21_FRAMEWORK = (
+    ROOT
+    / "experiments/c0c3_factorial/configs/frameworks"
+    / "openevolve_fashion_mnist_v2_1.toml"
+)
 
 
 def protocol(*, proposals: int = 4, capacity: int = 2) -> FactorialSpec:
@@ -301,6 +338,201 @@ def test_nanogpt_modal_image_uses_pinned_upstream_direct_dependencies() -> None:
         "tiktoken==0.12.0",
         "torch==2.9.1",
     )
+
+
+def test_fashion_mnist_presets_mirror_nanogpt_geometry_on_local_mps() -> None:
+    v17 = FactorialSpec.from_toml(FASHION_MNIST_V17_PROTOCOL)
+    v21 = FactorialSpec.from_toml(FASHION_MNIST_V21_PROTOCOL)
+    task_spec = TaskSpec.from_toml(FASHION_MNIST_TASK)
+
+    assert (v17.blocks, v17.budget.proposals) == (4, 200)
+    assert (v21.blocks, v21.budget.proposals) == (3, 200)
+    assert task_spec.adapter == FASHION_MNIST_TASK_ADAPTER
+    assert task_spec.preferred_backend is ExecutionBackend.LOCAL
+    assert task_spec.editable_paths == ("train.py",)
+    for spec, framework_path in (
+        (v17, FASHION_MNIST_V17_FRAMEWORK),
+        (v21, FASHION_MNIST_V21_FRAMEWORK),
+    ):
+        validate_v15_pairing(
+            protocol_version=spec.protocol_version,
+            task_adapter=task_spec.adapter,
+            prompt_profile=FrameworkSpec.from_toml(framework_path).prompt_profile,
+        )
+    with pytest.raises(ValueError, match="requires a subject-neutral protocol"):
+        validate_v15_pairing(
+            protocol_version="1.0",
+            task_adapter=task_spec.adapter,
+        )
+
+
+def test_fashion_mnist_score_is_exactly_correct_count_then_loss() -> None:
+    assert validation_score(9001, 20.0) > validation_score(9000, 0.0)
+    assert validation_score(9000, 0.2) > validation_score(9000, 0.3)
+    assert planned_optimizer_steps(100_000, 256) == 392
+    assert planned_optimizer_steps(100_000, 500) == 200
+
+
+@pytest.mark.parametrize(
+    ("protocol_path", "framework_path", "profile"),
+    (
+        (
+            FASHION_MNIST_V17_PROTOCOL,
+            FASHION_MNIST_V17_FRAMEWORK,
+            FASHION_MNIST_AUTORESEARCH_V17_PROMPT_PROFILE,
+        ),
+        (
+            FASHION_MNIST_V21_PROTOCOL,
+            FASHION_MNIST_V21_FRAMEWORK,
+            FASHION_MNIST_OPENEVOLVE_V21_PROMPT_PROFILE,
+        ),
+    ),
+)
+def test_fashion_mnist_prompts_are_artifact_clean_and_task_specific(
+    protocol_path: Path,
+    framework_path: Path,
+    profile: str,
+) -> None:
+    spec = FactorialSpec.from_toml(protocol_path)
+    task_spec = TaskSpec.from_toml(FASHION_MNIST_TASK)
+    framework_spec = FrameworkSpec.from_toml(framework_path)
+    assert framework_spec.prompt_profile == profile
+
+    prompt = PromptRenderer(TEMPLATES).render(
+        spec,
+        task_spec,
+        framework_spec,
+        PromptContext(
+            condition=Condition.C3,
+            opportunity=10,
+            selected_parent_id="seed",
+            visible_candidates=(
+                VisibleCandidate(
+                    "seed",
+                    9000.25,
+                    {
+                        "validation_score": 9000.25,
+                        "validation_correct": 9000,
+                    },
+                    0,
+                    ".design-references/design-1",
+                ),
+            ),
+            remaining_proposals=191,
+            remaining_evaluations=191,
+            remaining_tokens=123,
+            remaining_evaluator_seconds=456.0,
+        ),
+    )
+
+    if spec.conversation_mode is ConversationMode.CONTINUOUS:
+        initial = PromptRenderer(TEMPLATES).render(
+            spec,
+            task_spec,
+            framework_spec,
+            PromptContext(
+                condition=Condition.C3,
+                opportunity=1,
+                selected_parent_id="seed",
+                visible_candidates=(
+                    VisibleCandidate(
+                        "seed",
+                        9000.25,
+                        {"validation_score": 9000.25},
+                        0,
+                        ".design-references/design-1",
+                    ),
+                ),
+                remaining_proposals=200,
+                remaining_evaluations=200,
+                remaining_tokens=123,
+                remaining_evaluator_seconds=456.0,
+            ),
+        )
+        assert "100,000 examples" in initial.text
+    else:
+        assert "100,000 examples" in prompt.text
+    assert "classifier represents images or computes class predictions" in prompt.text
+    assert "tokens=" not in prompt.text
+    assert not neutral_source_disclosure_terms(prompt.text)
+
+
+def test_fashion_mnist_workspace_is_one_source_file_and_preflighted(
+    tmp_path: Path,
+) -> None:
+    task_spec = TaskSpec.from_toml(FASHION_MNIST_TASK)
+    destination = tmp_path / "workspace"
+    prepare_seed_workspace(task_spec, destination, repo_root=ROOT)
+
+    assert [path.name for path in destination.iterdir()] == ["train.py"]
+    assert preflight_fashion_mnist(destination) is None
+    (destination / "train.py").write_text("def build_model(:\n", encoding="utf-8")
+    assert "does not compile" in str(preflight_fashion_mnist(destination))
+    (destination / "train.py").write_text(
+        "import os\n"
+        "def build_model(): pass\n"
+        "def build_optimizer(): pass\n"
+        "def prepare_training_batch(): pass\n"
+        "def training_loss(): pass\n"
+        "def after_optimizer_step(): pass\n",
+        encoding="utf-8",
+    )
+    assert "protected I/O module os" in str(preflight_fashion_mnist(destination))
+
+
+def test_fashion_mnist_campaign_can_be_prepared_and_validated_without_data(
+    tmp_path: Path,
+) -> None:
+    spec = FactorialSpec.from_toml(FASHION_MNIST_V17_PROTOCOL)
+    task_spec = TaskSpec.from_toml(FASHION_MNIST_TASK)
+    framework_spec = FrameworkSpec.from_toml(FASHION_MNIST_V17_FRAMEWORK)
+    calibration = prepare_calibration(
+        tmp_path / "calibration",
+        spec=spec,
+        task=task_spec,
+        repo_root=ROOT,
+    )
+    prepared = json.loads((calibration / "calibration.json").read_text())
+    baseline = calibration / "baseline.json"
+    baseline.write_text(
+        json.dumps(
+            {
+                "schema_version": "1.0",
+                "task_id": task_spec.task_id,
+                "candidate_id": prepared["candidate_id"],
+                "support_tree_sha256": prepared["support_tree_sha256"],
+                "fitness": 9000.25,
+                "metrics": {
+                    "validation_score": 9000.25,
+                    "validation_correct": 9000,
+                    "examples_processed": 100_000,
+                },
+                "evaluator_seconds": 10.0,
+                "protocol_hash": spec.protocol_hash,
+                "calibration_kind": "executed_on_target_backend",
+            }
+        )
+        + "\n",
+        encoding="utf-8",
+    )
+    campaign = create_campaign(
+        tmp_path / "campaign",
+        spec=spec,
+        task=task_spec,
+        framework=framework_spec,
+        calibration_path=baseline,
+        repo_root=ROOT,
+    )
+
+    report = validate_campaign(
+        campaign,
+        spec=spec,
+        task=task_spec,
+        framework=framework_spec,
+        repo_root=ROOT,
+    )
+    assert report["valid"] is True
+    assert len(json.loads((campaign / "schedule.json").read_text())) == 16
 
 
 @pytest.mark.parametrize(
@@ -1388,13 +1620,17 @@ def test_v15_contract_rejects_the_observed_carry_transducer(tmp_path: Path) -> N
     assert "carry-specific model logic" in error
 
 
-def test_neutral_subject_environment_hides_internal_seed_name() -> None:
+def test_neutral_subject_environment_hides_internal_seed_name(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    monkeypatch.setenv("RL4RL_FASHION_MNIST_DATA_ROOT", "/protected/data")
     neutral_workspace = Path("/private/tmp/transformer-optimization/opaque")
     environment = subject_subprocess_environment(
         2**40 + 17, workspace=neutral_workspace
     )
     assert "C0C3_RUN_SEED" not in environment
     assert "OLDPWD" not in environment
+    assert "RL4RL_FASHION_MNIST_DATA_ROOT" not in environment
     assert environment["PWD"] == str(neutral_workspace)
     assert environment["OPTIMIZATION_RUN_SEED"] == str(2**40 + 17)
     assert environment["PYTHONHASHSEED"] == "17"

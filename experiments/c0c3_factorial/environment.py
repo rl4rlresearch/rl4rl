@@ -36,6 +36,9 @@ def subject_subprocess_environment(
 
     environment = controlled_subprocess_environment(run_seed)
     environment.pop("C0C3_RUN_SEED", None)
+    # Protected evaluators may need a host data-cache location. It is not part
+    # of the subject-facing source or environment.
+    environment.pop("RL4RL_FASHION_MNIST_DATA_ROOT", None)
     environment.pop("OLDPWD", None)
     if workspace is not None:
         subject_workspace = Path(workspace)

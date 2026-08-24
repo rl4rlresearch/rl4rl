@@ -1,4 +1,4 @@
-"""Subject-neutral support for the learned 10-digit addition task."""
+"""Subject-neutral task and prompt-profile boundaries."""
 
 from __future__ import annotations
 
@@ -7,12 +7,19 @@ PAIR_TOKEN_TASK_ADAPTER = "ten_digit_addition_pair_transformer_v1"
 PAIR_TOKEN_TASK_ADAPTER_V2 = "ten_digit_addition_pair_transformer_v2"
 PAIR_TOKEN_TASK_ADAPTER_V3 = "ten_digit_addition_pair_transformer_v3"
 NANOGPT_TASK_ADAPTER = "karpathy_nanogpt_source_only_v1"
+FASHION_MNIST_TASK_ADAPTER = "fashion_mnist_source_only_v1"
 NEUTRAL_PROMPT_PROFILE = "trained_transformer_optimizer_v1_5"
 OPENEVOLVE_V2_PROMPT_PROFILE = "trained_transformer_openevolve_v2"
 AUTORESEARCH_V17_PROMPT_PROFILE = "trained_transformer_optimizer_v1_7"
 OPENEVOLVE_V21_PROMPT_PROFILE = "trained_transformer_openevolve_v2_1"
 NANOGPT_AUTORESEARCH_V17_PROMPT_PROFILE = "nanogpt_optimizer_v1_7"
 NANOGPT_OPENEVOLVE_V21_PROMPT_PROFILE = "nanogpt_openevolve_v2_1"
+FASHION_MNIST_AUTORESEARCH_V17_PROMPT_PROFILE = (
+    "fashion_mnist_optimizer_v1_7"
+)
+FASHION_MNIST_OPENEVOLVE_V21_PROMPT_PROFILE = (
+    "fashion_mnist_openevolve_v2_1"
+)
 SUBJECT_NEUTRAL_PROTOCOL_VERSIONS = frozenset(
     {"1.5", "1.6", "1.7", "2.0", "2.1"}
 )
@@ -24,6 +31,8 @@ SUBJECT_NEUTRAL_PROMPT_PROFILES = frozenset(
         OPENEVOLVE_V21_PROMPT_PROFILE,
         NANOGPT_AUTORESEARCH_V17_PROMPT_PROFILE,
         NANOGPT_OPENEVOLVE_V21_PROMPT_PROFILE,
+        FASHION_MNIST_AUTORESEARCH_V17_PROMPT_PROFILE,
+        FASHION_MNIST_OPENEVOLVE_V21_PROMPT_PROFILE,
     }
 )
 SUBJECT_NEUTRAL_TASK_ADAPTERS = frozenset(
@@ -32,6 +41,8 @@ SUBJECT_NEUTRAL_TASK_ADAPTERS = frozenset(
         PAIR_TOKEN_TASK_ADAPTER,
         PAIR_TOKEN_TASK_ADAPTER_V2,
         PAIR_TOKEN_TASK_ADAPTER_V3,
+        NANOGPT_TASK_ADAPTER,
+        FASHION_MNIST_TASK_ADAPTER,
     }
 )
 ARTIFACT_CLEAN_PROTOCOL_VERSIONS = frozenset({"1.7", "2.1"})
@@ -41,6 +52,8 @@ ARTIFACT_CLEAN_PROMPT_PROFILES = frozenset(
         OPENEVOLVE_V21_PROMPT_PROFILE,
         NANOGPT_AUTORESEARCH_V17_PROMPT_PROFILE,
         NANOGPT_OPENEVOLVE_V21_PROMPT_PROFILE,
+        FASHION_MNIST_AUTORESEARCH_V17_PROMPT_PROFILE,
+        FASHION_MNIST_OPENEVOLVE_V21_PROMPT_PROFILE,
     }
 )
 ARTIFACT_CLEAN_ASSUMPTION_PROMPT_PATHS = {
@@ -55,6 +68,12 @@ ARTIFACT_CLEAN_ASSUMPTION_PROMPT_PATHS = {
     ),
     NANOGPT_OPENEVOLVE_V21_PROMPT_PROFILE: (
         "nanogpt_optimizer_openevolve_v2_1/assumption_changing.md"
+    ),
+    FASHION_MNIST_AUTORESEARCH_V17_PROMPT_PROFILE: (
+        "fashion_mnist_optimizer_v1_7/assumption_changing.md"
+    ),
+    FASHION_MNIST_OPENEVOLVE_V21_PROMPT_PROFILE: (
+        "fashion_mnist_optimizer_openevolve_v2_1/assumption_changing.md"
     ),
 }
 OPERATOR_PROMPT_ROOT_ENV = "RL4RL_C0C3_OPERATOR_PROMPT_ROOT"
@@ -90,6 +109,8 @@ NANOGPT_SOURCE_ONLY_SEED_PATHS = (
     "train.py",
 )
 
+FASHION_MNIST_SOURCE_ONLY_SEED_PATHS = ("train.py",)
+
 
 def validate_v15_pairing(
     *,
@@ -101,9 +122,17 @@ def validate_v15_pairing(
 
     is_subject_neutral = protocol_version in SUBJECT_NEUTRAL_PROTOCOL_VERSIONS
     allowed_adapters = {
-        "1.7": {PAIR_TOKEN_TASK_ADAPTER_V3, NANOGPT_TASK_ADAPTER},
+        "1.7": {
+            PAIR_TOKEN_TASK_ADAPTER_V3,
+            NANOGPT_TASK_ADAPTER,
+            FASHION_MNIST_TASK_ADAPTER,
+        },
         "2.0": {PAIR_TOKEN_TASK_ADAPTER_V2},
-        "2.1": {PAIR_TOKEN_TASK_ADAPTER_V3, NANOGPT_TASK_ADAPTER},
+        "2.1": {
+            PAIR_TOKEN_TASK_ADAPTER_V3,
+            NANOGPT_TASK_ADAPTER,
+            FASHION_MNIST_TASK_ADAPTER,
+        },
     }.get(protocol_version)
     if allowed_adapters is not None and task_adapter not in allowed_adapters:
         if len(allowed_adapters) == 1:
@@ -118,7 +147,6 @@ def validate_v15_pairing(
     if (
         is_subject_neutral
         and task_adapter not in SUBJECT_NEUTRAL_TASK_ADAPTERS
-        and task_adapter != NANOGPT_TASK_ADAPTER
     ):
         raise ValueError(
             "subject-neutral protocols require the subject-neutral task adapter"
@@ -135,12 +163,20 @@ def validate_v15_pairing(
             "1.7",
             NANOGPT_TASK_ADAPTER,
         ): NANOGPT_AUTORESEARCH_V17_PROMPT_PROFILE,
+        (
+            "1.7",
+            FASHION_MNIST_TASK_ADAPTER,
+        ): FASHION_MNIST_AUTORESEARCH_V17_PROMPT_PROFILE,
         ("2.0", PAIR_TOKEN_TASK_ADAPTER_V2): OPENEVOLVE_V2_PROMPT_PROFILE,
         ("2.1", PAIR_TOKEN_TASK_ADAPTER_V3): OPENEVOLVE_V21_PROMPT_PROFILE,
         (
             "2.1",
             NANOGPT_TASK_ADAPTER,
         ): NANOGPT_OPENEVOLVE_V21_PROMPT_PROFILE,
+        (
+            "2.1",
+            FASHION_MNIST_TASK_ADAPTER,
+        ): FASHION_MNIST_OPENEVOLVE_V21_PROMPT_PROFILE,
     }.get((protocol_version, task_adapter), NEUTRAL_PROMPT_PROFILE)
     if is_subject_neutral and prompt_profile != expected_profile:
         raise ValueError(

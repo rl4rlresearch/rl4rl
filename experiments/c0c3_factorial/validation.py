@@ -8,6 +8,8 @@ from pathlib import Path
 
 from .artifacts import candidate_hash, scientific_runtime_hash, tree_hash
 from .neutral_task import (
+    FASHION_MNIST_SOURCE_ONLY_SEED_PATHS,
+    FASHION_MNIST_TASK_ADAPTER,
     NANOGPT_SOURCE_ONLY_SEED_PATHS,
     NANOGPT_TASK_ADAPTER,
     NEUTRAL_TASK_ADAPTER,
@@ -198,9 +200,12 @@ def validate_campaign(
         PAIR_TOKEN_TASK_ADAPTER_V2,
         PAIR_TOKEN_TASK_ADAPTER_V3,
         NANOGPT_TASK_ADAPTER,
+        FASHION_MNIST_TASK_ADAPTER,
     }:
         if task.adapter == NANOGPT_TASK_ADAPTER:
             sanitized_paths = NANOGPT_SOURCE_ONLY_SEED_PATHS
+        elif task.adapter == FASHION_MNIST_TASK_ADAPTER:
+            sanitized_paths = FASHION_MNIST_SOURCE_ONLY_SEED_PATHS
         elif task.adapter == NEUTRAL_TASK_ADAPTER:
             sanitized_paths = SANITIZED_SEED_PATHS
         elif task.adapter == PAIR_TOKEN_TASK_ADAPTER_V3:
@@ -208,7 +213,7 @@ def validate_campaign(
         else:
             sanitized_paths = PAIR_TOKEN_SANITIZED_SEED_PATHS
         expected_subject_files = set(sanitized_paths)
-        if task.adapter != NANOGPT_TASK_ADAPTER:
+        if task.adapter not in {NANOGPT_TASK_ADAPTER, FASHION_MNIST_TASK_ADAPTER}:
             expected_subject_files.add("submission.py")
         actual_subject_files = {
             path.relative_to(campaign / "runs" / run_ids[0] / "task-support").as_posix()

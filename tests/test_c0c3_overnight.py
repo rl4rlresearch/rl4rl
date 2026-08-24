@@ -168,6 +168,16 @@ def test_artifact_clean_profiles_declare_all_primary_blocks() -> None:
             "openevolve-v2.1-nanogpt",
             (1, 2, 3),
         ),
+        (
+            "autoresearch-v1.7-fashion-mnist",
+            "autoresearch-v1.7-fashion-mnist",
+            (1, 2, 3, 4),
+        ),
+        (
+            "openevolve-v2.1-fashion-mnist",
+            "openevolve-v2.1-fashion-mnist",
+            (1, 2, 3),
+        ),
     ):
         roster = plans(profile)
         assert len(roster) == 1
@@ -182,6 +192,8 @@ def test_artifact_clean_jobs_receive_main_operator_prompt_root(tmp_path: Path) -
         "autoresearch-v1.7-nanogpt",
         "openevolve-v2.1",
         "openevolve-v2.1-nanogpt",
+        "autoresearch-v1.7-fashion-mnist",
+        "openevolve-v2.1-fashion-mnist",
     ):
         job = Job(
             key=f"{group}:b01-c0",
@@ -196,6 +208,23 @@ def test_artifact_clean_jobs_receive_main_operator_prompt_root(tmp_path: Path) -
             "experiments/c0c3_factorial/templates"
         )
         assert environment[SHARED_LOCAL_EVALUATOR_CAPACITY_ENV] == "12"
+        if "fashion-mnist" in group:
+            assert environment["RL4RL_FASHION_MNIST_DATA_ROOT"].endswith(
+                "data/raw/fashion-mnist"
+            )
+
+
+def test_fashion_mnist_task_requires_local_mps_probe(tmp_path: Path) -> None:
+    campaign = tmp_path / "campaign"
+    _write_json(
+        campaign / "inputs/task.json",
+        {
+            "preferred_backend": "local",
+            "evaluator_command": ["python", "evaluate.py", "--device", "mps"],
+        },
+    )
+
+    assert required_local_accelerator(campaign) == "mps"
 
 
 def test_operational_runtime_bootstrap_raises_host_scheduler_to_twelve() -> None:

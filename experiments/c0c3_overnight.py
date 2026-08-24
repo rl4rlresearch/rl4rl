@@ -31,6 +31,7 @@ if str(REPO_ROOT) not in sys.path:
 from experiments.c0c3_factorial.evaluator import (  # noqa: E402
     shared_local_evaluator_status,
 )
+from experiments.c0c3_factorial.fashion_mnist import verify_dataset  # noqa: E402
 
 PYTHON_BIN = REPO_ROOT / "architecture_discovery/.venv/bin/python"
 PROFILE = os.environ.get("RL4RL_OVERNIGHT_PROFILE", "primary")
@@ -67,6 +68,16 @@ elif PROFILE == "openevolve-v2.1-nanogpt":
         REPO_ROOT / "data/c0c3/overnight-control-openevolve-v2-1-nanogpt"
     )
     DEFAULT_SCREEN_SESSION = "rl4rl-c0c3-openevolve-v2-1-nanogpt"
+elif PROFILE == "autoresearch-v1.7-fashion-mnist":
+    DEFAULT_CONTROL_ROOT = (
+        REPO_ROOT / "data/c0c3/overnight-control-autoresearch-v1-7-fashion-mnist"
+    )
+    DEFAULT_SCREEN_SESSION = "rl4rl-c0c3-autoresearch-v1-7-fashion-mnist"
+elif PROFILE == "openevolve-v2.1-fashion-mnist":
+    DEFAULT_CONTROL_ROOT = (
+        REPO_ROOT / "data/c0c3/overnight-control-openevolve-v2-1-fashion-mnist"
+    )
+    DEFAULT_SCREEN_SESSION = "rl4rl-c0c3-openevolve-v2-1-fashion-mnist"
 else:
     raise RuntimeError(f"unknown overnight profile: {PROFILE}")
 CONTROL_ROOT = Path(
@@ -272,6 +283,40 @@ def plans(profile: str | None = None) -> tuple[CampaignPlan, ...]:
                     "RL4RL_OPENEVOLVE_V21_NANOGPT_CAMPAIGN",
                     REPO_ROOT
                     / "data/c0c3/nanogpt-openevolve-v2-1-h100-campaign",
+                ),
+                mode="individual-trajectories",
+                blocks=(1, 2, 3),
+            ),
+        )
+    if selected_profile == "autoresearch-v1.7-fashion-mnist":
+        return (
+            CampaignPlan(
+                key="autoresearch-v1.7-fashion-mnist",
+                runtime_root=_env_path(
+                    "RL4RL_AUTORESEARCH_V17_FASHION_MNIST_RUNTIME",
+                    Path("/private/tmp/rl4rl-c0c3-autoresearch-v1-7-fashion-mnist"),
+                ),
+                campaign=_env_path(
+                    "RL4RL_AUTORESEARCH_V17_FASHION_MNIST_CAMPAIGN",
+                    REPO_ROOT
+                    / "data/c0c3/fashion-mnist-autoresearch-v1-7-mps-campaign",
+                ),
+                mode="individual-trajectories",
+                blocks=(1, 2, 3, 4),
+            ),
+        )
+    if selected_profile == "openevolve-v2.1-fashion-mnist":
+        return (
+            CampaignPlan(
+                key="openevolve-v2.1-fashion-mnist",
+                runtime_root=_env_path(
+                    "RL4RL_OPENEVOLVE_V21_FASHION_MNIST_RUNTIME",
+                    Path("/private/tmp/rl4rl-c0c3-openevolve-v2-1-fashion-mnist"),
+                ),
+                campaign=_env_path(
+                    "RL4RL_OPENEVOLVE_V21_FASHION_MNIST_CAMPAIGN",
+                    REPO_ROOT
+                    / "data/c0c3/fashion-mnist-openevolve-v2-1-mps-campaign",
                 ),
                 mode="individual-trajectories",
                 blocks=(1, 2, 3),
@@ -528,13 +573,25 @@ def command_environment(job: Job) -> dict[str, str]:
     if job.group in {
         "autoresearch-v1.7",
         "autoresearch-v1.7-nanogpt",
+        "autoresearch-v1.7-fashion-mnist",
         "openevolve-v2.1",
         "openevolve-v2.1-nanogpt",
+        "openevolve-v2.1-fashion-mnist",
     }:
         environment["RL4RL_C0C3_OPERATOR_PROMPT_ROOT"] = str(
             REPO_ROOT / "experiments/c0c3_factorial/templates"
         )
         environment["RL4RL_C0C3_SERVICE_TIER_CONTROL"] = str(SERVICE_TIER_PATH)
+    if job.group in {
+        "autoresearch-v1.7-fashion-mnist",
+        "openevolve-v2.1-fashion-mnist",
+    }:
+        environment["RL4RL_FASHION_MNIST_DATA_ROOT"] = str(
+            _env_path(
+                "RL4RL_FASHION_MNIST_DATA_ROOT",
+                REPO_ROOT / "data/raw/fashion-mnist",
+            )
+        )
     return environment
 
 
@@ -550,8 +607,10 @@ def ensure_service_tier_control() -> None:
     if PROFILE not in {
         "autoresearch-v1.7",
         "autoresearch-v1.7-nanogpt",
+        "autoresearch-v1.7-fashion-mnist",
         "openevolve-v2.1",
         "openevolve-v2.1-nanogpt",
+        "openevolve-v2.1-fashion-mnist",
     }:
         return
     if not SERVICE_TIER_PATH.exists():
@@ -651,9 +710,19 @@ def required_local_accelerator(campaign: Path) -> str | None:
     if not isinstance(task, dict) or task.get("preferred_backend") != "local":
         return None
     command = task.get("evaluator_command")
-    if not isinstance(command, list) or "--train-device" not in command:
+    if not isinstance(command, list):
         return None
-    index = command.index("--train-device")
+    flag = next(
+        (
+            candidate
+            for candidate in ("--train-device", "--device")
+            if candidate in command
+        ),
+        None,
+    )
+    if flag is None:
+        return None
+    index = command.index(flag)
     if index + 1 >= len(command):
         return None
     device = str(command[index + 1])
@@ -694,6 +763,7 @@ def preflight(jobs: list[Job], *, allow_active: bool) -> list[str]:
         errors.append(f"Codex state directory is not writable: {codex_home}")
 
     checked: set[tuple[Path, Path]] = set()
+    checked_fashion_data: set[Path] = set()
     for job in jobs:
         if not job.runtime_root.is_dir():
             errors.append(
@@ -703,6 +773,20 @@ def preflight(jobs: list[Job], *, allow_active: bool) -> list[str]:
         if not (job.campaign / "campaign.json").is_file():
             errors.append(f"campaign is missing for {job.group}: {job.campaign}")
             continue
+        if job.group in {
+            "autoresearch-v1.7-fashion-mnist",
+            "openevolve-v2.1-fashion-mnist",
+        }:
+            fashion_root = _env_path(
+                "RL4RL_FASHION_MNIST_DATA_ROOT",
+                REPO_ROOT / "data/raw/fashion-mnist",
+            )
+            if fashion_root not in checked_fashion_data:
+                checked_fashion_data.add(fashion_root)
+                try:
+                    verify_dataset(fashion_root)
+                except (OSError, RuntimeError, ValueError) as error:
+                    errors.append(str(error))
         pair = (job.runtime_root, job.campaign)
         if pair not in checked:
             checked.add(pair)
@@ -1184,8 +1268,10 @@ def command_status(_args: argparse.Namespace) -> int:
     if PROFILE in {
         "autoresearch-v1.7",
         "autoresearch-v1.7-nanogpt",
+        "autoresearch-v1.7-fashion-mnist",
         "openevolve-v2.1",
         "openevolve-v2.1-nanogpt",
+        "openevolve-v2.1-fashion-mnist",
     }:
         print(f"codex_service_tier={service_tier()}")
     scheduler = shared_local_evaluator_status(
@@ -1238,8 +1324,10 @@ def command_fast_mode(args: argparse.Namespace) -> int:
     if PROFILE not in {
         "autoresearch-v1.7",
         "autoresearch-v1.7-nanogpt",
+        "autoresearch-v1.7-fashion-mnist",
         "openevolve-v2.1",
         "openevolve-v2.1-nanogpt",
+        "openevolve-v2.1-fashion-mnist",
     }:
         raise SystemExit("fast-mode control is available for v1.7 and v2.1 profiles")
     CONTROL_ROOT.mkdir(parents=True, exist_ok=True)

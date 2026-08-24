@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import gzip
 import json
 from pathlib import Path
 
@@ -10,6 +11,7 @@ from experiments.live_trajectory_dashboard import (
     build_run,
     campaign_data,
     dashboard_data,
+    encode_response,
     weighted_cost,
 )
 
@@ -192,6 +194,50 @@ def test_build_run_excludes_the_gap_between_proposals_from_active_time(
     assert run["points"][2]["active_seconds"] == 180
 
 
+def test_build_run_uses_lifecycle_status_for_cooperative_pause(tmp_path: Path) -> None:
+    run_dir = _example_run(tmp_path)
+    _write_jsonl(
+        run_dir / "lifecycle.jsonl",
+        [
+            {"event": "trajectory_started"},
+            {"event": "trajectory_pause_requested"},
+            {"event": "trajectory_paused"},
+        ],
+    )
+
+    run = build_run(
+        run_dir,
+        PRICES,
+        objective_metric="parameters",
+        objective_direction="minimize",
+    )
+
+    assert run is not None
+    assert run["status"] == "paused"
+    assert run["scientific_status"] == "running"
+
+
+def test_build_run_returns_to_scientific_status_after_resume(tmp_path: Path) -> None:
+    run_dir = _example_run(tmp_path)
+    _write_jsonl(
+        run_dir / "lifecycle.jsonl",
+        [
+            {"event": "trajectory_paused"},
+            {"event": "trajectory_resumed"},
+        ],
+    )
+
+    run = build_run(
+        run_dir,
+        PRICES,
+        objective_metric="parameters",
+        objective_direction="minimize",
+    )
+
+    assert run is not None
+    assert run["status"] == "running"
+
+
 def test_cost_fields_distinguish_cumulative_and_incremental_usage(
     tmp_path: Path,
 ) -> None:
@@ -239,5 +285,38 @@ def test_page_contains_live_controls_and_raw_outcome_overlay() -> None:
     assert "Refresh now" in PAGE
     assert "Auto-refresh" in PAGE
     assert "Raw outcome overlay" in PAGE
+    assert "Y-axis range" in PAGE
+    assert "Fit visible data" in PAGE
+    assert "Individual runs" in PAGE
+    assert "Condition median" in PAGE
+    assert "aggregateDataset" in PAGE
+    assert "median of ${p.member_count}/${p.condition_run_count} runs" in PAGE
     assert "Export visible CSV" in PAGE
-    assert "beginAtZero:true" in PAGE
+    assert "beginAtZero:yScale==='zero'" in PAGE
+    assert "if(!point.valid)return 'crossRot';return 'circle'" in PAGE
+    assert "return 'triangle'" not in PAGE
+    assert "Marker key: ● seed or retained" in PAGE
+    assert "location.protocol==='file:'" in PAGE
+    assert "fetch(apiUrl" in PAGE
+    assert "IntersectionObserver" in PAGE
+    assert "request timed out; try again" in PAGE
+    assert "https://unpkg.com/chart.js@4.4.4" in PAGE
+    assert "autoresearch_v17_fashion_mnist" in PAGE
+    assert "openevolve_v21_fashion_mnist" in PAGE
+
+
+def test_large_responses_use_gzip_when_the_client_accepts_it() -> None:
+    body = b"trajectory-data" * 1000
+
+    encoded, encoding = encode_response(body, "br, gzip, deflate")
+
+    assert encoding == "gzip"
+    assert len(encoded) < len(body)
+    assert gzip.decompress(encoded) == body
+
+
+def test_small_or_unsupported_responses_are_not_compressed() -> None:
+    small = b"dashboard"
+
+    assert encode_response(small, "gzip") == (small, None)
+    assert encode_response(b"x" * 2000, "identity") == (b"x" * 2000, None)

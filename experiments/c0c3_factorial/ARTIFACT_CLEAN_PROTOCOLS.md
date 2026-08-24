@@ -151,3 +151,27 @@ H100 workers. Its leases use only the nanoGPT campaign pool and do not consume
 the Mac's twelve local evaluator slots. Every call is recorded in
 `modal-usage.jsonl`; Modal Usage & Billing remains authoritative for credits and
 spend.
+
+## Source-only Fashion-MNIST task
+
+Protocols 1.7 and 2.1 also support a separate local-MPS image-classification
+stratum. Subjects receive only `train.py`; the protected evaluator owns the
+checksum-verified data, frozen 50k/10k train/validation split, exactly 100,000
+presented training examples, fixed normalization, scoring, and the sealed
+official test set. The objective ranks exact validation correct count first and
+lower cross-entropy only on ties.
+
+The matching files are:
+
+```text
+configs/protocols/fashion_mnist_autoresearch_v1_7.toml
+configs/protocols/fashion_mnist_openevolve_v2_1.toml
+configs/tasks/fashion_mnist_source_only_mps.toml
+configs/frameworks/autoresearch_fashion_mnist_v1_7.toml
+configs/frameworks/openevolve_fashion_mnist_v2_1.toml
+```
+
+The v1.7 preset has four C0–C3 blocks and the v2.1 preset has three, matching
+the nanoGPT block geometry. Both are prepared but require an explicit dataset
+download, target-Mac calibration, campaign creation, validation, and launch.
+See [FASHION_MNIST.md](FASHION_MNIST.md).

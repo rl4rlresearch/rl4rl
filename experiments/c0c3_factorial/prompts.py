@@ -12,6 +12,8 @@ from .neutral_task import (
     ARTIFACT_CLEAN_ASSUMPTION_PROMPT_PATHS,
     ARTIFACT_CLEAN_PROMPT_PROFILES,
     AUTORESEARCH_V17_PROMPT_PROFILE,
+    FASHION_MNIST_AUTORESEARCH_V17_PROMPT_PROFILE,
+    FASHION_MNIST_OPENEVOLVE_V21_PROMPT_PROFILE,
     NANOGPT_AUTORESEARCH_V17_PROMPT_PROFILE,
     NANOGPT_OPENEVOLVE_V21_PROMPT_PROFILE,
     OPENEVOLVE_V2_PROMPT_PROFILE,
@@ -240,6 +242,33 @@ class PromptRenderer:
             .read_text(encoding="utf-8")
             .strip()
         )
+        fashion_autoresearch_root = root / "fashion_mnist_optimizer_v1_7"
+        self.fashion_autoresearch_v17_initial_template = (
+            fashion_autoresearch_root / "PROGRAM.md"
+        ).read_text(encoding="utf-8")
+        self.fashion_autoresearch_v17_continue_template = (
+            fashion_autoresearch_root / "CONTINUE.md"
+        ).read_text(encoding="utf-8")
+        self.fashion_autoresearch_v17_transition = (
+            override_text
+            if override_text is not None
+            else (fashion_autoresearch_root / "assumption_changing.md")
+            .read_text(encoding="utf-8")
+            .strip()
+        )
+        fashion_openevolve_root = (
+            root / "fashion_mnist_optimizer_openevolve_v2_1"
+        )
+        self.fashion_openevolve_v21_common_template = (
+            fashion_openevolve_root / "PROGRAM.md"
+        ).read_text(encoding="utf-8")
+        self.fashion_openevolve_v21_transition = (
+            override_text
+            if override_text is not None
+            else (fashion_openevolve_root / "assumption_changing.md")
+            .read_text(encoding="utf-8")
+            .strip()
+        )
         self._require_tokens(
             self.common_template,
             {
@@ -331,6 +360,35 @@ class PromptRenderer:
         )
         self._require_tokens(
             self.nanogpt_openevolve_v21_common_template,
+            {
+                "{task_contract}",
+                "{framework_contract}",
+                "{design_context}",
+                "{recent_outcomes}",
+                "{proposal_guidance_section}",
+            },
+        )
+        self._require_tokens(
+            self.fashion_autoresearch_v17_initial_template,
+            {
+                "{task_contract}",
+                "{framework_contract}",
+                "{conversation_contract}",
+                "{design_context}",
+                "{recent_outcomes}",
+                "{proposal_guidance_section}",
+            },
+        )
+        self._require_tokens(
+            self.fashion_autoresearch_v17_continue_template,
+            {
+                "{design_context}",
+                "{recent_outcomes}",
+                "{proposal_guidance_section}",
+            },
+        )
+        self._require_tokens(
+            self.fashion_openevolve_v21_common_template,
             {
                 "{task_contract}",
                 "{framework_contract}",
@@ -706,6 +764,14 @@ class PromptRenderer:
         nanogpt_openevolve_v21 = (
             framework.prompt_profile == NANOGPT_OPENEVOLVE_V21_PROMPT_PROFILE
         )
+        fashion_autoresearch_v17 = (
+            framework.prompt_profile
+            == FASHION_MNIST_AUTORESEARCH_V17_PROMPT_PROFILE
+        )
+        fashion_openevolve_v21 = (
+            framework.prompt_profile
+            == FASHION_MNIST_OPENEVOLVE_V21_PROMPT_PROFILE
+        )
         transition_active = (
             False
             if context.no_search
@@ -759,15 +825,23 @@ class PromptRenderer:
                             self.nanogpt_openevolve_v21_transition
                             if nanogpt_openevolve_v21
                             else (
-                                self.autoresearch_v17_transition
-                                if autoresearch_v17
+                                self.fashion_autoresearch_v17_transition
+                                if fashion_autoresearch_v17
                                 else (
-                                    self.openevolve_v21_transition
-                                    if openevolve_v21
+                                    self.fashion_openevolve_v21_transition
+                                    if fashion_openevolve_v21
                                     else (
-                                        self.openevolve_v2_transition
-                                        if openevolve_v2
-                                        else self.neutral_transition
+                                        self.autoresearch_v17_transition
+                                        if autoresearch_v17
+                                        else (
+                                            self.openevolve_v21_transition
+                                            if openevolve_v21
+                                            else (
+                                                self.openevolve_v2_transition
+                                                if openevolve_v2
+                                                else self.neutral_transition
+                                            )
+                                        )
                                     )
                                 )
                             )
@@ -786,7 +860,11 @@ class PromptRenderer:
                 )
         treatment_skeleton_sha256 = ""
         if artifact_clean:
-            include_source_paths = autoresearch_v17 or nanogpt_autoresearch_v17
+            include_source_paths = (
+                autoresearch_v17
+                or nanogpt_autoresearch_v17
+                or fashion_autoresearch_v17
+            )
             design_context = (
                 f"{search_state}\n\n"
                 + self._clean_slots(
@@ -805,6 +883,12 @@ class PromptRenderer:
                     if context.opportunity == 1
                     else self.nanogpt_autoresearch_v17_continue_template
                 )
+            elif fashion_autoresearch_v17:
+                common_template = (
+                    self.fashion_autoresearch_v17_initial_template
+                    if context.opportunity == 1
+                    else self.fashion_autoresearch_v17_continue_template
+                )
             elif autoresearch_v17:
                 common_template = (
                     self.autoresearch_v17_initial_template
@@ -813,6 +897,8 @@ class PromptRenderer:
                 )
             elif nanogpt_openevolve_v21:
                 common_template = self.nanogpt_openevolve_v21_common_template
+            elif fashion_openevolve_v21:
+                common_template = self.fashion_openevolve_v21_common_template
             else:
                 common_template = self.openevolve_v21_common_template
             values = {

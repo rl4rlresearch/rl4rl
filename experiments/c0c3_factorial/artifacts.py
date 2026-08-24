@@ -12,6 +12,8 @@ from pathlib import Path
 from .neutral_task import (
     ARTIFACT_CLEAN_ASSUMPTION_PROMPT_PATHS,
     ARTIFACT_CLEAN_PROMPT_PROFILES,
+    FASHION_MNIST_SOURCE_ONLY_SEED_PATHS,
+    FASHION_MNIST_TASK_ADAPTER,
     NANOGPT_SOURCE_ONLY_SEED_PATHS,
     NANOGPT_TASK_ADAPTER,
     NEUTRAL_SUBMISSION_WRAPPER,
@@ -74,10 +76,14 @@ def prepare_seed_workspace(
         PAIR_TOKEN_TASK_ADAPTER_V2,
         PAIR_TOKEN_TASK_ADAPTER_V3,
         NANOGPT_TASK_ADAPTER,
+        FASHION_MNIST_TASK_ADAPTER,
     }:
         destination.mkdir(parents=True, exist_ok=False)
         if task.adapter == NANOGPT_TASK_ADAPTER:
             sanitized_paths = NANOGPT_SOURCE_ONLY_SEED_PATHS
+            submission_wrapper = None
+        elif task.adapter == FASHION_MNIST_TASK_ADAPTER:
+            sanitized_paths = FASHION_MNIST_SOURCE_ONLY_SEED_PATHS
             submission_wrapper = None
         elif task.adapter == NEUTRAL_TASK_ADAPTER:
             sanitized_paths = SANITIZED_SEED_PATHS
