@@ -65,6 +65,9 @@ from common.task_adapter import DEFAULT_TASK
 from common.trainer import trusted_component_hashes, trusted_component_set_sha256
 from common.training_config import PROFILES, TrainingSeedBundle, get_training_profile
 from evaluation.records import SCHEMA_VERSION, ControllerSearchView
+from research_dynamics.contracts import FrameworkKind, resolve_initial_candidate
+from research_dynamics.extraction import export_run as export_process_run
+from research_dynamics.protocol import ProcessProtocol
 
 
 AGENT_DIR = Path(__file__).resolve().parent
@@ -157,6 +160,7 @@ class ArchiveCandidate:
     signature: tuple[int, ...]
     search_score: float
     public_accuracy: float
+    parameter_count_metadata: int
     discovered_opportunity: int
     parent_uses: int = 0
 
@@ -240,27 +244,42 @@ class FrozenSemanticArchive:
             signature=signature,
             search_score=view.search_score,
             public_accuracy=view.public_accuracy,
+            parameter_count_metadata=view.parameter_count_metadata,
             discovered_opportunity=opportunity,
         )
         incumbent = self._cells.get(signature)
         if incumbent is None:
             self._cells[signature] = candidate
             return "archive_new_cell", cell
-        if candidate.public_accuracy > incumbent.public_accuracy:
+        if (
+            candidate.parameter_count_metadata < incumbent.parameter_count_metadata
+            or (
+                candidate.parameter_count_metadata
+                == incumbent.parameter_count_metadata
+                and candidate.public_accuracy > incumbent.public_accuracy
+            )
+        ):
             candidate.parent_uses = incumbent.parent_uses
             self._cells[signature] = candidate
-            return "archive_replace", cell
+            return (
+                "archive_replace_smaller"
+                if candidate.parameter_count_metadata
+                < incumbent.parameter_count_metadata
+                else "archive_replace_accuracy_tiebreak"
+            ), cell
         return "eligible_cell_incumbent_preserved", cell
 
     def select_parent(self) -> ArchiveCandidate:
         if not self._cells:
             raise PilotPreflightError("semantic archive contains no eligible parent")
         # Category numbers are deliberately absent from this ordering.  The
-        # archive uses coverage frequency, public accuracy, age, and an opaque hash.
+        # archive uses coverage frequency, size, public accuracy, age, and an
+        # opaque hash.
         parent = min(
             self._cells.values(),
             key=lambda item: (
                 item.parent_uses,
+                item.parameter_count_metadata,
                 -item.public_accuracy,
                 item.discovered_opportunity,
                 item.candidate_id,
@@ -294,6 +313,7 @@ class FrozenSemanticArchive:
                     "source_path": source_path,
                     "search_score": candidate.search_score,
                     "public_accuracy": candidate.public_accuracy,
+                    "parameter_count_metadata": candidate.parameter_count_metadata,
                     "discovered_opportunity": candidate.discovered_opportunity,
                     "parent_uses": candidate.parent_uses,
                 }
@@ -305,7 +325,7 @@ class FrozenSemanticArchive:
             ),
             "axes": list(self.axes),
             "coverage_cells": len(cells),
-            "novelty_role": "exploratory_coverage_tiebreak_only",
+            "novelty_role": "unique_semantic_coverage_within_accuracy_constraint",
             "scientific_novelty_claim": False,
             "cells": cells,
         }
@@ -855,12 +875,15 @@ def _prompt_for_parent(
     user_prompt = (
         f"Proposal opportunity {opportunity}.\n"
         f"Current parent public accuracy: {parent.public_accuracy:.6f}.\n"
+        f"Current parent parameter count: {parent.parameter_count_metadata}.\n"
         f"Current categorical signature: {signature}.\n"
         f"Occupied semantic cells: {archive.coverage}.\n\n"
-        "Propose one testable architectural mechanism. Preserving public "
-        "eligibility takes priority; an uncovered signature is useful only as "
-        "exploratory coverage. Category numbers are unordered labels and are "
-        "never fitness. Return exactly one complete replacement architecture IR "
+        "Propose one structurally unique, testable architectural mechanism. "
+        "Preserving public eligibility takes priority. Within an occupied "
+        "semantic cell, reduce parameter count; public accuracy breaks equal-size "
+        "ties. Uncovered signatures preserve genuinely different architecture "
+        "families. Category numbers are unordered labels and are never fitness. "
+        "Return exactly one complete replacement architecture IR "
         "JSON object. Put the testable hypothesis in "
         "metadata.mechanism_hypothesis. Do not return Python, a diff, markdown "
         "prose, or executable content. A single json fence is allowed.\n\n"
@@ -921,6 +944,10 @@ def run_semantic_autoresearch(
     provider.preflight()
 
     output_dir = _prepare_fresh_output(requested_output)
+    process_protocol = ProcessProtocol.from_environment(
+        output_dir,
+        expected_framework=FrameworkKind.AUTORESEARCH,
+    )
     if isinstance(provider, OpenAIProposalProvider):
         provider.bind_attempt_ledger(
             output_dir,
@@ -979,11 +1006,14 @@ def run_semantic_autoresearch(
             "engineering_pilot" if options.engineering_pilot else "scientific_replication"
         ),
         "exploratory_only": options.engineering_pilot,
-        "selection_semantics": (
-            "mechanics_only_transformer_validity"
-            if options.engineering_pilot
-            else "frozen_scientific_parent_eligibility"
-        ),
+        "selection_semantics": "semantic_coverage_then_minimum_parameter_count",
+        "optimization_objective": {
+            "primary_constraint": "public_parent_eligibility",
+            "coverage_objective": "unique_semantic_cells",
+            "within_cell_objective": "minimize_parameter_count",
+            "tie_breaker": "public_accuracy",
+            "architecture_uniqueness": "run_wide_executable_hash_gate",
+        },
         "initial_candidate_is_evaluated": True,
         "generator": dict(provider.manifest_fields()),
         "prompt_protocol": prompt_manifest,
@@ -1042,10 +1072,10 @@ def run_semantic_autoresearch(
         },
         "semantic_archive": {
             "axes": list(FROZEN_DESCRIPTOR_AXES),
-            "parent_policy": "least_used_cell_then_accuracy",
-            "novelty_role": "exploratory_coverage_tiebreak_only",
+            "parent_policy": "least_used_cell_then_minimum_parameter_count",
+            "novelty_role": "unique_semantic_coverage_within_accuracy_constraint",
             "scientific_novelty_claim": False,
-            "parameter_count_role": "descriptive_metadata_only",
+            "parameter_count_role": "within_cell_optimization_objective",
         },
     }
     if isinstance(provider, OpenAIProposalProvider):
@@ -1064,6 +1094,13 @@ def run_semantic_autoresearch(
         manifest.update(
             {"schema_name": "ControllerRunManifest", "schema_version": "2.0"}
         )
+    if process_protocol is not None:
+        manifest["research_process"] = {
+            "config_path": "research_process/study_config.json",
+            "config_hash": process_protocol.config.config_hash,
+            "treatment_fields": ["memory_policy", "deliberation_policy"],
+            "selection_or_reward_changed": False,
+        }
     _atomic_json(output_dir / "run_manifest.json", manifest)
     _atomic_json(archive_path, archive.to_dict())
 
@@ -1180,6 +1217,12 @@ def run_semantic_autoresearch(
             archive=archive,
             opportunity=opportunity,
         )
+        if process_protocol is not None:
+            messages = process_protocol.augment_messages(
+                messages,
+                opportunity,
+                lineage_path=ledger,
+            )
         user_prompt = messages[-1]["content"]
         prompt_hash = _canonical_messages_hash(messages)
         artifact_base = artifacts / f"{opportunity:04d}"
@@ -1408,7 +1451,11 @@ def run_semantic_autoresearch(
                     opportunity=opportunity,
                 )
                 cells = [cell]
-                rollback = None if decision in {"archive_new_cell", "archive_replace"} else parent.candidate_id
+                rollback = None if decision in {
+                    "archive_new_cell",
+                    "archive_replace_smaller",
+                    "archive_replace_accuracy_tiebreak",
+                } else parent.candidate_id
             except ValueError as error:
                 decision = "crash"
                 rollback = parent.candidate_id
@@ -1456,6 +1503,8 @@ def run_semantic_autoresearch(
             {"schema_name": "ControllerRunSummary", "schema_version": "2.0"}
         )
     _atomic_json(output_dir / "run_summary.json", summary)
+    if process_protocol is not None:
+        export_process_run(output_dir, process_protocol.config)
     return summary
 
 
@@ -1516,6 +1565,7 @@ def main() -> None:
     parser.add_argument("--iterations", type=_positive_int, default=config["iterations"])
     parser.add_argument("--seed", type=int, default=config["seed"])
     parser.add_argument("--output-dir", type=Path)
+    parser.add_argument("--initial-candidate", type=Path)
     parser.add_argument(
         "--engineering-pilot",
         action="store_true",
@@ -1577,6 +1627,14 @@ def main() -> None:
     configured_candidate = (ROOT / str(config["candidate_path"])).resolve()
     if configured_candidate != DEFAULT_INITIAL_CANDIDATE.resolve():
         parser.error("configured candidate_path differs from the trusted initial seed")
+    try:
+        initial_candidate = resolve_initial_candidate(
+            DEFAULT_INITIAL_CANDIDATE,
+            explicit=arguments.initial_candidate,
+            expected_framework=FrameworkKind.AUTORESEARCH,
+        )
+    except (FileNotFoundError, ValueError) as error:
+        parser.error(str(error))
 
     case_count = arguments.evaluation_cases
     if (
@@ -1596,7 +1654,7 @@ def main() -> None:
         iterations=arguments.iterations,
         seed=arguments.seed,
         output_dir=arguments.output_dir,
-        initial_candidate=DEFAULT_INITIAL_CANDIDATE,
+        initial_candidate=initial_candidate,
         training_profile=training_profile,
         evaluation_profile=evaluation_profile,
         evaluation_case_count=case_count,

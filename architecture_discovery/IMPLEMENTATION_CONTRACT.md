@@ -325,7 +325,11 @@ passes adversarial tests. The scientific lane must fail closed when strong
 containment is unavailable. The preferred path is an extensible typed tensor
 and module graph, with an OS sandbox as defense in depth. The IR must support
 new routing, recurrence, attention, state, algebraic, sharing, and composition
-mechanisms without any parameter-count preference.
+mechanisms. Among candidates that meet the frozen public Layer A eligibility
+threshold, online search minimizes trusted evaluator-measured parameter count;
+public accuracy breaks exact parameter-count ties. Executable architecture
+hashes reject run-wide duplicates so size optimization does not collapse the
+trajectory into repeated presentations of the same graph.
 
 Static source inspection is defense in depth only. Transformer validity needs
 typed graph evidence, fresh-build reproducibility, runtime attention and device

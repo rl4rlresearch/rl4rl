@@ -1,0 +1,326 @@
+{
+  "schema_name": "architecture_tensor_graph",
+  "schema_version": "1.0",
+  "graph_id": "sinusoidal_adderboard_decoder_v2",
+  "input_node_id": "tokens",
+  "output_node_id": "readout",
+  "nodes": [
+    {
+      "node_id": "tokens",
+      "kind": "input",
+      "input_shapes": [],
+      "output_shape": ["Batch", "Time"],
+      "attributes": {}
+    },
+    {
+      "node_id": "token_embedding",
+      "kind": "token_embedding",
+      "input_shapes": [["Batch", "Time"]],
+      "output_shape": ["Batch", "Time", 16],
+      "attributes": {
+        "vocab": 15
+      }
+    },
+    {
+      "node_id": "position",
+      "kind": "positional",
+      "input_shapes": [["Batch", "Time", 16]],
+      "output_shape": ["Batch", "Time", 16],
+      "attributes": {
+        "mechanism": "sinusoidal"
+      }
+    },
+    {
+      "node_id": "block1_norm1",
+      "kind": "normalization",
+      "input_shapes": [["Batch", "Time", 16]],
+      "output_shape": ["Batch", "Time", 16],
+      "attributes": {
+        "affine": true,
+        "epsilon": 0.00001,
+        "mechanism": "layer_norm"
+      }
+    },
+    {
+      "node_id": "block1_attention",
+      "kind": "attention",
+      "input_shapes": [["Batch", "Time", 16]],
+      "output_shape": ["Batch", "Time", 16],
+      "attributes": {
+        "bias": false,
+        "causal": true,
+        "heads": 2
+      }
+    },
+    {
+      "node_id": "block1_attention_residual",
+      "kind": "algebraic",
+      "input_shapes": [["Batch", "Time", 16], ["Batch", "Time", 16]],
+      "output_shape": ["Batch", "Time", 16],
+      "attributes": {
+        "mechanism": "add"
+      }
+    },
+    {
+      "node_id": "block1_norm2",
+      "kind": "normalization",
+      "input_shapes": [["Batch", "Time", 16]],
+      "output_shape": ["Batch", "Time", 16],
+      "attributes": {
+        "affine": true,
+        "epsilon": 0.00001,
+        "mechanism": "layer_norm"
+      }
+    },
+    {
+      "node_id": "block1_feed_forward",
+      "kind": "feed_forward",
+      "input_shapes": [["Batch", "Time", 16]],
+      "output_shape": ["Batch", "Time", 16],
+      "attributes": {
+        "bias": false,
+        "hidden_dimension": 48,
+        "mechanism": "gelu"
+      }
+    },
+    {
+      "node_id": "block1_output",
+      "kind": "algebraic",
+      "input_shapes": [["Batch", "Time", 16], ["Batch", "Time", 16]],
+      "output_shape": ["Batch", "Time", 16],
+      "attributes": {
+        "mechanism": "add"
+      }
+    },
+    {
+      "node_id": "block2_norm1",
+      "kind": "normalization",
+      "input_shapes": [["Batch", "Time", 16]],
+      "output_shape": ["Batch", "Time", 16],
+      "attributes": {
+        "affine": true,
+        "epsilon": 0.00001,
+        "mechanism": "layer_norm"
+      }
+    },
+    {
+      "node_id": "block2_attention",
+      "kind": "attention",
+      "input_shapes": [["Batch", "Time", 16]],
+      "output_shape": ["Batch", "Time", 16],
+      "attributes": {
+        "bias": false,
+        "causal": true,
+        "heads": 2
+      }
+    },
+    {
+      "node_id": "block2_attention_residual",
+      "kind": "algebraic",
+      "input_shapes": [["Batch", "Time", 16], ["Batch", "Time", 16]],
+      "output_shape": ["Batch", "Time", 16],
+      "attributes": {
+        "mechanism": "add"
+      }
+    },
+    {
+      "node_id": "block2_norm2",
+      "kind": "normalization",
+      "input_shapes": [["Batch", "Time", 16]],
+      "output_shape": ["Batch", "Time", 16],
+      "attributes": {
+        "affine": true,
+        "epsilon": 0.00001,
+        "mechanism": "layer_norm"
+      }
+    },
+    {
+      "node_id": "block2_feed_forward",
+      "kind": "feed_forward",
+      "input_shapes": [["Batch", "Time", 16]],
+      "output_shape": ["Batch", "Time", 16],
+      "attributes": {
+        "bias": false,
+        "hidden_dimension": 48,
+        "mechanism": "gelu"
+      }
+    },
+    {
+      "node_id": "block2_output",
+      "kind": "algebraic",
+      "input_shapes": [["Batch", "Time", 16], ["Batch", "Time", 16]],
+      "output_shape": ["Batch", "Time", 16],
+      "attributes": {
+        "mechanism": "add"
+      }
+    },
+    {
+      "node_id": "final_norm",
+      "kind": "normalization",
+      "input_shapes": [["Batch", "Time", 16]],
+      "output_shape": ["Batch", "Time", 16],
+      "attributes": {
+        "affine": true,
+        "epsilon": 0.00001,
+        "mechanism": "layer_norm"
+      }
+    },
+    {
+      "node_id": "readout",
+      "kind": "readout",
+      "input_shapes": [["Batch", "Time", 16]],
+      "output_shape": ["Batch", "Time", 15],
+      "attributes": {
+        "bias": false,
+        "tie_embedding": "token_embedding",
+        "vocab": 15
+      }
+    }
+  ],
+  "edges": [
+    {
+      "source": "tokens",
+      "target": "token_embedding",
+      "target_port": 0,
+      "kind": "data"
+    },
+    {
+      "source": "token_embedding",
+      "target": "position",
+      "target_port": 0,
+      "kind": "data"
+    },
+    {
+      "source": "position",
+      "target": "block1_norm1",
+      "target_port": 0,
+      "kind": "data"
+    },
+    {
+      "source": "block1_norm1",
+      "target": "block1_attention",
+      "target_port": 0,
+      "kind": "data"
+    },
+    {
+      "source": "position",
+      "target": "block1_attention_residual",
+      "target_port": 0,
+      "kind": "residual"
+    },
+    {
+      "source": "block1_attention",
+      "target": "block1_attention_residual",
+      "target_port": 1,
+      "kind": "data"
+    },
+    {
+      "source": "block1_attention_residual",
+      "target": "block1_norm2",
+      "target_port": 0,
+      "kind": "data"
+    },
+    {
+      "source": "block1_norm2",
+      "target": "block1_feed_forward",
+      "target_port": 0,
+      "kind": "data"
+    },
+    {
+      "source": "block1_attention_residual",
+      "target": "block1_output",
+      "target_port": 0,
+      "kind": "residual"
+    },
+    {
+      "source": "block1_feed_forward",
+      "target": "block1_output",
+      "target_port": 1,
+      "kind": "data"
+    },
+    {
+      "source": "block1_output",
+      "target": "block2_norm1",
+      "target_port": 0,
+      "kind": "data"
+    },
+    {
+      "source": "block2_norm1",
+      "target": "block2_attention",
+      "target_port": 0,
+      "kind": "data"
+    },
+    {
+      "source": "block1_output",
+      "target": "block2_attention_residual",
+      "target_port": 0,
+      "kind": "residual"
+    },
+    {
+      "source": "block2_attention",
+      "target": "block2_attention_residual",
+      "target_port": 1,
+      "kind": "data"
+    },
+    {
+      "source": "block2_attention_residual",
+      "target": "block2_norm2",
+      "target_port": 0,
+      "kind": "data"
+    },
+    {
+      "source": "block2_norm2",
+      "target": "block2_feed_forward",
+      "target_port": 0,
+      "kind": "data"
+    },
+    {
+      "source": "block2_attention_residual",
+      "target": "block2_output",
+      "target_port": 0,
+      "kind": "residual"
+    },
+    {
+      "source": "block2_feed_forward",
+      "target": "block2_output",
+      "target_port": 1,
+      "kind": "data"
+    },
+    {
+      "source": "block2_output",
+      "target": "final_norm",
+      "target_port": 0,
+      "kind": "data"
+    },
+    {
+      "source": "final_norm",
+      "target": "readout",
+      "target_port": 0,
+      "kind": "data"
+    }
+  ],
+  "metadata": {
+    "architecture": "two-layer pre-normalized causal decoder with sinusoidal positions",
+    "author": "anadim, declarative experiment wrapper",
+    "max_sequence_length": 35,
+    "mechanism_hypothesis": "Fixed sinusoidal positions reduce parameters and provide stable digit-place structure for autoregressive addition.",
+    "name": "Sinusoidal AdderBoard Decoder",
+    "parameter_count_role": "constrained_search_objective",
+    "tokenization": "digit_reversed_output",
+    "tricks": [
+      "reversed output digits",
+      "autoregressive carry propagation"
+    ],
+    "vocab_size": 15,
+    "research_current_explanation": "The control graph executed and was structurally valid, but its zero public accuracy leaves positional learning as a plausible bottleneck.",
+    "research_evidence": "The prior result reported eligibility, execution, and transformer validity of 1.0 with public accuracy and search score of 0.0.",
+    "research_next_experiment": "Replace only the learned positional mechanism with sinusoidal positions while preserving the decoder topology and width.",
+    "research_expected_result": "The candidate should retain eligibility, reduce trusted parameter count, and may improve public accuracy through fixed digit-place structure.",
+    "research_decision_rule": "Retain the candidate if it remains eligible and lowers parameter count; use public accuracy to resolve an exact size tie.",
+    "research_previous_interpretation": "The prior architecture established a valid executable control but supplied no evidence of successful public task learning.",
+    "research_previous_changed": "yes",
+    "research_challenged_assumption": "not_requested",
+    "research_alternative_explanation": "not_requested",
+    "research_discriminating_evidence": "not_requested"
+  }
+}

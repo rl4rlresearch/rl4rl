@@ -123,13 +123,13 @@ def test_provider_canary_plan_uses_actual_prompt_constructors_and_safe_bounds():
             "approval_template_message_content_bytes"
         ]
         for harness in CANARY_ORDER
-    ] == [12_375, 13_201, 20_517, 21_414]
+    ] == [12_923, 13_550, 20_639, 21_580]
     assert [
         by_harness[harness]["first_opportunity"][
             "live_request_payload_bytes_upper_bound"
         ]
         for harness in CANARY_ORDER
-    ] == [13_493, 14_327, 22_813, 23_718]
+    ] == [14_049, 14_680, 22_937, 23_886]
     assert [
         by_harness[harness]["first_opportunity"][
             "conservative_input_token_ceiling"

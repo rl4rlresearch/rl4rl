@@ -443,6 +443,7 @@ _GREEDY_CONTROLLER_MANIFEST_FIELDS = frozenset(
         "run_mode",
         "exploratory_only",
         "selection_semantics",
+        "optimization_objective",
         "greedy_retention",
         "generator",
         "initial_candidate_hash",
@@ -493,6 +494,7 @@ _OPENEVOLVE_CONTROLLER_MANIFEST_FIELDS = frozenset(
         "architecture_hash_schema",
         "parent_relative_architecture_change_required",
         "architecture_deduplication",
+        "optimization_objective",
         "proposal_terminal_ledger",
         "evaluator_hash",
         "trusted_executable_component_hashes",
@@ -1471,7 +1473,7 @@ def _validate_cuda_manifest(
         "task_adapter_hash": DEFAULT_TASK.config_hash,
         "requested_device": "cuda",
         "selected_device": summary.get("device"),
-        "parameter_count_role": "descriptive_metadata_only",
+        "parameter_count_role": "constrained_search_objective",
         "development_only_checkpoint_selection": profile.checkpoint_selection_rule,
         "scientific_limitations": [
             "Engineering only. Not valid for architecture ranking or "
@@ -1936,12 +1938,20 @@ def _validate_cuda_checkpoints(
         raise ValueError("partial and latest resume checkpoints are byte-identical")
 
 
-def _validate_modal_canary_generator(generator: object) -> None:
-    """Require the exact non-secret provider settings approved for canaries."""
+def _validate_modal_canary_generator(
+    generator: object,
+    *,
+    request_settings_source: str = "environment_overrides_permitted",
+) -> None:
+    """Require exact non-secret provider settings for a bounded Modal action."""
 
     if not isinstance(generator, dict):
         raise ValueError("controller manifest lacks its generator contract")
-    expected_fields = set(_MODAL_CANARY_GENERATOR_CONTRACT)
+    expected_contract = {
+        **_MODAL_CANARY_GENERATOR_CONTRACT,
+        "request_settings_source": request_settings_source,
+    }
+    expected_fields = set(expected_contract)
     observed_fields = set(generator)
     missing_fields = expected_fields - observed_fields
     unknown_fields = observed_fields - expected_fields
@@ -1958,7 +1968,7 @@ def _validate_modal_canary_generator(generator: object) -> None:
             "controller manifest generator fields differ from the frozen "
             "provider contract"
         )
-    for field, expected in _MODAL_CANARY_GENERATOR_CONTRACT.items():
+    for field, expected in expected_contract.items():
         observed = generator[field]
         if type(observed) is not type(expected) or observed != expected:
             raise ValueError(
@@ -2062,6 +2072,7 @@ def _validate_private_canary_tree(controller: Path) -> tuple[int, int]:
     )
     for path in sorted(controller.rglob("*")):
         relative = path.relative_to(controller)
+        relative_posix = relative.as_posix()
         item = path.lstat()
         if stat.S_ISLNK(item.st_mode):
             raise ValueError("private canary staging may not contain symlinks")
@@ -2071,7 +2082,14 @@ def _validate_private_canary_tree(controller: Path) -> tuple[int, int]:
             raise ValueError(
                 "private canary staging may contain only singly linked regular files"
             )
-        if item.st_size < 1 or item.st_size > MAX_ARTIFACT_DOWNLOAD_FILE_BYTES:
+        empty_research_decision_ledger = (
+            relative_posix == "research_process/decisions.jsonl"
+            and item.st_size == 0
+        )
+        if (
+            item.st_size > MAX_ARTIFACT_DOWNLOAD_FILE_BYTES
+            or (item.st_size == 0 and not empty_research_decision_ledger)
+        ):
             raise ValueError("private canary file violates the publication byte cap")
         total_bytes += item.st_size
         if total_bytes > MAX_ARTIFACT_DOWNLOAD_TOTAL_BYTES:
@@ -2094,21 +2112,26 @@ def _validate_private_canary_tree(controller: Path) -> tuple[int, int]:
             continue
         if suffix not in _PRIVATE_CANARY_TEXT_SUFFIXES:
             raise ValueError(
-                f"private canary file has an unapproved type: {relative.as_posix()}"
+                f"private canary file has an unapproved type: {relative_posix}"
             )
+        if empty_research_decision_ledger:
+            # The no-deliberation control condition has a typed, intentionally
+            # empty decision ledger. Preserve that negative process evidence;
+            # every other empty staged file remains invalid.
+            continue
         try:
             text = path.read_text(encoding="utf-8")
         except UnicodeDecodeError as error:
             raise ValueError(
-                f"private canary text artifact is not UTF-8: {relative.as_posix()}"
+                f"private canary text artifact is not UTF-8: {relative_posix}"
             ) from error
         if text_credential.search(text):
             raise ValueError("private canary staging contains credential-shaped text")
         if suffix == ".json":
-            payload = _strict_json_loads(text, label=relative.as_posix())
-            _validate_json_security(payload, label=relative.as_posix())
+            payload = _strict_json_loads(text, label=relative_posix)
+            _validate_json_security(payload, label=relative_posix)
         elif suffix == ".jsonl":
-            _load_private_jsonl(path, label=relative.as_posix())
+            _load_private_jsonl(path, label=relative_posix)
     if file_count < 1:
         raise ValueError("private canary staging contains no files")
     return file_count, total_bytes
@@ -2454,7 +2477,8 @@ def _validate_private_native_terminal_state(
         archive["schema_name"] != "semantic_autoresearch_archive"
         or archive["schema_version"] != "2.0"
         or archive["axes"] != expected_axes
-        or archive["novelty_role"] != "exploratory_coverage_tiebreak_only"
+        or archive["novelty_role"]
+        != "unique_semantic_coverage_within_accuracy_constraint"
     ):
         raise ValueError("semantic archive identity is invalid")
     _exact_bool(archive, "scientific_novelty_claim", False)
@@ -2477,6 +2501,7 @@ def _validate_private_native_terminal_state(
             "source_path",
             "search_score",
             "public_accuracy",
+            "parameter_count_metadata",
             "discovered_opportunity",
             "parent_uses",
         }:
@@ -2507,6 +2532,8 @@ def _validate_private_native_terminal_state(
         _exact_integer(cell, "parent_uses")
         _finite_number(cell, "search_score")
         _finite_number(cell, "public_accuracy")
+        if _exact_integer(cell, "parameter_count_metadata") < 1:
+            raise ValueError("semantic archive parameter count must be positive")
 
 
 def _validate_openevolve_program(
@@ -3224,7 +3251,7 @@ def _validate_existing_smoke(
         expected_manifest: dict[str, Any] = {
             "candidate_source_hash": expected_summary["candidate_source_hash"],
             "profile_hash": profile.profile_hash,
-            "parameter_count_role": "descriptive_metadata_only",
+            "parameter_count_role": "constrained_search_objective",
             "isolation_level": "engineering_only_or_scientific_gate_blocked",
         }
         if candidate_format == "architecture_ir":

@@ -1,0 +1,185 @@
+{
+  "schema_name": "architecture_tensor_graph",
+  "schema_version": "1.0",
+  "graph_id": "scalar_affine_residual_attention_v1",
+  "input_node_id": "tokens",
+  "output_node_id": "readout",
+  "nodes": [
+    {
+      "node_id": "tokens",
+      "kind": "input",
+      "input_shapes": [],
+      "output_shape": [
+        "Batch",
+        "Time"
+      ],
+      "attributes": {}
+    },
+    {
+      "node_id": "token_embedding",
+      "kind": "token_embedding",
+      "input_shapes": [
+        [
+          "Batch",
+          "Time"
+        ]
+      ],
+      "output_shape": [
+        "Batch",
+        "Time",
+        1
+      ],
+      "attributes": {
+        "vocab": 15
+      }
+    },
+    {
+      "node_id": "position",
+      "kind": "positional",
+      "input_shapes": [
+        [
+          "Batch",
+          "Time",
+          1
+        ]
+      ],
+      "output_shape": [
+        "Batch",
+        "Time",
+        1
+      ],
+      "attributes": {
+        "mechanism": "sinusoidal"
+      }
+    },
+    {
+      "node_id": "causal_attention",
+      "kind": "attention",
+      "input_shapes": [
+        [
+          "Batch",
+          "Time",
+          1
+        ]
+      ],
+      "output_shape": [
+        "Batch",
+        "Time",
+        1
+      ],
+      "attributes": {
+        "bias": false,
+        "causal": true,
+        "heads": 1
+      }
+    },
+    {
+      "node_id": "attention_residual",
+      "kind": "algebraic",
+      "input_shapes": [
+        [
+          "Batch",
+          "Time",
+          1
+        ],
+        [
+          "Batch",
+          "Time",
+          1
+        ]
+      ],
+      "output_shape": [
+        "Batch",
+        "Time",
+        1
+      ],
+      "attributes": {
+        "mechanism": "add"
+      }
+    },
+    {
+      "node_id": "readout",
+      "kind": "readout",
+      "input_shapes": [
+        [
+          "Batch",
+          "Time",
+          1
+        ]
+      ],
+      "output_shape": [
+        "Batch",
+        "Time",
+        15
+      ],
+      "attributes": {
+        "bias": true,
+        "tie_embedding": "token_embedding",
+        "vocab": 15
+      }
+    }
+  ],
+  "edges": [
+    {
+      "source": "tokens",
+      "target": "token_embedding",
+      "target_port": 0,
+      "kind": "data"
+    },
+    {
+      "source": "token_embedding",
+      "target": "position",
+      "target_port": 0,
+      "kind": "data"
+    },
+    {
+      "source": "position",
+      "target": "causal_attention",
+      "target_port": 0,
+      "kind": "data"
+    },
+    {
+      "source": "position",
+      "target": "attention_residual",
+      "target_port": 0,
+      "kind": "residual"
+    },
+    {
+      "source": "causal_attention",
+      "target": "attention_residual",
+      "target_port": 1,
+      "kind": "data"
+    },
+    {
+      "source": "attention_residual",
+      "target": "readout",
+      "target_port": 0,
+      "kind": "data"
+    }
+  ],
+  "metadata": {
+    "architecture": "unnormalized scalar residual causal decoder with affine tied readout",
+    "author": "anadim, declarative experiment wrapper",
+    "max_sequence_length": 35,
+    "mechanism_hypothesis": "An unnormalized scalar residual can encode arithmetic state continuously, while class-specific readout biases let tied scalar logits discriminate all tokens.",
+    "name": "Scalar Affine Residual Attention Adder",
+    "parameter_count_role": "constrained_search_objective",
+    "tokenization": "digit_reversed_output",
+    "tricks": [
+      "reversed output digits",
+      "autoregressive carry propagation",
+      "affine scalar token codebook"
+    ],
+    "vocab_size": 15,
+    "research_current_explanation": "The width-2 parent retained visible fitness 3 without an execution failure, so severe compression appears structurally viable. No visible accuracy gain establishes that normalized two-dimensional states are necessary.",
+    "research_evidence": "Visible history reports execution, transformer validity, and eligibility for the earlier decoder but zero public accuracy; the compressed parent subsequently retained fitness 3.",
+    "research_next_experiment": "Test an unnormalized width-1 residual causal-attention stream with tied embedding weights and a trainable 15-class readout bias.",
+    "research_expected_result": "The scalar stream should reduce trusted parameter count while preserving eligibility, and affine class biases should avoid restricting predictions to only the extrema of a bias-free scalar codebook.",
+    "research_decision_rule": "Reject the candidate if it loses public eligibility; otherwise prefer the lower trusted parameter count, using public accuracy only for an exact parameter-count tie.",
+    "research_previous_interpretation": "The width-2 result supports compression as an eligibility-preserving direction, but it provides no decisive evidence that parameter-free normalization or vector-valued logits help addition.",
+    "research_previous_changed": "yes",
+    "research_challenged_assumption": "The current direction assumes at least two normalized hidden coordinates are needed to distinguish the 15 output tokens.",
+    "research_alternative_explanation": "A continuous scalar arithmetic state may suffice if each tied token logit has its own intercept, producing multiple decision intervals along the scalar axis.",
+    "research_discriminating_evidence": "Eligibility with a lower trusted parameter count favors the scalar affine explanation, and nonzero public accuracy strengthens it; invalidity or loss of eligibility favors the normalized vector-state assumption."
+  }
+}

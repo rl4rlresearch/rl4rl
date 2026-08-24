@@ -471,8 +471,8 @@ def audit_readiness(
         if manifest.get("schema_version") not in {"2", "3"}:
             raise ValueError("experiment manifest schema_version is invalid")
         expected_values: dict[str, Any] = {
-            "study.parameter_count_role": "descriptive_metadata_only",
-            "evaluation.parameter_count_in_fitness": False,
+            "study.parameter_count_role": "constrained_search_objective",
+            "evaluation.parameter_count_in_fitness": True,
             "evaluation.internet_access_during_runs": False,
             "evaluation.layer_a.controller_visible": True,
             "evaluation.layer_b.controller_visible": False,

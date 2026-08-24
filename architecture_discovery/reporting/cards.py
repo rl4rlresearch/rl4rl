@@ -19,7 +19,7 @@ class ModelCard:
     intended_use: str
     evaluation_scope: str
     limitations: tuple[str, ...]
-    parameter_count_role: str = field(default="descriptive_metadata_only", init=False)
+    parameter_count_role: str = field(default="constrained_search_objective", init=False)
     schema_name: str = field(default="ArchitectureDiscoveryModelCard", init=False)
     schema_version: str = field(default="1.0", init=False)
 

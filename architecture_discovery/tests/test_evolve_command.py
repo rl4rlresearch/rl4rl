@@ -1,6 +1,8 @@
 from __future__ import annotations
 
+import hashlib
 import json
+import os
 import subprocess
 from pathlib import Path
 
@@ -14,6 +16,13 @@ from common.evolution_run import (
 )
 from common.runtime_context import ExecutionContextV1
 from modal_boundary import build_modal_cli_command
+from research_dynamics.contracts import (
+    ConditionId,
+    FrameworkKind,
+    ProcessCondition,
+    ProcessStudyConfig,
+    build_modal_process_payload,
+)
 from scripts import launch_modal
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -43,6 +52,9 @@ def test_evolution_spec_binds_iterations_and_dynamic_deadlines() -> None:
     assert spec.function_timeout_seconds == 15_300
     assert spec.outer_cli_timeout_seconds == 16_200
     assert EvolutionRunSpec.parse(spec.token) == spec
+    treated = spec.with_process_payload("YWJj")
+    assert EvolutionRunSpec.parse(treated.token) == treated
+    assert treated.base_token == spec.token
 
     maximum = EvolutionRunSpec.from_cli(
         "semantic-openevolve", EVOLUTION_MAX_ITERATIONS
@@ -106,6 +118,47 @@ def test_modal_action_constructs_requested_controller_command(
     assert result["evolution_spec"] == spec.token
 
 
+def test_modal_action_materializes_process_intervention(
+    monkeypatch: pytest.MonkeyPatch,
+    tmp_path: Path,
+) -> None:
+    captured = {}
+
+    def fake_run_command(command, **kwargs):
+        captured["command"] = command
+        captured["kwargs"] = kwargs
+        return {"returncode": 0}
+
+    checkpoint = tmp_path / "checkpoint.ir.json"
+    checkpoint.write_text('{"schema_version":"1.0"}\n', encoding="utf-8")
+    config = ProcessStudyConfig(
+        study_id="modal-process-test",
+        run_id="modal-process-test-rd3",
+        framework=FrameworkKind.OPENEVOLVE,
+        condition=ProcessCondition.for_id(ConditionId.RD3),
+        challenge_opportunities=(1,),
+        source_checkpoint_id="checkpoint-test",
+        source_checkpoint_hash=hashlib.sha256(checkpoint.read_bytes()).hexdigest(),
+    )
+    payload = build_modal_process_payload(config, initial_candidate=checkpoint)
+    spec = EvolutionRunSpec.from_cli("openevolve", 2).with_process_payload(payload)
+    monkeypatch.setattr(modal_app, "_run_command", fake_run_command)
+
+    result = modal_app._evolution_action(tmp_path, _context(), spec=spec)
+
+    environment = captured["kwargs"]["extra_environment"]
+    config_path = Path(environment["RL4RL_PROCESS_CONFIG"])
+    candidate_path = Path(environment["RL4RL_PROCESS_INITIAL_CANDIDATE"])
+    assert config_path.parent == tmp_path / "process_inputs"
+    assert ProcessStudyConfig.from_dict(
+        json.loads(config_path.read_text(encoding="utf-8"))
+    ) == config
+    assert candidate_path.read_bytes() == checkpoint.read_bytes()
+    assert result["evolution_spec"] == spec.base_token
+    assert result["research_process"]["config_hash"] == config.config_hash
+    assert result["research_process"]["condition_id"] == "RD3"
+
+
 def test_top_level_command_plans_without_starting_paid_work() -> None:
     completed = subprocess.run(
         [str(ROOT / "evolve"), "openevolve", "-n", "5"],
@@ -119,6 +172,38 @@ def test_top_level_command_plans_without_starting_paid_work() -> None:
     assert payload["evolution_spec"] == "openevolve_generic-n5"
     assert payload["provider_request_ceiling"] == 5
     assert payload["paid_work_started"] is False
+
+
+def test_top_level_command_attaches_environment_process_config(
+    tmp_path: Path,
+) -> None:
+    config = ProcessStudyConfig(
+        study_id="modal-plan-test",
+        run_id="modal-plan-test-rd0",
+        framework=FrameworkKind.AUTORESEARCH,
+        condition=ProcessCondition.for_id(ConditionId.RD0),
+        challenge_opportunities=(),
+    )
+    config_path = tmp_path / "process_config.json"
+    config_path.write_text(
+        json.dumps(config.to_dict(), sort_keys=True) + "\n",
+        encoding="utf-8",
+    )
+    environment = dict(os.environ)
+    environment["RL4RL_PROCESS_CONFIG"] = str(config_path)
+    completed = subprocess.run(
+        [str(ROOT / "evolve"), "autoresearch", "-n", "2"],
+        cwd=ROOT,
+        env=environment,
+        check=True,
+        capture_output=True,
+        text=True,
+        timeout=15,
+    )
+    payload = json.loads(completed.stdout)
+    assert payload["evolution_spec"] == "greedy_autoresearch-n2"
+    assert payload["process_intervention_attached"] is True
+    assert len(payload["process_transport_sha256"]) == 64
 
 
 def test_top_level_command_recognizes_estimated_cost_approval() -> None:

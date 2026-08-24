@@ -185,6 +185,7 @@ def evaluate_for_openevolve(program_path: str) -> EvaluationResult:
         "public_accuracy": view.public_accuracy,
         "search_score": view.search_score,
         "eligible_for_parent": float(view.eligible_for_parent),
+        "parameter_count_metadata": float(view.parameter_count_metadata),
         **semantic_metrics,
     }
     metrics["combined_score"] = canonical_combined_score(metrics)

@@ -167,6 +167,7 @@ def _native_messages(
             system_prompt=system_prompt,
             incumbent_ir=initial_ir,
             incumbent_score=endpoint_value,
+            incumbent_parameter_count=6_080,
             opportunity=1,
         )
     if harness != "semantic_autoresearch":
@@ -200,6 +201,7 @@ def _native_messages(
         failure_stage="",
         infrastructure_failure=False,
         online_descriptor_codes=tuple(sorted(descriptors.codes.items())),
+        parameter_count_metadata=validation.estimated_parameter_count or 6_080,
     )
     archive.consider(
         candidate_id="0" * 64,

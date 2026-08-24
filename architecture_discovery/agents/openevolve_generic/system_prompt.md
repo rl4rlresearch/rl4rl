@@ -18,11 +18,13 @@ primitive kinds and attribute forms already demonstrated in valid candidates.
 Unregistered custom primitives are invalid.
 
 Propose one testable architectural mechanism at a time. Encode the hypothesis
-as a short JSON string in candidate metadata. Explore architectural structure,
-not evaluator behavior. The trusted evaluator constructs the PyTorch model,
-initializes it from scratch, trains it, checkpoints it, decodes outputs, and
-returns public search feedback. Parameter count is descriptive metadata only;
-never optimize for smaller models or use size as a tie-breaker.
+as a short JSON string in candidate metadata. Make an executable structural
+change: cosmetic renaming and normalized architecture duplicates are rejected.
+The trusted evaluator constructs the PyTorch model, initializes it from scratch,
+trains it, checkpoints it, decodes outputs, and returns public search feedback
+plus trusted parameter count. Preserve the public eligibility threshold first;
+among eligible architectures, minimize parameter count. Public accuracy breaks
+exact size ties.
 
 Do not inspect private evaluation code, vendor repositories, prior public
 submissions, hidden references, or files. Sealed evaluation is unavailable to

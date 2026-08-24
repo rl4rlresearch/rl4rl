@@ -1,11 +1,19 @@
 # Architecture Discovery on AdderBoard
 
+The actual data and idea trajectories from the eight-run research-process pilot
+are documented in
+[`pilot_results.md`](../experiments/research_process_interventions/reports/pilot_results.md).
+The interventions are an opt-in layer around the existing AutoResearch and
+OpenEvolve controllers; ordinary runs remain unchanged.
+
 This repository is an offline-tested research-infrastructure system for studying
-novel transformer architecture discovery. AdderBoard is used only as a
-correctness and accuracy environment. Parameter count is descriptive metadata,
-not an optimization target: it is never a reward, selection criterion,
-tie-breaker, or stopping rule. Neutral pre-allocation compute and memory
-ceilings still reject candidates that are unsafe to execute on the host.
+unique transformer architecture discovery on AdderBoard. Search uses a
+constrained objective: candidates must remain executable, transformer-valid,
+and above the public accuracy eligibility threshold; among eligible candidates,
+fewer trusted evaluator-counted parameters is better, with public accuracy as an
+exact-size tie-breaker. Run-wide executable architecture hashes reject cosmetic
+or structural duplicates before training. Neutral pre-allocation compute and
+memory ceilings still reject candidates that are unsafe to execute on the host.
 
 ## Teammate quickstart for the shared Modal workspace
 
@@ -70,6 +78,21 @@ It fixes seed 1, `smoke_train_cuda_v2`, `smoke_eval_v1`, 24 cases, one T4,
 zero retries, one provider request per iteration, and non-scientific status.
 The printed plan includes the exact request and timeout ceilings and starts no
 paid work.
+
+Research-process full-trajectory manifests also make the horizon explicit. Use
+the same placeholder in the frozen command so the manifest, challenge schedule,
+and controller cannot silently disagree:
+
+```bash
+python ../experiments/research_process_interventions/run.py plan-full \
+  --study-id size-process-v1 \
+  --framework autoresearch \
+  --output-dir outputs/process/size-process-v1 \
+  --blocks 3 \
+  --iterations 12 \
+  --challenge-schedule 4,8,12 \
+  --command-json '["python","agents/greedy_autoresearch/run.py","--iterations","{iterations}","--seed","{seed}","--output-dir","{output_dir}"]'
+```
 
 To launch, repeat the command with explicit Modal and provider dollar caps:
 

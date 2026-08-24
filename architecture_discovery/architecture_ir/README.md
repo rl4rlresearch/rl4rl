@@ -62,9 +62,10 @@ Hard default safety ceilings are 128 nodes, 512 edges, fan-in 16, sequence
 length 512, hidden width 2,048, feed-forward width 8,192, 128 attention heads,
 64 million parameters, 16 million buffer elements, and a conservative 4 GiB
 training-workspace estimate at the frozen full-profile batch and sequence
-dimensions. These are pre-allocation resource controls. Parameter count remains
-descriptive metadata and is never a fitness, parent-selection, archive, or
-tie-break objective.
+dimensions. These are pre-allocation resource controls, not target sizes. The
+trusted post-construction parameter count is also exposed to controllers for the
+accuracy-constrained size objective: after public eligibility, smaller is
+better, with public accuracy breaking exact-size ties.
 
 `graph_hash` identifies the entire canonical document, including provenance
 metadata. `architecture_hash` identifies executable architecture structure and

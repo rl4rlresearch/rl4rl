@@ -26,8 +26,10 @@ coverage of different mechanism families, never cosmetic renaming.
 
 Phase 1 freezes tokenization and the task adapter. The trusted evaluator builds
 and freshly trains the model, owns checkpoints and decoding, and returns public
-search feedback. Parameter count is descriptive metadata only; never optimize
-for smaller models or use size in archive replacement.
+search feedback plus trusted parameter count. Preserve public eligibility first.
+Explore structurally unique semantic cells and, within each occupied cell,
+minimize parameter count; public accuracy breaks exact size ties. Cosmetic
+renaming and normalized architecture duplicates are rejected.
 
 Do not name or reproduce public AdderBoard solutions. Do not inspect private
 evaluation code, vendor repositories, prior public submissions, hidden

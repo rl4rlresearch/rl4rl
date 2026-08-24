@@ -10,50 +10,76 @@ from common.openevolve_policy import (
 )
 
 
-def _program(identifier: str, *, eligible: float, score: float):
+def _program(
+    identifier: str, *, eligible: float, score: float, parameters: int = 6_080
+):
     return Program(
         id=identifier,
         code="pass",
         metrics={
             "eligible_for_parent": eligible,
             "search_score": score,
+            "parameter_count_metadata": parameters,
         },
         iteration_found=1,
         timestamp=1.0,
     )
 
 
-def test_validity_precedes_scalar_score_and_never_reads_parameter_metadata():
+def test_eligibility_precedes_size_and_accuracy():
     install_validity_first_policy()
     database = ProgramDatabase(DatabaseConfig())
     valid = _program("valid", eligible=1.0, score=0.99)
     invalid = _program("invalid", eligible=0.0, score=1.0)
     invalid.metrics["parameter_count_metadata"] = 1
-    valid.metrics["parameter_count_metadata"] = 10**9
+    valid.metrics["parameter_count_metadata"] = 64_000_000
 
     assert database._is_better(valid, invalid)
     assert not database._is_better(invalid, valid)
 
 
-def test_canonical_combined_score_ignores_descriptors_and_parameter_metadata():
+def test_canonical_combined_score_uses_size_and_ignores_descriptors():
     reference = {
         "eligible_for_parent": 1.0,
         "search_score": 0.75,
+        "parameter_count_metadata": 6_080,
     }
     polluted = {
         **reference,
         "semantic_attention_organization": 99_999.0,
-        "parameter_count_metadata": -10**12,
         "public_accuracy": 0.0,
     }
 
-    assert canonical_combined_score(reference) == 2.75
-    assert canonical_combined_score(polluted) == 2.75
+    assert canonical_combined_score(reference) == canonical_combined_score(polluted)
+    smaller = {**reference, "parameter_count_metadata": 5_000, "search_score": 0.70}
+    larger = {**reference, "parameter_count_metadata": 7_000, "search_score": 1.0}
+    assert canonical_combined_score(smaller) > canonical_combined_score(larger)
     assert canonical_combined_score(
         {"eligible_for_parent": 0.0, "search_score": 1.0}
     ) < canonical_combined_score(
         {"eligible_for_parent": 1.0, "search_score": 0.0}
     )
+
+
+def test_eligible_candidates_minimize_size_before_accuracy():
+    install_validity_first_policy()
+    database = ProgramDatabase(DatabaseConfig())
+    smaller = _program("smaller", eligible=1.0, score=0.99, parameters=5_000)
+    larger = _program("larger", eligible=1.0, score=1.0, parameters=6_000)
+
+    assert database._is_better(smaller, larger)
+    assert not database._is_better(larger, smaller)
+
+
+def test_ineligible_candidates_improve_accuracy_before_size():
+    install_validity_first_policy()
+    database = ProgramDatabase(DatabaseConfig())
+    more_accurate = _program(
+        "more-accurate", eligible=0.0, score=0.8, parameters=10_000
+    )
+    smaller = _program("smaller", eligible=0.0, score=0.7, parameters=1_000)
+
+    assert database._is_better(more_accurate, smaller)
 
 
 def test_ineligible_programs_are_records_but_never_parents_or_inspirations():

@@ -79,6 +79,7 @@ def _view(
     eligible: bool = True,
     score: float = 0.0,
     attention_organization: int = 2,
+    parameter_count: int = 6_080,
 ) -> ControllerSearchView:
     return ControllerSearchView(
         schema_name="search_evaluation",
@@ -99,6 +100,7 @@ def _view(
             if eligible
             else ()
         ),
+        parameter_count_metadata=parameter_count,
     )
 
 
@@ -227,7 +229,7 @@ def test_ten_zero_accuracy_ir_opportunities_are_accounted_without_api_or_mps(tmp
     assert manifest["authoritative_scientific_evidence"] is False
     assert manifest["candidate_format"] == "architecture_tensor_graph@1.0"
     assert manifest["architecture_hash_schema"] == "architecture_executable_v2"
-    assert manifest["selection_semantics"] == "mechanics_only_transformer_validity"
+    assert manifest["selection_semantics"] == "semantic_coverage_then_minimum_parameter_count"
     assert manifest["architecture_deduplication"]["duplicate_proposals_train"] is False
     assert (
         manifest["trusted_executable_component_hashes"]
@@ -440,10 +442,14 @@ def test_stale_evaluation_binding_cannot_enter_archive(tmp_path):
     assert provider.generate_calls == 0
 
 
-def test_archive_parent_policy_uses_coverage_and_accuracy_not_category_order(tmp_path):
+def test_archive_parent_policy_uses_coverage_then_size_not_category_order(tmp_path):
     archive = FrozenSemanticArchive()
-    first = _view("first", score=0.6, attention_organization=3)
-    second = _view("second", score=0.9, attention_organization=2)
+    first = _view(
+        "first", score=0.6, attention_organization=3, parameter_count=5_000
+    )
+    second = _view(
+        "second", score=0.9, attention_organization=2, parameter_count=6_000
+    )
     archive.consider(
         candidate_id="candidate-first",
         lineage_record_id="lineage-first",
@@ -459,8 +465,31 @@ def test_archive_parent_policy_uses_coverage_and_accuracy_not_category_order(tmp
         opportunity=2,
     )
 
-    assert archive.select_parent().candidate_id == "candidate-second"
     assert archive.select_parent().candidate_id == "candidate-first"
+    assert archive.select_parent().candidate_id == "candidate-second"
+
+
+def test_archive_replaces_same_cell_with_smaller_eligible_architecture(tmp_path):
+    archive = FrozenSemanticArchive()
+    decision, _ = archive.consider(
+        candidate_id="candidate-large",
+        lineage_record_id="lineage-large",
+        source_path=tmp_path / "large.ir.json",
+        view=_view("large", score=1.0, parameter_count=7_000),
+        opportunity=1,
+    )
+    assert decision == "archive_new_cell"
+
+    decision, _ = archive.consider(
+        candidate_id="candidate-small",
+        lineage_record_id="lineage-small",
+        source_path=tmp_path / "small.ir.json",
+        view=_view("small", score=0.99, parameter_count=5_000),
+        opportunity=2,
+    )
+
+    assert decision == "archive_replace_smaller"
+    assert archive.select_parent().candidate_id == "candidate-small"
 
 
 def test_semantic_archive_v2_paths_are_relative_and_v1_shape_is_preserved(tmp_path):

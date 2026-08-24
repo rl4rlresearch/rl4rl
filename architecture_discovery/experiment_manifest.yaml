@@ -3,8 +3,14 @@ schema_version: "3"
 
 study:
   name: valid_architecture_discovery_on_adderboard
-  objective: valid architecture-family and mechanism discovery
-  parameter_count_role: descriptive_metadata_only
+  objective: minimize trusted parameter count among public-evaluation-eligible candidates while discovering unique architectures
+  parameter_count_role: constrained_search_objective
+  search_objective:
+    eligibility_constraint: meet_or_exceed_public_layer_a_accuracy_threshold
+    primary: minimize_trusted_parameter_count
+    exact_size_tiebreak: maximize_public_layer_a_accuracy
+    uniqueness_key: executable_architecture_hash
+    duplicate_policy: reject_run_wide
   protocol: ../RIGOROUS_EXPERIMENT_PLAN_V2.md
   implementation_contract: IMPLEMENTATION_CONTRACT.md
   scientific_decisions: scientific_decisions.yaml
@@ -234,7 +240,7 @@ shared_generation:
 
 evaluation:
   online_api: typed_search_evaluation_record_only
-  parameter_count_in_fitness: false
+  parameter_count_in_fitness: true
   internet_access_during_runs: false
   runtime_transformer_validity_status: trusted_ir_interpreter_and_layer_a_evidence_integrated
   layer_a:

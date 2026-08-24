@@ -47,4 +47,4 @@ def test_parameter_count_is_fixed_to_descriptive_metadata() -> None:
         limitations=("No broader task evidence is available.",),
     )
 
-    assert card.parameter_count_role == "descriptive_metadata_only"
+    assert card.parameter_count_role == "constrained_search_objective"
