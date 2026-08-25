@@ -63,7 +63,13 @@ from common.provider_attempts import (
 )
 from common.task_adapter import DEFAULT_TASK
 from common.trainer import trusted_component_hashes, trusted_component_set_sha256
-from common.training_config import PROFILES, TrainingSeedBundle, get_training_profile
+from common.training_config import (
+    DEFAULT_ENGINEERING_TRAINING_PROFILE,
+    ENGINEERING_TRAINING_PROFILE_NAMES,
+    PROFILES,
+    TrainingSeedBundle,
+    get_training_profile,
+)
 from evaluation.records import SCHEMA_VERSION, ControllerSearchView
 from research_dynamics.contracts import FrameworkKind, resolve_initial_candidate
 from research_dynamics.extraction import export_run as export_process_run
@@ -756,11 +762,12 @@ def _validate_options(
         )
     if options.engineering_pilot:
         if (
-            training.name != "smoke_train_cuda_v2"
+            training.name not in ENGINEERING_TRAINING_PROFILE_NAMES
             or evaluation.name != "smoke_eval_v1"
         ):
             raise ValueError(
-                "engineering pilot requires smoke_train_cuda_v2 and smoke_eval_v1"
+                "engineering pilot requires an approved non-scientific CUDA "
+                "training profile and smoke_eval_v1"
             )
         if options.pi_decision_record_id is not None:
             raise ValueError("engineering pilot cannot claim a PI decision record")
@@ -1570,8 +1577,9 @@ def main() -> None:
         "--engineering-pilot",
         action="store_true",
         help=(
-            "run an exploratory IR-only CUDA canary; forces smoke_train_cuda_v2 and "
-            "smoke_eval_v1 and never creates authoritative scientific evidence"
+            "run an exploratory IR-only CUDA evaluation; defaults to "
+            "smoke_train_cuda_v2, permits the bounded trajectory profile, and "
+            "never creates authoritative scientific evidence"
         ),
     )
     parser.add_argument(
@@ -1593,12 +1601,11 @@ def main() -> None:
     )
     arguments = parser.parse_args()
 
-    if arguments.engineering_pilot and arguments.training_profile not in {
-        None,
-        "smoke_train_cuda_v2",
-    }:
+    if arguments.engineering_pilot and arguments.training_profile not in (
+        {None} | ENGINEERING_TRAINING_PROFILE_NAMES
+    ):
         parser.error(
-            "--engineering-pilot forces --training-profile smoke_train_cuda_v2"
+            "--engineering-pilot requires an approved non-scientific CUDA profile"
         )
     if arguments.engineering_pilot and arguments.evaluation_profile not in {
         None,
@@ -1613,7 +1620,7 @@ def main() -> None:
         parser.error("--modal-evolution-run requires seed 1 and --engineering-pilot")
 
     training_profile = (
-        "smoke_train_cuda_v2"
+        arguments.training_profile or DEFAULT_ENGINEERING_TRAINING_PROFILE
         if arguments.engineering_pilot
         else arguments.training_profile or config["training"]["profile"]
     )

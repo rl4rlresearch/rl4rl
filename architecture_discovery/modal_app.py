@@ -126,6 +126,7 @@ except ModuleNotFoundError as error:  # Core/offline imports remain usable.
 PROJECT_ROOT = Path(__file__).resolve().parent
 LOCAL_MODAL_COMMAND_PYTHON = PROJECT_ROOT / ".venv" / "bin" / "python"
 CUDA_SMOKE_PROFILE = "smoke_train_cuda_v2"
+CUDA_TRAJECTORY_PROFILE = "trajectory_train_cuda_v2"
 RESUME_ACTION_DEADLINE_SECONDS = 240
 RESUME_PROBE_TIMEOUT_SECONDS = 20
 RESUME_TRAIN_TIMEOUT_SECONDS = 180
@@ -2817,7 +2818,7 @@ def _evolution_action(
         str(run_directory / "controller"),
         "--engineering-pilot",
         "--training-profile",
-        CUDA_SMOKE_PROFILE,
+        CUDA_TRAJECTORY_PROFILE,
         "--evaluation-profile",
         "smoke_eval_v1",
         "--evaluation-cases",
@@ -2831,7 +2832,7 @@ def _evolution_action(
         "evolution_spec": spec.base_token,
         "harness": spec.harness,
         "iterations": spec.iterations,
-        "training_profile": CUDA_SMOKE_PROFILE,
+        "training_profile": CUDA_TRAJECTORY_PROFILE,
         "scientific": False,
         **_run_command(
             command,

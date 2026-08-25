@@ -46,11 +46,11 @@ def _context() -> ExecutionContextV1:
 
 
 def test_evolution_spec_binds_iterations_and_dynamic_deadlines() -> None:
-    spec = EvolutionRunSpec.from_cli("openevolve", 60)
-    assert spec.token == "openevolve_generic-n60"
-    assert spec.controller_timeout_seconds == 15_000
-    assert spec.function_timeout_seconds == 15_300
-    assert spec.outer_cli_timeout_seconds == 16_200
+    spec = EvolutionRunSpec.from_cli("openevolve", 20)
+    assert spec.token == "openevolve_generic-n20"
+    assert spec.controller_timeout_seconds == 41_580
+    assert spec.function_timeout_seconds == 41_880
+    assert spec.outer_cli_timeout_seconds == 42_780
     assert EvolutionRunSpec.parse(spec.token) == spec
     treated = spec.with_process_payload("YWJj")
     assert EvolutionRunSpec.parse(treated.token) == treated
@@ -108,6 +108,9 @@ def test_modal_action_constructs_requested_controller_command(
     command = captured["command"]
     assert command[command.index("--iterations") + 1] == "9"
     assert command[command.index("--seed") + 1] == "1"
+    assert command[command.index("--training-profile") + 1] == (
+        "trajectory_train_cuda_v2"
+    )
     assert "--modal-evolution-run" in command
     assert captured["kwargs"]["timeout_seconds"] == (
         spec.controller_timeout_seconds
@@ -171,6 +174,10 @@ def test_top_level_command_plans_without_starting_paid_work() -> None:
     payload = json.loads(completed.stdout)
     assert payload["evolution_spec"] == "openevolve_generic-n5"
     assert payload["provider_request_ceiling"] == 5
+    assert payload["training_profile"] == "trajectory_train_cuda_v2"
+    assert payload["optimizer_steps_per_candidate"] == 5_000
+    assert payload["global_batch_size"] == 512
+    assert payload["training_examples_per_candidate"] == 2_560_000
     assert payload["paid_work_started"] is False
 
 

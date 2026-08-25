@@ -53,7 +53,13 @@ from common.trainer import (
     trusted_component_set_sha256,
     validate_training_request,
 )
-from common.training_config import PROFILES, TrainingSeedBundle, get_training_profile
+from common.training_config import (
+    DEFAULT_ENGINEERING_TRAINING_PROFILE,
+    ENGINEERING_TRAINING_PROFILE_NAMES,
+    PROFILES,
+    TrainingSeedBundle,
+    get_training_profile,
+)
 from modal_boundary import (
     OPENEVOLVE_60_ACTION,
     OPENEVOLVE_60_INPUT_BYTES_PER_REQUEST,
@@ -67,7 +73,6 @@ from research_dynamics.protocol import ProcessProtocol
 
 ROOT = Path(__file__).resolve().parents[1]
 INITIAL_IR_CANDIDATE = ROOT / "common" / "initial_candidate.ir.json"
-ENGINEERING_TRAINING_PROFILE = "smoke_train_cuda_v2"
 ENGINEERING_EVALUATION_PROFILE = "smoke_eval_v1"
 _PARENT_CHANGE_ENFORCEMENT_ENV = "DISCOVERY_ENFORCE_PARENT_ARCHITECTURE_CHANGE"
 _PARENT_ARCHITECTURE_HASH_ENV = "DISCOVERY_PARENT_ARCHITECTURE_HASH"
@@ -434,17 +439,21 @@ def _run_controller_impl(kind: str, argv: Sequence[str] | None = None) -> None:
     training_config = raw_config["training"]
     configured_profile_name = str(training_config["profile"])
     if args.engineering_pilot:
-        if args.training_profile not in (None, ENGINEERING_TRAINING_PROFILE):
+        if args.training_profile not in (
+            {None} | ENGINEERING_TRAINING_PROFILE_NAMES
+        ):
             raise SystemExit(
-                "--engineering-pilot fixes --training-profile to "
-                f"{ENGINEERING_TRAINING_PROFILE}"
+                "--engineering-pilot fixes --training-profile to an approved "
+                "non-scientific CUDA profile"
             )
         if args.evaluation_profile not in (None, ENGINEERING_EVALUATION_PROFILE):
             raise SystemExit(
                 "--engineering-pilot fixes --evaluation-profile to "
                 f"{ENGINEERING_EVALUATION_PROFILE}"
             )
-        requested_training_profile = ENGINEERING_TRAINING_PROFILE
+        requested_training_profile = (
+            args.training_profile or DEFAULT_ENGINEERING_TRAINING_PROFILE
+        )
         requested_evaluation_profile = ENGINEERING_EVALUATION_PROFILE
     else:
         requested_training_profile = args.training_profile or configured_profile_name

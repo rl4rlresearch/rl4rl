@@ -17,6 +17,7 @@ from common.training_config import (
     SEED_DERIVATION_METHOD,
     SMOKE_TRAIN_CUDA_V2,
     SMOKE_TRAIN_V1,
+    TRAJECTORY_TRAIN_CUDA_V2,
     TrainingSeedBundle,
     get_training_profile,
 )
@@ -94,6 +95,15 @@ def test_v2_nonterminal_checkpoints_coincide_with_validation():
         match="nonterminal checkpoints must coincide with validation",
     ):
         invalid.validate()
+
+
+def test_trajectory_profile_trains_each_candidate_for_5000_steps():
+    assert TRAJECTORY_TRAIN_CUDA_V2.max_steps == 5_000
+    assert TRAJECTORY_TRAIN_CUDA_V2.global_batch_size == 512
+    assert TRAJECTORY_TRAIN_CUDA_V2.maximum_wall_seconds == 1_800
+    assert TRAJECTORY_TRAIN_CUDA_V2.device_requirement == "cuda"
+    assert TRAJECTORY_TRAIN_CUDA_V2.scientific is False
+    TRAJECTORY_TRAIN_CUDA_V2.validate()
 
 
 def test_v2_preflight_serializes_only_portable_logical_paths(tmp_path):

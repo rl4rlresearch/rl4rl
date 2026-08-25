@@ -72,12 +72,14 @@ is cost-free and is the default:
 ./evolve semantic-autoresearch -n 8
 ```
 
-The command accepts 1–345 iterations. The upper bound is the largest single
-run whose dynamically calculated Function timeout fits Modal's 24-hour limit.
-It fixes seed 1, `smoke_train_cuda_v2`, `smoke_eval_v1`, 24 cases, one T4,
-zero retries, one provider request per iteration, and non-scientific status.
-The printed plan includes the exact request and timeout ceilings and starts no
-paid work.
+The command accepts 1–40 iterations. The conservative upper bound keeps the
+sequential 5,000-step candidate-training budget inside Modal's 24-hour Function
+limit. It fixes seed 1, `trajectory_train_cuda_v2` (5,000 optimizer steps and
+global batch size 512 per valid candidate), `smoke_eval_v1`, 24 public cases,
+one T4, zero retries, one provider request per iteration, and non-scientific
+status. The ten-step `smoke_train_cuda_v2` profile remains limited to readiness
+and plumbing canaries. The printed plan includes the exact request and timeout
+ceilings and starts no paid work.
 
 Research-process full-trajectory manifests also make the horizon explicit. Use
 the same placeholder in the frozen command so the manifest, challenge schedule,

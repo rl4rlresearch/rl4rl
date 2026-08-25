@@ -158,7 +158,7 @@ def build_plan(project_root: str | Path = ROOT) -> dict[str, Any]:
             "completion_tokens_per_request_ceiling": (
                 EVOLUTION_COMPLETION_TOKENS_PER_REQUEST
             ),
-            "training_profile": "smoke_train_cuda_v2",
+            "training_profile": "trajectory_train_cuda_v2",
             "scientific": False,
             "mode": "bounded_non_scientific_evolution",
         },

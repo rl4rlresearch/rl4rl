@@ -34,6 +34,7 @@ from common.evolution_run import (  # noqa: E402
     EVOLUTION_MAX_ITERATIONS,
     EvolutionRunSpec,
 )
+from common.training_config import TRAJECTORY_TRAIN_CUDA_V2  # noqa: E402
 from modal_boundary import (  # noqa: E402
     ModalLiveCohortIdentity,
     modal_live_cohort_root,
@@ -129,6 +130,13 @@ def _plan_summary(spec: EvolutionRunSpec, run_id: str) -> dict[str, Any]:
         ),
         "provider_completion_token_ceiling": (
             spec.iterations * EVOLUTION_COMPLETION_TOKENS_PER_REQUEST
+        ),
+        "training_profile": TRAJECTORY_TRAIN_CUDA_V2.name,
+        "optimizer_steps_per_candidate": TRAJECTORY_TRAIN_CUDA_V2.max_steps,
+        "global_batch_size": TRAJECTORY_TRAIN_CUDA_V2.global_batch_size,
+        "training_examples_per_candidate": (
+            TRAJECTORY_TRAIN_CUDA_V2.max_steps
+            * TRAJECTORY_TRAIN_CUDA_V2.global_batch_size
         ),
         "controller_timeout_seconds": spec.controller_timeout_seconds,
         "modal_function_timeout_seconds": spec.function_timeout_seconds,

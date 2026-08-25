@@ -7,11 +7,14 @@ from dataclasses import dataclass
 
 EVOLUTION_ACTION = "evolve"
 EVOLUTION_FUNCTION_NAME = "evolution_run"
-EVOLUTION_MAX_ITERATIONS = 345
+EVOLUTION_MAX_ITERATIONS = 40
 EVOLUTION_INPUT_BYTES_PER_REQUEST = 1_048_576
 EVOLUTION_COMPLETION_TOKENS_PER_REQUEST = 16_384
 EVOLUTION_PROVIDER_TIMEOUT_SECONDS = 180
-EVOLUTION_TRAINING_TIMEOUT_SECONDS = 60
+# One seed/proposal evaluation may use the complete 5,000-step trajectory
+# profile.  The per-run horizon is capped so the conservative sequential bound
+# still fits Modal's 24-hour Function limit.
+EVOLUTION_TRAINING_TIMEOUT_SECONDS = 1_800
 EVOLUTION_FINALIZATION_RESERVE_SECONDS = 300
 EVOLUTION_IMAGE_BUILD_TIMEOUT_SECONDS = 600
 EVOLUTION_CLI_RESERVE_SECONDS = 300
@@ -78,7 +81,7 @@ class EvolutionRunSpec:
 
     @property
     def controller_timeout_seconds(self) -> int:
-        # One initial smoke evaluation, then one provider request and one smoke
+        # One initial 5k evaluation, then one provider request and one 5k
         # evaluation per opportunity. Reserve at least one minute plus nine
         # seconds per opportunity for controller bookkeeping.
         return (

@@ -197,7 +197,13 @@ def test_iterations_must_be_positive(value):
         openevolve_runner.run_controller("generic", ["--iterations", value])
 
 
-def test_preflight_runs_before_provider_configuration(monkeypatch, tmp_path):
+@pytest.mark.parametrize(
+    "training_profile",
+    ["smoke_train_cuda_v2", "trajectory_train_cuda_v2"],
+)
+def test_preflight_runs_before_provider_configuration(
+    monkeypatch, tmp_path, training_profile
+):
     for name in ("DISCOVERY_API_KEY", "DISCOVERY_API_BASE", "DISCOVERY_MODEL"):
         monkeypatch.delenv(name, raising=False)
     monkeypatch.setattr(
@@ -214,7 +220,7 @@ def test_preflight_runs_before_provider_configuration(monkeypatch, tmp_path):
                 "--iterations",
                 "1",
                 "--training-profile",
-                "smoke_train_cuda_v2",
+                training_profile,
                 "--evaluation-profile",
                 "smoke_eval_v1",
                 "--evaluation-cases",

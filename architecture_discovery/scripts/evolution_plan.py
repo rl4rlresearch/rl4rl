@@ -143,7 +143,7 @@ def build_evolution_approval_plan(
             "harness": spec.harness,
             "iterations": spec.iterations,
             "seed": 1,
-            "training_profile": "smoke_train_cuda_v2",
+            "training_profile": "trajectory_train_cuda_v2",
             "evaluation_profile": "smoke_eval_v1",
             "evaluation_cases": 24,
             "device": "cuda",

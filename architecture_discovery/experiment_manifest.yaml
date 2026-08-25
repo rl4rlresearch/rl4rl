@@ -368,7 +368,7 @@ openevolve_60_engineering_run:
   final_ranking_allowed: false
 
 configurable_evolution_run:
-  mode: bounded_non_scientific_smoke
+  mode: bounded_non_scientific_trajectory
   action: evolve
   command: ./evolve
   harnesses:
@@ -377,13 +377,15 @@ configurable_evolution_run:
     - openevolve_generic
     - openevolve_semantic
   minimum_iterations: 1
-  maximum_iterations: 345
+  maximum_iterations: 40
   provider_attempts_per_iteration: 1
   seed: 1
   provider_retries: 0
   modal_retries: 0
   modal_max_containers: 1
-  training_profile: smoke_train_cuda_v2
+  training_profile: trajectory_train_cuda_v2
+  max_optimizer_steps_per_candidate: 5000
+  global_batch_size: 512
   evaluation_profile: smoke_eval_v1
   evaluation_cases: 24
   device: cuda

@@ -73,6 +73,15 @@ def _options(tmp_path: Path, *, iterations: int = 1) -> RunOptions:
     )
 
 
+def test_engineering_trajectory_profile_is_accepted(tmp_path):
+    options = replace(
+        _options(tmp_path),
+        training_profile="trajectory_train_cuda_v2",
+    )
+    training, _plan, _count = run._validate_options(options)
+    assert training.max_steps == 5_000
+
+
 class FakeProvider:
     def __init__(self, responses):
         self.responses = list(responses)
