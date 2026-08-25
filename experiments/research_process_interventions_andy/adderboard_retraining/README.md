@@ -15,10 +15,10 @@ examples. It is not reinforcement learning of the research-agent policy.
   candidates, 5,000 steps each, evaluated with the unmodified vendored
   AdderBoard verifier.
 
-The 5,000-step study found no qualifying architecture. The 5,520-parameter
-candidate was the clear outlier at 236/10,010 official cases (2.3576%) and is
-the only candidate supported by current evidence for a substantially longer
-follow-up.
+The 5,000-step study found no qualifying architecture. The tracked Modal
+launcher now defaults to this 5,000-step budget, and its compatibility
+`final` stage is capped at the same budget. The historical 1,000-step screen
+must be selected explicitly.
 
 ## Validate and plan
 
@@ -28,7 +28,7 @@ From the repository root:
 MODAL_PROFILE=scalingintelligence MODAL_ENVIRONMENT=main \
   architecture_discovery/.venv/bin/modal run \
   experiments/research_process_interventions_andy/adderboard_retraining/modal_retrain.py \
-  --action plan --stage screen
+  --action plan --stage develop
 ```
 
 The plan action starts no remote training. A launch additionally requires both

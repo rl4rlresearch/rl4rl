@@ -37,6 +37,7 @@ APP_NAME = "rl4rl-small-architecture-retraining"
 VOLUME_NAME = "rl4rl-small-architecture-retraining-results"
 GPU = "T4"
 MAX_PARALLEL_JOBS = 8
+FUNCTION_TIMEOUT_SECONDS = 2_400
 _SAFE_ID = re.compile(r"\A[a-z0-9][a-z0-9-]{0,79}\Z")
 
 
@@ -62,13 +63,15 @@ STAGES: dict[str, dict[str, int | float | bool]] = {
         "scientific": False,
     },
     "final": {
-        "steps": 30_000,
+        # Retain the historical stage name as a compatibility alias, but keep
+        # every production retraining launch at the requested 5k budget.
+        "steps": 5_000,
         "global_batch_size": 512,
         "warmup_steps": 300,
-        "validation_interval": 1_000,
-        "validation_examples": 2_000,
-        "checkpoint_interval": 1_000,
-        "maximum_wall_seconds": 7_200,
+        "validation_interval": 500,
+        "validation_examples": 1_000,
+        "checkpoint_interval": 500,
+        "maximum_wall_seconds": 1_800,
         # This standalone lane is exploratory. Formal scientific qualification
         # should use the repository's frozen and approval-bound full profile.
         "scientific": False,
@@ -386,7 +389,7 @@ def _official_adderboard_evaluation(
     cpu=2,
     memory=4096,
     volumes={str(RESULT_ROOT): results},
-    timeout=7_500,
+    timeout=FUNCTION_TIMEOUT_SECONDS,
     min_containers=0,
     max_containers=MAX_PARALLEL_JOBS,
     retries=0,
@@ -501,8 +504,8 @@ def cohort_status(cohort_id: str) -> dict[str, Any]:
 def _stage_estimate(stage: str, job_count: int) -> dict[str, Any]:
     training_seconds = int(STAGES[stage]["maximum_wall_seconds"])
     # The entire GPU function, including exact official verification, is
-    # bounded by the 7,500-second Modal function timeout.
-    seconds = 7_500
+    # bounded by the Modal function timeout.
+    seconds = FUNCTION_TIMEOUT_SECONDS
     # Current published rates as of 2026-08-24. This is an authorization aid,
     # not a Modal billing limit; actual usage is billed by elapsed resources.
     t4_per_second = 0.000164
@@ -525,8 +528,8 @@ def _stage_estimate(stage: str, job_count: int) -> dict[str, Any]:
 @app.local_entrypoint()
 def main(
     action: str = "plan",
-    stage: str = "screen",
-    cohort_id: str = "small-arch-screen-v1",
+    stage: str = "develop",
+    cohort_id: str = "small-arch-develop-v1",
     seed: int = 1,
     approved: bool = False,
 ) -> None:
