@@ -7,6 +7,7 @@ import re
 import shutil
 import sys
 import tempfile
+import threading
 from dataclasses import dataclass
 from pathlib import Path
 
@@ -24,6 +25,28 @@ _MARKDOWN_FIELD = re.compile(
     r"^(?:#{1,6}\s*)?(?:\*\*)?(?P<label>[A-Za-z _-]+?)(?:\*\*)?\s*:\s*(?P<value>.+)$",
     re.MULTILINE,
 )
+_OPENEVOLVE_IMPORT_LOCK = threading.Lock()
+
+
+def _openevolve_imports(vendor_root: Path):
+    """Load vendored OpenEvolve symbols without racing Python module setup."""
+
+    with _OPENEVOLVE_IMPORT_LOCK:
+        value = str(vendor_root)
+        if value not in sys.path:
+            sys.path.insert(0, value)
+        from openevolve.config import PromptConfig
+        from openevolve.prompt.sampler import PromptSampler
+        from openevolve.utils.code_utils import apply_diff, extract_diffs
+
+    return PromptConfig, PromptSampler, apply_diff, extract_diffs
+
+
+def preload_framework_runtime(framework: FrameworkSpec, *, repo_root: Path) -> None:
+    """Initialize thread-sensitive framework imports before worker dispatch."""
+
+    if framework.framework_id is FrameworkKind.OPENEVOLVE:
+        _openevolve_imports(repo_root / "architecture_discovery/vendor/openevolve")
 
 
 @dataclass(frozen=True)
@@ -246,14 +269,7 @@ class OpenEvolveAdapter:
         self.template_root = template_root
 
     def _imports(self):
-        value = str(self.vendor_root)
-        if value not in sys.path:
-            sys.path.insert(0, value)
-        from openevolve.config import PromptConfig
-        from openevolve.prompt.sampler import PromptSampler
-        from openevolve.utils.code_utils import apply_diff, extract_diffs
-
-        return PromptConfig, PromptSampler, apply_diff, extract_diffs
+        return _openevolve_imports(self.vendor_root)
 
     def propose(
         self,

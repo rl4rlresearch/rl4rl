@@ -32,6 +32,7 @@ from .artifacts import (
     tree_hash,
 )
 from .campaign import _load_calibration, _repo_revision
+from .frameworks import preload_framework_runtime
 from .runner import recover_active_opportunity, run_one_opportunity
 from .spec import (
     Condition,
@@ -1055,6 +1056,7 @@ def run_semantic_campaign(
     worker_limit = _resolve_worker_limit(max_workers, plan.max_parallel_agent_calls)
     schedule = json.loads((root / "schedule.json").read_text(encoding="utf-8"))
     with _orchestrator_lock(root):
+        preload_framework_runtime(framework, repo_root=repo_root)
         if recover_interrupted:
             for row in schedule:
                 run_dir = root / "runs" / str(row["run_id"])
