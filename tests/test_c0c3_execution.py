@@ -815,6 +815,47 @@ def test_evaluator_preserves_symlinked_virtualenv_interpreter(
     assert Path(evaluator.python_bin).resolve() == Path(sys.executable).resolve()
 
 
+def test_evaluator_honors_structured_invalid_result_and_failure_kind(
+    tmp_path: Path,
+) -> None:
+    seed_source = make_seed(tmp_path / "source")
+    (seed_source / "evaluate.py").write_text(
+        """\
+import argparse
+import json
+
+parser = argparse.ArgumentParser()
+parser.add_argument('--output', required=True)
+args = parser.parse_args()
+with open(args.output, 'w') as handle:
+    json.dump({
+        'valid': False,
+        'failure_kind': 'fidelity_screen_not_promoted',
+        'metrics': {'score': 0.75},
+    }, handle)
+""",
+        encoding="utf-8",
+    )
+    _candidate_id, snapshot = snapshot_candidate(
+        seed_source, tmp_path / "candidates", ("candidate.py",)
+    )
+    artifacts = CommandEvaluator(
+        task=task(seed_source),
+        support_source=seed_source,
+        repo_root=ROOT,
+        python_bin=sys.executable,
+    ).evaluate(
+        candidate_snapshot=snapshot,
+        opportunity_root=tmp_path / "opportunity",
+        timeout_seconds=2,
+    )
+
+    assert artifacts.evaluation.valid is False
+    assert artifacts.evaluation.fitness is None
+    assert artifacts.evaluation.failure_kind == "fidelity_screen_not_promoted"
+    assert artifacts.evaluation.metrics["score"] == 0.75
+
+
 def test_evaluator_slot_serializes_trainers_without_charging_queue_time(
     tmp_path: Path,
 ) -> None:

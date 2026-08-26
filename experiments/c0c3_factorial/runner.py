@@ -895,7 +895,10 @@ def _run_one_opportunity_unlocked(
         if replicate_count < 1:
             raise ValueError("paired_training_seeds must be positive")
         multi_fidelity = multi_fidelity_options
-        if bool(multi_fidelity.get("enabled", False)):
+        controller_managed_ladder = bool(
+            multi_fidelity.get("enabled", False)
+        ) and not str(multi_fidelity.get("strategy", "")).startswith("in_process_")
+        if controller_managed_ladder:
             if replicate_count != 1:
                 raise ValueError(
                     "training ladders and repeated training seeds cannot be combined "

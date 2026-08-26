@@ -438,9 +438,19 @@ class CommandEvaluator:
         if output_json.is_file():
             payload = json.loads(output_json.read_text(encoding="utf-8"))
             metrics = dict(payload.get("metrics", payload))
+            reported_valid = payload.get("valid")
+            reported_failure = payload.get("failure_kind")
         else:
             metrics = parse_metrics(combined, self.task)
-        valid = returncode == 0 and self.task.objective_metric in metrics
+            reported_valid = None
+            reported_failure = None
+        valid = (
+            returncode == 0
+            and self.task.objective_metric in metrics
+            and reported_valid is not False
+        )
+        if reported_valid is False and isinstance(reported_failure, str):
+            failure_kind = reported_failure
         if valid and self.task.qualification_metric is not None:
             qualification = metrics.get(self.task.qualification_metric)
             valid = (

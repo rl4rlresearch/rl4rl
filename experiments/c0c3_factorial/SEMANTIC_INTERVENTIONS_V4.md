@@ -109,9 +109,12 @@ never deletes results or changes opportunity accounting.
 
 ### Fashion-MNIST
 
-The default ladder presents 25,000, 50,000, then 100,000 training examples.
-Weak candidates may stop after a screening rung. A candidate cannot replace
-the incumbent unless it reaches and passes the common 100,000-example
+The default ladder presents checkpoints near 25,000, 50,000, then exactly
+100,000 training examples. It is one uninterrupted training trajectory, not
+three retrainings. Intermediate checks occur after the batch that crosses the
+requested rung, so they do not split optimizer batches or change the training
+sequence. Weak candidates may stop after a screening rung. A candidate cannot
+replace the incumbent unless it reaches and passes the common 100,000-example
 evaluation. The official 10,000-image test split remains sealed until final
 evaluation.
 
@@ -132,11 +135,15 @@ recorded in the ladder receipt.
 ### AdderBoard
 
 The default ladder is 5k, 10k, 15k, 20k, 25k, then 30k training steps. It stops
-at the first rung reaching 99% accuracy and otherwise rejects after 30k. An
-agent may add or edit a literal `EVALUATION_LADDER` in editable
-`src/train.py`. The evaluator constrains it to 1k-30k, at most ten rungs, and
-always appends 30k. Accuracy and parameter count remain the official
-qualification and objective; rung choice cannot redefine success.
+at the first rung reaching 99% accuracy and otherwise rejects after 30k. Each
+rung is an evaluator-isolated deterministic training budget because the
+current candidate CLI does not expose a trustworthy evaluator-owned resume
+contract; this prevents a 5k failure from ending the proposal, at the cost of
+repeating the shared prefix of the training trajectory. An agent may add or
+edit a literal `EVALUATION_LADDER` in editable `src/train.py`. The evaluator
+constrains it to 1k-30k, at most ten rungs, and always appends 30k. Accuracy and
+parameter count remain the official qualification and objective; rung choice
+cannot redefine success.
 
 Training-rung receipts record every stage, metric, time, failure, accepted or
 fallback candidate policy, highest level, and qualification level.
@@ -148,11 +155,14 @@ Every proposal receives a separate developmental assessment:
 - `primary_retained`;
 - `provisional_valid`;
 - `provisional_screened`;
+- `provisional_nonqualifying`;
 - `rejected`.
 
-Credit components record valid execution, a new semantic delta/mechanism,
-proximity to the incumbent, and primary retention. Up to eight informative
-provisional results remain visible in a bounded evidence archive.
+Credit components record clean execution, a new semantic delta/mechanism,
+proximity to the incumbent or qualification boundary, and primary retention.
+Thus an executable 98% AdderBoard candidate can remain useful evidence without
+becoming a parent. Up to eight informative provisional results remain visible
+in a bounded evidence archive.
 
 `selection_effect = "none"` is mandatory in this version. Developmental value
 changes the evidence available to the researcher but never changes the strict
@@ -300,4 +310,3 @@ Before an official launch:
 6. the official campaign must validate from the detached runtime;
 7. the dashboard API and page must be tested against that campaign;
 8. AdderBoard and Autoresearch campaigns must remain unstarted.
-

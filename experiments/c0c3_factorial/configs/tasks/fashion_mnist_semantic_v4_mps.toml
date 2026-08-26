@@ -5,9 +5,12 @@ seed_source = "experiments/c0c3_factorial/task_sources/fashion_mnist"
 editable_paths = ["train.py"]
 evaluator_command = [
   "{python}", "{repo_root}/experiments/c0c3_factorial/fashion_mnist.py",
-  "evaluate", "--workspace", "{workspace}", "--repo-root", "{repo_root}",
+  "evaluate-ladder", "--workspace", "{workspace}", "--repo-root", "{repo_root}",
   "--output", "{output}", "--device", "mps", "--training-examples", "100000",
   "--max-parameters", "250000",
+  "--ladder-levels", "25000", "50000", "100000",
+  "--promotion-thresholds", "0.82", "0.87", "none",
+  "--ladder-minimum", "10000", "--ladder-max-rungs", "6",
 ]
 objective_metric = "validation_score"
 objective_direction = "maximize"

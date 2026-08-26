@@ -15,11 +15,14 @@ from experiments.c0c3_factorial.campaign import calibrate_task
 from experiments.c0c3_factorial.semantic_interventions import (
     create_semantic_campaign,
     run_semantic_opportunity,
+    semantic_status,
+    set_semantic_run_control,
     validate_semantic_campaign,
 )
 from experiments.c0c3_factorial.spec import (
     UNIFIED_V3_EXECUTION_RULE,
     BudgetSpec,
+    Condition,
     ConversationMode,
     ExecutionBackend,
     FactorialSpec,
@@ -29,8 +32,11 @@ from experiments.c0c3_factorial.spec import (
     ObjectiveDirection,
     TaskSpec,
 )
-from experiments.c0c3_factorial.state import Evaluation, SearchController
-from experiments.c0c3_factorial.training_ladder import evaluate_training_ladder
+from experiments.c0c3_factorial.state import Candidate, Evaluation, SearchController
+from experiments.c0c3_factorial.training_ladder import (
+    assess_developmental_value,
+    evaluate_training_ladder,
+)
 
 
 def _spec() -> FactorialSpec:
@@ -44,6 +50,22 @@ def _spec() -> FactorialSpec:
         conversation_mode=ConversationMode.BOUNDED,
         model=ModelSpec("gpt-fake", "high"),
         budget=BudgetSpec(3, 3, 1_000_000, 100.0, 10),
+        execution_rule=UNIFIED_V3_EXECUTION_RULE,
+        include_no_search=False,
+    )
+
+
+def _phased_spec() -> FactorialSpec:
+    return FactorialSpec(
+        protocol_version="3.0",
+        study_id="semantic-phased-test",
+        study_seed=45,
+        blocks=1,
+        portfolio_capacity=2,
+        transition_opportunities=(6,),
+        conversation_mode=ConversationMode.BOUNDED,
+        model=ModelSpec("gpt-fake", "high"),
+        budget=BudgetSpec(6, 6, 1_000_000, 100.0, 10),
         execution_rule=UNIFIED_V3_EXECUTION_RULE,
         include_no_search=False,
     )
@@ -144,6 +166,40 @@ print(json.dumps({{'type':'turn.completed','usage':{{'input_tokens':10,'cached_i
     return path
 
 
+def _openevolve_codex(path: Path, calls: Path) -> Path:
+    path.write_text(
+        f"""#!{sys.executable}
+import json, pathlib, re, sys
+args=sys.argv[1:]
+last=pathlib.Path(args[args.index('--output-last-message')+1])
+prompt=sys.stdin.read()
+scores=[int(value) for value in re.findall(r'SCORE = (\\d+)', prompt)]
+score=max(scores)
+calls=pathlib.Path({str(calls)!r})
+number=sum(1 for _ in calls.open())+1 if calls.exists() else 1
+resumed='resume' in args
+session=args[-2] if resumed else f'semantic-session-{{number}}'
+last.write_text(
+    'MECHANISM: increment the executable score\\n'
+    'HYPOTHESIS: a larger score improves the toy objective\\n'
+    'INTENDED_EDIT: increment SCORE\\n'
+    'EVIDENCE: prior increments were valid\\n'
+    f'<<<<<<< SEARCH\\nSCORE = {{score}}\\n=======\\n'
+    f'SCORE = {{score+1}}\\n>>>>>>> REPLACE\\n'
+)
+with calls.open('a') as handle:
+    handle.write(json.dumps({{
+        'number': number, 'resumed': resumed, 'session': session
+    }})+'\\n')
+print(json.dumps({{'type':'thread.started','thread_id':session}}))
+print(json.dumps({{'type':'turn.completed','usage':{{'input_tokens':10,'cached_input_tokens':1,'output_tokens':2,'reasoning_output_tokens':1}}}}))
+""",
+        encoding="utf-8",
+    )
+    path.chmod(path.stat().st_mode | stat.S_IXUSR)
+    return path
+
+
 def test_semantic_campaign_shares_prefix_then_forks(tmp_path: Path) -> None:
     spec = _spec()
     task = _task(_seed(tmp_path / "seed"))
@@ -172,6 +228,22 @@ def test_semantic_campaign_shares_prefix_then_forks(tmp_path: Path) -> None:
     assert validate_semantic_campaign(campaign, repo_root=ROOT)["valid"]
     schedule = json.loads((campaign / "schedule.json").read_text())
     by_condition = {row["condition"]: row["run_id"] for row in schedule}
+    set_semantic_run_control(
+        campaign,
+        run_id=by_condition["assumption_challenge"],
+        desired="paused",
+        reason="test independent arm pause",
+    )
+    status = semantic_status(campaign)
+    desired = {row["run_id"]: row["desired"] for row in status["runs"]}
+    assert desired[by_condition["assumption_challenge"]] == "paused"
+    assert desired[by_condition["passive_control"]] == "running"
+    set_semantic_run_control(
+        campaign,
+        run_id=by_condition["assumption_challenge"],
+        desired="running",
+        reason="test independent arm resume",
+    )
     counter = tmp_path / "calls"
     codex = _codex(tmp_path / "fake-codex", counter)
 
@@ -210,6 +282,84 @@ def test_semantic_campaign_shares_prefix_then_forks(tmp_path: Path) -> None:
     assert "load-bearing assumption" not in prompts["passive_control"]
 
 
+def test_openevolve_uses_five_proposal_sessions_and_resets_at_fork(
+    tmp_path: Path,
+) -> None:
+    spec = _phased_spec()
+    task = _task(_seed(tmp_path / "seed"))
+    framework = FrameworkSpec(
+        framework_id=FrameworkKind.OPENEVOLVE,
+        adapter="controlled_openevolve_prompt_diff_v3",
+        prompt_profile="fashion_mnist_openevolve_v2_1",
+        edit_mode="search_replace_diff",
+    )
+    plan = tmp_path / "interventions.toml"
+    plan.write_text(
+        (_plan(tmp_path / "template-plan.toml"))
+        .read_text(encoding="utf-8")
+        .replace("shared_prefix_opportunities = 1", "shared_prefix_opportunities = 5")
+        .replace("session_span_opportunities = 1", "session_span_opportunities = 5"),
+        encoding="utf-8",
+    )
+    baseline = calibrate_task(
+        tmp_path / "calibration",
+        spec=spec,
+        task=task,
+        repo_root=ROOT,
+        python_bin=sys.executable,
+    )
+    campaign = create_semantic_campaign(
+        tmp_path / "campaign",
+        spec=spec,
+        task=task,
+        framework=framework,
+        intervention_plan_path=plan,
+        calibration_path=baseline,
+        repo_root=ROOT,
+    )
+    schedule = json.loads((campaign / "schedule.json").read_text())
+    by_condition = {row["condition"]: row["run_id"] for row in schedule}
+    calls = tmp_path / "calls.jsonl"
+    codex = _openevolve_codex(tmp_path / "fake-codex", calls)
+
+    for _ in range(5):
+        result = run_semantic_opportunity(
+            campaign,
+            run_id=by_condition["assumption_challenge"],
+            repo_root=ROOT,
+            python_bin=sys.executable,
+            codex_binary=str(codex),
+        )
+        assert result["shared_prefix"] is True
+    run_semantic_opportunity(
+        campaign,
+        run_id=by_condition["passive_control"],
+        repo_root=ROOT,
+        python_bin=sys.executable,
+        codex_binary=str(codex),
+    )
+
+    call_rows = [json.loads(line) for line in calls.read_text().splitlines()]
+    assert [row["resumed"] for row in call_rows] == [
+        False,
+        True,
+        True,
+        True,
+        True,
+        False,
+    ]
+    assert {row["session"] for row in call_rows[:5]} == {"semantic-session-1"}
+    assert call_rows[5]["session"] == "semantic-session-6"
+    leader = campaign / "runs" / by_condition["passive_control"]
+    reset_events = [
+        json.loads(line)
+        for line in (leader / "events.jsonl").read_text().splitlines()
+        if '"conversation_session_reset"' in line
+    ]
+    assert len(reset_events) == 1
+    assert reset_events[0]["opportunity"] == 6
+
+
 def test_training_ladder_screens_and_escalates(tmp_path: Path) -> None:
     task = _task(_seed(tmp_path / "seed"))
     outputs = {
@@ -229,19 +379,24 @@ def test_training_ladder_screens_and_escalates(tmp_path: Path) -> None:
                 else "--max-steps"
             )
             self.level = int(command[command.index(flag) + 1])
+            self.qualification_minimum = selected.qualification_minimum
 
         def evaluate(self, **_kwargs):
             accuracy = outputs[self.level]
+            qualified = self.qualification_minimum is None or (
+                accuracy >= self.qualification_minimum
+            )
             return SimpleNamespace(
                 evaluation=Evaluation(
-                    valid=True,
-                    fitness=accuracy,
+                    valid=qualified,
+                    fitness=accuracy if qualified else None,
                     metrics={
                         "score": accuracy,
                         "accuracy": accuracy,
                         "validation_accuracy": accuracy,
                     },
                     evaluator_seconds=1.0,
+                    failure_kind=None if qualified else "nonqualification",
                 )
             )
 
@@ -330,3 +485,61 @@ def test_training_ladder_screens_and_escalates(tmp_path: Path) -> None:
     )
     assert escalated.valid is True
     assert escalated.metrics["fidelity_qualification_level"] == 10_000
+    assert len(escalated.metrics["fidelity_stages"]) == 2
+
+
+def test_developmental_archive_preserves_executable_near_miss(tmp_path: Path) -> None:
+    seed = _seed(tmp_path / "seed")
+    task = _task(seed, qualification=True)
+    run_dir = tmp_path / "run"
+    controller = SearchController.create(
+        run_dir,
+        _spec(),
+        run_id="near-miss",
+        condition=Condition.C0,
+        seed_candidate=Candidate(
+            candidate_id="baseline",
+            parent_ids=[],
+            fitness=1.0,
+            metrics={"score": 1.0, "accuracy": 0.99},
+            artifact_path="candidates/baseline",
+            hypothesis="baseline",
+            intended_edit="baseline",
+            created_opportunity=0,
+            retained_order=0,
+        ),
+    )
+    record = {
+        "run_id": "near-miss",
+        "opportunity": 1,
+        "candidate_id": "candidate",
+        "parent_ids": ["baseline"],
+        "retained": False,
+        "mechanism": "smaller alternate representation",
+        "evaluation": {
+            "valid": False,
+            "fitness": None,
+            "failure_kind": "training_ladder_exhausted_without_qualification",
+            "metrics": {"score": 0.98, "accuracy": 0.98},
+        },
+    }
+    (run_dir / "opportunities/0001").mkdir(parents=True)
+    assessment = assess_developmental_value(
+        run_dir=run_dir,
+        task=task,
+        record=record,
+        provenance={"semantic_delta_fingerprint": "new-mechanism"},
+        config={
+            "enabled": True,
+            "selection_effect": "none",
+            "archive_capacity": 8,
+            "near_qualification_absolute_margin": 0.02,
+        },
+    )
+    assert controller.state.candidates["baseline"].fitness == 1.0
+    assert assessment["status"] == "provisional_nonqualifying"
+    assert assessment["execution_valid"] is True
+    assert assessment["near_qualification"] is True
+    archive = json.loads((run_dir / "developmental-archive.json").read_text())
+    assert archive["items"][0]["candidate_id"] == "candidate"
+    assert archive["selection_effect"] == "none"

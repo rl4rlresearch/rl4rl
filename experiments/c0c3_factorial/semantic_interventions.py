@@ -417,11 +417,12 @@ def create_semantic_campaign(
     if task.task_id.startswith("fashion_mnist"):
         multi_fidelity = {
             "enabled": True,
-            "strategy": "successive_screen_then_full_confirmation_v1",
+            "strategy": "in_process_successive_screen_then_full_confirmation_v1",
             "training_examples": [25000, 50000, 100000],
             "command_argument": "--training-examples",
             "promotion_validation_accuracy": [0.82, 0.87, None],
             "full_fidelity_required_for_retention": True,
+            "single_training_trajectory": True,
             "candidate_editable_policy": {
                 "enabled": True,
                 "path": "train.py",
@@ -469,6 +470,7 @@ def create_semantic_campaign(
         "near_incumbent_credit": 0.25,
         "retained_credit": 0.25,
         "near_incumbent_relative_margin": 0.02,
+        "near_qualification_absolute_margin": 0.02,
     }
     runtime["semantic_interventions"] = {
         "protocol_version": SEMANTIC_PROTOCOL_VERSION,
@@ -621,6 +623,18 @@ def validate_semantic_campaign(
         for item in plan.interventions
     ):
         errors.append("every semantic arm must have exactly the configured replicates")
+    try:
+        run_desired = _run_desired_states(root)
+        scheduled_ids = {str(row["run_id"]) for row in schedule}
+        if set(run_desired) != scheduled_ids:
+            errors.append("semantic run-control registry does not match the schedule")
+        if any(
+            value not in {"running", "paused", "stopped"}
+            for value in run_desired.values()
+        ):
+            errors.append("semantic run-control registry has an invalid desired state")
+    except (OSError, ValueError) as error:
+        errors.append(f"semantic run-control registry: {error}")
     for replicate in range(1, plan.replicates + 1):
         seeds = {
             int(row["run_seed"])

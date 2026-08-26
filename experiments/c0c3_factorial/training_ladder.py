@@ -247,7 +247,11 @@ def evaluate_training_ladder(
                 "evaluator_seconds": evaluation.evaluator_seconds,
             }
         )
-        if not evaluation.valid:
+        expected_nonqualification = (
+            strategy == "escalate_until_qualified_v1"
+            and evaluation.failure_kind == "nonqualification"
+        )
+        if not evaluation.valid and not expected_nonqualification:
             final = Evaluation(
                 valid=False,
                 fitness=None,
@@ -322,10 +326,14 @@ def evaluate_training_ladder(
             raise ValueError(f"unknown training ladder strategy: {strategy}")
     if final is None:
         last = stages[-1]
+        last_metrics = (
+            dict(last["metrics"]) if isinstance(last.get("metrics"), dict) else {}
+        )
         final = Evaluation(
             valid=False,
             fitness=None,
-            metrics={
+            metrics=last_metrics
+            | {
                 "fidelity_highest_level": last["level"],
                 "fidelity_reached_full": last["level"] == levels[-1],
                 "fidelity_stages": stages,
@@ -392,28 +400,52 @@ def assess_developmental_value(
     parent = state.get("candidates", {}).get(parent_id, {})
     parent_fitness = parent.get("fitness")
     candidate_fitness = evaluation.get("fitness")
+    candidate_objective = metrics.get(task.objective_metric)
+    if not isinstance(candidate_fitness, int | float) and isinstance(
+        candidate_objective, int | float
+    ):
+        candidate_fitness = float(candidate_objective)
+        if task.objective_direction is ObjectiveDirection.MINIMIZE:
+            candidate_fitness = -candidate_fitness
     near = False
     relative_gap = None
     if isinstance(parent_fitness, int | float) and isinstance(
         candidate_fitness, int | float
     ):
         scale = max(abs(float(parent_fitness)), 1.0)
-        if task.objective_direction is ObjectiveDirection.MAXIMIZE:
-            relative_gap = max(
-                0.0, (float(parent_fitness) - float(candidate_fitness)) / scale
-            )
-        else:
-            relative_gap = max(
-                0.0, (float(candidate_fitness) - float(parent_fitness)) / scale
-            )
+        # ``Evaluation.fitness`` is normalized so larger is always better;
+        # minimization tasks store the negated raw objective.  The same gap
+        # expression is therefore correct for both objective directions.
+        relative_gap = max(
+            0.0, (float(parent_fitness) - float(candidate_fitness)) / scale
+        )
         near = relative_gap <= float(config.get("near_incumbent_relative_margin", 0.02))
+    execution_valid = valid or failure_kind in {
+        "nonqualification",
+        "fidelity_screen_not_promoted",
+        "training_ladder_exhausted_without_qualification",
+    }
+    qualification_gap = None
+    near_qualification = False
+    if task.qualification_metric is not None:
+        qualification = metrics.get(task.qualification_metric)
+        if isinstance(qualification, int | float) and not isinstance(
+            qualification, bool
+        ):
+            qualification_gap = max(
+                0.0, float(task.qualification_minimum) - float(qualification)
+            )
+            near_qualification = qualification_gap <= float(
+                config.get("near_qualification_absolute_margin", 0.02)
+            )
+    promising = near or near_qualification
     components = {
         "valid_execution": float(config.get("valid_execution_credit", 0.25))
-        if valid
+        if execution_valid
         else 0.0,
         "novel_delta": float(config.get("novel_delta_credit", 0.25)) if novel else 0.0,
         "near_incumbent": float(config.get("near_incumbent_credit", 0.25))
-        if near
+        if promising
         else 0.0,
         "retained": float(config.get("retained_credit", 0.25)) if retained else 0.0,
     }
@@ -424,6 +456,8 @@ def assess_developmental_value(
         status = "provisional_valid"
     elif failure_kind == "fidelity_screen_not_promoted":
         status = "provisional_screened"
+    elif execution_valid and qualification_gap is not None:
+        status = "provisional_nonqualifying"
     else:
         status = "rejected"
     reasons = [name for name, value in components.items() if value > 0]
@@ -439,7 +473,10 @@ def assess_developmental_value(
         "credit_components": components,
         "reasons": reasons,
         "selection_effect": str(config.get("selection_effect", "none")),
+        "execution_valid": execution_valid,
         "relative_objective_gap": relative_gap,
+        "qualification_gap": qualification_gap,
+        "near_qualification": near_qualification,
         "semantic_delta_fingerprint": fingerprint,
         "mechanism": mechanism,
         "metrics": metrics,
@@ -452,7 +489,12 @@ def assess_developmental_value(
         / "developmental-assessment.json",
         assessment,
     )
-    if status in {"primary_retained", "provisional_valid", "provisional_screened"}:
+    if status in {
+        "primary_retained",
+        "provisional_valid",
+        "provisional_screened",
+        "provisional_nonqualifying",
+    }:
         items.append(assessment)
         capacity = int(config.get("archive_capacity", 8))
         items.sort(
