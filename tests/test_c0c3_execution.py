@@ -1498,6 +1498,7 @@ def test_codex_event_usage_parser_uses_final_turn(tmp_path: Path) -> None:
         log_root=tmp_path / "logs",
         call_id="one",
     )
+    assert (tmp_path / "logs/one.prompt.md").read_text() == "test"
     assert result.returncode == 0
     assert result.usage.input_tokens == 11
     assert result.usage.cached_input_tokens == 3

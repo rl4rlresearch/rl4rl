@@ -112,8 +112,15 @@ class CodexCli:
         events = log_root / f"{call_id}.jsonl"
         stderr = log_root / f"{call_id}.stderr.log"
         last_message = log_root / f"{call_id}.last-message.md"
-        if any(path.exists() for path in (events, stderr, last_message)):
+        exact_prompt = log_root / f"{call_id}.prompt.md"
+        if any(
+            path.exists() for path in (events, stderr, last_message, exact_prompt)
+        ):
             raise FileExistsError(f"Codex call ID already exists: {call_id}")
+        # ``prompt.md`` at the opportunity root records the framework-neutral
+        # rendered context. This file records the exact text sent through the
+        # Codex CLI after a framework adds its native source/history template.
+        exact_prompt.write_text(prompt, encoding="utf-8")
         excluded_environment_names = [
             "CODEX_HOME",
             "HOME",

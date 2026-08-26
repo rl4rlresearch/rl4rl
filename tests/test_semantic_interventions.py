@@ -14,11 +14,14 @@ import pytest
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
 
+from experiments.c0c3_factorial import semantic_interventions as semantic_module
 from experiments.c0c3_factorial.campaign import calibrate_task
 from experiments.c0c3_factorial.semantic_interventions import (
     create_semantic_campaign,
+    run_semantic_campaign,
     run_semantic_opportunity,
     semantic_status,
+    set_semantic_control,
     set_semantic_run_control,
     validate_semantic_campaign,
 )
@@ -238,6 +241,41 @@ print(json.dumps({{'type':'turn.completed','usage':{{'input_tokens':10,'cached_i
     return path
 
 
+def _selective_failure_openevolve_codex(path: Path, calls: Path) -> Path:
+    path.write_text(
+        f"""#!{sys.executable}
+import json, pathlib, re, sys
+args=sys.argv[1:]
+last=pathlib.Path(args[args.index('--output-last-message')+1])
+prompt=sys.stdin.read()
+if 'load-bearing assumption' in prompt:
+    print(json.dumps({{'type':'turn.failed','error':'injected arm failure'}}))
+    raise SystemExit(9)
+scores=[int(value) for value in re.findall(r'SCORE = (\\d+)', prompt)]
+score=max(scores)
+calls=pathlib.Path({str(calls)!r})
+number=sum(1 for _ in calls.open())+1 if calls.exists() else 1
+resumed='resume' in args
+session=args[-2] if resumed else f'selective-session-{{number}}'
+last.write_text(
+    'MECHANISM: increment the executable score\\n'
+    'HYPOTHESIS: a larger score improves the toy objective\\n'
+    'INTENDED_EDIT: increment SCORE\\n'
+    'EVIDENCE: prior increments were valid\\n'
+    f'<<<<<<< SEARCH\\nSCORE = {{score}}\\n=======\\n'
+    f'SCORE = {{score+1}}\\n>>>>>>> REPLACE\\n'
+)
+with calls.open('a') as handle:
+    handle.write(json.dumps({{'number': number, 'session': session}})+'\\n')
+print(json.dumps({{'type':'thread.started','thread_id':session}}))
+print(json.dumps({{'type':'turn.completed','usage':{{'input_tokens':10,'cached_input_tokens':1,'output_tokens':2,'reasoning_output_tokens':1}}}}))
+""",
+        encoding="utf-8",
+    )
+    path.chmod(path.stat().st_mode | stat.S_IXUSR)
+    return path
+
+
 def test_semantic_campaign_shares_prefix_then_forks(tmp_path: Path) -> None:
     spec = _spec()
     task = _task(_seed(tmp_path / "seed"))
@@ -318,6 +356,242 @@ def test_semantic_campaign_shares_prefix_then_forks(tmp_path: Path) -> None:
     }
     assert "load-bearing assumption" in prompts["assumption_challenge"]
     assert "load-bearing assumption" not in prompts["passive_control"]
+
+
+def test_semantic_campaign_recovers_and_mirrors_interrupted_prefix(
+    tmp_path: Path,
+) -> None:
+    pytest.importorskip("dacite")
+    spec = _spec()
+    task = _task(_seed(tmp_path / "seed"))
+    framework = FrameworkSpec(
+        framework_id=FrameworkKind.OPENEVOLVE,
+        adapter="controlled_openevolve_prompt_diff_v3",
+        prompt_profile="fashion_mnist_openevolve_v2_1",
+        edit_mode="search_replace_diff",
+    )
+    baseline = calibrate_task(
+        tmp_path / "calibration",
+        spec=spec,
+        task=task,
+        repo_root=ROOT,
+        python_bin=sys.executable,
+    )
+    campaign = create_semantic_campaign(
+        tmp_path / "campaign",
+        spec=spec,
+        task=task,
+        framework=framework,
+        intervention_plan_path=_plan(tmp_path / "interventions.toml"),
+        calibration_path=baseline,
+        repo_root=ROOT,
+    )
+    prefix = json.loads((campaign / "semantic-prefix.json").read_text())["replicates"][
+        0
+    ]
+    leader = SearchController.load(
+        campaign / "runs" / prefix["leader_run_id"], spec
+    )
+    active = leader.begin()
+    assert active.index == 1
+    set_semantic_control(
+        campaign, desired="running", reason="exercise interrupted-prefix recovery"
+    )
+    calls = tmp_path / "calls.jsonl"
+    result = run_semantic_campaign(
+        campaign,
+        repo_root=ROOT,
+        python_bin=sys.executable,
+        max_workers=2,
+        recover_interrupted=True,
+        codex_binary=str(_openevolve_codex(tmp_path / "fake-codex", calls)),
+    )
+
+    assert result["status"] == "completed"
+    assert len(calls.read_text().splitlines()) == 4
+    states = [
+        SearchController.load(campaign / "runs" / run_id, spec).state
+        for run_id in [prefix["leader_run_id"], *prefix["shadow_run_ids"]]
+    ]
+    assert {state.proposals_used for state in states} == {3}
+    recovered_results = [
+        json.loads(
+            (campaign / "runs" / state.run_id / "opportunities/0001/recovery.json")
+            .read_text(encoding="utf-8")
+        )
+        for state in states
+    ]
+    assert all(
+        row["evaluation"]["failure_kind"] == "infrastructure_interruption"
+        for row in recovered_results
+    )
+    assert all(row.get("shared_prefix", False) for row in recovered_results[1:])
+    prefix_events = [
+        json.loads(line)
+        for line in (campaign / "semantic-prefix-events.jsonl")
+        .read_text(encoding="utf-8")
+        .splitlines()
+    ]
+    assert prefix_events[0]["recovered_interruption"] is True
+
+
+def test_semantic_postfork_provider_failures_are_charged_only_to_one_arm(
+    tmp_path: Path,
+) -> None:
+    pytest.importorskip("dacite")
+    spec = _spec()
+    task = _task(_seed(tmp_path / "seed"))
+    framework = FrameworkSpec(
+        framework_id=FrameworkKind.OPENEVOLVE,
+        adapter="controlled_openevolve_prompt_diff_v3",
+        prompt_profile="fashion_mnist_openevolve_v2_1",
+        edit_mode="search_replace_diff",
+    )
+    baseline = calibrate_task(
+        tmp_path / "calibration",
+        spec=spec,
+        task=task,
+        repo_root=ROOT,
+        python_bin=sys.executable,
+    )
+    campaign = create_semantic_campaign(
+        tmp_path / "campaign",
+        spec=spec,
+        task=task,
+        framework=framework,
+        intervention_plan_path=_plan(tmp_path / "interventions.toml"),
+        calibration_path=baseline,
+        repo_root=ROOT,
+    )
+    set_semantic_control(campaign, desired="running", reason="test failure isolation")
+    calls = tmp_path / "calls.jsonl"
+    result = run_semantic_campaign(
+        campaign,
+        repo_root=ROOT,
+        python_bin=sys.executable,
+        max_workers=2,
+        recover_interrupted=True,
+        codex_binary=str(
+            _selective_failure_openevolve_codex(tmp_path / "fake-codex", calls)
+        ),
+    )
+
+    assert result["status"] == "completed"
+    status = semantic_status(campaign)
+    by_arm = {row["intervention_id"]: row for row in status["runs"]}
+    assert by_arm["passive_control"]["status"] == "completed"
+    assert by_arm["passive_control"]["proposals_used"] == 3
+    assert by_arm["assumption_challenge"]["status"] == "completed"
+    assert by_arm["assumption_challenge"]["proposals_used"] == 3
+    schedule = json.loads((campaign / "schedule.json").read_text())
+    by_condition = {row["condition"]: row["run_id"] for row in schedule}
+    assumption_results = [
+        json.loads(
+            (
+                campaign
+                / "runs"
+                / by_condition["assumption_challenge"]
+                / f"opportunities/{opportunity:04d}/result.json"
+            ).read_text(encoding="utf-8")
+        )
+        for opportunity in (2, 3)
+    ]
+    assert all(
+        row["evaluation"]["failure_kind"] == "provider"
+        for row in assumption_results
+    )
+    passive_results = [
+        json.loads(
+            (
+                campaign
+                / "runs"
+                / by_condition["passive_control"]
+                / f"opportunities/{opportunity:04d}/result.json"
+            ).read_text(encoding="utf-8")
+        )
+        for opportunity in (2, 3)
+    ]
+    assert all(row["evaluation"]["valid"] for row in passive_results)
+    exact_assumption_prompt = (
+        campaign
+        / "runs"
+        / by_condition["assumption_challenge"]
+        / "opportunities/0002/codex/proposal-2.prompt.md"
+    ).read_text(encoding="utf-8")
+    exact_passive_prompt = (
+        campaign
+        / "runs"
+        / by_condition["passive_control"]
+        / "opportunities/0002/codex/proposal-2.prompt.md"
+    ).read_text(encoding="utf-8")
+    assert "load-bearing assumption" in exact_assumption_prompt
+    assert "load-bearing assumption" not in exact_passive_prompt
+
+
+def test_semantic_internal_worker_failure_pauses_only_failed_arm(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    pytest.importorskip("dacite")
+    spec = _spec()
+    task = _task(_seed(tmp_path / "seed"))
+    framework = FrameworkSpec(
+        framework_id=FrameworkKind.OPENEVOLVE,
+        adapter="controlled_openevolve_prompt_diff_v3",
+        prompt_profile="fashion_mnist_openevolve_v2_1",
+        edit_mode="search_replace_diff",
+    )
+    baseline = calibrate_task(
+        tmp_path / "calibration",
+        spec=spec,
+        task=task,
+        repo_root=ROOT,
+        python_bin=sys.executable,
+    )
+    campaign = create_semantic_campaign(
+        tmp_path / "campaign",
+        spec=spec,
+        task=task,
+        framework=framework,
+        intervention_plan_path=_plan(tmp_path / "interventions.toml"),
+        calibration_path=baseline,
+        repo_root=ROOT,
+    )
+    set_semantic_control(campaign, desired="running", reason="test failure isolation")
+    original = semantic_module.run_semantic_opportunity
+
+    def selectively_raise(*args, run_id: str, **kwargs):
+        if run_id.endswith("assumption_challenge"):
+            raise RuntimeError("injected internal worker failure")
+        return original(*args, run_id=run_id, **kwargs)
+
+    monkeypatch.setattr(semantic_module, "run_semantic_opportunity", selectively_raise)
+    calls = tmp_path / "calls.jsonl"
+    result = run_semantic_campaign(
+        campaign,
+        repo_root=ROOT,
+        python_bin=sys.executable,
+        max_workers=2,
+        recover_interrupted=True,
+        codex_binary=str(_openevolve_codex(tmp_path / "fake-codex", calls)),
+    )
+
+    assert result["status"] == "no-runnable-trajectories"
+    by_arm = {
+        row["intervention_id"]: row for row in semantic_status(campaign)["runs"]
+    }
+    assert by_arm["passive_control"]["status"] == "completed"
+    assert by_arm["passive_control"]["proposals_used"] == 3
+    assert by_arm["assumption_challenge"]["desired"] == "paused"
+    assert by_arm["assumption_challenge"]["proposals_used"] == 1
+    failures = [
+        json.loads(line)
+        for line in (campaign / "semantic-waves.jsonl")
+        .read_text(encoding="utf-8")
+        .splitlines()
+        if '"semantic_wave_failed"' in line
+    ]
+    assert len(failures) == 1
+    assert "injected internal worker failure" in failures[0]["error"]
 
 
 def test_openevolve_uses_five_proposal_sessions_and_resets_at_fork(

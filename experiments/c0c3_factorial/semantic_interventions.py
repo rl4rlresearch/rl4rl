@@ -749,19 +749,68 @@ def _copy_prefix_to_shadow(
         record["resource_accounting"] = "shared_prefix_charge_once_per_replicate"
         record["source_event_sha256"] = source_hash
         append_jsonl(shadow_dir / "events.jsonl", record)
-    result_path = target_opportunity / "result.json"
-    if result_path.is_file():
-        result = _read_object(result_path)
-        result["run_id"] = shadow_run_id
-        result["shared_prefix"] = True
-        result["shared_prefix_source_run_id"] = leader_run_id
-        result["resource_accounting"] = "shared_prefix_charge_once_per_replicate"
-        atomic_json(result_path, result)
+    for result_name in ("result.json", "recovery.json"):
+        result_path = target_opportunity / result_name
+        if result_path.is_file():
+            result = _read_object(result_path)
+            result["run_id"] = shadow_run_id
+            result["shared_prefix"] = True
+            result["shared_prefix_source_run_id"] = leader_run_id
+            result["resource_accounting"] = "shared_prefix_charge_once_per_replicate"
+            atomic_json(result_path, result)
     state = leader.state.to_dict()
     state["run_id"] = shadow_run_id
     state["conversation_session_id"] = None
     state["revision"] = int(shadow.state.revision) + 1
     atomic_json(shadow_dir / "state.json", state)
+
+
+def _mirror_prefix_completion(
+    campaign: Path,
+    *,
+    spec: FactorialSpec,
+    pair: dict[str, Any],
+    opportunity: int,
+    recovered: bool = False,
+) -> None:
+    """Mirror one charged prefix outcome and record it exactly once."""
+
+    leader_run_id = str(pair["leader_run_id"])
+    for shadow_id in pair["shadow_run_ids"]:
+        _copy_prefix_to_shadow(
+            campaign,
+            spec=spec,
+            leader_run_id=leader_run_id,
+            shadow_run_id=str(shadow_id),
+            opportunity=opportunity,
+        )
+    events_path = campaign / "semantic-prefix-events.jsonl"
+    already_recorded = False
+    if events_path.is_file():
+        for line in events_path.read_text(encoding="utf-8").splitlines():
+            event = json.loads(line)
+            if (
+                event.get("event") == "shared_prefix_opportunity_completed"
+                and int(event.get("replicate", -1)) == int(pair["replicate"])
+                and int(event.get("opportunity", -1)) == opportunity
+            ):
+                already_recorded = True
+                break
+    if not already_recorded:
+        append_jsonl(
+            events_path,
+            {
+                "schema_version": SEMANTIC_PROTOCOL_VERSION,
+                "event": "shared_prefix_opportunity_completed",
+                "timestamp": utc_now(),
+                "replicate": pair["replicate"],
+                "opportunity": opportunity,
+                "leader_run_id": leader_run_id,
+                "inheriting_runs": len(pair["shadow_run_ids"]),
+                "recovered_interruption": recovered,
+                "resource_accounting": "shared_prefix_charge_once_per_replicate",
+            },
+        )
 
 
 def run_semantic_opportunity(
@@ -799,26 +848,11 @@ def run_semantic_opportunity(
                 record = {"opportunity": opportunity, "recovered_pending_mirror": True}
             else:
                 raise RuntimeError("semantic prefix states diverged before fork")
-            for shadow_id in pair["shadow_run_ids"]:
-                _copy_prefix_to_shadow(
-                    root,
-                    spec=spec,
-                    leader_run_id=leader_id,
-                    shadow_run_id=str(shadow_id),
-                    opportunity=opportunity,
-                )
-            append_jsonl(
-                root / "semantic-prefix-events.jsonl",
-                {
-                    "schema_version": SEMANTIC_PROTOCOL_VERSION,
-                    "event": "shared_prefix_opportunity_completed",
-                    "timestamp": utc_now(),
-                    "replicate": pair["replicate"],
-                    "opportunity": opportunity,
-                    "leader_run_id": leader_id,
-                    "inheriting_runs": len(pair["shadow_run_ids"]),
-                    "resource_accounting": "shared_prefix_charge_once_per_replicate",
-                },
+            _mirror_prefix_completion(
+                root,
+                spec=spec,
+                pair=pair,
+                opportunity=opportunity,
             )
             return {
                 **record,
@@ -986,7 +1020,7 @@ def run_semantic_campaign(
                 run_dir = root / "runs" / str(row["run_id"])
                 state = SearchController.load(run_dir, spec).state
                 if state.active is not None:
-                    recover_active_opportunity(
+                    recovered = recover_active_opportunity(
                         run_dir,
                         spec=spec,
                         reason=(
@@ -994,6 +1028,20 @@ def run_semantic_campaign(
                             "opportunity start"
                         ),
                     )
+                    opportunity = int(recovered["opportunity"])
+                    pair = _prefix_for_run(root, str(row["run_id"]))
+                    if (
+                        str(row["run_id"]) == str(pair["leader_run_id"])
+                        and opportunity <= plan.shared_prefix_opportunities
+                    ):
+                        with _prefix_lock(root, int(pair["replicate"])):
+                            _mirror_prefix_completion(
+                                root,
+                                spec=spec,
+                                pair=pair,
+                                opportunity=opportunity,
+                                recovered=True,
+                            )
         completed_calls = 0
         while True:
             desired = _read_object(root / SEMANTIC_CONTROL).get("desired")
@@ -1100,12 +1148,13 @@ def run_semantic_campaign(
                                 "error": message,
                             },
                         )
+                        recovered_record: dict[str, object] | None = None
                         try:
                             failed_controller = SearchController.load(
                                 root / "runs" / run_id, spec
                             )
                             if failed_controller.state.active is not None:
-                                recover_active_opportunity(
+                                recovered_record = recover_active_opportunity(
                                     root / "runs" / run_id,
                                     spec=spec,
                                     reason=(
@@ -1130,6 +1179,17 @@ def run_semantic_campaign(
                         affected = [run_id]
                         if run_id in prefix_selected:
                             prefix = _prefix_for_run(root, run_id)
+                            if recovered_record is not None:
+                                with _prefix_lock(root, int(prefix["replicate"])):
+                                    _mirror_prefix_completion(
+                                        root,
+                                        spec=spec,
+                                        pair=prefix,
+                                        opportunity=int(
+                                            recovered_record["opportunity"]
+                                        ),
+                                        recovered=True,
+                                    )
                             affected = [
                                 str(prefix["leader_run_id"]),
                                 *map(str, prefix["shadow_run_ids"]),
