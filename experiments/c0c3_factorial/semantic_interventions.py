@@ -138,11 +138,12 @@ def load_intervention_plan(path: str | Path) -> InterventionPlan:
         "replicates",
         "shared_prefix_opportunities",
         "session_span_opportunities",
-        "max_parallel_agent_calls",
         "task_evaluator_capacity",
     ):
         if getattr(plan, name) < 1:
             raise ValueError(f"{name} must be positive")
+    if plan.max_parallel_agent_calls < 0:
+        raise ValueError("max_parallel_agent_calls must be nonnegative")
     if len(plan.interventions) < 2:
         raise ValueError("semantic campaign requires at least two arms")
     if len(set(plan.intervention_ids)) != len(plan.interventions):
@@ -1000,6 +1001,19 @@ def _orchestrator_lock(campaign: Path) -> Iterator[None]:
         yield
 
 
+def _resolve_worker_limit(requested: int | None, configured: int) -> int | None:
+    """Return ``None`` for unbounded concurrency; zero is the public sentinel."""
+
+    value = configured if requested is None else requested
+    if value < 0:
+        raise ValueError("max_workers must be nonnegative")
+    return None if value == 0 else value
+
+
+def _take_worker_wave(items: list[str], worker_limit: int | None) -> list[str]:
+    return items if worker_limit is None else items[:worker_limit]
+
+
 def run_semantic_campaign(
     campaign: str | Path,
     *,
@@ -1010,9 +1024,7 @@ def run_semantic_campaign(
     codex_binary: str = "codex",
 ) -> dict[str, Any]:
     root, spec, task, framework, plan = load_semantic_campaign(campaign)
-    workers = max_workers or plan.max_parallel_agent_calls
-    if workers < 1:
-        raise ValueError("max_workers must be positive")
+    worker_limit = _resolve_worker_limit(max_workers, plan.max_parallel_agent_calls)
     schedule = json.loads((root / "schedule.json").read_text(encoding="utf-8"))
     with _orchestrator_lock(root):
         if recover_interrupted:
@@ -1088,7 +1100,7 @@ def run_semantic_campaign(
                 ):
                     prefix_jobs.append(leader_id)
             if prefix_jobs:
-                selected = prefix_jobs[:workers]
+                selected = _take_worker_wave(prefix_jobs, worker_limit)
             else:
                 runnable = [
                     row
@@ -1104,23 +1116,31 @@ def run_semantic_campaign(
                 minimum = min(
                     states[str(row["run_id"])].proposals_used for row in runnable
                 )
-                selected = [
-                    str(row["run_id"])
-                    for row in runnable
-                    if states[str(row["run_id"])].proposals_used == minimum
-                ][:workers]
+                selected = _take_worker_wave(
+                    [
+                        str(row["run_id"])
+                        for row in runnable
+                        if states[str(row["run_id"])].proposals_used == minimum
+                    ],
+                    worker_limit,
+                )
             prefix_selected = set(prefix_jobs)
+            effective_workers = len(selected)
             wave = {
                 "schema_version": SEMANTIC_PROTOCOL_VERSION,
                 "event": "semantic_wave_started",
                 "timestamp": utc_now(),
                 "run_ids": selected,
-                "worker_limit": workers,
+                "worker_limit": worker_limit,
+                "effective_worker_count": effective_workers,
+                "concurrency_policy": (
+                    "all_runnable" if worker_limit is None else "bounded"
+                ),
             }
             append_jsonl(root / SEMANTIC_WAVES, wave)
             results = []
             failures = []
-            with ThreadPoolExecutor(max_workers=min(workers, len(selected))) as pool:
+            with ThreadPoolExecutor(max_workers=effective_workers) as pool:
                 futures = {
                     pool.submit(
                         run_semantic_opportunity,

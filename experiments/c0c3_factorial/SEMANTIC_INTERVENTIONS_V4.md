@@ -38,10 +38,11 @@ understanding.
 - The same replicate seed, starting source, evaluator, model, reasoning effort,
   public evidence policy, proposal budget, and maximum evaluator budget are
   used across arms.
-- The orchestrator may issue up to 30 simultaneous subject calls. Local
-  Fashion-MNIST evaluation is independently capped at three MPS slots, so
-  increasing research-call concurrency does not increase GPU training
-  concurrency beyond the calibrated limit.
+- The orchestrator issues every currently runnable subject call without an
+  artificial Sol-worker ceiling. Local Fashion-MNIST evaluation is
+  independently capped at three MPS slots, so unbounded research-call
+  concurrency does not increase GPU training concurrency beyond the calibrated
+  limit.
 
 The shared prefix requires only 15 physical proposal calls. Post-fork branches
 require 2,205 calls, for 2,220 physical calls and 2,520 logical trajectory
@@ -268,7 +269,7 @@ $PY "$OVERNIGHT" start \
   --campaign "$CAMPAIGN" \
   --runtime-root "$PWD" \
   --python-bin "$PY" \
-  --max-workers 30
+  --max-workers 0
 ```
 
 Status and cooperative campaign controls:
@@ -276,7 +277,7 @@ Status and cooperative campaign controls:
 ```bash
 $PY "$OVERNIGHT" status --campaign "$CAMPAIGN"
 $PY "$OVERNIGHT" pause --campaign "$CAMPAIGN" --reason "operator pause"
-$PY "$OVERNIGHT" resume --campaign "$CAMPAIGN" --runtime-root "$PWD" --python-bin "$PY" --max-workers 30
+$PY "$OVERNIGHT" resume --campaign "$CAMPAIGN" --runtime-root "$PWD" --python-bin "$PY" --max-workers 0
 ```
 
 Control one arm, then resume the campaign process if it has exited:

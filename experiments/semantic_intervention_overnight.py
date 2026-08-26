@@ -121,7 +121,8 @@ def _launch(args: argparse.Namespace) -> dict[str, object]:
         "status": "started",
         "screen_session": session,
         "log": str(log),
-        "max_workers": args.max_workers,
+        "max_workers": None if args.max_workers == 0 else args.max_workers,
+        "concurrency_policy": ("all_runnable" if args.max_workers == 0 else "bounded"),
     }
 
 
@@ -158,7 +159,12 @@ def _parser() -> argparse.ArgumentParser:
         item.add_argument("--runtime-root", type=Path, required=True)
         item.add_argument("--python-bin", type=Path, default=Path(sys.executable))
         item.add_argument("--fashion-data-root", type=Path)
-        item.add_argument("--max-workers", type=int, default=30)
+        item.add_argument(
+            "--max-workers",
+            type=int,
+            default=0,
+            help="maximum simultaneous subject calls; 0 removes the limit",
+        )
         item.add_argument(
             "--reason", default=f"operator requested semantic campaign {name}"
         )

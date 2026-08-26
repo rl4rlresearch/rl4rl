@@ -81,6 +81,23 @@ def test_semantic_launchers_preserve_virtualenv_symlink(tmp_path: Path) -> None:
         assert rendered.is_symlink()
 
 
+def test_zero_semantic_worker_limit_means_all_runnable() -> None:
+    assert semantic_module._resolve_worker_limit(0, 2) is None
+    assert semantic_module._resolve_worker_limit(None, 0) is None
+    assert semantic_module._resolve_worker_limit(None, 3) == 3
+    assert semantic_module._take_worker_wave(["a", "b", "c"], None) == [
+        "a",
+        "b",
+        "c",
+    ]
+    assert semantic_module._take_worker_wave(["a", "b", "c"], 2) == [
+        "a",
+        "b",
+    ]
+    with pytest.raises(ValueError, match="nonnegative"):
+        semantic_module._resolve_worker_limit(-1, 2)
+
+
 def test_semantic_screen_detection_accepts_macos_nonzero_listing(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
