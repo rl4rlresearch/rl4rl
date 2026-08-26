@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import json
+import os
 import stat
 import sys
 from pathlib import Path
@@ -39,9 +40,11 @@ from experiments.c0c3_factorial.training_ladder import (
     assess_developmental_value,
     evaluate_training_ladder,
 )
+from experiments.semantic_intervention_experiment import _configure_fashion_data_root
 from experiments.semantic_intervention_experiment import (
     _python_bin as experiment_python_bin,
 )
+from experiments.semantic_intervention_overnight import _fashion_data_root
 from experiments.semantic_intervention_overnight import (
     _python_bin as overnight_python_bin,
 )
@@ -72,6 +75,22 @@ def test_semantic_launchers_preserve_virtualenv_symlink(tmp_path: Path) -> None:
         rendered = Path(render(link))
         assert rendered == link.absolute()
         assert rendered.is_symlink()
+
+
+def test_semantic_launchers_share_host_fashion_data_with_detached_runtime(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    data = tmp_path / "checkout/data/raw/fashion-mnist"
+    data.mkdir(parents=True)
+    monkeypatch.delenv("RL4RL_FASHION_MNIST_DATA_ROOT", raising=False)
+    _configure_fashion_data_root(SimpleNamespace(fashion_data_root=data))
+    assert Path(os.environ["RL4RL_FASHION_MNIST_DATA_ROOT"]) == data.resolve()
+
+    monkeypatch.delenv("RL4RL_FASHION_MNIST_DATA_ROOT")
+    campaign = tmp_path / "checkout/data/c0c3/campaign"
+    assert _fashion_data_root(
+        SimpleNamespace(fashion_data_root=None), campaign
+    ) == data.resolve()
 
 
 def _phased_spec() -> FactorialSpec:

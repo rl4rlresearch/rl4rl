@@ -5,6 +5,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import os
 import sys
 from pathlib import Path
 
@@ -13,6 +14,7 @@ if str(REPO_ROOT) not in sys.path:
     sys.path.insert(0, str(REPO_ROOT))
 
 from experiments.c0c3_factorial.campaign import calibrate_task  # noqa: E402
+from experiments.c0c3_factorial.fashion_mnist import DATA_ROOT_ENV  # noqa: E402
 from experiments.c0c3_factorial.semantic_interventions import (  # noqa: E402
     create_semantic_campaign,
     run_semantic_campaign,
@@ -43,7 +45,18 @@ def _python_bin(path: Path) -> str:
     return str(path.absolute())
 
 
+def _configure_fashion_data_root(args: argparse.Namespace) -> None:
+    configured = getattr(args, "fashion_data_root", None)
+    if configured is None:
+        return
+    root = Path(configured).expanduser().resolve()
+    if not root.is_dir():
+        raise ValueError(f"Fashion-MNIST data root does not exist: {root}")
+    os.environ[DATA_ROOT_ENV] = str(root)
+
+
 def command_prepare(args: argparse.Namespace) -> int:
+    _configure_fashion_data_root(args)
     spec, task, framework = _inputs(args)
     calibration = args.calibration.resolve()
     baseline = calibration / "baseline.json"
@@ -80,6 +93,7 @@ def command_validate(args: argparse.Namespace) -> int:
 
 
 def command_run_one(args: argparse.Namespace) -> int:
+    _configure_fashion_data_root(args)
     result = run_semantic_opportunity(
         args.campaign,
         run_id=args.run_id,
@@ -92,6 +106,7 @@ def command_run_one(args: argparse.Namespace) -> int:
 
 
 def command_run_campaign(args: argparse.Namespace) -> int:
+    _configure_fashion_data_root(args)
     result = run_semantic_campaign(
         args.campaign,
         repo_root=args.repo_root.resolve(),
@@ -150,6 +165,7 @@ def _parser() -> argparse.ArgumentParser:
     prepare.add_argument("--output", type=Path, required=True)
     prepare.add_argument("--repo-root", type=Path, default=REPO_ROOT)
     prepare.add_argument("--python-bin", type=Path, default=Path(sys.executable))
+    prepare.add_argument("--fashion-data-root", type=Path)
     prepare.set_defaults(handler=command_prepare)
 
     validate = sub.add_parser("validate")
@@ -162,6 +178,7 @@ def _parser() -> argparse.ArgumentParser:
     run_one.add_argument("--run-id", required=True)
     run_one.add_argument("--repo-root", type=Path, default=REPO_ROOT)
     run_one.add_argument("--python-bin", type=Path, default=Path(sys.executable))
+    run_one.add_argument("--fashion-data-root", type=Path)
     run_one.add_argument("--codex-binary", default="codex")
     run_one.set_defaults(handler=command_run_one)
 
@@ -169,6 +186,7 @@ def _parser() -> argparse.ArgumentParser:
     run_campaign.add_argument("--campaign", type=Path, required=True)
     run_campaign.add_argument("--repo-root", type=Path, default=REPO_ROOT)
     run_campaign.add_argument("--python-bin", type=Path, default=Path(sys.executable))
+    run_campaign.add_argument("--fashion-data-root", type=Path)
     run_campaign.add_argument("--codex-binary", default="codex")
     run_campaign.add_argument("--max-workers", type=int)
     run_campaign.add_argument("--recover-interrupted", action="store_true")

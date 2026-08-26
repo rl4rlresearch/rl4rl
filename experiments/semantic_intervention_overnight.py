@@ -6,6 +6,7 @@ from __future__ import annotations
 import argparse
 import hashlib
 import json
+import os
 import shlex
 import shutil
 import subprocess
@@ -16,6 +17,7 @@ REPO_ROOT = Path(__file__).resolve().parents[1]
 if str(REPO_ROOT) not in sys.path:
     sys.path.insert(0, str(REPO_ROOT))
 
+from experiments.c0c3_factorial.fashion_mnist import DATA_ROOT_ENV  # noqa: E402
 from experiments.c0c3_factorial.semantic_interventions import (  # noqa: E402
     semantic_status,
     set_semantic_control,
@@ -31,6 +33,22 @@ def _python_bin(path: Path) -> str:
     """Return an absolute interpreter path without resolving venv symlinks."""
 
     return str(path.absolute())
+
+
+def _fashion_data_root(args: argparse.Namespace, campaign: Path) -> Path | None:
+    configured = getattr(args, "fashion_data_root", None)
+    if configured is not None:
+        return Path(configured).expanduser().resolve()
+    environment = os.environ.get(DATA_ROOT_ENV)
+    if environment:
+        return Path(environment).expanduser().resolve()
+    # Official campaign paths live below <checkout>/data/c0c3. This fallback
+    # keeps detached runtimes independent from their own empty data directory.
+    if campaign.parent.name == "c0c3" and campaign.parent.parent.name == "data":
+        inferred = campaign.parent.parent.parent / "data/raw/fashion-mnist"
+        if inferred.is_dir():
+            return inferred.resolve()
+    return None
 
 
 def _screen_running(session: str) -> bool:
@@ -66,6 +84,9 @@ def _launch(args: argparse.Namespace) -> dict[str, object]:
         str(args.max_workers),
         "--recover-interrupted",
     ]
+    fashion_data_root = _fashion_data_root(args, campaign)
+    if fashion_data_root is not None:
+        command.extend(("--fashion-data-root", str(fashion_data_root)))
     shell = (
         f"cd {shlex.quote(str(args.runtime_root.resolve()))} && "
         + " ".join(shlex.quote(value) for value in command)
@@ -112,6 +133,7 @@ def _parser() -> argparse.ArgumentParser:
         item.add_argument("--campaign", type=Path, required=True)
         item.add_argument("--runtime-root", type=Path, required=True)
         item.add_argument("--python-bin", type=Path, default=Path(sys.executable))
+        item.add_argument("--fashion-data-root", type=Path)
         item.add_argument("--max-workers", type=int, default=12)
         item.add_argument(
             "--reason", default=f"operator requested semantic campaign {name}"
