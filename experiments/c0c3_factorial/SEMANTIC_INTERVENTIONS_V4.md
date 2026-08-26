@@ -43,6 +43,9 @@ understanding.
   independently capped at three MPS slots, so unbounded research-call
   concurrency does not increase GPU training concurrency beyond the calibrated
   limit.
+- The detached launcher translates `--max-workers 0` to the campaign's number
+  of logical trajectories. That keeps all-runnable behavior compatible with an
+  older pinned runtime that predates the public `0` sentinel.
 
 The shared prefix requires only 15 physical proposal calls. Post-fork branches
 require 2,205 calls, for 2,220 physical calls and 2,520 logical trajectory

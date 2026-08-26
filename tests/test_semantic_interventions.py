@@ -98,6 +98,22 @@ def test_zero_semantic_worker_limit_means_all_runnable() -> None:
         semantic_module._resolve_worker_limit(-1, 2)
 
 
+def test_overnight_unbounded_workers_support_pinned_legacy_runtime(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    monkeypatch.setattr(
+        semantic_overnight,
+        "semantic_status",
+        lambda _campaign: {"runs": [{}, {}, {}]},
+    )
+
+    campaign = Path("campaign")
+    assert semantic_overnight._runtime_worker_count(campaign, 0) == 3
+    assert semantic_overnight._runtime_worker_count(campaign, 7) == 7
+    with pytest.raises(ValueError, match="nonnegative"):
+        semantic_overnight._runtime_worker_count(campaign, -1)
+
+
 def test_semantic_screen_detection_accepts_macos_nonzero_listing(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:

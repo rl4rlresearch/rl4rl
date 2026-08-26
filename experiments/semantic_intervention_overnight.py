@@ -52,6 +52,24 @@ def _fashion_data_root(args: argparse.Namespace, campaign: Path) -> Path | None:
     return None
 
 
+def _runtime_worker_count(campaign: Path, requested: int) -> int:
+    """Translate the public unbounded sentinel into the campaign's natural maximum.
+
+    Detached campaigns may intentionally use an older pinned runtime that predates
+    the zero-is-unbounded convention. Passing the number of logical trajectories
+    gives both old and new runtimes the same all-runnable behavior.
+    """
+
+    if requested < 0:
+        raise ValueError("max_workers must be nonnegative")
+    if requested > 0:
+        return requested
+    run_count = len(semantic_status(campaign).get("runs", ()))
+    if run_count < 1:
+        raise RuntimeError("cannot infer unbounded workers for an empty campaign")
+    return run_count
+
+
 def _screen_running(session: str) -> bool:
     result = subprocess.run(
         (shutil.which("screen") or "/usr/bin/screen", "-ls"),
@@ -72,6 +90,7 @@ def _screen_running(session: str) -> bool:
 
 def _launch(args: argparse.Namespace) -> dict[str, object]:
     campaign = args.campaign.resolve()
+    runtime_worker_count = _runtime_worker_count(campaign, args.max_workers)
     session = _session(campaign)
     if _screen_running(session):
         return {"status": "already-running", "screen_session": session}
@@ -93,7 +112,7 @@ def _launch(args: argparse.Namespace) -> dict[str, object]:
         "--python-bin",
         _python_bin(args.python_bin),
         "--max-workers",
-        str(args.max_workers),
+        str(runtime_worker_count),
         "--recover-interrupted",
     ]
     fashion_data_root = _fashion_data_root(args, campaign)
@@ -122,6 +141,7 @@ def _launch(args: argparse.Namespace) -> dict[str, object]:
         "screen_session": session,
         "log": str(log),
         "max_workers": None if args.max_workers == 0 else args.max_workers,
+        "effective_worker_count": runtime_worker_count,
         "concurrency_policy": ("all_runnable" if args.max_workers == 0 else "bounded"),
     }
 
