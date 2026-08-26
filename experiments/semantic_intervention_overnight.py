@@ -158,7 +158,7 @@ def _parser() -> argparse.ArgumentParser:
         item.add_argument("--runtime-root", type=Path, required=True)
         item.add_argument("--python-bin", type=Path, default=Path(sys.executable))
         item.add_argument("--fashion-data-root", type=Path)
-        item.add_argument("--max-workers", type=int, default=12)
+        item.add_argument("--max-workers", type=int, default=30)
         item.add_argument(
             "--reason", default=f"operator requested semantic campaign {name}"
         )
