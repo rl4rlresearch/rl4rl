@@ -2,10 +2,10 @@
 
 The original C0-C3 protocols remain intact.  This module adds a separate
 trajectory-level design in which many research-process prompts branch from one
-literal shared prefix per replicate.  Every arm uses the same single-incumbent
-search, evaluator, evidence renderer, five-opportunity conversation phases,
-budget, and scheduling machinery; only the registered semantic direction
-differs at phase boundaries.
+literal shared prefix per replicate. Every arm uses the same configured search
+architecture, evaluator, evidence renderer, five-opportunity conversation
+phases, budget, and scheduling machinery; only the registered semantic
+direction differs at phase boundaries.
 """
 
 from __future__ import annotations
@@ -33,6 +33,7 @@ from .artifacts import (
 )
 from .campaign import _load_calibration, _repo_revision
 from .frameworks import preload_framework_runtime
+from .native_openevolve import is_native_openevolve, mirror_native_prefix_state
 from .runner import recover_active_opportunity, run_one_opportunity
 from .spec import (
     Condition,
@@ -384,6 +385,7 @@ def create_semantic_campaign(
             "schema_version": SEMANTIC_PROTOCOL_VERSION,
             "design": "multi_arm_semantic_interventions_with_shared_prefix_v1",
             "study_id": spec.study_id,
+            "search_architecture": framework.framework_key,
             "protocol_hash": spec.protocol_hash,
             "task_hash": sha256_json(task_hash_payload(task)),
             "framework_hash": sha256_json(framework_hash_payload(framework)),
@@ -651,7 +653,9 @@ def validate_semantic_campaign(
         try:
             controller = SearchController.load(run_dir, spec)
             if controller.state.condition != Condition.C1.value:
-                errors.append(f"{run_dir.name} is not a single-incumbent scheduled run")
+                errors.append(
+                    f"{run_dir.name} lacks the semantic campaign's C1 wrapper"
+                )
             if (
                 controller.state.proposals_used != 0
                 or controller.state.active is not None
@@ -733,6 +737,9 @@ def _copy_prefix_to_shadow(
         target = shadow_dir / "candidates" / identifier
         if source.is_dir() and not target.exists():
             shutil.copytree(source, target)
+    framework = _framework_from_json(campaign / "inputs/framework.json")
+    if is_native_openevolve(framework):
+        mirror_native_prefix_state(leader_dir, shadow_dir)
     existing = {
         str(json.loads(line).get("source_event_sha256"))
         for line in (shadow_dir / "events.jsonl").read_text().splitlines()

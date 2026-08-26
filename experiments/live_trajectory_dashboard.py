@@ -29,7 +29,9 @@ REPO_ROOT = Path(__file__).resolve().parents[1]
 DEFAULT_AUTORESEARCH = Path(
     "/private/tmp/rl4rl-v16-codex1644-confined-campaign-fresh-20260822c"
 )
-DEFAULT_OPENEVOLVE = REPO_ROOT / "data/c0c3/controlled-openevolve-transformer-v2-mps-campaign"
+DEFAULT_OPENEVOLVE = (
+    REPO_ROOT / "data/c0c3/controlled-openevolve-transformer-v2-mps-campaign"
+)
 DEFAULT_AUTORESEARCH_V17 = (
     REPO_ROOT / "data/c0c3/transformer-optimization-v1-7-source-only-campaign"
 )
@@ -128,7 +130,11 @@ def numeric_metrics(value: Any) -> dict[str, float]:
 
 def usage_value(usage: dict[str, Any], key: str) -> int:
     value = usage.get(key, 0)
-    return int(value) if isinstance(value, int | float) and not isinstance(value, bool) else 0
+    return (
+        int(value)
+        if isinstance(value, int | float) and not isinstance(value, bool)
+        else 0
+    )
 
 
 def normalized_usage(value: Any) -> dict[str, int]:
@@ -205,8 +211,17 @@ def modal_usage_index(
 
 def compact_label(run_id: str) -> str:
     parts = run_id.lower().split("-")
-    block = next((part.upper() for part in parts if len(part) == 3 and part.startswith("b") and part[1:].isdigit()), "B??")
-    condition = next((part.upper() for part in parts if part in {"c0", "c1", "c2", "c3"}), "C?")
+    block = next(
+        (
+            part.upper()
+            for part in parts
+            if len(part) == 3 and part.startswith("b") and part[1:].isdigit()
+        ),
+        "B??",
+    )
+    condition = next(
+        (part.upper() for part in parts if part in {"c0", "c1", "c2", "c3"}), "C?"
+    )
     return f"{block}-{condition}"
 
 
@@ -311,9 +326,13 @@ def build_run(
         if isinstance(event.get("timestamp"), str):
             latest_event_at = event["timestamp"]
         if timestamp is not None and opportunity in started:
-            elapsed_seconds += max(0.0, (timestamp - started[opportunity]).total_seconds())
+            elapsed_seconds += max(
+                0.0, (timestamp - started[opportunity]).total_seconds()
+            )
         evaluation = event.get("evaluation", {})
-        raw_metrics = evaluation.get("metrics", {}) if isinstance(evaluation, dict) else {}
+        raw_metrics = (
+            evaluation.get("metrics", {}) if isinstance(evaluation, dict) else {}
+        )
         raw_metrics = raw_metrics if isinstance(raw_metrics, dict) else {}
         metrics = numeric_metrics(raw_metrics)
         objective = numeric(metrics.get(objective_metric))
@@ -336,16 +355,19 @@ def build_run(
         usage = normalized_usage(event.get("usage_cumulative"))
         usage_increment = normalized_usage(event.get("usage_increment"))
         physical_resource_charge = not (
-            semantic_prefix_role == "shadow"
-            and opportunity <= shared_prefix_through
+            semantic_prefix_role == "shadow" and opportunity <= shared_prefix_through
         )
         if physical_resource_charge:
             accounted_tokens += usage_increment["total_tokens"]
             accounted_cost += weighted_cost(usage_increment, prices)
         evaluator_seconds = numeric(event.get("evaluator_seconds_cumulative")) or 0.0
-        evaluator_seconds_increment = numeric(event.get("evaluator_seconds_increment")) or 0.0
+        evaluator_seconds_increment = (
+            numeric(event.get("evaluator_seconds_increment")) or 0.0
+        )
         evaluator_calls = numeric(event.get("evaluator_calls_cumulative")) or 0.0
-        evaluator_calls_increment = numeric(event.get("evaluator_calls_increment")) or 0.0
+        evaluator_calls_increment = (
+            numeric(event.get("evaluator_calls_increment")) or 0.0
+        )
         modal_records = modal_usage_by_opportunity.get(opportunity, [])
         modal_worker_seconds_increment = sum(
             numeric(record.get("worker_seconds")) or 0.0 for record in modal_records
@@ -371,7 +393,9 @@ def build_run(
                 "active_hours": round(elapsed_seconds / 3600, 6),
                 "active_seconds": round(elapsed_seconds, 6),
                 "token_cost": round(weighted_cost(usage, prices), 6),
-                "incremental_token_cost": round(weighted_cost(usage_increment, prices), 6),
+                "incremental_token_cost": round(
+                    weighted_cost(usage_increment, prices), 6
+                ),
                 "accounted_total_tokens": accounted_tokens,
                 "accounted_token_cost": round(accounted_cost, 6),
                 "modal_worker_seconds": round(modal_worker_seconds, 6),
@@ -381,25 +405,35 @@ def build_run(
                 "modal_gpu_cost": round(modal_gpu_cost, 6),
                 "incremental_modal_gpu_cost": round(modal_gpu_cost_increment, 6),
                 **usage,
-                **{f"incremental_{key}": value for key, value in usage_increment.items()},
+                **{
+                    f"incremental_{key}": value
+                    for key, value in usage_increment.items()
+                },
                 "evaluator_seconds": evaluator_seconds,
                 "incremental_evaluator_seconds": evaluator_seconds_increment,
                 "evaluator_calls": evaluator_calls,
                 "incremental_evaluator_calls": evaluator_calls_increment,
                 "best_objective": best_objective,
                 "raw_objective": objective,
-                "fitness": numeric(evaluation.get("fitness")) if isinstance(evaluation, dict) else None,
+                "fitness": numeric(evaluation.get("fitness"))
+                if isinstance(evaluation, dict)
+                else None,
                 "objective_improvement": improvement,
                 "objective_improvement_percent": improvement_percent,
                 "metrics": metrics,
                 "valid": valid,
                 "retained": retained,
                 "retention_decision": event.get("retention_decision"),
-                "failure_kind": evaluation.get("failure_kind") if isinstance(evaluation, dict) else None,
+                "failure_kind": evaluation.get("failure_kind")
+                if isinstance(evaluation, dict)
+                else None,
                 "proposal_type": event.get("proposal_type"),
                 "shared_prefix": bool(
                     event.get("shared_prefix")
-                    or (semantic_prefix_role == "leader" and opportunity <= shared_prefix_through)
+                    or (
+                        semantic_prefix_role == "leader"
+                        and opportunity <= shared_prefix_through
+                    )
                 ),
                 "physical_resource_charge": physical_resource_charge,
                 "semantic_intervention_applied": opportunity in interventions,
@@ -413,9 +447,9 @@ def build_run(
                 "developmental_reasons": assessments.get(opportunity, {}).get(
                     "reasons", []
                 ),
-                "developmental_selection_effect": assessments.get(
-                    opportunity, {}
-                ).get("selection_effect"),
+                "developmental_selection_effect": assessments.get(opportunity, {}).get(
+                    "selection_effect"
+                ),
                 "fidelity_highest_level": numeric(
                     raw_metrics.get("fidelity_highest_level")
                 ),
@@ -521,7 +555,9 @@ def build_run(
     return {
         "run_id": run_id,
         "label": semantic_label(assignment, compact_label(run_id)),
-        "condition": condition.upper() if condition.lower() in {"c0", "c1", "c2", "c3"} else condition,
+        "condition": condition.upper()
+        if condition.lower() in {"c0", "c1", "c2", "c3"}
+        else condition,
         "condition_label": assignment.get("condition_label", condition),
         "condition_family": assignment.get("condition_family", "factorial"),
         "components": assignment.get("components", []),
@@ -535,7 +571,9 @@ def build_run(
         "proposals_used": state.get("proposals_used", 0),
         "total_tokens": usage["total_tokens"],
         "token_cost": round(weighted_cost(usage, prices), 6),
-        "accounted_total_tokens": max(0, usage["total_tokens"] - uncharged_prefix_tokens),
+        "accounted_total_tokens": max(
+            0, usage["total_tokens"] - uncharged_prefix_tokens
+        ),
         "accounted_token_cost": round(
             max(0.0, weighted_cost(usage, prices) - uncharged_prefix_cost), 6
         ),
@@ -549,7 +587,9 @@ def build_run(
         "seed_objective": seed_objective,
         "latest_raw_objective": latest_raw_objective,
         "valid_proposals": valid_proposals,
-        "invalid_proposals": max(0, len(points) - (1 if seed_objective is not None else 0) - valid_proposals),
+        "invalid_proposals": max(
+            0, len(points) - (1 if seed_objective is not None else 0) - valid_proposals
+        ),
         "retained_proposals": retained_proposals,
         "developmental_counts": dict(
             Counter(
@@ -569,21 +609,32 @@ def build_run(
             for point in charged_points
         ),
         "postfork_proposals": len(postfork_points),
-        "postfork_valid_proposals": sum(bool(point.get("valid")) for point in postfork_points),
-        "postfork_retained_proposals": sum(bool(point.get("retained")) for point in postfork_points),
+        "postfork_valid_proposals": sum(
+            bool(point.get("valid")) for point in postfork_points
+        ),
+        "postfork_retained_proposals": sum(
+            bool(point.get("retained")) for point in postfork_points
+        ),
         "postfork_novel_delta_proposals": sum(
             "novel_delta" in point.get("developmental_reasons", [])
             for point in postfork_points
         ),
         "postfork_token_cost": round(
-            sum(float(point.get("incremental_token_cost", 0.0) or 0.0) for point in postfork_points),
+            sum(
+                float(point.get("incremental_token_cost", 0.0) or 0.0)
+                for point in postfork_points
+            ),
             6,
         ),
         "postfork_total_tokens": sum(
-            int(point.get("incremental_total_tokens", 0) or 0) for point in postfork_points
+            int(point.get("incremental_total_tokens", 0) or 0)
+            for point in postfork_points
         ),
         "postfork_evaluator_seconds": round(
-            sum(float(point.get("incremental_evaluator_seconds", 0.0) or 0.0) for point in postfork_points),
+            sum(
+                float(point.get("incremental_evaluator_seconds", 0.0) or 0.0)
+                for point in postfork_points
+            ),
             6,
         ),
         "intervention_phase_successes": phase_successes,
@@ -610,9 +661,7 @@ def campaign_data(
 ) -> dict[str, Any]:
     runs_root = campaign / "runs"
     campaign_manifest = read_json(campaign / "campaign.json", {})
-    campaign_manifest = (
-        campaign_manifest if isinstance(campaign_manifest, dict) else {}
-    )
+    campaign_manifest = campaign_manifest if isinstance(campaign_manifest, dict) else {}
     semantic = campaign_manifest.get("schema_version") == "4.0"
     prefix_roles: dict[str, tuple[str, int]] = {}
     if semantic:
@@ -636,6 +685,14 @@ def campaign_data(
     )
     task = read_json(campaign / "inputs/task.json", {})
     task = task if isinstance(task, dict) else {}
+    framework = read_json(campaign / "inputs/framework.json", {})
+    framework = framework if isinstance(framework, dict) else {}
+    framework_id = str(framework.get("framework_id", "unknown"))
+    framework_label = {
+        "karpathy_autoresearch": "Autoresearch",
+        "openevolve": "Greedy OpenEvolve",
+        "native_openevolve": "Native OpenEvolve",
+    }.get(framework_id, framework_id)
     objective_metric = str(task.get("objective_metric", "parameters"))
     objective_direction = str(task.get("objective_direction", "minimize"))
     modal_by_run, modal_summary = modal_usage_index(
@@ -719,8 +776,7 @@ def campaign_data(
         ):
             metric_labels.pop(key)
     axis_catalog = [
-        {"key": key, "label": label}
-        for key, label in metric_labels.items()
+        {"key": key, "label": label} for key, label in metric_labels.items()
     ] + [
         {"key": f"metric:{metric}", "label": f"Proposal metric · {metric}"}
         for metric in observed_metrics
@@ -757,9 +813,7 @@ def campaign_data(
         ),
         "physical_proposal_calls": len(physical_points),
         "logical_proposal_records": sum(
-            not point.get("is_seed")
-            for run in visible_runs
-            for point in run["points"]
+            not point.get("is_seed") for run in visible_runs for point in run["points"]
         ),
         "interventions_applied": sum(
             bool(point.get("semantic_intervention_applied"))
@@ -790,6 +844,9 @@ def campaign_data(
         "available": campaign.is_dir(),
         "objective_metric": objective_metric,
         "objective_direction": objective_direction,
+        "task_display_name": str(task.get("display_name", task.get("task_id", "Task"))),
+        "framework_id": framework_id,
+        "framework_label": framework_label,
         "axis_catalog": axis_catalog,
         "observed_metrics": observed_metrics,
         "modal_usage": modal_summary,
@@ -938,10 +995,14 @@ def make_handler(
 
 
 def parse_args() -> argparse.Namespace:
-    parser = argparse.ArgumentParser(description="Serve a read-only live C0-C3 trajectory dashboard.")
+    parser = argparse.ArgumentParser(
+        description="Serve a read-only live C0-C3 trajectory dashboard."
+    )
     parser.add_argument("--host", default="127.0.0.1")
     parser.add_argument("--port", default=8765, type=int)
-    parser.add_argument("--autoresearch-campaign", type=Path, default=DEFAULT_AUTORESEARCH)
+    parser.add_argument(
+        "--autoresearch-campaign", type=Path, default=DEFAULT_AUTORESEARCH
+    )
     parser.add_argument("--openevolve-campaign", type=Path, default=DEFAULT_OPENEVOLVE)
     parser.add_argument(
         "--autoresearch-v17-campaign", type=Path, default=DEFAULT_AUTORESEARCH_V17
@@ -974,9 +1035,17 @@ def parse_args() -> argparse.Namespace:
         type=Path,
         default=DEFAULT_SEMANTIC_V4_FASHION_MNIST,
     )
-    parser.add_argument("--input-per-million", type=float, default=DEFAULT_PRICE_PER_MILLION["input"])
-    parser.add_argument("--cached-input-per-million", type=float, default=DEFAULT_PRICE_PER_MILLION["cached_input"])
-    parser.add_argument("--output-per-million", type=float, default=DEFAULT_PRICE_PER_MILLION["output"])
+    parser.add_argument(
+        "--input-per-million", type=float, default=DEFAULT_PRICE_PER_MILLION["input"]
+    )
+    parser.add_argument(
+        "--cached-input-per-million",
+        type=float,
+        default=DEFAULT_PRICE_PER_MILLION["cached_input"],
+    )
+    parser.add_argument(
+        "--output-per-million", type=float, default=DEFAULT_PRICE_PER_MILLION["output"]
+    )
     parser.add_argument(
         "--modal-h100-price-per-second",
         type=float,
@@ -988,7 +1057,11 @@ def parse_args() -> argparse.Namespace:
 
 def main() -> None:
     args = parse_args()
-    prices = {"input": args.input_per_million, "cached_input": args.cached_input_per_million, "output": args.output_per_million}
+    prices = {
+        "input": args.input_per_million,
+        "cached_input": args.cached_input_per_million,
+        "output": args.output_per_million,
+    }
     campaigns = {
         "autoresearch_v16": args.autoresearch_campaign,
         "openevolve_v2": args.openevolve_campaign,
@@ -999,9 +1072,7 @@ def main() -> None:
         "autoresearch_v17_fashion_mnist": (
             args.autoresearch_v17_fashion_mnist_campaign
         ),
-        "openevolve_v21_fashion_mnist": (
-            args.openevolve_v21_fashion_mnist_campaign
-        ),
+        "openevolve_v21_fashion_mnist": (args.openevolve_v21_fashion_mnist_campaign),
         "semantic_v4_fashion_mnist": args.semantic_v4_fashion_mnist_campaign,
     }
     server = ThreadingHTTPServer(
@@ -1016,23 +1087,20 @@ def main() -> None:
     print("Hot reload: watching dashboard HTML and Python")
     print(f"Dashboard: http://{args.host}:{args.port}")
     print(f"Autoresearch: {args.autoresearch_campaign}")
-    print(f"OpenEvolve v2: {args.openevolve_campaign}")
+    print(f"Greedy OpenEvolve v2: {args.openevolve_campaign}")
     print(f"Autoresearch v1.7: {args.autoresearch_v17_campaign}")
-    print(f"OpenEvolve v2.1: {args.openevolve_v21_campaign}")
+    print(f"Greedy OpenEvolve v2.1: {args.openevolve_v21_campaign}")
     print(f"Autoresearch v1.7 nanoGPT: {args.autoresearch_v17_nanogpt_campaign}")
-    print(f"OpenEvolve v2.1 nanoGPT: {args.openevolve_v21_nanogpt_campaign}")
+    print(f"Greedy OpenEvolve v2.1 nanoGPT: {args.openevolve_v21_nanogpt_campaign}")
     print(
         "Autoresearch v1.7 Fashion-MNIST: "
         f"{args.autoresearch_v17_fashion_mnist_campaign}"
     )
     print(
-        "OpenEvolve v2.1 Fashion-MNIST: "
+        "Greedy OpenEvolve v2.1 Fashion-MNIST: "
         f"{args.openevolve_v21_fashion_mnist_campaign}"
     )
-    print(
-        "Semantic v4 Fashion-MNIST: "
-        f"{args.semantic_v4_fashion_mnist_campaign}"
-    )
+    print(f"Semantic v4 Fashion-MNIST: {args.semantic_v4_fashion_mnist_campaign}")
     try:
         server.serve_forever()
     except KeyboardInterrupt:

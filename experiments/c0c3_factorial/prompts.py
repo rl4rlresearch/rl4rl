@@ -469,7 +469,10 @@ class PromptRenderer:
 
     @staticmethod
     def _neutral_framework_contract(framework: FrameworkSpec) -> str:
-        if framework.framework_id is FrameworkKind.OPENEVOLVE:
+        if framework.framework_id in {
+            FrameworkKind.GREEDY_OPENEVOLVE,
+            FrameworkKind.NATIVE_OPENEVOLVE,
+        }:
             return (
                 "Propose changes through exact SEARCH/REPLACE blocks. The patching "
                 "interface applies them to the supplied editable source."

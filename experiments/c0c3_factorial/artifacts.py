@@ -172,7 +172,10 @@ def scientific_runtime_hash(
     roots = {
         "factorial_controller": repo_root / "experiments/c0c3_factorial",
     }
-    if framework.framework_id is FrameworkKind.OPENEVOLVE:
+    if framework.framework_id in {
+        FrameworkKind.GREEDY_OPENEVOLVE,
+        FrameworkKind.NATIVE_OPENEVOLVE,
+    }:
         roots["openevolve_adapter_runtime"] = (
             repo_root / "architecture_discovery/vendor/openevolve/openevolve"
         )

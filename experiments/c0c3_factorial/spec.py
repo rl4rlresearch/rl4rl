@@ -73,7 +73,11 @@ class ObjectiveDirection(StrEnum):
 
 class FrameworkKind(StrEnum):
     AUTORESEARCH = "karpathy_autoresearch"
+    GREEDY_OPENEVOLVE = "openevolve"
+    # Backward-compatible source name for campaigns created before the search
+    # controller was given an explicit user-facing label.
     OPENEVOLVE = "openevolve"
+    NATIVE_OPENEVOLVE = "native_openevolve"
 
 
 class ExecutionBackend(StrEnum):

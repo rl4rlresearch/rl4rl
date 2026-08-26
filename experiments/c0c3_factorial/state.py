@@ -304,6 +304,31 @@ class SearchController:
             ),
         }
 
+    def register_external_candidates(self, candidates: list[Candidate]) -> None:
+        """Register population members owned by an external search engine.
+
+        This does not retain, select, or score anything in the generic
+        controller.  It only makes externally selected parents addressable by
+        the existing crash-safe opportunity and artifact machinery.
+        """
+
+        changed = False
+        for candidate in candidates:
+            existing = self.state.candidates.get(candidate.candidate_id)
+            if existing is not None:
+                if (
+                    existing.fitness != candidate.fitness
+                    or existing.metrics != candidate.metrics
+                ):
+                    raise ValueError(
+                        "external candidate conflicts with recorded candidate"
+                    )
+                continue
+            self.state.candidates[candidate.candidate_id] = candidate
+            changed = True
+        if changed:
+            self._write_state()
+
     def record_conversation_session(self, session_id: str) -> None:
         """Durably bind one Codex session to this run before evaluation starts."""
 
@@ -412,7 +437,12 @@ class SearchController:
             ),
         ).candidate_id
 
-    def begin(self) -> ActiveOpportunity:
+    def begin(
+        self,
+        *,
+        external_visible_ids: list[str] | None = None,
+        external_parent_id: str | None = None,
+    ) -> ActiveOpportunity:
         if self.state.active is not None:
             raise RuntimeError("an opportunity is already active")
         remaining = self.remaining()
@@ -425,12 +455,26 @@ class SearchController:
             self.state.status = "completed"
             self._write_state()
             raise RuntimeError("the frozen run budget is exhausted")
-        visible = (
-            [self.state.incumbent_id]
-            if not self.condition.has_portfolio or self.state.no_search
-            else list(self.state.portfolio_ids)
-        )
-        parent_id = self._selected_parent(visible)
+        if (external_visible_ids is None) != (external_parent_id is None):
+            raise ValueError(
+                "external parent and visible candidates must be supplied together"
+            )
+        if external_visible_ids is not None:
+            visible = list(dict.fromkeys(external_visible_ids))
+            if not visible:
+                raise ValueError("external candidate visibility cannot be empty")
+            if any(identifier not in self.state.candidates for identifier in visible):
+                raise ValueError("external visibility references an unknown candidate")
+            if external_parent_id not in visible:
+                raise ValueError("external parent must be visible")
+            parent_id = str(external_parent_id)
+        else:
+            visible = (
+                [self.state.incumbent_id]
+                if not self.condition.has_portfolio or self.state.no_search
+                else list(self.state.portfolio_ids)
+            )
+            parent_id = self._selected_parent(visible)
         if not self.state.no_search:
             self.state.candidates[parent_id].selected_count += 1
         active = ActiveOpportunity(
@@ -488,6 +532,7 @@ class SearchController:
         codex_service_tier: str = "default",
         mechanism: str = "[not recorded]",
         evidence: str = "[not recorded]",
+        external_search: dict[str, Any] | None = None,
     ) -> dict[str, Any]:
         active = self.state.active
         if active is None:
@@ -515,7 +560,17 @@ class SearchController:
             )
             self.state.candidates[candidate_id] = candidate
             parent = self.state.candidates[active.selected_parent_id]
-            if self.state.no_search:
+            if external_search is not None:
+                incumbent_id = str(external_search["best_program_id"])
+                if incumbent_id not in self.state.candidates:
+                    raise ValueError("external search selected an unknown best program")
+                retained = bool(external_search["candidate_in_population"])
+                decision = str(external_search["retention_decision"])
+                self.state.incumbent_id = incumbent_id
+                # The complete native population lives in its own checkpoint;
+                # this list remains the generic dashboard-compatible best view.
+                self.state.portfolio_ids = [incumbent_id]
+            elif self.state.no_search:
                 decision = "independent_not_retained"
             elif not self.condition.has_portfolio:
                 if candidate.fitness > parent.fitness:
@@ -592,6 +647,8 @@ class SearchController:
             "codex_service_tier": codex_service_tier,
             "conversation_session_id": self.state.conversation_session_id,
         }
+        if external_search is not None:
+            record["external_search"] = external_search
         append_jsonl(self.events_path, record)
         self.state.active = None
         self.state.next_opportunity += 1

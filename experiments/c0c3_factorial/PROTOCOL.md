@@ -27,7 +27,7 @@ process cwd ownership, isolates Codex configuration and thread identity, freezes
 inference preprocessing, strengthens fresh-training/attention-dependence checks,
 and caps concurrent local evaluators at three per campaign while all twelve
 controllers run. Local campaigns also enter one twelve-slot host scheduler.
-Version 2.0 is the prospective controlled OpenEvolve replacement. It removes N0,
+Version 2.0 is the prospective Greedy OpenEvolve replacement. It removes N0,
 uses the 1,644-parameter pair-token parent and 5,000-step training path, gives
 each proposal a bounded ephemeral session with structured trajectory evidence,
 and adds strict patch/source preflight plus optional evaluator-only Modal L4
@@ -117,7 +117,7 @@ summary of up to twelve preceding outcomes from its own trajectory. This is a
 common online evidence channel, not a fifth factorial factor. Portfolio cells
 still differ only by access to multiple live qualified source branches.
 
-### Protocols 2.0–2.1 bounded OpenEvolve exception
+### Protocols 2.0–2.1 bounded Greedy OpenEvolve exception
 
 Protocol 2.0 uses a fresh ephemeral Codex call for every proposal. It provides
 structured continuity common to all four cells: the selected source, all
@@ -435,9 +435,10 @@ orchestrators reject their execution-rule identifiers.
 - Layer A field definitions.
 - Scientific runtime code, verified before every opportunity.
 
-Frameworks and tasks are separate experimental strata. OpenEvolve and direct
-Autoresearch have different edit interfaces by definition; all four conditions
-within one framework use the identical interface.
+Frameworks and tasks are separate experimental strata. Greedy OpenEvolve,
+Native OpenEvolve, and direct Autoresearch have different search/edit
+architectures by definition; all conditions within one framework use the
+identical architecture.
 
 ## 10. Budget and stopping
 

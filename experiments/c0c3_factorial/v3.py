@@ -1,4 +1,4 @@
-"""Unified v3 controls shared by Autoresearch, OpenEvolve, and plugins.
+"""Unified v3 controls shared by Autoresearch, OpenEvolve architectures, and plugins.
 
 V3 deliberately separates one campaign-wide prompt snapshot from mutable
 runtime/research options.  The prompt bundle is the only new immutable launch
@@ -452,6 +452,13 @@ def mirror_shared_prefix(
         target = shadow_dir / "candidates" / identifier
         if source.is_dir() and not target.exists():
             shutil.copytree(source, target)
+    framework_input = json.loads(
+        (campaign / "inputs/framework.json").read_text(encoding="utf-8")
+    )
+    if framework_input.get("framework_id") == "native_openevolve":
+        from .native_openevolve import mirror_native_prefix_state
+
+        mirror_native_prefix_state(leader_dir, shadow_dir)
 
     records = []
     existing_shared_events = set()

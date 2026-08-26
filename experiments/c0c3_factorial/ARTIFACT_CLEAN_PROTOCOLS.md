@@ -1,4 +1,4 @@
-# Artifact-clean Autoresearch 1.7 and OpenEvolve 2.1
+# Artifact-clean Autoresearch 1.7 and Greedy OpenEvolve 2.1
 
 Protocols 1.7 and 2.1 are prospective, source-only successors to protocols 1.6
 and 2.0. They preserve the C0–C3 search-state and proposal-policy factors while
@@ -51,7 +51,7 @@ The `max_total_tokens` TOML field is retained for controller-side usage
 accounting compatibility. V1.7 neither exposes nor enforces it; the trajectory
 ends through the 200-proposal, 200-verification, or evaluator-time limits.
 
-## OpenEvolve 2.1
+## Greedy OpenEvolve 2.1
 
 V2.1 retains a fresh ephemeral Codex call for every proposal and therefore
 supplies a bounded recent-result window. Each result contains only public
@@ -108,7 +108,7 @@ TASK=experiments/c0c3_factorial/configs/tasks/ten_digit_addition_pair_transforme
 FRAMEWORK=experiments/c0c3_factorial/configs/frameworks/autoresearch_confined_v1_7.toml
 ```
 
-Local-MPS OpenEvolve:
+Local-MPS Greedy OpenEvolve:
 
 ```bash
 PROTOCOL=experiments/c0c3_factorial/configs/protocols/controlled_openevolve_transformer_v2_1.toml

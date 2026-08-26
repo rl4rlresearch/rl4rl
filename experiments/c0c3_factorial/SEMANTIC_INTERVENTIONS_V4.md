@@ -236,13 +236,13 @@ and recovery path. No completed opportunity is deleted or retried.
 
 The same engine accepts any v3 `TaskSpec` and `FrameworkSpec`:
 
-| Task | OpenEvolve framework | Autoresearch framework |
-|---|---|---|
-| Fashion-MNIST | `fashion_mnist_openevolve_v3.toml` | `fashion_mnist_autoresearch_v3.toml` |
-| AdderBoard | `openevolve_v3.toml` | `autoresearch_v3.toml` |
-| nanoGPT | `nanogpt_openevolve_v3.toml` | `nanogpt_autoresearch_v3.toml` |
+| Task | Greedy OpenEvolve | Native OpenEvolve | Autoresearch |
+|---|---|---|---|
+| Fashion-MNIST | `fashion_mnist_openevolve_v3.toml` | `fashion_mnist_native_openevolve_v3.toml` | `fashion_mnist_autoresearch_v3.toml` |
+| AdderBoard | `openevolve_v3.toml` | `native_openevolve_v3.toml` | `autoresearch_v3.toml` |
+| nanoGPT | `nanogpt_openevolve_v3.toml` | `nanogpt_native_openevolve_v3.toml` | `nanogpt_autoresearch_v3.toml` |
 
-Only Fashion-MNIST/OpenEvolve is authorized for the first launch. Preparing a
+The first launched campaign used Fashion-MNIST/Greedy OpenEvolve. Preparing a
 configuration does not start a subject call.
 
 ## Commands
@@ -277,6 +277,17 @@ $PY "$OVERNIGHT" start \
   --python-bin "$PY" \
   --max-workers 0
 ```
+
+The command above reproduces the Greedy OpenEvolve architecture used by the
+existing 63-trajectory campaign. For a new campaign backed by OpenEvolve's
+native population engine, change only `FRAMEWORK` and use a distinct output:
+
+```bash
+FRAMEWORK=experiments/c0c3_factorial/configs/frameworks/fashion_mnist_native_openevolve_v3.toml
+CAMPAIGN=data/c0c3/semantic-interventions-v4-fashion-native-openevolve-campaign
+```
+
+Preparation and validation do not start any trajectory.
 
 Status and cooperative campaign controls:
 

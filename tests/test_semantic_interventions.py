@@ -18,6 +18,8 @@ sys.path.insert(0, str(ROOT))
 import experiments.semantic_intervention_overnight as semantic_overnight
 from experiments.c0c3_factorial import semantic_interventions as semantic_module
 from experiments.c0c3_factorial.campaign import calibrate_task
+from experiments.c0c3_factorial.native_openevolve import prepare_native_selection
+from experiments.c0c3_factorial.runner import recover_active_opportunity
 from experiments.c0c3_factorial.semantic_interventions import (
     create_semantic_campaign,
     run_semantic_campaign,
@@ -171,9 +173,10 @@ def test_semantic_launchers_share_host_fashion_data_with_detached_runtime(
 
     monkeypatch.delenv("RL4RL_FASHION_MNIST_DATA_ROOT")
     campaign = tmp_path / "checkout/data/c0c3/campaign"
-    assert _fashion_data_root(
-        SimpleNamespace(fashion_data_root=None), campaign
-    ) == data.resolve()
+    assert (
+        _fashion_data_root(SimpleNamespace(fashion_data_root=None), campaign)
+        == data.resolve()
+    )
 
 
 def _phased_spec() -> FactorialSpec:
@@ -381,6 +384,8 @@ def test_semantic_campaign_shares_prefix_then_forks(tmp_path: Path) -> None:
         calibration_path=baseline,
         repo_root=ROOT,
     )
+    campaign_manifest = json.loads((campaign / "campaign.json").read_text())
+    assert campaign_manifest["search_architecture"] == "karpathy_autoresearch"
     assert validate_semantic_campaign(campaign, repo_root=ROOT)["valid"]
     schedule = json.loads((campaign / "schedule.json").read_text())
     by_condition = {row["condition"]: row["run_id"] for row in schedule}
@@ -469,9 +474,7 @@ def test_semantic_campaign_recovers_and_mirrors_interrupted_prefix(
     prefix = json.loads((campaign / "semantic-prefix.json").read_text())["replicates"][
         0
     ]
-    leader = SearchController.load(
-        campaign / "runs" / prefix["leader_run_id"], spec
-    )
+    leader = SearchController.load(campaign / "runs" / prefix["leader_run_id"], spec)
     active = leader.begin()
     assert active.index == 1
     set_semantic_control(
@@ -496,8 +499,9 @@ def test_semantic_campaign_recovers_and_mirrors_interrupted_prefix(
     assert {state.proposals_used for state in states} == {3}
     recovered_results = [
         json.loads(
-            (campaign / "runs" / state.run_id / "opportunities/0001/recovery.json")
-            .read_text(encoding="utf-8")
+            (
+                campaign / "runs" / state.run_id / "opportunities/0001/recovery.json"
+            ).read_text(encoding="utf-8")
         )
         for state in states
     ]
@@ -577,8 +581,7 @@ def test_semantic_postfork_provider_failures_are_charged_only_to_one_arm(
         for opportunity in (2, 3)
     ]
     assert all(
-        row["evaluation"]["failure_kind"] == "provider"
-        for row in assumption_results
+        row["evaluation"]["failure_kind"] == "provider" for row in assumption_results
     )
     passive_results = [
         json.loads(
@@ -721,9 +724,7 @@ def test_semantic_internal_worker_failure_pauses_only_failed_arm(
     )
 
     assert result["status"] == "no-runnable-trajectories"
-    by_arm = {
-        row["intervention_id"]: row for row in semantic_status(campaign)["runs"]
-    }
+    by_arm = {row["intervention_id"]: row for row in semantic_status(campaign)["runs"]}
     assert by_arm["passive_control"]["status"] == "completed"
     assert by_arm["passive_control"]["proposals_used"] == 3
     assert by_arm["assumption_challenge"]["desired"] == "paused"
@@ -818,6 +819,174 @@ def test_openevolve_uses_five_proposal_sessions_and_resets_at_fork(
     assert reset_events[0]["opportunity"] == 6
 
 
+def test_native_openevolve_uses_population_database_and_mirrors_prefix(
+    tmp_path: Path,
+) -> None:
+    pytest.importorskip("dacite")
+    spec = _spec()
+    task = _task(_seed(tmp_path / "seed"))
+    framework = FrameworkSpec(
+        framework_id=FrameworkKind.NATIVE_OPENEVOLVE,
+        adapter="native_openevolve_v1",
+        prompt_profile="fashion_mnist_openevolve_v2_1",
+        edit_mode="search_replace_diff",
+        adapter_options={
+            "population_size": 20,
+            "archive_size": 10,
+            "num_islands": 2,
+            "feature_dimensions": ["complexity", "diversity"],
+            "feature_bins": 4,
+            "num_top_programs": 3,
+            "num_diverse_programs": 2,
+            "migration_interval": 50,
+            "use_template_stochasticity": True,
+        },
+    )
+    baseline = calibrate_task(
+        tmp_path / "calibration",
+        spec=spec,
+        task=task,
+        repo_root=ROOT,
+        python_bin=sys.executable,
+    )
+    campaign = create_semantic_campaign(
+        tmp_path / "campaign",
+        spec=spec,
+        task=task,
+        framework=framework,
+        intervention_plan_path=_plan(tmp_path / "interventions.toml"),
+        calibration_path=baseline,
+        repo_root=ROOT,
+    )
+    schedule = json.loads((campaign / "schedule.json").read_text())
+    by_condition = {row["condition"]: row["run_id"] for row in schedule}
+    calls = tmp_path / "native-calls.jsonl"
+    codex = _openevolve_codex(tmp_path / "fake-native-codex", calls)
+
+    first = run_semantic_opportunity(
+        campaign,
+        run_id=by_condition["assumption_challenge"],
+        repo_root=ROOT,
+        python_bin=sys.executable,
+        codex_binary=str(codex),
+    )
+    assert first["shared_prefix"] is True
+    for run_id in by_condition.values():
+        result = run_semantic_opportunity(
+            campaign,
+            run_id=run_id,
+            repo_root=ROOT,
+            python_bin=sys.executable,
+            codex_binary=str(codex),
+        )
+        assert result["external_search"]["engine"] == (
+            "vendored_openevolve_program_database"
+        )
+
+    leader = campaign / "runs" / by_condition["passive_control"]
+    shadow = campaign / "runs" / by_condition["assumption_challenge"]
+    assert (
+        json.loads((leader / "native-openevolve/current.json").read_text())[
+            "opportunity"
+        ]
+        == 2
+    )
+    assert (
+        json.loads((shadow / "native-openevolve/current.json").read_text())[
+            "opportunity"
+        ]
+        == 2
+    )
+    native_events = [
+        json.loads(line)
+        for line in (leader / "native-openevolve/events.jsonl").read_text().splitlines()
+    ]
+    assert any(row["event"] == "native_parent_sampled" for row in native_events)
+    assert any(row["event"] == "native_outcome_committed" for row in native_events)
+
+
+def test_native_openevolve_reconciles_a_recovered_sampled_opportunity(
+    tmp_path: Path,
+) -> None:
+    pytest.importorskip("dacite")
+    spec = _spec()
+    task = _task(_seed(tmp_path / "seed"))
+    framework = FrameworkSpec(
+        framework_id=FrameworkKind.NATIVE_OPENEVOLVE,
+        adapter="native_openevolve_v1",
+        prompt_profile="fashion_mnist_openevolve_v2_1",
+        edit_mode="search_replace_diff",
+        adapter_options={"num_islands": 2, "num_diverse_programs": 2},
+    )
+    baseline = calibrate_task(
+        tmp_path / "calibration",
+        spec=spec,
+        task=task,
+        repo_root=ROOT,
+        python_bin=sys.executable,
+    )
+    campaign = create_semantic_campaign(
+        tmp_path / "campaign",
+        spec=spec,
+        task=task,
+        framework=framework,
+        intervention_plan_path=_plan(tmp_path / "interventions.toml"),
+        calibration_path=baseline,
+        repo_root=ROOT,
+    )
+    schedule = json.loads((campaign / "schedule.json").read_text())
+    run_id = next(
+        row["run_id"] for row in schedule if row["condition"] == "passive_control"
+    )
+    codex = _openevolve_codex(
+        tmp_path / "fake-native-codex", tmp_path / "native-calls.jsonl"
+    )
+    run_semantic_opportunity(
+        campaign,
+        run_id=run_id,
+        repo_root=ROOT,
+        python_bin=sys.executable,
+        codex_binary=str(codex),
+    )
+
+    run_dir = campaign / "runs" / run_id
+    controller = SearchController.load(run_dir, spec)
+    selection = prepare_native_selection(
+        run_dir,
+        controller=controller,
+        task=task,
+        framework=framework,
+        vendor_root=ROOT / "architecture_discovery/vendor/openevolve",
+        run_seed=next(row["run_seed"] for row in schedule if row["run_id"] == run_id),
+        opportunity=2,
+    )
+    controller.begin(
+        external_visible_ids=list(selection.visible_ids),
+        external_parent_id=selection.parent_id,
+    )
+    (run_dir / "opportunities/0002").mkdir()
+    recovered = recover_active_opportunity(
+        run_dir,
+        spec=spec,
+        reason="injected process interruption after native parent sampling",
+    )
+    assert recovered["evaluation"]["failure_kind"] == "infrastructure_interruption"
+
+    completed = run_semantic_opportunity(
+        campaign,
+        run_id=run_id,
+        repo_root=ROOT,
+        python_bin=sys.executable,
+        codex_binary=str(codex),
+    )
+    assert completed["opportunity"] == 3
+    pointer = json.loads((run_dir / "native-openevolve/current.json").read_text())
+    assert pointer["stage"] == "completed"
+    assert pointer["opportunity"] == 3
+    events = (run_dir / "native-openevolve/events.jsonl").read_text()
+    assert "native_outcome_reconciled_without_addition" in events
+
+
 def test_training_ladder_screens_and_escalates(tmp_path: Path) -> None:
     task = _task(_seed(tmp_path / "seed"))
     outputs = {
@@ -906,10 +1075,9 @@ def test_training_ladder_screens_and_escalates(tmp_path: Path) -> None:
     )
     assert customized.valid is True
     custom_receipt = json.loads(
-        (
-            tmp_path
-            / "screen-custom/fidelity/ladder-result.json"
-        ).read_text(encoding="utf-8")
+        (tmp_path / "screen-custom/fidelity/ladder-result.json").read_text(
+            encoding="utf-8"
+        )
     )["candidate_editable_policy"]
     assert custom_receipt["accepted"] is True
     assert custom_receipt["levels"] == [25_000, 50_000, 100_000]

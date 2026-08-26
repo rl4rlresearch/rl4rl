@@ -1,8 +1,8 @@
-# Candidate improvements for the next Autoresearch and OpenEvolve protocols
+# Candidate improvements for the next Autoresearch and Greedy OpenEvolve protocols
 
 **Status:** design backlog only. Nothing in this document is implemented,
 enabled, frozen, or authorized for an existing campaign. It does not change the
-meaning or execution of Autoresearch v1.7, OpenEvolve v2.1, or any active run.
+meaning or execution of Autoresearch v1.7, Greedy OpenEvolve v2.1, or any active run.
 
 **Evidence cutoff:** 2026-08-24. The live campaigns were incomplete when the
 diagnostic counts below were taken, so those counts are observations for
@@ -43,9 +43,9 @@ These diagnostics are the main reasons some items are ranked above others.
 | Addition Autoresearch v1.7 | 193 | 723.5M | 0.99M at opportunities 1–10 | 12.57M at 31–40 |
 | nanoGPT Autoresearch v1.7 | 139 | 124.6M | 0.77M at 1–10 | 2.26M at 11–20, with only three observations |
 | Fashion-MNIST Autoresearch v1.7 | 934 | 9.70B | 0.76M at 1–10 | 29.78M at 71–80 |
-| Addition OpenEvolve v2.1 | 1,025 | 33.4M | 22.3k at 1–10 | 47.8k at 61–70 |
-| nanoGPT OpenEvolve v2.1 | 659 | 24.8M | 28.9k at 1–10 | 48.0k at 51–60 |
-| Fashion-MNIST OpenEvolve v2.1 | about 2,348 | 54.1M | 21.2k at 1–10 | roughly 22–24k through 150 |
+| Addition Greedy OpenEvolve v2.1 | 1,025 | 33.4M | 22.3k at 1–10 | 47.8k at 61–70 |
+| nanoGPT Greedy OpenEvolve v2.1 | 659 | 24.8M | 28.9k at 1–10 | 48.0k at 51–60 |
+| Fashion-MNIST Greedy OpenEvolve v2.1 | about 2,348 | 54.1M | 21.2k at 1–10 | roughly 22–24k through 150 |
 
 Most Autoresearch input is cached, but it still consumes rate-limit capacity
 and has a real price/capacity cost. Fashion-MNIST Autoresearch recorded 9.36B
@@ -65,11 +65,11 @@ single continuous transcript,” not “memory versus no memory.”
 |---|---:|---:|---:|---:|
 | Addition Autoresearch v1.7 | 102/185 (55.1%) | 4/8 (50.0%) | 102/185 | 4/8 |
 | Fashion-MNIST Autoresearch v1.7 | 688/890 (77.3%) | 26/44 (59.1%) | 318/890 (35.7%) | 7/44 (15.9%) |
-| Addition OpenEvolve v2.1 | 513/975 (52.6%) | 21/50 (42.0%) | 512/975 (52.5%) | 20/50 (40.0%) |
-| nanoGPT OpenEvolve v2.1 | 595/630 (94.4%) | 27/29 (93.1%) | 241/630 (38.3%) | 8/29 (27.6%) |
-| Fashion-MNIST OpenEvolve v2.1 | 1,223/2,237 (54.7%) | 32/109 (29.4%) | 653/2,237 (29.2%) | 10/109 (9.2%) |
+| Addition Greedy OpenEvolve v2.1 | 513/975 (52.6%) | 21/50 (42.0%) | 512/975 (52.5%) | 20/50 (40.0%) |
+| nanoGPT Greedy OpenEvolve v2.1 | 595/630 (94.4%) | 27/29 (93.1%) | 241/630 (38.3%) | 8/29 (27.6%) |
+| Fashion-MNIST Greedy OpenEvolve v2.1 | 1,223/2,237 (54.7%) | 32/109 (29.4%) | 653/2,237 (29.2%) | 10/109 (9.2%) |
 
-The prompt can produce genuine mechanism changes. Addition OpenEvolve
+The prompt can produce genuine mechanism changes. Addition Greedy OpenEvolve
 transition proposals have found qualified low-rank representations, harmonic
 position encodings, and shared-value or multi-query attention designs. It also
 causes large destructive jumps, and on Fashion-MNIST it disproportionately
@@ -82,8 +82,8 @@ feasibility, manipulation checks, and timing part of the design.
 ### 2.3 Fashion-MNIST timeout behavior is a major validity threat
 
 - Fashion-MNIST Autoresearch recorded 206 timeouts among 934 proposals.
-- Fashion-MNIST OpenEvolve recorded 899 timeouts among roughly 2,348 proposals.
-- Addition OpenEvolve recorded only 30 timeouts among 1,025 proposals.
+- Fashion-MNIST Greedy OpenEvolve recorded 899 timeouts among roughly 2,348 proposals.
+- Addition Greedy OpenEvolve recorded only 30 timeouts among 1,025 proposals.
 - The current Mac can run many MPS evaluators simultaneously, but concurrent
   processes contend for the same GPU, memory bandwidth, CPU, and thermal
   envelope. A twelve-slot host cap prevents unbounded process creation; it does
@@ -94,16 +94,16 @@ ensembles, covariance features, or other compute, contention can turn a real
 proposal-policy effect into a timeout effect. This must be addressed before
 using another local-MPS campaign as clean causal evidence.
 
-### 2.4 OpenEvolve patch formatting is no longer a leading problem
+### 2.4 Greedy OpenEvolve patch formatting is no longer a leading problem
 
-The large Fashion-MNIST OpenEvolve snapshot contained only one ambiguous patch
+The large Fashion-MNIST Greedy OpenEvolve snapshot contained only one ambiguous patch
 and one unmatched patch. Spending substantial protocol complexity on a new
 patch format would have little expected return. Execution, timeout, candidate
 validity, evidence memory, and scientific diversity matter more.
 
 ### 2.5 Free-form mechanism labels are provenance, not clusters
 
-OpenEvolve produced nearly one unique free-form mechanism string per proposal
+Greedy OpenEvolve produced nearly one unique free-form mechanism string per proposal
 (for example, 1,824 distinct non-placeholder labels in the Fashion-MNIST
 snapshot). These strings are useful descriptions but do not deduplicate
 mechanistic equivalence. Autoresearch v1.7 records no equivalent structured
@@ -112,7 +112,7 @@ repeat detection and process analysis.
 
 ### 2.6 Portfolio context has an inherent cost
 
-OpenEvolve portfolio cells consumed materially more tokens per proposal than
+Greedy OpenEvolve portfolio cells consumed materially more tokens per proposal than
 single-incumbent cells because they receive additional source branches. The
 difference was roughly 26k versus 48k on nanoGPT and roughly 20–21k versus
 24–26k on Fashion-MNIST. That cost can be considered part of a real portfolio
@@ -541,7 +541,7 @@ The controlled adapter deliberately replaces native database sampling,
 islands, population updates, and retention because those overlap C0–C3. A
 separate ecological-validity campaign should run pinned native OpenEvolve end
 to end under the same task/evaluator budget. Compare it descriptively with the
-controlled adapter; never call the current v2.1 system full native OpenEvolve.
+Greedy adapter; never call the current v2.1 system full native OpenEvolve.
 
 ### 7.7 OpenEvolve population variants
 
@@ -900,9 +900,9 @@ The bounded-memory change is large enough that this successor must be analyzed
 separately from continuous v1.7. If ecological Autoresearch continuity is a key
 question, run continuous v1.7-like behavior as a companion stratum.
 
-### 13.2 Minimal OpenEvolve successor
+### 13.2 Minimal Greedy OpenEvolve successor
 
-The highest-value coherent OpenEvolve vNext bundle would be:
+The highest-value coherent Greedy OpenEvolve vNext bundle would be:
 
 1. preserve fresh ephemeral proposal calls and strict atomic patches;
 2. one campaign-wide frozen prompt snapshot;

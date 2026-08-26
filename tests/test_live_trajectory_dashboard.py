@@ -429,6 +429,9 @@ def test_semantic_campaign_uses_arm_labels_and_charges_shared_prefix_once(
 def test_page_contains_live_controls_and_raw_outcome_overlay() -> None:
     assert "Refresh now" in PAGE
     assert "Auto-refresh" in PAGE
+    assert 'id="campaign-select"' in PAGE
+    assert "function syncCampaignSelector(sections)" in PAGE
+    assert "shownSections=selected?[selected]:[]" in PAGE
     assert "Raw outcome overlay" in PAGE
     assert "Y-axis range" in PAGE
     assert "Fit visible data" in PAGE
@@ -454,6 +457,7 @@ def test_page_contains_live_controls_and_raw_outcome_overlay() -> None:
     assert "IntersectionObserver" in PAGE
     assert "request timed out; try again" in PAGE
     assert "Semantic-intervention evidence" in PAGE
+    assert "Greedy OpenEvolve v2.1" in PAGE
     assert "Intervention families" in PAGE
     assert "physical_resource_charge" in PAGE
     assert "https://unpkg.com/chart.js@4.4.4" in PAGE
@@ -465,6 +469,33 @@ def test_page_contains_live_controls_and_raw_outcome_overlay() -> None:
     assert "/api/revision" in PAGE
     assert "function checkHotReload()" in PAGE
     assert "setInterval(checkHotReload,2000)" in PAGE
+
+
+def test_dashboard_labels_native_and_legacy_openevolve_architectures(
+    tmp_path: Path,
+) -> None:
+    campaign = tmp_path / "native"
+    (campaign / "runs").mkdir(parents=True)
+    _write_json(campaign / "campaign.json", {"schema_version": "4.0"})
+    _write_json(
+        campaign / "inputs/task.json",
+        {
+            "task_id": "toy",
+            "display_name": "Toy task",
+            "objective_metric": "score",
+            "objective_direction": "maximize",
+        },
+    )
+    _write_json(
+        campaign / "inputs/framework.json",
+        {"framework_id": "native_openevolve"},
+    )
+
+    payload = campaign_data(campaign, PRICES)
+
+    assert payload["framework_id"] == "native_openevolve"
+    assert payload["framework_label"] == "Native OpenEvolve"
+    assert payload["task_display_name"] == "Toy task"
 
 
 def test_dashboard_revision_changes_with_source_content(tmp_path: Path) -> None:

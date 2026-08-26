@@ -1,8 +1,8 @@
-# Controlled OpenEvolve transformer protocols v2.0 and v2.1
+# Greedy OpenEvolve transformer protocols v2.0 and v2.1
 
-Protocol 2.0 is a prospective, scientifically separate OpenEvolve stratum. It
+Protocol 2.0 is a prospective, scientifically separate Greedy OpenEvolve stratum. It
 keeps the C0–C3 2×2 question and removes N0 entirely. It must not be pooled with
-the legacy protocol-1.1 OpenEvolve campaign, whose task surface allowed direct
+the legacy protocol-1.1 Greedy OpenEvolve campaign, whose task surface allowed direct
 arithmetic transducers and whose 30,000-step failures consumed many hours.
 Protocol 2.1 is the prospective source-only, artifact-clean successor. It keeps
 the same execution geometry and validity checks but removes unnecessary
@@ -51,9 +51,9 @@ markers, empty design placeholders, selection counts, nonpublic `cases` or
 `correct` fields, raw runner errors, filesystem paths that do not exist, or
 run-derived environment seed. See `ARTIFACT_CLEAN_PROTOCOLS.md`.
 
-## Controlled OpenEvolve boundary
+## Greedy OpenEvolve boundary
 
-This is the controlled OpenEvolve proposal adapter, not native end-to-end
+This is the Greedy OpenEvolve proposal adapter, not native end-to-end
 OpenEvolve. The vendored `PromptSampler`, SEARCH/REPLACE representation, parser,
 and patch workflow remain. The shared C0–C3 instrument deliberately owns parent
 selection, portfolio state, retention, budgets, and evaluator feedback because

@@ -26,6 +26,12 @@ from .codex_cli import CodexCli, session_id_from_events, usage_from_events
 from .evaluator import make_command_evaluator, task_local_evaluator_root
 from .fashion_mnist import preflight_candidate_source as preflight_fashion_mnist
 from .frameworks import make_framework_adapter
+from .native_openevolve import (
+    finalize_native_outcome,
+    is_native_openevolve,
+    prepare_native_selection,
+    stage_native_outcome,
+)
 from .neutral_task import (
     ARTIFACT_CLEAN_PROMPT_PROFILES,
     FASHION_MNIST_TASK_ADAPTER,
@@ -480,7 +486,23 @@ def _run_one_opportunity_unlocked(
         raise RuntimeError(
             "run has an active opportunity; inspect its logs before explicit recovery"
         )
-    active = controller.begin()
+    native_selection = None
+    if is_native_openevolve(framework):
+        native_selection = prepare_native_selection(
+            run_dir,
+            controller=controller,
+            task=task,
+            framework=framework,
+            vendor_root=repo_root / "architecture_discovery/vendor/openevolve",
+            run_seed=run_seed,
+            opportunity=controller.state.next_opportunity,
+        )
+        active = controller.begin(
+            external_visible_ids=list(native_selection.visible_ids),
+            external_parent_id=native_selection.parent_id,
+        )
+    else:
+        active = controller.begin()
     opportunity_root = run_dir / "opportunities" / f"{active.index:04d}"
     opportunity_root.mkdir(parents=True, exist_ok=False)
     support_source = run_dir / "task-support"
@@ -607,9 +629,7 @@ def _run_one_opportunity_unlocked(
         if v3_options is not None
         else {}
     )
-    candidate_ladder = dict(
-        multi_fidelity_options.get("candidate_editable_policy", {})
-    )
+    candidate_ladder = dict(multi_fidelity_options.get("candidate_editable_policy", {}))
     if bool(multi_fidelity_options.get("enabled", False)) and bool(
         candidate_ladder.get("enabled", False)
     ):
@@ -764,6 +784,9 @@ def _run_one_opportunity_unlocked(
         persist_session=continuous,
         neutral_subject=neutral_subject,
         artifact_clean_subject=artifact_clean_subject,
+        native_prompt_context=(
+            native_selection.prompt_context() if native_selection is not None else None
+        ),
     )
     protected_changed = (
         protected_hash(codex_workspace, task.editable_paths) != before_protected
@@ -979,6 +1002,34 @@ def _run_one_opportunity_unlocked(
                 evaluator_calls=1,
                 failure_kind=None if valid else "replicate_evaluation_failure",
             )
+    external_search = None
+    if native_selection is not None:
+        native_prompt = proposal.framework_metadata.get("native_prompt")
+        external_search = stage_native_outcome(
+            run_dir,
+            controller=controller,
+            task=task,
+            framework=framework,
+            vendor_root=repo_root / "architecture_discovery/vendor/openevolve",
+            run_seed=run_seed,
+            selection=native_selection,
+            candidate_id=recorded_candidate_id,
+            candidate_snapshot=candidate_snapshot,
+            hypothesis=proposal.hypothesis,
+            intended_edit=proposal.intended_edit,
+            changes_summary=str(
+                proposal.framework_metadata.get(
+                    "changes_summary", proposal.intended_edit
+                )
+            ),
+            evaluation=evaluation,
+            prompt=(dict(native_prompt) if isinstance(native_prompt, dict) else None),
+            response=(
+                str(proposal.framework_metadata["llm_response"])
+                if "llm_response" in proposal.framework_metadata
+                else None
+            ),
+        )
     record = controller.complete(
         candidate_id=recorded_candidate_id,
         artifact_path=str(candidate_snapshot.relative_to(run_dir)),
@@ -990,7 +1041,14 @@ def _run_one_opportunity_unlocked(
         codex_service_tier=proposal.codex.service_tier,
         mechanism=proposal.mechanism,
         evidence=proposal.evidence,
+        external_search=external_search,
     )
+    if native_selection is not None:
+        finalize_native_outcome(
+            run_dir,
+            opportunity=active.index,
+            candidate_id=recorded_candidate_id,
+        )
     if spec.protocol_version == "3.0":
         proposal_type = (
             "assumption_changing" if active.transition_active else "ordinary"

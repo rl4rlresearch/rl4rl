@@ -53,6 +53,7 @@
 <h1>RL4RL live trajectories</h1>
 <p class="sub">Read-only, log-backed dashboard for factorial and semantic-intervention research. It tracks complete trajectories, physical resource accounting, proposal-to-discovery funnels, developmental stepping stones, and multi-fidelity evaluation. NanoGPT campaigns also expose campaign-attributed Modal GPU estimates.</p>
 <div class="topbar">
+  <label>Campaign <select id="campaign-select" disabled><option>Loading campaigns…</option></select></label>
   <button id="refresh">Refresh now</button>
   <label>Auto-refresh <select id="auto-refresh"><option value="0">Off</option><option value="15">15 sec</option><option value="30" selected>30 sec</option><option value="60">1 min</option><option value="120">2 min</option></select></label>
   <span class="stamp" id="stamp">Loading…</span>
@@ -65,14 +66,14 @@ const conditionColors={C0:['#93c5fd','#60a5fa','#3b82f6','#2563eb','#1d4ed8'],C1
 const semanticFamilyColors={control:['#cbd5e1','#94a3b8','#64748b','#475569'],epistemic:['#bbf7d0','#4ade80','#22c55e','#15803d'],methodological:['#e9d5ff','#c084fc','#9333ea','#6b21a8'],strategic:['#fed7aa','#fb923c','#ea580c','#9a3412'],strategic_control:['#bae6fd','#38bdf8','#0284c7','#075985'],limited_combination:['#fecdd3','#fb7185','#e11d48','#9f1239'],factorial:['#c9d1d9']};
 const campaignDefs=[
   ['autoresearchv16','Autoresearch v1.6','autoresearch_v16','autoresearch'],
-  ['openevolvev2','OpenEvolve v2.0','openevolve_v2','openevolve_v2'],
+  ['openevolvev2','Greedy OpenEvolve v2.0','openevolve_v2','openevolve_v2'],
   ['autoresearchv17','Autoresearch v1.7 · addition','autoresearch_v17'],
-  ['openevolvev21','OpenEvolve v2.1 · addition','openevolve_v21'],
+  ['openevolvev21','Greedy OpenEvolve v2.1 · addition','openevolve_v21'],
   ['autoresearchv17nanogpt','Autoresearch v1.7 · nanoGPT H100','autoresearch_v17_nanogpt'],
-  ['openevolvev21nanogpt','OpenEvolve v2.1 · nanoGPT H100','openevolve_v21_nanogpt'],
+  ['openevolvev21nanogpt','Greedy OpenEvolve v2.1 · nanoGPT H100','openevolve_v21_nanogpt'],
   ['autoresearchv17fashionmnist','Autoresearch v1.7 · Fashion-MNIST MPS','autoresearch_v17_fashion_mnist'],
-  ['openevolvev21fashionmnist','OpenEvolve v2.1 · Fashion-MNIST MPS','openevolve_v21_fashion_mnist'],
-  ['semanticv4fashionmnist','Semantic interventions v4 · Fashion-MNIST OpenEvolve','semantic_v4_fashion_mnist']
+  ['openevolvev21fashionmnist','Greedy OpenEvolve v2.1 · Fashion-MNIST MPS','openevolve_v21_fashion_mnist'],
+  ['semanticv4fashionmnist','Semantic interventions v4 · Fashion-MNIST Greedy OpenEvolve','semantic_v4_fashion_mnist']
 ];
 const charts=new Map();
 const states={};
@@ -81,6 +82,7 @@ const payloadsById=new Map();
 const apiUrl=location.protocol==='file:'?'http://127.0.0.1:8765/api/data':'/api/data';
 const revisionUrl=location.protocol==='file:'?'http://127.0.0.1:8765/api/revision':'/api/revision';
 let latestData=null;
+let selectedCampaignId=null;
 let refreshTimer=null;
 let refreshing=false;
 let clientRevision=null;
@@ -266,7 +268,15 @@ function attachSection(id,payload){
   root.querySelector('[data-action="json"]').addEventListener('click',()=>exportCampaign(id,payload,'json'));
   redraw(id,payload);
 }
-function campaignsFrom(data){const campaigns=data.campaigns||{};return campaignDefs.map(([id,title,key,legacy])=>[id,title,campaigns[key]||(legacy?data[legacy]:null)]);}
+function campaignsFrom(data){const campaigns=data.campaigns||{};return campaignDefs.map(([id,title,key,legacy])=>{const payload=campaigns[key]||(legacy?data[legacy]:null);const dynamicTitle=payload?.semantic&&payload?.framework_label?`Semantic interventions v4 · ${payload.task_display_name||'task'} · ${payload.framework_label}`:title;return [id,dynamicTitle,payload];});}
+function syncCampaignSelector(sections){
+  const selector=document.getElementById('campaign-select'),available=sections.filter(([_id,_title,payload])=>payload?.available);
+  if(!available.length){selectedCampaignId=null;selector.innerHTML='<option>No campaigns available</option>';selector.disabled=true;return null;}
+  if(!available.some(([id])=>id===selectedCampaignId))selectedCampaignId=available[0][0];
+  selector.innerHTML=available.map(([id,title,payload])=>`<option value="${html(id)}"${id===selectedCampaignId?' selected':''}>${html(title)} · ${payload.runs.length} runs</option>`).join('');
+  selector.disabled=false;
+  return available.find(([id])=>id===selectedCampaignId)||available[0];
+}
 function observeSections(sections){
   sectionObserver?.disconnect();
   visibleSections.clear();
@@ -292,9 +302,10 @@ function render(){
   sectionObserver?.disconnect();
   charts.forEach(chart=>chart.destroy());charts.clear();
   const sections=campaignsFrom(latestData);
-  document.getElementById('content').innerHTML=sections.map(([id,title,payload])=>sectionHtml(id,title,payload)).join('');
-  sections.forEach(([id,_title,payload])=>{if(payload?.available)attachSection(id,payload);});
-  observeSections(sections);
+  const selected=syncCampaignSelector(sections),shownSections=selected?[selected]:[];
+  document.getElementById('content').innerHTML=shownSections.length?shownSections.map(([id,title,payload])=>sectionHtml(id,title,payload)).join(''):'<div class="empty">No configured campaign directories are currently available.</div>';
+  shownSections.forEach(([id,_title,payload])=>attachSection(id,payload));
+  observeSections(shownSections);
 }
 function loadScript(url){
   return new Promise((resolve,reject)=>{
@@ -332,6 +343,7 @@ async function checkHotReload(){
 function startHotReload(){if(hotReloadTimer)clearInterval(hotReloadTimer);checkHotReload();hotReloadTimer=setInterval(checkHotReload,2000);}
 function setAutoRefresh(){if(refreshTimer)clearInterval(refreshTimer);const seconds=Number(document.getElementById('auto-refresh').value);if(seconds>0)refreshTimer=setInterval(()=>{if(!document.hidden)refresh();},seconds*1000);}
 document.getElementById('refresh').addEventListener('click',refresh);
+document.getElementById('campaign-select').addEventListener('change',event=>{selectedCampaignId=event.target.value;render();});
 document.getElementById('auto-refresh').addEventListener('change',setAutoRefresh);
 document.addEventListener('visibilitychange',()=>{if(!document.hidden)refresh();});
 startHotReload();setAutoRefresh();refresh();

@@ -1,7 +1,7 @@
 # Unified v3 protocol
 
-Unified v3 is one protocol contract for direct-edit Autoresearch, controlled
-OpenEvolve, future search architectures, and new tasks. Framework and task
+Unified v3 is one protocol contract for direct-edit Autoresearch, Greedy
+OpenEvolve, Native OpenEvolve, future search architectures, and new tasks. Framework and task
 adapters remain separate configuration inputs, but they run through the same
 campaign, state, prompt, evaluation, accounting, review, and audit interfaces.
 
@@ -93,10 +93,11 @@ framework supplies `adapter_factory="module:callable"`. Examples are under
   preflight, ordinary Git workspaces, flexible prose metadata, source/IR
   provenance, transcript retention for audit, and continuous ecological
   companions through existing adapters.
-- §7: bounded OpenEvolve calls, informative evidence selection, free-form
+- §7: bounded Greedy OpenEvolve calls, informative evidence selection, free-form
   mechanism labels plus semantic-delta fingerprints, source validity separated
-  from missing prose metadata, atomic patches, and native/population companion
-  extension points.
+  from missing prose metadata, and atomic patches. The native companion now
+  delegates selection and retention to the vendored OpenEvolve population,
+  MAP-Elites, islands, archive, and migration engine.
 - §8: repeated training-seed aggregation, public/private/Layer-C task hooks,
   existing addition anti-solver checks, nanoGPT worker telemetry, Fashion-MNIST
   task isolation, and a task-evaluator plugin path for multi-fidelity designs.
@@ -140,7 +141,7 @@ are not made immutable or mandatory.
 
 ## Commands
 
-Use one protocol for either framework:
+Use one protocol for any supported framework:
 
 ```bash
 PY=architecture_discovery/.venv/bin/python

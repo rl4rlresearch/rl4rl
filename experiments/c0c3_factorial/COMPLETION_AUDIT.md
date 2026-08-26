@@ -65,7 +65,7 @@ Additional real-source smokes:
 - The real AdderBoard starting tree produced a portable bundle containing its
   training source and trusted submission wrapper.
 - All two tasks × two framework configs parsed and generated runtime hashes.
-- The controlled OpenEvolve SEARCH/REPLACE adapter passed against both the
+- The Greedy OpenEvolve SEARCH/REPLACE adapter passed against both the
   shared working checkout and the clean parent-repository-pinned commit
   `5ecb48b5ca453d3f2b9c316a4ffe45d45725bf0c`.
 

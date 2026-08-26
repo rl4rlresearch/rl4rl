@@ -1,0 +1,25 @@
+framework_id = "native_openevolve"
+adapter = "native_openevolve_v1"
+prompt_profile = "trained_transformer_openevolve_v2_1"
+edit_mode = "search_replace_diff"
+
+# These are the vendored OpenEvolve defaults. The runner delegates parent
+# sampling, inspirations, MAP-Elites retention, islands, archive management,
+# and migration to ProgramDatabase without replacing those policies.
+[adapter_options]
+population_size = 1000
+archive_size = 100
+num_islands = 5
+elite_selection_ratio = 0.1
+exploration_ratio = 0.2
+exploitation_ratio = 0.7
+feature_dimensions = ["complexity", "diversity"]
+feature_bins = 10
+diversity_reference_size = 20
+migration_interval = 50
+migration_rate = 0.1
+similarity_threshold = 0.99
+num_top_programs = 3
+num_diverse_programs = 2
+use_template_stochasticity = true
+max_code_length = 1000000

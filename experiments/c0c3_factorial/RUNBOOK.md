@@ -70,7 +70,7 @@ lifecycle. It must use a fresh calibration and campaign. Do not reuse
 protocol-1.4 artifacts, and do not expose the internal campaign directory or
 documentation to a subject session.
 
-For prospective controlled OpenEvolve protocol 2.0, use:
+For prospective Greedy OpenEvolve protocol 2.0, use:
 
 ```bash
 PROTOCOL=$C0C3/configs/protocols/controlled_openevolve_transformer_v2.toml
@@ -93,7 +93,7 @@ FRAMEWORK=$C0C3/configs/frameworks/autoresearch_confined_v1_7.toml
 OUT=data/c0c3/transformer-optimization-v1-7-source-only
 ```
 
-For artifact-clean controlled OpenEvolve protocol 2.1, use:
+For artifact-clean Greedy OpenEvolve protocol 2.1, use:
 
 ```bash
 PROTOCOL=$C0C3/configs/protocols/controlled_openevolve_transformer_v2_1.toml
@@ -440,7 +440,7 @@ automatically charges/recoveries an interrupted opportunity before relaunching
 only that trajectory. Inspect its `status`, `supervisor.log`, per-job logs, the
 campaign thread registry, and each run's `state.json`/`events.jsonl`.
 
-### Protocol 2.0 controlled OpenEvolve trajectories
+### Protocol 2.0 Greedy OpenEvolve trajectories
 
 Use the same individual start/pause/resume commands as protocol 1.6. All twelve
 C0–C3 run IDs are primary scope and may be supervised independently; no N0 run
@@ -492,7 +492,7 @@ RL4RL_OVERNIGHT_PROFILE=autoresearch-v1.7 \
 RL4RL_OVERNIGHT_PROFILE=autoresearch-v1.7 \
   $PY experiments/c0c3_overnight.py start --recover-interrupted --all-running
 
-# OpenEvolve 2.1
+# Greedy OpenEvolve 2.1
 git worktree add --detach /private/tmp/rl4rl-c0c3-openevolve-v2-1 HEAD
 RL4RL_OVERNIGHT_PROFILE=openevolve-v2.1 \
   $PY experiments/c0c3_overnight.py check
@@ -530,7 +530,7 @@ the tier with which it began.
 
 For the isolated nanoGPT campaigns, use the dedicated H100 deployment in
 `MODAL.md`, then create separate detached runtimes for the four-block
-Autoresearch v1.7 campaign and three-block OpenEvolve v2.1 campaign:
+Autoresearch v1.7 campaign and three-block Greedy OpenEvolve v2.1 campaign:
 
 ```bash
 git worktree add --detach /private/tmp/rl4rl-c0c3-openevolve-v2-1-nanogpt HEAD
@@ -577,7 +577,7 @@ each new run, and records the boundary in `campaign-amendments.jsonl` plus an
 `amendments/` snapshot directory. Do not edit `schedule.json` or run
 directories manually.
 
-For example, to extend the local OpenEvolve Fashion-MNIST campaign from three
+For example, to extend the local Greedy OpenEvolve Fashion-MNIST campaign from three
 to five blocks and launch only B4–B5 under a separate durable supervisor:
 
 ```bash
