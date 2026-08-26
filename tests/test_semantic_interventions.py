@@ -14,6 +14,7 @@ import pytest
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
 
+import experiments.semantic_intervention_overnight as semantic_overnight
 from experiments.c0c3_factorial import semantic_interventions as semantic_module
 from experiments.c0c3_factorial.campaign import calibrate_task
 from experiments.c0c3_factorial.semantic_interventions import (
@@ -78,6 +79,60 @@ def test_semantic_launchers_preserve_virtualenv_symlink(tmp_path: Path) -> None:
         rendered = Path(render(link))
         assert rendered == link.absolute()
         assert rendered.is_symlink()
+
+
+def test_semantic_screen_detection_accepts_macos_nonzero_listing(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    monkeypatch.setattr(
+        semantic_overnight.subprocess,
+        "run",
+        lambda *args, **kwargs: SimpleNamespace(
+            returncode=1,
+            stdout="\t51530.rl4rl-semantic-exact\t(Detached)\n",
+            stderr="",
+        ),
+    )
+
+    assert semantic_overnight._screen_running("rl4rl-semantic-exact") is True
+    assert semantic_overnight._screen_running("rl4rl-semantic") is False
+
+
+def test_semantic_launcher_uses_daemonizing_screen_mode(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    calls: list[tuple[str, ...]] = []
+    screen_states = iter((False, True))
+    monkeypatch.setattr(
+        semantic_overnight, "_screen_running", lambda _session: next(screen_states)
+    )
+    monkeypatch.setattr(
+        semantic_overnight, "set_semantic_control", lambda *args, **kwargs: {}
+    )
+    monkeypatch.setattr(semantic_overnight.shutil, "which", lambda _name: "/screen")
+
+    def fake_run(command, **_kwargs):
+        calls.append(tuple(command))
+        return SimpleNamespace(returncode=0)
+
+    monkeypatch.setattr(semantic_overnight.subprocess, "run", fake_run)
+    campaign = tmp_path / "campaign"
+    campaign.mkdir()
+    runtime = tmp_path / "runtime"
+    runtime.mkdir()
+    result = semantic_overnight._launch(
+        SimpleNamespace(
+            campaign=campaign,
+            runtime_root=runtime,
+            python_bin=Path(sys.executable),
+            fashion_data_root=None,
+            max_workers=12,
+            reason="test",
+        )
+    )
+
+    assert result["status"] == "started"
+    assert calls[0][1] == "-dmS"
 
 
 def test_semantic_launchers_share_host_fashion_data_with_detached_runtime(

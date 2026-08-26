@@ -11,6 +11,7 @@ import shlex
 import shutil
 import subprocess
 import sys
+import time
 from pathlib import Path
 
 REPO_ROOT = Path(__file__).resolve().parents[1]
@@ -53,9 +54,20 @@ def _fashion_data_root(args: argparse.Namespace, campaign: Path) -> Path | None:
 
 def _screen_running(session: str) -> bool:
     result = subprocess.run(
-        ("screen", "-ls", session), capture_output=True, text=True, check=False
+        (shutil.which("screen") or "/usr/bin/screen", "-ls"),
+        capture_output=True,
+        text=True,
+        check=False,
     )
-    return result.returncode == 0 and session in result.stdout
+    for line in (result.stdout + result.stderr).splitlines():
+        fields = line.strip().split()
+        if not fields:
+            continue
+        numbered_session = fields[0]
+        _pid, separator, session_name = numbered_session.partition(".")
+        if separator and session_name == session:
+            return True
+    return False
 
 
 def _launch(args: argparse.Namespace) -> dict[str, object]:
@@ -92,7 +104,19 @@ def _launch(args: argparse.Namespace) -> dict[str, object]:
         + " ".join(shlex.quote(value) for value in command)
         + f" >> {shlex.quote(str(log))} 2>&1"
     )
-    subprocess.run(("screen", "-DmS", session, "zsh", "-lc", shell), check=True)
+    result = subprocess.run(
+        ("screen", "-dmS", session, "zsh", "-lc", shell), check=False
+    )
+    if result.returncode != 0:
+        raise RuntimeError(f"screen failed to start (exit {result.returncode})")
+    for _ in range(20):
+        if _screen_running(session):
+            break
+        time.sleep(0.1)
+    else:
+        raise RuntimeError(
+            f"screen session {session!r} exited before reporting healthy"
+        )
     return {
         "status": "started",
         "screen_session": session,
