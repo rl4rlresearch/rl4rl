@@ -22,6 +22,7 @@
   .control { display:grid; gap:4px; } .control select { max-width:280px; }
   .checks { display:flex; align-items:center; gap:9px; flex-wrap:wrap; min-height:34px; }
   .checks label { color:#d0d7de; display:inline-flex; align-items:center; gap:4px; }
+  .condition-grid { display:grid; grid-template-columns:repeat(3,minmax(120px,1fr)); gap:4px 10px; max-height:150px; overflow:auto; padding:6px; border:1px solid #30363d; border-radius:6px; }
   input[type=checkbox] { accent-color:#58a6ff; }
   input[type=search],input[type=number] { width:150px; padding:7px 9px; border-radius:6px; border:1px solid #49566b; background:#0d1117; color:inherit; }
   input[type=number] { width:112px; }
@@ -43,11 +44,14 @@
   th:first-child,td:first-child { text-align:left; } th button { border:0; padding:0; background:none; font-weight:650; color:#c9d1d9; }
   .empty { border:1px dashed #3a4555; border-radius:8px; padding:16px; color:#9da7b5; margin-top:10px; }
   .note { font-size:11px; color:#8b98a9; margin:7px 0 0; }
+  .analysis { margin:14px 0; padding:12px; border:1px solid #3c4960; border-radius:8px; background:#101925; }
+  .analysis h3 { margin:0 0 5px; font-size:15px; }
+  .analysis p { margin:0 0 7px; color:#99a6b8; font-size:12px; }
   @media (max-width:1100px) { .charts { grid-template-columns:1fr; } .stats { grid-template-columns:repeat(2,1fr); } }
   @media (max-width:600px) { body { padding:14px; } .stats { grid-template-columns:1fr 1fr; } }
 </style>
 <h1>RL4RL live trajectories</h1>
-<p class="sub">Read-only, log-backed dashboard. Default charts preserve the familiar proposal, token-cost, and active-time views; hollow markers show every proposal outcome while solid lines show the best valid trajectory. NanoGPT campaigns also expose campaign-attributed Modal GPU estimates.</p>
+<p class="sub">Read-only, log-backed dashboard for factorial and semantic-intervention research. It tracks complete trajectories, physical resource accounting, proposal-to-discovery funnels, developmental stepping stones, and multi-fidelity evaluation. NanoGPT campaigns also expose campaign-attributed Modal GPU estimates.</p>
 <div class="topbar">
   <button id="refresh">Refresh now</button>
   <label>Auto-refresh <select id="auto-refresh"><option value="0">Off</option><option value="15">15 sec</option><option value="30" selected>30 sec</option><option value="60">1 min</option><option value="120">2 min</option></select></label>
@@ -58,6 +62,7 @@
 <script>
 'use strict';
 const conditionColors={C0:['#93c5fd','#60a5fa','#3b82f6','#2563eb','#1d4ed8'],C1:['#fed7aa','#fdba74','#fb923c','#f97316','#c2410c'],C2:['#e9d5ff','#d8b4fe','#c084fc','#a855f7','#7e22ce'],C3:['#bbf7d0','#86efac','#4ade80','#22c55e','#15803d']};
+const semanticFamilyColors={control:['#cbd5e1','#94a3b8','#64748b','#475569'],epistemic:['#bbf7d0','#4ade80','#22c55e','#15803d'],methodological:['#e9d5ff','#c084fc','#9333ea','#6b21a8'],strategic:['#fed7aa','#fb923c','#ea580c','#9a3412'],strategic_control:['#bae6fd','#38bdf8','#0284c7','#075985'],limited_combination:['#fecdd3','#fb7185','#e11d48','#9f1239'],factorial:['#c9d1d9']};
 const campaignDefs=[
   ['autoresearchv16','Autoresearch v1.6','autoresearch_v16','autoresearch'],
   ['openevolvev2','OpenEvolve v2.0','openevolve_v2','openevolve_v2'],
@@ -66,7 +71,8 @@ const campaignDefs=[
   ['autoresearchv17nanogpt','Autoresearch v1.7 · nanoGPT H100','autoresearch_v17_nanogpt'],
   ['openevolvev21nanogpt','OpenEvolve v2.1 · nanoGPT H100','openevolve_v21_nanogpt'],
   ['autoresearchv17fashionmnist','Autoresearch v1.7 · Fashion-MNIST MPS','autoresearch_v17_fashion_mnist'],
-  ['openevolvev21fashionmnist','OpenEvolve v2.1 · Fashion-MNIST MPS','openevolve_v21_fashion_mnist']
+  ['openevolvev21fashionmnist','OpenEvolve v2.1 · Fashion-MNIST MPS','openevolve_v21_fashion_mnist'],
+  ['semanticv4fashionmnist','Semantic interventions v4 · Fashion-MNIST OpenEvolve','semantic_v4_fashion_mnist']
 ];
 const charts=new Map();
 const states={};
@@ -84,7 +90,9 @@ let chartLoadPromise=null;
 
 function html(value){return String(value??'').replace(/[&<>"']/g,ch=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]));}
 function finite(value){const number=Number(value);return value===null||value===''||!Number.isFinite(number)?null:number;}
-function color(run){const family=conditionColors[run.condition]||['#c9d1d9'];const match=run.label.match(/^B(\d+)/);return family[match?(Number(match[1])-1)%family.length:0];}
+function stableIndex(value,size){let hash=2166136261;for(const ch of String(value)){hash^=ch.charCodeAt(0);hash=Math.imul(hash,16777619);}return Math.abs(hash)%Math.max(1,size);}
+function runPalette(run){return conditionColors[run.condition]||semanticFamilyColors[run.condition_family]||['#c9d1d9'];}
+function color(run){const palette=runPalette(run);const replicate=finite(run.replicate);return palette[replicate===null?stableIndex(run.condition,palette.length):Math.max(0,replicate-1)%palette.length];}
 function proposalBounds(state){const startValue=finite(state.proposalStart),endValue=finite(state.proposalEnd);const start=startValue===null?0:Math.max(0,Math.floor(startValue));const end=endValue===null?null:Math.max(0,Math.floor(endValue));return {start,end};}
 function normalizeProposalWindow(state){const {start,end}=proposalBounds(state);state.proposalStart=String(start);state.proposalEnd=end===null?'':String(Math.max(start,end));}
 function baselineObjective(run,state){const {start}=proposalBounds(state);let baseline=null;for(const point of run.points){if(Number(point.proposal)>start)break;const value=finite(point.best_objective);if(value!==null)baseline=value;}return baseline;}
@@ -92,28 +100,33 @@ function improvementAt(point,baseline,direction,percent){const current=finite(po
 function valueAt(point,key,baseline=null,direction='minimize'){if(key==='objective_improvement')return improvementAt(point,baseline,direction,false);if(key==='objective_improvement_percent')return improvementAt(point,baseline,direction,true);if(key.startsWith('metric:'))return finite(point.metrics?.[key.slice(7)]);return finite(point[key]);}
 function labelFor(payload,key,state=null){if(state&&(key==='objective_improvement'||key==='objective_improvement_percent')){const suffix=key.endsWith('_percent')?' (%)':'';return `Best ${payload.objective_metric} improvement from proposal ${proposalBounds(state).start}${suffix}`;}return payload.axis_catalog?.find(item=>item.key===key)?.label||key;}
 function fmt(value,key=''){const n=finite(value);if(n===null)return '—';if(key.includes('cost'))return '$'+n.toLocaleString(undefined,{minimumFractionDigits:2,maximumFractionDigits:4});if(key.includes('percent'))return n.toLocaleString(undefined,{maximumFractionDigits:2})+'%';if(key.includes('tokens')||key==='proposal'||key==='evaluator_calls')return Math.round(n).toLocaleString();return n.toLocaleString(undefined,{maximumFractionDigits:5});}
-function summaryColumns(payload){const columns=[['label','Run'],['condition','Condition'],['status','Status'],['proposals_used','Proposals'],['valid_rate','Valid'],['retained_proposals','Retained'],['total_tokens','Reported tokens'],['token_cost','Token cost']];if(payload.modal_usage?.available)columns.push(['modal_gpu_cost','Modal GPU estimate']);columns.push(['active_hours','Active hours'],['best_objective','Best '+payload.objective_metric],['latest_raw_objective','Latest raw']);return columns;}
+function summaryColumns(payload){const columns=[['label','Run'],['condition','Condition']];if(payload.semantic)columns.push(['condition_family','Family'],['replicate','Replicate']);columns.push(['status','Status'],['proposals_used','Proposals'],['valid_rate','Valid'],['retained_proposals','Retained']);if(payload.semantic)columns.push(['postfork_novel_delta_proposals','Novel deltas'],['intervention_phase_successes','Successful phases'],['accounted_total_tokens','Physical tokens'],['accounted_token_cost','Physical token cost']);else columns.push(['total_tokens','Reported tokens'],['token_cost','Token cost']);if(payload.modal_usage?.available)columns.push(['modal_gpu_cost','Modal GPU estimate']);columns.push(['active_hours','Active hours'],['best_objective','Best '+payload.objective_metric],['latest_raw_objective','Latest raw']);return columns;}
 function median(values){const sorted=values.map(finite).filter(value=>value!==null).sort((a,b)=>a-b);if(!sorted.length)return null;const middle=Math.floor(sorted.length/2);return sorted.length%2?sorted[middle]:(sorted[middle-1]+sorted[middle])/2;}
 function mean(values){const numbers=values.map(finite).filter(value=>value!==null);return numbers.length?numbers.reduce((sum,value)=>sum+value,0)/numbers.length:null;}
-function conditionColor(condition){const family=conditionColors[condition]||['#c9d1d9'];return family[Math.floor(family.length/2)];}
-function defaultState(){return {y:'best_objective',yScale:'zero',seriesMode:'runs',xs:['proposal','token_cost','active_hours'],proposalStart:'0',proposalEnd:'',filter:'all',proposalType:'all',conditions:['C0','C1','C2','C3'],hiddenRuns:[],showSeed:true,connect:true,overlay:true,query:'',sort:'label',sortDirection:1};}
-function stateFor(id,payload){if(!states[id])states[id]=defaultState();if(!['zero','data'].includes(states[id].yScale))states[id].yScale='zero';if(!['runs','conditionMedian','conditionMean'].includes(states[id].seriesMode))states[id].seriesMode='runs';const keys=new Set((payload.axis_catalog||[]).map(item=>item.key));if(!keys.has(states[id].y))states[id].y='best_objective';states[id].xs=states[id].xs.map((key,index)=>keys.has(key)?key:['proposal','token_cost','active_hours'][index]);return states[id];}
+function conditionColor(condition,payload){const info=(payload?.condition_catalog||[]).find(item=>item.id===condition);const palette=conditionColors[condition]||semanticFamilyColors[info?.family]||['#c9d1d9'];return palette[stableIndex(condition,palette.length)];}
+function allConditions(payload){return (payload.condition_catalog||[]).map(item=>item.id);}
+function allFamilies(payload){return [...new Set((payload.condition_catalog||[]).map(item=>item.family))];}
+function defaultState(payload=null){const semantic=Boolean(payload?.semantic);return {y:'best_objective',yScale:'zero',seriesMode:semantic?'conditionMedian':'runs',xs:['proposal','token_cost','active_hours'],proposalStart:'0',proposalEnd:'',filter:'all',proposalType:'all',conditions:payload?allConditions(payload):['C0','C1','C2','C3'],families:payload?allFamilies(payload):['factorial'],hiddenRuns:[],showSeed:true,connect:true,overlay:true,query:'',sort:'label',sortDirection:1};}
+function stateFor(id,payload){if(!states[id])states[id]=defaultState(payload);const available=allConditions(payload);states[id].conditions=states[id].conditions.filter(value=>available.includes(value));if(!states[id].conditions.length&&available.length)states[id].conditions=[...available];const families=allFamilies(payload);states[id].families=(states[id].families||families).filter(value=>families.includes(value));if(!states[id].families.length&&families.length)states[id].families=[...families];if(!['zero','data'].includes(states[id].yScale))states[id].yScale='zero';if(!['runs','conditionMedian','conditionMean'].includes(states[id].seriesMode))states[id].seriesMode='runs';const keys=new Set((payload.axis_catalog||[]).map(item=>item.key));if(!keys.has(states[id].y))states[id].y='best_objective';states[id].xs=states[id].xs.map((key,index)=>keys.has(key)?key:['proposal','token_cost','active_hours'][index]);return states[id];}
 function axisOptions(payload,selected,state){return (payload.axis_catalog||[]).map(item=>`<option value="${html(item.key)}"${item.key===selected?' selected':''}>${html(labelFor(payload,item.key,state))}</option>`).join('');}
 function proposalTypes(payload){return [...new Set(payload.runs.flatMap(run=>run.points.map(point=>point.proposal_type)).filter(type=>type&&type!=='seed'))].sort();}
+function semanticPanelHtml(id,payload){if(!payload.semantic)return '';const summary=payload.semantic_summary||{};const dev=summary.developmental_counts||{};return `<div class="analysis"><h3>Semantic-intervention evidence</h3><p>Physical accounting charges each replicate’s common prefix once. The arm table focuses on post-fork behavior so treatment comparisons are not dominated by the identical first five proposals. “Mechanism reported” is a trace-completeness measure, not an independent compliance judgment.</p><div class="stats"><div class="stat"><span>Intervention arms</span><b>${fmt(summary.intervention_count)}</b></div><div class="stat"><span>Replicates per arm</span><b>${fmt(summary.replicates)}</b></div><div class="stat"><span>Physical / logical calls</span><b>${fmt(summary.physical_proposal_calls)} / ${fmt(summary.logical_proposal_records)}</b></div><div class="stat"><span>Applied interventions</span><b>${fmt(summary.interventions_applied)}</b></div><div class="stat"><span>Provisional valid</span><b>${fmt(dev.provisional_valid||0)}</b></div><div class="stat"><span>Screened early / full fidelity</span><b>${fmt(summary.screened_out_proposals)} / ${fmt(summary.full_fidelity_proposals)}</b></div></div><div class="table-wrap"><table><thead><tr><th>Arm</th><th>Family</th><th>Runs</th><th>Post-fork proposals</th><th>Valid</th><th>Retained</th><th>Novel delta</th><th>Mechanism reported</th><th>Successful intervention phases</th><th>Mean post-fork token cost</th><th>Mean evaluator hours</th><th>Best ${html(payload.objective_metric)}</th></tr></thead><tbody id="${id}-semantic-rows"></tbody></table></div></div>`;}
 
 function sectionHtml(id,title,payload){
   if(!payload||!payload.available)return `<section class="section"><h2>${html(title)}</h2><div class="empty">Campaign directory is not available: ${html(payload?.campaign||'not configured')}</div></section>`;
   const state=stateFor(id,payload);
   const types=proposalTypes(payload);
+  const catalog=payload.condition_catalog||[];
   const aggregateMode=state.seriesMode==='conditionMean'?'mean':'median';
   const legend=state.seriesMode!=='runs'
-    ? ['C0','C1','C2','C3'].map(condition=>{const count=payload.runs.filter(run=>run.condition===condition).length;return `<span class="key${state.conditions.includes(condition)?'':' off'}" data-aggregate-condition="${condition}"><i class="dot" style="background:${conditionColor(condition)}"></i>${condition} ${aggregateMode} · ${count} run${count===1?'':'s'}</span>`;}).join('')
+    ? catalog.map(item=>{const condition=item.id,count=payload.runs.filter(run=>run.condition===condition).length;return `<span class="key${state.conditions.includes(condition)?'':' off'}" data-aggregate-condition="${html(condition)}"><i class="dot" style="background:${conditionColor(condition,payload)}"></i>${html(item.label||condition)} ${aggregateMode} · ${count} run${count===1?'':'s'}</span>`;}).join('')
     : payload.runs.map(run=>`<button class="key${state.hiddenRuns.includes(run.run_id)?' off':''}" data-run="${html(run.run_id)}"><i class="dot" style="background:${color(run)}"></i>${html(run.label)}</button>`).join('');
-  const checks=['C0','C1','C2','C3'].map(condition=>`<label><input type="checkbox" data-condition="${condition}"${state.conditions.includes(condition)?' checked':''}>${condition}</label>`).join('');
+  const checks=catalog.map(item=>`<label title="${html(item.label)}"><input type="checkbox" data-condition="${html(item.id)}"${state.conditions.includes(item.id)?' checked':''}>${html(item.id)}</label>`).join('');
+  const familyChecks=allFamilies(payload).map(family=>`<label><input type="checkbox" data-family="${html(family)}"${state.families.includes(family)?' checked':''}>${html(family.replaceAll('_',' '))}</label>`).join('');
   const typeOptions=['<option value="all">All proposal types</option>',...types.map(type=>`<option value="${html(type)}"${state.proposalType===type?' selected':''}>${html(type)}</option>`)].join('');
   const columns=summaryColumns(payload);
   return `<section class="section" id="${id}-section">
-    <div class="section-head"><div><h2>${html(title)}</h2><p class="path">${html(payload.campaign)}</p></div><span class="health">● ${payload.runs.length} runs · live logs</span></div>
+    <div class="section-head"><div><h2>${html(title)}</h2><p class="path">${html(payload.campaign)}</p></div><span class="health">● ${payload.runs.length} runs${payload.semantic?' · '+catalog.length+' arms':''} · live logs</span></div>
     <div class="controls">
       <div class="control"><label>Y metric</label><select data-control="y">${axisOptions(payload,state.y,state)}</select></div>
       <div class="control"><label>Y-axis range</label><select data-control="yScale"><option value="zero"${state.yScale==='zero'?' selected':''}>Start at zero</option><option value="data"${state.yScale==='data'?' selected':''}>Fit visible data</option></select></div>
@@ -122,14 +135,16 @@ function sectionHtml(id,title,payload){
       <div class="control"><label>Lines</label><select data-control="seriesMode"><option value="runs"${state.seriesMode==='runs'?' selected':''}>Individual runs</option><option value="conditionMedian"${state.seriesMode==='conditionMedian'?' selected':''}>Condition median</option><option value="conditionMean"${state.seriesMode==='conditionMean'?' selected':''}>Condition mean</option></select></div>
       <div class="control"><label>Proposal outcomes</label><select data-control="filter"><option value="all">All outcomes</option><option value="valid">Valid only</option><option value="invalid">Invalid only</option><option value="retained">Retained only</option></select></div>
       <div class="control"><label>Proposal type</label><select data-control="proposalType">${typeOptions}</select></div>
-      <div class="control"><label>Conditions</label><div class="checks">${checks}</div></div>
+      <div class="control"><label>${payload.semantic?'Intervention arms':'Conditions'}</label><div class="condition-grid">${checks}</div></div>
+      ${payload.semantic?`<div class="control"><label>Intervention families</label><div class="checks">${familyChecks}</div></div>`:''}
       <div class="checks"><label><input type="checkbox" data-control="showSeed"${state.showSeed?' checked':''}>Seed</label><label><input type="checkbox" data-control="connect"${state.connect?' checked':''}>Connect</label><label><input type="checkbox" data-control="overlay"${state.overlay?' checked':''}${state.seriesMode!=='runs'?' disabled':''}>Raw outcome overlay</label></div>
       <button data-action="reset">Reset view</button><button data-action="csv">Export visible CSV</button><button data-action="json">Export JSON</button>
     </div>
     <div class="stats" id="${id}-stats"></div>
     <div class="legend" id="${id}-legend">${legend}</div>
     <div class="charts">${state.xs.map((xKey,index)=>`<div class="chart-card"><div class="chart-head"><strong>Chart ${index+1}</strong><select data-x="${index}">${axisOptions(payload,xKey,state)}</select></div><div class="chart"><canvas id="${id}-chart-${index}"></canvas></div></div>`).join('')}</div>
-    <p class="note">Marker key: ● seed or retained · × invalid · ○ other valid. Proposal start/end window all three charts, even when X displays cost or time. Improvement metrics use each run's best score at Proposal start as zero. Condition summary lines align runs by proposal number and take the selected median or mean across that condition's visible outcomes; the tooltip reports how many runs contributed. Y follows the selected range. Paused time and gaps between completed proposals are excluded from active wall-clock time. Modal estimates price only recorded evaluator GPU worker seconds, not a Modal invoice.</p>
+    <p class="note">Marker key: ● seed or retained · × invalid · ○ other valid. Proposal start/end window all three charts, even when X displays cost or time. Improvement metrics use each run's best score at Proposal start as zero. Summary lines align runs by proposal number. Y follows the selected range and defaults to a zero origin. Paused time and gaps between completed proposals are excluded from active wall-clock time. ${payload.semantic?'All arms in one replicate share proposals 1–'+(payload.semantic_summary?.shared_prefix_opportunities||0)+' literally; conceptual trajectory charts include that history, while physical campaign totals charge it only once. ':''}Modal estimates price only recorded evaluator GPU worker seconds, not a Modal invoice.</p>
+    ${semanticPanelHtml(id,payload)}
     <div class="table-tools"><strong>Run summary</strong><input type="search" data-control="query" value="${html(state.query)}" placeholder="Filter runs"></div>
     <div class="table-wrap"><table><thead><tr>${columns.map(([key,label])=>`<th><button data-sort="${key}">${html(label)}</button></th>`).join('')}</tr></thead><tbody id="${id}-rows"></tbody></table></div>
   </section>`;
@@ -144,7 +159,7 @@ function pointAllowed(point,state){
   if(state.filter==='retained'&&!point.retained)return false;
   return state.proposalType==='all'||point.proposal_type===state.proposalType;
 }
-function visibleRuns(payload,state){return payload.runs.filter(run=>state.conditions.includes(run.condition)&&(state.seriesMode==='conditionMedian'||!state.hiddenRuns.includes(run.run_id)));}
+function visibleRuns(payload,state){return payload.runs.filter(run=>state.conditions.includes(run.condition)&&state.families.includes(run.condition_family)&&(state.seriesMode==='conditionMedian'||state.seriesMode==='conditionMean'||!state.hiddenRuns.includes(run.run_id)));}
 function chartPoint(point,xKey,yKey,baseline,direction){const x=valueAt(point,xKey,baseline,direction),y=valueAt(point,yKey,baseline,direction);return x===null||y===null?null:{x,y,point};}
 function pointStyle(context){const point=context.raw?.point;if(!point)return 'circle';if(!point.valid)return 'crossRot';return 'circle';}
 function pointRadius(context){const point=context.raw?.point;if(!point)return 2;if(point.aggregate||point.is_seed)return 4;if(!point.valid)return 5;if(point.retained)return 4;return 3;}
@@ -166,7 +181,7 @@ function aggregateDataset(condition,runs,xKey,yKey,state,payload,aggregateMethod
     const aggregatePoint={proposal,aggregate:true,aggregate_method:aggregateMethod,is_seed:proposal===0,valid:true,retained:true,member_count:items.length,condition_run_count:runs.length,raw_objective:aggregate(sourcePoints.map(point=>point.raw_objective)),best_objective:aggregate(sourcePoints.map(point=>point.best_objective)),token_cost:aggregate(sourcePoints.map(point=>point.token_cost)),modal_gpu_cost:aggregate(sourcePoints.map(point=>point.modal_gpu_cost)),modal_worker_seconds:aggregate(sourcePoints.map(point=>point.modal_worker_seconds)),total_tokens:aggregate(sourcePoints.map(point=>point.total_tokens)),active_hours:aggregate(sourcePoints.map(point=>point.active_hours)),failure_kind:null};
     return {x:aggregate(items.map(item=>item.x)),y:aggregate(items.map(item=>item.y)),point:aggregatePoint};
   }).filter(point=>point.x!==null&&point.y!==null);
-  const shade=conditionColor(condition);
+  const shade=conditionColor(condition,payload);
   return {label:`${condition} ${aggregateMethod} (${runs.length} runs)`,role:'aggregate',data,showLine:state.connect,borderColor:shade,backgroundColor:shade,pointBorderColor:shade,pointBackgroundColor:shade,borderWidth:3,pointBorderWidth:1,pointStyle:'circle',pointRadius,pointHoverRadius:7,tension:.12,spanGaps:true};
 }
 function chartOptions(payload,xKey,yKey,yScale,state){
@@ -207,28 +222,32 @@ function drawStats(id,payload){
   const state=states[id],runs=visibleRuns(payload,state);
   const proposals=runs.reduce((sum,run)=>sum+Number(run.proposals_used||0),0),valid=runs.reduce((sum,run)=>sum+Number(run.valid_proposals||0),0),retained=runs.reduce((sum,run)=>sum+Number(run.retained_proposals||0),0),tokens=runs.reduce((sum,run)=>sum+Number(run.total_tokens||0),0);
   const values=[['Visible runs',runs.length],['Completed proposals',proposals.toLocaleString()],['Valid rate',proposals?(100*valid/proposals).toFixed(1)+'%':'—'],['Retained proposals',retained.toLocaleString()],['Best '+payload.objective_metric,fmt(overallBest(runs,payload.objective_direction),'best_objective')],['Reported tokens',tokens.toLocaleString()]];
+  if(payload.semantic){const postfork=runs.reduce((sum,run)=>sum+Number(run.postfork_proposals||0),0),novel=runs.reduce((sum,run)=>sum+Number(run.postfork_novel_delta_proposals||0),0),phases=runs.reduce((sum,run)=>sum+Number(run.intervention_phase_count||0),0),successes=runs.reduce((sum,run)=>sum+Number(run.intervention_phase_successes||0),0);values.splice(5,1,['Novel post-fork deltas',postfork?(100*novel/postfork).toFixed(1)+'%':'—'],['Successful intervention phases',phases?(100*successes/phases).toFixed(1)+'%':'—']);}
   if(payload.modal_usage?.available)values.push(['Campaign Modal GPU estimate',fmt(payload.modal_usage.gpu_cost,'modal_gpu_cost')]);
   document.getElementById(id+'-stats').innerHTML=values.map(([label,value])=>`<div class="stat"><span>${html(label)}</span><b>${html(value)}</b></div>`).join('');
 }
 function comparable(run,key){if(key==='valid_rate')return run.proposals_used?run.valid_proposals/run.proposals_used:-1;return run[key];}
+function summaryCell(run,key,payload){if(key==='valid_rate')return run.proposals_used?(100*run.valid_proposals/run.proposals_used).toFixed(1)+'%':'—';if(key==='condition')return run.condition_label||run.condition;if(key==='condition_family')return String(run.condition_family||'').replaceAll('_',' ');if(key.includes('cost'))return fmt(run[key],key);if(['proposals_used','retained_proposals','postfork_novel_delta_proposals','intervention_phase_successes','total_tokens','accounted_total_tokens','replicate'].includes(key))return fmt(run[key],key==='replicate'?'proposal':key);if(['active_hours','best_objective','latest_raw_objective'].includes(key))return fmt(run[key],key);return String(run[key]??'—');}
 function drawTable(id,payload){
   const state=states[id],query=state.query.trim().toLowerCase();
   const runs=visibleRuns(payload,state).filter(run=>!query||run.label.toLowerCase().includes(query)||run.condition.toLowerCase().includes(query)||String(run.status).toLowerCase().includes(query));
   runs.sort((a,b)=>{const av=comparable(a,state.sort),bv=comparable(b,state.sort);if(typeof av==='number'&&typeof bv==='number')return (av-bv)*state.sortDirection;return String(av??'').localeCompare(String(bv??''))*state.sortDirection;});
-  document.getElementById(id+'-rows').innerHTML=runs.map(run=>`<tr><td>${html(run.label)}</td><td>${html(run.condition)}</td><td>${html(run.status)}</td><td>${fmt(run.proposals_used,'proposal')}</td><td>${run.proposals_used?(100*run.valid_proposals/run.proposals_used).toFixed(1)+'%':'—'}</td><td>${fmt(run.retained_proposals,'proposal')}</td><td>${fmt(run.total_tokens,'total_tokens')}</td><td>${fmt(run.token_cost,'token_cost')}</td>${payload.modal_usage?.available?`<td>${fmt(run.modal_gpu_cost,'modal_gpu_cost')}</td>`:''}<td>${fmt(run.active_hours,'active_hours')}</td><td>${fmt(run.best_objective,'best_objective')}</td><td>${fmt(run.latest_raw_objective,'raw_objective')}</td></tr>`).join('');
+  const columns=summaryColumns(payload);
+  document.getElementById(id+'-rows').innerHTML=runs.map(run=>`<tr>${columns.map(([key])=>`<td>${html(summaryCell(run,key,payload))}</td>`).join('')}</tr>`).join('');
 }
+function drawSemanticTable(id,payload){if(!payload.semantic)return;const target=document.getElementById(id+'-semantic-rows');if(!target)return;const state=states[id],runs=visibleRuns(payload,state),catalog=payload.condition_catalog||[];const rows=[];for(const item of catalog){const members=runs.filter(run=>run.condition===item.id);if(!members.length)continue;const total=key=>members.reduce((sum,run)=>sum+Number(run[key]||0),0),proposals=total('postfork_proposals'),phases=total('intervention_phase_count'),best=overallBest(members,payload.objective_direction);rows.push(`<tr><td>${html(item.label||item.id)}</td><td>${html(String(item.family||'').replaceAll('_',' '))}</td><td>${members.length}</td><td>${fmt(proposals,'proposal')}</td><td>${proposals?(100*total('postfork_valid_proposals')/proposals).toFixed(1)+'%':'—'}</td><td>${proposals?(100*total('postfork_retained_proposals')/proposals).toFixed(1)+'%':'—'}</td><td>${proposals?(100*total('postfork_novel_delta_proposals')/proposals).toFixed(1)+'%':'—'}</td><td>${phases?(100*total('intervention_mechanism_reported')/phases).toFixed(1)+'%':'—'}</td><td>${phases?(100*total('intervention_phase_successes')/phases).toFixed(1)+'%':'—'}</td><td>${fmt(total('postfork_token_cost')/members.length,'token_cost')}</td><td>${fmt(total('postfork_evaluator_seconds')/members.length/3600,'active_hours')}</td><td>${fmt(best,'best_objective')}</td></tr>`);}target.innerHTML=rows.join('');}
 function drawLegend(id){const state=states[id];document.querySelectorAll(`#${id}-legend [data-run]`).forEach(button=>button.classList.toggle('off',state.hiddenRuns.includes(button.dataset.run)));document.querySelectorAll(`#${id}-legend [data-aggregate-condition]`).forEach(item=>item.classList.toggle('off',!state.conditions.includes(item.dataset.aggregateCondition)));}
-function redraw(id,payload){if(visibleSections.has(id))drawCharts(id,payload);drawStats(id,payload);drawTable(id,payload);drawLegend(id);}
+function redraw(id,payload){if(visibleSections.has(id))drawCharts(id,payload);drawStats(id,payload);drawTable(id,payload);drawSemanticTable(id,payload);drawLegend(id);}
 
 function download(name,type,body){const url=URL.createObjectURL(new Blob([body],{type}));const link=document.createElement('a');link.href=url;link.download=name;link.click();setTimeout(()=>URL.revokeObjectURL(url),0);}
 function exportCampaign(id,payload,format){
   const state=states[id],runs=visibleRuns(payload,state);
   if(format==='json'){download(`${id}-visible.json`,'application/json',JSON.stringify({generated_at:latestData.generated_at,view:state,campaign:payload.campaign,runs},null,2));return;}
   const metricKeys=payload.observed_metrics||[];
-  const columns=['run','condition','proposal','proposal_type','valid','retained','failure_kind','raw_objective','best_objective','fitness','active_hours','token_cost','incremental_token_cost','modal_gpu_cost','incremental_modal_gpu_cost','modal_worker_seconds','incremental_modal_worker_seconds','total_tokens','input_tokens','cached_input_tokens','output_tokens','reasoning_output_tokens','evaluator_seconds',...metricKeys.map(key=>'metric_'+key)];
+  const columns=['run','condition','condition_family','replicate','proposal','proposal_type','semantic_intervention_applied','semantic_intervention_id','shared_prefix','physical_resource_charge','developmental_status','developmental_credit','valid','retained','failure_kind','raw_objective','best_objective','fitness','active_hours','token_cost','incremental_token_cost','accounted_token_cost','accounted_total_tokens','fidelity_highest_level','fidelity_reached_full','fidelity_stage_count','modal_gpu_cost','incremental_modal_gpu_cost','modal_worker_seconds','incremental_modal_worker_seconds','total_tokens','input_tokens','cached_input_tokens','output_tokens','reasoning_output_tokens','evaluator_seconds',...metricKeys.map(key=>'metric_'+key)];
   const quote=value=>`"${String(value??'').replaceAll('"','""')}"`;
   const rows=[columns.join(',')];
-  for(const run of runs)for(const point of run.points.filter(item=>pointAllowed(item,state))){const values={run:run.label,condition:run.condition,...point,...Object.fromEntries(metricKeys.map(key=>['metric_'+key,point.metrics?.[key]]))};rows.push(columns.map(key=>quote(values[key])).join(','));}
+  for(const run of runs)for(const point of run.points.filter(item=>pointAllowed(item,state))){const values={run:run.label,condition:run.condition,condition_family:run.condition_family,replicate:run.replicate,...point,...Object.fromEntries(metricKeys.map(key=>['metric_'+key,point.metrics?.[key]]))};rows.push(columns.map(key=>quote(values[key])).join(','));}
   download(`${id}-visible.csv`,'text/csv',rows.join('\n'));
 }
 function attachSection(id,payload){
@@ -237,11 +256,12 @@ function attachSection(id,payload){
   root.querySelector('[data-control="proposalType"]').value=state.proposalType;
   root.querySelectorAll('[data-control]').forEach(control=>control.addEventListener('change',()=>{const key=control.dataset.control;if(['showSeed','connect','overlay'].includes(key))state[key]=control.checked;else state[key]=control.value;if(['proposalStart','proposalEnd'].includes(key))normalizeProposalWindow(state);if(['seriesMode','proposalStart','proposalEnd'].includes(key))render();else redraw(id,payload);}));
   root.querySelectorAll('[data-condition]').forEach(control=>control.addEventListener('change',()=>{state.conditions=control.checked?[...new Set([...state.conditions,control.dataset.condition])]:state.conditions.filter(value=>value!==control.dataset.condition);redraw(id,payload);}));
+  root.querySelectorAll('[data-family]').forEach(control=>control.addEventListener('change',()=>{state.families=control.checked?[...new Set([...state.families,control.dataset.family])]:state.families.filter(value=>value!==control.dataset.family);redraw(id,payload);}));
   root.querySelectorAll('[data-x]').forEach(control=>control.addEventListener('change',()=>{state.xs[Number(control.dataset.x)]=control.value;drawCharts(id,payload);}));
   root.querySelectorAll('[data-run]').forEach(button=>button.addEventListener('click',()=>{state.hiddenRuns=state.hiddenRuns.includes(button.dataset.run)?state.hiddenRuns.filter(value=>value!==button.dataset.run):[...state.hiddenRuns,button.dataset.run];redraw(id,payload);}));
   root.querySelectorAll('[data-sort]').forEach(button=>button.addEventListener('click',()=>{const key=button.dataset.sort;if(state.sort===key)state.sortDirection*=-1;else{state.sort=key;state.sortDirection=1;}drawTable(id,payload);}));
   root.querySelector('[data-control="query"]').addEventListener('input',event=>{state.query=event.target.value;drawTable(id,payload);});
-  root.querySelector('[data-action="reset"]').addEventListener('click',()=>{states[id]=defaultState();render();});
+  root.querySelector('[data-action="reset"]').addEventListener('click',()=>{states[id]=defaultState(payload);render();});
   root.querySelector('[data-action="csv"]').addEventListener('click',()=>exportCampaign(id,payload,'csv'));
   root.querySelector('[data-action="json"]').addEventListener('click',()=>exportCampaign(id,payload,'json'));
   redraw(id,payload);

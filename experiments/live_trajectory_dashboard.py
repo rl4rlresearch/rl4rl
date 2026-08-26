@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 # ruff: noqa: E501
-"""Read-only, locally served trajectory dashboard for live C0-C3 campaigns.
+"""Read-only dashboard for C0-C3 and multi-arm research trajectories.
 
 The server reads campaign logs only when a browser requests ``/api/data``.  It
 does not import the experiment controller, acquire a campaign lock, or write to
@@ -17,6 +17,7 @@ import os
 import sys
 import threading
 import time
+from collections import Counter
 from contextlib import suppress
 from datetime import datetime
 from http import HTTPStatus
@@ -46,6 +47,9 @@ DEFAULT_AUTORESEARCH_V17_FASHION_MNIST = (
 )
 DEFAULT_OPENEVOLVE_V21_FASHION_MNIST = (
     REPO_ROOT / "data/c0c3/fashion-mnist-openevolve-v2-1-mps-campaign"
+)
+DEFAULT_SEMANTIC_V4_FASHION_MNIST = (
+    REPO_ROOT / "data/c0c3/semantic-interventions-v4-fashion-openevolve-campaign"
 )
 
 # These are display-only price weights, not a billing record.  They match the
@@ -206,6 +210,14 @@ def compact_label(run_id: str) -> str:
     return f"{block}-{condition}"
 
 
+def semantic_label(assignment: dict[str, Any], fallback: str) -> str:
+    replicate = assignment.get("replicate")
+    condition = assignment.get("condition")
+    if isinstance(replicate, int) and isinstance(condition, str):
+        return f"R{replicate:02d} · {condition.replace('_', ' ')}"
+    return fallback
+
+
 def display_status(run_dir: Path, scientific_status: Any) -> str:
     """Return the operator-facing lifecycle status without changing run state.
 
@@ -236,15 +248,34 @@ def build_run(
     objective_direction: str,
     modal_usage_by_opportunity: dict[int, list[dict[str, Any]]] | None = None,
     modal_h100_price_per_second: float = DEFAULT_MODAL_H100_PRICE_PER_SECOND,
+    semantic_prefix_role: str | None = None,
+    shared_prefix_through: int = 0,
+    desired_state: str | None = None,
 ) -> dict[str, Any] | None:
     state = read_json(run_dir / "state.json", {})
     if not isinstance(state, dict):
         return None
     run_id = state.get("run_id")
-    condition = state.get("condition")
+    manifest = read_json(run_dir / "manifest.json", {})
+    manifest = manifest if isinstance(manifest, dict) else {}
+    assignment = manifest.get("assignment", {})
+    assignment = assignment if isinstance(assignment, dict) else {}
+    condition = assignment.get("condition", state.get("condition"))
     if not isinstance(run_id, str) or not isinstance(condition, str):
         return None
     events = iter_jsonl(run_dir / "events.jsonl")
+    assessments = {
+        int(event["opportunity"]): event
+        for event in events
+        if event.get("event") == "developmental_assessment"
+        and isinstance(event.get("opportunity"), int)
+    }
+    interventions = {
+        int(event["opportunity"]): event
+        for event in events
+        if event.get("event") == "semantic_intervention_applied"
+        and isinstance(event.get("opportunity"), int)
+    }
     started: dict[int, datetime] = {}
     elapsed_seconds = 0.0
     seed_objective = metric_at_seed(state, objective_metric)
@@ -265,6 +296,8 @@ def build_run(
     )
     modal_worker_seconds = 0.0
     modal_gpu_cost = 0.0
+    accounted_tokens = 0
+    accounted_cost = 0.0
     for event in events:
         opportunity = event.get("opportunity")
         if not isinstance(opportunity, int):
@@ -280,8 +313,9 @@ def build_run(
         if timestamp is not None and opportunity in started:
             elapsed_seconds += max(0.0, (timestamp - started[opportunity]).total_seconds())
         evaluation = event.get("evaluation", {})
-        metrics = evaluation.get("metrics", {}) if isinstance(evaluation, dict) else {}
-        metrics = numeric_metrics(metrics)
+        raw_metrics = evaluation.get("metrics", {}) if isinstance(evaluation, dict) else {}
+        raw_metrics = raw_metrics if isinstance(raw_metrics, dict) else {}
+        metrics = numeric_metrics(raw_metrics)
         objective = numeric(metrics.get(objective_metric))
         valid = bool(isinstance(evaluation, dict) and evaluation.get("valid"))
         retained = bool(event.get("retained"))
@@ -301,6 +335,13 @@ def build_run(
                 best_objective = min(best_objective, value)
         usage = normalized_usage(event.get("usage_cumulative"))
         usage_increment = normalized_usage(event.get("usage_increment"))
+        physical_resource_charge = not (
+            semantic_prefix_role == "shadow"
+            and opportunity <= shared_prefix_through
+        )
+        if physical_resource_charge:
+            accounted_tokens += usage_increment["total_tokens"]
+            accounted_cost += weighted_cost(usage_increment, prices)
         evaluator_seconds = numeric(event.get("evaluator_seconds_cumulative")) or 0.0
         evaluator_seconds_increment = numeric(event.get("evaluator_seconds_increment")) or 0.0
         evaluator_calls = numeric(event.get("evaluator_calls_cumulative")) or 0.0
@@ -331,6 +372,8 @@ def build_run(
                 "active_seconds": round(elapsed_seconds, 6),
                 "token_cost": round(weighted_cost(usage, prices), 6),
                 "incremental_token_cost": round(weighted_cost(usage_increment, prices), 6),
+                "accounted_total_tokens": accounted_tokens,
+                "accounted_token_cost": round(accounted_cost, 6),
                 "modal_worker_seconds": round(modal_worker_seconds, 6),
                 "incremental_modal_worker_seconds": round(
                     modal_worker_seconds_increment, 6
@@ -354,6 +397,36 @@ def build_run(
                 "retention_decision": event.get("retention_decision"),
                 "failure_kind": evaluation.get("failure_kind") if isinstance(evaluation, dict) else None,
                 "proposal_type": event.get("proposal_type"),
+                "shared_prefix": bool(
+                    event.get("shared_prefix")
+                    or (semantic_prefix_role == "leader" and opportunity <= shared_prefix_through)
+                ),
+                "physical_resource_charge": physical_resource_charge,
+                "semantic_intervention_applied": opportunity in interventions,
+                "semantic_intervention_id": (
+                    interventions.get(opportunity, {}).get("intervention_id")
+                ),
+                "developmental_status": assessments.get(opportunity, {}).get("status"),
+                "developmental_credit": numeric(
+                    assessments.get(opportunity, {}).get("credit")
+                ),
+                "developmental_reasons": assessments.get(opportunity, {}).get(
+                    "reasons", []
+                ),
+                "developmental_selection_effect": assessments.get(
+                    opportunity, {}
+                ).get("selection_effect"),
+                "fidelity_highest_level": numeric(
+                    raw_metrics.get("fidelity_highest_level")
+                ),
+                "fidelity_reached_full": bool(
+                    raw_metrics.get("fidelity_reached_full", False)
+                ),
+                "fidelity_stage_count": (
+                    len(raw_metrics.get("fidelity_stages", []))
+                    if isinstance(raw_metrics.get("fidelity_stages"), list)
+                    else 0
+                ),
                 "hypothesis": event.get("hypothesis"),
                 "mechanism": event.get("mechanism"),
                 "timestamp": event.get("timestamp"),
@@ -371,6 +444,8 @@ def build_run(
                 "active_seconds": 0.0,
                 "token_cost": 0.0,
                 "incremental_token_cost": 0.0,
+                "accounted_total_tokens": 0,
+                "accounted_token_cost": 0.0,
                 "modal_worker_seconds": 0.0,
                 "incremental_modal_worker_seconds": 0.0,
                 "modal_gpu_cost": 0.0,
@@ -408,15 +483,62 @@ def build_run(
         )
     usage = normalized_usage(state.get("usage"))
     scientific_status = state.get("status", "unknown")
+    status = display_status(run_dir, scientific_status)
+    if scientific_status == "running" and desired_state in {"paused", "stopped"}:
+        status = str(desired_state)
+    charged_points = [
+        point for point in points if point.get("physical_resource_charge", True)
+    ]
+    uncharged_prefix_cost = sum(
+        float(point.get("incremental_token_cost", 0.0) or 0.0)
+        for point in points
+        if not point.get("physical_resource_charge", True)
+    )
+    uncharged_prefix_tokens = sum(
+        int(point.get("incremental_total_tokens", 0) or 0)
+        for point in points
+        if not point.get("physical_resource_charge", True)
+    )
+    postfork_points = [
+        point
+        for point in points
+        if not point.get("is_seed")
+        and int(point.get("proposal", 0)) > shared_prefix_through
+    ]
+    intervention_points = [
+        point for point in postfork_points if point.get("semantic_intervention_applied")
+    ]
+    phase_successes = sum(
+        any(
+            later.get("retained")
+            for later in postfork_points
+            if int(point["proposal"])
+            <= int(later["proposal"])
+            < int(point["proposal"]) + 5
+        )
+        for point in intervention_points
+    )
     return {
         "run_id": run_id,
-        "label": compact_label(run_id),
-        "condition": condition.upper(),
-        "status": display_status(run_dir, scientific_status),
+        "label": semantic_label(assignment, compact_label(run_id)),
+        "condition": condition.upper() if condition.lower() in {"c0", "c1", "c2", "c3"} else condition,
+        "condition_label": assignment.get("condition_label", condition),
+        "condition_family": assignment.get("condition_family", "factorial"),
+        "components": assignment.get("components", []),
+        "replicate": assignment.get("replicate", assignment.get("block")),
+        "order": assignment.get("order"),
+        "semantic_prefix_role": semantic_prefix_role,
+        "shared_prefix_through": shared_prefix_through,
+        "desired": desired_state,
+        "status": status,
         "scientific_status": scientific_status,
         "proposals_used": state.get("proposals_used", 0),
         "total_tokens": usage["total_tokens"],
         "token_cost": round(weighted_cost(usage, prices), 6),
+        "accounted_total_tokens": max(0, usage["total_tokens"] - uncharged_prefix_tokens),
+        "accounted_token_cost": round(
+            max(0.0, weighted_cost(usage, prices) - uncharged_prefix_cost), 6
+        ),
         # A worker can finish before the controller writes its completion event.
         # Keep the run summary faithful to the append-only Modal ledger even in
         # that short live-update window; proposal points stay aligned to their
@@ -429,6 +551,48 @@ def build_run(
         "valid_proposals": valid_proposals,
         "invalid_proposals": max(0, len(points) - (1 if seed_objective is not None else 0) - valid_proposals),
         "retained_proposals": retained_proposals,
+        "developmental_counts": dict(
+            Counter(
+                str(point["developmental_status"])
+                for point in charged_points
+                if point.get("developmental_status")
+            )
+        ),
+        "interventions_applied": sum(
+            bool(point.get("semantic_intervention_applied")) for point in points
+        ),
+        "full_fidelity_proposals": sum(
+            bool(point.get("fidelity_reached_full")) for point in charged_points
+        ),
+        "screened_out_proposals": sum(
+            point.get("failure_kind") == "fidelity_screen_not_promoted"
+            for point in charged_points
+        ),
+        "postfork_proposals": len(postfork_points),
+        "postfork_valid_proposals": sum(bool(point.get("valid")) for point in postfork_points),
+        "postfork_retained_proposals": sum(bool(point.get("retained")) for point in postfork_points),
+        "postfork_novel_delta_proposals": sum(
+            "novel_delta" in point.get("developmental_reasons", [])
+            for point in postfork_points
+        ),
+        "postfork_token_cost": round(
+            sum(float(point.get("incremental_token_cost", 0.0) or 0.0) for point in postfork_points),
+            6,
+        ),
+        "postfork_total_tokens": sum(
+            int(point.get("incremental_total_tokens", 0) or 0) for point in postfork_points
+        ),
+        "postfork_evaluator_seconds": round(
+            sum(float(point.get("incremental_evaluator_seconds", 0.0) or 0.0) for point in postfork_points),
+            6,
+        ),
+        "intervention_phase_successes": phase_successes,
+        "intervention_phase_count": len(intervention_points),
+        "intervention_mechanism_reported": sum(
+            str(point.get("mechanism", "")).strip().casefold()
+            not in {"", "[not recorded]", "[missing mechanism]"}
+            for point in intervention_points
+        ),
         "active_hours": round(elapsed_seconds / 3600, 6),
         "latest_event_at": latest_event_at,
         "lowest_parameters": (
@@ -445,6 +609,31 @@ def campaign_data(
     modal_h100_price_per_second: float = DEFAULT_MODAL_H100_PRICE_PER_SECOND,
 ) -> dict[str, Any]:
     runs_root = campaign / "runs"
+    campaign_manifest = read_json(campaign / "campaign.json", {})
+    campaign_manifest = (
+        campaign_manifest if isinstance(campaign_manifest, dict) else {}
+    )
+    semantic = campaign_manifest.get("schema_version") == "4.0"
+    prefix_roles: dict[str, tuple[str, int]] = {}
+    if semantic:
+        prefix_manifest = read_json(campaign / "semantic-prefix.json", {})
+        if isinstance(prefix_manifest, dict):
+            for row in prefix_manifest.get("replicates", []):
+                if not isinstance(row, dict):
+                    continue
+                through = int(row.get("shared_through_opportunity", 0))
+                leader = row.get("leader_run_id")
+                if isinstance(leader, str):
+                    prefix_roles[leader] = ("leader", through)
+                for shadow in row.get("shadow_run_ids", []):
+                    if isinstance(shadow, str):
+                        prefix_roles[shadow] = ("shadow", through)
+    run_control = read_json(campaign / "semantic-run-control.json", {})
+    desired_by_run = (
+        run_control.get("runs", {})
+        if semantic and isinstance(run_control, dict)
+        else {}
+    )
     task = read_json(campaign / "inputs/task.json", {})
     task = task if isinstance(task, dict) else {}
     objective_metric = str(task.get("objective_metric", "parameters"))
@@ -460,19 +649,27 @@ def campaign_data(
             objective_direction=objective_direction,
             modal_usage_by_opportunity=modal_by_run.get(path.name),
             modal_h100_price_per_second=modal_h100_price_per_second,
+            semantic_prefix_role=prefix_roles.get(path.name, (None, 0))[0],
+            shared_prefix_through=prefix_roles.get(path.name, (None, 0))[1],
+            desired_state=(
+                desired_by_run.get(path.name, {}).get("desired")
+                if isinstance(desired_by_run.get(path.name), dict)
+                else None
+            ),
         )
         for path in sorted(runs_root.glob("*"))
         if path.is_dir()
     ]
-    factorial_runs = [
+    visible_runs = [
         run
         for run in runs
-        if run is not None and run["condition"] in {"C0", "C1", "C2", "C3"}
+        if run is not None
+        and (semantic or run["condition"] in {"C0", "C1", "C2", "C3"})
     ]
     observed_metrics = sorted(
         {
             key
-            for run in factorial_runs
+            for run in visible_runs
             for point in run["points"]
             for key in point.get("metrics", {})
         }
@@ -510,6 +707,8 @@ def campaign_data(
         "reasoning_output_tokens": "Cumulative reasoning output tokens",
         "token_cost": "Cumulative price-weighted token cost (USD)",
         "total_tokens": "Cumulative total tokens",
+        "accounted_token_cost": "Physical campaign token cost attributed to this run (USD)",
+        "accounted_total_tokens": "Physical campaign tokens attributed to this run",
     }
     if not modal_summary["available"]:
         for key in (
@@ -526,6 +725,66 @@ def campaign_data(
         {"key": f"metric:{metric}", "label": f"Proposal metric · {metric}"}
         for metric in observed_metrics
     ]
+    condition_catalog = []
+    for condition in sorted({str(run["condition"]) for run in visible_runs}):
+        members = [run for run in visible_runs if run["condition"] == condition]
+        condition_catalog.append(
+            {
+                "id": condition,
+                "label": members[0].get("condition_label", condition),
+                "family": members[0].get("condition_family", "factorial"),
+                "count": len(members),
+            }
+        )
+    physical_points = [
+        point
+        for run in visible_runs
+        for point in run["points"]
+        if not point.get("is_seed") and point.get("physical_resource_charge", True)
+    ]
+    developmental_counts = Counter(
+        str(point["developmental_status"])
+        for point in physical_points
+        if point.get("developmental_status")
+    )
+    semantic_summary = {
+        "available": semantic,
+        "design": campaign_manifest.get("design"),
+        "intervention_count": campaign_manifest.get("intervention_count", 0),
+        "replicates": campaign_manifest.get("replicates", 0),
+        "shared_prefix_opportunities": campaign_manifest.get(
+            "shared_prefix_opportunities", 0
+        ),
+        "physical_proposal_calls": len(physical_points),
+        "logical_proposal_records": sum(
+            not point.get("is_seed")
+            for run in visible_runs
+            for point in run["points"]
+        ),
+        "interventions_applied": sum(
+            bool(point.get("semantic_intervention_applied"))
+            for point in physical_points
+        ),
+        "developmental_counts": dict(developmental_counts),
+        "novel_delta_proposals": sum(
+            "novel_delta" in point.get("developmental_reasons", [])
+            for point in physical_points
+        ),
+        "full_fidelity_proposals": sum(
+            bool(point.get("fidelity_reached_full")) for point in physical_points
+        ),
+        "screened_out_proposals": sum(
+            point.get("failure_kind") == "fidelity_screen_not_promoted"
+            for point in physical_points
+        ),
+        "physical_token_cost": round(
+            sum(float(run.get("accounted_token_cost", 0.0)) for run in visible_runs),
+            6,
+        ),
+        "physical_total_tokens": sum(
+            int(run.get("accounted_total_tokens", 0)) for run in visible_runs
+        ),
+    }
     return {
         "campaign": str(campaign),
         "available": campaign.is_dir(),
@@ -534,7 +793,11 @@ def campaign_data(
         "axis_catalog": axis_catalog,
         "observed_metrics": observed_metrics,
         "modal_usage": modal_summary,
-        "runs": factorial_runs,
+        "design": campaign_manifest.get("design", "c0_c3_factorial"),
+        "semantic": semantic,
+        "condition_catalog": condition_catalog,
+        "semantic_summary": semantic_summary,
+        "runs": visible_runs,
     }
 
 
@@ -706,6 +969,11 @@ def parse_args() -> argparse.Namespace:
         type=Path,
         default=DEFAULT_OPENEVOLVE_V21_FASHION_MNIST,
     )
+    parser.add_argument(
+        "--semantic-v4-fashion-mnist-campaign",
+        type=Path,
+        default=DEFAULT_SEMANTIC_V4_FASHION_MNIST,
+    )
     parser.add_argument("--input-per-million", type=float, default=DEFAULT_PRICE_PER_MILLION["input"])
     parser.add_argument("--cached-input-per-million", type=float, default=DEFAULT_PRICE_PER_MILLION["cached_input"])
     parser.add_argument("--output-per-million", type=float, default=DEFAULT_PRICE_PER_MILLION["output"])
@@ -734,6 +1002,7 @@ def main() -> None:
         "openevolve_v21_fashion_mnist": (
             args.openevolve_v21_fashion_mnist_campaign
         ),
+        "semantic_v4_fashion_mnist": args.semantic_v4_fashion_mnist_campaign,
     }
     server = ThreadingHTTPServer(
         (args.host, args.port),
@@ -759,6 +1028,10 @@ def main() -> None:
     print(
         "OpenEvolve v2.1 Fashion-MNIST: "
         f"{args.openevolve_v21_fashion_mnist_campaign}"
+    )
+    print(
+        "Semantic v4 Fashion-MNIST: "
+        f"{args.semantic_v4_fashion_mnist_campaign}"
     )
     try:
         server.serve_forever()

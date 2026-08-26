@@ -341,6 +341,91 @@ def test_campaign_catalog_exposes_observed_metrics_for_both_axes(
     assert {"metric:parameters", "metric:accuracy"} <= keys
 
 
+def test_semantic_campaign_uses_arm_labels_and_charges_shared_prefix_once(
+    tmp_path: Path,
+) -> None:
+    run_dir = _example_run(tmp_path)
+    _write_json(
+        tmp_path / "inputs/task.json",
+        {"objective_metric": "parameters", "objective_direction": "minimize"},
+    )
+    _write_json(
+        tmp_path / "campaign.json",
+        {
+            "schema_version": "4.0",
+            "design": "multi_arm_semantic_interventions_with_shared_prefix_v1",
+            "intervention_count": 2,
+            "replicates": 1,
+            "shared_prefix_opportunities": 1,
+        },
+    )
+    _write_json(
+        run_dir / "manifest.json",
+        {
+            "assignment": {
+                "replicate": 1,
+                "order": 2,
+                "condition": "assumption_challenge",
+                "condition_label": "Assumption challenge",
+                "condition_family": "epistemic",
+                "components": ["assumption_challenge"],
+            }
+        },
+    )
+    _write_json(
+        tmp_path / "semantic-prefix.json",
+        {
+            "replicates": [
+                {
+                    "leader_run_id": "leader",
+                    "shadow_run_ids": [run_dir.name],
+                    "shared_through_opportunity": 1,
+                }
+            ]
+        },
+    )
+    _write_json(
+        tmp_path / "semantic-run-control.json",
+        {"runs": {run_dir.name: {"desired": "paused"}}},
+    )
+    existing = [
+        json.loads(line)
+        for line in (run_dir / "events.jsonl").read_text(encoding="utf-8").splitlines()
+    ]
+    existing.extend(
+        [
+            {
+                "event": "semantic_intervention_applied",
+                "opportunity": 2,
+                "intervention_id": "assumption_challenge",
+            },
+            {
+                "event": "developmental_assessment",
+                "opportunity": 2,
+                "status": "primary_retained",
+                "credit": 1.0,
+                "reasons": ["novel_delta", "retained"],
+                "selection_effect": "none",
+            },
+        ]
+    )
+    _write_jsonl(run_dir / "events.jsonl", existing)
+
+    campaign = campaign_data(tmp_path, PRICES)
+    run = campaign["runs"][0]
+
+    assert campaign["semantic"] is True
+    assert run["condition"] == "assumption_challenge"
+    assert run["condition_family"] == "epistemic"
+    assert run["status"] == "paused"
+    assert run["points"][1]["physical_resource_charge"] is False
+    assert run["accounted_total_tokens"] == 220
+    assert run["interventions_applied"] == 1
+    assert run["postfork_novel_delta_proposals"] == 1
+    assert campaign["semantic_summary"]["physical_proposal_calls"] == 1
+    assert campaign["condition_catalog"][0]["id"] == "assumption_challenge"
+
+
 def test_page_contains_live_controls_and_raw_outcome_overlay() -> None:
     assert "Refresh now" in PAGE
     assert "Auto-refresh" in PAGE
@@ -368,6 +453,9 @@ def test_page_contains_live_controls_and_raw_outcome_overlay() -> None:
     assert "fetch(apiUrl" in PAGE
     assert "IntersectionObserver" in PAGE
     assert "request timed out; try again" in PAGE
+    assert "Semantic-intervention evidence" in PAGE
+    assert "Intervention families" in PAGE
+    assert "physical_resource_charge" in PAGE
     assert "https://unpkg.com/chart.js@4.4.4" in PAGE
     assert "autoresearch_v17_fashion_mnist" in PAGE
     assert "openevolve_v21_fashion_mnist" in PAGE
