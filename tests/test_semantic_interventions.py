@@ -8,6 +8,8 @@ import sys
 from pathlib import Path
 from types import SimpleNamespace
 
+import pytest
+
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
 
@@ -285,6 +287,7 @@ def test_semantic_campaign_shares_prefix_then_forks(tmp_path: Path) -> None:
 def test_openevolve_uses_five_proposal_sessions_and_resets_at_fork(
     tmp_path: Path,
 ) -> None:
+    pytest.importorskip("dacite")
     spec = _phased_spec()
     task = _task(_seed(tmp_path / "seed"))
     framework = FrameworkSpec(
