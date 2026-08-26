@@ -6,6 +6,7 @@ import json
 import os
 import stat
 import sys
+import threading
 from pathlib import Path
 from types import SimpleNamespace
 
@@ -85,15 +86,6 @@ def test_zero_semantic_worker_limit_means_all_runnable() -> None:
     assert semantic_module._resolve_worker_limit(0, 2) is None
     assert semantic_module._resolve_worker_limit(None, 0) is None
     assert semantic_module._resolve_worker_limit(None, 3) == 3
-    assert semantic_module._take_worker_wave(["a", "b", "c"], None) == [
-        "a",
-        "b",
-        "c",
-    ]
-    assert semantic_module._take_worker_wave(["a", "b", "c"], 2) == [
-        "a",
-        "b",
-    ]
     with pytest.raises(ValueError, match="nonnegative"):
         semantic_module._resolve_worker_limit(-1, 2)
 
@@ -616,6 +608,71 @@ def test_semantic_postfork_provider_failures_are_charged_only_to_one_arm(
     assert "load-bearing assumption" not in exact_passive_prompt
 
 
+def test_semantic_trajectories_advance_without_a_wave_barrier(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    pytest.importorskip("dacite")
+    spec = _spec()
+    task = _task(_seed(tmp_path / "seed"))
+    framework = FrameworkSpec(
+        framework_id=FrameworkKind.OPENEVOLVE,
+        adapter="controlled_openevolve_prompt_diff_v3",
+        prompt_profile="fashion_mnist_openevolve_v2_1",
+        edit_mode="search_replace_diff",
+    )
+    baseline = calibrate_task(
+        tmp_path / "calibration",
+        spec=spec,
+        task=task,
+        repo_root=ROOT,
+        python_bin=sys.executable,
+    )
+    campaign = create_semantic_campaign(
+        tmp_path / "campaign",
+        spec=spec,
+        task=task,
+        framework=framework,
+        intervention_plan_path=_plan(tmp_path / "interventions.toml"),
+        calibration_path=baseline,
+        repo_root=ROOT,
+    )
+    schedule = json.loads((campaign / "schedule.json").read_text())
+    by_condition = {row["condition"]: row["run_id"] for row in schedule}
+    slow_run = by_condition["assumption_challenge"]
+    fast_run = by_condition["passive_control"]
+    slow_second_started = threading.Event()
+    fast_third_started = threading.Event()
+    original = semantic_module.run_semantic_opportunity
+
+    def controlled_timing(*args, run_id: str, **kwargs):
+        state = SearchController.load(campaign / "runs" / run_id, spec).state
+        next_opportunity = state.proposals_used + 1
+        if run_id == slow_run and next_opportunity == 2:
+            slow_second_started.set()
+            if not fast_third_started.wait(timeout=5):
+                raise AssertionError("fast run waited at the old wave barrier")
+        if run_id == fast_run and next_opportunity == 3:
+            assert slow_second_started.is_set()
+            fast_third_started.set()
+        return original(*args, run_id=run_id, **kwargs)
+
+    monkeypatch.setattr(semantic_module, "run_semantic_opportunity", controlled_timing)
+    set_semantic_control(campaign, desired="running", reason="test event scheduling")
+    calls = tmp_path / "calls.jsonl"
+    result = run_semantic_campaign(
+        campaign,
+        repo_root=ROOT,
+        python_bin=sys.executable,
+        max_workers=2,
+        recover_interrupted=True,
+        codex_binary=str(_openevolve_codex(tmp_path / "fake-codex", calls)),
+    )
+
+    assert result["status"] == "completed"
+    assert slow_second_started.is_set()
+    assert fast_third_started.is_set()
+
+
 def test_semantic_internal_worker_failure_pauses_only_failed_arm(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch
 ) -> None:
@@ -676,7 +733,7 @@ def test_semantic_internal_worker_failure_pauses_only_failed_arm(
         for line in (campaign / "semantic-waves.jsonl")
         .read_text(encoding="utf-8")
         .splitlines()
-        if '"semantic_wave_failed"' in line
+        if '"semantic_dispatch_failed"' in line
     ]
     assert len(failures) == 1
     assert "injected internal worker failure" in failures[0]["error"]

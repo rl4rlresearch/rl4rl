@@ -19,7 +19,7 @@ import shutil
 import tomllib
 from collections import Counter
 from collections.abc import Iterator
-from concurrent.futures import ThreadPoolExecutor, as_completed
+from concurrent.futures import FIRST_COMPLETED, Future, ThreadPoolExecutor, wait
 from contextlib import contextmanager
 from dataclasses import asdict, dataclass
 from pathlib import Path
@@ -1010,8 +1010,36 @@ def _resolve_worker_limit(requested: int | None, configured: int) -> int | None:
     return None if value == 0 else value
 
 
-def _take_worker_wave(items: list[str], worker_limit: int | None) -> list[str]:
-    return items if worker_limit is None else items[:worker_limit]
+def _semantic_job_candidates(
+    root: Path,
+    *,
+    schedule: list[dict[str, Any]],
+    plan: InterventionPlan,
+    states: dict[str, Any],
+    run_desired: dict[str, str],
+) -> list[tuple[str, bool]]:
+    """Return independently runnable jobs and whether each is a prefix job."""
+
+    jobs: list[tuple[str, bool]] = []
+    prefix_manifest = _read_object(root / SEMANTIC_PREFIX)
+    for prefix in prefix_manifest["replicates"]:
+        leader_id = str(prefix["leader_run_id"])
+        members = [leader_id, *map(str, prefix["shadow_run_ids"])]
+        if states[leader_id].proposals_used < plan.shared_prefix_opportunities and any(
+            states[member].status != "completed"
+            and run_desired.get(member) == "running"
+            for member in members
+        ):
+            jobs.append((leader_id, True))
+    for row in schedule:
+        run_id = str(row["run_id"])
+        state = states[run_id]
+        if state.status == "completed" or run_desired.get(run_id) != "running":
+            continue
+        if state.proposals_used < plan.shared_prefix_opportunities:
+            continue
+        jobs.append((run_id, False))
+    return jobs
 
 
 def run_semantic_campaign(
@@ -1055,105 +1083,109 @@ def run_semantic_campaign(
                                 recovered=True,
                             )
         completed_calls = 0
-        while True:
-            desired = _read_object(root / SEMANTIC_CONTROL).get("desired")
-            if desired != "running":
-                return {
-                    "status": str(desired),
-                    "completed_physical_calls": completed_calls,
+        worker_capacity = min(worker_limit or len(schedule), len(schedule))
+        schedule_order = {
+            str(row["run_id"]): index for index, row in enumerate(schedule)
+        }
+        last_dispatched = {run_id: -1 for run_id in schedule_order}
+        dispatch_sequence = 0
+        stopping_for: str | None = None
+        futures: dict[Future[dict[str, Any]], tuple[str, bool]] = {}
+
+        with ThreadPoolExecutor(max_workers=worker_capacity) as pool:
+            while True:
+                desired = str(_read_object(root / SEMANTIC_CONTROL).get("desired"))
+                if stopping_for is None and desired != "running":
+                    stopping_for = desired
+
+                states = {
+                    str(row["run_id"]): SearchController.load(
+                        root / "runs" / str(row["run_id"]), spec
+                    ).state
+                    for row in schedule
                 }
-            states = {
-                str(row["run_id"]): SearchController.load(
-                    root / "runs" / str(row["run_id"]), spec
-                ).state
-                for row in schedule
-            }
-            run_desired = _run_desired_states(root)
-            unfinished = [
-                row
-                for row in schedule
-                if states[str(row["run_id"])].status != "completed"
-            ]
-            if not unfinished:
-                set_semantic_control(
-                    root,
-                    desired="stopped",
-                    reason="all semantic trajectories completed",
-                )
-                return {
-                    "status": "completed",
-                    "completed_physical_calls": completed_calls,
-                }
-            prefix_jobs = []
-            prefix_manifest = _read_object(root / SEMANTIC_PREFIX)
-            for prefix in prefix_manifest["replicates"]:
-                leader_id = str(prefix["leader_run_id"])
-                members = [leader_id, *map(str, prefix["shadow_run_ids"])]
-                if (
-                    states[leader_id].proposals_used
-                    < plan.shared_prefix_opportunities
-                    and any(
-                        states[member].status != "completed"
-                        and run_desired.get(member) == "running"
-                        for member in members
-                    )
-                ):
-                    prefix_jobs.append(leader_id)
-            if prefix_jobs:
-                selected = _take_worker_wave(prefix_jobs, worker_limit)
-            else:
-                runnable = [
+                unfinished = [
                     row
-                    for row in unfinished
-                    if run_desired.get(str(row["run_id"])) == "running"
+                    for row in schedule
+                    if states[str(row["run_id"])].status != "completed"
                 ]
-                if not runnable:
+                active_run_ids = {run_id for run_id, _prefix in futures.values()}
+
+                if stopping_for is None:
+                    run_desired = _run_desired_states(root)
+                    candidates = [
+                        job
+                        for job in _semantic_job_candidates(
+                            root,
+                            schedule=schedule,
+                            plan=plan,
+                            states=states,
+                            run_desired=run_desired,
+                        )
+                        if job[0] not in active_run_ids
+                    ]
+                    candidates.sort(
+                        key=lambda job: (
+                            last_dispatched[job[0]],
+                            schedule_order[job[0]],
+                        )
+                    )
+                    available = worker_capacity - len(futures)
+                    for run_id, is_prefix in candidates[:available]:
+                        next_opportunity = states[run_id].proposals_used + 1
+                        future = pool.submit(
+                            run_semantic_opportunity,
+                            root,
+                            run_id=run_id,
+                            repo_root=repo_root,
+                            python_bin=python_bin,
+                            codex_binary=codex_binary,
+                        )
+                        futures[future] = (run_id, is_prefix)
+                        dispatch_sequence += 1
+                        last_dispatched[run_id] = dispatch_sequence
+                        append_jsonl(
+                            root / SEMANTIC_WAVES,
+                            {
+                                "schema_version": SEMANTIC_PROTOCOL_VERSION,
+                                "event": "semantic_dispatch_started",
+                                "timestamp": utc_now(),
+                                "run_id": run_id,
+                                "opportunity": next_opportunity,
+                                "shared_prefix": is_prefix,
+                                "dispatch_sequence": dispatch_sequence,
+                                "active_dispatches": len(futures),
+                                "worker_limit": worker_limit,
+                                "worker_capacity": worker_capacity,
+                                "scheduling_policy": "independent_event_driven",
+                            },
+                        )
+
+                if not futures:
+                    if stopping_for is not None:
+                        return {
+                            "status": stopping_for,
+                            "completed_physical_calls": completed_calls,
+                        }
+                    if not unfinished:
+                        set_semantic_control(
+                            root,
+                            desired="stopped",
+                            reason="all semantic trajectories completed",
+                        )
+                        return {
+                            "status": "completed",
+                            "completed_physical_calls": completed_calls,
+                        }
                     return {
                         "status": "no-runnable-trajectories",
                         "completed_physical_calls": completed_calls,
                         "unfinished": len(unfinished),
                     }
-                minimum = min(
-                    states[str(row["run_id"])].proposals_used for row in runnable
-                )
-                selected = _take_worker_wave(
-                    [
-                        str(row["run_id"])
-                        for row in runnable
-                        if states[str(row["run_id"])].proposals_used == minimum
-                    ],
-                    worker_limit,
-                )
-            prefix_selected = set(prefix_jobs)
-            effective_workers = len(selected)
-            wave = {
-                "schema_version": SEMANTIC_PROTOCOL_VERSION,
-                "event": "semantic_wave_started",
-                "timestamp": utc_now(),
-                "run_ids": selected,
-                "worker_limit": worker_limit,
-                "effective_worker_count": effective_workers,
-                "concurrency_policy": (
-                    "all_runnable" if worker_limit is None else "bounded"
-                ),
-            }
-            append_jsonl(root / SEMANTIC_WAVES, wave)
-            results = []
-            failures = []
-            with ThreadPoolExecutor(max_workers=effective_workers) as pool:
-                futures = {
-                    pool.submit(
-                        run_semantic_opportunity,
-                        root,
-                        run_id=run_id,
-                        repo_root=repo_root,
-                        python_bin=python_bin,
-                        codex_binary=codex_binary,
-                    ): run_id
-                    for run_id in selected
-                }
-                for future in as_completed(futures):
-                    run_id = futures[future]
+
+                done, _pending = wait(futures, return_when=FIRST_COMPLETED)
+                for future in done:
+                    run_id, is_prefix = futures.pop(future)
                     try:
                         result = future.result()
                     except Exception as error:
@@ -1162,7 +1194,7 @@ def run_semantic_campaign(
                             root / SEMANTIC_WAVES,
                             {
                                 "schema_version": SEMANTIC_PROTOCOL_VERSION,
-                                "event": "semantic_wave_failed",
+                                "event": "semantic_dispatch_failed",
                                 "timestamp": utc_now(),
                                 "run_id": run_id,
                                 "error": message,
@@ -1197,7 +1229,7 @@ def run_semantic_campaign(
                                 },
                             )
                         affected = [run_id]
-                        if run_id in prefix_selected:
+                        if is_prefix:
                             prefix = _prefix_for_run(root, run_id)
                             if recovered_record is not None:
                                 with _prefix_lock(root, int(prefix["replicate"])):
@@ -1224,26 +1256,21 @@ def run_semantic_campaign(
                                     f"failure in {run_id}: {message}"
                                 ),
                             )
-                        failures.append({"run_id": run_id, "error": message})
                         continue
-                    results.append(
+                    completed_calls += 1
+                    append_jsonl(
+                        root / SEMANTIC_WAVES,
                         {
+                            "schema_version": SEMANTIC_PROTOCOL_VERSION,
+                            "event": "semantic_dispatch_completed",
+                            "timestamp": utc_now(),
                             "run_id": run_id,
                             "opportunity": result.get("opportunity"),
                             "shared_prefix": bool(result.get("shared_prefix")),
-                        }
+                            "active_dispatches": len(futures),
+                            "scheduling_policy": "independent_event_driven",
+                        },
                     )
-                    completed_calls += 1
-            append_jsonl(
-                root / SEMANTIC_WAVES,
-                {
-                    "schema_version": SEMANTIC_PROTOCOL_VERSION,
-                    "event": "semantic_wave_completed",
-                    "timestamp": utc_now(),
-                    "results": results,
-                    "failures": failures,
-                },
-            )
 
 
 def semantic_status(campaign: str | Path) -> dict[str, Any]:

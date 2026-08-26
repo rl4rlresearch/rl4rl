@@ -43,6 +43,9 @@ understanding.
   independently capped at three MPS slots, so unbounded research-call
   concurrency does not increase GPU training concurrency beyond the calibrated
   limit.
+- Post-fork trajectories are scheduled independently. When one trajectory
+  finishes an opportunity, its next opportunity is dispatched immediately;
+  it does not wait for slower trajectories to reach a round boundary.
 - The detached launcher translates `--max-workers 0` to the campaign's number
   of logical trajectories. That keeps all-runnable behavior compatible with an
   older pinned runtime that predates the public `0` sentinel.
