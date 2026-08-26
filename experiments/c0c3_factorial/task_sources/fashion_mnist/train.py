@@ -15,6 +15,12 @@ from torch.nn import functional as F
 BATCH_SIZE = 256
 GRAD_CLIP_NORM = 1.0
 
+# The research agent may edit these safe literal values. The external
+# evaluator validates them, always keeps the common 100,000-example ceiling,
+# and requires the last rung before a candidate can replace the incumbent.
+EVALUATION_LADDER = [25_000, 50_000, 100_000]
+EVALUATION_PROMOTION_THRESHOLDS = [0.82, 0.87, None]
+
 
 class ImageClassifier(nn.Module):
     def __init__(self) -> None:

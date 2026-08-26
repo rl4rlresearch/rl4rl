@@ -1,0 +1,1 @@
+Step outside the current mechanism. Propose and implement a materially different learned way to represent or compute the task, chosen because the available results make it plausible and informative. Avoid merely retuning the present design. Make the alternative clean enough that its result reveals something about the mechanism.

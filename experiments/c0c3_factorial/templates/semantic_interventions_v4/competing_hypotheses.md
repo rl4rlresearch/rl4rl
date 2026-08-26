@@ -1,0 +1,1 @@
+Form at least two genuinely competing explanations for the current results. Choose and implement the next change whose possible outcomes best separate those explanations. Do not select a trial that both explanations predict equally well merely because it is easy.

@@ -1,0 +1,1 @@
+Use an ablation or controlled removal to determine which part of the current computation is actually load-bearing. Implement the most informative feasible ablation, keeping unrelated details fixed, and explain how each plausible result should change the next research direction.

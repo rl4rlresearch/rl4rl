@@ -154,6 +154,15 @@ Future coding agents must also follow [AGENTS.md](AGENTS.md).
   share their pre-intervention trajectories and fork from identical state at
   the first intervention. See [UNIFIED_V3.md](UNIFIED_V3.md). No official v3
   run is launched by setup or validation.
+- `configs/protocols/semantic_interventions_v4.toml` is the exploratory
+  multi-arm expansion built on the unified v3 controller. Twenty-one semantic
+  research operations receive three matched replicates, share one literal
+  five-proposal prefix per replicate, and then run in five-proposal sessions.
+  It adds candidate-editable bounded training ladders, non-selective
+  developmental evidence, independent arm controls, and physical resource
+  de-duplication. See [SEMANTIC_INTERVENTIONS_V4.md](SEMANTIC_INTERVENTIONS_V4.md).
+  The supplied first-launch stratum is Fashion-MNIST/OpenEvolve; AdderBoard,
+  nanoGPT, and Autoresearch are prepared but are not started automatically.
 
 Run the dev protocol end to end before spending on the paper protocol. Do not
 reinterpret dev results as a pilot effect estimate: its transition density and

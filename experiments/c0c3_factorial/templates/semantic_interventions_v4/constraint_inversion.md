@@ -1,0 +1,1 @@
+Temporarily reverse one habitual design priority and ask what mechanism becomes attractive under the inverted priority. Use that perspective to expose a neglected computation, then implement a version that still satisfies the actual task contract and can be evaluated fairly.

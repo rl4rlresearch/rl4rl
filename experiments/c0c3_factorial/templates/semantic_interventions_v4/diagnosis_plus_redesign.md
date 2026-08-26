@@ -1,0 +1,1 @@
+Diagnose the causal pattern behind the recent failures, including at least one competing explanation. Then redesign the next computational experiment so its outcomes distinguish those explanations and directly test the proposed repair. Implement the smallest feasible version that preserves that discrimination.

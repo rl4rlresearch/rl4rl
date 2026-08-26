@@ -118,6 +118,9 @@ class VisibleOutcome:
     failure_kind: str | None
     mechanism: str = "[not recorded]"
     evidence: str = "[not recorded]"
+    developmental_status: str | None = None
+    developmental_credit: float | None = None
+    developmental_reasons: tuple[str, ...] = ()
 
 
 @dataclass(frozen=True)
@@ -135,6 +138,9 @@ class PromptContext:
     no_search: bool = False
     recent_outcomes: tuple[VisibleOutcome, ...] = ()
     mechanism_ledger: str = "No earlier mechanism result is available."
+    phased_session: bool = False
+    proposal_policy_override: str | None = None
+    evaluation_policy_note: str | None = None
 
 
 @dataclass(frozen=True)
@@ -444,6 +450,15 @@ class PromptRenderer:
             f"{', '.join(task.public_feedback_metrics)}."
         )
 
+    @classmethod
+    def _neutral_task_contract_with_policy(
+        cls, task: TaskSpec, context: PromptContext
+    ) -> str:
+        contract = cls._neutral_task_contract(task)
+        if context.evaluation_policy_note:
+            contract += f"\n{context.evaluation_policy_note.strip()}"
+        return contract
+
     @staticmethod
     def _framework_contract(framework: FrameworkSpec) -> str:
         return (
@@ -480,7 +495,16 @@ class PromptRenderer:
         )
 
     @staticmethod
-    def _neutral_conversation_contract(spec: FactorialSpec) -> str:
+    def _neutral_conversation_contract(
+        spec: FactorialSpec, *, phased_session: bool = False
+    ) -> str:
+        if phased_session:
+            return (
+                "This working conversation covers a short research phase. The "
+                "current filesystem, available-design section, and verification "
+                "evidence are authoritative whenever they differ from an earlier "
+                "message. A later phase may begin with a fresh conversation."
+            )
         if spec.conversation_mode is ConversationMode.CONTINUOUS:
             return (
                 "This working conversation continues across cycles. The current "
@@ -734,6 +758,13 @@ class PromptRenderer:
                 normalized = value.strip()
                 if normalized and normalized != omitted:
                     parts.append(f"{label}: {normalized}")
+            if outcome.developmental_status is not None:
+                parts.append(
+                    "developmental_status: "
+                    f"{outcome.developmental_status}; "
+                    f"credit={outcome.developmental_credit}; "
+                    f"evidence={', '.join(outcome.developmental_reasons) or 'none'}"
+                )
             parts.append(f"result: {result}")
             metrics = cls._public_metrics(outcome.metrics, task)
             if metrics:
@@ -847,6 +878,8 @@ class PromptRenderer:
                     )
             else:
                 proposal_policy = "" if neutral else self.ordinary
+            if transition_active and context.proposal_policy_override is not None:
+                proposal_policy = context.proposal_policy_override.strip()
         treatment_skeleton_sha256 = ""
         if artifact_clean:
             include_source_paths = (
@@ -886,9 +919,13 @@ class PromptRenderer:
             else:
                 common_template = self.openevolve_v21_common_template
             values = {
-                "task_contract": self._neutral_task_contract(task),
+                "task_contract": self._neutral_task_contract_with_policy(
+                    task, context
+                ),
                 "framework_contract": self._neutral_framework_contract(framework),
-                "conversation_contract": self._neutral_conversation_contract(spec),
+                "conversation_contract": self._neutral_conversation_contract(
+                    spec, phased_session=context.phased_session
+                ),
                 "design_context": design_context,
                 "recent_outcomes": self._clean_recent_outcomes(
                     () if context.no_search else context.recent_outcomes,
@@ -938,9 +975,11 @@ class PromptRenderer:
                 else self.neutral_common_template
             )
             text = common_template.format(
-                task_contract=self._neutral_task_contract(task),
+                task_contract=self._neutral_task_contract_with_policy(task, context),
                 framework_contract=self._neutral_framework_contract(framework),
-                conversation_contract=self._neutral_conversation_contract(spec),
+                conversation_contract=self._neutral_conversation_contract(
+                    spec, phased_session=context.phased_session
+                ),
                 design_context=design_context,
                 recent_outcomes=self._neutral_recent_outcomes(
                     () if context.no_search else context.recent_outcomes

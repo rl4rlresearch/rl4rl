@@ -1,0 +1,1 @@
+Reconsider whether the recent sequence of trials is answering the right question efficiently. Redesign the next computational experiment so it isolates a consequential uncertainty with fewer confounds. Then implement that redesigned test within the available training and model constraints.

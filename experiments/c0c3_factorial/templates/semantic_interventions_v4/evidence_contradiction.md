@@ -1,0 +1,1 @@
+Find the result that is hardest to reconcile with the current working explanation. Revise the explanation around that contradiction, then implement a change whose outcome discriminates between the old explanation and the revised one. Prefer a decisive, feasible test over a broad bundle of unrelated edits.

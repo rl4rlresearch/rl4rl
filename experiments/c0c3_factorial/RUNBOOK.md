@@ -768,3 +768,22 @@ Preserve, read-only:
 Create hashes for the archive before transferring it. Never publish secrets,
 Codex authentication state, or the Layer B private salt/mapping before review is
 frozen.
+
+## 12. Semantic-intervention v4 campaigns
+
+Semantic v4 uses a separate launcher because its schedule contains arbitrary
+intervention IDs rather than C0-C3 conditions. The complete copyable prepare,
+validate, detached start, per-arm control, dashboard, and recovery commands are
+in [SEMANTIC_INTERVENTIONS_V4.md](SEMANTIC_INTERVENTIONS_V4.md).
+
+Important operational differences:
+
+- one physical prefix leader supplies proposals 1-5 to every arm in a
+  replicate;
+- all post-fork arms are independently schedulable and controllable;
+- a worker exception pauses only its arm, except that a prefix exception
+  pauses that replicate until the shared state is recovered;
+- campaign pause is cooperative and never deletes an active opportunity;
+- shadow prefix usage is visible on conceptual trajectories but charged once
+  in campaign physical totals;
+- `semantic_intervention_overnight.py status` is the authoritative quick view.

@@ -1,0 +1,1 @@
+Before choosing the next change, identify a load-bearing assumption in the current designs and the strongest evidence for and against it. Test a genuinely different learned computation that challenges that assumption. Keep the implementation feasible, preserve supported components that are not needed for the test, and state what result would count against the alternative.

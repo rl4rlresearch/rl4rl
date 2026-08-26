@@ -427,6 +427,9 @@ def evaluate_pair_token_ten_digit_transformer(args: argparse.Namespace) -> int:
         train_device = getattr(args, "train_device", None)
         if train_device:
             train_command.extend(("--device", train_device))
+        training_steps = getattr(args, "training_steps", None)
+        if training_steps is not None:
+            train_command.extend(("--train-steps", str(training_steps)))
         train_exit, train_output = _run(train_command, cwd=workspace)
         if train_exit:
             return train_exit
@@ -537,6 +540,15 @@ def build_parser() -> argparse.ArgumentParser:
         subparser.add_argument("--verify-existing-checkpoint", action="store_true")
         subparser.add_argument(
             "--train-device", choices=("cpu", "mps", "cuda"), default=None
+        )
+        subparser.add_argument(
+            "--training-steps",
+            type=int,
+            default=None,
+            help=(
+                "Evaluator-owned training budget passed to the candidate's "
+                "--train-steps interface."
+            ),
         )
         subparser.set_defaults(
             handler=evaluate_pair_token_ten_digit_transformer,

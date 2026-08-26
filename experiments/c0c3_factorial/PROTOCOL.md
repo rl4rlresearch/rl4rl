@@ -610,3 +610,18 @@ post-change behavior explicit. A new protocol version, campaign, calibration,
 or analysis stratum is optional rather than automatic; choose those boundaries
 according to the scientific question and disclose the executed history in any
 analysis that uses the affected data.
+
+## 15. Semantic-intervention v4 extension
+
+The semantic-intervention experiment is a separate multi-arm analysis stratum,
+not another C0-C3 factorial cell. It reuses the unified v3 execution and
+artifact contracts while randomizing 21 research operations after a literal
+five-proposal shared prefix. It resets provider conversations every five
+proposals, preserves verified evidence in bounded capsules, and records
+developmental outcomes without changing primary retention.
+
+Its unit of replication is the complete trajectory. Its cleanest causal
+estimand is the first five-proposal phase after the shared-prefix fork; later
+phases estimate cumulative adaptive-trajectory effects. The design, treatment
+registry, fidelity policies, resource accounting, and analysis requirements are
+specified in [SEMANTIC_INTERVENTIONS_V4.md](SEMANTIC_INTERVENTIONS_V4.md).

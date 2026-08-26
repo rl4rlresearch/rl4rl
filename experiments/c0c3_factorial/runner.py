@@ -50,6 +50,7 @@ from .spec import (
 )
 from .state import Evaluation, SearchController
 from .task_evaluators import preflight_candidate_source
+from .training_ladder import assess_developmental_value, evaluate_training_ladder
 from .v3 import load_runtime_options, prompt_renderer_paths
 from .v3_analysis import record_candidate_provenance, write_manipulation_packet
 
@@ -86,7 +87,9 @@ def _read_json(path: Path) -> dict[str, object]:
     return json.loads(path.read_text(encoding="utf-8"))
 
 
-def _register_conversation_session(run_dir: Path, session_id: str) -> None:
+def _register_conversation_session(
+    run_dir: Path, session_id: str, *, allow_multiple_for_run: bool = False
+) -> None:
     """Atomically prove that one persisted Codex thread belongs to one run."""
 
     campaign = run_dir.parent.parent
@@ -110,7 +113,7 @@ def _register_conversation_session(run_dir: Path, session_id: str) -> None:
             owned_ids = [
                 key for key, value in registry.items() if value == run_dir.name
             ]
-            if owned_ids and session_id not in owned_ids:
+            if owned_ids and session_id not in owned_ids and not allow_multiple_for_run:
                 raise RuntimeError(
                     "run attempted to switch Codex conversation sessions"
                 )
@@ -243,21 +246,31 @@ def _recent_outcomes(run_dir: Path, *, limit: int = 12) -> tuple[VisibleOutcome,
     events = run_dir / "events.jsonl"
     if not events.is_file():
         return ()
-    outcomes: list[VisibleOutcome] = []
+    records = []
+    assessments: dict[int, dict[str, object]] = {}
     for line in events.read_text(encoding="utf-8", errors="replace").splitlines():
         try:
             record = json.loads(line)
         except json.JSONDecodeError:
             continue
+        records.append(record)
+        if record.get("event") == "developmental_assessment" and isinstance(
+            record.get("opportunity"), int
+        ):
+            assessments[int(record["opportunity"])] = record
+    outcomes: list[VisibleOutcome] = []
+    for record in records:
         if record.get("event") != "proposal_completed":
             continue
         evaluation = record.get("evaluation")
         if not isinstance(evaluation, dict):
             continue
         metrics = evaluation.get("metrics")
+        opportunity = int(record["opportunity"])
+        developmental = assessments.get(opportunity, {})
         outcomes.append(
             VisibleOutcome(
-                opportunity=int(record["opportunity"]),
+                opportunity=opportunity,
                 hypothesis=str(record.get("hypothesis", "[not available]")),
                 intended_edit=str(record.get("intended_edit", "[not available]")),
                 metrics=dict(metrics) if isinstance(metrics, dict) else {},
@@ -270,6 +283,19 @@ def _recent_outcomes(run_dir: Path, *, limit: int = 12) -> tuple[VisibleOutcome,
                 ),
                 mechanism=str(record.get("mechanism", "[not recorded]")),
                 evidence=str(record.get("evidence", "[not recorded]")),
+                developmental_status=(
+                    str(developmental["status"])
+                    if developmental.get("status") is not None
+                    else None
+                ),
+                developmental_credit=(
+                    float(developmental["credit"])
+                    if isinstance(developmental.get("credit"), int | float)
+                    else None
+                ),
+                developmental_reasons=tuple(
+                    str(value) for value in developmental.get("reasons", [])
+                ),
             )
         )
     return tuple(outcomes[-limit:])
@@ -417,6 +443,7 @@ def _run_one_opportunity_unlocked(
     if (
         spec.conversation_mode is ConversationMode.CONTINUOUS
         and framework.framework_id is not FrameworkKind.AUTORESEARCH
+        and spec.protocol_version != "3.0"
     ):
         raise ValueError(
             "continuous Codex sessions currently support Autoresearch only"
@@ -555,6 +582,51 @@ def _run_one_opportunity_unlocked(
                 ),
             )
         )
+    session_span = (
+        int(conversation_options.get("session_span_opportunities", 1))
+        if v3_options is not None
+        else 1
+    )
+    if session_span < 1:
+        raise ValueError("session_span_opportunities must be positive")
+    phased_session = v3_options is not None and session_span > 1
+    semantic_policy: str | None = None
+    semantic = run_manifest.get("semantic_intervention")
+    if active.transition_active and isinstance(semantic, dict):
+        relative = semantic.get("prompt_path")
+        if not isinstance(relative, str) or not relative.strip():
+            raise ValueError("semantic intervention lacks a prompt path")
+        prompt_root = (run_dir.parent.parent / "prompt-bundle").resolve()
+        policy_path = (prompt_root / relative).resolve()
+        if prompt_root not in policy_path.parents or not policy_path.is_file():
+            raise ValueError("semantic intervention prompt path is invalid")
+        semantic_policy = policy_path.read_text(encoding="utf-8")
+    evaluation_policy_note: str | None = None
+    multi_fidelity_options = (
+        dict(dict(v3_options.get("evaluation", {})).get("multi_fidelity", {}))
+        if v3_options is not None
+        else {}
+    )
+    candidate_ladder = dict(
+        multi_fidelity_options.get("candidate_editable_policy", {})
+    )
+    if bool(multi_fidelity_options.get("enabled", False)) and bool(
+        candidate_ladder.get("enabled", False)
+    ):
+        levels_symbol = str(candidate_ladder.get("levels_symbol", "EVALUATION_LADDER"))
+        thresholds_symbol = candidate_ladder.get("thresholds_symbol")
+        evaluation_policy_note = (
+            "Verification uses a multi-fidelity training ladder. You may edit the "
+            f"literal {levels_symbol} policy in "
+            f"{candidate_ladder.get('path')}"
+        )
+        if thresholds_symbol:
+            evaluation_policy_note += f" and its literal {thresholds_symbol} policy"
+        evaluation_policy_note += (
+            ". The verifier bounds the rung count and range, guarantees the common "
+            "terminal budget, and applies the same official success and retention "
+            "rules regardless of the intermediate ladder."
+        )
     prompt_context = PromptContext(
         condition=controller.condition,
         opportunity=active.index,
@@ -573,6 +645,9 @@ def _run_one_opportunity_unlocked(
             if framework.adapter.startswith("controlled_openevolve_prompt_diff_")
             else "No earlier mechanism result is available."
         ),
+        phased_session=phased_session,
+        proposal_policy_override=semantic_policy,
+        evaluation_policy_note=evaluation_policy_note,
     )
     frozen_transition = run_dir / FROZEN_ASSUMPTION_PROMPT
     if (
@@ -638,7 +713,7 @@ def _run_one_opportunity_unlocked(
         )
     if show_token_continuation_notice:
         controller.record_token_budget_continuation_notice()
-    continuous = spec.conversation_mode is ConversationMode.CONTINUOUS
+    continuous = spec.conversation_mode is ConversationMode.CONTINUOUS or phased_session
     codex_workspace = (
         _refresh_continuous_workspace(
             run_dir=run_dir,
@@ -665,6 +740,11 @@ def _run_one_opportunity_unlocked(
             template_root if spec.protocol_version == "3.0" else None
         ),
     )
+    if phased_session and active.index > 1 and (active.index - 1) % session_span == 0:
+        controller.reset_conversation_session(
+            opportunity=active.index,
+            reason=f"configured {session_span}-opportunity research phase ended",
+        )
     requested_session_id = (
         controller.state.conversation_session_id if continuous else None
     )
@@ -704,7 +784,11 @@ def _run_one_opportunity_unlocked(
             )
         else:
             try:
-                _register_conversation_session(run_dir, proposal.codex.session_id)
+                _register_conversation_session(
+                    run_dir,
+                    proposal.codex.session_id,
+                    allow_multiple_for_run=phased_session,
+                )
                 controller.record_conversation_session(proposal.codex.session_id)
             except (OSError, RuntimeError, ValueError) as error:
                 adapter_error = adapter_error or str(error)
@@ -783,22 +867,26 @@ def _run_one_opportunity_unlocked(
                 else EVALUATOR_CONCURRENCY_BY_PROTOCOL.get(spec.protocol_version)
             )
         )
-        evaluator = make_command_evaluator(
-            task=task,
-            support_source=support_source,
-            repo_root=repo_root,
-            python_bin=python_bin,
-            slot_root=(
-                (
-                    task_local_evaluator_root(task.task_id)
-                    if spec.protocol_version == "3.0"
-                    else run_dir.parent.parent / ".evaluator-slots" / "campaign"
-                )
-                if max_parallel_evaluators is not None
-                else None
-            ),
-            max_parallel_evaluators=max_parallel_evaluators,
+        slot_root = (
+            (
+                task_local_evaluator_root(task.task_id)
+                if spec.protocol_version == "3.0"
+                else run_dir.parent.parent / ".evaluator-slots" / "campaign"
+            )
+            if max_parallel_evaluators is not None
+            else None
         )
+
+        def evaluator_for(stage_task: TaskSpec):
+            return make_command_evaluator(
+                task=stage_task,
+                support_source=support_source,
+                repo_root=repo_root,
+                python_bin=python_bin,
+                slot_root=slot_root,
+                max_parallel_evaluators=max_parallel_evaluators,
+            )
+
         replicate_count = (
             int(dict(v3_options.get("evaluation", {})).get("paired_training_seeds", 1))
             if v3_options is not None
@@ -806,8 +894,24 @@ def _run_one_opportunity_unlocked(
         )
         if replicate_count < 1:
             raise ValueError("paired_training_seeds must be positive")
-        if replicate_count == 1:
-            evaluated = evaluator.evaluate(
+        multi_fidelity = multi_fidelity_options
+        if bool(multi_fidelity.get("enabled", False)):
+            if replicate_count != 1:
+                raise ValueError(
+                    "training ladders and repeated training seeds cannot be combined "
+                    "in one online evaluator call"
+                )
+            evaluation = evaluate_training_ladder(
+                task=task,
+                config=multi_fidelity,
+                candidate_snapshot=candidate_snapshot,
+                opportunity_root=opportunity_root,
+                timeout_seconds=spec.budget.evaluator_timeout_seconds,
+                run_seed=run_seed,
+                evaluator_factory=evaluator_for,
+            )
+        elif replicate_count == 1:
+            evaluated = evaluator_for(task).evaluate(
                 candidate_snapshot=candidate_snapshot,
                 opportunity_root=opportunity_root,
                 timeout_seconds=spec.budget.evaluator_timeout_seconds,
@@ -823,7 +927,7 @@ def _run_one_opportunity_unlocked(
                     ).digest()[:8],
                     "big",
                 )
-                artifacts = evaluator.evaluate(
+                artifacts = evaluator_for(task).evaluate(
                     candidate_snapshot=candidate_snapshot,
                     opportunity_root=(
                         opportunity_root
@@ -918,7 +1022,11 @@ def _run_one_opportunity_unlocked(
             "opportunity": active.index,
             "runtime_sha256": expected_runtime_hash,
             "prompt_bundle_sha256": run_manifest.get("campaign_prompt_bundle_sha256"),
-            "conversation_boundary": "fresh_bounded_state_capsule",
+            "conversation_boundary": (
+                f"phased_session_span_{session_span}"
+                if phased_session
+                else "fresh_bounded_state_capsule"
+            ),
             "provider_model_requested": spec.model.name,
             "reasoning_effort_requested": spec.model.reasoning_effort,
             "service_tier_observed": proposal.codex.service_tier,
@@ -926,6 +1034,17 @@ def _run_one_opportunity_unlocked(
         from .state import append_jsonl
 
         append_jsonl(run_dir / "events.jsonl", append_record)
+        developmental_options = dict(v3_options.get("developmental_reward", {}))
+        if developmental_options:
+            assessment = assess_developmental_value(
+                run_dir=run_dir,
+                task=task,
+                record=record,
+                provenance=provenance,
+                config=developmental_options,
+            )
+            if assessment:
+                record["developmental_assessment"] = assessment
     if workspace.exists():
         _make_tree_owner_writable(workspace)
         shutil.rmtree(workspace)
@@ -986,10 +1105,29 @@ def recover_active_opportunity(
         opportunity_root.mkdir(parents=True, exist_ok=True)
         events = opportunity_root / "codex" / f"proposal-{active.index}.jsonl"
         usage = usage_from_events(events)
-        if spec.conversation_mode is ConversationMode.CONTINUOUS:
+        phased_session = False
+        if spec.protocol_version == "3.0":
+            try:
+                phased_session = (
+                    int(
+                        dict(
+                            load_runtime_options(resolved.parent.parent).get(
+                                "conversation", {}
+                            )
+                        ).get("session_span_opportunities", 1)
+                    )
+                    > 1
+                )
+            except (OSError, ValueError):
+                phased_session = False
+        if spec.conversation_mode is ConversationMode.CONTINUOUS or phased_session:
             session_id = session_id_from_events(events)
             if session_id is not None:
-                _register_conversation_session(resolved, session_id)
+                _register_conversation_session(
+                    resolved,
+                    session_id,
+                    allow_multiple_for_run=phased_session,
+                )
                 controller.record_conversation_session(session_id)
         prompt_manifest = opportunity_root / "prompt_manifest.json"
         prompt_hashes = (

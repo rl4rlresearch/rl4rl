@@ -1,0 +1,1 @@
+Choose the next change for expected information gain, not only for its chance of immediate improvement. Target an uncertainty whose resolution would materially change later design choices. Implement a feasible test with clearly different implications across its plausible outcomes.

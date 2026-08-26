@@ -1,0 +1,1 @@
+Look across the strongest distinct ideas in the available evidence. Combine compatible mechanisms only where their causal roles are complementary, not as an indiscriminate bundle. Implement a clean recombination whose result can show whether the mechanisms reinforce or interfere with one another.

@@ -1,0 +1,1 @@
+Identify the bottleneck that currently limits further progress: representation, optimization, data use, capacity allocation, inference, or another concrete mechanism. Use the evidence to justify the bottleneck, then implement a focused change that attacks it without unnecessary collateral changes.

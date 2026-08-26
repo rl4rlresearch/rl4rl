@@ -327,6 +327,36 @@ class SearchController:
             },
         )
 
+    def reset_conversation_session(self, *, opportunity: int, reason: str) -> None:
+        """End the current subject session at an explicit phase boundary.
+
+        The old session remains in the private registry and event log.  Clearing
+        only the active binding makes the next provider call start a fresh
+        conversation without deleting any scientific history.
+        """
+
+        if opportunity < 1:
+            raise ValueError("conversation reset opportunity must be positive")
+        if not reason.strip():
+            raise ValueError("conversation reset reason cannot be blank")
+        prior = self.state.conversation_session_id
+        if prior is None:
+            return
+        self.state.conversation_session_id = None
+        self._write_state()
+        append_jsonl(
+            self.events_path,
+            {
+                "schema_version": "1.0",
+                "event": "conversation_session_reset",
+                "timestamp": utc_now(),
+                "run_id": self.state.run_id,
+                "opportunity": opportunity,
+                "prior_conversation_session_id": prior,
+                "reason": reason.strip(),
+            },
+        )
+
     def record_token_budget_continuation_notice(self) -> None:
         """Record the one subject-facing notice after v1.6 crosses its threshold."""
 
