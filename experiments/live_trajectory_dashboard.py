@@ -11,7 +11,12 @@ from __future__ import annotations
 
 import argparse
 import gzip
+import hashlib
 import json
+import os
+import sys
+import threading
+import time
 from contextlib import suppress
 from datetime import datetime
 from http import HTTPStatus
@@ -46,6 +51,10 @@ DEFAULT_OPENEVOLVE_V21_FASHION_MNIST = (
 # These are display-only price weights, not a billing record.  They match the
 # previous trajectory visualizer's token-cost convention and can be overridden.
 DEFAULT_PRICE_PER_MILLION = {"input": 1.75, "cached_input": 0.175, "output": 14.0}
+# Campaign ledgers record evaluator worker seconds, rather than Modal invoice
+# line items. The H100 rate is the public per-second Modal GPU price and is
+# configurable at launch for a historical or account-specific rate.
+DEFAULT_MODAL_H100_PRICE_PER_SECOND = 0.001097
 
 
 def read_json(path: Path, default: Any) -> Any:
@@ -147,6 +156,49 @@ def weighted_cost(usage: dict[str, Any], prices: dict[str, float]) -> float:
     ) / 1_000_000
 
 
+def modal_usage_index(
+    campaign: Path, *, h100_price_per_second: float
+) -> tuple[dict[str, dict[int, list[dict[str, Any]]]], dict[str, Any]]:
+    """Index the append-only Modal ledger by run and opportunity.
+
+    This is intentionally a campaign-attributed GPU estimate. It accounts for
+    recorded worker seconds only; Modal's invoice can additionally contain
+    account-level credits, storage, and other resource charges.
+    """
+
+    ledger_path = campaign / "modal-usage.jsonl"
+    records = iter_jsonl(ledger_path)
+    by_run: dict[str, dict[int, list[dict[str, Any]]]] = {}
+    worker_seconds = 0.0
+    completed_calls = 0
+    failed_calls = 0
+    unpriced_records = 0
+    for record in records:
+        run_id = record.get("run_id")
+        opportunity = record.get("opportunity")
+        seconds = numeric(record.get("worker_seconds"))
+        if record.get("status") == "completed":
+            completed_calls += 1
+        elif record.get("status") == "failed":
+            failed_calls += 1
+        if seconds is None:
+            unpriced_records += 1
+            continue
+        worker_seconds += seconds
+        if isinstance(run_id, str) and isinstance(opportunity, int):
+            by_run.setdefault(run_id, {}).setdefault(opportunity, []).append(record)
+    return by_run, {
+        "available": ledger_path.is_file(),
+        "worker_seconds": round(worker_seconds, 6),
+        "gpu_cost": round(worker_seconds * h100_price_per_second, 6),
+        "completed_calls": completed_calls,
+        "failed_calls": failed_calls,
+        "unpriced_records": unpriced_records,
+        "h100_price_per_second": h100_price_per_second,
+        "scope": "recorded Modal evaluator GPU worker seconds only",
+    }
+
+
 def compact_label(run_id: str) -> str:
     parts = run_id.lower().split("-")
     block = next((part.upper() for part in parts if len(part) == 3 and part.startswith("b") and part[1:].isdigit()), "B??")
@@ -182,6 +234,8 @@ def build_run(
     *,
     objective_metric: str,
     objective_direction: str,
+    modal_usage_by_opportunity: dict[int, list[dict[str, Any]]] | None = None,
+    modal_h100_price_per_second: float = DEFAULT_MODAL_H100_PRICE_PER_SECOND,
 ) -> dict[str, Any] | None:
     state = read_json(run_dir / "state.json", {})
     if not isinstance(state, dict):
@@ -200,6 +254,17 @@ def build_run(
     valid_proposals = 0
     retained_proposals = 0
     latest_raw_objective: float | None = None
+    modal_usage_by_opportunity = modal_usage_by_opportunity or {}
+    recorded_modal_worker_seconds = sum(
+        numeric(record.get("worker_seconds")) or 0.0
+        for records in modal_usage_by_opportunity.values()
+        for record in records
+    )
+    recorded_modal_gpu_cost = (
+        recorded_modal_worker_seconds * modal_h100_price_per_second
+    )
+    modal_worker_seconds = 0.0
+    modal_gpu_cost = 0.0
     for event in events:
         opportunity = event.get("opportunity")
         if not isinstance(opportunity, int):
@@ -240,6 +305,15 @@ def build_run(
         evaluator_seconds_increment = numeric(event.get("evaluator_seconds_increment")) or 0.0
         evaluator_calls = numeric(event.get("evaluator_calls_cumulative")) or 0.0
         evaluator_calls_increment = numeric(event.get("evaluator_calls_increment")) or 0.0
+        modal_records = modal_usage_by_opportunity.get(opportunity, [])
+        modal_worker_seconds_increment = sum(
+            numeric(record.get("worker_seconds")) or 0.0 for record in modal_records
+        )
+        modal_gpu_cost_increment = (
+            modal_worker_seconds_increment * modal_h100_price_per_second
+        )
+        modal_worker_seconds += modal_worker_seconds_increment
+        modal_gpu_cost += modal_gpu_cost_increment
         improvement: float | None = None
         improvement_percent: float | None = None
         if seed_objective is not None and best_objective is not None:
@@ -257,6 +331,12 @@ def build_run(
                 "active_seconds": round(elapsed_seconds, 6),
                 "token_cost": round(weighted_cost(usage, prices), 6),
                 "incremental_token_cost": round(weighted_cost(usage_increment, prices), 6),
+                "modal_worker_seconds": round(modal_worker_seconds, 6),
+                "incremental_modal_worker_seconds": round(
+                    modal_worker_seconds_increment, 6
+                ),
+                "modal_gpu_cost": round(modal_gpu_cost, 6),
+                "incremental_modal_gpu_cost": round(modal_gpu_cost_increment, 6),
                 **usage,
                 **{f"incremental_{key}": value for key, value in usage_increment.items()},
                 "evaluator_seconds": evaluator_seconds,
@@ -291,6 +371,10 @@ def build_run(
                 "active_seconds": 0.0,
                 "token_cost": 0.0,
                 "incremental_token_cost": 0.0,
+                "modal_worker_seconds": 0.0,
+                "incremental_modal_worker_seconds": 0.0,
+                "modal_gpu_cost": 0.0,
+                "incremental_modal_gpu_cost": 0.0,
                 "input_tokens": 0,
                 "cached_input_tokens": 0,
                 "output_tokens": 0,
@@ -333,6 +417,12 @@ def build_run(
         "proposals_used": state.get("proposals_used", 0),
         "total_tokens": usage["total_tokens"],
         "token_cost": round(weighted_cost(usage, prices), 6),
+        # A worker can finish before the controller writes its completion event.
+        # Keep the run summary faithful to the append-only Modal ledger even in
+        # that short live-update window; proposal points stay aligned to their
+        # corresponding completed opportunities.
+        "modal_worker_seconds": round(recorded_modal_worker_seconds, 6),
+        "modal_gpu_cost": round(recorded_modal_gpu_cost, 6),
         "best_objective": best_objective,
         "seed_objective": seed_objective,
         "latest_raw_objective": latest_raw_objective,
@@ -348,18 +438,28 @@ def build_run(
     }
 
 
-def campaign_data(campaign: Path, prices: dict[str, float]) -> dict[str, Any]:
+def campaign_data(
+    campaign: Path,
+    prices: dict[str, float],
+    *,
+    modal_h100_price_per_second: float = DEFAULT_MODAL_H100_PRICE_PER_SECOND,
+) -> dict[str, Any]:
     runs_root = campaign / "runs"
     task = read_json(campaign / "inputs/task.json", {})
     task = task if isinstance(task, dict) else {}
     objective_metric = str(task.get("objective_metric", "parameters"))
     objective_direction = str(task.get("objective_direction", "minimize"))
+    modal_by_run, modal_summary = modal_usage_index(
+        campaign, h100_price_per_second=modal_h100_price_per_second
+    )
     runs = [
         build_run(
             path,
             prices,
             objective_metric=objective_metric,
             objective_direction=objective_direction,
+            modal_usage_by_opportunity=modal_by_run.get(path.name),
+            modal_h100_price_per_second=modal_h100_price_per_second,
         )
         for path in sorted(runs_root.glob("*"))
         if path.is_dir()
@@ -389,13 +489,21 @@ def campaign_data(campaign: Path, prices: dict[str, float]) -> dict[str, Any]:
         "incremental_evaluator_calls": "Evaluator calls this proposal",
         "incremental_evaluator_seconds": "Evaluator time this proposal (seconds)",
         "incremental_input_tokens": "Input tokens this proposal",
+        "incremental_modal_gpu_cost": "Modal GPU cost estimate this proposal (USD)",
+        "incremental_modal_worker_seconds": "Modal GPU worker seconds this proposal",
         "incremental_output_tokens": "Output tokens this proposal",
         "incremental_reasoning_output_tokens": "Reasoning output tokens this proposal",
         "incremental_token_cost": "Price-weighted token cost this proposal (USD)",
         "incremental_total_tokens": "Total tokens this proposal",
         "input_tokens": "Cumulative input tokens",
-        "objective_improvement": f"Best {objective_metric} improvement from seed",
-        "objective_improvement_percent": f"Best {objective_metric} improvement from seed (%)",
+        "objective_improvement": (
+            f"Best {objective_metric} improvement from selected proposal start"
+        ),
+        "objective_improvement_percent": (
+            f"Best {objective_metric} improvement from selected proposal start (%)"
+        ),
+        "modal_gpu_cost": "Cumulative Modal GPU cost estimate (USD)",
+        "modal_worker_seconds": "Cumulative Modal GPU worker seconds",
         "output_tokens": "Cumulative output tokens",
         "proposal": "Proposal index",
         "raw_objective": f"Proposal {objective_metric} (all outcomes)",
@@ -403,6 +511,14 @@ def campaign_data(campaign: Path, prices: dict[str, float]) -> dict[str, Any]:
         "token_cost": "Cumulative price-weighted token cost (USD)",
         "total_tokens": "Cumulative total tokens",
     }
+    if not modal_summary["available"]:
+        for key in (
+            "incremental_modal_gpu_cost",
+            "incremental_modal_worker_seconds",
+            "modal_gpu_cost",
+            "modal_worker_seconds",
+        ):
+            metric_labels.pop(key)
     axis_catalog = [
         {"key": key, "label": label}
         for key, label in metric_labels.items()
@@ -417,18 +533,30 @@ def campaign_data(campaign: Path, prices: dict[str, float]) -> dict[str, Any]:
         "objective_direction": objective_direction,
         "axis_catalog": axis_catalog,
         "observed_metrics": observed_metrics,
+        "modal_usage": modal_summary,
         "runs": factorial_runs,
     }
 
 
-def dashboard_data(campaigns: dict[str, Path], prices: dict[str, float]) -> dict[str, Any]:
+def dashboard_data(
+    campaigns: dict[str, Path],
+    prices: dict[str, float],
+    *,
+    modal_h100_price_per_second: float = DEFAULT_MODAL_H100_PRICE_PER_SECOND,
+) -> dict[str, Any]:
     campaign_payloads = {
-        key: campaign_data(path, prices) for key, path in campaigns.items()
+        key: campaign_data(
+            path,
+            prices,
+            modal_h100_price_per_second=modal_h100_price_per_second,
+        )
+        for key, path in campaigns.items()
     }
     payload = {
-        "schema_version": "3.0",
+        "schema_version": "3.1",
         "generated_at": datetime.now().astimezone().isoformat(),
         "price_per_million": prices,
+        "modal_h100_price_per_second": modal_h100_price_per_second,
         "campaigns": campaign_payloads,
     }
     # Keep tabs loaded before the multi-campaign dashboard upgrade functional.
@@ -442,9 +570,46 @@ def dashboard_data(campaigns: dict[str, Path], prices: dict[str, float]) -> dict
 
 # Keep the interactive client in a standalone file so browser behavior can be
 # linted and tested independently of the read-only Python log server.
-PAGE = (Path(__file__).with_name("live_trajectory_dashboard.html")).read_text(
-    encoding="utf-8"
-)
+PYTHON_SOURCE_PATH = Path(__file__).resolve()
+PAGE_PATH = PYTHON_SOURCE_PATH.with_name("live_trajectory_dashboard.html")
+PAGE = PAGE_PATH.read_text(encoding="utf-8")
+
+
+def read_dashboard_page() -> str:
+    """Read the client on every page request so HTML edits need no restart."""
+    try:
+        return PAGE_PATH.read_text(encoding="utf-8")
+    except OSError:
+        # Keep serving the last complete import-time copy during an editor's
+        # brief replace window instead of returning a broken page.
+        return PAGE
+
+
+def dashboard_revision(paths: tuple[Path, ...] | None = None) -> str:
+    """Return a content revision for browser and server hot reload checks."""
+    digest = hashlib.sha256()
+    for path in paths or (PYTHON_SOURCE_PATH, PAGE_PATH):
+        digest.update(str(path).encode("utf-8"))
+        try:
+            digest.update(path.read_bytes())
+        except OSError:
+            digest.update(b"<temporarily-unavailable>")
+    return digest.hexdigest()[:16]
+
+
+def start_python_hot_reloader(poll_seconds: float = 1.0) -> None:
+    """Re-exec this read-only server when its Python source changes."""
+    initial_revision = dashboard_revision((PYTHON_SOURCE_PATH,))
+
+    def watch() -> None:
+        while True:
+            time.sleep(poll_seconds)
+            if dashboard_revision((PYTHON_SOURCE_PATH,)) == initial_revision:
+                continue
+            print("Dashboard Python changed; hot-restarting server...", flush=True)
+            os.execv(sys.executable, [sys.executable, *sys.argv])
+
+    threading.Thread(target=watch, name="dashboard-hot-reload", daemon=True).start()
 
 
 def encode_response(body: bytes, accept_encoding: str) -> tuple[bytes, str | None]:
@@ -454,7 +619,12 @@ def encode_response(body: bytes, accept_encoding: str) -> tuple[bytes, str | Non
     return body, None
 
 
-def make_handler(campaigns: dict[str, Path], prices: dict[str, float]):
+def make_handler(
+    campaigns: dict[str, Path],
+    prices: dict[str, float],
+    *,
+    modal_h100_price_per_second: float = DEFAULT_MODAL_H100_PRICE_PER_SECOND,
+):
     class Handler(BaseHTTPRequestHandler):
         def send_payload(self, body: bytes, content_type: str) -> None:
             body, content_encoding = encode_response(
@@ -476,10 +646,23 @@ def make_handler(campaigns: dict[str, Path], prices: dict[str, float]):
 
         def do_GET(self) -> None:  # noqa: N802
             if self.path in {"/", "/index.html"}:
-                self.send_payload(PAGE.encode("utf-8"), "text/html; charset=utf-8")
+                self.send_payload(
+                    read_dashboard_page().encode("utf-8"),
+                    "text/html; charset=utf-8",
+                )
+            elif self.path == "/api/revision":
+                payload = json.dumps(
+                    {"revision": dashboard_revision()}, separators=(",", ":")
+                ).encode("utf-8")
+                self.send_payload(payload, "application/json; charset=utf-8")
             elif self.path == "/api/data":
                 payload = json.dumps(
-                    dashboard_data(campaigns, prices), separators=(",", ":")
+                    dashboard_data(
+                        campaigns,
+                        prices,
+                        modal_h100_price_per_second=modal_h100_price_per_second,
+                    ),
+                    separators=(",", ":"),
                 ).encode("utf-8")
                 self.send_payload(payload, "application/json; charset=utf-8")
             else:
@@ -526,6 +709,12 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--input-per-million", type=float, default=DEFAULT_PRICE_PER_MILLION["input"])
     parser.add_argument("--cached-input-per-million", type=float, default=DEFAULT_PRICE_PER_MILLION["cached_input"])
     parser.add_argument("--output-per-million", type=float, default=DEFAULT_PRICE_PER_MILLION["output"])
+    parser.add_argument(
+        "--modal-h100-price-per-second",
+        type=float,
+        default=DEFAULT_MODAL_H100_PRICE_PER_SECOND,
+        help="campaign-attributed Modal H100 GPU rate used for dashboard estimates",
+    )
     return parser.parse_args()
 
 
@@ -547,8 +736,15 @@ def main() -> None:
         ),
     }
     server = ThreadingHTTPServer(
-        (args.host, args.port), make_handler(campaigns, prices)
+        (args.host, args.port),
+        make_handler(
+            campaigns,
+            prices,
+            modal_h100_price_per_second=args.modal_h100_price_per_second,
+        ),
     )
+    start_python_hot_reloader()
+    print("Hot reload: watching dashboard HTML and Python")
     print(f"Dashboard: http://{args.host}:{args.port}")
     print(f"Autoresearch: {args.autoresearch_campaign}")
     print(f"OpenEvolve v2: {args.openevolve_campaign}")

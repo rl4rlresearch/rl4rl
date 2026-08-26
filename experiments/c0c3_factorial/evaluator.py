@@ -5,6 +5,7 @@ from __future__ import annotations
 import contextlib
 import fcntl
 import hashlib
+import importlib
 import json
 import os
 import re
@@ -23,6 +24,7 @@ from .state import Evaluation
 
 SHARED_LOCAL_EVALUATOR_CAPACITY = 12
 SHARED_LOCAL_EVALUATOR_ROOT_ENV = "RL4RL_SHARED_LOCAL_EVALUATOR_ROOT"
+TASK_LOCAL_EVALUATOR_ROOT_ENV = "RL4RL_TASK_LOCAL_EVALUATOR_ROOT"
 
 
 def shared_local_evaluator_root() -> Path:
@@ -34,6 +36,19 @@ def shared_local_evaluator_root() -> Path:
     stable_tmp = Path("/private/tmp")
     base = stable_tmp if stable_tmp.is_dir() else Path(tempfile.gettempdir())
     return base / f"rl4rl-c0c3-local-evaluators-{os.getuid()}-v1"
+
+
+def task_local_evaluator_root(task_id: str) -> Path:
+    """Return a host-wide pool isolated by portable task identifier."""
+
+    configured = os.environ.get(TASK_LOCAL_EVALUATOR_ROOT_ENV)
+    if configured:
+        base = Path(configured).expanduser().resolve()
+    else:
+        stable_tmp = Path("/private/tmp")
+        temporary = stable_tmp if stable_tmp.is_dir() else Path(tempfile.gettempdir())
+        base = temporary / f"rl4rl-c0c3-task-evaluators-{os.getuid()}-v1"
+    return base / task_id
 
 
 @dataclass(frozen=True)
@@ -61,8 +76,7 @@ def _release_slot(lease: _SlotLease | None) -> None:
 def _slot_first(opportunity_root: Path, *, scope: str, capacity: int) -> int:
     value = f"{scope}\0{opportunity_root}"
     return (
-        int.from_bytes(hashlib.sha256(value.encode()).digest()[:8], "little")
-        % capacity
+        int.from_bytes(hashlib.sha256(value.encode()).digest()[:8], "little") % capacity
     )
 
 
@@ -283,9 +297,7 @@ class CommandEvaluator:
             else None
         )
         shared_capacity = (
-            self.max_shared_parallel_evaluators
-            if shared_root is not None
-            else None
+            self.max_shared_parallel_evaluators if shared_root is not None else None
         )
         if shared_root is not None and shared_capacity is not None:
             if shared_root == campaign_root:
@@ -344,9 +356,7 @@ class CommandEvaluator:
                         "slot": str(campaign_lease.path),
                         "campaign_slot": str(campaign_lease.path),
                         "shared_slot": (
-                            str(shared_lease.path)
-                            if shared_lease is not None
-                            else None
+                            str(shared_lease.path) if shared_lease is not None else None
                         ),
                         "shared_capacity": shared_capacity,
                     },
@@ -488,6 +498,17 @@ def make_command_evaluator(
         "shared_slot_root": shared_slot_root,
         "max_shared_parallel_evaluators": max_shared_parallel_evaluators,
     }
+    if task.extension_module is not None:
+        extension = importlib.import_module(task.extension_module)
+        factory = getattr(extension, "make_evaluator", None)
+        if factory is not None:
+            evaluator = factory(
+                **arguments,
+                options=dict(task.extension_options),
+            )
+            if not hasattr(evaluator, "evaluate"):
+                raise TypeError("task extension evaluator must provide evaluate()")
+            return evaluator
     if task.preferred_backend is ExecutionBackend.HYBRID_MODAL:
         from .hybrid_evaluator import ModalCommandEvaluator
 

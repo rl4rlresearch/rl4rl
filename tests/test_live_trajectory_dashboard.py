@@ -7,10 +7,12 @@ from pathlib import Path
 import pytest
 
 from experiments.live_trajectory_dashboard import (
+    DEFAULT_MODAL_H100_PRICE_PER_SECOND,
     PAGE,
     build_run,
     campaign_data,
     dashboard_data,
+    dashboard_revision,
     encode_response,
     weighted_cost,
 )
@@ -146,7 +148,7 @@ def test_dashboard_data_keeps_legacy_refresh_keys(tmp_path: Path) -> None:
         PRICES,
     )
 
-    assert data["schema_version"] == "3.0"
+    assert data["schema_version"] == "3.1"
     assert data["autoresearch"] == data["campaigns"]["autoresearch_v16"]
     assert data["openevolve_v2"] == data["campaigns"]["openevolve_v2"]
     assert data["campaigns"]["autoresearch_v17"]["available"] is False
@@ -265,6 +267,59 @@ def test_cost_fields_distinguish_cumulative_and_incremental_usage(
     assert final["incremental_evaluator_seconds"] == 105
 
 
+def test_campaign_data_attributes_modal_gpu_cost_to_campaign_and_run(
+    tmp_path: Path,
+) -> None:
+    run_dir = _example_run(tmp_path)
+    _write_json(
+        tmp_path / "inputs/task.json",
+        {"objective_metric": "parameters", "objective_direction": "minimize"},
+    )
+    _write_jsonl(
+        tmp_path / "modal-usage.jsonl",
+        [
+            {
+                "run_id": run_dir.name,
+                "opportunity": 1,
+                "status": "completed",
+                "worker_seconds": 10,
+            },
+            {
+                "run_id": run_dir.name,
+                "opportunity": 2,
+                "status": "completed",
+                "worker_seconds": 5.5,
+            },
+            {
+                "run_id": run_dir.name,
+                "opportunity": 2,
+                "status": "failed",
+                "worker_seconds": None,
+            },
+        ],
+    )
+
+    campaign = campaign_data(tmp_path, PRICES)
+    run = campaign["runs"][0]
+
+    assert campaign["modal_usage"]["available"] is True
+    assert campaign["modal_usage"]["worker_seconds"] == pytest.approx(15.5)
+    assert campaign["modal_usage"]["gpu_cost"] == pytest.approx(
+        round(15.5 * DEFAULT_MODAL_H100_PRICE_PER_SECOND, 6)
+    )
+    assert campaign["modal_usage"]["completed_calls"] == 2
+    assert campaign["modal_usage"]["failed_calls"] == 1
+    assert run["modal_worker_seconds"] == pytest.approx(15.5)
+    assert run["modal_gpu_cost"] == pytest.approx(
+        round(15.5 * DEFAULT_MODAL_H100_PRICE_PER_SECOND, 6)
+    )
+    assert run["points"][1]["incremental_modal_worker_seconds"] == 10
+    assert run["points"][2]["modal_worker_seconds"] == pytest.approx(15.5)
+    assert {"modal_gpu_cost", "incremental_modal_gpu_cost"} <= {
+        item["key"] for item in campaign["axis_catalog"]
+    }
+
+
 def test_campaign_catalog_exposes_observed_metrics_for_both_axes(
     tmp_path: Path,
 ) -> None:
@@ -277,7 +332,12 @@ def test_campaign_catalog_exposes_observed_metrics_for_both_axes(
     campaign = campaign_data(tmp_path, PRICES)
     keys = {item["key"] for item in campaign["axis_catalog"]}
 
-    assert {"best_objective", "raw_objective", "token_cost", "active_hours"} <= keys
+    assert {
+        "best_objective",
+        "raw_objective",
+        "token_cost",
+        "active_hours",
+    } <= keys
     assert {"metric:parameters", "metric:accuracy"} <= keys
 
 
@@ -289,9 +349,17 @@ def test_page_contains_live_controls_and_raw_outcome_overlay() -> None:
     assert "Fit visible data" in PAGE
     assert "Individual runs" in PAGE
     assert "Condition median" in PAGE
+    assert "Condition mean" in PAGE
     assert "aggregateDataset" in PAGE
-    assert "median of ${p.member_count}/${p.condition_run_count} runs" in PAGE
+    assert "function mean(values)" in PAGE
+    assert "aggregate_method:aggregateMethod" in PAGE
+    assert "${method} of ${p.member_count}/${p.condition_run_count} runs" in PAGE
     assert "Export visible CSV" in PAGE
+    assert "Proposal start" in PAGE
+    assert "Proposal end" in PAGE
+    assert "function baselineObjective(run,state)" in PAGE
+    assert "improvement from proposal ${proposalBounds(state).start}" in PAGE
+    assert "if(proposal<start||(end!==null&&proposal>end))return false" in PAGE
     assert "beginAtZero:yScale==='zero'" in PAGE
     assert "if(!point.valid)return 'crossRot';return 'circle'" in PAGE
     assert "return 'triangle'" not in PAGE
@@ -303,6 +371,22 @@ def test_page_contains_live_controls_and_raw_outcome_overlay() -> None:
     assert "https://unpkg.com/chart.js@4.4.4" in PAGE
     assert "autoresearch_v17_fashion_mnist" in PAGE
     assert "openevolve_v21_fashion_mnist" in PAGE
+    assert "Campaign Modal GPU estimate" in PAGE
+    assert "Modal GPU estimate" in PAGE
+    assert "incremental_modal_gpu_cost" in PAGE
+    assert "/api/revision" in PAGE
+    assert "function checkHotReload()" in PAGE
+    assert "setInterval(checkHotReload,2000)" in PAGE
+
+
+def test_dashboard_revision_changes_with_source_content(tmp_path: Path) -> None:
+    source = tmp_path / "dashboard-source"
+    source.write_text("first", encoding="utf-8")
+    first = dashboard_revision((source,))
+
+    source.write_text("second", encoding="utf-8")
+
+    assert dashboard_revision((source,)) != first
 
 
 def test_large_responses_use_gzip_when_the_client_accepts_it() -> None:

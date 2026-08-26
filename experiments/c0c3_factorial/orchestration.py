@@ -34,6 +34,12 @@ from .spec import (
     TaskSpec,
 )
 from .state import SearchController, append_jsonl, atomic_json, utc_now
+from .v3 import (
+    mirror_shared_prefix,
+    pair_for_run,
+    pair_lock,
+    validate_prompt_bundle,
+)
 
 
 class CampaignLockedError(RuntimeError):
@@ -183,8 +189,7 @@ def next_run(campaign_dir: str | Path, spec: FactorialSpec) -> NextRun | None:
 
     if spec.execution_rule != SERIAL_EXECUTION_RULE:
         raise ValueError(
-            "serial campaign commands require "
-            f"execution_rule={SERIAL_EXECUTION_RULE!r}"
+            f"serial campaign commands require execution_rule={SERIAL_EXECUTION_RULE!r}"
         )
     campaign = Path(campaign_dir).resolve()
     eligible: list[tuple[int, int, int, dict[str, object], SearchController]] = []
@@ -210,9 +215,7 @@ def next_run(campaign_dir: str | Path, spec: FactorialSpec) -> NextRun | None:
         )
     if not eligible:
         return None
-    _, block, order, assignment, controller = min(
-        eligible, key=lambda row: row[:3]
-    )
+    _, block, order, assignment, controller = min(eligible, key=lambda row: row[:3])
     return _next_run_from(assignment, controller)
 
 
@@ -240,9 +243,7 @@ def next_parallel_wave(
         controller = SearchController.load(
             campaign / "runs" / str(assignment["run_id"]), spec
         )
-        controllers_by_block.setdefault(int(assignment["block"]), []).append(
-            controller
-        )
+        controllers_by_block.setdefault(int(assignment["block"]), []).append(controller)
         if controller.state.active is not None:
             raise RuntimeError(
                 f"{controller.state.run_id} has an interrupted active opportunity; "
@@ -279,8 +280,7 @@ def next_parallel_wave(
         None,
     )
     recovery_subset = any(
-        not controller.state.no_search
-        and controller.state.proposals_used > minimum
+        not controller.state.no_search and controller.state.proposals_used > minimum
         for controller in controllers_by_block[block]
     )
     return ParallelWave(
@@ -304,15 +304,11 @@ def _staged_stage_assignments(
     """Load a valid, explicit stage without deciding its execution geometry."""
 
     if spec.execution_rule not in STAGED_EXECUTION_RULES:
-        raise ValueError(
-            "staged campaign commands require a staged execution rule"
-        )
+        raise ValueError("staged campaign commands require a staged execution rule")
     if block < 1 or block > spec.blocks:
         raise ValueError(f"block must be between 1 and {spec.blocks}")
     if stage not in STAGED_EXECUTION_STAGES:
-        raise ValueError(
-            f"stage must be one of {sorted(STAGED_EXECUTION_STAGES)}"
-        )
+        raise ValueError(f"stage must be one of {sorted(STAGED_EXECUTION_STAGES)}")
     if stage == NO_SEARCH_STAGE and not spec.include_no_search:
         raise ValueError("this protocol has no N0 no-search stage")
 
@@ -348,17 +344,13 @@ def _staged_stage_assignments(
             if controller not in primary_factorial
         ]
         if any(
-            controller.state.status != "completed"
-            for controller in required_factorial
+            controller.state.status != "completed" for controller in required_factorial
         ):
             raise ValueError(
                 "complete the frozen primary stage and this block's factorial "
                 "stage before starting N0"
             )
-    if (
-        (campaign / "sealed-layer-b").exists()
-        or (campaign / "sealed-layer-c").exists()
-    ):
+    if (campaign / "sealed-layer-b").exists() or (campaign / "sealed-layer-c").exists():
         raise ValueError(
             "optional extensions must be activated before primary Layer B/C "
             "outputs are unsealed; new trajectories cannot begin after those "
@@ -486,9 +478,7 @@ def _individual_assignment(
     )
     if assignment is None:
         raise ValueError(f"run ID is not in the campaign schedule: {run_id}")
-    stage = (
-        NO_SEARCH_STAGE if str(assignment["condition"]) == "N0" else FACTORIAL_STAGE
-    )
+    stage = NO_SEARCH_STAGE if str(assignment["condition"]) == "N0" else FACTORIAL_STAGE
     return campaign, assignment, stage
 
 
@@ -627,6 +617,78 @@ def request_staged_trajectory_pause(
     }
 
 
+def run_v3_paired_opportunity(
+    campaign_dir: str | Path,
+    *,
+    spec: FactorialSpec,
+    task: TaskSpec,
+    framework: FrameworkSpec,
+    repo_root: Path,
+    python_bin: str,
+    run_id: str,
+    codex_binary: str = "codex",
+    codex_timeout_seconds: int = 3600,
+) -> dict[str, object]:
+    """Advance a v3 run, physically sharing each pre-intervention pair prefix."""
+
+    if spec.protocol_version != "3.0":
+        raise ValueError("paired-prefix execution requires protocol 3.0")
+    campaign = Path(campaign_dir).resolve()
+    validate_prompt_bundle(campaign, spec=spec, framework=framework)
+    pair = pair_for_run(campaign, run_id)
+    with pair_lock(campaign, pair):
+        leader_dir = campaign / "runs" / str(pair["leader_run_id"])
+        shadow_dir = campaign / "runs" / str(pair["shadow_run_id"])
+        leader = SearchController.load(leader_dir, spec)
+        shadow = SearchController.load(shadow_dir, spec)
+        fork = int(pair["fork_opportunity"])
+        if (
+            leader.state.proposals_used < fork - 1
+            or shadow.state.proposals_used < fork - 1
+        ):
+            if leader.state.proposals_used == shadow.state.proposals_used + 1:
+                mirrored = mirror_shared_prefix(campaign, spec=spec, pair=pair)
+                return {
+                    "schema_version": "3.0",
+                    "requested_run_id": run_id,
+                    "shared_prefix": True,
+                    "recovered_pending_mirror": True,
+                    "mirror": mirrored,
+                }
+            if leader.state.proposals_used != shadow.state.proposals_used:
+                raise RuntimeError("v3 paired-prefix states diverged before fork")
+            record = run_one_opportunity(
+                leader_dir,
+                spec=spec,
+                task=task,
+                framework=framework,
+                repo_root=repo_root,
+                python_bin=python_bin,
+                codex_binary=codex_binary,
+                codex_timeout_seconds=codex_timeout_seconds,
+                allow_v3_prefix_leader=True,
+            )
+            mirrored = mirror_shared_prefix(campaign, spec=spec, pair=pair)
+            return {
+                **record,
+                "requested_run_id": run_id,
+                "physical_run_id": pair["leader_run_id"],
+                "shared_prefix": True,
+                "resource_accounting": "shared_prefix_charge_once_to_pair",
+                "mirror": mirrored,
+            }
+    return run_one_opportunity(
+        campaign / "runs" / run_id,
+        spec=spec,
+        task=task,
+        framework=framework,
+        repo_root=repo_root,
+        python_bin=python_bin,
+        codex_binary=codex_binary,
+        codex_timeout_seconds=codex_timeout_seconds,
+    )
+
+
 def run_staged_individual_trajectory(
     campaign_dir: str | Path,
     *,
@@ -704,27 +766,31 @@ def run_staged_individual_trajectory(
                     "a pause request is pending; use resume-staged-trajectory to "
                     "clear it"
                 )
-            prompt_snapshot = (
-                _freeze_artifact_clean_assumption_prompt(
-                    campaign=campaign,
-                    run_dir=run_dir,
-                    repo_root=repo_root,
-                    framework=framework,
+            if spec.protocol_version == "3.0":
+                prompt_snapshot = validate_prompt_bundle(
+                    campaign, spec=spec, framework=framework
                 )
-                if not resume and controller.state.proposals_used == 0
-                else None
-            )
+            else:
+                prompt_snapshot = (
+                    _freeze_artifact_clean_assumption_prompt(
+                        campaign=campaign,
+                        run_dir=run_dir,
+                        repo_root=repo_root,
+                        framework=framework,
+                    )
+                    if not resume and controller.state.proposals_used == 0
+                    else None
+                )
             _append_trajectory_lifecycle(
                 campaign,
                 run_dir,
-                event=(
-                    "trajectory_resumed" if resume else "trajectory_started"
-                ),
+                event=("trajectory_resumed" if resume else "trajectory_started"),
                 assignment=assignment,
                 stage=stage,
                 starting_opportunity=controller.state.next_opportunity,
                 assumption_prompt_sha256=(
                     prompt_snapshot.get("sha256")
+                    or prompt_snapshot.get("bundle_sha256")
                     if prompt_snapshot is not None
                     else None
                 ),
@@ -776,15 +842,29 @@ def run_staged_individual_trajectory(
                 )
                 return outcome
             try:
-                record = run_one_opportunity(
-                    run_dir,
-                    spec=spec,
-                    task=task,
-                    framework=framework,
-                    repo_root=repo_root,
-                    python_bin=python_bin,
-                    codex_binary=codex_binary,
-                    codex_timeout_seconds=codex_timeout_seconds,
+                record = (
+                    run_v3_paired_opportunity(
+                        campaign,
+                        spec=spec,
+                        task=task,
+                        framework=framework,
+                        repo_root=repo_root,
+                        python_bin=python_bin,
+                        run_id=run_id,
+                        codex_binary=codex_binary,
+                        codex_timeout_seconds=codex_timeout_seconds,
+                    )
+                    if spec.protocol_version == "3.0"
+                    else run_one_opportunity(
+                        run_dir,
+                        spec=spec,
+                        task=task,
+                        framework=framework,
+                        repo_root=repo_root,
+                        python_bin=python_bin,
+                        codex_binary=codex_binary,
+                        codex_timeout_seconds=codex_timeout_seconds,
+                    )
                 )
             except KeyboardInterrupt:
                 _append_trajectory_lifecycle(

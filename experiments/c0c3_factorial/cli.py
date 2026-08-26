@@ -26,6 +26,7 @@ from .orchestration import (
     run_staged_independent_campaign,
     run_staged_individual_trajectory,
     run_staged_next,
+    run_v3_paired_opportunity,
 )
 from .postsearch import export_layer_b_packets, run_layer_c, score_layer_b
 from .runner import recover_active_opportunity, run_one_opportunity
@@ -41,6 +42,8 @@ from .spec import (
     TaskSpec,
 )
 from .state import SearchController
+from .v3 import snapshot_prompt_bundle, update_runtime_options, v3_health_report
+from .v3_analysis import audit_campaign, build_release_manifest, summarize_campaign
 from .validation import validate_campaign
 
 PACKAGE_ROOT = Path(__file__).resolve().parent
@@ -81,7 +84,11 @@ def _load_campaign(campaign: Path) -> tuple[FactorialSpec, TaskSpec, FrameworkSp
     framework_payload = json.loads(
         (inputs / "framework.json").read_text(encoding="utf-8")
     )
-    framework_payload["framework_id"] = FrameworkKind(framework_payload["framework_id"])
+    raw_framework_id = str(framework_payload["framework_id"])
+    try:
+        framework_payload["framework_id"] = FrameworkKind(raw_framework_id)
+    except ValueError:
+        framework_payload["framework_id"] = raw_framework_id
     framework = FrameworkSpec(**framework_payload)
     return spec, task, framework
 
@@ -141,9 +148,7 @@ def command_create(args: argparse.Namespace) -> int:
         framework=framework,
         calibration_path=args.baseline,
         repo_root=REPO_ROOT,
-        include_no_search=(
-            False if args.without_no_search else spec.include_no_search
-        ),
+        include_no_search=(False if args.without_no_search else spec.include_no_search),
     )
     print(output)
     return 0
@@ -264,8 +269,7 @@ def command_run_parallel_campaign(args: argparse.Namespace) -> int:
     ):
         completed += 1
         factorial = ",".join(
-            str(record["condition"])
-            for record in result["factorial_records"]
+            str(record["condition"]) for record in result["factorial_records"]
         )
         print(
             f"block={result['block']} opportunity={result['opportunity']} "
@@ -497,6 +501,89 @@ def command_validate(args: argparse.Namespace) -> int:
     return 0 if report["valid"] else 2
 
 
+def command_snapshot_v3_prompts(args: argparse.Namespace) -> int:
+    campaign = args.campaign.resolve()
+    spec, _task, framework = _load_campaign(campaign)
+    manifest = snapshot_prompt_bundle(
+        campaign,
+        spec=spec,
+        framework=framework,
+        repo_root=REPO_ROOT,
+    )
+    print(json.dumps(manifest, indent=2, sort_keys=True))
+    return 0
+
+
+def command_v3_health(args: argparse.Namespace) -> int:
+    campaign = args.campaign.resolve()
+    spec, task, framework = _load_campaign(campaign)
+    report = v3_health_report(
+        campaign,
+        spec=spec,
+        task=task,
+        framework=framework,
+        repo_root=REPO_ROOT,
+    )
+    print(json.dumps(report, indent=2, sort_keys=True))
+    return 0 if report["valid"] else 2
+
+
+def command_run_v3_one(args: argparse.Namespace) -> int:
+    campaign = args.campaign.resolve()
+    spec, task, framework = _load_campaign(campaign)
+    record = run_v3_paired_opportunity(
+        campaign,
+        spec=spec,
+        task=task,
+        framework=framework,
+        repo_root=REPO_ROOT,
+        python_bin=args.python_bin,
+        run_id=args.run_id,
+        codex_binary=args.codex_binary,
+        codex_timeout_seconds=args.codex_timeout,
+    )
+    print(json.dumps(record, indent=2, sort_keys=True))
+    return 0
+
+
+def command_audit_v3(args: argparse.Namespace) -> int:
+    campaign = args.campaign.resolve()
+    spec, task, _framework = _load_campaign(campaign)
+    report = audit_campaign(campaign, spec=spec, task=task)
+    print(json.dumps(report, indent=2, sort_keys=True))
+    return 0 if report["valid"] else 2
+
+
+def command_update_v3_runtime(args: argparse.Namespace) -> int:
+    replacement = json.loads(args.replacement.read_text(encoding="utf-8"))
+    if not isinstance(replacement, dict):
+        raise ValueError("v3 runtime replacement must be a JSON object")
+    record = update_runtime_options(
+        args.campaign.resolve(),
+        replacement=replacement,
+        reason=args.reason,
+    )
+    print(json.dumps(record, indent=2, sort_keys=True))
+    return 0
+
+
+def command_summarize_v3(args: argparse.Namespace) -> int:
+    campaign = args.campaign.resolve()
+    spec, _task, _framework = _load_campaign(campaign)
+    report = summarize_campaign(campaign, spec=spec)
+    if args.output is not None:
+        args.output.write_text(
+            json.dumps(report, indent=2, sort_keys=True) + "\n", encoding="utf-8"
+        )
+    print(json.dumps(report, indent=2, sort_keys=True))
+    return 0
+
+
+def command_manifest_v3_release(args: argparse.Namespace) -> int:
+    print(build_release_manifest(args.campaign.resolve(), output=args.output.resolve()))
+    return 0
+
+
 def command_export_layer_b(args: argparse.Namespace) -> int:
     campaign = args.campaign.resolve()
     spec, task, _framework = _load_campaign(campaign)
@@ -558,9 +645,7 @@ def build_parser() -> argparse.ArgumentParser:
     prepare_calibration_parser.set_defaults(handler=command_prepare_calibration)
 
     execute_calibration_parser = subparsers.add_parser("execute-calibration")
-    execute_calibration_parser.add_argument(
-        "--calibration", type=Path, required=True
-    )
+    execute_calibration_parser.add_argument("--calibration", type=Path, required=True)
     execute_calibration_parser.add_argument("--python-bin", default=sys.executable)
     execute_calibration_parser.set_defaults(handler=command_execute_calibration)
 
@@ -672,6 +757,42 @@ def build_parser() -> argparse.ArgumentParser:
     validate = subparsers.add_parser("validate")
     validate.add_argument("--campaign", type=Path, required=True)
     validate.set_defaults(handler=command_validate)
+
+    snapshot_v3 = subparsers.add_parser("snapshot-v3-prompts")
+    snapshot_v3.add_argument("--campaign", type=Path, required=True)
+    snapshot_v3.set_defaults(handler=command_snapshot_v3_prompts)
+
+    health_v3 = subparsers.add_parser("v3-health")
+    health_v3.add_argument("--campaign", type=Path, required=True)
+    health_v3.set_defaults(handler=command_v3_health)
+
+    run_v3 = subparsers.add_parser("run-v3-one")
+    run_v3.add_argument("--campaign", type=Path, required=True)
+    run_v3.add_argument("--run-id", required=True)
+    run_v3.add_argument("--python-bin", default=sys.executable)
+    run_v3.add_argument("--codex-binary", default="codex")
+    run_v3.add_argument("--codex-timeout", type=int, default=3600)
+    run_v3.set_defaults(handler=command_run_v3_one)
+
+    audit_v3 = subparsers.add_parser("audit-v3")
+    audit_v3.add_argument("--campaign", type=Path, required=True)
+    audit_v3.set_defaults(handler=command_audit_v3)
+
+    update_v3 = subparsers.add_parser("update-v3-runtime")
+    update_v3.add_argument("--campaign", type=Path, required=True)
+    update_v3.add_argument("--replacement", type=Path, required=True)
+    update_v3.add_argument("--reason", required=True)
+    update_v3.set_defaults(handler=command_update_v3_runtime)
+
+    summarize_v3 = subparsers.add_parser("summarize-v3")
+    summarize_v3.add_argument("--campaign", type=Path, required=True)
+    summarize_v3.add_argument("--output", type=Path)
+    summarize_v3.set_defaults(handler=command_summarize_v3)
+
+    release_v3 = subparsers.add_parser("manifest-v3-release")
+    release_v3.add_argument("--campaign", type=Path, required=True)
+    release_v3.add_argument("--output", type=Path, required=True)
+    release_v3.set_defaults(handler=command_manifest_v3_release)
 
     export_layer_b = subparsers.add_parser("export-layer-b")
     export_layer_b.add_argument("--campaign", type=Path, required=True)

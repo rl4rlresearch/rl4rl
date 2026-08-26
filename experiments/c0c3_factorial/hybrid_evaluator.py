@@ -2,24 +2,37 @@
 
 from __future__ import annotations
 
+import hashlib
 import io
 import json
 import os
 import time
-import uuid
 import zipfile
 from dataclasses import asdict
 from pathlib import Path
 
 from .evaluator import CommandEvaluator, EvaluationArtifacts
 from .neutral_task import NANOGPT_TASK_ADAPTER
-from .state import Evaluation, append_jsonl
+from .state import Evaluation, append_jsonl, atomic_json
 
 APP_NAME = "rl4rl-c0c3-hybrid-evaluator-v2"
 FUNCTION_NAME = "evaluate_candidate"
 NANOGPT_APP_NAME = "rl4rl-c0c3-nanogpt-evaluator-v1"
 NANOGPT_FUNCTION_NAME = "evaluate_candidate"
 MAX_ARCHIVE_BYTES = 16 * 1024 * 1024
+
+
+def _stable_remote_call_id(
+    *, task_id: str, candidate_snapshot: Path, opportunity_root: Path
+) -> str:
+    identity = {
+        "task_id": task_id,
+        "candidate_id": candidate_snapshot.name,
+        "opportunity_path": str(opportunity_root.resolve()),
+    }
+    return hashlib.sha256(
+        json.dumps(identity, sort_keys=True, separators=(",", ":")).encode()
+    ).hexdigest()
 
 
 def _remote_target(task_adapter: str) -> tuple[str, str]:
@@ -97,38 +110,63 @@ class ModalCommandEvaluator(CommandEvaluator):
             ) from error
 
         payload = _archive_inputs(self.support_source, candidate_snapshot)
-        call_id = uuid.uuid4().hex
+        call_id = _stable_remote_call_id(
+            task_id=self.task.task_id,
+            candidate_snapshot=candidate_snapshot,
+            opportunity_root=opportunity_root,
+        )
         app_name, function_name = _remote_target(self.task.adapter)
         started = time.monotonic()
+        opportunity_root.mkdir(parents=True, exist_ok=True)
+        dispatch_path = opportunity_root / "remote-dispatch.json"
+        dispatch = {
+            "schema_version": "3.0",
+            "call_id": call_id,
+            "status": "dispatched",
+            "app": app_name,
+            "function": function_name,
+            "candidate_id": candidate_snapshot.name,
+            "payload_sha256": hashlib.sha256(payload).hexdigest(),
+            "attempts": 0,
+        }
+        atomic_json(dispatch_path, dispatch)
         # This lease limits remote calls within the campaign. Modal workers do
         # not consume a local GPU slot in the shared host scheduler.
-        with self._evaluation_slot(
-            opportunity_root, include_shared_local_pool=False
-        ):
-            try:
-                function = modal.Function.from_name(
-                    app_name,
-                    function_name,
-                    environment_name=os.environ.get("MODAL_ENVIRONMENT") or None,
+        with self._evaluation_slot(opportunity_root, include_shared_local_pool=False):
+            function = modal.Function.from_name(
+                app_name,
+                function_name,
+                environment_name=os.environ.get("MODAL_ENVIRONMENT") or None,
+            )
+            response = None
+            errors = []
+            for attempt in (1, 2):
+                dispatch["attempts"] = attempt
+                dispatch["status"] = (
+                    "dispatched" if attempt == 1 else "retrieving_after_transport_loss"
                 )
-                response = function.remote(
-                    payload,
-                    asdict(self.task),
-                    timeout_seconds,
-                    run_seed,
-                    call_id,
-                )
-            except Exception as error:  # noqa: BLE001 - record remote transport failure
+                atomic_json(dispatch_path, dispatch)
+                try:
+                    response = function.remote(
+                        payload,
+                        asdict(self.task),
+                        timeout_seconds,
+                        run_seed,
+                        call_id,
+                    )
+                    break
+                except Exception as error:  # noqa: BLE001 - transport receipt
+                    errors.append(f"{type(error).__name__}: {error}")
+            if response is None:
+                error_message = errors[-1]
                 elapsed = time.monotonic() - started
-                opportunity_root.mkdir(parents=True, exist_ok=True)
                 stderr = opportunity_root / "evaluation.stderr.log"
                 stdout = opportunity_root / "evaluation.stdout.log"
                 workspace = opportunity_root / "evaluation-workspace"
                 workspace.mkdir(parents=True, exist_ok=True)
                 stdout.write_text("", encoding="utf-8")
                 stderr.write_text(
-                    "Modal evaluator transport failed: "
-                    f"{type(error).__name__}: {error}\n",
+                    f"Modal evaluator transport failed: {error_message}\n",
                     encoding="utf-8",
                 )
                 evaluation = Evaluation(
@@ -136,7 +174,8 @@ class ModalCommandEvaluator(CommandEvaluator):
                     fitness=None,
                     metrics={
                         "remote_call_id": call_id,
-                        "remote_error": f"{type(error).__name__}: {error}",
+                        "remote_error": error_message,
+                        "remote_attempt_errors": errors,
                     },
                     evaluator_seconds=elapsed,
                     evaluator_calls=1,
@@ -152,6 +191,9 @@ class ModalCommandEvaluator(CommandEvaluator):
                     app_name=app_name,
                     function_name=function_name,
                 )
+                dispatch["status"] = "client_transport_failed"
+                dispatch["errors"] = errors
+                atomic_json(dispatch_path, dispatch)
                 return EvaluationArtifacts(evaluation, stdout, stderr, workspace)
 
         if not isinstance(response, dict):
@@ -164,7 +206,19 @@ class ModalCommandEvaluator(CommandEvaluator):
             raise RuntimeError("hybrid evaluator response is incomplete")
         _extract_outputs(artifact_archive, opportunity_root)
         evaluation = Evaluation(**evaluation_payload)
+        if response.get("call_id") not in {None, call_id}:
+            raise RuntimeError("hybrid evaluator response call ID mismatch")
+        if response.get("payload_sha256") not in {
+            None,
+            hashlib.sha256(payload).hexdigest(),
+        }:
+            raise RuntimeError("hybrid evaluator response payload hash mismatch")
         elapsed = time.monotonic() - started
+        dispatch["status"] = "completed_result_received"
+        dispatch["worker_result_sha256"] = hashlib.sha256(
+            json.dumps(evaluation_payload, sort_keys=True).encode()
+        ).hexdigest()
+        atomic_json(dispatch_path, dispatch)
         self._record_usage(
             opportunity_root,
             call_id=call_id,

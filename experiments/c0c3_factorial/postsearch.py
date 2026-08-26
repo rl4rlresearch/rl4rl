@@ -54,8 +54,7 @@ def _completed_runs(
         optional_stages.setdefault(key, []).append(controller)
     for controllers in optional_stages.values():
         activated = any(
-            controller.state.status != "ready"
-            or controller.state.proposals_used > 0
+            controller.state.status != "ready" or controller.state.proposals_used > 0
             for controller in controllers
         )
         if activated:
@@ -72,8 +71,7 @@ def _completed_runs(
     if incomplete:
         raise RuntimeError(
             "post-search layers are sealed until every run completes within the "
-            "activated analysis scope: "
-            + ", ".join(incomplete)
+            "activated analysis scope: " + ", ".join(incomplete)
         )
     return result
 

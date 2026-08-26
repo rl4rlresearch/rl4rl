@@ -78,6 +78,12 @@ elif PROFILE == "openevolve-v2.1-fashion-mnist":
         REPO_ROOT / "data/c0c3/overnight-control-openevolve-v2-1-fashion-mnist"
     )
     DEFAULT_SCREEN_SESSION = "rl4rl-c0c3-openevolve-v2-1-fashion-mnist"
+elif PROFILE == "openevolve-v2.1-fashion-mnist-extension":
+    DEFAULT_CONTROL_ROOT = (
+        REPO_ROOT
+        / "data/c0c3/overnight-control-openevolve-v2-1-fashion-mnist-extension"
+    )
+    DEFAULT_SCREEN_SESSION = "rl4rl-c0c3-openevolve-v2-1-fashion-mnist-extension"
 else:
     raise RuntimeError(f"unknown overnight profile: {PROFILE}")
 CONTROL_ROOT = Path(
@@ -322,6 +328,23 @@ def plans(profile: str | None = None) -> tuple[CampaignPlan, ...]:
                 blocks=(1, 2, 3),
             ),
         )
+    if selected_profile == "openevolve-v2.1-fashion-mnist-extension":
+        return (
+            CampaignPlan(
+                key="openevolve-v2.1-fashion-mnist-extension",
+                runtime_root=_env_path(
+                    "RL4RL_OPENEVOLVE_V21_FASHION_MNIST_RUNTIME",
+                    Path("/private/tmp/rl4rl-c0c3-openevolve-v2-1-fashion-mnist"),
+                ),
+                campaign=_env_path(
+                    "RL4RL_OPENEVOLVE_V21_FASHION_MNIST_CAMPAIGN",
+                    REPO_ROOT
+                    / "data/c0c3/fashion-mnist-openevolve-v2-1-mps-campaign",
+                ),
+                mode="extension-individual-trajectories",
+                blocks=(4, 5),
+            ),
+        )
     if selected_profile != "primary":
         raise RuntimeError(f"unknown overnight profile: {selected_profile}")
     return (
@@ -404,7 +427,10 @@ def load_schedule(campaign: Path) -> list[dict[str, Any]]:
 def expand_jobs(campaign_plans: tuple[CampaignPlan, ...] | None = None) -> list[Job]:
     expanded: list[Job] = []
     for plan in campaign_plans or plans():
-        if plan.mode != "individual-trajectories":
+        if plan.mode not in {
+            "individual-trajectories",
+            "extension-individual-trajectories",
+        }:
             expanded.append(
                 Job(
                     key=plan.key,
@@ -562,6 +588,25 @@ def command_for(job: Job) -> list[str]:
             else "resume-staged-trajectory"
         )
         return cli_prefix(job) + [action, *common, "--run-id", str(job.run_id)]
+    if job.mode == "extension-individual-trajectories":
+        state = state_for(job.campaign / "runs" / str(job.run_id))
+        command = [
+            str(PYTHON_BIN),
+            str(REPO_ROOT / "experiments/c0c3_extension_controller.py"),
+            "--campaign",
+            str(job.campaign),
+            "--runtime-root",
+            str(job.runtime_root),
+            "--run-id",
+            str(job.run_id),
+            "--python-bin",
+            str(PYTHON_BIN),
+            "--codex-binary",
+            shutil.which("codex") or "codex",
+        ]
+        if int(state.get("proposals_used", 0)) != 0:
+            command.append("--resume")
+        return command
     raise RuntimeError(f"unknown job mode: {job.mode}")
 
 
@@ -577,6 +622,7 @@ def command_environment(job: Job) -> dict[str, str]:
         "openevolve-v2.1",
         "openevolve-v2.1-nanogpt",
         "openevolve-v2.1-fashion-mnist",
+        "openevolve-v2.1-fashion-mnist-extension",
     }:
         environment["RL4RL_C0C3_OPERATOR_PROMPT_ROOT"] = str(
             REPO_ROOT / "experiments/c0c3_factorial/templates"
@@ -585,6 +631,7 @@ def command_environment(job: Job) -> dict[str, str]:
     if job.group in {
         "autoresearch-v1.7-fashion-mnist",
         "openevolve-v2.1-fashion-mnist",
+        "openevolve-v2.1-fashion-mnist-extension",
     }:
         environment["RL4RL_FASHION_MNIST_DATA_ROOT"] = str(
             _env_path(
@@ -597,7 +644,7 @@ def command_environment(job: Job) -> dict[str, str]:
 
 def service_tier() -> str:
     payload = read_json(SERVICE_TIER_PATH, {})
-    selected = str(payload.get("service_tier", "fast"))
+    selected = str(payload.get("service_tier", "default"))
     if selected not in {"default", "fast"}:
         raise RuntimeError(f"invalid service tier control: {selected}")
     return selected
@@ -611,6 +658,7 @@ def ensure_service_tier_control() -> None:
         "openevolve-v2.1",
         "openevolve-v2.1-nanogpt",
         "openevolve-v2.1-fashion-mnist",
+        "openevolve-v2.1-fashion-mnist-extension",
     }:
         return
     if not SERVICE_TIER_PATH.exists():
@@ -618,9 +666,9 @@ def ensure_service_tier_control() -> None:
             SERVICE_TIER_PATH,
             {
                 "schema_version": "1.0",
-                "service_tier": "fast",
+                "service_tier": "default",
                 "updated_at": utc_now(),
-                "reason": "initial artifact-clean campaign default",
+                "reason": "initial artifact-clean campaign default tier",
             },
         )
 
@@ -638,7 +686,10 @@ def recover_command(job: Job, run_id: str, reason: str) -> list[str]:
 
 
 def pause_command(job: Job, reason: str) -> list[str]:
-    if job.mode != "individual-trajectories" or job.run_id is None:
+    if job.mode not in {
+        "individual-trajectories",
+        "extension-individual-trajectories",
+    } or job.run_id is None:
         raise RuntimeError("cooperative pause exists only for v1.5 trajectories")
     return cli_prefix(job) + [
         "pause-staged-trajectory",
@@ -776,6 +827,7 @@ def preflight(jobs: list[Job], *, allow_active: bool) -> list[str]:
         if job.group in {
             "autoresearch-v1.7-fashion-mnist",
             "openevolve-v2.1-fashion-mnist",
+            "openevolve-v2.1-fashion-mnist-extension",
         }:
             fashion_root = _env_path(
                 "RL4RL_FASHION_MNIST_DATA_ROOT",
@@ -998,7 +1050,10 @@ class Supervisor:
                     self.update(
                         job, actual="pausing" if desired == "paused" else "stopping"
                     )
-                    if job.mode == "individual-trajectories":
+                    if job.mode in {
+                        "individual-trajectories",
+                        "extension-individual-trajectories",
+                    }:
                         if not pause_sent:
                             try:
                                 self.request_cooperative_pause(job, reason or desired)
@@ -1272,6 +1327,7 @@ def command_status(_args: argparse.Namespace) -> int:
         "openevolve-v2.1",
         "openevolve-v2.1-nanogpt",
         "openevolve-v2.1-fashion-mnist",
+        "openevolve-v2.1-fashion-mnist-extension",
     }:
         print(f"codex_service_tier={service_tier()}")
     scheduler = shared_local_evaluator_status(
@@ -1328,6 +1384,7 @@ def command_fast_mode(args: argparse.Namespace) -> int:
         "openevolve-v2.1",
         "openevolve-v2.1-nanogpt",
         "openevolve-v2.1-fashion-mnist",
+        "openevolve-v2.1-fashion-mnist-extension",
     }:
         raise SystemExit("fast-mode control is available for v1.7 and v2.1 profiles")
     CONTROL_ROOT.mkdir(parents=True, exist_ok=True)

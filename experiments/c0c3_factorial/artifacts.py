@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import hashlib
+import importlib
 import os
 import re
 import shutil
@@ -70,6 +71,24 @@ def prepare_seed_workspace(
     """Copy the immutable task support tree and add task-owned seed glue."""
 
     source = resolve_source(task.seed_source, repo_root=repo_root)
+    if task.extension_module is not None:
+        extension = importlib.import_module(task.extension_module)
+        prepare = getattr(extension, "prepare_seed_workspace", None)
+        if prepare is not None:
+            prepare(
+                task=task,
+                source=source,
+                destination=destination,
+                repo_root=repo_root,
+                options=dict(task.extension_options),
+            )
+            for relative in task.editable_paths:
+                path = destination / relative
+                if not path.is_file():
+                    raise FileNotFoundError(
+                        f"task extension seed is missing editable file {relative}"
+                    )
+            return
     if task.adapter in {
         NEUTRAL_TASK_ADAPTER,
         PAIR_TOKEN_TASK_ADAPTER,

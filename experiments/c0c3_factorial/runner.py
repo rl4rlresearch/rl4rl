@@ -23,7 +23,7 @@ from .artifacts import (
     snapshot_candidate,
 )
 from .codex_cli import CodexCli, session_id_from_events, usage_from_events
-from .evaluator import make_command_evaluator
+from .evaluator import make_command_evaluator, task_local_evaluator_root
 from .fashion_mnist import preflight_candidate_source as preflight_fashion_mnist
 from .frameworks import make_framework_adapter
 from .neutral_task import (
@@ -50,6 +50,8 @@ from .spec import (
 )
 from .state import Evaluation, SearchController
 from .task_evaluators import preflight_candidate_source
+from .v3 import load_runtime_options, prompt_renderer_paths
+from .v3_analysis import record_candidate_provenance, write_manipulation_packet
 
 
 class RunLockedError(RuntimeError):
@@ -137,9 +139,11 @@ def _hashes(rendered) -> dict[str, str]:
 
 def _opaque_run_id(run_dir: Path) -> str:
     return (
-        hashlib.sha256(str(run_dir).encode()).hexdigest().translate(
-            str.maketrans({"c": "w", "0": "q", "1": "r", "2": "s", "3": "t"})
-        )[:24]
+        hashlib.sha256(str(run_dir).encode())
+        .hexdigest()
+        .translate(str.maketrans({"c": "w", "0": "q", "1": "r", "2": "s", "3": "t"}))[
+            :24
+        ]
     )
 
 
@@ -271,6 +275,62 @@ def _recent_outcomes(run_dir: Path, *, limit: int = 12) -> tuple[VisibleOutcome,
     return tuple(outcomes[-limit:])
 
 
+def _informative_outcomes(
+    run_dir: Path, *, item_limit: int, character_limit: int
+) -> tuple[VisibleOutcome, ...]:
+    """Select bounded useful evidence without an LLM or a mechanism menu."""
+
+    all_outcomes = list(_recent_outcomes(run_dir, limit=1000000))
+    if not all_outcomes:
+        return ()
+    selected: dict[int, VisibleOutcome] = {
+        all_outcomes[-1].opportunity: all_outcomes[-1]
+    }
+    retained = [
+        outcome for outcome in all_outcomes if outcome.retained and outcome.valid
+    ]
+    if retained:
+        selected[retained[-1].opportunity] = retained[-1]
+    failures_by_description: dict[str, VisibleOutcome] = {}
+    for outcome in reversed(all_outcomes):
+        if outcome.valid:
+            continue
+        provenance = (
+            run_dir
+            / "opportunities"
+            / f"{outcome.opportunity:04d}"
+            / "candidate-provenance.json"
+        )
+        fingerprint = None
+        if provenance.is_file():
+            value = json.loads(provenance.read_text(encoding="utf-8"))
+            fingerprint = value.get("semantic_delta_fingerprint")
+        key = str(fingerprint or outcome.failure_kind or "failure").casefold()
+        failures_by_description.setdefault(key, outcome)
+    for outcome in failures_by_description.values():
+        if len(selected) >= item_limit:
+            break
+        selected[outcome.opportunity] = outcome
+    for outcome in reversed(all_outcomes):
+        if len(selected) >= item_limit:
+            break
+        selected.setdefault(outcome.opportunity, outcome)
+    ordered = [selected[key] for key in sorted(selected)]
+    while ordered and sum(len(repr(outcome)) for outcome in ordered) > character_limit:
+        removable = next(
+            (
+                index
+                for index, outcome in enumerate(ordered)
+                if outcome is not ordered[-1]
+            ),
+            None,
+        )
+        if removable is None:
+            break
+        ordered.pop(removable)
+    return tuple(ordered)
+
+
 def _mechanism_ledger(run_dir: Path, *, limit: int = 24) -> str:
     """Summarize free-form mechanism provenance without replaying raw history."""
 
@@ -351,6 +411,7 @@ def _run_one_opportunity_unlocked(
     python_bin: str,
     codex_binary: str = "codex",
     codex_timeout_seconds: int = 3600,
+    allow_v3_prefix_leader: bool = False,
 ) -> dict[str, object]:
     run_dir = Path(run_dir).resolve()
     if (
@@ -361,18 +422,31 @@ def _run_one_opportunity_unlocked(
             "continuous Codex sessions currently support Autoresearch only"
         )
     controller = SearchController.load(run_dir, spec)
+    if (
+        spec.paired_prefix
+        and controller.state.next_opportunity < spec.first_fork_opportunity
+        and not allow_v3_prefix_leader
+    ):
+        raise RuntimeError(
+            "v3 shared-prefix opportunities must use the paired v3 runner"
+        )
     run_manifest = _read_json(run_dir / "manifest.json")
     expected_runtime_hash = scientific_runtime_hash(
         repo_root, task=task, framework=framework
     )
-    if run_manifest.get("scientific_runtime_hash") != expected_runtime_hash:
+    if (
+        spec.protocol_version != "3.0"
+        and run_manifest.get("scientific_runtime_hash") != expected_runtime_hash
+    ):
         raise ValueError(
             "scientific runtime changed after campaign creation; create a new campaign"
         )
     assignment = run_manifest.get("assignment")
-    if not isinstance(assignment, dict) or isinstance(
-        assignment.get("run_seed"), bool
-    ) or not isinstance(assignment.get("run_seed"), int):
+    if (
+        not isinstance(assignment, dict)
+        or isinstance(assignment.get("run_seed"), bool)
+        or not isinstance(assignment.get("run_seed"), int)
+    ):
         raise ValueError("run manifest lacks an integer assignment run_seed")
     run_seed = int(assignment["run_seed"])
     if controller.state.active is not None:
@@ -393,9 +467,7 @@ def _run_one_opportunity_unlocked(
         task.editable_paths,
     )
     neutral_subject = framework.prompt_profile in SUBJECT_NEUTRAL_PROMPT_PROFILES
-    artifact_clean_subject = (
-        framework.prompt_profile in ARTIFACT_CLEAN_PROMPT_PROFILES
-    )
+    artifact_clean_subject = framework.prompt_profile in ARTIFACT_CLEAN_PROMPT_PROFILES
     reference_directory = (
         ".design-references" if neutral_subject else ".factorial-visible"
     )
@@ -455,6 +527,34 @@ def _run_one_opportunity_unlocked(
         after_token_threshold
         and not controller.state.token_budget_continuation_notice_sent
     )
+    v3_options = (
+        load_runtime_options(run_dir.parent.parent)
+        if spec.protocol_version == "3.0"
+        else None
+    )
+    if v3_options is not None:
+        conversation_options = dict(v3_options.get("conversation", {}))
+        recent_outcomes = _informative_outcomes(
+            run_dir,
+            item_limit=int(conversation_options.get("evidence_item_limit", 10)),
+            character_limit=int(
+                conversation_options.get("evidence_character_limit", 24000)
+            ),
+        )
+    else:
+        recent_outcomes = (
+            ()
+            if controller.state.no_search or not neutral_subject
+            else _recent_outcomes(
+                run_dir,
+                limit=(
+                    1
+                    if artifact_clean_subject
+                    and framework.framework_id is FrameworkKind.AUTORESEARCH
+                    else 12
+                ),
+            )
+        )
     prompt_context = PromptContext(
         condition=controller.condition,
         opportunity=active.index,
@@ -467,38 +567,32 @@ def _run_one_opportunity_unlocked(
         hide_token_budget=after_token_threshold,
         token_budget_continuation_notice=show_token_continuation_notice,
         no_search=controller.state.no_search,
-        recent_outcomes=(
-            ()
-            if controller.state.no_search or not neutral_subject
-            else _recent_outcomes(
-                run_dir,
-                limit=(
-                    1
-                    if artifact_clean_subject
-                    and framework.framework_id is FrameworkKind.AUTORESEARCH
-                    else 12
-                ),
-            )
-        ),
+        recent_outcomes=recent_outcomes,
         mechanism_ledger=(
             _mechanism_ledger(run_dir)
-            if framework.adapter == "controlled_openevolve_prompt_diff_v2"
+            if framework.adapter.startswith("controlled_openevolve_prompt_diff_")
             else "No earlier mechanism result is available."
         ),
     )
     frozen_transition = run_dir / FROZEN_ASSUMPTION_PROMPT
     if (
         framework.prompt_profile in ARTIFACT_CLEAN_PROMPT_PROFILES
+        and spec.protocol_version != "3.0"
         and not frozen_transition.is_file()
     ):
         raise RuntimeError(
             "artifact-clean trajectory lacks its start-time assumption prompt snapshot"
         )
+    if spec.protocol_version == "3.0":
+        template_root, transition_override = prompt_renderer_paths(
+            run_dir.parent.parent, spec=spec, framework=framework
+        )
+    else:
+        template_root = repo_root / "experiments/c0c3_factorial/templates"
+        transition_override = frozen_transition if frozen_transition.is_file() else None
     renderer = PromptRenderer(
-        repo_root / "experiments/c0c3_factorial/templates",
-        artifact_clean_transition_override=(
-            frozen_transition if frozen_transition.is_file() else None
-        ),
+        template_root,
+        artifact_clean_transition_override=transition_override,
     )
     rendered = renderer.render(spec, task, framework, prompt_context)
     (opportunity_root / "prompt.md").write_text(rendered.text, encoding="utf-8")
@@ -506,6 +600,42 @@ def _run_one_opportunity_unlocked(
         json.dumps(_hashes(rendered), indent=2, sort_keys=True) + "\n",
         encoding="utf-8",
     )
+    if spec.protocol_version == "3.0":
+        (opportunity_root / "state-capsule.json").write_text(
+            json.dumps(
+                {
+                    "schema_version": "3.0",
+                    "selected_source_sha256": active.selected_parent_id,
+                    "public_evidence": [
+                        {
+                            "metrics": record["metrics"],
+                            "hypothesis": record["hypothesis"],
+                        }
+                        for record in visible_records
+                    ],
+                    "evidence_opportunities": [
+                        outcome.opportunity for outcome in recent_outcomes
+                    ],
+                    "original_outcome_count": controller.state.proposals_used,
+                    "rendered_outcome_count": len(recent_outcomes),
+                    "rendered_evidence_characters": sum(
+                        len(repr(outcome)) for outcome in recent_outcomes
+                    ),
+                    "visible_branch_count": len(visible_candidates),
+                    "rendered_prompt_characters": len(rendered.text),
+                    "rendered_prompt_sha256": rendered.prompt_sha256,
+                    "runtime_options_sha256": hashlib.sha256(
+                        json.dumps(
+                            v3_options, sort_keys=True, separators=(",", ":")
+                        ).encode()
+                    ).hexdigest(),
+                },
+                indent=2,
+                sort_keys=True,
+            )
+            + "\n",
+            encoding="utf-8",
+        )
     if show_token_continuation_notice:
         controller.record_token_budget_continuation_notice()
     continuous = spec.conversation_mode is ConversationMode.CONTINUOUS
@@ -528,7 +658,12 @@ def _run_one_opportunity_unlocked(
     before_protected = protected_hash(codex_workspace, task.editable_paths)
     parent_hash = candidate_hash(workspace, task.editable_paths)
     adapter = make_framework_adapter(
-        framework, CodexCli(codex_binary), repo_root=repo_root
+        framework,
+        CodexCli(codex_binary),
+        repo_root=repo_root,
+        prompt_template_root=(
+            template_root if spec.protocol_version == "3.0" else None
+        ),
     )
     requested_session_id = (
         controller.state.conversation_session_id if continuous else None
@@ -569,9 +704,7 @@ def _run_one_opportunity_unlocked(
             )
         else:
             try:
-                _register_conversation_session(
-                    run_dir, proposal.codex.session_id
-                )
+                _register_conversation_session(run_dir, proposal.codex.session_id)
                 controller.record_conversation_session(proposal.codex.session_id)
             except (OSError, RuntimeError, ValueError) as error:
                 adapter_error = adapter_error or str(error)
@@ -608,8 +741,7 @@ def _run_one_opportunity_unlocked(
     if (
         proposal.codex.returncode == 0
         and adapter_error is None
-        and task.adapter
-        in {PAIR_TOKEN_TASK_ADAPTER_V2, PAIR_TOKEN_TASK_ADAPTER_V3}
+        and task.adapter in {PAIR_TOKEN_TASK_ADAPTER_V2, PAIR_TOKEN_TASK_ADAPTER_V3}
     ):
         preflight_error = preflight_candidate_source(workspace)
     elif (
@@ -643,9 +775,13 @@ def _run_one_opportunity_unlocked(
         )
     else:
         max_parallel_evaluators = (
-            spec.blocks
-            if spec.protocol_version in {"1.7", "2.1"}
-            else EVALUATOR_CONCURRENCY_BY_PROTOCOL.get(spec.protocol_version)
+            int(dict(v3_options.get("evaluation", {})).get("task_pool_capacity", 1))
+            if v3_options is not None
+            else (
+                spec.blocks
+                if spec.protocol_version in {"1.7", "2.1"}
+                else EVALUATOR_CONCURRENCY_BY_PROTOCOL.get(spec.protocol_version)
+            )
         )
         evaluator = make_command_evaluator(
             task=task,
@@ -653,19 +789,89 @@ def _run_one_opportunity_unlocked(
             repo_root=repo_root,
             python_bin=python_bin,
             slot_root=(
-                run_dir.parent.parent / ".evaluator-slots"
+                (
+                    task_local_evaluator_root(task.task_id)
+                    if spec.protocol_version == "3.0"
+                    else run_dir.parent.parent / ".evaluator-slots" / "campaign"
+                )
                 if max_parallel_evaluators is not None
                 else None
             ),
             max_parallel_evaluators=max_parallel_evaluators,
         )
-        evaluated = evaluator.evaluate(
-            candidate_snapshot=candidate_snapshot,
-            opportunity_root=opportunity_root,
-            timeout_seconds=spec.budget.evaluator_timeout_seconds,
-            run_seed=run_seed,
+        replicate_count = (
+            int(dict(v3_options.get("evaluation", {})).get("paired_training_seeds", 1))
+            if v3_options is not None
+            else 1
         )
-        evaluation = evaluated.evaluation
+        if replicate_count < 1:
+            raise ValueError("paired_training_seeds must be positive")
+        if replicate_count == 1:
+            evaluated = evaluator.evaluate(
+                candidate_snapshot=candidate_snapshot,
+                opportunity_root=opportunity_root,
+                timeout_seconds=spec.budget.evaluator_timeout_seconds,
+                run_seed=run_seed,
+            )
+            evaluation = evaluated.evaluation
+        else:
+            replicates = []
+            for replicate in range(1, replicate_count + 1):
+                derived_seed = int.from_bytes(
+                    hashlib.sha256(
+                        f"v3-evaluator:{run_seed}:{replicate}".encode()
+                    ).digest()[:8],
+                    "big",
+                )
+                artifacts = evaluator.evaluate(
+                    candidate_snapshot=candidate_snapshot,
+                    opportunity_root=(
+                        opportunity_root
+                        / "evaluation-replicates"
+                        / f"seed-{replicate:02d}"
+                    ),
+                    timeout_seconds=spec.budget.evaluator_timeout_seconds,
+                    run_seed=derived_seed,
+                )
+                replicates.append((derived_seed, artifacts.evaluation))
+            valid = all(item.valid for _, item in replicates)
+            numeric_metrics: dict[str, float] = {}
+            for name in task.public_feedback_metrics:
+                values = [
+                    item.metrics.get(name)
+                    for _, item in replicates
+                    if isinstance(item.metrics.get(name), int | float)
+                    and not isinstance(item.metrics.get(name), bool)
+                ]
+                if len(values) == replicate_count:
+                    numeric_metrics[name] = sum(float(value) for value in values) / len(
+                        values
+                    )
+            fitness_values = [
+                float(item.fitness)
+                for _, item in replicates
+                if item.valid and item.fitness is not None
+            ]
+            evaluation = Evaluation(
+                valid=valid,
+                fitness=(sum(fitness_values) / len(fitness_values) if valid else None),
+                metrics={
+                    **numeric_metrics,
+                    "training_seed_replicates": [
+                        {
+                            "seed": seed,
+                            "valid": item.valid,
+                            "fitness": item.fitness,
+                            "metrics": item.metrics,
+                            "failure_kind": item.failure_kind,
+                        }
+                        for seed, item in replicates
+                    ],
+                },
+                evaluator_seconds=sum(item.evaluator_seconds for _, item in replicates),
+                evaluator_calls=1,
+                failure_kind=None if valid else "replicate_evaluation_failure",
+            )
     record = controller.complete(
         candidate_id=recorded_candidate_id,
         artifact_path=str(candidate_snapshot.relative_to(run_dir)),
@@ -678,6 +884,48 @@ def _run_one_opportunity_unlocked(
         mechanism=proposal.mechanism,
         evidence=proposal.evidence,
     )
+    if spec.protocol_version == "3.0":
+        proposal_type = (
+            "assumption_changing" if active.transition_active else "ordinary"
+        )
+        provenance = record_candidate_provenance(
+            run_dir=run_dir,
+            task=task,
+            opportunity=active.index,
+            parent_id=active.selected_parent_id,
+            candidate_id=candidate_id,
+            proposal_type=proposal_type,
+            hypothesis=proposal.hypothesis,
+            intended_edit=proposal.intended_edit,
+            mechanism=proposal.mechanism,
+            evidence=proposal.evidence,
+        )
+        if active.index in spec.transition_opportunities:
+            write_manipulation_packet(
+                campaign=run_dir.parent.parent,
+                run_dir=run_dir,
+                opportunity=active.index,
+                candidate_id=candidate_id,
+                proposal_type=proposal_type,
+                provenance=provenance,
+            )
+        append_record = {
+            "schema_version": "3.0",
+            "event": "v3_proposal_provenance",
+            "timestamp": datetime.now(UTC).isoformat(),
+            "run_id": controller.state.run_id,
+            "condition": controller.state.condition,
+            "opportunity": active.index,
+            "runtime_sha256": expected_runtime_hash,
+            "prompt_bundle_sha256": run_manifest.get("campaign_prompt_bundle_sha256"),
+            "conversation_boundary": "fresh_bounded_state_capsule",
+            "provider_model_requested": spec.model.name,
+            "reasoning_effort_requested": spec.model.reasoning_effort,
+            "service_tier_observed": proposal.codex.service_tier,
+        }
+        from .state import append_jsonl
+
+        append_jsonl(run_dir / "events.jsonl", append_record)
     if workspace.exists():
         _make_tree_owner_writable(workspace)
         shutil.rmtree(workspace)
@@ -697,6 +945,7 @@ def run_one_opportunity(
     python_bin: str,
     codex_binary: str = "codex",
     codex_timeout_seconds: int = 3600,
+    allow_v3_prefix_leader: bool = False,
 ) -> dict[str, object]:
     resolved = Path(run_dir).resolve()
     with _run_lock(resolved):
@@ -709,6 +958,7 @@ def run_one_opportunity(
             python_bin=python_bin,
             codex_binary=codex_binary,
             codex_timeout_seconds=codex_timeout_seconds,
+            allow_v3_prefix_leader=allow_v3_prefix_leader,
         )
 
 

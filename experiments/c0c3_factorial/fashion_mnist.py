@@ -130,9 +130,7 @@ def prepare_dataset(root: Path) -> dict[str, Any]:
             urllib.request.urlretrieve(f"{DOWNLOAD_BASE}/{name}", temporary)
             actual = md5(temporary)
             if actual != expected:
-                raise RuntimeError(
-                    f"downloaded checksum mismatch for {name}: {actual}"
-                )
+                raise RuntimeError(f"downloaded checksum mismatch for {name}: {actual}")
             os.replace(temporary, destination)
         finally:
             temporary.unlink(missing_ok=True)
@@ -186,12 +184,8 @@ def load_dataset(root: Path):
     train_label_shape, train_label_bytes = _read_idx(
         root / "train-labels-idx1-ubyte.gz"
     )
-    test_image_shape, test_image_bytes = _read_idx(
-        root / "t10k-images-idx3-ubyte.gz"
-    )
-    test_label_shape, test_label_bytes = _read_idx(
-        root / "t10k-labels-idx1-ubyte.gz"
-    )
+    test_image_shape, test_image_bytes = _read_idx(root / "t10k-images-idx3-ubyte.gz")
+    test_label_shape, test_label_bytes = _read_idx(root / "t10k-labels-idx1-ubyte.gz")
     if train_image_shape != (60_000, 28, 28) or train_label_shape != (60_000,):
         raise ValueError("official training IDX shapes are not 60000x28x28 and 60000")
     if test_image_shape != (10_000, 28, 28) or test_label_shape != (10_000,):
@@ -258,6 +252,7 @@ def preflight_candidate_source(workspace: Path) -> str | None:
     missing = sorted(required - defined)
     if missing:
         return f"train.py is missing required functions: {', '.join(missing)}"
+
     def dotted_name(node: ast.AST) -> str:
         if isinstance(node, ast.Name):
             return node.id
@@ -428,9 +423,7 @@ def evaluate(args: argparse.Namespace) -> int:
             if images.shape[0] != take or labels.shape[0] != take:
                 raise ValueError("prepare_training_batch must preserve batch length")
             optimizer.zero_grad(set_to_none=True)
-            loss = program.training_loss(
-                model, images, labels, step, total_steps
-            )
+            loss = program.training_loss(model, images, labels, step, total_steps)
             if not isinstance(loss, torch.Tensor) or loss.ndim != 0:
                 raise TypeError("training_loss must return one scalar tensor")
             if not torch.isfinite(loss):
@@ -462,9 +455,9 @@ def evaluate(args: argparse.Namespace) -> int:
                 evaluation_images[offset : offset + args.evaluation_batch_size],
                 device=device,
             )
-            labels = evaluation_labels[
-                offset : offset + args.evaluation_batch_size
-            ].to(device=device, dtype=torch.long)
+            labels = evaluation_labels[offset : offset + args.evaluation_batch_size].to(
+                device=device, dtype=torch.long
+            )
             logits = model(images)
             if logits.shape != (labels.shape[0], 10):
                 raise ValueError(

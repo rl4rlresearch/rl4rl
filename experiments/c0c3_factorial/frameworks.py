@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import importlib
 import re
 import shutil
 import sys
@@ -63,17 +64,11 @@ def parse_flexible_metadata(message: str) -> tuple[str, str]:
         None,
     )
     useful_lines = [
-        line.strip(" -*#\t")
-        for line in message.splitlines()
-        if line.strip(" -*#\t")
+        line.strip(" -*#\t") for line in message.splitlines() if line.strip(" -*#\t")
     ]
     if hypothesis is None:
         hypothesis = next(
-            (
-                line
-                for line in useful_lines
-                if "hypothes" in line.casefold()
-            ),
+            (line for line in useful_lines if "hypothes" in line.casefold()),
             useful_lines[0] if useful_lines else "No summary was returned.",
         )
     if intended_edit is None:
@@ -240,12 +235,14 @@ class OpenEvolveAdapter:
         vendor_root: Path,
         v2: bool = False,
         v21: bool = False,
+        metadata_optional: bool = False,
         template_root: Path | None = None,
     ) -> None:
         self.codex = codex
         self.vendor_root = vendor_root
         self.v2 = v2
         self.v21 = v21
+        self.metadata_optional = metadata_optional
         self.template_root = template_root
 
     def _imports(self):
@@ -326,9 +323,7 @@ class OpenEvolveAdapter:
                     f"```text\n{program['code']}\n```"
                 )
             if alternatives:
-                design_programs = "# Reference source\n\n" + "\n\n".join(
-                    alternatives
-                )
+                design_programs = "# Reference source\n\n" + "\n\n".join(alternatives)
         elif self.v2:
             alternatives = []
             for program in programs:
@@ -407,9 +402,14 @@ class OpenEvolveAdapter:
             mechanism, evidence = "[not recorded]", "[not recorded]"
         error: str | None = None
         failure_kind: str | None = None
-        if self.v2 and result.returncode == 0 and any(
-            value.startswith("[missing")
-            for value in (hypothesis, intended_edit, mechanism, evidence)
+        if (
+            self.v2
+            and not self.metadata_optional
+            and result.returncode == 0
+            and any(
+                value.startswith("[missing")
+                for value in (hypothesis, intended_edit, mechanism, evidence)
+            )
         ):
             error = "OpenEvolve response omitted required proposal metadata"
             failure_kind = "missing_metadata"
@@ -454,7 +454,11 @@ class OpenEvolveAdapter:
 
 
 def make_framework_adapter(
-    framework: FrameworkSpec, codex: CodexCli, *, repo_root: Path
+    framework: FrameworkSpec,
+    codex: CodexCli,
+    *,
+    repo_root: Path,
+    prompt_template_root: Path | None = None,
 ) -> AutoresearchAdapter | OpenEvolveAdapter:
     if framework.framework_id is FrameworkKind.AUTORESEARCH:
         return AutoresearchAdapter(
@@ -464,22 +468,47 @@ def make_framework_adapter(
             ),
         )
     if framework.framework_id is FrameworkKind.OPENEVOLVE:
-        v21 = framework.adapter == "controlled_openevolve_prompt_diff_v2_1"
+        v21 = framework.adapter in {
+            "controlled_openevolve_prompt_diff_v2_1",
+            "controlled_openevolve_prompt_diff_v3",
+        }
         v2 = framework.adapter in {
             "controlled_openevolve_prompt_diff_v2",
             "controlled_openevolve_prompt_diff_v2_1",
+            "controlled_openevolve_prompt_diff_v3",
         }
         return OpenEvolveAdapter(
             codex,
             vendor_root=repo_root / "architecture_discovery/vendor/openevolve",
             v2=v2,
             v21=v21,
+            metadata_optional=(
+                framework.adapter == "controlled_openevolve_prompt_diff_v3"
+            ),
             template_root=(
-                repo_root
-                / "experiments/c0c3_factorial/templates"
+                (
+                    prompt_template_root
+                    if prompt_template_root is not None
+                    else repo_root / "experiments/c0c3_factorial/templates"
+                )
                 / ("openevolve_v2_1" if v21 else "openevolve_v2")
                 if v2
                 else None
             ),
         )
+    if framework.adapter_factory is not None:
+        module_name, separator, attribute = framework.adapter_factory.partition(":")
+        if not separator or not module_name or not attribute:
+            raise ValueError("adapter_factory must use the form 'module:callable'")
+        factory = getattr(importlib.import_module(module_name), attribute)
+        adapter = factory(
+            framework=framework,
+            codex=codex,
+            repo_root=repo_root,
+            prompt_template_root=prompt_template_root,
+            options=dict(framework.adapter_options),
+        )
+        if not hasattr(adapter, "propose"):
+            raise TypeError("custom framework adapter must provide propose()")
+        return adapter
     raise ValueError(f"unsupported framework {framework.framework_id}")

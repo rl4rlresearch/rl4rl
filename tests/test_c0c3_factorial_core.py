@@ -13,6 +13,7 @@ import pytest
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
 
+from experiments.c0c3_campaign_amend import extend_campaign_blocks
 from experiments.c0c3_factorial.analysis import RunOutcome, estimate
 from experiments.c0c3_factorial.artifacts import (
     prepare_seed_workspace,
@@ -533,6 +534,94 @@ def test_fashion_mnist_campaign_can_be_prepared_and_validated_without_data(
     )
     assert report["valid"] is True
     assert len(json.loads((campaign / "schedule.json").read_text())) == 16
+
+
+def test_campaign_block_expansion_preserves_prior_fashion_factorial_runs(
+    tmp_path: Path,
+) -> None:
+    spec = FactorialSpec.from_toml(FASHION_MNIST_V21_PROTOCOL)
+    task_spec = TaskSpec.from_toml(FASHION_MNIST_TASK)
+    framework_spec = FrameworkSpec.from_toml(FASHION_MNIST_V21_FRAMEWORK)
+    calibration = prepare_calibration(
+        tmp_path / "calibration",
+        spec=spec,
+        task=task_spec,
+        repo_root=ROOT,
+    )
+    prepared = json.loads((calibration / "calibration.json").read_text())
+    baseline = calibration / "baseline.json"
+    baseline.write_text(
+        json.dumps(
+            {
+                "schema_version": "1.0",
+                "task_id": task_spec.task_id,
+                "candidate_id": prepared["candidate_id"],
+                "support_tree_sha256": prepared["support_tree_sha256"],
+                "fitness": 9000.25,
+                "metrics": {
+                    "validation_score": 9000.25,
+                    "validation_correct": 9000,
+                    "examples_processed": 100_000,
+                },
+                "evaluator_seconds": 10.0,
+                "protocol_hash": spec.protocol_hash,
+                "calibration_kind": "executed_on_target_backend",
+            }
+        )
+        + "\n",
+        encoding="utf-8",
+    )
+    campaign = create_campaign(
+        tmp_path / "campaign",
+        spec=spec,
+        task=task_spec,
+        framework=framework_spec,
+        calibration_path=baseline,
+        repo_root=ROOT,
+    )
+    before_schedule = json.loads((campaign / "schedule.json").read_text())
+    before_states = {
+        row["run_id"]: (campaign / "runs" / row["run_id"] / "state.json").read_bytes()
+        for row in before_schedule
+    }
+
+    result = extend_campaign_blocks(
+        campaign,
+        target_blocks=5,
+        reason="operator requested two additional Fashion-MNIST OpenEvolve blocks",
+    )
+
+    schedule = json.loads((campaign / "schedule.json").read_text())
+    assert result["status"] == "expanded"
+    assert result["effective_blocks"] == 5
+    assert len(result["added_run_ids"]) == 8
+    assert len(schedule) == 20
+    assert schedule[:12] == before_schedule
+    assert {row["block"] for row in schedule} == {1, 2, 3, 4, 5}
+    assert all(
+        (campaign / "runs" / run_id / "state.json").read_bytes() == state
+        for run_id, state in before_states.items()
+    )
+    for run_id in result["added_run_ids"]:
+        state = json.loads((campaign / "runs" / run_id / "state.json").read_text())
+        run_manifest = json.loads(
+            (campaign / "runs" / run_id / "manifest.json").read_text()
+        )
+        assert state["protocol_hash"] == spec.protocol_hash
+        assert state["status"] == "ready"
+        assert run_manifest["scientific_runtime_hash"] == json.loads(
+            (campaign / "campaign.json").read_text()
+        )["scientific_runtime_hash"]
+
+    repeated = extend_campaign_blocks(
+        campaign,
+        target_blocks=5,
+        reason="same operator request is already applied",
+    )
+    assert repeated["status"] == "already-expanded"
+    assert len(json.loads((campaign / "schedule.json").read_text())) == 20
+    amendments = (campaign / "campaign-amendments.jsonl").read_text().splitlines()
+    assert len(amendments) == 1
 
 
 @pytest.mark.parametrize(

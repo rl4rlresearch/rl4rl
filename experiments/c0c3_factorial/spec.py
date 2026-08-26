@@ -7,7 +7,7 @@ import json
 import random
 import tomllib
 from collections.abc import Iterable
-from dataclasses import asdict, dataclass
+from dataclasses import asdict, dataclass, field
 from enum import StrEnum
 from pathlib import Path
 from typing import Any
@@ -28,6 +28,7 @@ class ConversationMode(StrEnum):
 
     EPHEMERAL = "ephemeral_per_opportunity_v1"
     CONTINUOUS = "continuous_session_per_run_v1"
+    BOUNDED = "bounded_state_capsule_per_opportunity_v1"
 
 
 class Condition(StrEnum):
@@ -100,6 +101,7 @@ STAGED_CONFINED_INDIVIDUAL_EXECUTION_RULE = (
 OPENEVOLVE_V2_EXECUTION_RULE = (
     "confined_individually_controlled_c0c3_only_trajectories_v2"
 )
+UNIFIED_V3_EXECUTION_RULE = "unified_individual_trajectories_with_paired_prefix_fork_v3"
 STAGED_EXECUTION_RULES = frozenset(
     {
         STAGED_PARALLEL_EXECUTION_RULE,
@@ -107,6 +109,7 @@ STAGED_EXECUTION_RULES = frozenset(
         STAGED_INDIVIDUAL_EXECUTION_RULE,
         STAGED_CONFINED_INDIVIDUAL_EXECUTION_RULE,
         OPENEVOLVE_V2_EXECUTION_RULE,
+        UNIFIED_V3_EXECUTION_RULE,
     }
 )
 INDIVIDUAL_EXECUTION_RULES = frozenset(
@@ -114,6 +117,7 @@ INDIVIDUAL_EXECUTION_RULES = frozenset(
         STAGED_INDIVIDUAL_EXECUTION_RULE,
         STAGED_CONFINED_INDIVIDUAL_EXECUTION_RULE,
         OPENEVOLVE_V2_EXECUTION_RULE,
+        UNIFIED_V3_EXECUTION_RULE,
     }
 )
 # Protocol 1.6 permits every Codex trajectory to think concurrently while
@@ -136,6 +140,7 @@ PROTOCOL_EXECUTION_RULES = {
     "1.7": STAGED_CONFINED_INDIVIDUAL_EXECUTION_RULE,
     "2.0": OPENEVOLVE_V2_EXECUTION_RULE,
     "2.1": OPENEVOLVE_V2_EXECUTION_RULE,
+    "3.0": UNIFIED_V3_EXECUTION_RULE,
 }
 
 
@@ -237,13 +242,25 @@ class FactorialSpec:
     def enforces_hard_token_limit(self) -> bool:
         """Whether token accounting can stop a run from starting proposals."""
 
-        return self.protocol_version not in {"1.6", "1.7"}
+        return self.protocol_version not in {"1.6", "1.7", "3.0"}
 
     @property
     def c0c3_only(self) -> bool:
         """Whether the protocol excludes N0 and freezes all factorial runs."""
 
-        return self.protocol_version in {"1.7", "2.0", "2.1"}
+        return self.protocol_version in {"1.7", "2.0", "2.1", "3.0"}
+
+    @property
+    def paired_prefix(self) -> bool:
+        """Whether C0/C1 and C2/C3 share observations before treatment."""
+
+        return self.protocol_version == "3.0"
+
+    @property
+    def first_fork_opportunity(self) -> int:
+        """The first separately sampled opportunity in paired-prefix v3."""
+
+        return min(self.transition_opportunities)
 
     def __post_init__(self) -> None:
         if self.protocol_version not in PROTOCOL_EXECUTION_RULES:
@@ -272,8 +289,7 @@ class FactorialSpec:
                 f"{expected_execution_rule!r}"
             )
         if (
-            self.protocol_version
-            in {"1.2", "1.3", "1.4", "1.5", "1.6", "1.7"}
+            self.protocol_version in {"1.2", "1.3", "1.4", "1.5", "1.6", "1.7"}
             and self.conversation_mode is not ConversationMode.CONTINUOUS
         ):
             raise ValueError(
@@ -282,7 +298,7 @@ class FactorialSpec:
             )
         if (
             self.protocol_version
-            not in {"1.2", "1.3", "1.4", "1.5", "1.6", "1.7"}
+            not in {"1.2", "1.3", "1.4", "1.5", "1.6", "1.7", "3.0"}
             and self.conversation_mode is not ConversationMode.EPHEMERAL
         ):
             raise ValueError(
@@ -299,6 +315,13 @@ class FactorialSpec:
             raise ValueError(
                 f"protocol {self.protocol_version} requires bounded ephemeral "
                 "proposal sessions"
+            )
+        if (
+            self.protocol_version == "3.0"
+            and self.conversation_mode is not ConversationMode.BOUNDED
+        ):
+            raise ValueError(
+                "protocol 3.0 requires bounded state-capsule proposal sessions"
             )
         schedule = self.transition_opportunities
         if tuple(sorted(set(schedule))) != schedule:
@@ -390,6 +413,8 @@ class TaskSpec:
     metric_patterns: dict[str, str]
     final_holdout_command: tuple[str, ...]
     preferred_backend: ExecutionBackend
+    extension_module: str | None = None
+    extension_options: dict[str, Any] = field(default_factory=dict)
 
     def __post_init__(self) -> None:
         if not self.task_id or any(character.isspace() for character in self.task_id):
@@ -437,19 +462,45 @@ class TaskSpec:
 
 @dataclass(frozen=True)
 class FrameworkSpec:
-    framework_id: FrameworkKind
+    framework_id: FrameworkKind | str
     adapter: str
     prompt_profile: str
     edit_mode: str
+    adapter_factory: str | None = None
+    adapter_options: dict[str, Any] = field(default_factory=dict)
 
     def __post_init__(self) -> None:
         if self.edit_mode not in {"direct_workspace", "search_replace_diff"}:
             raise ValueError("unsupported framework edit mode")
+        identifier = self.framework_key
+        if not identifier or any(character.isspace() for character in identifier):
+            raise ValueError("framework_id must be portable and contain no whitespace")
+        if (
+            self.framework_id not in tuple(FrameworkKind)
+            and self.adapter_factory is None
+        ):
+            raise ValueError(
+                "custom frameworks require adapter_factory='module:callable'"
+            )
+
+    @property
+    def framework_key(self) -> str:
+        return (
+            self.framework_id.value
+            if isinstance(self.framework_id, FrameworkKind)
+            else str(self.framework_id)
+        )
 
     @classmethod
     def from_toml(cls, path: str | Path) -> FrameworkSpec:
         payload = tomllib.loads(Path(path).read_text(encoding="utf-8"))
-        framework_id = FrameworkKind(payload.pop("framework_id"))
+        raw_identifier = str(payload.pop("framework_id"))
+        try:
+            framework_id: FrameworkKind | str = FrameworkKind(raw_identifier)
+        except ValueError:
+            framework_id = raw_identifier
+        payload.setdefault("adapter_factory", None)
+        payload.setdefault("adapter_options", {})
         return cls(**payload, framework_id=framework_id)
 
 
@@ -460,6 +511,28 @@ class RunAssignment:
     condition: Condition
     run_seed: int
     run_id: str
+
+
+def task_hash_payload(task: TaskSpec) -> dict[str, Any]:
+    """Keep legacy task hashes stable when extension hooks are unused."""
+
+    payload = asdict(task)
+    if payload.get("extension_module") is None:
+        payload.pop("extension_module", None)
+    if not payload.get("extension_options"):
+        payload.pop("extension_options", None)
+    return payload
+
+
+def framework_hash_payload(framework: FrameworkSpec) -> dict[str, Any]:
+    """Keep legacy framework hashes stable when plugin hooks are unused."""
+
+    payload = asdict(framework)
+    if payload.get("adapter_factory") is None:
+        payload.pop("adapter_factory", None)
+    if not payload.get("adapter_options"):
+        payload.pop("adapter_options", None)
+    return payload
 
 
 def make_assignments(

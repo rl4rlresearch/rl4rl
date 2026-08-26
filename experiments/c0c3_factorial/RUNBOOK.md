@@ -3,6 +3,12 @@
 Run every command from the repository root. Paths below are repository-relative
 or operator-chosen; no user-specific absolute path is embedded in a campaign.
 
+For unified v3, read [UNIFIED_V3.md](UNIFIED_V3.md). Use
+`configs/protocols/unified_v3.toml` with either a v3 framework adapter. After
+campaign creation, deliberately run `snapshot-v3-prompts`, then `validate` and
+`v3-health`; no v3 start command is automatic. Prefix pairs are owned jointly
+until their first intervention and become independently controllable after it.
+
 ## 1. Choose immutable inputs
 
 ```bash
@@ -560,6 +566,36 @@ RL4RL_OVERNIGHT_PROFILE=openevolve-v2.1-fashion-mnist \
 The corresponding `start --recover-interrupted --all-running` commands are
 intentionally separate from preparation. Both use the shared local evaluator
 pool and a stable dataset cache path; they do not invoke Modal.
+
+### Operator-authorized Fashion-MNIST block expansion
+
+An active C0–C3-only Fashion-MNIST campaign can be extended without restarting
+or modifying its already-running trajectories. This is an in-place amendment:
+the helper preserves the original controller protocol input, appends complete
+seed-paired C0–C3 blocks, copies the byte-identical seed/task-support tree into
+each new run, and records the boundary in `campaign-amendments.jsonl` plus an
+`amendments/` snapshot directory. Do not edit `schedule.json` or run
+directories manually.
+
+For example, to extend the local OpenEvolve Fashion-MNIST campaign from three
+to five blocks and launch only B4–B5 under a separate durable supervisor:
+
+```bash
+$PY experiments/c0c3_campaign_amend.py extend-blocks \
+  --campaign data/c0c3/fashion-mnist-openevolve-v2-1-mps-campaign \
+  --target-blocks 5 \
+  --reason 'operator-authorized additional replication blocks'
+
+RL4RL_OVERNIGHT_PROFILE=openevolve-v2.1-fashion-mnist-extension \
+  $PY experiments/c0c3_overnight.py check
+RL4RL_OVERNIGHT_PROFILE=openevolve-v2.1-fashion-mnist-extension \
+  $PY experiments/c0c3_overnight.py start --recover-interrupted --all-running
+```
+
+The extension supervisor controls B4–B5 only. The existing
+`openevolve-v2.1-fashion-mnist` supervisor continues to own B1–B3, so the two
+sets can be paused, resumed, or recovered independently while sharing the same
+host-wide evaluator scheduler.
 
 Inspect the shared local pool at any time without changing it:
 

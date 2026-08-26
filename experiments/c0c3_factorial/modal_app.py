@@ -204,10 +204,7 @@ if modal is not None:
             if not schedule:
                 raise ValueError("campaign has no runs")
             support = (
-                campaign_path
-                / "runs"
-                / str(schedule[0]["run_id"])
-                / "task-support"
+                campaign_path / "runs" / str(schedule[0]["run_id"]) / "task-support"
             )
         completed = subprocess.run(
             ["python", "prepare.py", "--num-shards", str(num_shards)],
@@ -240,9 +237,7 @@ if modal is not None:
             if not prepare_autoresearch:
                 raise ValueError("prepare_only requires prepare_autoresearch=true")
             return
-        result = run_remote.remote(
-            campaign, run_id, opportunities, execute_calibration
-        )
+        result = run_remote.remote(campaign, run_id, opportunities, execute_calibration)
         print(result["stdout"])
 
 else:

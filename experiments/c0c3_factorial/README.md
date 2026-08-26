@@ -33,6 +33,8 @@ N0, outside the 2×2 contrasts. Protocols 1.7, 2.0, and 2.1 contain only C0–C3
    controlled OpenEvolve protocols and launch commands.
 7. [ARTIFACT_CLEAN_PROTOCOLS.md](ARTIFACT_CLEAN_PROTOCOLS.md) — the v1.7 and
    v2.1 source-only subject boundary and prompt-cleanliness guarantees.
+8. [UNIFIED_V3.md](UNIFIED_V3.md) — the unified extensible successor,
+   campaign-wide prompt snapshot, bounded capsules, and paired-prefix fork.
 
 Future coding agents must also follow [AGENTS.md](AGENTS.md).
 
@@ -58,6 +60,8 @@ Future coding agents must also follow [AGENTS.md](AGENTS.md).
   and factorial contrasts.
 - `modal_app.py`: the same runner on a serialized Modal H100 worker.
 - `configs/`: switchable protocols, tasks, and framework adapters.
+- `v3.py` and `v3_analysis.py`: unified flexible controls, campaign-wide prompt
+  snapshot, literal prefix sharing/forking, provenance, health, and audit.
 
 ## Scope presets
 
@@ -144,6 +148,12 @@ Future coding agents must also follow [AGENTS.md](AGENTS.md).
   100,000 presented training examples, and the sealed official test set. See
   [FASHION_MNIST.md](FASHION_MNIST.md); setup does not download, calibrate, or
   launch this task automatically.
+- `configs/protocols/unified_v3.toml` is the single successor protocol for
+  Autoresearch, OpenEvolve, plugin frameworks, and plugin tasks. Its supplied
+  preset uses eight 100-proposal blocks and no N0. C0/C1 and C2/C3 literally
+  share their pre-intervention trajectories and fork from identical state at
+  the first intervention. See [UNIFIED_V3.md](UNIFIED_V3.md). No official v3
+  run is launched by setup or validation.
 
 Run the dev protocol end to end before spending on the paper protocol. Do not
 reinterpret dev results as a pilot effect estimate: its transition density and

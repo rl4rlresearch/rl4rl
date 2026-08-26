@@ -3,7 +3,6 @@
 from __future__ import annotations
 
 import json
-from dataclasses import asdict
 from pathlib import Path
 
 from .artifacts import candidate_hash, scientific_runtime_hash, tree_hash
@@ -43,15 +42,18 @@ from .spec import (
     FactorialSpec,
     FrameworkSpec,
     TaskSpec,
+    framework_hash_payload,
     sha256_json,
+    task_hash_payload,
 )
 from .state import SearchController
+from .v3 import prompt_renderer_paths
 
 
 def hybrid_modal_pairing_is_frozen(*, protocol_version: str, task_adapter: str) -> bool:
     """Return whether a protocol/task pair prospectively defines Modal transport."""
 
-    return protocol_version in {"2.0", "2.1"} or (
+    return protocol_version in {"2.0", "2.1", "3.0"} or (
         protocol_version == "1.7" and task_adapter == NANOGPT_TASK_ADAPTER
     )
 
@@ -87,24 +89,24 @@ def validate_campaign(
         errors.append(str(error))
     expected_hashes = {
         "protocol_hash": spec.protocol_hash,
-        "task_hash": sha256_json(asdict(task)),
-        "framework_hash": sha256_json(asdict(framework)),
-        "scientific_runtime_hash": scientific_runtime_hash(
-            repo_root, task=task, framework=framework
-        ),
+        "task_hash": sha256_json(task_hash_payload(task)),
+        "framework_hash": sha256_json(framework_hash_payload(framework)),
     }
+    current_runtime_hash = scientific_runtime_hash(
+        repo_root, task=task, framework=framework
+    )
+    if spec.protocol_version != "3.0":
+        expected_hashes["scientific_runtime_hash"] = current_runtime_hash
     for name, expected in expected_hashes.items():
         if manifest.get(name) != expected:
             errors.append(f"campaign {name} mismatch")
-    if (
-        spec.execution_rule
-        in {
-            PARALLEL_EXECUTION_RULE,
-            *STAGED_EXECUTION_RULES,
-        }
-        and task.preferred_backend
-        not in {ExecutionBackend.LOCAL, ExecutionBackend.HYBRID_MODAL}
-    ):
+    if spec.execution_rule in {
+        PARALLEL_EXECUTION_RULE,
+        *STAGED_EXECUTION_RULES,
+    } and task.preferred_backend not in {
+        ExecutionBackend.LOCAL,
+        ExecutionBackend.HYBRID_MODAL,
+    }:
         errors.append(
             "parallel condition rounds currently require a local task backend"
         )
@@ -125,14 +127,12 @@ def validate_campaign(
     expected_primary = (
         run_ids
         if spec.c0c3_only
-        else
-        [
+        else [
             str(row["run_id"])
             for row in schedule
             if int(row["block"]) == 1 and str(row["condition"]) != "N0"
         ]
-        if spec.execution_rule
-        in STAGED_EXECUTION_RULES
+        if spec.execution_rule in STAGED_EXECUTION_RULES
         else run_ids
     )
     expected_optional = [
@@ -145,8 +145,7 @@ def validate_campaign(
     if manifest.get("include_no_search") != spec.include_no_search:
         errors.append("campaign N0 composition differs from the frozen protocol")
     if (
-        spec.execution_rule
-        in STAGED_EXECUTION_RULES
+        spec.execution_rule in STAGED_EXECUTION_RULES
         and not manifest.get("include_no_search")
         and not spec.c0c3_only
     ):
@@ -221,9 +220,7 @@ def validate_campaign(
             if path.is_file()
         }
         if actual_subject_files != expected_subject_files:
-                errors.append(
-                    "artifact-clean task-support tree exposes unexpected files"
-                )
+            errors.append("artifact-clean task-support tree exposes unexpected files")
         source_paths_to_audit = (
             ()
             if task.adapter == NANOGPT_TASK_ADAPTER
@@ -247,13 +244,25 @@ def validate_campaign(
             "launch validation requires untouched ready runs: "
             + ", ".join(launch_states)
         )
-    renderer = PromptRenderer(
-        repo_root / "experiments/c0c3_factorial/templates",
-        artifact_clean_transition_override=artifact_clean_assumption_prompt_source(
+    if spec.protocol_version == "3.0":
+        try:
+            template_root, transition_override = prompt_renderer_paths(
+                campaign, spec=spec, framework=framework
+            )
+        except (OSError, ValueError, RuntimeError) as error:
+            errors.append(str(error))
+            template_root = repo_root / "experiments/c0c3_factorial/templates"
+            transition_override = None
+    else:
+        template_root = repo_root / "experiments/c0c3_factorial/templates"
+        transition_override = artifact_clean_assumption_prompt_source(
             campaign=campaign,
             repo_root=repo_root,
             framework=framework,
-        ),
+        )
+    renderer = PromptRenderer(
+        template_root,
+        artifact_clean_transition_override=transition_override,
     )
     for opportunity in range(1, spec.budget.proposals + 1):
         prompts = {}
@@ -281,8 +290,7 @@ def validate_campaign(
                         f"{opportunity}: {list(disclosures)}"
                     )
         skeletons = {
-            value.treatment_skeleton_sha256
-            or treatment_skeleton(value.text)
+            value.treatment_skeleton_sha256 or treatment_skeleton(value.text)
             for value in prompts.values()
         }
         if len(skeletons) != 1:
@@ -329,8 +337,7 @@ def validate_campaign(
                     f"{opportunity}: {list(disclosures)}"
                 )
     layers_absent = not (
-        (campaign / "sealed-layer-b").exists()
-        or (campaign / "sealed-layer-c").exists()
+        (campaign / "sealed-layer-b").exists() or (campaign / "sealed-layer-c").exists()
     )
     if not layers_absent:
         errors.append("Layer B or Layer C output exists before launch")
@@ -347,7 +354,10 @@ def validate_campaign(
             "same_task_and_evaluator": len(support_hashes) == 1,
             "same_budget": True,
             "same_failure_rule": True,
-            "frozen_execution_rule": spec.execution_rule,
+            "execution_rule": spec.execution_rule,
+            "frozen_execution_rule": (
+                spec.execution_rule if spec.protocol_version != "3.0" else None
+            ),
             "frozen_blocked_round_robin_execution": (
                 spec.execution_rule == SERIAL_EXECUTION_RULE
             ),
@@ -364,8 +374,7 @@ def validate_campaign(
                 spec.execution_rule in INDIVIDUAL_EXECUTION_RULES
             ),
             "confined_continuous_sessions": (
-                spec.execution_rule
-                == STAGED_CONFINED_INDIVIDUAL_EXECUTION_RULE
+                spec.execution_rule == STAGED_CONFINED_INDIVIDUAL_EXECUTION_RULE
             ),
             "n0_removed_by_protocol": not spec.include_no_search,
             "layer_b_c_absent_at_launch": layers_absent,

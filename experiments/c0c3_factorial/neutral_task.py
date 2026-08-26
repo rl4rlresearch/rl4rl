@@ -14,14 +14,10 @@ AUTORESEARCH_V17_PROMPT_PROFILE = "trained_transformer_optimizer_v1_7"
 OPENEVOLVE_V21_PROMPT_PROFILE = "trained_transformer_openevolve_v2_1"
 NANOGPT_AUTORESEARCH_V17_PROMPT_PROFILE = "nanogpt_optimizer_v1_7"
 NANOGPT_OPENEVOLVE_V21_PROMPT_PROFILE = "nanogpt_openevolve_v2_1"
-FASHION_MNIST_AUTORESEARCH_V17_PROMPT_PROFILE = (
-    "fashion_mnist_optimizer_v1_7"
-)
-FASHION_MNIST_OPENEVOLVE_V21_PROMPT_PROFILE = (
-    "fashion_mnist_openevolve_v2_1"
-)
+FASHION_MNIST_AUTORESEARCH_V17_PROMPT_PROFILE = "fashion_mnist_optimizer_v1_7"
+FASHION_MNIST_OPENEVOLVE_V21_PROMPT_PROFILE = "fashion_mnist_openevolve_v2_1"
 SUBJECT_NEUTRAL_PROTOCOL_VERSIONS = frozenset(
-    {"1.5", "1.6", "1.7", "2.0", "2.1"}
+    {"1.5", "1.6", "1.7", "2.0", "2.1", "3.0"}
 )
 SUBJECT_NEUTRAL_PROMPT_PROFILES = frozenset(
     {
@@ -45,7 +41,7 @@ SUBJECT_NEUTRAL_TASK_ADAPTERS = frozenset(
         FASHION_MNIST_TASK_ADAPTER,
     }
 )
-ARTIFACT_CLEAN_PROTOCOL_VERSIONS = frozenset({"1.7", "2.1"})
+ARTIFACT_CLEAN_PROTOCOL_VERSIONS = frozenset({"1.7", "2.1", "3.0"})
 ARTIFACT_CLEAN_PROMPT_PROFILES = frozenset(
     {
         AUTORESEARCH_V17_PROMPT_PROFILE,
@@ -120,7 +116,10 @@ def validate_v15_pairing(
 ) -> None:
     """Fail closed if subject-neutral components are mixed with older strata."""
 
-    is_subject_neutral = protocol_version in SUBJECT_NEUTRAL_PROTOCOL_VERSIONS
+    known_neutral_task = task_adapter in SUBJECT_NEUTRAL_TASK_ADAPTERS
+    is_subject_neutral = protocol_version in SUBJECT_NEUTRAL_PROTOCOL_VERSIONS and (
+        protocol_version != "3.0" or known_neutral_task
+    )
     allowed_adapters = {
         "1.7": {
             PAIR_TOKEN_TASK_ADAPTER_V3,
@@ -144,10 +143,7 @@ def validate_v15_pairing(
             f"protocol {protocol_version} requires one of task adapters "
             f"{sorted(allowed_adapters)}"
         )
-    if (
-        is_subject_neutral
-        and task_adapter not in SUBJECT_NEUTRAL_TASK_ADAPTERS
-    ):
+    if is_subject_neutral and task_adapter not in SUBJECT_NEUTRAL_TASK_ADAPTERS:
         raise ValueError(
             "subject-neutral protocols require the subject-neutral task adapter"
         )
@@ -156,6 +152,27 @@ def validate_v15_pairing(
             "the subject-neutral task adapter requires a subject-neutral protocol"
         )
     if prompt_profile is None:
+        return
+    if protocol_version == "3.0":
+        v3_profiles = {
+            PAIR_TOKEN_TASK_ADAPTER_V3: {
+                AUTORESEARCH_V17_PROMPT_PROFILE,
+                OPENEVOLVE_V21_PROMPT_PROFILE,
+            },
+            NANOGPT_TASK_ADAPTER: {
+                NANOGPT_AUTORESEARCH_V17_PROMPT_PROFILE,
+                NANOGPT_OPENEVOLVE_V21_PROMPT_PROFILE,
+            },
+            FASHION_MNIST_TASK_ADAPTER: {
+                FASHION_MNIST_AUTORESEARCH_V17_PROMPT_PROFILE,
+                FASHION_MNIST_OPENEVOLVE_V21_PROMPT_PROFILE,
+            },
+        }
+        allowed_profiles = v3_profiles.get(task_adapter)
+        if allowed_profiles is not None and prompt_profile not in allowed_profiles:
+            raise ValueError(
+                "unified v3 prompt profile is incompatible with its task adapter"
+            )
         return
     expected_profile = {
         ("1.7", PAIR_TOKEN_TASK_ADAPTER_V3): AUTORESEARCH_V17_PROMPT_PROFILE,
@@ -308,9 +325,8 @@ def add(model, a: int, b: int) -> int:
 
 
 PAIR_TOKEN_SUBMISSION_WRAPPER = (
-    '''"""Fixed interface for a trained pair-token addition transformer.
-
-The editable implementation lives in ``src/``. Verification always loads the
+    '"""Fixed interface for a trained pair-token addition transformer.\n\n'
+    '''The editable implementation lives in ``src/``. Verification always loads the
 fresh checkpoint produced by ``src.train`` and uses generic autoregressive
 decoding. This file is intentionally not editable.
 """

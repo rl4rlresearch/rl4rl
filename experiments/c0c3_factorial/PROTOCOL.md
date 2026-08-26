@@ -1,4 +1,4 @@
-# C0–C3 protocols v1.0–v2.1
+# C0–C3 protocols v1.0–v3
 
 This document describes the implemented protocol. The executable contract is
 `FactorialSpec`; a campaign records its canonical protocol hash, task hash,
@@ -36,6 +36,11 @@ Version 1.7 is the source-only, artifact-clean continuous Autoresearch
 successor. Version 2.1 applies the same subject-boundary cleanup to bounded
 OpenEvolve while retaining its patch interface and evaluator controls. Their
 task-specific presets freeze every declared C0–C3 block as primary and omit N0.
+Version 3.0 is the unified framework/task-extensible successor described in
+[UNIFIED_V3.md](UNIFIED_V3.md). It uses fresh bounded state capsules and one
+campaign-wide prompt snapshot. Within each block, C0/C1 and C2/C3 are literal
+shared trajectories before the first assumption-changing intervention, then
+fork from identical state and advance independently.
 
 ## 1. Research question and unit of analysis
 

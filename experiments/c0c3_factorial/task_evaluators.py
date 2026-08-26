@@ -269,12 +269,8 @@ def _trained_model_contract_error(
             return "token logits do not materially depend on learned self-attention"
 
         rng = random.Random(9_417_203)
-        probes = [
-            (rng.randrange(10**10), rng.randrange(10**10)) for _ in range(64)
-        ]
-        normal_correct = sum(
-            submission.add(model, a, b) == a + b for a, b in probes
-        )
+        probes = [(rng.randrange(10**10), rng.randrange(10**10)) for _ in range(64)]
+        normal_correct = sum(submission.add(model, a, b) == a + b for a, b in probes)
         with torch.no_grad():
             try:
                 for parameter in attention_parameters:
@@ -444,9 +440,7 @@ def evaluate_pair_token_ten_digit_transformer(args: argparse.Namespace) -> int:
 
     trained_error = _trained_model_contract_error(
         workspace,
-        require_last_checkpoint=bool(
-            getattr(args, "require_last_checkpoint", False)
-        ),
+        require_last_checkpoint=bool(getattr(args, "require_last_checkpoint", False)),
     )
     if trained_error is not None:
         return _report_contract_violation(trained_error)

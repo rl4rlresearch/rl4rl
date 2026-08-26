@@ -178,11 +178,19 @@ def test_artifact_clean_profiles_declare_all_primary_blocks() -> None:
             "openevolve-v2.1-fashion-mnist",
             (1, 2, 3),
         ),
+        (
+            "openevolve-v2.1-fashion-mnist-extension",
+            "openevolve-v2.1-fashion-mnist-extension",
+            (4, 5),
+        ),
     ):
         roster = plans(profile)
         assert len(roster) == 1
         assert roster[0].key == key
-        assert roster[0].mode == "individual-trajectories"
+        assert roster[0].mode in {
+            "individual-trajectories",
+            "extension-individual-trajectories",
+        }
         assert roster[0].blocks == blocks
 
 
@@ -194,6 +202,7 @@ def test_artifact_clean_jobs_receive_main_operator_prompt_root(tmp_path: Path) -
         "openevolve-v2.1-nanogpt",
         "autoresearch-v1.7-fashion-mnist",
         "openevolve-v2.1-fashion-mnist",
+        "openevolve-v2.1-fashion-mnist-extension",
     ):
         job = Job(
             key=f"{group}:b01-c0",
@@ -379,6 +388,31 @@ def test_resume_command_is_selected_for_started_v15_trajectory(tmp_path: Path) -
     )
 
     assert "resume-staged-trajectory" in command_for(job)
+
+
+def test_extension_trajectory_uses_the_external_lifecycle_controller(
+    tmp_path: Path,
+) -> None:
+    run_id = "run-c0"
+    _write_json(
+        tmp_path / "campaign" / "runs" / run_id / "state.json",
+        {"proposals_used": 0},
+    )
+    job = Job(
+        key="fashion-extension:b04-c0",
+        group="openevolve-v2.1-fashion-mnist-extension",
+        runtime_root=tmp_path,
+        campaign=tmp_path / "campaign",
+        mode="extension-individual-trajectories",
+        run_id=run_id,
+        blocks=(4,),
+    )
+
+    command = command_for(job)
+
+    assert command[1].endswith("experiments/c0c3_extension_controller.py")
+    assert "--runtime-root" in command
+    assert "--resume" not in command
 
 
 def test_group_selector_controls_every_job_in_group(tmp_path: Path) -> None:

@@ -389,10 +389,7 @@ class SearchController:
         if (
             remaining["proposals"] <= 0
             or remaining["evaluations"] <= 0
-            or (
-                remaining["tokens"] <= 0
-                and self.spec.enforces_hard_token_limit
-            )
+            or (remaining["tokens"] <= 0 and self.spec.enforces_hard_token_limit)
             or remaining["evaluator_seconds"] <= 0
         ):
             self.state.status = "completed"

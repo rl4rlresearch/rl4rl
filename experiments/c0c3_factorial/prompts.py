@@ -183,15 +183,19 @@ class PromptRenderer:
             encoding="utf-8"
         )
         self.neutral_transition = (
-            neutral_root / "assumption_changing.md"
-        ).read_text(encoding="utf-8").strip()
+            (neutral_root / "assumption_changing.md")
+            .read_text(encoding="utf-8")
+            .strip()
+        )
         openevolve_root = root / "transformer_optimizer_openevolve_v2"
-        self.openevolve_v2_common_template = (
-            openevolve_root / "PROGRAM.md"
-        ).read_text(encoding="utf-8")
+        self.openevolve_v2_common_template = (openevolve_root / "PROGRAM.md").read_text(
+            encoding="utf-8"
+        )
         self.openevolve_v2_transition = (
-            openevolve_root / "assumption_changing.md"
-        ).read_text(encoding="utf-8").strip()
+            (openevolve_root / "assumption_changing.md")
+            .read_text(encoding="utf-8")
+            .strip()
+        )
         autoresearch_v17_root = root / "transformer_optimizer_v1_7"
         self.autoresearch_v17_initial_template = (
             autoresearch_v17_root / "PROGRAM.md"
@@ -256,9 +260,7 @@ class PromptRenderer:
             .read_text(encoding="utf-8")
             .strip()
         )
-        fashion_openevolve_root = (
-            root / "fashion_mnist_optimizer_openevolve_v2_1"
-        )
+        fashion_openevolve_root = root / "fashion_mnist_optimizer_openevolve_v2_1"
         self.fashion_openevolve_v21_common_template = (
             fashion_openevolve_root / "PROGRAM.md"
         ).read_text(encoding="utf-8")
@@ -445,7 +447,7 @@ class PromptRenderer:
     @staticmethod
     def _framework_contract(framework: FrameworkSpec) -> str:
         return (
-            f"Framework: {framework.framework_id.value}\n"
+            f"Framework: {framework.framework_key}\n"
             f"Proposal adapter: {framework.adapter}\n"
             f"Edit representation: {framework.edit_mode}"
         )
@@ -528,8 +530,7 @@ class PromptRenderer:
                 "workspace."
             )
         return (
-            "The current editable design is provided. No reference design is "
-            "available."
+            "The current editable design is provided. No reference design is available."
         )
 
     @staticmethod
@@ -736,9 +737,7 @@ class PromptRenderer:
             parts.append(f"result: {result}")
             metrics = cls._public_metrics(outcome.metrics, task)
             if metrics:
-                parts.append(
-                    f"reported_values: {json.dumps(metrics, sort_keys=True)}"
-                )
+                parts.append(f"reported_values: {json.dumps(metrics, sort_keys=True)}")
             rows.append("\n".join(parts))
         return "\n\n".join(rows)
 
@@ -751,13 +750,9 @@ class PromptRenderer:
     ) -> RenderedPrompt:
         neutral = framework.prompt_profile in SUBJECT_NEUTRAL_PROMPT_PROFILES
         artifact_clean = framework.prompt_profile in ARTIFACT_CLEAN_PROMPT_PROFILES
-        autoresearch_v17 = (
-            framework.prompt_profile == AUTORESEARCH_V17_PROMPT_PROFILE
-        )
+        autoresearch_v17 = framework.prompt_profile == AUTORESEARCH_V17_PROMPT_PROFILE
         openevolve_v2 = framework.prompt_profile == OPENEVOLVE_V2_PROMPT_PROFILE
-        openevolve_v21 = (
-            framework.prompt_profile == OPENEVOLVE_V21_PROMPT_PROFILE
-        )
+        openevolve_v21 = framework.prompt_profile == OPENEVOLVE_V21_PROMPT_PROFILE
         nanogpt_autoresearch_v17 = (
             framework.prompt_profile == NANOGPT_AUTORESEARCH_V17_PROMPT_PROFILE
         )
@@ -765,12 +760,10 @@ class PromptRenderer:
             framework.prompt_profile == NANOGPT_OPENEVOLVE_V21_PROMPT_PROFILE
         )
         fashion_autoresearch_v17 = (
-            framework.prompt_profile
-            == FASHION_MNIST_AUTORESEARCH_V17_PROMPT_PROFILE
+            framework.prompt_profile == FASHION_MNIST_AUTORESEARCH_V17_PROMPT_PROFILE
         )
         fashion_openevolve_v21 = (
-            framework.prompt_profile
-            == FASHION_MNIST_OPENEVOLVE_V21_PROMPT_PROFILE
+            framework.prompt_profile == FASHION_MNIST_OPENEVOLVE_V21_PROMPT_PROFILE
         )
         transition_active = (
             False
@@ -811,9 +804,7 @@ class PromptRenderer:
                         context.condition, spec.portfolio_capacity
                     )
                     if neutral
-                    else self._search_state(
-                        context.condition, spec.portfolio_capacity
-                    )
+                    else self._search_state(context.condition, spec.portfolio_capacity)
                 )
             )
             if transition_active:
@@ -855,24 +846,17 @@ class PromptRenderer:
                         else self.transition
                     )
             else:
-                proposal_policy = (
-                    "" if neutral else self.ordinary
-                )
+                proposal_policy = "" if neutral else self.ordinary
         treatment_skeleton_sha256 = ""
         if artifact_clean:
             include_source_paths = (
-                autoresearch_v17
-                or nanogpt_autoresearch_v17
-                or fashion_autoresearch_v17
+                autoresearch_v17 or nanogpt_autoresearch_v17 or fashion_autoresearch_v17
             )
-            design_context = (
-                f"{search_state}\n\n"
-                + self._clean_slots(
-                    context.visible_candidates,
-                    selected_parent_id=context.selected_parent_id,
-                    task=task,
-                    include_source_paths=include_source_paths,
-                )
+            design_context = f"{search_state}\n\n" + self._clean_slots(
+                context.visible_candidates,
+                selected_parent_id=context.selected_parent_id,
+                task=task,
+                include_source_paths=include_source_paths,
             )
             guidance_section = (
                 f"## Direction\n\n{proposal_policy}" if proposal_policy else ""
@@ -915,9 +899,7 @@ class PromptRenderer:
             text = common_template.format(**values)
             skeleton_values = dict(values)
             skeleton_values["design_context"] = "[DESIGN CONTEXT REDACTED]"
-            skeleton_values["proposal_guidance_section"] = (
-                "[DIRECTION REDACTED]"
-            )
+            skeleton_values["proposal_guidance_section"] = "[DIRECTION REDACTED]"
             treatment_skeleton_sha256 = self._hash(
                 common_template.format(**skeleton_values)
             )
@@ -976,8 +958,7 @@ class PromptRenderer:
             if not context.hide_token_budget:
                 budget_parts.append(f"tokens_remaining={context.remaining_tokens}")
             budget_parts.append(
-                "evaluator_seconds_remaining="
-                f"{context.remaining_evaluator_seconds:.3f}"
+                f"evaluator_seconds_remaining={context.remaining_evaluator_seconds:.3f}"
             )
             budget = "; ".join(budget_parts)
             if context.token_budget_continuation_notice:
