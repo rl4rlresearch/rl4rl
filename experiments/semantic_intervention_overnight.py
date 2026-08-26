@@ -27,6 +27,12 @@ def _session(campaign: Path) -> str:
     return f"rl4rl-semantic-{digest}"
 
 
+def _python_bin(path: Path) -> str:
+    """Return an absolute interpreter path without resolving venv symlinks."""
+
+    return str(path.absolute())
+
+
 def _screen_running(session: str) -> bool:
     result = subprocess.run(
         ("screen", "-ls", session), capture_output=True, text=True, check=False
@@ -44,7 +50,7 @@ def _launch(args: argparse.Namespace) -> dict[str, object]:
     set_semantic_control(campaign, desired="running", reason=args.reason)
     log = campaign / "semantic-supervisor.log"
     command = [
-        str(args.python_bin.resolve()),
+        _python_bin(args.python_bin),
         str(
             args.runtime_root.resolve()
             / "experiments/semantic_intervention_experiment.py"
@@ -55,7 +61,7 @@ def _launch(args: argparse.Namespace) -> dict[str, object]:
         "--repo-root",
         str(args.runtime_root.resolve()),
         "--python-bin",
-        str(args.python_bin.resolve()),
+        _python_bin(args.python_bin),
         "--max-workers",
         str(args.max_workers),
         "--recover-interrupted",

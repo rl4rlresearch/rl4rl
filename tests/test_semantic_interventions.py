@@ -39,6 +39,12 @@ from experiments.c0c3_factorial.training_ladder import (
     assess_developmental_value,
     evaluate_training_ladder,
 )
+from experiments.semantic_intervention_experiment import (
+    _python_bin as experiment_python_bin,
+)
+from experiments.semantic_intervention_overnight import (
+    _python_bin as overnight_python_bin,
+)
 
 
 def _spec() -> FactorialSpec:
@@ -55,6 +61,17 @@ def _spec() -> FactorialSpec:
         execution_rule=UNIFIED_V3_EXECUTION_RULE,
         include_no_search=False,
     )
+
+
+def test_semantic_launchers_preserve_virtualenv_symlink(tmp_path: Path) -> None:
+    link = tmp_path / "venv/bin/python"
+    link.parent.mkdir(parents=True)
+    link.symlink_to(Path(sys.executable).resolve())
+
+    for render in (experiment_python_bin, overnight_python_bin):
+        rendered = Path(render(link))
+        assert rendered == link.absolute()
+        assert rendered.is_symlink()
 
 
 def _phased_spec() -> FactorialSpec:

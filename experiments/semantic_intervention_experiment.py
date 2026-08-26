@@ -37,6 +37,12 @@ def _inputs(args: argparse.Namespace):
     )
 
 
+def _python_bin(path: Path) -> str:
+    """Return an absolute interpreter path without resolving venv symlinks."""
+
+    return str(path.absolute())
+
+
 def command_prepare(args: argparse.Namespace) -> int:
     spec, task, framework = _inputs(args)
     calibration = args.calibration.resolve()
@@ -47,7 +53,7 @@ def command_prepare(args: argparse.Namespace) -> int:
             spec=spec,
             task=task,
             repo_root=args.repo_root.resolve(),
-            python_bin=str(args.python_bin.resolve()),
+            python_bin=_python_bin(args.python_bin),
         )
     campaign = create_semantic_campaign(
         args.output,
@@ -78,7 +84,7 @@ def command_run_one(args: argparse.Namespace) -> int:
         args.campaign,
         run_id=args.run_id,
         repo_root=args.repo_root.resolve(),
-        python_bin=str(args.python_bin.resolve()),
+        python_bin=_python_bin(args.python_bin),
         codex_binary=args.codex_binary,
     )
     print(json.dumps(result, indent=2, sort_keys=True))
@@ -89,7 +95,7 @@ def command_run_campaign(args: argparse.Namespace) -> int:
     result = run_semantic_campaign(
         args.campaign,
         repo_root=args.repo_root.resolve(),
-        python_bin=str(args.python_bin.resolve()),
+        python_bin=_python_bin(args.python_bin),
         max_workers=args.max_workers,
         recover_interrupted=args.recover_interrupted,
         codex_binary=args.codex_binary,
