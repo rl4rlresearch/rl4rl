@@ -26,6 +26,7 @@ from experiments.c0c3_factorial.periodic_refresh import (
 from experiments.c0c3_factorial.runner import recover_active_opportunity
 from experiments.c0c3_factorial.semantic_interventions import (
     create_semantic_campaign,
+    extend_semantic_campaign_with_restrictive_assumption_challenge,
     run_semantic_campaign,
     run_semantic_opportunity,
     semantic_status,
@@ -516,6 +517,84 @@ def test_semantic_campaign_shares_prefix_then_forks(tmp_path: Path) -> None:
     }
     assert "load-bearing assumption" in prompts["assumption_challenge"]
     assert "load-bearing assumption" not in prompts["passive_control"]
+
+
+def test_live_restrictive_prompt_arm_inherits_prefix_without_replay(
+    tmp_path: Path,
+) -> None:
+    spec = _spec()
+    task = _task(_seed(tmp_path / "seed"))
+    framework = FrameworkSpec(
+        framework_id=FrameworkKind.AUTORESEARCH,
+        adapter="codex_direct_editor_v1",
+        prompt_profile="controlled_factorial_v1",
+        edit_mode="direct_workspace",
+    )
+    baseline = calibrate_task(
+        tmp_path / "calibration",
+        spec=spec,
+        task=task,
+        repo_root=ROOT,
+        python_bin=sys.executable,
+    )
+    campaign = create_semantic_campaign(
+        tmp_path / "campaign",
+        spec=spec,
+        task=task,
+        framework=framework,
+        intervention_plan_path=_plan(tmp_path / "interventions.toml"),
+        calibration_path=baseline,
+        repo_root=ROOT,
+    )
+    schedule = json.loads((campaign / "schedule.json").read_text())
+    original_run = str(schedule[0]["run_id"])
+    counter = tmp_path / "calls"
+    codex = _codex(tmp_path / "fake-codex", counter)
+    prefix = run_semantic_opportunity(
+        campaign,
+        run_id=original_run,
+        repo_root=ROOT,
+        python_bin=sys.executable,
+        codex_binary=str(codex),
+    )
+    assert prefix["shared_prefix"] is True
+    assert counter.read_text() == "1"
+
+    receipt = extend_semantic_campaign_with_restrictive_assumption_challenge(
+        campaign,
+        repo_root=ROOT,
+        reason="test historical prompt-philosophy contrast",
+    )
+    assert receipt["physical_prefix_calls_added"] == 0
+    assert receipt["intervention_id"] == "restrictive_assumption_challenge"
+    assert counter.read_text() == "1"
+
+    extended_schedule = json.loads((campaign / "schedule.json").read_text())
+    new_row = next(
+        row
+        for row in extended_schedule
+        if row["condition"] == "restrictive_assumption_challenge"
+    )
+    new_run = str(new_row["run_id"])
+    new_state = SearchController.load(campaign / "runs" / new_run, spec).state
+    assert new_state.proposals_used == 1
+    assert new_state.active is None
+    assert new_state.status == "running"
+
+    run_semantic_opportunity(
+        campaign,
+        run_id=new_run,
+        repo_root=ROOT,
+        python_bin=sys.executable,
+        codex_binary=str(codex),
+    )
+    prompt = (
+        campaign / "runs" / new_run / "opportunities/0002/prompt.md"
+    ).read_text()
+    assert "Implement one\ncoherent candidate" in prompt
+    assert "optimizer or schedule change" in prompt
+    assert "parameter tying" in prompt
+    assert counter.read_text() == "2"
 
 
 def test_semantic_campaign_recovers_and_mirrors_interrupted_prefix(

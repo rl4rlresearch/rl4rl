@@ -26,9 +26,9 @@ understanding.
 
 ## Experimental geometry
 
-- 22 intervention arms.
+- 23 intervention arms.
 - 3 independently seeded replicates per arm.
-- 66 logical trajectories.
+- 69 logical trajectories.
 - 40 proposal opportunities per trajectory.
 - One literal five-proposal prefix shared by all arms within a replicate.
 - The first intervention occurs at proposal 6; later interventions occur at
@@ -51,9 +51,9 @@ understanding.
   older pinned runtime that predates the public `0` sentinel.
 
 The shared prefix requires only 15 physical proposal calls. Post-fork branches
-require 2,310 calls, for 2,325 physical calls and 2,640 logical trajectory
+require 2,415 calls, for 2,430 physical calls and 2,760 logical trajectory
 records. Shadow-prefix records are explicitly marked so campaign cost is not
-counted 22 times.
+counted 23 times.
 
 Three replicates are intentionally modest. This campaign prioritizes breadth
 for exploratory treatment screening. Proposals are repeated observations
@@ -67,6 +67,7 @@ replicates and effect sizes; they cannot turn 40 proposals into `n=40`.
 | `passive_control` | control | No extra phase-boundary direction |
 | `active_reflection_control` | control | Effort-matched generic evidence review |
 | `assumption_challenge` | epistemic | Identify and test a load-bearing assumption |
+| `restrictive_assumption_challenge` | prompt philosophy | Restore the original C0-C3 single-mechanism, mechanism-class-exclusion, and specific-summary philosophy |
 | `alternative_mechanism` | epistemic | Implement a materially different learned computation |
 | `failure_diagnosis` | epistemic | Diagnose causal failure before changing the design |
 | `evidence_contradiction` | epistemic | Center the result hardest to reconcile with the current account |
@@ -90,6 +91,15 @@ replicates and effect sizes; they cannot turn 40 proposals into `n=40`.
 The prompt text is frozen into each created campaign with file and tree hashes.
 The labels above support analysis; the subject sees only the task, its available
 design evidence, the normal research contract, and the relevant direction.
+
+The open-ended `assumption_challenge` and
+`restrictive_assumption_challenge` arms are an intentional prompt-philosophy
+contrast. The latter reproduces the historical continuous C0-C3 intervention:
+it requests one coherent alternative mechanism, excludes capacity, optimizer,
+scalar, pruning, parameter-tying, deletion-only, and renamed-variant changes,
+limits revisiting failed mechanism families without new evidence, and asks for
+the old assumption, alternative mechanism, and discriminating result. The
+former leaves the mechanism choice substantially more open.
 
 ## Shared-prefix causal comparison
 
@@ -229,7 +239,7 @@ separate semantic content from merely prompting the model to spend more effort.
 `exploitation_focus` is a substantive local-search policy rather than a neutral
 control.
 
-Because 21 arms create many comparisons, this campaign is exploratory. Rank
+Because 23 arms create many comparisons, this campaign is exploratory. Rank
 uncertainty and raw replicate plots are more important than isolated p-values.
 Any confirmatory follow-up should preregister a small subset of contrasts on
 new seeds and preferably a held-out task family.
@@ -294,7 +304,7 @@ $PY "$OVERNIGHT" start \
 ```
 
 The command above reproduces the Greedy OpenEvolve architecture used by the
-existing 63-trajectory campaign. For a new campaign backed by OpenEvolve's
+existing 69-trajectory campaign. For a new campaign backed by OpenEvolve's
 native population engine, change only `FRAMEWORK` and use a distinct output:
 
 ```bash

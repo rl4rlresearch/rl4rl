@@ -63,6 +63,7 @@ SEMANTIC_CONTROL = Path("semantic-control.json")
 SEMANTIC_RUN_CONTROL = Path("semantic-run-control.json")
 SEMANTIC_WAVES = Path("semantic-waves.jsonl")
 PERIODIC_REFRESH_ID = "periodic_full_refresh"
+RESTRICTIVE_ASSUMPTION_ID = "restrictive_assumption_challenge"
 
 
 @dataclass(frozen=True)
@@ -904,20 +905,29 @@ def _inherit_completed_prefix(
     atomic_json(shadow_dir / "state.json", state.to_dict())
 
 
-def extend_semantic_campaign_with_periodic_refresh(
-    campaign: str | Path, *, repo_root: Path, reason: str
+def _extend_semantic_campaign_with_intervention(
+    campaign: str | Path,
+    *,
+    repo_root: Path,
+    reason: str,
+    intervention: Intervention,
+    receipt_event: str,
 ) -> dict[str, Any]:
-    """Append one periodic-refresh trajectory per replicate to a live v4 study."""
+    """Append one registered trajectory per replicate without replaying the prefix."""
 
     if not reason.strip():
         raise ValueError("extension reason cannot be blank")
     root, spec, task, framework, old_plan = load_semantic_campaign(campaign)
-    if PERIODIC_REFRESH_ID in old_plan.intervention_ids:
-        raise ValueError("periodic_full_refresh is already registered")
+    if intervention.intervention_id in old_plan.intervention_ids:
+        raise ValueError(f"{intervention.intervention_id} is already registered")
     with _orchestrator_lock(root):
         timestamp = utc_now()
         receipt_id = timestamp.replace(":", "-").replace("+", "_")
-        snapshot = root / "amendments" / f"{receipt_id}-periodic-full-refresh"
+        snapshot = (
+            root
+            / "amendments"
+            / f"{receipt_id}-{intervention.intervention_id.replace('_', '-')}"
+        )
         snapshot.mkdir(parents=True, exist_ok=False)
         for relative in (
             "campaign.json",
@@ -935,14 +945,17 @@ def extend_semantic_campaign_with_periodic_refresh(
             shutil.copy2(source, destination)
 
         plan_path = root / "inputs/semantic-interventions.toml"
+        components = ", ".join(
+            json.dumps(component) for component in intervention.components
+        )
         addition = (
             "\n[[interventions]]\n"
-            'id = "periodic_full_refresh"\n'
-            'label = "Periodic full refresh"\n'
-            'family = "memory_control"\n'
-            'prompt_path = "periodic_full_refresh.md"\n'
-            'components = ["periodic_full_refresh"]\n'
-            'state_policy = "refresh_incumbent_at_phase_start"\n'
+            f"id = {json.dumps(intervention.intervention_id)}\n"
+            f"label = {json.dumps(intervention.label)}\n"
+            f"family = {json.dumps(intervention.family)}\n"
+            f"prompt_path = {json.dumps(intervention.prompt_path)}\n"
+            f"components = [{components}]\n"
+            f"state_policy = {json.dumps(intervention.state_policy)}\n"
         )
         temporary_plan = plan_path.with_name(f".{plan_path.name}.partial-{os.getpid()}")
         temporary_plan.write_text(
@@ -951,21 +964,23 @@ def extend_semantic_campaign_with_periodic_refresh(
         )
         os.replace(temporary_plan, plan_path)
         plan = load_intervention_plan(plan_path)
-        intervention = next(
+        registered = next(
             item
             for item in plan.interventions
-            if item.intervention_id == PERIODIC_REFRESH_ID
+            if item.intervention_id == intervention.intervention_id
         )
 
         bundle = root / V3_PROMPT_BUNDLE
         source_prompt = (
             repo_root
             / "experiments/c0c3_factorial/templates/semantic_interventions_v4"
-            / intervention.prompt_path
+            / registered.prompt_path
         )
+        if not source_prompt.is_file() or source_prompt.is_symlink():
+            raise FileNotFoundError(f"semantic prompt is missing: {source_prompt}")
         for relative in (
-            Path("semantic_interventions_v4") / intervention.prompt_path,
-            Path("semantic-interventions") / intervention.prompt_path,
+            Path("semantic_interventions_v4") / registered.prompt_path,
+            Path("semantic-interventions") / registered.prompt_path,
         ):
             destination = bundle / relative
             destination.parent.mkdir(parents=True, exist_ok=True)
@@ -973,12 +988,14 @@ def extend_semantic_campaign_with_periodic_refresh(
         prompt_manifest = _read_object(bundle / "manifest.json")
         prompt_manifest["interventions"].append(
             {
-                "id": intervention.intervention_id,
-                "label": intervention.label,
-                "family": intervention.family,
-                "components": list(intervention.components),
-                "state_policy": intervention.state_policy,
-                "prompt_path": "semantic-interventions/periodic_full_refresh.md",
+                "id": registered.intervention_id,
+                "label": registered.label,
+                "family": registered.family,
+                "components": list(registered.components),
+                "state_policy": registered.state_policy,
+                "prompt_path": (
+                    Path("semantic-interventions") / registered.prompt_path
+                ).as_posix(),
                 "sha256": hashlib.sha256(source_prompt.read_bytes()).hexdigest(),
             }
         )
@@ -1003,17 +1020,17 @@ def extend_semantic_campaign_with_periodic_refresh(
             )
             run_id = (
                 f"{spec.study_id}-{task.task_id}-{framework.framework_key}-"
-                f"r{replicate:02d}-{PERIODIC_REFRESH_ID}"
+                f"r{replicate:02d}-{registered.intervention_id}"
             )
             row = {
                 "replicate": replicate,
                 "block": replicate,
                 "order": max(int(item["order"]) for item in members) + 1,
-                "condition": PERIODIC_REFRESH_ID,
-                "condition_label": intervention.label,
-                "condition_family": intervention.family,
-                "components": list(intervention.components),
-                "state_policy": intervention.state_policy,
+                "condition": registered.intervention_id,
+                "condition_label": registered.label,
+                "condition_family": registered.family,
+                "components": list(registered.components),
+                "state_policy": registered.state_policy,
                 "controller_condition": Condition.C1.value,
                 "run_seed": int(members[0]["run_seed"]),
                 "run_id": run_id,
@@ -1062,14 +1079,14 @@ def extend_semantic_campaign_with_periodic_refresh(
                     "campaign_prompt_bundle_sha256": bundle_hash,
                     "campaign_prompt_bundle": V3_PROMPT_BUNDLE.as_posix(),
                     "semantic_intervention": {
-                        "id": PERIODIC_REFRESH_ID,
-                        "label": intervention.label,
-                        "family": intervention.family,
-                        "components": list(intervention.components),
-                        "state_policy": intervention.state_policy,
+                        "id": registered.intervention_id,
+                        "label": registered.label,
+                        "family": registered.family,
+                        "components": list(registered.components),
+                        "state_policy": registered.state_policy,
                         "prompt_path": (
-                            "semantic-interventions/periodic_full_refresh.md"
-                        ),
+                            Path("semantic-interventions") / registered.prompt_path
+                        ).as_posix(),
                         "opportunities": list(spec.transition_opportunities),
                     },
                 },
@@ -1105,7 +1122,9 @@ def extend_semantic_campaign_with_periodic_refresh(
         for row in new_rows:
             control["runs"][str(row["run_id"])] = {
                 "desired": "running",
-                "reason": "periodic refresh arm added to live semantic campaign",
+                "reason": (
+                    f"{registered.label} arm added to live semantic campaign"
+                ),
                 "updated_at": timestamp,
             }
         atomic_json(root / SEMANTIC_RUN_CONTROL, control)
@@ -1133,9 +1152,10 @@ def extend_semantic_campaign_with_periodic_refresh(
             atomic_json(manifest_path, manifest)
         receipt = {
             "schema_version": SEMANTIC_PROTOCOL_VERSION,
-            "event": "periodic_full_refresh_condition_added",
+            "event": receipt_event,
             "timestamp": timestamp,
             "reason": reason.strip(),
+            "intervention_id": registered.intervention_id,
             "new_run_ids": [str(row["run_id"]) for row in new_rows],
             "inherited_prefix_opportunities": old_plan.shared_prefix_opportunities,
             "physical_prefix_calls_added": 0,
@@ -1146,6 +1166,52 @@ def extend_semantic_campaign_with_periodic_refresh(
         atomic_json(snapshot / "receipt.json", receipt)
         append_jsonl(root / "campaign-amendments.jsonl", receipt)
         return receipt
+
+
+def extend_semantic_campaign_with_periodic_refresh(
+    campaign: str | Path, *, repo_root: Path, reason: str
+) -> dict[str, Any]:
+    """Append one periodic-refresh trajectory per replicate to a live v4 study."""
+
+    return _extend_semantic_campaign_with_intervention(
+        campaign,
+        repo_root=repo_root,
+        reason=reason,
+        intervention=Intervention(
+            intervention_id=PERIODIC_REFRESH_ID,
+            label="Periodic full refresh",
+            family="memory_control",
+            prompt_path="periodic_full_refresh.md",
+            components=("periodic_full_refresh",),
+            state_policy="refresh_incumbent_at_phase_start",
+        ),
+        receipt_event="periodic_full_refresh_condition_added",
+    )
+
+
+def extend_semantic_campaign_with_restrictive_assumption_challenge(
+    campaign: str | Path, *, repo_root: Path, reason: str
+) -> dict[str, Any]:
+    """Append the historical restrictive assumption-prompt philosophy."""
+
+    return _extend_semantic_campaign_with_intervention(
+        campaign,
+        repo_root=repo_root,
+        reason=reason,
+        intervention=Intervention(
+            intervention_id=RESTRICTIVE_ASSUMPTION_ID,
+            label="Restrictive assumption challenge",
+            family="prompt_philosophy",
+            prompt_path="restrictive_assumption_challenge.md",
+            components=(
+                "assumption_challenge",
+                "single_alternative_mechanism",
+                "mechanism_class_exclusions",
+                "specific_result_schema",
+            ),
+        ),
+        receipt_event="restrictive_assumption_challenge_condition_added",
+    )
 
 
 def _mirror_prefix_completion(

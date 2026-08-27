@@ -18,6 +18,7 @@ from experiments.c0c3_factorial.fashion_mnist import DATA_ROOT_ENV  # noqa: E402
 from experiments.c0c3_factorial.semantic_interventions import (  # noqa: E402
     create_semantic_campaign,
     extend_semantic_campaign_with_periodic_refresh,
+    extend_semantic_campaign_with_restrictive_assumption_challenge,
     run_semantic_campaign,
     run_semantic_opportunity,
     semantic_status,
@@ -164,6 +165,16 @@ def command_add_periodic_refresh(args: argparse.Namespace) -> int:
     return 0
 
 
+def command_add_restrictive_assumption_challenge(args: argparse.Namespace) -> int:
+    result = extend_semantic_campaign_with_restrictive_assumption_challenge(
+        args.campaign,
+        repo_root=args.repo_root.resolve(),
+        reason=args.reason,
+    )
+    print(json.dumps(result, indent=2, sort_keys=True))
+    return 0
+
+
 def _parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(description=__doc__)
     sub = parser.add_subparsers(dest="command", required=True)
@@ -227,6 +238,11 @@ def _parser() -> argparse.ArgumentParser:
     extend.add_argument("--repo-root", type=Path, default=REPO_ROOT)
     extend.add_argument("--reason", required=True)
     extend.set_defaults(handler=command_add_periodic_refresh)
+    restrictive = sub.add_parser("add-restrictive-assumption-challenge")
+    restrictive.add_argument("--campaign", type=Path, required=True)
+    restrictive.add_argument("--repo-root", type=Path, default=REPO_ROOT)
+    restrictive.add_argument("--reason", required=True)
+    restrictive.set_defaults(handler=command_add_restrictive_assumption_challenge)
     return parser
 
 
