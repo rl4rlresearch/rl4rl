@@ -50,6 +50,7 @@ from .v3 import (
     V3_PROMPT_BUNDLE,
     _file_manifest,
     _json_hash,
+    campaign_metadata_lock,
     initialize_runtime_options,
     load_runtime_options,
     update_runtime_options,
@@ -917,10 +918,11 @@ def _extend_semantic_campaign_with_intervention(
 
     if not reason.strip():
         raise ValueError("extension reason cannot be blank")
-    root, spec, task, framework, old_plan = load_semantic_campaign(campaign)
-    if intervention.intervention_id in old_plan.intervention_ids:
-        raise ValueError(f"{intervention.intervention_id} is already registered")
-    with _orchestrator_lock(root):
+    root = Path(campaign).resolve()
+    with campaign_metadata_lock(root, exclusive=True):
+        root, spec, task, framework, old_plan = load_semantic_campaign(root)
+        if intervention.intervention_id in old_plan.intervention_ids:
+            raise ValueError(f"{intervention.intervention_id} is already registered")
         timestamp = utc_now()
         receipt_id = timestamp.replace(":", "-").replace("+", "_")
         snapshot = (
@@ -1532,7 +1534,10 @@ def run_semantic_campaign(
                                 recovered=True,
                             )
         completed_calls = 0
-        worker_capacity = min(worker_limit or len(schedule), len(schedule))
+        # ThreadPoolExecutor creates threads lazily. A generous reserve lets an
+        # unbounded campaign discover newly registered arms without restarting;
+        # explicit nonzero limits remain exact.
+        worker_capacity = worker_limit or max(4096, len(schedule))
         schedule_order = {
             str(row["run_id"]): index for index, row in enumerate(schedule)
         }
@@ -1543,6 +1548,18 @@ def run_semantic_campaign(
 
         with ThreadPoolExecutor(max_workers=worker_capacity) as pool:
             while True:
+                with campaign_metadata_lock(root):
+                    plan = load_intervention_plan(
+                        root / "inputs/semantic-interventions.toml"
+                    )
+                    schedule = json.loads(
+                        (root / "schedule.json").read_text(encoding="utf-8")
+                    )
+                schedule_order = {
+                    str(row["run_id"]): index for index, row in enumerate(schedule)
+                }
+                for run_id in schedule_order:
+                    last_dispatched.setdefault(run_id, -1)
                 desired = str(_read_object(root / SEMANTIC_CONTROL).get("desired"))
                 if stopping_for is None and desired != "running":
                     stopping_for = desired

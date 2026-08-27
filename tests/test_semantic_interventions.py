@@ -7,6 +7,7 @@ import os
 import stat
 import sys
 import threading
+import time
 from pathlib import Path
 from types import SimpleNamespace
 
@@ -168,17 +169,9 @@ def test_periodic_refresh_keeps_accounting_and_incumbent_but_forgets_history(
     )["items"] == []
 
 
-def test_overnight_unbounded_workers_support_pinned_legacy_runtime(
-    monkeypatch: pytest.MonkeyPatch,
-) -> None:
-    monkeypatch.setattr(
-        semantic_overnight,
-        "semantic_status",
-        lambda _campaign: {"runs": [{}, {}, {}]},
-    )
-
+def test_overnight_preserves_unbounded_worker_sentinel() -> None:
     campaign = Path("campaign")
-    assert semantic_overnight._runtime_worker_count(campaign, 0) == 3
+    assert semantic_overnight._runtime_worker_count(campaign, 0) == 0
     assert semantic_overnight._runtime_worker_count(campaign, 7) == 7
     with pytest.raises(ValueError, match="nonnegative"):
         semantic_overnight._runtime_worker_count(campaign, -1)
@@ -343,14 +336,15 @@ components = ["assumption_challenge"]
     return path
 
 
-def _codex(path: Path, counter: Path) -> Path:
+def _codex(path: Path, counter: Path, *, delay: float = 0.0) -> Path:
     path.write_text(
         f"""#!{sys.executable}
-import json, pathlib, sys
+import json, pathlib, sys, time
 args=sys.argv[1:]
 workspace=pathlib.Path(args[args.index('--cd')+1])
 last=pathlib.Path(args[args.index('--output-last-message')+1])
 prompt=sys.stdin.read()
+time.sleep({delay!r})
 candidate=workspace/'candidate.py'
 score=int(candidate.read_text().split('=')[1])
 candidate.write_text(f'SCORE = {{score+1}}\\n')
@@ -560,6 +554,39 @@ def test_live_restrictive_prompt_arm_inherits_prefix_without_replay(
     assert prefix["shared_prefix"] is True
     assert counter.read_text() == "1"
 
+    set_semantic_control(
+        campaign,
+        desired="running",
+        reason="test online arm registration",
+    )
+    results: list[dict[str, object]] = []
+    errors: list[BaseException] = []
+
+    def run_campaign() -> None:
+        try:
+            results.append(
+                run_semantic_campaign(
+                    campaign,
+                    repo_root=ROOT,
+                    python_bin=sys.executable,
+                    max_workers=1,
+                    codex_binary=str(_codex(codex, counter, delay=0.2)),
+                )
+            )
+        except BaseException as error:  # pragma: no cover - asserted below
+            errors.append(error)
+
+    supervisor = threading.Thread(target=run_campaign)
+    supervisor.start()
+    deadline = time.monotonic() + 5
+    while time.monotonic() < deadline:
+        current = semantic_status(campaign)
+        if any(row["active_opportunity"] == 2 for row in current["runs"]):
+            break
+        time.sleep(0.01)
+    else:
+        pytest.fail("test campaign never entered an active post-fork proposal")
+
     receipt = extend_semantic_campaign_with_restrictive_assumption_challenge(
         campaign,
         repo_root=ROOT,
@@ -567,7 +594,11 @@ def test_live_restrictive_prompt_arm_inherits_prefix_without_replay(
     )
     assert receipt["physical_prefix_calls_added"] == 0
     assert receipt["intervention_id"] == "restrictive_assumption_challenge"
-    assert counter.read_text() == "1"
+    supervisor.join(timeout=10)
+    assert not supervisor.is_alive()
+    assert not errors
+    assert results == [{"status": "completed", "completed_physical_calls": 6}]
+    assert counter.read_text() == "7"
 
     extended_schedule = json.loads((campaign / "schedule.json").read_text())
     new_row = next(
@@ -577,24 +608,15 @@ def test_live_restrictive_prompt_arm_inherits_prefix_without_replay(
     )
     new_run = str(new_row["run_id"])
     new_state = SearchController.load(campaign / "runs" / new_run, spec).state
-    assert new_state.proposals_used == 1
+    assert new_state.proposals_used == 3
     assert new_state.active is None
-    assert new_state.status == "running"
-
-    run_semantic_opportunity(
-        campaign,
-        run_id=new_run,
-        repo_root=ROOT,
-        python_bin=sys.executable,
-        codex_binary=str(codex),
-    )
+    assert new_state.status == "completed"
     prompt = (
         campaign / "runs" / new_run / "opportunities/0002/prompt.md"
     ).read_text()
     assert "Implement one\ncoherent candidate" in prompt
     assert "optimizer or schedule change" in prompt
     assert "parameter tying" in prompt
-    assert counter.read_text() == "2"
 
 
 def test_semantic_campaign_recovers_and_mirrors_interrupted_prefix(

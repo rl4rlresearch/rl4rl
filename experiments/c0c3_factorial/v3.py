@@ -39,6 +39,23 @@ V3_RUNTIME_HISTORY = Path("v3-runtime-history.jsonl")
 V3_PROMPT_BUNDLE = Path("prompt-bundle")
 V3_PROMPT_MANIFEST = V3_PROMPT_BUNDLE / "manifest.json"
 V3_PAIRING_FILE = Path("paired-prefix.json")
+V3_CAMPAIGN_METADATA_LOCK = Path(".v3-campaign-metadata.lock")
+
+
+@contextmanager
+def campaign_metadata_lock(
+    campaign: Path, *, exclusive: bool = False
+) -> Iterator[None]:
+    """Serialize prompt/registry mutations without waiting for active proposals."""
+
+    path = campaign / V3_CAMPAIGN_METADATA_LOCK
+    with path.open("a+", encoding="utf-8") as handle:
+        mode = fcntl.LOCK_EX if exclusive else fcntl.LOCK_SH
+        fcntl.flock(handle.fileno(), mode)
+        try:
+            yield
+        finally:
+            fcntl.flock(handle.fileno(), fcntl.LOCK_UN)
 
 
 def default_runtime_options() -> dict[str, Any]:
@@ -323,24 +340,31 @@ def validate_prompt_bundle(
 ) -> dict[str, Any]:
     if spec.protocol_version != "3.0":
         return {}
-    manifest_path = campaign / V3_PROMPT_MANIFEST
-    if not manifest_path.is_file():
-        raise RuntimeError("v3 campaign must snapshot its prompt bundle before launch")
-    manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
-    ignored = frozenset({"manifest.json"})
-    actual = tree_hash(campaign / V3_PROMPT_BUNDLE, ignored_relative_paths=ignored)
-    if actual != manifest.get("bundle_sha256"):
-        raise RuntimeError("v3 campaign prompt bundle changed after snapshot")
-    if manifest.get("framework_id") != framework.framework_key:
-        raise RuntimeError("v3 prompt bundle framework does not match campaign")
-    expected = manifest["bundle_sha256"]
-    for run_dir in (campaign / "runs").iterdir():
-        if not run_dir.is_dir():
-            continue
-        run_manifest = json.loads((run_dir / "manifest.json").read_text())
-        if run_manifest.get("campaign_prompt_bundle_sha256") != expected:
-            raise RuntimeError("not every v3 run points to the campaign prompt bundle")
-    return manifest
+    with campaign_metadata_lock(campaign):
+        manifest_path = campaign / V3_PROMPT_MANIFEST
+        if not manifest_path.is_file():
+            raise RuntimeError(
+                "v3 campaign must snapshot its prompt bundle before launch"
+            )
+        manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
+        ignored = frozenset({"manifest.json"})
+        actual = tree_hash(
+            campaign / V3_PROMPT_BUNDLE, ignored_relative_paths=ignored
+        )
+        if actual != manifest.get("bundle_sha256"):
+            raise RuntimeError("v3 campaign prompt bundle changed after snapshot")
+        if manifest.get("framework_id") != framework.framework_key:
+            raise RuntimeError("v3 prompt bundle framework does not match campaign")
+        expected = manifest["bundle_sha256"]
+        for run_dir in (campaign / "runs").iterdir():
+            if not run_dir.is_dir():
+                continue
+            run_manifest = json.loads((run_dir / "manifest.json").read_text())
+            if run_manifest.get("campaign_prompt_bundle_sha256") != expected:
+                raise RuntimeError(
+                    "not every v3 run points to the campaign prompt bundle"
+                )
+        return manifest
 
 
 def prompt_renderer_paths(

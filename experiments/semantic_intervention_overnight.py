@@ -53,21 +53,11 @@ def _fashion_data_root(args: argparse.Namespace, campaign: Path) -> Path | None:
 
 
 def _runtime_worker_count(campaign: Path, requested: int) -> int:
-    """Translate the public unbounded sentinel into the campaign's natural maximum.
-
-    Detached campaigns may intentionally use an older pinned runtime that predates
-    the zero-is-unbounded convention. Passing the number of logical trajectories
-    gives both old and new runtimes the same all-runnable behavior.
-    """
+    """Preserve zero so a live-extensible runtime remains truly unbounded."""
 
     if requested < 0:
         raise ValueError("max_workers must be nonnegative")
-    if requested > 0:
-        return requested
-    run_count = len(semantic_status(campaign).get("runs", ()))
-    if run_count < 1:
-        raise RuntimeError("cannot infer unbounded workers for an empty campaign")
-    return run_count
+    return requested
 
 
 def _screen_running(session: str) -> bool:
@@ -141,7 +131,9 @@ def _launch(args: argparse.Namespace) -> dict[str, object]:
         "screen_session": session,
         "log": str(log),
         "max_workers": None if args.max_workers == 0 else args.max_workers,
-        "effective_worker_count": runtime_worker_count,
+        "effective_worker_count": (
+            None if runtime_worker_count == 0 else runtime_worker_count
+        ),
         "concurrency_policy": ("all_runnable" if args.max_workers == 0 else "bounded"),
     }
 

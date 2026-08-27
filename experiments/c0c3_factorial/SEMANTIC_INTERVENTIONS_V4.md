@@ -46,9 +46,10 @@ understanding.
 - Post-fork trajectories are scheduled independently. When one trajectory
   finishes an opportunity, its next opportunity is dispatched immediately;
   it does not wait for slower trajectories to reach a round boundary.
-- The detached launcher translates `--max-workers 0` to the campaign's number
-  of logical trajectories. That keeps all-runnable behavior compatible with an
-  older pinned runtime that predates the public `0` sentinel.
+- The detached launcher preserves `--max-workers 0` as unbounded. The scheduler
+  reloads its arm registry between dispatches, so a safely registered arm can
+  begin while unrelated trajectories keep running; no wave barrier or
+  supervisor restart is required.
 
 The shared prefix requires only 15 physical proposal calls. Post-fork branches
 require 2,415 calls, for 2,430 physical calls and 2,760 logical trajectory
@@ -252,6 +253,13 @@ by proposal count. An infrastructure exception pauses only the affected arm;
 an exception during a physically shared prefix pauses that replicate's arms
 because none can validly fork from an incomplete prefix. Other replicates and
 arms continue.
+
+Adding a prompt arm uses a short campaign-metadata write lock. Proposal starts
+may wait briefly while the new prompt bundle, run manifests, prefix inheritance,
+schedule, and run-control registry are committed. Already-running subject calls
+and evaluators do not take that exclusive lock and do not need to drain. The
+event-driven scheduler reloads the registry after the transaction and dispatches
+the new trajectories independently.
 
 Campaign pause is cooperative: already-started provider/evaluator work finishes
 and is charged before the orchestrator exits. Resume uses the existing artifacts
