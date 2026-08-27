@@ -15,6 +15,7 @@ from experiments.c0c3_overnight import (
     command_environment,
     command_for,
     expand_jobs,
+    paired_prefix_peer_owner,
     plans,
     progress_for,
     required_local_accelerator,
@@ -271,6 +272,50 @@ def test_recovery_and_pause_subprocesses_receive_scheduler_capacity(
         environment[SHARED_LOCAL_EVALUATOR_CAPACITY_ENV] == "12"
         for environment in environments
     )
+
+
+def test_live_shadow_controller_owns_active_v3_prefix(tmp_path: Path) -> None:
+    campaign = tmp_path / "campaign"
+    leader_id = "b01-c0"
+    shadow_id = "b01-c1"
+    _write_json(
+        campaign / "paired-prefix.json",
+        {
+            "pairs": [
+                {
+                    "leader_run_id": leader_id,
+                    "shadow_run_id": shadow_id,
+                    "shared_through_opportunity": 9,
+                }
+            ]
+        },
+    )
+    _write_json(
+        campaign / "runs" / leader_id / "state.json",
+        {"active": {"index": 1}},
+    )
+    leader = Job(
+        key="v3:b01-c0",
+        group="v3",
+        runtime_root=tmp_path,
+        campaign=campaign,
+        mode="individual-trajectories",
+        run_id=leader_id,
+    )
+    shadow = Job(
+        key="v3:b01-c1",
+        group="v3",
+        runtime_root=tmp_path,
+        campaign=campaign,
+        mode="individual-trajectories",
+        run_id=shadow_id,
+    )
+    live = SimpleNamespace(poll=lambda: None)
+
+    assert paired_prefix_peer_owner(
+        leader, [leader, shadow], {shadow.key: live}
+    ) == shadow.key
+    assert paired_prefix_peer_owner(leader, [leader, shadow], {}) is None
 
 
 def test_local_accelerator_is_derived_from_frozen_task_input(tmp_path: Path) -> None:

@@ -147,6 +147,10 @@ class Job:
     pause_after_proposals: int | None = None
 
 
+class PairedPrefixOwnedByPeer(RuntimeError):
+    """An active physical prefix belongs to its still-live paired controller."""
+
+
 def utc_now() -> str:
     return dt.datetime.now(dt.UTC).isoformat()
 
@@ -555,6 +559,55 @@ def active_run_ids(job: Job) -> list[str]:
         for run_dir in targeted_run_dirs(job)
         if state_for(run_dir).get("active") is not None
     ]
+
+
+def paired_prefix_peer_owner(
+    job: Job,
+    jobs: list[Job],
+    processes: dict[str, subprocess.Popen[Any]],
+) -> str | None:
+    """Return the live peer job that owns this leader's shared-prefix attempt.
+
+    In unified v3 either logical member may advance the one physical prefix
+    leader. A leader job can therefore observe its own run as active while its
+    shadow peer is the real live writer. That is not an interrupted attempt and
+    must never trigger recovery.
+    """
+
+    if job.run_id is None:
+        return None
+    pairing_path = job.campaign / "paired-prefix.json"
+    if not pairing_path.is_file():
+        return None
+    state = state_for(job.campaign / "runs" / job.run_id)
+    active = state.get("active")
+    active_index = int(active.get("index", 0)) if isinstance(active, dict) else 0
+    if active_index < 1:
+        return None
+    pairing = read_json(pairing_path, {})
+    pairs = pairing.get("pairs", []) if isinstance(pairing, dict) else []
+    for pair in pairs:
+        if not isinstance(pair, dict) or pair.get("leader_run_id") != job.run_id:
+            continue
+        shared_through = int(pair.get("shared_through_opportunity", 0))
+        if active_index > shared_through:
+            return None
+        peer_run_id = str(pair.get("shadow_run_id", ""))
+        peer = next(
+            (
+                candidate
+                for candidate in jobs
+                if candidate.campaign == job.campaign
+                and candidate.run_id == peer_run_id
+            ),
+            None,
+        )
+        if peer is None:
+            return None
+        process = processes.get(peer.key)
+        if process is not None and process.poll() is None:
+            return peer.key
+    return None
 
 
 def automatic_pause_reason(job: Job) -> str | None:
@@ -1008,6 +1061,10 @@ class Supervisor:
         active = active_run_ids(job)
         if not active:
             return
+        with self.lock:
+            peer_owner = paired_prefix_peer_owner(job, self.jobs, self.processes)
+        if peer_owner is not None:
+            raise PairedPrefixOwnedByPeer(peer_owner)
         if not self.recover_interrupted:
             raise RuntimeError(
                 f"{job.key} has interrupted opportunities and recovery was not "
@@ -1129,6 +1186,15 @@ class Supervisor:
                             f"controller exit code {exit_code}"
                         ),
                     )
+                except PairedPrefixOwnedByPeer as owner:
+                    self.update(
+                        job,
+                        actual="paired-prefix-peer-owned",
+                        last_error=None,
+                        paired_prefix_owner=str(owner),
+                    )
+                    self.stop_event.wait(POLL_SECONDS)
+                    continue
                 except RuntimeError as error:
                     self.update(job, actual="recovery-error", last_error=str(error))
                     self.log(str(error))
@@ -1163,6 +1229,14 @@ class Supervisor:
                     job, actual="running", child_pid=process.pid, last_error=None
                 )
                 self.log(f"started {job.key} pid={process.pid}")
+            except PairedPrefixOwnedByPeer as owner:
+                self.update(
+                    job,
+                    actual="paired-prefix-peer-owned",
+                    last_error=None,
+                    paired_prefix_owner=str(owner),
+                )
+                self.stop_event.wait(POLL_SECONDS)
             except Exception as error:  # noqa: BLE001 - daemon must remain observable
                 self.update(
                     job,
