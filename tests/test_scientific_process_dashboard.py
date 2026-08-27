@@ -21,6 +21,10 @@ def test_science_page_is_separate_and_process_focused() -> None:
     assert "Intervention evidence dossier" in page
     assert "function renderAudit(payload)" in page
     assert "function renderPhaseTable(payload)" in page
+    assert 'id="trajectory-chart"' in page
+    assert "<svg" in page
+    assert "new Chart(" not in page
+    assert "unpkg.com" not in page
 
 
 def test_substantive_claim_rejects_missing_markers() -> None:
