@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import gzip
 import json
+from datetime import datetime
 from pathlib import Path
 
 import pytest
@@ -11,9 +12,16 @@ from experiments.live_trajectory_dashboard import (
     PAGE,
     build_run,
     campaign_data,
+    codex_primary_rate_limit_sample,
+    codex_rate_limit_payload,
     dashboard_data,
     dashboard_revision,
     encode_response,
+    experiment_only_minutes_per_percent,
+    local_codex_session_usage,
+    local_codex_token_usage,
+    projected_remaining_percent,
+    projected_zero_crossing_time,
     weighted_cost,
 )
 
@@ -152,6 +160,245 @@ def test_dashboard_data_keeps_legacy_refresh_keys(tmp_path: Path) -> None:
     assert data["autoresearch"] == data["campaigns"]["autoresearch_v16"]
     assert data["openevolve_v2"] == data["campaigns"]["openevolve_v2"]
     assert data["campaigns"]["autoresearch_v17"]["available"] is False
+
+
+def test_codex_primary_rate_limit_sample_keeps_only_primary_percentage() -> None:
+    sample = codex_primary_rate_limit_sample(
+        {
+            "rateLimitsByLimitId": {
+                "codex": {
+                    "primary": {"usedPercent": 16, "resetsAt": 1_800_000_000},
+                    "secondary": {"usedPercent": 44},
+                    "planType": "pro",
+                },
+                "other_product": {"primary": {"usedPercent": 1}},
+            }
+        }
+    )
+
+    assert sample is not None
+    assert sample["used_percent"] == 16
+    assert sample["reset_at"] == 1_800_000_000
+    assert set(sample) == {
+        "timestamp",
+        "used_percent",
+        "reset_at",
+        "window_duration_minutes",
+    }
+
+
+def test_codex_rate_limit_payload_reports_rolling_minutes_per_percent(
+    tmp_path: Path,
+) -> None:
+    history = tmp_path / "codex-rate-limit-history.jsonl"
+    _write_jsonl(
+        history,
+        [
+            {
+                "timestamp": "2026-01-01T00:00:00+00:00",
+                "used_percent": 10,
+                "reset_at": 1_800_000_000,
+            },
+            {
+                "timestamp": "2026-01-01T00:05:00+00:00",
+                "used_percent": 12,
+                "reset_at": 1_800_000_000,
+            },
+            {
+                "timestamp": "2026-01-01T00:15:00+00:00",
+                "used_percent": 13,
+                "reset_at": 1_800_000_000,
+            },
+        ],
+    )
+
+    payload = codex_rate_limit_payload(history, session_root=tmp_path / "sessions")
+
+    assert payload["available"] is True
+    assert payload["sample_count"] == 3
+    assert payload["latest_minutes_per_percent"] == pytest.approx(5.0)
+    assert payload["latest_used_percent"] == 13
+    assert payload["reset_at_iso"] is not None
+    assert payload["account_wide_projected_remaining_percent"] is not None
+    assert payload["experiment_only_projected_remaining_percent"] is None
+    assert payload["account_wide_zero_crossing_at"] is not None
+    assert payload["experiment_only_zero_crossing_at"] is None
+    # The headline is the weighted average of real quota-change boundaries.
+    # Individual points remain individual observed intervals and do not grow
+    # while a percentage remains flat.
+    assert payload["points"][-1]["minutes_per_percent"] == pytest.approx(10.0)
+
+
+def test_projected_remaining_percent_can_be_negative() -> None:
+    observed_at = datetime.fromisoformat("2026-01-01T00:00:00+00:00")
+    reset_at = datetime.fromisoformat("2026-01-01T04:00:00+00:00")
+
+    projected = projected_remaining_percent(
+        70,
+        2,
+        from_time=observed_at,
+        reset_time=reset_at,
+    )
+
+    assert projected == pytest.approx(-90.0)
+
+
+def test_projected_zero_crossing_time_uses_remaining_quota() -> None:
+    observed_at = datetime.fromisoformat("2026-01-01T00:00:00+00:00")
+
+    assert projected_zero_crossing_time(
+        75,
+        2,
+        from_time=observed_at,
+    ) == datetime.fromisoformat("2026-01-01T00:50:00+00:00")
+    assert projected_zero_crossing_time(
+        100,
+        2,
+        from_time=observed_at,
+    ) == observed_at
+
+
+def test_local_session_attribution_uses_completed_turn_token_records(
+    tmp_path: Path,
+) -> None:
+    session_root = tmp_path / "sessions"
+    timestamp = "2026-01-01T00:05:00+00:00"
+    _write_jsonl(
+        session_root / "2026/01/01/experiment.jsonl",
+        [
+            {
+                "type": "session_meta",
+                "payload": {"cwd": "/tmp/transformer-design-cycle-abc"},
+            },
+            {
+                "timestamp": timestamp,
+                "payload": {
+                    "type": "token_count",
+                    "info": {
+                        "last_token_usage": {"input_tokens": 80, "output_tokens": 20}
+                    },
+                },
+            },
+        ],
+    )
+    _write_jsonl(
+        session_root / "2026/01/01/app.jsonl",
+        [
+            {"type": "session_meta", "payload": {"cwd": "/project"}},
+            {
+                "timestamp": timestamp,
+                "payload": {
+                    "type": "token_count",
+                    "info": {
+                        "last_token_usage": {"input_tokens": 20, "output_tokens": 5}
+                    },
+                },
+            },
+        ],
+    )
+
+    usage = local_codex_session_usage(
+        session_root=session_root,
+        window_start=datetime.fromisoformat("2026-01-01T00:00:00+00:00"),
+        window_end=datetime.fromisoformat("2026-01-01T00:10:00+00:00"),
+    )
+
+    assert usage["experiment_runners"]["total"]["total_tokens"] == 100
+    assert usage["other_local_codex"]["total"]["total_tokens"] == 25
+    assert experiment_only_minutes_per_percent(
+        50, experiment_tokens=100, all_local_tokens=125
+    ) == pytest.approx(62.5)
+
+
+def test_local_codex_token_usage_groups_types_and_runtime_settings(
+    tmp_path: Path,
+) -> None:
+    campaign = tmp_path / "campaign"
+    run = campaign / "runs" / "example-c0"
+    _write_json(
+        campaign / "inputs/protocol.json",
+        {
+            "conversation_mode": "continuous",
+            "model": {
+                "name": "gpt-5.6-sol",
+                "reasoning_effort": "xhigh",
+                "service_tier": "default",
+                "sandbox": "workspace-write",
+                "approval_policy": "never",
+            },
+        },
+    )
+    _write_json(run / "state.json", {"active": {"index": 2}})
+    _write_jsonl(
+        run / "events.jsonl",
+        [
+            {
+                "event": "proposal_completed",
+                "opportunity": 1,
+                "timestamp": "2026-01-01T00:05:00+00:00",
+                "codex_service_tier": "fast",
+                "usage_increment": {
+                    "input_tokens": 100,
+                    "cached_input_tokens": 40,
+                    "output_tokens": 30,
+                    "reasoning_output_tokens": 20,
+                },
+            },
+            {
+                "event": "v3_proposal_provenance",
+                "opportunity": 1,
+                "provider_model_requested": "gpt-5.6-sol",
+                "reasoning_effort_requested": "xhigh",
+                "service_tier_observed": "fast",
+            },
+        ],
+    )
+
+    usage = local_codex_token_usage(
+        [campaign],
+        window_start=datetime.fromisoformat("2026-01-01T00:00:00+00:00"),
+        window_end=datetime.fromisoformat("2026-01-01T00:10:00+00:00"),
+    )
+
+    assert usage["total"] == {
+        "total_tokens": 130,
+        "input_tokens": 100,
+        "cached_input_tokens": 40,
+        "uncached_input_tokens": 60,
+        "output_tokens": 30,
+        "reasoning_output_tokens": 20,
+        "nonreasoning_output_tokens": 10,
+    }
+    assert usage["active_calls_not_yet_logged"] == 1
+    assert usage["models"][0]["model"] == "gpt-5.6-sol"
+    assert usage["models"][0]["service_tier"] == "fast"
+    assert usage["models"][0]["conversation_mode"] == "continuous"
+
+
+def test_codex_rate_limit_payload_does_not_cross_a_primary_window_reset(
+    tmp_path: Path,
+) -> None:
+    history = tmp_path / "codex-rate-limit-history.jsonl"
+    _write_jsonl(
+        history,
+        [
+            {
+                "timestamp": "2026-01-01T00:00:00+00:00",
+                "used_percent": 95,
+                "reset_at": 1_800_000_000,
+            },
+            {
+                "timestamp": "2026-01-01T00:05:00+00:00",
+                "used_percent": 3,
+                "reset_at": 1_800_018_000,
+            },
+        ],
+    )
+
+    payload = codex_rate_limit_payload(history, session_root=tmp_path / "sessions")
+
+    assert payload["latest_minutes_per_percent"] is None
+    assert payload["points"] == []
 
 
 def test_build_run_keeps_every_raw_outcome_and_only_advances_valid_best(
@@ -429,15 +676,35 @@ def test_semantic_campaign_uses_arm_labels_and_charges_shared_prefix_once(
 def test_page_contains_live_controls_and_raw_outcome_overlay() -> None:
     assert "Refresh now" in PAGE
     assert "Auto-refresh" in PAGE
+    assert "Experiment-only 1% burn time" in PAGE
+    assert "function fmtDurationMinutes(value)" in PAGE
+    assert "function quotaTokenHtml(quota)" in PAGE
+    assert "function drawQuota(quota)" in PAGE
+    assert "function drawResetProjection(quota)" in PAGE
+    assert "Predicted 0%:" in PAGE
+    assert 'id="quota-reset-date"' in PAGE
+    assert "Experiments-only projection at reset" in PAGE
+    assert "All-Codex projection at reset" in PAGE
+    assert "seriesMode:'runs'" in PAGE
+    assert "Experiment-only session-attributed pace" in PAGE
+    assert "Model and settings ledger" in PAGE
+    assert "Minutes per 1% of primary limit used" in PAGE
     assert 'id="campaign-select"' in PAGE
     assert "function syncCampaignSelector(sections)" in PAGE
     assert "shownSections=selected?[selected]:[]" in PAGE
     assert "Raw outcome overlay" in PAGE
+    assert "yScale:'data'" in PAGE
+    assert "overlay:false" in PAGE
     assert "Y-axis range" in PAGE
     assert "Fit visible data" in PAGE
     assert "Individual runs" in PAGE
     assert "Condition median" in PAGE
     assert "Condition mean" in PAGE
+    assert "function legendActions(state)" in PAGE
+    assert "data-legend-action=\"show-all\"" in PAGE
+    assert "data-condition-toggle" in PAGE
+    assert "data-aggregate-condition" not in PAGE
+    assert "data-family" not in PAGE
     assert "aggregateDataset" in PAGE
     assert "function mean(values)" in PAGE
     assert "aggregate_method:aggregateMethod" in PAGE
@@ -458,7 +725,12 @@ def test_page_contains_live_controls_and_raw_outcome_overlay() -> None:
     assert "request timed out; try again" in PAGE
     assert "Semantic-intervention evidence" in PAGE
     assert "Greedy OpenEvolve v2.1" in PAGE
-    assert "Intervention families" in PAGE
+    assert "Intervention families" not in PAGE
+    assert "const semanticConditionColors=" in PAGE
+    assert "function semanticRunLegend(payload,state,catalog)" in PAGE
+    assert "function orderedRuns(payload,runs=payload.runs)" in PAGE
+    assert "borderDash:role==='raw'?[]:replicateDash(run)" in PAGE
+    assert "run-group-runs" in PAGE
     assert "physical_resource_charge" in PAGE
     assert "https://unpkg.com/chart.js@4.4.4" in PAGE
     assert "autoresearch_v17_fashion_mnist" in PAGE

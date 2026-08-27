@@ -1,10 +1,12 @@
 #!/usr/bin/env python3
 # ruff: noqa: E501
-"""Read-only dashboard for C0-C3 and multi-arm research trajectories.
+"""Dashboard for C0-C3 and multi-arm research trajectories.
 
 The server reads campaign logs only when a browser requests ``/api/data``.  It
 does not import the experiment controller, acquire a campaign lock, or write to
-any campaign artifact, so it is safe to use while controllers are running.
+any campaign artifact, so it is safe to use while controllers are running.  A
+separate, sanitized dashboard history records the generic Codex primary-window
+percentage for the quota-burn-rate panel.
 """
 
 from __future__ import annotations
@@ -14,12 +16,15 @@ import gzip
 import hashlib
 import json
 import os
+import select
+import subprocess
 import sys
 import threading
 import time
 from collections import Counter
+from collections.abc import Iterable
 from contextlib import suppress
-from datetime import datetime
+from datetime import UTC, datetime, timedelta
 from http import HTTPStatus
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
@@ -61,6 +66,14 @@ DEFAULT_PRICE_PER_MILLION = {"input": 1.75, "cached_input": 0.175, "output": 14.
 # line items. The H100 rate is the public per-second Modal GPU price and is
 # configurable at launch for a historical or account-specific rate.
 DEFAULT_MODAL_H100_PRICE_PER_SECOND = 0.001097
+DEFAULT_CODEX_RATE_LIMIT_HISTORY = REPO_ROOT / "data/codex-rate-limit-history.jsonl"
+DEFAULT_CODEX_RATE_LIMIT_SAMPLE_SECONDS = 30.0
+CODEX_RATE_LIMIT_LOOKBACK_SECONDS = 30 * 60
+DEFAULT_CODEX_SESSION_ROOT = Path.home() / ".codex" / "sessions"
+CODEX_EXPERIMENT_WORKSPACE_PREFIXES = (
+    "transformer-design-cycle-",
+    "native-openevolve-codex-",
+)
 
 
 def read_json(path: Path, default: Any) -> Any:
@@ -152,6 +165,833 @@ def normalized_usage(value: Any) -> dict[str, int]:
         result["input_tokens"] + result["output_tokens"]
     )
     return result
+
+
+def _rate_limit_percent(value: Any) -> int | None:
+    """Return a valid whole quota percentage, or ``None`` for malformed data."""
+    if not isinstance(value, int | float) or isinstance(value, bool):
+        return None
+    if value < 0 or value > 100:
+        return None
+    return int(value)
+
+
+def codex_primary_rate_limit_sample(response: Any) -> dict[str, Any] | None:
+    """Extract only the generic Codex primary-window percentage from a response.
+
+    The app-server response contains account metadata and potentially several
+    product-specific quota buckets.  The dashboard deliberately persists only
+    the generic ``codex`` primary-window percentage needed for the single
+    burn-rate metric, never the raw response or account metadata.
+    """
+    if not isinstance(response, dict):
+        return None
+    by_limit_id = response.get("rateLimitsByLimitId")
+    snapshot = (
+        by_limit_id.get("codex")
+        if isinstance(by_limit_id, dict)
+        else response.get("rateLimits")
+    )
+    if not isinstance(snapshot, dict):
+        return None
+    primary = snapshot.get("primary")
+    if not isinstance(primary, dict):
+        return None
+    used_percent = _rate_limit_percent(primary.get("usedPercent"))
+    if used_percent is None:
+        return None
+    resets_at = primary.get("resetsAt")
+    window_duration = primary.get("windowDurationMins")
+    return {
+        "timestamp": datetime.now().astimezone().isoformat(),
+        "used_percent": used_percent,
+        "reset_at": resets_at if isinstance(resets_at, int) else None,
+        "window_duration_minutes": (
+            window_duration
+            if isinstance(window_duration, int) and window_duration > 0
+            else None
+        ),
+    }
+
+
+def read_codex_primary_rate_limit(
+    *, codex_binary: str = "codex", timeout_seconds: float = 15.0
+) -> dict[str, Any] | None:
+    """Read the account's generic Codex primary window through app-server.
+
+    This uses the caller's existing Codex login.  It is intentionally read
+    only: the two JSON-RPC messages initialize the local service and request
+    ``account/rateLimits/read``.  Neither credentials nor the raw response are
+    logged or returned.
+    """
+    process: subprocess.Popen[str] | None = None
+    try:
+        process = subprocess.Popen(
+            [codex_binary, "app-server", "--stdio"],
+            stdin=subprocess.PIPE,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.DEVNULL,
+            text=True,
+            bufsize=1,
+        )
+        if process.stdin is None or process.stdout is None:
+            return None
+        requests = (
+            {
+                "id": 1,
+                "method": "initialize",
+                "params": {
+                    "clientInfo": {
+                        "name": "rl4rl-live-trajectory-dashboard",
+                        "version": "1",
+                    }
+                },
+            },
+            {"id": 2, "method": "account/rateLimits/read", "params": None},
+        )
+        for request in requests:
+            process.stdin.write(json.dumps(request, separators=(",", ":")) + "\n")
+        process.stdin.flush()
+
+        deadline = time.monotonic() + timeout_seconds
+        while time.monotonic() < deadline:
+            readable, _, _ = select.select(
+                [process.stdout], [], [], max(0.0, deadline - time.monotonic())
+            )
+            if not readable:
+                break
+            line = process.stdout.readline()
+            if not line:
+                break
+            with suppress(json.JSONDecodeError):
+                message = json.loads(line)
+                if message.get("id") == 2:
+                    return codex_primary_rate_limit_sample(message.get("result"))
+    except (OSError, subprocess.SubprocessError, ValueError):
+        return None
+    finally:
+        if process is not None:
+            with suppress(ProcessLookupError, subprocess.TimeoutExpired):
+                process.terminate()
+                process.wait(timeout=2)
+    return None
+
+
+def append_codex_rate_limit_sample(path: Path, sample: dict[str, Any]) -> None:
+    """Append a sanitized rate-limit observation without touching run logs."""
+    path.parent.mkdir(parents=True, exist_ok=True)
+    with path.open("a", encoding="utf-8") as stream:
+        stream.write(json.dumps(sample, separators=(",", ":")) + "\n")
+
+
+def _normalized_rate_limit_history(path: Path) -> list[dict[str, Any]]:
+    observations: list[dict[str, Any]] = []
+    for record in iter_jsonl(path):
+        observed_at = parse_timestamp(record.get("timestamp"))
+        used_percent = _rate_limit_percent(record.get("used_percent"))
+        if observed_at is None or used_percent is None:
+            continue
+        reset_at = record.get("reset_at")
+        duration = record.get("window_duration_minutes")
+        tracked_usage = record.get("tracked_usage")
+        tracked_usage = tracked_usage if isinstance(tracked_usage, dict) else {}
+        observations.append(
+            {
+                "timestamp": observed_at.astimezone().isoformat(),
+                "used_percent": used_percent,
+                "reset_at": reset_at if isinstance(reset_at, int) else None,
+                "window_duration_minutes": (
+                    duration if isinstance(duration, int) and duration > 0 else None
+                ),
+                "tracked_usage": normalized_usage(tracked_usage),
+            }
+        )
+    return sorted(observations, key=lambda item: item["timestamp"])
+
+
+def quota_window_start(observation: dict[str, Any]) -> datetime | None:
+    """Return the current quota window's start, when app-server reports it."""
+    reset_at = observation.get("reset_at")
+    duration = observation.get("window_duration_minutes")
+    if not isinstance(reset_at, int) or not isinstance(duration, int) or duration <= 0:
+        return None
+    return datetime.fromtimestamp(reset_at - duration * 60, UTC).astimezone()
+
+
+def quota_reset_time(observation: dict[str, Any]) -> datetime | None:
+    """Return the reported primary-quota reset time in the local timezone."""
+    reset_at = observation.get("reset_at")
+    if not isinstance(reset_at, int) or reset_at <= 0:
+        return None
+    return datetime.fromtimestamp(reset_at, UTC).astimezone()
+
+
+def projected_remaining_percent(
+    used_percent: float | None,
+    minutes_per_percent: float | None,
+    *,
+    from_time: datetime | None,
+    reset_time: datetime | None,
+) -> float | None:
+    """Project remaining quota at reset without clamping below zero."""
+    if (
+        used_percent is None
+        or minutes_per_percent is None
+        or minutes_per_percent <= 0
+        or from_time is None
+        or reset_time is None
+    ):
+        return None
+    minutes_until_reset = (reset_time - from_time).total_seconds() / 60
+    return 100 - used_percent - minutes_until_reset / minutes_per_percent
+
+
+def projected_zero_crossing_time(
+    used_percent: float | None,
+    minutes_per_percent: float | None,
+    *,
+    from_time: datetime | None,
+) -> datetime | None:
+    """Project when the current primary-quota window would reach 0% remaining.
+
+    This deliberately continues the measured pace past the reported reset time:
+    it is an exhaustion forecast, not a claim that the quota window stays open
+    until that point.
+    """
+    if (
+        used_percent is None
+        or minutes_per_percent is None
+        or minutes_per_percent <= 0
+        or from_time is None
+    ):
+        return None
+    if used_percent >= 100:
+        return from_time
+    return from_time + timedelta(minutes=(100 - used_percent) * minutes_per_percent)
+
+
+def quota_change_points(observations: list[dict[str, Any]]) -> list[dict[str, Any]]:
+    """Return rates only at real percentage changes, never while it is flat."""
+    points: list[dict[str, Any]] = []
+    previous_change: dict[str, Any] | None = None
+    for observation in observations:
+        current_time = parse_timestamp(observation.get("timestamp"))
+        current_used = _rate_limit_percent(observation.get("used_percent"))
+        if current_time is None or current_used is None:
+            continue
+        if previous_change is None:
+            previous_change = observation
+            continue
+        previous_time = parse_timestamp(previous_change.get("timestamp"))
+        previous_used = _rate_limit_percent(previous_change.get("used_percent"))
+        if (
+            previous_time is None
+            or previous_used is None
+            or observation.get("reset_at") != previous_change.get("reset_at")
+            or current_used < previous_used
+        ):
+            previous_change = observation
+            continue
+        percent_drop = current_used - previous_used
+        if percent_drop == 0:
+            continue
+        elapsed_seconds = (current_time - previous_time).total_seconds()
+        if elapsed_seconds <= 0:
+            previous_change = observation
+            continue
+        previous_tracked = normalized_usage(previous_change.get("tracked_usage"))
+        current_tracked = normalized_usage(observation.get("tracked_usage"))
+        tracked_delta = max(
+            0, current_tracked["total_tokens"] - previous_tracked["total_tokens"]
+        )
+        points.append(
+            {
+                "timestamp": observation["timestamp"],
+                "minutes_per_percent": round(elapsed_seconds / percent_drop / 60, 4),
+                "percent_drop": percent_drop,
+                "tracked_tokens": tracked_delta,
+                "initial_observation_interval": len(points) == 0,
+            }
+        )
+        previous_change = observation
+    return points
+
+
+def usage_breakdown(usage: dict[str, Any]) -> dict[str, int]:
+    """Expose token types without double-counting their documented subsets."""
+    normalized = normalized_usage(usage)
+    return {
+        "total_tokens": normalized["total_tokens"],
+        "input_tokens": normalized["input_tokens"],
+        "cached_input_tokens": normalized["cached_input_tokens"],
+        "uncached_input_tokens": max(
+            0, normalized["input_tokens"] - normalized["cached_input_tokens"]
+        ),
+        "output_tokens": normalized["output_tokens"],
+        "reasoning_output_tokens": normalized["reasoning_output_tokens"],
+        "nonreasoning_output_tokens": max(
+            0, normalized["output_tokens"] - normalized["reasoning_output_tokens"]
+        ),
+    }
+
+
+def dashboard_campaign_roots(campaigns: dict[str, Path]) -> tuple[Path, ...]:
+    """Find all local C0-C3 ledgers, plus explicit non-repository campaigns."""
+    candidates = list(campaigns.values())
+    local_root = REPO_ROOT / "data/c0c3"
+    with suppress(OSError):
+        candidates.extend(
+            path for path in local_root.iterdir() if (path / "runs").is_dir()
+        )
+    unique: dict[str, Path] = {}
+    for path in candidates:
+        with suppress(OSError):
+            resolved = path.resolve()
+            if (resolved / "runs").is_dir():
+                unique[str(resolved)] = resolved
+    return tuple(unique[key] for key in sorted(unique))
+
+
+def campaign_default_token_settings(campaign: Path) -> dict[str, str]:
+    protocol = read_json(campaign / "inputs/protocol.json", {})
+    protocol = protocol if isinstance(protocol, dict) else {}
+    model = protocol.get("model", {})
+    model = model if isinstance(model, dict) else {}
+    return {
+        "model": str(model.get("name", "unknown")),
+        "reasoning_effort": str(model.get("reasoning_effort", "unknown")),
+        "service_tier": str(model.get("service_tier", "unknown")),
+        "sandbox": str(model.get("sandbox", "unknown")),
+        "approval_policy": str(model.get("approval_policy", "unknown")),
+        "conversation_mode": str(protocol.get("conversation_mode", "unknown")),
+    }
+
+
+def semantic_shadow_prefixes(campaign: Path) -> dict[str, int]:
+    """Map semantic shadow runs to their copied-prefix boundary."""
+    value = read_json(campaign / "semantic-prefix.json", {})
+    if not isinstance(value, dict):
+        return {}
+    shadows: dict[str, int] = {}
+    for row in value.get("replicates", []):
+        if not isinstance(row, dict):
+            continue
+        through = row.get("shared_through_opportunity", 0)
+        if not isinstance(through, int):
+            continue
+        for run_id in row.get("shadow_run_ids", []):
+            if isinstance(run_id, str):
+                shadows[run_id] = through
+    return shadows
+
+
+def _event_usage_increment(
+    event: dict[str, Any], previous_cumulative: dict[str, int]
+) -> tuple[dict[str, int], dict[str, int]]:
+    """Read an event increment, with a cumulative-difference fallback."""
+    raw_increment = event.get("usage_increment")
+    increment = normalized_usage(raw_increment)
+    raw_cumulative = event.get("usage_cumulative")
+    cumulative = normalized_usage(raw_cumulative)
+    has_increment = isinstance(raw_increment, dict) and any(
+        key in raw_increment
+        for key in (
+            "input_tokens",
+            "cached_input_tokens",
+            "output_tokens",
+            "reasoning_output_tokens",
+        )
+    )
+    has_cumulative = isinstance(raw_cumulative, dict) and any(
+        key in raw_cumulative
+        for key in (
+            "input_tokens",
+            "cached_input_tokens",
+            "output_tokens",
+            "reasoning_output_tokens",
+        )
+    )
+    if not has_increment and has_cumulative:
+        increment = {
+            key: max(0, cumulative[key] - previous_cumulative.get(key, 0))
+            for key in cumulative
+        }
+    return increment, cumulative if has_cumulative else previous_cumulative
+
+
+def local_codex_token_usage(
+    campaign_roots: Iterable[Path],
+    *,
+    window_start: datetime | None,
+    window_end: datetime | None = None,
+    recent_minutes: int = 30,
+) -> dict[str, Any]:
+    """Read completed local experiment calls and group their exact token logs.
+
+    These are the actual Codex JSONL usage fields emitted after each completed
+    proposal.  An active Codex turn is not included until its JSONL record is
+    finalized, so the result explicitly reports that live-recording boundary.
+    """
+    end = window_end or datetime.now().astimezone()
+    start = window_start or datetime(1970, 1, 1, tzinfo=UTC)
+    recent_start = max(start, end - timedelta(minutes=recent_minutes))
+    total = Counter[str]()
+    recent = Counter[str]()
+    model_totals: dict[tuple[str, ...], Counter[str]] = {}
+    model_calls: Counter[tuple[str, ...]] = Counter()
+    model_runs: dict[tuple[str, ...], set[str]] = {}
+    completed_calls = 0
+    active_calls = 0
+    for campaign in campaign_roots:
+        runs_root = campaign / "runs"
+        if not runs_root.is_dir():
+            continue
+        defaults = campaign_default_token_settings(campaign)
+        shadows = semantic_shadow_prefixes(campaign)
+        for run_dir in sorted(runs_root.glob("*")):
+            if not run_dir.is_dir():
+                continue
+            state = read_json(run_dir / "state.json", {})
+            if isinstance(state, dict) and state.get("active") is not None:
+                active_calls += 1
+            events = iter_jsonl(run_dir / "events.jsonl")
+            provenance = {
+                event["opportunity"]: event
+                for event in events
+                if event.get("event") == "v3_proposal_provenance"
+                and isinstance(event.get("opportunity"), int)
+            }
+            previous_cumulative: dict[str, int] = {}
+            for event in events:
+                if event.get("event") != "proposal_completed":
+                    continue
+                opportunity = event.get("opportunity")
+                if not isinstance(opportunity, int):
+                    continue
+                increment, previous_cumulative = _event_usage_increment(
+                    event, previous_cumulative
+                )
+                timestamp = parse_timestamp(event.get("timestamp"))
+                if timestamp is None or timestamp < start or timestamp > end:
+                    continue
+                if opportunity <= shadows.get(run_dir.name, 0):
+                    continue
+                settings = dict(defaults)
+                source = provenance.get(opportunity, {})
+                if isinstance(source, dict):
+                    settings["model"] = str(
+                        source.get("provider_model_requested", settings["model"])
+                    )
+                    settings["reasoning_effort"] = str(
+                        source.get(
+                            "reasoning_effort_requested", settings["reasoning_effort"]
+                        )
+                    )
+                    settings["service_tier"] = str(
+                        source.get("service_tier_observed", settings["service_tier"])
+                    )
+                settings["service_tier"] = str(
+                    event.get("codex_service_tier", settings["service_tier"])
+                )
+                key = tuple(
+                    settings[name]
+                    for name in (
+                        "model",
+                        "reasoning_effort",
+                        "service_tier",
+                        "sandbox",
+                        "approval_policy",
+                        "conversation_mode",
+                    )
+                )
+                model_totals.setdefault(key, Counter()).update(increment)
+                model_calls[key] += 1
+                model_runs.setdefault(key, set()).add(run_dir.name)
+                total.update(increment)
+                if timestamp >= recent_start:
+                    recent.update(increment)
+                completed_calls += 1
+    model_rows = []
+    setting_names = (
+        "model",
+        "reasoning_effort",
+        "service_tier",
+        "sandbox",
+        "approval_policy",
+        "conversation_mode",
+    )
+    for key, usage in sorted(
+        model_totals.items(), key=lambda item: item[1]["total_tokens"], reverse=True
+    ):
+        row = dict(zip(setting_names, key, strict=True))
+        row.update(usage_breakdown(dict(usage)))
+        row["completed_calls"] = model_calls[key]
+        row["runs"] = len(model_runs[key])
+        model_rows.append(row)
+    elapsed_recent_seconds = max(1.0, (end - recent_start).total_seconds())
+    total_breakdown = usage_breakdown(dict(total))
+    recent_breakdown = usage_breakdown(dict(recent))
+    return {
+        "window_start": start.isoformat() if window_start else None,
+        "window_end": end.isoformat(),
+        "completed_calls": completed_calls,
+        "active_calls_not_yet_logged": active_calls,
+        "total": total_breakdown,
+        "recent": {
+            **recent_breakdown,
+            "minutes": round(elapsed_recent_seconds / 60, 4),
+            "tokens_per_minute": round(
+                recent_breakdown["total_tokens"] / (elapsed_recent_seconds / 60), 4
+            ),
+        },
+        "models": model_rows,
+        "scope": "completed local C0-C3 Codex proposal logs only",
+    }
+
+
+def codex_session_source(cwd: Any) -> str:
+    """Classify local Codex sessions without inspecting their message content."""
+    workspace_name = Path(str(cwd or "")).name
+    if workspace_name.startswith(CODEX_EXPERIMENT_WORKSPACE_PREFIXES):
+        return "experiment_runners"
+    return "other_local_codex"
+
+
+def codex_session_paths(
+    session_root: Path,
+    *,
+    start: datetime,
+    end: datetime,
+) -> list[Path]:
+    """Return only date directories that intersect the current quota window."""
+    start_day = start.astimezone(UTC).date()
+    end_day = end.astimezone(UTC).date()
+    paths: list[Path] = []
+    day = start_day
+    while day <= end_day:
+        directory = session_root / f"{day.year:04d}" / f"{day.month:02d}" / f"{day.day:02d}"
+        if directory.is_dir():
+            paths.extend(sorted(directory.glob("*.jsonl")))
+        day += timedelta(days=1)
+    return paths
+
+
+def local_codex_session_usage(
+    *,
+    session_root: Path = DEFAULT_CODEX_SESSION_ROOT,
+    window_start: datetime | None,
+    window_end: datetime | None = None,
+    recent_minutes: int = 30,
+) -> dict[str, Any]:
+    """Attribute local Codex token records to experiment runner or other use.
+
+    Codex writes a ``token_count`` event after a completed model turn.  This
+    scanner reads only its structured token counters and session workspace, not
+    prompts, answers, or private reasoning.  The workspace prefixes are the
+    ones created by this repository's C0-C3 runners.
+    """
+    end = window_end or datetime.now().astimezone()
+    start = window_start or datetime(1970, 1, 1, tzinfo=UTC)
+    recent_start = max(start, end - timedelta(minutes=recent_minutes))
+    total_by_source = {
+        "experiment_runners": Counter[str](),
+        "other_local_codex": Counter[str](),
+    }
+    recent_by_source = {
+        "experiment_runners": Counter[str](),
+        "other_local_codex": Counter[str](),
+    }
+    turns_by_source: Counter[str] = Counter()
+    recent_turns_by_source: Counter[str] = Counter()
+    scanned_sessions = 0
+    for path in codex_session_paths(session_root, start=start, end=end):
+        records = iter_jsonl(path)
+        metadata = next(
+            (
+                record.get("payload")
+                for record in records
+                if record.get("type") == "session_meta"
+                and isinstance(record.get("payload"), dict)
+            ),
+            {},
+        )
+        source = codex_session_source(metadata.get("cwd") if isinstance(metadata, dict) else None)
+        scanned_sessions += 1
+        for record in records:
+            payload = record.get("payload")
+            if not isinstance(payload, dict) or payload.get("type") != "token_count":
+                continue
+            timestamp = parse_timestamp(record.get("timestamp"))
+            info = payload.get("info")
+            last_usage = info.get("last_token_usage") if isinstance(info, dict) else None
+            if timestamp is None or timestamp < start or timestamp > end:
+                continue
+            usage = normalized_usage(last_usage)
+            if not usage["total_tokens"]:
+                continue
+            total_by_source[source].update(usage)
+            turns_by_source[source] += 1
+            if timestamp >= recent_start:
+                recent_by_source[source].update(usage)
+                recent_turns_by_source[source] += 1
+
+    elapsed_recent_seconds = max(1.0, (end - recent_start).total_seconds())
+
+    def source_summary(source: str) -> dict[str, Any]:
+        total = usage_breakdown(dict(total_by_source[source]))
+        recent = usage_breakdown(dict(recent_by_source[source]))
+        return {
+            "total": total,
+            "recent": {
+                **recent,
+                "minutes": round(elapsed_recent_seconds / 60, 4),
+                "tokens_per_minute": round(
+                    recent["total_tokens"] / (elapsed_recent_seconds / 60), 4
+                ),
+            },
+            "completed_turns": turns_by_source[source],
+            "recent_completed_turns": recent_turns_by_source[source],
+        }
+
+    return {
+        "available": bool(sum(turns_by_source.values())),
+        "scanned_sessions": scanned_sessions,
+        "scope": "local Codex token_count records; experiment runner workspaces versus all other local Codex workspaces",
+        "experiment_runners": source_summary("experiment_runners"),
+        "other_local_codex": source_summary("other_local_codex"),
+    }
+
+
+def experiment_only_minutes_per_percent(
+    account_wide_minutes_per_percent: float | None,
+    *,
+    experiment_tokens: int,
+    all_local_tokens: int,
+) -> float | None:
+    """Infer a subset's pace from its measured share of current local usage."""
+    if (
+        account_wide_minutes_per_percent is None
+        or account_wide_minutes_per_percent <= 0
+        or experiment_tokens <= 0
+        or all_local_tokens <= 0
+    ):
+        return None
+    return account_wide_minutes_per_percent * all_local_tokens / experiment_tokens
+
+
+def codex_rate_limit_payload(
+    history_path: Path,
+    *,
+    sample_interval_seconds: float = DEFAULT_CODEX_RATE_LIMIT_SAMPLE_SECONDS,
+    token_campaign_roots: Iterable[Path] = (),
+    session_root: Path = DEFAULT_CODEX_SESSION_ROOT,
+) -> dict[str, Any]:
+    """Build the one-number quota burn-rate payload consumed by the page."""
+    observations = _normalized_rate_limit_history(history_path)
+    latest = observations[-1] if observations else None
+    window_start = quota_window_start(latest) if latest is not None else None
+    token_usage = local_codex_token_usage(
+        token_campaign_roots,
+        window_start=window_start,
+    )
+    session_usage = local_codex_session_usage(
+        session_root=session_root,
+        window_start=window_start,
+    )
+    change_points = quota_change_points(observations)
+    observed_minutes_per_percent = None
+    if change_points:
+        weighted_minutes = sum(
+            float(point["minutes_per_percent"]) * int(point["percent_drop"])
+            for point in change_points
+        )
+        observed_percent = sum(int(point["percent_drop"]) for point in change_points)
+        observed_minutes_per_percent = weighted_minutes / observed_percent
+
+    direct_calibrations = [
+        point
+        for point in change_points
+        if int(point.get("tracked_tokens", 0)) > 0
+    ]
+    tokens_per_percent: float | None = None
+    calibration_method = "waiting for a percentage-change/token pairing"
+    if direct_calibrations:
+        known_tokens = sum(int(point["tracked_tokens"]) for point in direct_calibrations)
+        known_percent = sum(int(point["percent_drop"]) for point in direct_calibrations)
+        if known_percent:
+            tokens_per_percent = known_tokens / known_percent
+            calibration_method = "direct quota-change intervals"
+    latest_used = _rate_limit_percent(latest.get("used_percent")) if latest else None
+    if tokens_per_percent is None and latest_used and latest_used > 0:
+        backfilled_tokens = int(token_usage["total"]["total_tokens"])
+        if backfilled_tokens:
+            tokens_per_percent = backfilled_tokens / latest_used
+            calibration_method = "backfilled current quota window"
+    recent_tokens_per_minute = numeric(token_usage["recent"].get("tokens_per_minute"))
+    estimated_minutes_per_percent = None
+    if (
+        tokens_per_percent is not None
+        and recent_tokens_per_minute is not None
+        and recent_tokens_per_minute > 0
+    ):
+        estimated_minutes_per_percent = tokens_per_percent / recent_tokens_per_minute
+    recent_experiment_tokens = int(
+        session_usage["experiment_runners"]["recent"]["total_tokens"]
+    )
+    recent_other_tokens = int(
+        session_usage["other_local_codex"]["recent"]["total_tokens"]
+    )
+    recent_all_local_tokens = recent_experiment_tokens + recent_other_tokens
+    session_attributed_experiment_minutes_per_percent = experiment_only_minutes_per_percent(
+        observed_minutes_per_percent,
+        experiment_tokens=recent_experiment_tokens,
+        all_local_tokens=recent_all_local_tokens,
+    )
+    headline_minutes_per_percent = (
+        session_attributed_experiment_minutes_per_percent
+        if session_attributed_experiment_minutes_per_percent is not None
+        else observed_minutes_per_percent
+    )
+    latest_sampled_at = parse_timestamp(latest.get("timestamp")) if latest else None
+    reset_time = quota_reset_time(latest) if latest is not None else None
+    account_wide_projected_remaining = projected_remaining_percent(
+        latest_used,
+        observed_minutes_per_percent,
+        from_time=latest_sampled_at,
+        reset_time=reset_time,
+    )
+    experiment_only_projected_remaining = projected_remaining_percent(
+        latest_used,
+        session_attributed_experiment_minutes_per_percent,
+        from_time=latest_sampled_at,
+        reset_time=reset_time,
+    )
+    account_wide_zero_crossing = projected_zero_crossing_time(
+        latest_used,
+        observed_minutes_per_percent,
+        from_time=latest_sampled_at,
+    )
+    experiment_only_zero_crossing = projected_zero_crossing_time(
+        latest_used,
+        session_attributed_experiment_minutes_per_percent,
+        from_time=latest_sampled_at,
+    )
+    return {
+        "available": bool(observations),
+        "sample_count": len(observations),
+        "sample_interval_seconds": sample_interval_seconds,
+        "lookback_minutes": CODEX_RATE_LIMIT_LOOKBACK_SECONDS // 60,
+        "latest_minutes_per_percent": (
+            round(headline_minutes_per_percent, 4)
+            if headline_minutes_per_percent is not None
+            else None
+        ),
+        "observed_minutes_per_percent": (
+            round(observed_minutes_per_percent, 4)
+            if observed_minutes_per_percent is not None
+            else None
+        ),
+        "estimated_minutes_per_percent": (
+            round(estimated_minutes_per_percent, 4)
+            if estimated_minutes_per_percent is not None
+            else None
+        ),
+        "account_wide_minutes_per_percent": (
+            round(observed_minutes_per_percent, 4)
+            if observed_minutes_per_percent is not None
+            else None
+        ),
+        "experiment_only_minutes_per_percent": (
+            round(session_attributed_experiment_minutes_per_percent, 4)
+            if session_attributed_experiment_minutes_per_percent is not None
+            else None
+        ),
+        "calibration": {
+            "method": "local-session attribution" if session_attributed_experiment_minutes_per_percent is not None else calibration_method,
+            "tokens_per_percent": (
+                round(tokens_per_percent, 2) if tokens_per_percent is not None else None
+            ),
+            "recent_tokens_per_minute": (
+                round(recent_tokens_per_minute, 2)
+                if recent_tokens_per_minute is not None
+                else None
+            ),
+        },
+        "session_attribution": {
+            **session_usage,
+            "recent_experiment_share": (
+                round(recent_experiment_tokens / recent_all_local_tokens, 6)
+                if recent_all_local_tokens
+                else None
+            ),
+        },
+        "latest_sampled_at": latest["timestamp"] if latest else None,
+        "latest_used_percent": latest_used,
+        "reset_at_iso": reset_time.isoformat() if reset_time else None,
+        "window_duration_minutes": (
+            latest.get("window_duration_minutes") if latest else None
+        ),
+        "projected_remaining_percent": (
+            round(experiment_only_projected_remaining, 4)
+            if experiment_only_projected_remaining is not None
+            else None
+        ),
+        "account_wide_projected_remaining_percent": (
+            round(account_wide_projected_remaining, 4)
+            if account_wide_projected_remaining is not None
+            else None
+        ),
+        "experiment_only_projected_remaining_percent": (
+            round(experiment_only_projected_remaining, 4)
+            if experiment_only_projected_remaining is not None
+            else None
+        ),
+        "account_wide_zero_crossing_at": (
+            account_wide_zero_crossing.isoformat()
+            if account_wide_zero_crossing is not None
+            else None
+        ),
+        "experiment_only_zero_crossing_at": (
+            experiment_only_zero_crossing.isoformat()
+            if experiment_only_zero_crossing is not None
+            else None
+        ),
+        "window_start": window_start.isoformat() if window_start else None,
+        "points": change_points,
+        "token_usage": token_usage,
+    }
+
+
+def start_codex_rate_limit_sampler(
+    history_path: Path,
+    *,
+    sample_seconds: float = DEFAULT_CODEX_RATE_LIMIT_SAMPLE_SECONDS,
+    token_campaign_roots: Iterable[Path] = (),
+) -> None:
+    """Start a low-frequency, read-only primary-Codex quota sampler."""
+    interval = max(30.0, sample_seconds)
+    campaign_roots = tuple(token_campaign_roots)
+
+    def sample_forever() -> None:
+        while True:
+            sample = read_codex_primary_rate_limit()
+            if sample is not None:
+                sampled_at = parse_timestamp(sample.get("timestamp"))
+                tracked_usage = local_codex_token_usage(
+                    campaign_roots,
+                    window_start=quota_window_start(sample),
+                    window_end=sampled_at,
+                )
+                sample["tracked_usage"] = tracked_usage["total"]
+                with suppress(OSError):
+                    append_codex_rate_limit_sample(history_path, sample)
+            time.sleep(interval)
+
+    threading.Thread(
+        target=sample_forever,
+        name="codex-rate-limit-sampler",
+        daemon=True,
+    ).start()
 
 
 def weighted_cost(usage: dict[str, Any], prices: dict[str, float]) -> float:
@@ -863,6 +1703,9 @@ def dashboard_data(
     prices: dict[str, float],
     *,
     modal_h100_price_per_second: float = DEFAULT_MODAL_H100_PRICE_PER_SECOND,
+    codex_rate_limit_history: Path = DEFAULT_CODEX_RATE_LIMIT_HISTORY,
+    codex_rate_limit_sample_seconds: float = DEFAULT_CODEX_RATE_LIMIT_SAMPLE_SECONDS,
+    codex_token_campaign_roots: Iterable[Path] = (),
 ) -> dict[str, Any]:
     campaign_payloads = {
         key: campaign_data(
@@ -877,6 +1720,11 @@ def dashboard_data(
         "generated_at": datetime.now().astimezone().isoformat(),
         "price_per_million": prices,
         "modal_h100_price_per_second": modal_h100_price_per_second,
+        "codex_rate_limit": codex_rate_limit_payload(
+            codex_rate_limit_history,
+            sample_interval_seconds=codex_rate_limit_sample_seconds,
+            token_campaign_roots=codex_token_campaign_roots,
+        ),
         "campaigns": campaign_payloads,
     }
     # Keep tabs loaded before the multi-campaign dashboard upgrade functional.
@@ -944,6 +1792,9 @@ def make_handler(
     prices: dict[str, float],
     *,
     modal_h100_price_per_second: float = DEFAULT_MODAL_H100_PRICE_PER_SECOND,
+    codex_rate_limit_history: Path = DEFAULT_CODEX_RATE_LIMIT_HISTORY,
+    codex_rate_limit_sample_seconds: float = DEFAULT_CODEX_RATE_LIMIT_SAMPLE_SECONDS,
+    codex_token_campaign_roots: Iterable[Path] = (),
 ):
     class Handler(BaseHTTPRequestHandler):
         def send_payload(self, body: bytes, content_type: str) -> None:
@@ -981,6 +1832,9 @@ def make_handler(
                         campaigns,
                         prices,
                         modal_h100_price_per_second=modal_h100_price_per_second,
+                        codex_rate_limit_history=codex_rate_limit_history,
+                        codex_rate_limit_sample_seconds=codex_rate_limit_sample_seconds,
+                        codex_token_campaign_roots=codex_token_campaign_roots,
                     ),
                     separators=(",", ":"),
                 ).encode("utf-8")
@@ -1052,6 +1906,18 @@ def parse_args() -> argparse.Namespace:
         default=DEFAULT_MODAL_H100_PRICE_PER_SECOND,
         help="campaign-attributed Modal H100 GPU rate used for dashboard estimates",
     )
+    parser.add_argument(
+        "--codex-rate-limit-history",
+        type=Path,
+        default=DEFAULT_CODEX_RATE_LIMIT_HISTORY,
+        help="sanitized local history for the generic Codex primary quota window",
+    )
+    parser.add_argument(
+        "--codex-rate-limit-sample-seconds",
+        type=float,
+        default=DEFAULT_CODEX_RATE_LIMIT_SAMPLE_SECONDS,
+        help="minimum 30 seconds; low-frequency interval for Codex quota reads",
+    )
     return parser.parse_args()
 
 
@@ -1075,13 +1941,24 @@ def main() -> None:
         "openevolve_v21_fashion_mnist": (args.openevolve_v21_fashion_mnist_campaign),
         "semantic_v4_fashion_mnist": args.semantic_v4_fashion_mnist_campaign,
     }
+    token_campaign_roots = dashboard_campaign_roots(campaigns)
     server = ThreadingHTTPServer(
         (args.host, args.port),
         make_handler(
             campaigns,
             prices,
             modal_h100_price_per_second=args.modal_h100_price_per_second,
+            codex_rate_limit_history=args.codex_rate_limit_history,
+            codex_rate_limit_sample_seconds=max(
+                30.0, args.codex_rate_limit_sample_seconds
+            ),
+            codex_token_campaign_roots=token_campaign_roots,
         ),
+    )
+    start_codex_rate_limit_sampler(
+        args.codex_rate_limit_history,
+        sample_seconds=args.codex_rate_limit_sample_seconds,
+        token_campaign_roots=token_campaign_roots,
     )
     start_python_hot_reloader()
     print("Hot reload: watching dashboard HTML and Python")
@@ -1101,6 +1978,11 @@ def main() -> None:
         f"{args.openevolve_v21_fashion_mnist_campaign}"
     )
     print(f"Semantic v4 Fashion-MNIST: {args.semantic_v4_fashion_mnist_campaign}")
+    print(
+        "Codex quota burn-rate history: "
+        f"{args.codex_rate_limit_history} "
+        f"(every {max(30.0, args.codex_rate_limit_sample_seconds):g} seconds)"
+    )
     try:
         server.serve_forever()
     except KeyboardInterrupt:
