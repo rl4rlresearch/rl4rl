@@ -19,7 +19,10 @@ sys.path.insert(0, str(ROOT))
 import experiments.semantic_intervention_overnight as semantic_overnight
 from experiments.c0c3_factorial import semantic_interventions as semantic_module
 from experiments.c0c3_factorial.campaign import calibrate_task
-from experiments.c0c3_factorial.native_openevolve import prepare_native_selection
+from experiments.c0c3_factorial.native_openevolve import (
+    prepare_native_selection,
+    reset_native_population_from_incumbent,
+)
 from experiments.c0c3_factorial.periodic_refresh import (
     REFRESH_INCUMBENT,
     apply_periodic_refresh,
@@ -1079,6 +1082,76 @@ def test_native_openevolve_uses_population_database_and_mirrors_prefix(
     ]
     assert any(row["event"] == "native_parent_sampled" for row in native_events)
     assert any(row["event"] == "native_outcome_committed" for row in native_events)
+
+
+def test_native_openevolve_refresh_preserves_prior_initial_checkpoint(
+    tmp_path: Path,
+) -> None:
+    pytest.importorskip("dacite")
+    spec = _spec()
+    task = _task(_seed(tmp_path / "seed"))
+    framework = FrameworkSpec(
+        framework_id=FrameworkKind.NATIVE_OPENEVOLVE,
+        adapter="native_openevolve_v1",
+        prompt_profile="fashion_mnist_openevolve_v2_1",
+        edit_mode="search_replace_diff",
+        adapter_options={"num_islands": 2, "num_diverse_programs": 2},
+    )
+    baseline = calibrate_task(
+        tmp_path / "calibration",
+        spec=spec,
+        task=task,
+        repo_root=ROOT,
+        python_bin=sys.executable,
+    )
+    campaign = create_semantic_campaign(
+        tmp_path / "campaign",
+        spec=spec,
+        task=task,
+        framework=framework,
+        intervention_plan_path=_plan(tmp_path / "interventions.toml"),
+        calibration_path=baseline,
+        repo_root=ROOT,
+    )
+    schedule = json.loads((campaign / "schedule.json").read_text())
+    row = next(item for item in schedule if item["condition"] == "passive_control")
+    run_id = str(row["run_id"])
+    run_dir = campaign / "runs" / run_id
+    run_semantic_opportunity(
+        campaign,
+        run_id=run_id,
+        repo_root=ROOT,
+        python_bin=sys.executable,
+        codex_binary=str(
+            _openevolve_codex(
+                tmp_path / "fake-native-codex", tmp_path / "native-calls.jsonl"
+            )
+        ),
+    )
+    original = run_dir / "native-openevolve/checkpoints/0000-initial"
+    assert original.is_dir()
+
+    controller = SearchController.load(run_dir, spec)
+    reset_native_population_from_incumbent(
+        run_dir,
+        opportunity=2,
+        search_seed=123,
+    )
+    selection = prepare_native_selection(
+        run_dir,
+        controller=controller,
+        task=task,
+        framework=framework,
+        vendor_root=ROOT / "architecture_discovery/vendor/openevolve",
+        run_seed=int(row["run_seed"]),
+        opportunity=2,
+    )
+
+    assert selection.opportunity == 2
+    assert original.is_dir()
+    assert (
+        run_dir / "native-openevolve/checkpoints/0002-refresh-initial"
+    ).is_dir()
 
 
 def test_native_openevolve_reconciles_a_recovered_sampled_opportunity(

@@ -219,7 +219,19 @@ def _initialize_database(
             rng_state = random.getstate()
         finally:
             random.setstate(prior)
-    checkpoint = run_dir / CHECKPOINTS / _checkpoint_name(0, "initial")
+    # A periodic full refresh deliberately retires ``current.json`` while
+    # preserving the old population checkpoints for audit.  Reusing the
+    # original ``0000-initial`` name would then make the atomic directory
+    # rename fail because that historical checkpoint still exists.  Give each
+    # refreshed population its own immutable initial checkpoint instead.
+    if controller.state.proposals_used:
+        checkpoint = (
+            run_dir
+            / CHECKPOINTS
+            / _checkpoint_name(controller.state.next_opportunity, "refresh-initial")
+        )
+    else:
+        checkpoint = run_dir / CHECKPOINTS / _checkpoint_name(0, "initial")
     _save_database(database, checkpoint, iteration=0)
     pointer = {
         "schema_version": "native-openevolve-v1",
