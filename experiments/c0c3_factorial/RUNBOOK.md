@@ -610,6 +610,21 @@ declared block count; older campaigns retain their frozen local limit. Queue wai
 the evaluator clock starts. Modal evaluator-only campaigns do not take local
 host slots.
 
+Unified v3 and semantic-v4 controllers also share a separate 30-slot host pool
+for subject-agent calls. Evaluators retain their independent task and host
+pools. Inspect the agent pool without changing state:
+
+```bash
+$PY -m $CLI agent-worker-status
+```
+
+This is admission control, not a round scheduler: each trajectory takes the
+next available slot and advances independently, with no wave or synchronization
+barrier. A newly created campaign can join this pool without pausing any
+campaign already using it. Only a controller running code from before the
+shared pool existed needs one cooperative stop/start to adopt it; subsequent
+campaign additions do not require a global drain.
+
 ## 6. Inspect progress without changing it
 
 ```bash

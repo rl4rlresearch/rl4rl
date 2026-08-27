@@ -38,14 +38,14 @@
   .legend { display:flex; gap:7px; flex-wrap:wrap; margin:9px 0 13px; }
   .legend-actions { display:inline-flex; gap:4px; align-items:center; padding-right:7px; border-right:1px solid #30363d; }
   .legend.grouped .legend-actions { grid-column:1 / -1; }
-  .legend.grouped { display:grid; grid-template-columns:repeat(auto-fill,minmax(320px,1fr)); gap:3px 18px; }
+  .legend.grouped { display:grid; grid-template-columns:repeat(auto-fill,minmax(250px,1fr)); gap:0 18px; }
   .key { display:inline-flex; align-items:center; gap:5px; font-size:12px; padding:4px 7px; margin:0; background:#111821; }
   .key.off { opacity:.35; text-decoration:line-through; } .dot { width:9px; height:9px; border-radius:50%; }
-  .run-group { display:grid; grid-template-columns:minmax(0,1fr) auto; align-items:center; gap:8px; min-height:32px; border-bottom:1px solid #242d38; }
-  .run-group-title { min-width:0; display:flex; align-items:center; gap:6px; font-size:12px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
-  .run-group-family { color:#7f8b9a; font-size:10px; text-transform:uppercase; letter-spacing:.04em; }
+  .run-group { display:grid; grid-template-columns:minmax(0,1fr) auto; align-items:center; gap:10px; min-height:39px; border-bottom:1px solid #242d38; }
+  .run-group-title.key { min-width:0; display:flex; align-items:center; gap:6px; margin:0; padding:3px 0; border:0; background:transparent; font-weight:650; overflow:hidden; text-align:left; text-overflow:ellipsis; white-space:nowrap; }
   .run-group-runs { display:flex; gap:3px; flex-wrap:wrap; justify-content:flex-end; }
-  .run-group-runs .key { padding:3px 5px; }
+  .run-group-runs .key { min-width:34px; justify-content:center; padding:3px 5px; }
+  .run-group-runs .line-swatch { width:12px; }
   .line-swatch { width:16px; height:0; border-top:3px solid; }
   .line-swatch.r2 { border-top-style:dashed; }
   .line-swatch.r3 { border-top-style:dotted; }
@@ -64,9 +64,13 @@
   .analysis { margin:14px 0; padding:12px; border:1px solid #3c4960; border-radius:8px; background:#101925; }
   .analysis h3 { margin:0 0 5px; font-size:15px; }
   .analysis p { margin:0 0 7px; color:#99a6b8; font-size:12px; }
+  .page-tabs { display:flex; gap:6px; margin:0 0 20px; border-bottom:1px solid #30363d; }
+  .page-tabs a { color:#9aa7b7; text-decoration:none; padding:9px 12px; border-bottom:2px solid transparent; }
+  .page-tabs a.active { color:#f0f6fc; border-bottom-color:#58a6ff; }
   @media (max-width:1100px) { .charts { grid-template-columns:1fr; } .stats { grid-template-columns:repeat(2,1fr); } .quota { grid-template-columns:1fr; } }
-  @media (max-width:600px) { body { padding:14px; } .stats { grid-template-columns:1fr 1fr; } }
+  @media (max-width:600px) { body { padding:14px; } .stats { grid-template-columns:1fr 1fr; } .legend.grouped { grid-template-columns:1fr; } }
 </style>
+<nav class="page-tabs" aria-label="Dashboard pages"><a class="active" href="/">Trajectory explorer</a><a href="/science">Scientific process</a></nav>
 <h1>RL4RL live trajectories</h1>
 <p class="sub">Read-only, log-backed dashboard for factorial and semantic-intervention research. It tracks complete trajectories, physical resource accounting, proposal-to-discovery funnels, developmental stepping stones, and multi-fidelity evaluation. NanoGPT campaigns also expose campaign-attributed Modal GPU estimates.</p>
 <div class="topbar">
@@ -113,7 +117,9 @@ const campaignDefs=[
   ['openevolvev21nanogpt','Greedy OpenEvolve v2.1 · nanoGPT H100','openevolve_v21_nanogpt'],
   ['autoresearchv17fashionmnist','Autoresearch v1.7 · Fashion-MNIST MPS','autoresearch_v17_fashion_mnist'],
   ['openevolvev21fashionmnist','Greedy OpenEvolve v2.1 · Fashion-MNIST MPS','openevolve_v21_fashion_mnist'],
-  ['semanticv4fashionmnist','Semantic interventions v4 · Fashion-MNIST Greedy OpenEvolve','semantic_v4_fashion_mnist']
+  ['semanticv4fashionmnist','Semantic interventions v4 · Fashion-MNIST Greedy OpenEvolve','semantic_v4_fashion_mnist'],
+  ['semanticv4fashionmnistnative','Semantic interventions v4 · Fashion-MNIST Native OpenEvolve','semantic_v4_fashion_mnist_native'],
+  ['unifiedv3adderboardgreedy','Unified v3 · AdderBoard Greedy OpenEvolve','unified_v3_adderboard_greedy']
 ];
 const charts=new Map();
 const states={};
@@ -163,10 +169,12 @@ function stateFor(id,payload){if(!states[id])states[id]=defaultState(payload);co
 function axisOptions(payload,selected,state){return (payload.axis_catalog||[]).map(item=>`<option value="${html(item.key)}"${item.key===selected?' selected':''}>${html(labelFor(payload,item.key,state))}</option>`).join('');}
 function proposalTypes(payload){return [...new Set(payload.runs.flatMap(run=>run.points.map(point=>point.proposal_type)).filter(type=>type&&type!=='seed'))].sort();}
 function runVisible(state,run){return state.conditions.includes(run.condition)&&!state.hiddenRuns.includes(run.run_id);}
-function runLegendButton(state,run){const replicate=finite(run.replicate);return `<button class="key${runVisible(state,run)?'':' off'}" data-run="${html(run.run_id)}" data-run-condition="${html(run.condition)}" aria-pressed="${runVisible(state,run)}"><i class="line-swatch r${replicate??1}" style="border-top-color:${color(run)}"></i>${html(run.label)}</button>`;}
-function conditionLegendButton(payload,state,item,label){const shown=state.conditions.includes(item.id);return `<button class="key${shown?'':' off'}" data-condition-toggle="${html(item.id)}" aria-pressed="${shown}"><i class="dot" style="background:${conditionColor(item.id,payload)}"></i>${html(label)}</button>`;}
+const semanticCompactLabels={passive_control:'Passive control',active_reflection_control:'Reflection control',assumption_challenge:'Assumption challenge',alternative_mechanism:'Alt. mechanism',failure_diagnosis:'Failure diagnosis',evidence_contradiction:'Evidence contradiction',counterfactual_design:'Counterfactual design',falsification:'Falsification',competing_hypotheses:'Competing hypotheses',representation_reframe:'Representation reframe',uncertainty_calibration:'Uncertainty calibration',experimental_redesign:'Experimental redesign',causal_attribution:'Causal attribution',information_gain:'Information gain',ablation_first:'Ablation first',bottleneck_diagnosis:'Bottleneck diagnosis',mechanism_recombination:'Mechanism recombination',constraint_inversion:'Constraint inversion',exploitation_focus:'Exploitation focus',assumption_plus_falsification:'Challenge + falsification',diagnosis_plus_redesign:'Diagnosis + redesign',periodic_full_refresh:'Periodic refresh',restrictive_assumption_challenge:'Restrictive challenge'};
+function semanticLabel(item){return semanticCompactLabels[item.id]||item.label||item.id;}
+function runLegendButton(state,run,compact=false){const replicate=finite(run.replicate),visible=runVisible(state,run),label=compact?`R${replicate??'?'}`:run.label;return `<button class="key${visible?'':' off'}" data-run="${html(run.run_id)}" data-run-condition="${html(run.condition)}" aria-pressed="${visible}" title="${html(run.label)}" aria-label="Toggle ${html(run.label)}"><i class="line-swatch r${replicate??1}" style="border-top-color:${color(run)}"></i>${html(label)}</button>`;}
+function conditionLegendButton(payload,state,item,label,title=label){const shown=state.conditions.includes(item.id);return `<button class="key${shown?'':' off'}" data-condition-toggle="${html(item.id)}" aria-pressed="${shown}" title="${html(title)}" aria-label="Toggle ${html(title)}"><i class="dot" style="background:${conditionColor(item.id,payload)}"></i>${html(label)}</button>`;}
 function legendActions(state){const noun=state.seriesMode==='runs'?'runs':'conditions';return `<span class="legend-actions"><button class="key" data-legend-action="show-all">Show all ${noun}</button><button class="key" data-legend-action="hide-all">Hide all ${noun}</button></span>`;}
-function semanticRunLegend(payload,state,catalog){return catalog.map(item=>{const members=orderedRuns(payload,payload.runs.filter(run=>run.condition===item.id)),label=`${item.label} · ${String(item.family).replaceAll('_',' ')}`;return `<div class="run-group">${conditionLegendButton(payload,state,item,label)}<span class="run-group-runs">${members.map(run=>runLegendButton(state,run)).join('')}</span></div>`;}).join('');}
+function semanticRunLegend(payload,state,catalog){return catalog.map(item=>{const members=orderedRuns(payload,payload.runs.filter(run=>run.condition===item.id)),fullLabel=`${item.label} · ${String(item.family).replaceAll('_',' ')}`;const shown=state.conditions.includes(item.id);return `<div class="run-group"><button class="key run-group-title${shown?'':' off'}" data-condition-toggle="${html(item.id)}" aria-pressed="${shown}" title="${html(fullLabel)}" aria-label="Toggle ${html(fullLabel)}"><i class="dot" style="background:${conditionColor(item.id,payload)}"></i>${html(semanticLabel(item))}</button><span class="run-group-runs">${members.map(run=>runLegendButton(state,run,true)).join('')}</span></div>`;}).join('');}
 function semanticPanelHtml(id,payload){if(!payload.semantic)return '';const summary=payload.semantic_summary||{};const dev=summary.developmental_counts||{};return `<div class="analysis"><h3>Semantic-intervention evidence</h3><p>Physical accounting charges each replicate’s common prefix once. The arm table focuses on post-fork behavior so treatment comparisons are not dominated by the identical first five proposals. “Mechanism reported” is a trace-completeness measure, not an independent compliance judgment.</p><div class="stats"><div class="stat"><span>Intervention arms</span><b>${fmt(summary.intervention_count)}</b></div><div class="stat"><span>Replicates per arm</span><b>${fmt(summary.replicates)}</b></div><div class="stat"><span>Physical / logical calls</span><b>${fmt(summary.physical_proposal_calls)} / ${fmt(summary.logical_proposal_records)}</b></div><div class="stat"><span>Applied interventions</span><b>${fmt(summary.interventions_applied)}</b></div><div class="stat"><span>Provisional valid</span><b>${fmt(dev.provisional_valid||0)}</b></div><div class="stat"><span>Screened early / full fidelity</span><b>${fmt(summary.screened_out_proposals)} / ${fmt(summary.full_fidelity_proposals)}</b></div></div><div class="table-wrap"><table><thead><tr><th>Arm</th><th>Family</th><th>Runs</th><th>Post-fork proposals</th><th>Valid</th><th>Retained</th><th>Novel delta</th><th>Mechanism reported</th><th>Successful intervention phases</th><th>Mean post-fork token cost</th><th>Mean evaluator hours</th><th>Best ${html(payload.objective_metric)}</th></tr></thead><tbody id="${id}-semantic-rows"></tbody></table></div></div>`;}
 
 function sectionHtml(id,title,payload){
@@ -176,7 +184,7 @@ function sectionHtml(id,title,payload){
   const catalog=orderedCatalog(payload);
   const aggregateMode=state.seriesMode==='conditionMean'?'mean':'median';
   const legend=legendActions(state)+(state.seriesMode!=='runs'
-    ? catalog.map(item=>{const count=payload.runs.filter(run=>run.condition===item.id).length;return conditionLegendButton(payload,state,item,`${item.label||item.id} ${aggregateMode} · ${count} run${count===1?'':'s'}`);}).join('')
+    ? catalog.map(item=>{const count=payload.runs.filter(run=>run.condition===item.id).length,label=payload.semantic?semanticLabel(item):item.label||item.id,fullLabel=`${item.label||item.id} · ${String(item.family||'').replaceAll('_',' ')}`;return conditionLegendButton(payload,state,item,`${label} ${aggregateMode} · ${count} run${count===1?'':'s'}`,fullLabel);}).join('')
     : payload.semantic?semanticRunLegend(payload,state,catalog):payload.runs.map(run=>runLegendButton(state,run)).join(''));
   const typeOptions=['<option value="all">All proposal types</option>',...types.map(type=>`<option value="${html(type)}"${state.proposalType===type?' selected':''}>${html(type)}</option>`)].join('');
   const columns=summaryColumns(payload);
@@ -421,7 +429,7 @@ function ensureChartLibrary(){
 }
 async function refresh(){
   if(refreshing)return;refreshing=true;const button=document.getElementById('refresh');button.disabled=true;button.textContent='Refreshing…';
-  const controller=new AbortController();const timeout=setTimeout(()=>controller.abort(),25000);
+  const controller=new AbortController();const timeout=setTimeout(()=>controller.abort(),180000);
   try{const response=await fetch(apiUrl,{cache:'no-store',signal:controller.signal});if(!response.ok)throw new Error(`HTTP ${response.status}`);latestData=await response.json();render();const available=Object.values(latestData.campaigns||{}).filter(value=>value?.available).length;document.getElementById('stamp').textContent=`Updated ${new Date(latestData.generated_at).toLocaleString()} · ${available} campaigns`;if(typeof Chart==='undefined')ensureChartLibrary().catch(error=>{document.getElementById('stamp').textContent+=` · charts unavailable (${error.message}); Refresh now will retry`;});}catch(error){document.getElementById('stamp').textContent='Refresh failed: '+(error.name==='AbortError'?'request timed out; try again':error.message);}finally{clearTimeout(timeout);refreshing=false;button.disabled=false;button.textContent='Refresh now';}
 }
 async function checkHotReload(){

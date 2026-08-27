@@ -16,6 +16,7 @@ import json
 import os
 import random
 import shutil
+import time
 import tomllib
 from collections import Counter
 from collections.abc import Iterator
@@ -25,6 +26,11 @@ from dataclasses import asdict, dataclass
 from pathlib import Path
 from typing import Any
 
+from .agent_scheduler import (
+    AgentWorkerLease,
+    release_agent_worker_slot,
+    try_acquire_agent_worker_slot,
+)
 from .artifacts import (
     prepare_seed_workspace,
     scientific_runtime_hash,
@@ -1272,6 +1278,7 @@ def run_semantic_opportunity(
     python_bin: str,
     codex_binary: str = "codex",
     codex_timeout_seconds: int = 3600,
+    agent_worker_lease: AgentWorkerLease | None = None,
 ) -> dict[str, Any]:
     root, spec, task, framework, _plan = load_semantic_campaign(campaign)
     pair = _prefix_for_run(root, run_id)
@@ -1292,6 +1299,7 @@ def run_semantic_opportunity(
                     codex_binary=codex_binary,
                     codex_timeout_seconds=codex_timeout_seconds,
                     allow_v3_prefix_leader=True,
+                    agent_worker_lease=agent_worker_lease,
                 )
                 opportunity = int(record["opportunity"])
             elif leader.state.proposals_used == requested.state.proposals_used + 1:
@@ -1320,6 +1328,7 @@ def run_semantic_opportunity(
         python_bin=python_bin,
         codex_binary=codex_binary,
         codex_timeout_seconds=codex_timeout_seconds,
+        agent_worker_lease=agent_worker_lease,
     )
     assignment = _read_object(root / "runs" / run_id / "manifest.json")["assignment"]
     record["semantic_intervention_id"] = assignment["condition"]
@@ -1351,6 +1360,32 @@ def run_semantic_opportunity(
         record,
     )
     return record
+
+
+def _run_semantic_opportunity_with_lease(
+    campaign: Path,
+    *,
+    run_id: str,
+    repo_root: Path,
+    python_bin: str,
+    codex_binary: str,
+    agent_worker_lease: AgentWorkerLease,
+) -> dict[str, Any]:
+    """Transfer one pre-start lease and release it on every exit path."""
+
+    try:
+        return run_semantic_opportunity(
+            campaign,
+            run_id=run_id,
+            repo_root=repo_root,
+            python_bin=python_bin,
+            codex_binary=codex_binary,
+            agent_worker_lease=agent_worker_lease,
+        )
+    finally:
+        # The runner normally releases the transferred lease. This idempotent
+        # fallback covers prefix-mirror and early-error paths too.
+        release_agent_worker_slot(agent_worker_lease)
 
 
 def set_semantic_control(
@@ -1576,6 +1611,7 @@ def run_semantic_campaign(
                     if states[str(row["run_id"])].status != "completed"
                 ]
                 active_run_ids = {run_id for run_id, _prefix in futures.values()}
+                waiting_for_shared_worker = False
 
                 if stopping_for is None:
                     run_desired = _run_desired_states(root)
@@ -1599,14 +1635,40 @@ def run_semantic_campaign(
                     available = worker_capacity - len(futures)
                     for run_id, is_prefix in candidates[:available]:
                         next_opportunity = states[run_id].proposals_used + 1
-                        future = pool.submit(
-                            run_semantic_opportunity,
-                            root,
-                            run_id=run_id,
-                            repo_root=repo_root,
-                            python_bin=python_bin,
-                            codex_binary=codex_binary,
+                        physical_run_id = (
+                            str(_prefix_for_run(root, run_id)["leader_run_id"])
+                            if is_prefix
+                            else run_id
                         )
+                        lease = try_acquire_agent_worker_slot(
+                            worker_id=(
+                                f"{root}:{physical_run_id}:{next_opportunity}"
+                            ),
+                            metadata={
+                                "campaign": str(root),
+                                "run_id": physical_run_id,
+                                "requested_run_id": run_id,
+                                "opportunity": next_opportunity,
+                                "framework_id": str(framework.framework_id.value),
+                                "task_id": task.task_id,
+                            },
+                        )
+                        if lease is None:
+                            waiting_for_shared_worker = True
+                            break
+                        try:
+                            future = pool.submit(
+                                _run_semantic_opportunity_with_lease,
+                                root,
+                                run_id=run_id,
+                                repo_root=repo_root,
+                                python_bin=python_bin,
+                                codex_binary=codex_binary,
+                                agent_worker_lease=lease,
+                            )
+                        except BaseException:
+                            release_agent_worker_slot(lease)
+                            raise
                         futures[future] = (run_id, is_prefix)
                         dispatch_sequence += 1
                         last_dispatched[run_id] = dispatch_sequence
@@ -1643,6 +1705,12 @@ def run_semantic_campaign(
                             "status": "completed",
                             "completed_physical_calls": completed_calls,
                         }
+                    if waiting_for_shared_worker:
+                        # Another campaign owns every host slot. Nothing here
+                        # has started, so wait without exiting or synchronizing
+                        # this campaign to any peer's proposal boundary.
+                        time.sleep(0.25)
+                        continue
                     return {
                         "status": "no-runnable-trajectories",
                         "completed_physical_calls": completed_calls,

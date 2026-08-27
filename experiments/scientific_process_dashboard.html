@@ -1,0 +1,128 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="dashboard-hot-reload" content="enabled">
+<title>RL4RL scientific process</title>
+<script src="https://unpkg.com/chart.js@4.4.4/dist/chart.umd.min.js"></script>
+<style>
+  :root { color-scheme:dark; --bg:#080c12; --panel:#0d131c; --panel2:#111923; --line:#273140; --text:#e6edf3; --muted:#8d9aaa; --blue:#58a6ff; --green:#3fb950; --amber:#d29922; --red:#f85149; }
+  * { box-sizing:border-box; }
+  body { margin:0; padding:24px 30px 48px; background:var(--bg); color:var(--text); font:13px/1.45 Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif; }
+  .shell { max-width:1700px; margin:auto; }
+  .page-tabs { display:flex; gap:6px; margin:0 0 22px; border-bottom:1px solid var(--line); }
+  .page-tabs a { color:#9aa7b7; text-decoration:none; padding:9px 12px; border-bottom:2px solid transparent; }
+  .page-tabs a.active { color:#f0f6fc; border-bottom-color:var(--blue); }
+  h1 { margin:0; font-size:30px; letter-spacing:-.03em; }
+  .subtitle { max-width:980px; margin:7px 0 20px; color:var(--muted); font-size:14px; }
+  .toolbar { display:grid; grid-template-columns:minmax(280px,2fr) repeat(3,minmax(150px,1fr)) auto auto; gap:10px; align-items:end; padding:14px; border:1px solid var(--line); background:var(--panel); }
+  label { display:grid; gap:5px; color:var(--muted); font-size:11px; font-weight:650; letter-spacing:.04em; text-transform:uppercase; }
+  select,button { min-height:35px; padding:7px 10px; border:1px solid #344052; border-radius:5px; color:var(--text); background:#0b1119; font:inherit; }
+  button { cursor:pointer; } button:hover { border-color:#52647c; } button:disabled { opacity:.55; cursor:wait; }
+  #stamp { min-height:20px; margin:8px 1px 14px; color:var(--muted); font-size:12px; }
+  .kpis { display:grid; grid-template-columns:repeat(4,1fr); border:1px solid var(--line); background:var(--panel); }
+  .kpi { min-height:112px; padding:18px 20px; border-right:1px solid var(--line); }
+  .kpi:last-child { border-right:0; }
+  .kpi span { display:block; color:var(--muted); font-size:11px; font-weight:700; letter-spacing:.06em; text-transform:uppercase; }
+  .kpi strong { display:block; margin:6px 0 2px; font-size:27px; letter-spacing:-.03em; }
+  .kpi small { color:#78869a; }
+  .legend { display:flex; gap:6px; flex-wrap:wrap; max-height:120px; overflow:auto; margin:13px 0; }
+  .chip { min-height:29px; display:inline-flex; align-items:center; gap:6px; padding:4px 8px; font-size:11px; }
+  .chip.off { opacity:.35; text-decoration:line-through; }
+  .swatch { width:9px; height:9px; border-radius:50%; flex:0 0 auto; }
+  .panel { border:1px solid var(--line); background:var(--panel); }
+  .panel-head { display:flex; justify-content:space-between; gap:12px; align-items:flex-start; padding:15px 17px 10px; border-bottom:1px solid #202a37; }
+  .panel h2 { margin:0; font-size:15px; }
+  .panel p { margin:4px 0 0; color:var(--muted); font-size:12px; }
+  .main-grid { display:grid; grid-template-columns:minmax(0,2.25fr) minmax(290px,.75fr); gap:14px; margin-top:14px; }
+  .chart-wrap { height:440px; padding:14px 16px 16px; }
+  .audit { padding:14px 17px 18px; }
+  .audit-row { margin:0 0 15px; }
+  .audit-row:last-child { margin:0; }
+  .audit-row header { display:flex; justify-content:space-between; gap:12px; margin-bottom:5px; }
+  .audit-row header span { color:var(--muted); }
+  .meter { height:6px; overflow:hidden; border-radius:8px; background:#1d2734; }
+  .meter i { display:block; height:100%; background:var(--blue); }
+  .lower-grid { display:grid; grid-template-columns:minmax(300px,.7fr) minmax(0,1.3fr); gap:14px; margin-top:14px; }
+  .funnel { padding:14px 17px 18px; }
+  .funnel-row { display:grid; grid-template-columns:150px 1fr 70px; gap:9px; align-items:center; margin:10px 0; }
+  .funnel-row span { color:#cbd5e1; }
+  .funnel-row b { text-align:right; font-variant-numeric:tabular-nums; }
+  .funnel-bar { height:13px; background:#1b2633; }
+  .funnel-bar i { display:block; height:100%; background:linear-gradient(90deg,#3779bd,#6fb5ff); }
+  .table-wrap { max-width:100%; overflow:auto; }
+  table { width:100%; border-collapse:collapse; white-space:nowrap; font-size:11px; }
+  th,td { padding:8px 9px; border-bottom:1px solid #202a37; text-align:left; vertical-align:top; }
+  th { position:sticky; top:0; z-index:1; color:#95a3b5; background:#0d131c; font-size:10px; letter-spacing:.04em; text-transform:uppercase; }
+  td.long { min-width:260px; max-width:430px; white-space:normal; color:#c7d1dc; }
+  .phase-cell { text-align:right; font-variant-numeric:tabular-nums; }
+  .phase-cell small { display:block; color:#718096; }
+  .evidence { margin-top:14px; }
+  .evidence .table-wrap { max-height:520px; }
+  .badge { display:inline-block; padding:2px 5px; border-radius:8px; background:#1b2633; color:#b5c1ce; }
+  .yes { color:#7ee787; } .no { color:#ff7b72; } .pending { color:#d2a84c; }
+  .empty { padding:40px; border:1px dashed #344052; color:var(--muted); text-align:center; }
+  @media (max-width:1100px) { .toolbar { grid-template-columns:1fr 1fr; } .kpis { grid-template-columns:1fr 1fr; } .kpi:nth-child(2) { border-right:0; } .kpi:nth-child(-n+2) { border-bottom:1px solid var(--line); } .main-grid,.lower-grid { grid-template-columns:1fr; } }
+  @media (max-width:650px) { body { padding:15px; } .toolbar,.kpis { grid-template-columns:1fr; } .kpi { border-right:0; border-bottom:1px solid var(--line); } }
+</style>
+</head>
+<body><main class="shell">
+  <nav class="page-tabs" aria-label="Dashboard pages"><a href="/">Trajectory explorer</a><a class="active" href="/science">Scientific process</a></nav>
+  <h1>Scientific process observatory</h1>
+  <p class="subtitle">AISCiK-oriented evidence about how research agents formulate, diversify, test, revise, and document ideas. Outcome quality is deliberately secondary here; every displayed rate is computed from source deltas, evaluator records, proposal claims, or blinded-review fields in the logs.</p>
+  <section class="toolbar">
+    <label>Campaign<select id="campaign"></select></label>
+    <label>Intervention family<select id="family"><option value="all">All families</option></select></label>
+    <label>Trajectory measure<select id="measure"><option value="unique_deltas">Cumulative distinct source deltas</option><option value="unique_mechanisms">Cumulative reported mechanisms</option><option value="executable_rate">Cumulative executable rate</option><option value="record_rate">Cumulative complete-record rate</option><option value="novel_rate">Cumulative novel-delta rate</option><option value="retention_rate">Cumulative retention rate</option></select></label>
+    <label>Phase matrix<select id="phase-measure"><option value="valid">Executable rate</option><option value="complete">Complete-record rate</option><option value="novel">Novel-delta rate</option><option value="retained">Retention rate</option><option value="source">Source-change rate</option></select></label>
+    <button id="refresh">Refresh now</button>
+    <label>Auto refresh<select id="auto"><option value="0">Off</option><option value="30" selected>30 s</option><option value="60">1 min</option></select></label>
+  </section>
+  <div id="stamp">Loading log-backed evidence…</div>
+  <div id="content"></div>
+</main>
+<script>
+const apiUrl=location.protocol==='file:'?'http://127.0.0.1:8765/api/data':'/api/data';
+const revisionUrl=location.protocol==='file:'?'http://127.0.0.1:8765/api/revision':'/api/revision';
+const familyColors={control:'#8b949e',epistemic:'#58a6ff',methodological:'#d29922',strategic:'#a371f7',strategic_control:'#f778ba',limited_combination:'#39c5cf',memory_control:'#f0883e',prompt_philosophy:'#7ee787',factorial:'#58a6ff'};
+let data=null,campaignKey=null,selectedConditions=new Set(),chart=null,refreshing=false,refreshTimer=null,revision=null,revisionTimer=null;
+const $=id=>document.getElementById(id);
+function esc(value){return String(value??'').replace(/[&<>"']/g,ch=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]));}
+function finite(value){const n=Number(value);return value===null||value===''||!Number.isFinite(n)?null:n;}
+function pct(n,d){return d?`${(100*n/d).toFixed(1)}%`:'—';}
+function median(values){const a=values.filter(Number.isFinite).sort((x,y)=>x-y);if(!a.length)return null;const m=Math.floor(a.length/2);return a.length%2?a[m]:(a[m-1]+a[m])/2;}
+function stableHash(value){let h=2166136261;for(const ch of String(value)){h^=ch.charCodeAt(0);h=Math.imul(h,16777619);}return Math.abs(h);}
+function conditionColor(condition,catalog){const item=catalog.find(row=>row.id===condition);const base=familyColors[item?.family]||'#58a6ff';const shade=(stableHash(condition)%26)-13;return shiftColor(base,shade);}
+function shiftColor(hex,amount){const raw=hex.replace('#','');const values=[0,2,4].map(i=>Math.max(0,Math.min(255,parseInt(raw.slice(i,i+2),16)+amount)));return '#'+values.map(v=>v.toString(16).padStart(2,'0')).join('');}
+function campaignTitle(payload){return `${payload.task_display_name||'Task'} · ${payload.framework_label||payload.framework_id||'framework'}${payload.semantic?' · semantic interventions':' · C0–C3'}`;}
+function availableCampaigns(){return Object.entries(data?.campaigns||{}).filter(([,p])=>p?.available&&p.runs?.length);}
+function physicalPoints(run){return run.points.filter(p=>!p.is_seed&&p.physical_resource_charge!==false);}
+function selectedRuns(payload){const family=$('family').value;return payload.runs.filter(run=>selectedConditions.has(run.condition)&&(family==='all'||run.condition_family===family));}
+function selectedPoints(payload){return selectedRuns(payload).flatMap(physicalPoints);}
+function claimComplete(point){return Boolean(point.complete_scientific_record);}
+function novel(point){return (point.developmental_reasons||[]).includes('novel_delta');}
+function metricValue(point,key){if(key==='valid')return Boolean(point.valid);if(key==='complete')return claimComplete(point);if(key==='novel')return novel(point);if(key==='retained')return Boolean(point.retained);if(key==='source')return Number(point.source_changed_files||0)>0;return false;}
+function renderShell(payload){
+  const catalog=payload.condition_catalog||[],families=[...new Set(catalog.map(x=>x.family))].sort();
+  $('family').innerHTML='<option value="all">All families</option>'+families.map(value=>`<option value="${esc(value)}">${esc(value.replaceAll('_',' '))}</option>`).join('');
+  $('content').innerHTML=`<section class="kpis"><div class="kpi"><span>Executable proposals</span><strong id="k-exec">—</strong><small id="k-exec-note"></small></div><div class="kpi"><span>Distinct source deltas</span><strong id="k-delta">—</strong><small id="k-delta-note"></small></div><div class="kpi"><span>Complete scientific records</span><strong id="k-record">—</strong><small>hypothesis + edit + mechanism + evidence</small></div><div class="kpi"><span>Blinded packets reviewed</span><strong id="k-review">—</strong><small id="k-review-note"></small></div></section><div class="legend" id="legend"></div><section class="main-grid"><article class="panel"><div class="panel-head"><div><h2 id="chart-title">Research-process trajectory</h2><p>Condition median across independent runs at each proposal; hover for replicate range. Shared prefixes are physically counted once.</p></div></div><div class="chart-wrap"><canvas id="trajectory-chart"></canvas></div></article><aside class="panel"><div class="panel-head"><div><h2>Audit readiness</h2><p>Coverage of controller-recorded evidence, not a model-generated quality score.</p></div></div><div class="audit" id="audit"></div></aside></section><section class="lower-grid"><article class="panel"><div class="panel-head"><div><h2>Scientific-process evidence counts</h2><p>Counts are indicators; novelty and retention are not strictly nested stages.</p></div></div><div class="funnel" id="funnel"></div></article><article class="panel"><div class="panel-head"><div><h2>Post-intervention phase response</h2><p>Each cell is the run-level median for the selected process measure; brackets show the replicate range.</p></div></div><div class="table-wrap" id="phase-table"></div></article></section><article class="panel evidence"><div class="panel-head"><div><h2>Intervention evidence dossier</h2><p>Exact agent claims joined to source-delta and evaluator evidence. Blank review fields remain visibly pending.</p></div></div><div class="table-wrap" id="evidence-table"></div></article>`;
+  renderLegend(payload);renderAll(payload);
+}
+function renderLegend(payload){const catalog=payload.condition_catalog||[];$('legend').innerHTML=catalog.map(item=>`<button class="chip${selectedConditions.has(item.id)?'':' off'}" data-condition="${esc(item.id)}"><i class="swatch" style="background:${conditionColor(item.id,catalog)}"></i>${esc(item.label||item.id)} · ${item.count}</button>`).join('');document.querySelectorAll('[data-condition]').forEach(button=>button.addEventListener('click',()=>{const value=button.dataset.condition;if(selectedConditions.has(value))selectedConditions.delete(value);else selectedConditions.add(value);renderLegend(payload);renderAll(payload);}));}
+function renderKpis(payload){const points=selectedPoints(payload),deltas=new Set(points.map(p=>p.semantic_delta_fingerprint).filter(Boolean)),reviews=points.map(p=>p.manipulation_review).filter(Boolean),reviewed=reviews.filter(x=>x.reviewed).length;$('k-exec').textContent=pct(points.filter(p=>p.valid).length,points.length);$('k-exec-note').textContent=`${points.filter(p=>p.valid).length.toLocaleString()} / ${points.length.toLocaleString()} physical proposals`;$('k-delta').textContent=deltas.size.toLocaleString();$('k-delta-note').textContent=`${pct(deltas.size,points.length)} distinct-delta density`;$('k-record').textContent=pct(points.filter(claimComplete).length,points.length);$('k-review').textContent=pct(reviewed,reviews.length);$('k-review-note').textContent=`${reviewed} / ${reviews.length} intervention packets with ≥1 annotation`;}
+function cumulativeSeries(run,key){const points=physicalPoints(run).sort((a,b)=>a.proposal-b.proposal),deltas=new Set(),mechanisms=new Set();let valid=0,complete=0,novelCount=0,retained=0,count=0;return points.map(point=>{count++;if(point.semantic_delta_fingerprint)deltas.add(point.semantic_delta_fingerprint);if(point.mechanism)mechanisms.add(String(point.mechanism).trim().toLowerCase());if(point.valid)valid++;if(claimComplete(point))complete++;if(novel(point))novelCount++;if(point.retained)retained++;const values={unique_deltas:deltas.size,unique_mechanisms:mechanisms.size,executable_rate:100*valid/count,record_rate:100*complete/count,novel_rate:100*novelCount/count,retention_rate:100*retained/count};return {proposal:point.proposal,value:values[key]};});}
+function renderChart(payload){if(typeof Chart==='undefined')return;const key=$('measure').value,runs=selectedRuns(payload),catalog=payload.condition_catalog||[],conditions=[...new Set(runs.map(r=>r.condition))],datasets=[];for(const condition of conditions){const members=runs.filter(r=>r.condition===condition),byProposal=new Map();for(const run of members)for(const point of cumulativeSeries(run,key)){if(!byProposal.has(point.proposal))byProposal.set(point.proposal,[]);byProposal.get(point.proposal).push(point.value);}const plotted=[...byProposal].sort((a,b)=>a[0]-b[0]).map(([x,values])=>({x,y:median(values),low:Math.min(...values),high:Math.max(...values),n:values.length}));datasets.push({label:catalog.find(x=>x.id===condition)?.label||condition,data:plotted,borderColor:conditionColor(condition,catalog),backgroundColor:conditionColor(condition,catalog),borderWidth:2,pointRadius:2,pointHoverRadius:6,tension:.13,spanGaps:true});}chart?.destroy();chart=new Chart($('trajectory-chart'),{type:'line',data:{datasets},options:{responsive:true,maintainAspectRatio:false,animation:false,normalized:true,parsing:false,interaction:{mode:'nearest',intersect:false},plugins:{legend:{display:false},tooltip:{callbacks:{title:items=>items.length?`Proposal ${items[0].raw.x}`:'',label:ctx=>`${ctx.dataset.label}: ${Number(ctx.raw.y).toFixed(key.endsWith('_rate')?1:0)}${key.endsWith('_rate')?'%':''}`,afterLabel:ctx=>`replicate range: ${Number(ctx.raw.low).toFixed(1)}–${Number(ctx.raw.high).toFixed(1)} · n=${ctx.raw.n}`}}},scales:{x:{type:'linear',beginAtZero:true,title:{display:true,text:'Proposal index'}},y:{beginAtZero:true,title:{display:true,text:$('measure').selectedOptions[0].text}}}}});}
+function coverageRow(label,n,d,note){const value=d?100*n/d:0;return `<div class="audit-row"><header><strong>${esc(label)}</strong><span>${pct(n,d)}</span></header><div class="meter"><i style="width:${Math.min(100,value)}%"></i></div><p>${esc(note)}</p></div>`;}
+function renderAudit(payload){const points=selectedPoints(payload),packets=points.map(p=>p.manipulation_review).filter(Boolean);$('audit').innerHTML=coverageRow('Source provenance',points.filter(p=>p.source_provenance_available).length,points.length,'Candidate source delta and architecture IR exist.')+coverageRow('Prompt provenance',points.filter(p=>p.prompt_provenance_available).length,points.length,'Rendered prompt hashes are attached to completion records.')+coverageRow('Complete claim records',points.filter(claimComplete).length,points.length,'All four proposal claims are substantive.')+coverageRow('Fully annotated packets',packets.filter(x=>x.fully_reviewed).length,packets.length,'All seven blinded manipulation fields are filled.')+coverageRow('Physical accounting',points.filter(p=>p.physical_resource_charge!==false).length,points.length,'Shared-prefix shadow copies are excluded from these denominators.');}
+function renderFunnel(payload){const points=selectedPoints(payload),rows=[['Physical proposals',points.length],['Source changed',points.filter(p=>Number(p.source_changed_files||0)>0).length],['Complete claim record',points.filter(claimComplete).length],['Executable evaluation',points.filter(p=>p.valid).length],['Novel source delta',points.filter(novel).length],['Retained evidence',points.filter(p=>p.retained).length]],max=Math.max(1,...rows.map(x=>x[1]));$('funnel').innerHTML=rows.map(([label,value])=>`<div class="funnel-row"><span>${esc(label)}</span><div class="funnel-bar"><i style="width:${100*value/max}%"></i></div><b>${value.toLocaleString()}</b></div>`).join('');}
+function renderPhaseTable(payload){const runs=selectedRuns(payload),catalog=(payload.condition_catalog||[]).filter(x=>runs.some(r=>r.condition===x.id)),starts=[...new Set(runs.flatMap(r=>physicalPoints(r).filter(p=>p.semantic_intervention_applied).map(p=>p.proposal)))].sort((a,b)=>a-b),measure=$('phase-measure').value;let table='<table><thead><tr><th>Condition</th>'+starts.map(x=>`<th>Phase ${x}–${x+4}</th>`).join('')+'</tr></thead><tbody>';for(const item of catalog){const members=runs.filter(r=>r.condition===item.id);table+=`<tr><td><span class="badge">${esc(item.family)}</span><br>${esc(item.label||item.id)}</td>`;for(const start of starts){const rates=members.map(run=>{const phase=physicalPoints(run).filter(p=>p.proposal>=start&&p.proposal<start+5);return phase.length?100*phase.filter(p=>metricValue(p,measure)).length/phase.length:null;}).filter(x=>x!==null);const mid=median(rates);table+=`<td class="phase-cell">${mid===null?'—':mid.toFixed(1)+'%'}${rates.length?`<small>[${Math.min(...rates).toFixed(0)}–${Math.max(...rates).toFixed(0)}] · n=${rates.length}</small>`:''}</td>`;}table+='</tr>';}table+='</tbody></table>';$('phase-table').innerHTML=starts.length?table:'<div class="empty">No completed intervention phases yet.</div>';}
+function renderEvidence(payload){const rows=selectedRuns(payload).flatMap(run=>physicalPoints(run).filter(p=>p.semantic_intervention_applied).map(point=>({run,point}))).sort((a,b)=>b.point.proposal-a.point.proposal||String(a.run.condition).localeCompare(b.run.condition));let table='<table><thead><tr><th>Condition</th><th>Replicate</th><th>Opp.</th><th>Hypothesis</th><th>Mechanism</th><th>Source delta</th><th>Eval</th><th>Novel</th><th>Retained</th><th>Review</th></tr></thead><tbody>';for(const {run,point} of rows){const review=point.manipulation_review;table+=`<tr><td>${esc(run.condition_label||run.condition)}</td><td>R${esc(run.replicate)}</td><td>${point.proposal}</td><td class="long">${esc(point.hypothesis||'not recorded')}</td><td class="long">${esc(point.mechanism||'not recorded')}</td><td>${Number(point.source_changed_files||0)} file · +${Number(point.source_added_lines||0)}/−${Number(point.source_deleted_lines||0)}</td><td class="${point.valid?'yes':'no'}">${point.valid?'executable':'failed'}</td><td class="${novel(point)?'yes':'pending'}">${novel(point)?'yes':'not flagged'}</td><td class="${point.retained?'yes':'pending'}">${point.retained?'yes':'no'}</td><td class="${review?.fully_reviewed?'yes':review?.reviewed?'pending':'pending'}">${review?.fully_reviewed?'complete':review?.reviewed?'partial':'pending'}</td></tr>`;}table+='</tbody></table>';$('evidence-table').innerHTML=rows.length?table:'<div class="empty">No completed intervention proposals yet.</div>';}
+function renderAll(payload){renderKpis(payload);renderChart(payload);renderAudit(payload);renderFunnel(payload);renderPhaseTable(payload);renderEvidence(payload);}
+function selectCampaign(key){campaignKey=key;const payload=data.campaigns[key];selectedConditions=new Set((payload.condition_catalog||[]).map(x=>x.id));renderShell(payload);}
+function syncCampaignSelect(){const entries=availableCampaigns();if(!entries.length){$('campaign').innerHTML='<option>No campaigns available</option>';$('content').innerHTML='<div class="empty">No log-backed campaigns are available.</div>';return;}if(!entries.some(([key])=>key===campaignKey))campaignKey=entries.find(([,p])=>p.semantic)?.[0]||entries[0][0];$('campaign').innerHTML=entries.map(([key,p])=>`<option value="${esc(key)}"${key===campaignKey?' selected':''}>${esc(campaignTitle(p))} · ${p.runs.length} runs</option>`).join('');selectCampaign(campaignKey);}
+async function refresh(){if(refreshing)return;refreshing=true;$('refresh').disabled=true;$('refresh').textContent='Refreshing…';const controller=new AbortController(),timeout=setTimeout(()=>controller.abort(),180000);try{const response=await fetch(apiUrl,{cache:'no-store',signal:controller.signal});if(!response.ok)throw new Error(`HTTP ${response.status}`);data=await response.json();syncCampaignSelect();$('stamp').textContent=`Updated ${new Date(data.generated_at).toLocaleString()} · ${availableCampaigns().length} campaigns · source-authoritative metrics only`;}catch(error){$('stamp').textContent='Refresh failed: '+(error.name==='AbortError'?'request timed out':error.message);}finally{clearTimeout(timeout);refreshing=false;$('refresh').disabled=false;$('refresh').textContent='Refresh now';}}
+async function checkRevision(){try{const response=await fetch(revisionUrl,{cache:'no-store'});if(!response.ok)return;const next=(await response.json()).revision;if(revision===null)revision=next;else if(next&&next!==revision)location.reload();}catch(_error){}}
+function setAuto(){clearInterval(refreshTimer);const seconds=Number($('auto').value);if(seconds>0)refreshTimer=setInterval(()=>{if(!document.hidden)refresh();},seconds*1000);}
+$('campaign').addEventListener('change',event=>selectCampaign(event.target.value));$('family').addEventListener('change',()=>renderAll(data.campaigns[campaignKey]));$('measure').addEventListener('change',()=>renderChart(data.campaigns[campaignKey]));$('phase-measure').addEventListener('change',()=>renderPhaseTable(data.campaigns[campaignKey]));$('refresh').addEventListener('click',refresh);$('auto').addEventListener('change',setAuto);document.addEventListener('visibilitychange',()=>{if(!document.hidden)refresh();});revisionTimer=setInterval(checkRevision,2000);checkRevision();setAuto();refresh();
+</script></body></html>

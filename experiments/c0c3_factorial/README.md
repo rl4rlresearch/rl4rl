@@ -55,6 +55,9 @@ Future coding agents must also follow [AGENTS.md](AGENTS.md).
 - `runner.py`: one locked proposal/evaluation opportunity.
 - `evaluator.py`: campaign-local evaluator limits plus one crash-releasing,
   twelve-slot host scheduler shared by every local 1.6/1.7/2.0/2.1 campaign.
+- `agent_scheduler.py`: crash-releasing, thirty-slot host subject-agent
+  scheduler shared by unified and semantic campaigns, without a wave or peer
+  barrier.
 - `orchestration.py`: versioned serial, synchronized-wave, and independently
   advancing parallel execution, plus campaign writer locks and append-only
   execution provenance.
@@ -158,8 +161,12 @@ Future coding agents must also follow [AGENTS.md](AGENTS.md).
   share their pre-intervention trajectories and fork from identical state at
   the first intervention. See [UNIFIED_V3.md](UNIFIED_V3.md). No official v3
   run is launched by setup or validation.
+- `configs/protocols/unified_v3_adderboard_greedy_3block.toml` is the
+  three-block C0-C3 Greedy OpenEvolve AdderBoard preset. Its matching runtime
+  options enable the 5k-to-30k qualification ladder and exactly three
+  task-isolated evaluator slots.
 - `configs/protocols/semantic_interventions_v4.toml` is the exploratory
-  multi-arm expansion built on the unified v3 controller. Twenty-two semantic
+  multi-arm expansion built on the unified v3 controller. Twenty-three semantic
   research operations receive three matched replicates, share one literal
   five-proposal prefix per replicate, and then run in five-proposal sessions.
   It adds candidate-editable bounded training ladders, non-selective

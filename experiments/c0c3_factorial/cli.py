@@ -8,6 +8,7 @@ import json
 import sys
 from pathlib import Path
 
+from .agent_scheduler import shared_agent_worker_status
 from .campaign import (
     calibrate_task,
     create_campaign,
@@ -487,6 +488,11 @@ def command_local_evaluator_status(_args: argparse.Namespace) -> int:
     return 0
 
 
+def command_agent_worker_status(_args: argparse.Namespace) -> int:
+    print(json.dumps(shared_agent_worker_status(), indent=2, sort_keys=True))
+    return 0
+
+
 def command_validate(args: argparse.Namespace) -> int:
     campaign = args.campaign.resolve()
     spec, task, framework = _load_campaign(campaign)
@@ -753,6 +759,9 @@ def build_parser() -> argparse.ArgumentParser:
 
     local_evaluator_status = subparsers.add_parser("local-evaluator-status")
     local_evaluator_status.set_defaults(handler=command_local_evaluator_status)
+
+    agent_worker_status = subparsers.add_parser("agent-worker-status")
+    agent_worker_status.set_defaults(handler=command_agent_worker_status)
 
     validate = subparsers.add_parser("validate")
     validate.add_argument("--campaign", type=Path, required=True)

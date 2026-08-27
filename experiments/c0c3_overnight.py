@@ -28,6 +28,9 @@ REPO_ROOT = Path(__file__).resolve().parents[1]
 if str(REPO_ROOT) not in sys.path:
     sys.path.insert(0, str(REPO_ROOT))
 
+from experiments.c0c3_factorial.agent_scheduler import (  # noqa: E402
+    shared_agent_worker_status,
+)
 from experiments.c0c3_factorial.evaluator import (  # noqa: E402
     shared_local_evaluator_status,
 )
@@ -84,6 +87,11 @@ elif PROFILE == "openevolve-v2.1-fashion-mnist-extension":
         / "data/c0c3/overnight-control-openevolve-v2-1-fashion-mnist-extension"
     )
     DEFAULT_SCREEN_SESSION = "rl4rl-c0c3-openevolve-v2-1-fashion-mnist-extension"
+elif PROFILE == "unified-v3-adderboard-greedy":
+    DEFAULT_CONTROL_ROOT = (
+        REPO_ROOT / "data/c0c3/overnight-control-unified-v3-adderboard-greedy"
+    )
+    DEFAULT_SCREEN_SESSION = "rl4rl-unified-v3-adderboard-greedy"
 else:
     raise RuntimeError(f"unknown overnight profile: {PROFILE}")
 CONTROL_ROOT = Path(
@@ -343,6 +351,23 @@ def plans(profile: str | None = None) -> tuple[CampaignPlan, ...]:
                 ),
                 mode="extension-individual-trajectories",
                 blocks=(4, 5),
+            ),
+        )
+    if selected_profile == "unified-v3-adderboard-greedy":
+        return (
+            CampaignPlan(
+                key="unified-v3-adderboard-greedy",
+                runtime_root=_env_path(
+                    "RL4RL_UNIFIED_V3_ADDERBOARD_GREEDY_RUNTIME",
+                    Path("/private/tmp/rl4rl-unified-v3-adderboard-greedy"),
+                ),
+                campaign=_env_path(
+                    "RL4RL_UNIFIED_V3_ADDERBOARD_GREEDY_CAMPAIGN",
+                    REPO_ROOT
+                    / "data/c0c3/unified-v3-adderboard-greedy-3block-campaign",
+                ),
+                mode="individual-trajectories",
+                blocks=(1, 2, 3),
             ),
         )
     if selected_profile != "primary":
@@ -623,6 +648,7 @@ def command_environment(job: Job) -> dict[str, str]:
         "openevolve-v2.1-nanogpt",
         "openevolve-v2.1-fashion-mnist",
         "openevolve-v2.1-fashion-mnist-extension",
+        "unified-v3-adderboard-greedy",
     }:
         environment["RL4RL_C0C3_OPERATOR_PROMPT_ROOT"] = str(
             REPO_ROOT / "experiments/c0c3_factorial/templates"
@@ -659,6 +685,7 @@ def ensure_service_tier_control() -> None:
         "openevolve-v2.1-nanogpt",
         "openevolve-v2.1-fashion-mnist",
         "openevolve-v2.1-fashion-mnist-extension",
+        "unified-v3-adderboard-greedy",
     }:
         return
     if not SERVICE_TIER_PATH.exists():
@@ -1337,6 +1364,14 @@ def command_status(_args: argparse.Namespace) -> int:
         "local_evaluators="
         f"{scheduler['occupied']}/{scheduler['capacity']} "
         f"available={scheduler['available']} root={scheduler['root']}"
+    )
+    agent_workers = shared_agent_worker_status()
+    print(
+        "agent_workers="
+        f"{agent_workers['occupied']}/{agent_workers['capacity']} "
+        f"available={agent_workers['available']} "
+        f"barrier={agent_workers['synchronization_barrier']} "
+        f"root={agent_workers['root']}"
     )
     print("job\tdesired\tactual\tpid\tproposals\ttokens\tlowest_params\tactive")
     desired = load_desired(jobs)

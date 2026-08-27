@@ -14,6 +14,11 @@ from contextlib import contextmanager
 from datetime import UTC, datetime
 from pathlib import Path
 
+from .agent_scheduler import (
+    AgentWorkerLease,
+    acquire_agent_worker_slot,
+    release_agent_worker_slot,
+)
 from .artifacts import (
     candidate_hash,
     make_read_only,
@@ -468,6 +473,7 @@ def _run_one_opportunity_unlocked(
     codex_binary: str = "codex",
     codex_timeout_seconds: int = 3600,
     allow_v3_prefix_leader: bool = False,
+    agent_worker_lease: AgentWorkerLease | None = None,
 ) -> dict[str, object]:
     run_dir = Path(run_dir).resolve()
     if (
@@ -829,26 +835,33 @@ def _run_one_opportunity_unlocked(
     requested_session_id = (
         controller.state.conversation_session_id if continuous else None
     )
-    proposal = adapter.propose(
-        rendered=rendered,
-        workspace=codex_workspace,
-        model=spec.model,
-        log_root=opportunity_root / "codex",
-        call_id=f"proposal-{active.index}",
-        timeout_seconds=codex_timeout_seconds,
-        task=task,
-        visible_workspaces=tuple(visible_workspaces),
-        selected_parent_id=active.selected_parent_id,
-        visible_records=tuple(visible_records),
-        run_seed=search_seed,
-        resume_session_id=requested_session_id,
-        persist_session=continuous,
-        neutral_subject=neutral_subject,
-        artifact_clean_subject=artifact_clean_subject,
-        native_prompt_context=(
-            native_selection.prompt_context() if native_selection is not None else None
-        ),
-    )
+    try:
+        proposal = adapter.propose(
+            rendered=rendered,
+            workspace=codex_workspace,
+            model=spec.model,
+            log_root=opportunity_root / "codex",
+            call_id=f"proposal-{active.index}",
+            timeout_seconds=codex_timeout_seconds,
+            task=task,
+            visible_workspaces=tuple(visible_workspaces),
+            selected_parent_id=active.selected_parent_id,
+            visible_records=tuple(visible_records),
+            run_seed=search_seed,
+            resume_session_id=requested_session_id,
+            persist_session=continuous,
+            neutral_subject=neutral_subject,
+            artifact_clean_subject=artifact_clean_subject,
+            native_prompt_context=(
+                native_selection.prompt_context()
+                if native_selection is not None
+                else None
+            ),
+        )
+    finally:
+        # The thirty-worker ceiling controls concurrent subject agents. Local
+        # and remote evaluators use their independent task/host schedulers.
+        release_agent_worker_slot(agent_worker_lease)
     protected_changed = (
         protected_hash(codex_workspace, task.editable_paths) != before_protected
     )
@@ -1187,20 +1200,39 @@ def run_one_opportunity(
     codex_binary: str = "codex",
     codex_timeout_seconds: int = 3600,
     allow_v3_prefix_leader: bool = False,
+    agent_worker_lease: AgentWorkerLease | None = None,
 ) -> dict[str, object]:
     resolved = Path(run_dir).resolve()
-    with _run_lock(resolved):
-        return _run_one_opportunity_unlocked(
-            resolved,
-            spec=spec,
-            task=task,
-            framework=framework,
-            repo_root=repo_root,
-            python_bin=python_bin,
-            codex_binary=codex_binary,
-            codex_timeout_seconds=codex_timeout_seconds,
-            allow_v3_prefix_leader=allow_v3_prefix_leader,
+    next_opportunity = SearchController.load(resolved, spec).state.next_opportunity
+    lease = agent_worker_lease
+    if lease is None:
+        lease = acquire_agent_worker_slot(
+            worker_id=f"{resolved}:{next_opportunity}",
+            metadata={
+                "campaign": str(resolved.parent.parent),
+                "run_id": resolved.name,
+                "opportunity": next_opportunity,
+                "framework_id": str(framework.framework_id.value),
+                "task_id": task.task_id,
+            },
+            cancel_path=resolved / "pause-request.json",
         )
+    try:
+        with _run_lock(resolved):
+            return _run_one_opportunity_unlocked(
+                resolved,
+                spec=spec,
+                task=task,
+                framework=framework,
+                repo_root=repo_root,
+                python_bin=python_bin,
+                codex_binary=codex_binary,
+                codex_timeout_seconds=codex_timeout_seconds,
+                allow_v3_prefix_leader=allow_v3_prefix_leader,
+                agent_worker_lease=lease,
+            )
+    finally:
+        release_agent_worker_slot(lease)
 
 
 def recover_active_opportunity(

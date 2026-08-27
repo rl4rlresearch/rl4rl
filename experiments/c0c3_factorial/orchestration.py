@@ -15,6 +15,7 @@ from dataclasses import dataclass
 from datetime import UTC, datetime
 from pathlib import Path
 
+from .agent_scheduler import WorkerQueueCancelled
 from .prompts import (
     FROZEN_ASSUMPTION_PROMPT,
     FROZEN_ASSUMPTION_PROMPT_MANIFEST,
@@ -866,6 +867,10 @@ def run_staged_individual_trajectory(
                         codex_timeout_seconds=codex_timeout_seconds,
                     )
                 )
+            except WorkerQueueCancelled:
+                # No proposal was begun and no scientific budget was consumed.
+                # The next loop iteration claims the cooperative pause marker.
+                continue
             except KeyboardInterrupt:
                 _append_trajectory_lifecycle(
                     campaign,

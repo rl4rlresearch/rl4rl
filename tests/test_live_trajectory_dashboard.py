@@ -10,6 +10,7 @@ import pytest
 from experiments.live_trajectory_dashboard import (
     DEFAULT_MODAL_H100_PRICE_PER_SECOND,
     PAGE,
+    DashboardPayloadCache,
     build_run,
     campaign_data,
     codex_primary_rate_limit_sample,
@@ -727,7 +728,9 @@ def test_page_contains_live_controls_and_raw_outcome_overlay() -> None:
     assert "Greedy OpenEvolve v2.1" in PAGE
     assert "Intervention families" not in PAGE
     assert "const semanticConditionColors=" in PAGE
+    assert "const semanticCompactLabels=" in PAGE
     assert "function semanticRunLegend(payload,state,catalog)" in PAGE
+    assert "members.map(run=>runLegendButton(state,run,true))" in PAGE
     assert "function orderedRuns(payload,runs=payload.runs)" in PAGE
     assert "borderDash:role==='raw'?[]:replicateDash(run)" in PAGE
     assert "run-group-runs" in PAGE
@@ -795,3 +798,22 @@ def test_small_or_unsupported_responses_are_not_compressed() -> None:
 
     assert encode_response(small, "gzip") == (small, None)
     assert encode_response(b"x" * 2000, "identity") == (b"x" * 2000, None)
+
+
+def test_dashboard_payload_cache_builds_once_and_reuses_gzip() -> None:
+    calls = 0
+
+    def build() -> bytes:
+        nonlocal calls
+        calls += 1
+        return b"process-evidence" * 1000
+
+    cache = DashboardPayloadCache(build, ttl_seconds=60)
+
+    first, first_encoding = cache.response("gzip")
+    second, second_encoding = cache.response("gzip")
+
+    assert calls == 1
+    assert first_encoding == second_encoding == "gzip"
+    assert first == second
+    assert gzip.decompress(first) == b"process-evidence" * 1000

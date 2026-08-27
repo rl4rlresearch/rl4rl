@@ -166,3 +166,10 @@ $PY -m $CLI manifest-v3-release --campaign "$OUT-campaign" --output release.json
 `resume-staged-trajectory` also understand v3. Before the fork, either member's
 controller advances the one pair-owned prefix under a pair lock. After the
 fork, each run is independently controllable.
+
+The AdderBoard Greedy OpenEvolve launch preset is
+`configs/protocols/unified_v3_adderboard_greedy_3block.toml`. Its matching
+`configs/runtime/unified_v3_adderboard_greedy_3slot.json` enables the common
+5k→30k qualification ladder and exactly three task-isolated evaluator slots.
+The host-wide opportunity-worker scheduler independently admits at most 30
+workers across all campaigns; it never waits for a proposal wave or peer run.

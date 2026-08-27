@@ -58,6 +58,13 @@ DEFAULT_OPENEVOLVE_V21_FASHION_MNIST = (
 DEFAULT_SEMANTIC_V4_FASHION_MNIST = (
     REPO_ROOT / "data/c0c3/semantic-interventions-v4-fashion-openevolve-campaign"
 )
+DEFAULT_SEMANTIC_V4_FASHION_MNIST_NATIVE = (
+    REPO_ROOT
+    / "data/c0c3/semantic-interventions-v4-fashion-native-openevolve-campaign"
+)
+DEFAULT_UNIFIED_V3_ADDERBOARD_GREEDY = (
+    REPO_ROOT / "data/c0c3/unified-v3-adderboard-greedy-3block-campaign"
+)
 
 # These are display-only price weights, not a billing record.  They match the
 # previous trajectory visualizer's token-cost convention and can be overridden.
@@ -1073,6 +1080,74 @@ def semantic_label(assignment: dict[str, Any], fallback: str) -> str:
     return fallback
 
 
+def substantive_claim(value: Any) -> bool:
+    """Whether a scientific-record field contains an actual agent claim."""
+
+    if not isinstance(value, str):
+        return False
+    return value.strip().casefold() not in {
+        "",
+        "[not recorded]",
+        "[missing mechanism]",
+        "[missing hypothesis]",
+        "[missing intended edit]",
+        "[missing evidence]",
+    }
+
+
+def manipulation_review_index(
+    campaign: Path,
+) -> tuple[dict[tuple[str, int], dict[str, Any]], dict[str, Any]]:
+    """Join blinded packet annotations to runs without mutating review files."""
+
+    mapping_path = campaign / "review/v3-manipulation/private-mapping.jsonl"
+    packets_root = campaign / "review/v3-manipulation/packets"
+    index: dict[tuple[str, int], dict[str, Any]] = {}
+    annotation_fields = (
+        "old_assumption_identifiable",
+        "new_mechanism_implemented",
+        "distinct_from_recent_lineage",
+        "primarily_tuning_pruning_or_deletion",
+        "cleanly_attributable",
+        "feasible_under_task_contract",
+        "novelty_score",
+    )
+    reviewed = 0
+    fully_reviewed = 0
+    for row in iter_jsonl(mapping_path):
+        run_id = row.get("run_id")
+        opportunity = row.get("opportunity")
+        packet_id = row.get("packet_id")
+        if (
+            not isinstance(run_id, str)
+            or not isinstance(opportunity, int)
+            or not isinstance(packet_id, str)
+        ):
+            continue
+        packet = read_json(packets_root / f"{packet_id}.json", {})
+        annotation = packet.get("annotation", {}) if isinstance(packet, dict) else {}
+        annotation = annotation if isinstance(annotation, dict) else {}
+        completed = [annotation.get(field) is not None for field in annotation_fields]
+        if any(completed):
+            reviewed += 1
+        if completed and all(completed):
+            fully_reviewed += 1
+        index[(run_id, opportunity)] = {
+            "packet_id": packet_id,
+            "proposal_type": row.get("proposal_type"),
+            "annotation": {field: annotation.get(field) for field in annotation_fields},
+            "reviewed": any(completed),
+            "fully_reviewed": bool(completed and all(completed)),
+        }
+    return index, {
+        "available": mapping_path.is_file(),
+        "packets": len(index),
+        "reviewed_packets": reviewed,
+        "fully_reviewed_packets": fully_reviewed,
+        "annotation_fields": list(annotation_fields),
+    }
+
+
 def display_status(run_dir: Path, scientific_status: Any) -> str:
     """Return the operator-facing lifecycle status without changing run state.
 
@@ -1106,6 +1181,7 @@ def build_run(
     semantic_prefix_role: str | None = None,
     shared_prefix_through: int = 0,
     desired_state: str | None = None,
+    manipulation_reviews: dict[tuple[str, int], dict[str, Any]] | None = None,
 ) -> dict[str, Any] | None:
     state = read_json(run_dir / "state.json", {})
     if not isinstance(state, dict):
@@ -1153,6 +1229,7 @@ def build_run(
     modal_gpu_cost = 0.0
     accounted_tokens = 0
     accounted_cost = 0.0
+    manipulation_reviews = manipulation_reviews or {}
     for event in events:
         opportunity = event.get("opportunity")
         if not isinstance(opportunity, int):
@@ -1208,6 +1285,26 @@ def build_run(
         evaluator_calls_increment = (
             numeric(event.get("evaluator_calls_increment")) or 0.0
         )
+        provenance = read_json(
+            run_dir
+            / "opportunities"
+            / f"{opportunity:04d}"
+            / "candidate-provenance.json",
+            {},
+        )
+        provenance = provenance if isinstance(provenance, dict) else {}
+        claims = provenance.get("agent_claims", {})
+        claims = claims if isinstance(claims, dict) else {}
+        hypothesis = event.get("hypothesis", claims.get("hypothesis"))
+        intended_edit = event.get("intended_edit", claims.get("intended_edit"))
+        mechanism = event.get("mechanism", claims.get("mechanism"))
+        evidence = event.get("evidence", claims.get("evidence"))
+        claim_completeness = {
+            "hypothesis": substantive_claim(hypothesis),
+            "intended_edit": substantive_claim(intended_edit),
+            "mechanism": substantive_claim(mechanism),
+            "evidence": substantive_claim(evidence),
+        }
         modal_records = modal_usage_by_opportunity.get(opportunity, [])
         modal_worker_seconds_increment = sum(
             numeric(record.get("worker_seconds")) or 0.0 for record in modal_records
@@ -1301,8 +1398,29 @@ def build_run(
                     if isinstance(raw_metrics.get("fidelity_stages"), list)
                     else 0
                 ),
-                "hypothesis": event.get("hypothesis"),
-                "mechanism": event.get("mechanism"),
+                "hypothesis": hypothesis,
+                "intended_edit": intended_edit,
+                "mechanism": mechanism,
+                "evidence": evidence,
+                "claim_completeness": claim_completeness,
+                "complete_scientific_record": all(claim_completeness.values()),
+                "source_provenance_available": bool(provenance),
+                "source_changed_files": int(
+                    numeric(provenance.get("changed_files")) or 0
+                ),
+                "source_added_lines": int(
+                    numeric(provenance.get("added_lines")) or 0
+                ),
+                "source_deleted_lines": int(
+                    numeric(provenance.get("deleted_lines")) or 0
+                ),
+                "semantic_delta_fingerprint": provenance.get(
+                    "semantic_delta_fingerprint"
+                ),
+                "manipulation_review": manipulation_reviews.get(
+                    (run_id, opportunity)
+                ),
+                "prompt_provenance_available": bool(event.get("prompt_hashes")),
                 "timestamp": event.get("timestamp"),
                 "is_seed": False,
             }
@@ -1350,7 +1468,18 @@ def build_run(
                 "failure_kind": None,
                 "proposal_type": "seed",
                 "hypothesis": candidate.get("hypothesis"),
+                "intended_edit": "none",
                 "mechanism": None,
+                "evidence": None,
+                "claim_completeness": {},
+                "complete_scientific_record": False,
+                "source_provenance_available": False,
+                "source_changed_files": 0,
+                "source_added_lines": 0,
+                "source_deleted_lines": 0,
+                "semantic_delta_fingerprint": None,
+                "manipulation_review": None,
+                "prompt_provenance_available": False,
                 "timestamp": None,
                 "is_seed": True,
             },
@@ -1538,6 +1667,9 @@ def campaign_data(
     modal_by_run, modal_summary = modal_usage_index(
         campaign, h100_price_per_second=modal_h100_price_per_second
     )
+    manipulation_reviews, manipulation_review_summary = manipulation_review_index(
+        campaign
+    )
     runs = [
         build_run(
             path,
@@ -1553,6 +1685,7 @@ def campaign_data(
                 if isinstance(desired_by_run.get(path.name), dict)
                 else None
             ),
+            manipulation_reviews=manipulation_reviews,
         )
         for path in sorted(runs_root.glob("*"))
         if path.is_dir()
@@ -1679,6 +1812,65 @@ def campaign_data(
             int(run.get("accounted_total_tokens", 0)) for run in visible_runs
         ),
     }
+    scientific_points = [
+        point
+        for run in visible_runs
+        for point in run["points"]
+        if not point.get("is_seed") and point.get("physical_resource_charge", True)
+    ]
+    distinct_deltas = {
+        str(point["semantic_delta_fingerprint"])
+        for point in scientific_points
+        if point.get("semantic_delta_fingerprint")
+    }
+    distinct_mechanisms = {
+        str(point["mechanism"]).strip().casefold()
+        for point in scientific_points
+        if substantive_claim(point.get("mechanism"))
+    }
+    source_changed = sum(
+        int(point.get("source_changed_files", 0)) > 0 for point in scientific_points
+    )
+    complete_records = sum(
+        bool(point.get("complete_scientific_record")) for point in scientific_points
+    )
+    scientific_process = {
+        "physical_proposals": len(scientific_points),
+        "source_changed_proposals": source_changed,
+        "complete_scientific_records": complete_records,
+        "executable_proposals": sum(
+            bool(point.get("valid")) for point in scientific_points
+        ),
+        "novel_delta_proposals": sum(
+            "novel_delta" in point.get("developmental_reasons", [])
+            for point in scientific_points
+        ),
+        "retained_proposals": sum(
+            bool(point.get("retained")) for point in scientific_points
+        ),
+        "distinct_source_deltas": len(distinct_deltas),
+        "distinct_reported_mechanisms": len(distinct_mechanisms),
+        "source_provenance_coverage": sum(
+            bool(point.get("source_provenance_available"))
+            for point in scientific_points
+        ),
+        "prompt_provenance_coverage": sum(
+            bool(point.get("prompt_provenance_available"))
+            for point in scientific_points
+        ),
+        "failure_kinds": dict(
+            Counter(
+                str(point["failure_kind"])
+                for point in scientific_points
+                if point.get("failure_kind")
+            )
+        ),
+        "manipulation_review": manipulation_review_summary,
+        "funnel_note": (
+            "Evidence counts are process indicators; novelty and retention are not "
+            "strictly nested stages of one causal funnel."
+        ),
+    }
     return {
         "campaign": str(campaign),
         "available": campaign.is_dir(),
@@ -1694,6 +1886,7 @@ def campaign_data(
         "semantic": semantic,
         "condition_catalog": condition_catalog,
         "semantic_summary": semantic_summary,
+        "scientific_process": scientific_process,
         "runs": visible_runs,
     }
 
@@ -1740,7 +1933,9 @@ def dashboard_data(
 # linted and tested independently of the read-only Python log server.
 PYTHON_SOURCE_PATH = Path(__file__).resolve()
 PAGE_PATH = PYTHON_SOURCE_PATH.with_name("live_trajectory_dashboard.html")
+SCIENCE_PAGE_PATH = PYTHON_SOURCE_PATH.with_name("scientific_process_dashboard.html")
 PAGE = PAGE_PATH.read_text(encoding="utf-8")
+SCIENCE_PAGE = SCIENCE_PAGE_PATH.read_text(encoding="utf-8")
 
 
 def read_dashboard_page() -> str:
@@ -1753,10 +1948,19 @@ def read_dashboard_page() -> str:
         return PAGE
 
 
+def read_science_page() -> str:
+    """Read the AISCiK process page without requiring a server restart."""
+
+    try:
+        return SCIENCE_PAGE_PATH.read_text(encoding="utf-8")
+    except OSError:
+        return SCIENCE_PAGE
+
+
 def dashboard_revision(paths: tuple[Path, ...] | None = None) -> str:
     """Return a content revision for browser and server hot reload checks."""
     digest = hashlib.sha256()
-    for path in paths or (PYTHON_SOURCE_PATH, PAGE_PATH):
+    for path in paths or (PYTHON_SOURCE_PATH, PAGE_PATH, SCIENCE_PAGE_PATH):
         digest.update(str(path).encode("utf-8"))
         try:
             digest.update(path.read_bytes())
@@ -1787,6 +1991,105 @@ def encode_response(body: bytes, accept_encoding: str) -> tuple[bytes, str | Non
     return body, None
 
 
+class DashboardPayloadCache:
+    """Single-flight, stale-while-refresh cache for the expensive log snapshot.
+
+    Multiple open dashboard pages refresh independently. Building the complete
+    multi-campaign payload once per request made those tabs rescan the same
+    append-only artifacts in parallel. Once a snapshot exists, an expired
+    request receives it immediately while one background refresh builds the
+    next snapshot. This cache is read-only with respect to campaign state.
+    """
+
+    def __init__(self, builder: Any, *, ttl_seconds: float = 15.0) -> None:
+        self._builder = builder
+        self._ttl_seconds = ttl_seconds
+        self._condition = threading.Condition()
+        self._body: bytes | None = None
+        self._gzip_body: bytes | None = None
+        self._built_at = 0.0
+        self._building = False
+        self._error: BaseException | None = None
+
+    def _build(self) -> tuple[bytes, bytes]:
+        body = self._builder()
+        return body, gzip.compress(body, compresslevel=5)
+
+    def _finish_build(self) -> None:
+        try:
+            body, gzip_body = self._build()
+        except BaseException as exc:  # Preserve a prior usable snapshot.
+            with self._condition:
+                self._error = exc
+                self._building = False
+                self._condition.notify_all()
+            print(f"Dashboard snapshot refresh failed: {exc}", flush=True)
+            return
+        with self._condition:
+            self._body = body
+            self._gzip_body = gzip_body
+            self._built_at = time.monotonic()
+            self._error = None
+            self._building = False
+            self._condition.notify_all()
+
+    def prewarm(self) -> None:
+        """Start one non-blocking initial snapshot build."""
+
+        with self._condition:
+            if self._building or self._body is not None:
+                return
+            self._building = True
+        threading.Thread(
+            target=self._finish_build,
+            name="dashboard-payload-prewarm",
+            daemon=True,
+        ).start()
+
+    def response(self, accept_encoding: str) -> tuple[bytes, str | None]:
+        """Return a current snapshot, coalescing simultaneous cold requests."""
+
+        leader = False
+        with self._condition:
+            age = time.monotonic() - self._built_at
+            if self._body is not None and age <= self._ttl_seconds:
+                body = self._body
+                gzip_body = self._gzip_body
+            elif self._body is not None:
+                body = self._body
+                gzip_body = self._gzip_body
+                if not self._building:
+                    self._building = True
+                    threading.Thread(
+                        target=self._finish_build,
+                        name="dashboard-payload-refresh",
+                        daemon=True,
+                    ).start()
+            else:
+                if not self._building:
+                    self._building = True
+                    leader = True
+                while not leader and self._body is None and self._building:
+                    self._condition.wait()
+                if not leader:
+                    if self._body is None:
+                        assert self._error is not None
+                        raise self._error
+                    body = self._body
+                    gzip_body = self._gzip_body
+        if leader:
+            self._finish_build()
+            with self._condition:
+                if self._body is None:
+                    assert self._error is not None
+                    raise self._error
+                body = self._body
+                gzip_body = self._gzip_body
+        if "gzip" in accept_encoding.lower() and gzip_body is not None:
+            return gzip_body, "gzip"
+        return body, None
+
+
 def make_handler(
     campaigns: dict[str, Path],
     prices: dict[str, float],
@@ -1796,23 +2099,48 @@ def make_handler(
     codex_rate_limit_sample_seconds: float = DEFAULT_CODEX_RATE_LIMIT_SAMPLE_SECONDS,
     codex_token_campaign_roots: Iterable[Path] = (),
 ):
+    codex_token_campaign_roots = tuple(codex_token_campaign_roots)
+
+    def build_dashboard_payload() -> bytes:
+        return json.dumps(
+            dashboard_data(
+                campaigns,
+                prices,
+                modal_h100_price_per_second=modal_h100_price_per_second,
+                codex_rate_limit_history=codex_rate_limit_history,
+                codex_rate_limit_sample_seconds=codex_rate_limit_sample_seconds,
+                codex_token_campaign_roots=codex_token_campaign_roots,
+            ),
+            separators=(",", ":"),
+        ).encode("utf-8")
+
+    payload_cache = DashboardPayloadCache(build_dashboard_payload)
+    payload_cache.prewarm()
+
     class Handler(BaseHTTPRequestHandler):
-        def send_payload(self, body: bytes, content_type: str) -> None:
-            body, content_encoding = encode_response(
-                body, self.headers.get("Accept-Encoding", "")
-            )
-            self.send_response(HTTPStatus.OK)
-            self.send_header("Content-Type", content_type)
-            self.send_header("Cache-Control", "no-store")
-            self.send_header("Access-Control-Allow-Origin", "*")
-            self.send_header("Vary", "Accept-Encoding")
-            if content_encoding:
-                self.send_header("Content-Encoding", content_encoding)
-            self.send_header("Content-Length", str(len(body)))
-            self.end_headers()
-            # A reload can abandon an in-flight multi-megabyte response.  The
-            # dashboard server should remain healthy when that happens.
+        def send_payload(
+            self,
+            body: bytes,
+            content_type: str,
+            *,
+            content_encoding: str | None = None,
+        ) -> None:
+            if content_encoding is None:
+                body, content_encoding = encode_response(
+                    body, self.headers.get("Accept-Encoding", "")
+                )
+            # A reload can abandon an in-flight multi-megabyte response before
+            # either headers or body finish. Keep the read-only server healthy.
             with suppress(BrokenPipeError, ConnectionResetError):
+                self.send_response(HTTPStatus.OK)
+                self.send_header("Content-Type", content_type)
+                self.send_header("Cache-Control", "no-store")
+                self.send_header("Access-Control-Allow-Origin", "*")
+                self.send_header("Vary", "Accept-Encoding")
+                if content_encoding:
+                    self.send_header("Content-Encoding", content_encoding)
+                self.send_header("Content-Length", str(len(body)))
+                self.end_headers()
                 self.wfile.write(body)
 
         def do_GET(self) -> None:  # noqa: N802
@@ -1821,24 +2149,25 @@ def make_handler(
                     read_dashboard_page().encode("utf-8"),
                     "text/html; charset=utf-8",
                 )
+            elif self.path in {"/science", "/science.html"}:
+                self.send_payload(
+                    read_science_page().encode("utf-8"),
+                    "text/html; charset=utf-8",
+                )
             elif self.path == "/api/revision":
                 payload = json.dumps(
                     {"revision": dashboard_revision()}, separators=(",", ":")
                 ).encode("utf-8")
                 self.send_payload(payload, "application/json; charset=utf-8")
             elif self.path == "/api/data":
-                payload = json.dumps(
-                    dashboard_data(
-                        campaigns,
-                        prices,
-                        modal_h100_price_per_second=modal_h100_price_per_second,
-                        codex_rate_limit_history=codex_rate_limit_history,
-                        codex_rate_limit_sample_seconds=codex_rate_limit_sample_seconds,
-                        codex_token_campaign_roots=codex_token_campaign_roots,
-                    ),
-                    separators=(",", ":"),
-                ).encode("utf-8")
-                self.send_payload(payload, "application/json; charset=utf-8")
+                payload, content_encoding = payload_cache.response(
+                    self.headers.get("Accept-Encoding", "")
+                )
+                self.send_payload(
+                    payload,
+                    "application/json; charset=utf-8",
+                    content_encoding=content_encoding,
+                )
             else:
                 self.send_error(HTTPStatus.NOT_FOUND)
 
@@ -1888,6 +2217,16 @@ def parse_args() -> argparse.Namespace:
         "--semantic-v4-fashion-mnist-campaign",
         type=Path,
         default=DEFAULT_SEMANTIC_V4_FASHION_MNIST,
+    )
+    parser.add_argument(
+        "--semantic-v4-fashion-mnist-native-campaign",
+        type=Path,
+        default=DEFAULT_SEMANTIC_V4_FASHION_MNIST_NATIVE,
+    )
+    parser.add_argument(
+        "--unified-v3-adderboard-greedy-campaign",
+        type=Path,
+        default=DEFAULT_UNIFIED_V3_ADDERBOARD_GREEDY,
     )
     parser.add_argument(
         "--input-per-million", type=float, default=DEFAULT_PRICE_PER_MILLION["input"]
@@ -1940,6 +2279,12 @@ def main() -> None:
         ),
         "openevolve_v21_fashion_mnist": (args.openevolve_v21_fashion_mnist_campaign),
         "semantic_v4_fashion_mnist": args.semantic_v4_fashion_mnist_campaign,
+        "semantic_v4_fashion_mnist_native": (
+            args.semantic_v4_fashion_mnist_native_campaign
+        ),
+        "unified_v3_adderboard_greedy": (
+            args.unified_v3_adderboard_greedy_campaign
+        ),
     }
     token_campaign_roots = dashboard_campaign_roots(campaigns)
     server = ThreadingHTTPServer(
@@ -1978,6 +2323,14 @@ def main() -> None:
         f"{args.openevolve_v21_fashion_mnist_campaign}"
     )
     print(f"Semantic v4 Fashion-MNIST: {args.semantic_v4_fashion_mnist_campaign}")
+    print(
+        "Semantic v4 Fashion-MNIST Native OpenEvolve: "
+        f"{args.semantic_v4_fashion_mnist_native_campaign}"
+    )
+    print(
+        "Unified v3 AdderBoard Greedy OpenEvolve: "
+        f"{args.unified_v3_adderboard_greedy_campaign}"
+    )
     print(
         "Codex quota burn-rate history: "
         f"{args.codex_rate_limit_history} "

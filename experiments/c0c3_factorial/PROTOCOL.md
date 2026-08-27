@@ -400,6 +400,16 @@ charge queue time, or change evaluator seeds, commands, timeouts, and budgets.
 Evaluator-only Modal calls retain their campaign remote-call limit but do not
 consume a local host slot.
 
+Unified v3 and semantic-v4 campaigns also enter one crash-releasing host pool
+of thirty subject-agent workers across campaigns. A lease is acquired before
+an opportunity is marked active and released as soon as its subject call
+returns; evaluators use their separate task and host pools. Queued work consumes
+no proposal or evaluator budget. Slot release immediately admits any
+independently waiting trajectory; the pool has no proposal wave, block barrier,
+or campaign synchronization rule. This is a condition-common operational load
+ceiling and does not change selection, retention, prompts, seeds, or proposal
+order within a trajectory.
+
 `C0C3_RUN_SEED` and `PYTHONHASHSEED` are supplied to evaluator and legacy
 non-neutral subprocesses. Task code may use `C0C3_RUN_SEED`; task-specific fixed
 seeds still take precedence where declared. The Codex provider does not expose
@@ -616,7 +626,7 @@ analysis that uses the affected data.
 
 The semantic-intervention experiment is a separate multi-arm analysis stratum,
 not another C0-C3 factorial cell. It reuses the unified v3 execution and
-artifact contracts while randomizing 22 research operations after a literal
+artifact contracts while randomizing 23 research operations after a literal
 five-proposal shared prefix. It resets provider conversations every five
 proposals, preserves verified evidence in bounded capsules, and records
 developmental outcomes without changing primary retention.
