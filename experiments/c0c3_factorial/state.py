@@ -382,6 +382,59 @@ class SearchController:
             },
         )
 
+    def refresh_from_incumbent(
+        self, *, opportunity: int, search_seed: int, reason: str
+    ) -> None:
+        """Start a fresh search epoch around the retained incumbent.
+
+        Scientific accounting and the incumbent artifact are preserved. Search
+        population, parent history, and the active conversation binding are not.
+        The append-only event log remains the private audit trail.
+        """
+
+        if self.state.active is not None:
+            raise RuntimeError("cannot refresh an active opportunity")
+        if opportunity != self.state.next_opportunity:
+            raise ValueError("refresh must target the next opportunity")
+        if opportunity < 2 or not reason.strip():
+            raise ValueError("refresh requires a later opportunity and a reason")
+        incumbent = self.state.candidates[self.state.incumbent_id]
+        prior_candidate_ids = sorted(self.state.candidates)
+        prior_portfolio_ids = list(self.state.portfolio_ids)
+        prior_session_id = self.state.conversation_session_id
+        refreshed = Candidate(
+            candidate_id=incumbent.candidate_id,
+            parent_ids=[],
+            fitness=incumbent.fitness,
+            metrics=dict(incumbent.metrics),
+            artifact_path=incumbent.artifact_path,
+            hypothesis="starting design",
+            intended_edit="none",
+            created_opportunity=opportunity - 1,
+            retained_order=0,
+            selected_count=0,
+        )
+        self.state.candidates = {refreshed.candidate_id: refreshed}
+        self.state.portfolio_ids = [refreshed.candidate_id]
+        self.state.conversation_session_id = None
+        self._write_state()
+        append_jsonl(
+            self.events_path,
+            {
+                "schema_version": "1.0",
+                "event": "search_epoch_refreshed_from_incumbent",
+                "timestamp": utc_now(),
+                "run_id": self.state.run_id,
+                "opportunity": opportunity,
+                "incumbent_id": refreshed.candidate_id,
+                "prior_candidate_ids": prior_candidate_ids,
+                "prior_portfolio_ids": prior_portfolio_ids,
+                "prior_conversation_session_id": prior_session_id,
+                "search_seed": search_seed,
+                "reason": reason.strip(),
+            },
+        )
+
     def record_token_budget_continuation_notice(self) -> None:
         """Record the one subject-facing notice after v1.6 crosses its threshold."""
 

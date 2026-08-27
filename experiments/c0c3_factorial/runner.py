@@ -30,6 +30,7 @@ from .native_openevolve import (
     finalize_native_outcome,
     is_native_openevolve,
     prepare_native_selection,
+    reset_native_population_from_incumbent,
     stage_native_outcome,
 )
 from .neutral_task import (
@@ -38,6 +39,11 @@ from .neutral_task import (
     PAIR_TOKEN_TASK_ADAPTER_V2,
     PAIR_TOKEN_TASK_ADAPTER_V3,
     SUBJECT_NEUTRAL_PROMPT_PROFILES,
+)
+from .periodic_refresh import (
+    REFRESH_INCUMBENT,
+    apply_periodic_refresh,
+    memory_state,
 )
 from .prompts import (
     FROZEN_ASSUMPTION_PROMPT,
@@ -248,7 +254,9 @@ def _make_tree_owner_writable(root: Path) -> None:
         path.chmod(path.stat().st_mode | stat.S_IWUSR)
 
 
-def _recent_outcomes(run_dir: Path, *, limit: int = 12) -> tuple[VisibleOutcome, ...]:
+def _recent_outcomes(
+    run_dir: Path, *, limit: int = 12, minimum_opportunity: int = 1
+) -> tuple[VisibleOutcome, ...]:
     events = run_dir / "events.jsonl"
     if not events.is_file():
         return ()
@@ -267,6 +275,8 @@ def _recent_outcomes(run_dir: Path, *, limit: int = 12) -> tuple[VisibleOutcome,
     outcomes: list[VisibleOutcome] = []
     for record in records:
         if record.get("event") != "proposal_completed":
+            continue
+        if int(record.get("opportunity", 0)) < minimum_opportunity:
             continue
         evaluation = record.get("evaluation")
         if not isinstance(evaluation, dict):
@@ -308,11 +318,21 @@ def _recent_outcomes(run_dir: Path, *, limit: int = 12) -> tuple[VisibleOutcome,
 
 
 def _informative_outcomes(
-    run_dir: Path, *, item_limit: int, character_limit: int
+    run_dir: Path,
+    *,
+    item_limit: int,
+    character_limit: int,
+    minimum_opportunity: int = 1,
 ) -> tuple[VisibleOutcome, ...]:
     """Select bounded useful evidence without an LLM or a mechanism menu."""
 
-    all_outcomes = list(_recent_outcomes(run_dir, limit=1000000))
+    all_outcomes = list(
+        _recent_outcomes(
+            run_dir,
+            limit=1000000,
+            minimum_opportunity=minimum_opportunity,
+        )
+    )
     if not all_outcomes:
         return ()
     selected: dict[int, VisibleOutcome] = {
@@ -363,7 +383,9 @@ def _informative_outcomes(
     return tuple(ordered)
 
 
-def _mechanism_ledger(run_dir: Path, *, limit: int = 24) -> str:
+def _mechanism_ledger(
+    run_dir: Path, *, limit: int = 24, minimum_opportunity: int = 1
+) -> str:
     """Summarize free-form mechanism provenance without replaying raw history."""
 
     events = run_dir / "events.jsonl"
@@ -377,6 +399,8 @@ def _mechanism_ledger(run_dir: Path, *, limit: int = 24) -> str:
         except json.JSONDecodeError:
             continue
         if record.get("event") != "proposal_completed":
+            continue
+        if int(record.get("opportunity", 0)) < minimum_opportunity:
             continue
         label = str(record.get("mechanism", "[not recorded]")).strip()
         key = label.casefold()
@@ -486,6 +510,34 @@ def _run_one_opportunity_unlocked(
         raise RuntimeError(
             "run has an active opportunity; inspect its logs before explicit recovery"
         )
+    semantic = run_manifest.get("semantic_intervention")
+    state_policy = (
+        str(semantic.get("state_policy", "preserve"))
+        if isinstance(semantic, dict)
+        else "preserve"
+    )
+    next_opportunity = controller.state.next_opportunity
+    if (
+        state_policy == REFRESH_INCUMBENT
+        and next_opportunity in spec.transition_opportunities
+    ):
+        refreshed = apply_periodic_refresh(
+            run_dir,
+            controller=controller,
+            base_seed=run_seed,
+            opportunity=next_opportunity,
+        )
+        if is_native_openevolve(framework):
+            reset_native_population_from_incumbent(
+                run_dir,
+                opportunity=next_opportunity,
+                search_seed=int(refreshed["search_seed"]),
+            )
+    subject_memory = memory_state(run_dir, base_seed=run_seed)
+    history_start_opportunity = int(
+        subject_memory.get("history_start_opportunity", 1)
+    )
+    search_seed = int(subject_memory.get("search_seed", run_seed))
     native_selection = None
     if is_native_openevolve(framework):
         native_selection = prepare_native_selection(
@@ -494,7 +546,7 @@ def _run_one_opportunity_unlocked(
             task=task,
             framework=framework,
             vendor_root=repo_root / "architecture_discovery/vendor/openevolve",
-            run_seed=run_seed,
+            run_seed=search_seed,
             opportunity=controller.state.next_opportunity,
         )
         active = controller.begin(
@@ -589,6 +641,7 @@ def _run_one_opportunity_unlocked(
             character_limit=int(
                 conversation_options.get("evidence_character_limit", 24000)
             ),
+            minimum_opportunity=history_start_opportunity,
         )
     else:
         recent_outcomes = (
@@ -661,7 +714,10 @@ def _run_one_opportunity_unlocked(
         no_search=controller.state.no_search,
         recent_outcomes=recent_outcomes,
         mechanism_ledger=(
-            _mechanism_ledger(run_dir)
+            _mechanism_ledger(
+                run_dir,
+                minimum_opportunity=history_start_opportunity,
+            )
             if framework.adapter.startswith("controlled_openevolve_prompt_diff_")
             else "No earlier mechanism result is available."
         ),
@@ -711,7 +767,12 @@ def _run_one_opportunity_unlocked(
                     "evidence_opportunities": [
                         outcome.opportunity for outcome in recent_outcomes
                     ],
-                    "original_outcome_count": controller.state.proposals_used,
+                    "original_outcome_count": max(
+                        0,
+                        controller.state.proposals_used
+                        - history_start_opportunity
+                        + 1,
+                    ),
                     "rendered_outcome_count": len(recent_outcomes),
                     "rendered_evidence_characters": sum(
                         len(repr(outcome)) for outcome in recent_outcomes
@@ -779,7 +840,7 @@ def _run_one_opportunity_unlocked(
         visible_workspaces=tuple(visible_workspaces),
         selected_parent_id=active.selected_parent_id,
         visible_records=tuple(visible_records),
-        run_seed=run_seed,
+        run_seed=search_seed,
         resume_session_id=requested_session_id,
         persist_session=continuous,
         neutral_subject=neutral_subject,

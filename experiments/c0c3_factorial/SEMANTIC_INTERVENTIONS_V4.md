@@ -26,9 +26,9 @@ understanding.
 
 ## Experimental geometry
 
-- 21 intervention arms.
+- 22 intervention arms.
 - 3 independently seeded replicates per arm.
-- 63 logical trajectories.
+- 66 logical trajectories.
 - 40 proposal opportunities per trajectory.
 - One literal five-proposal prefix shared by all arms within a replicate.
 - The first intervention occurs at proposal 6; later interventions occur at
@@ -51,9 +51,9 @@ understanding.
   older pinned runtime that predates the public `0` sentinel.
 
 The shared prefix requires only 15 physical proposal calls. Post-fork branches
-require 2,205 calls, for 2,220 physical calls and 2,520 logical trajectory
+require 2,310 calls, for 2,325 physical calls and 2,640 logical trajectory
 records. Shadow-prefix records are explicitly marked so campaign cost is not
-counted 21 times.
+counted 22 times.
 
 Three replicates are intentionally modest. This campaign prioritizes breadth
 for exploratory treatment screening. Proposals are repeated observations
@@ -85,6 +85,7 @@ replicates and effect sizes; they cannot turn 40 proposals into `n=40`.
 | `uncertainty_calibration` | epistemic | Test the consequential claim with greatest uncertainty |
 | `assumption_plus_falsification` | limited combination | Challenge an assumption through a falsifiable alternative |
 | `diagnosis_plus_redesign` | limited combination | Diagnose failure and construct a discriminating redesign |
+| `periodic_full_refresh` | memory control | Every five proposals, retain the incumbent model but restart search as if it were the starting design |
 
 The prompt text is frozen into each created campaign with file and tree hashes.
 The labels above support analysis; the subject sees only the task, its available
@@ -115,6 +116,20 @@ memory. This is neither every-proposal amnesia nor an unbounded chat.
 
 Old session IDs remain in private append-only registries. Resetting a session
 never deletes results or changes opportunity accounting.
+
+The `periodic_full_refresh` arm applies a stronger reset at proposals 6, 11,
+16, 21, 26, 31, and 36. It preserves cumulative budget accounting, verified
+metrics, and the latest retained model artifact, then treats that artifact as
+the new starting design. It clears the subject-visible outcome history,
+candidate population, developmental archive, parent history, and conversation
+session. Each phase receives a deterministic new search seed while the paired
+replicate's evaluator/data seed remains unchanged. Private append-only events
+and retired native-OpenEvolve checkpoints remain available for audit but are
+not exposed to the subject.
+
+The three refresh trajectories in the initially active campaign inherit their
+replicate's already-completed proposals 1-5 with zero additional physical
+prefix calls. Future campaigns include the arm at creation time.
 
 ## Multi-fidelity evaluation
 

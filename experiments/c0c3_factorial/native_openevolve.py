@@ -51,6 +51,35 @@ def is_native_openevolve(framework: FrameworkSpec) -> bool:
     return framework.framework_key == "native_openevolve"
 
 
+def reset_native_population_from_incumbent(
+    run_dir: Path, *, opportunity: int, search_seed: int
+) -> None:
+    """Retire the mutable population pointer before a fresh search epoch."""
+
+    pointer = run_dir / CURRENT_STATE
+    archive = (
+        run_dir
+        / NATIVE_ROOT
+        / "refresh-pointers"
+        / f"{opportunity:04d}-pre-refresh.json"
+    )
+    if archive.is_file():
+        return
+    archive.parent.mkdir(parents=True, exist_ok=True)
+    if pointer.is_file():
+        os.replace(pointer, archive)
+    atomic_json(
+        archive.with_name(f"{opportunity:04d}-refresh.json"),
+        {
+            "schema_version": "native-openevolve-v1",
+            "event": "native_population_refreshed_from_incumbent",
+            "opportunity": opportunity,
+            "search_seed": search_seed,
+            "timestamp": utc_now(),
+        },
+    )
+
+
 def _imports(vendor_root: Path):
     value = str(vendor_root)
     if value not in sys.path:

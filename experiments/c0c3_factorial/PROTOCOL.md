@@ -616,10 +616,16 @@ analysis that uses the affected data.
 
 The semantic-intervention experiment is a separate multi-arm analysis stratum,
 not another C0-C3 factorial cell. It reuses the unified v3 execution and
-artifact contracts while randomizing 21 research operations after a literal
+artifact contracts while randomizing 22 research operations after a literal
 five-proposal shared prefix. It resets provider conversations every five
 proposals, preserves verified evidence in bounded capsules, and records
 developmental outcomes without changing primary retention.
+
+One memory-control arm performs a full search refresh at every phase boundary:
+the latest retained model and all cumulative accounting remain, while search
+population, subject-visible history, developmental memory, and session state
+restart around that model with a new search seed. Evaluator/data seeds remain
+paired and fixed.
 
 Its unit of replication is the complete trajectory. Its cleanest causal
 estimand is the first five-proposal phase after the shared-prefix fork; later

@@ -17,6 +17,7 @@ from experiments.c0c3_factorial.campaign import calibrate_task  # noqa: E402
 from experiments.c0c3_factorial.fashion_mnist import DATA_ROOT_ENV  # noqa: E402
 from experiments.c0c3_factorial.semantic_interventions import (  # noqa: E402
     create_semantic_campaign,
+    extend_semantic_campaign_with_periodic_refresh,
     run_semantic_campaign,
     run_semantic_opportunity,
     semantic_status,
@@ -153,6 +154,16 @@ def command_control_run(args: argparse.Namespace) -> int:
     return 0
 
 
+def command_add_periodic_refresh(args: argparse.Namespace) -> int:
+    result = extend_semantic_campaign_with_periodic_refresh(
+        args.campaign,
+        repo_root=args.repo_root.resolve(),
+        reason=args.reason,
+    )
+    print(json.dumps(result, indent=2, sort_keys=True))
+    return 0
+
+
 def _parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(description=__doc__)
     sub = parser.add_subparsers(dest="command", required=True)
@@ -211,6 +222,11 @@ def _parser() -> argparse.ArgumentParser:
     )
     control_run.add_argument("--reason", required=True)
     control_run.set_defaults(handler=command_control_run)
+    extend = sub.add_parser("add-periodic-full-refresh")
+    extend.add_argument("--campaign", type=Path, required=True)
+    extend.add_argument("--repo-root", type=Path, default=REPO_ROOT)
+    extend.add_argument("--reason", required=True)
+    extend.set_defaults(handler=command_add_periodic_refresh)
     return parser
 
 

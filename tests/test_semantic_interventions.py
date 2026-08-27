@@ -19,6 +19,10 @@ import experiments.semantic_intervention_overnight as semantic_overnight
 from experiments.c0c3_factorial import semantic_interventions as semantic_module
 from experiments.c0c3_factorial.campaign import calibrate_task
 from experiments.c0c3_factorial.native_openevolve import prepare_native_selection
+from experiments.c0c3_factorial.periodic_refresh import (
+    REFRESH_INCUMBENT,
+    apply_periodic_refresh,
+)
 from experiments.c0c3_factorial.runner import recover_active_opportunity
 from experiments.c0c3_factorial.semantic_interventions import (
     create_semantic_campaign,
@@ -42,7 +46,12 @@ from experiments.c0c3_factorial.spec import (
     ObjectiveDirection,
     TaskSpec,
 )
-from experiments.c0c3_factorial.state import Candidate, Evaluation, SearchController
+from experiments.c0c3_factorial.state import (
+    Candidate,
+    Evaluation,
+    SearchController,
+    Usage,
+)
 from experiments.c0c3_factorial.training_ladder import (
     assess_developmental_value,
     evaluate_training_ladder,
@@ -90,6 +99,72 @@ def test_zero_semantic_worker_limit_means_all_runnable() -> None:
     assert semantic_module._resolve_worker_limit(None, 3) == 3
     with pytest.raises(ValueError, match="nonnegative"):
         semantic_module._resolve_worker_limit(-1, 2)
+
+
+def test_periodic_refresh_keeps_accounting_and_incumbent_but_forgets_history(
+    tmp_path: Path,
+) -> None:
+    spec = _spec()
+    seed = Candidate(
+        candidate_id="seed",
+        parent_ids=[],
+        fitness=0.0,
+        metrics={"score": 0.0},
+        artifact_path="candidates/seed",
+        hypothesis="starting design",
+        intended_edit="none",
+        created_opportunity=0,
+        retained_order=0,
+    )
+    controller = SearchController.create(
+        tmp_path / "run",
+        spec,
+        run_id="refresh-test",
+        condition=Condition.C1,
+        seed_candidate=seed,
+    )
+    controller.begin()
+    controller.complete(
+        candidate_id="better",
+        artifact_path="candidates/better",
+        hypothesis="old hypothesis",
+        intended_edit="old edit",
+        evaluation=Evaluation(
+            valid=True,
+            fitness=1.0,
+            metrics={"score": 1.0},
+            evaluator_seconds=2.5,
+        ),
+        usage=Usage(input_tokens=10, output_tokens=2),
+        prompt_hashes={},
+    )
+    controller.record_conversation_session("old-session")
+    (tmp_path / "run" / "developmental-archive.json").write_text(
+        '{"schema_version":"1.0","items":[{"mechanism":"old"}]}\n',
+        encoding="utf-8",
+    )
+
+    before = controller.state.to_dict()
+    memory = apply_periodic_refresh(
+        tmp_path / "run",
+        controller=controller,
+        base_seed=123,
+        opportunity=2,
+    )
+
+    assert memory["policy"] == REFRESH_INCUMBENT
+    assert memory["history_start_opportunity"] == 2
+    assert controller.state.incumbent_id == "better"
+    assert list(controller.state.candidates) == ["better"]
+    assert controller.state.candidates["better"].parent_ids == []
+    assert controller.state.candidates["better"].hypothesis == "starting design"
+    assert controller.state.conversation_session_id is None
+    assert controller.state.proposals_used == before["proposals_used"]
+    assert controller.state.evaluations_used == before["evaluations_used"]
+    assert controller.state.usage.total_tokens == 12
+    assert json.loads(
+        (tmp_path / "run" / "developmental-archive.json").read_text()
+    )["items"] == []
 
 
 def test_overnight_unbounded_workers_support_pinned_legacy_runtime(

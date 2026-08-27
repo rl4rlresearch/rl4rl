@@ -4,8 +4,8 @@ The original C0-C3 protocols remain intact.  This module adds a separate
 trajectory-level design in which many research-process prompts branch from one
 literal shared prefix per replicate. Every arm uses the same configured search
 architecture, evaluator, evidence renderer, five-opportunity conversation
-phases, budget, and scheduling machinery; only the registered semantic
-direction differs at phase boundaries.
+phases, budget, and scheduling machinery. Registered arms may change either
+the phase-boundary direction or an explicitly declared search-memory policy.
 """
 
 from __future__ import annotations
@@ -34,6 +34,7 @@ from .artifacts import (
 from .campaign import _load_calibration, _repo_revision
 from .frameworks import preload_framework_runtime
 from .native_openevolve import is_native_openevolve, mirror_native_prefix_state
+from .periodic_refresh import POLICIES, PRESERVE
 from .runner import recover_active_opportunity, run_one_opportunity
 from .spec import (
     Condition,
@@ -61,6 +62,7 @@ SEMANTIC_PREFIX = Path("semantic-prefix.json")
 SEMANTIC_CONTROL = Path("semantic-control.json")
 SEMANTIC_RUN_CONTROL = Path("semantic-run-control.json")
 SEMANTIC_WAVES = Path("semantic-waves.jsonl")
+PERIODIC_REFRESH_ID = "periodic_full_refresh"
 
 
 @dataclass(frozen=True)
@@ -70,6 +72,7 @@ class Intervention:
     family: str
     prompt_path: str
     components: tuple[str, ...]
+    state_policy: str = PRESERVE
 
 
 @dataclass(frozen=True)
@@ -114,7 +117,16 @@ def load_intervention_plan(path: str | Path) -> InterventionPlan:
         )
     interventions = []
     for row in payload["interventions"]:
-        if set(row) != {"id", "label", "family", "prompt_path", "components"}:
+        if not {"id", "label", "family", "prompt_path", "components"} <= set(row):
+            raise ValueError("semantic intervention row has invalid keys")
+        if set(row) - {
+            "id",
+            "label",
+            "family",
+            "prompt_path",
+            "components",
+            "state_policy",
+        }:
             raise ValueError("semantic intervention row has invalid keys")
         interventions.append(
             Intervention(
@@ -123,6 +135,7 @@ def load_intervention_plan(path: str | Path) -> InterventionPlan:
                 family=str(row["family"]),
                 prompt_path=str(row["prompt_path"]),
                 components=tuple(str(value) for value in row["components"]),
+                state_policy=str(row.get("state_policy", PRESERVE)),
             )
         )
     plan = InterventionPlan(
@@ -153,6 +166,8 @@ def load_intervention_plan(path: str | Path) -> InterventionPlan:
     if "passive_control" not in plan.intervention_ids:
         raise ValueError("semantic plan requires passive_control for prefix ownership")
     for intervention in plan.interventions:
+        if intervention.state_policy not in POLICIES:
+            raise ValueError("semantic intervention has an invalid state_policy")
         path_value = Path(intervention.prompt_path)
         if path_value.is_absolute() or ".." in path_value.parts:
             raise ValueError("intervention prompt paths must be safe relative paths")
@@ -190,6 +205,7 @@ def _schedule(
                     "condition_label": intervention.label,
                     "condition_family": intervention.family,
                     "components": list(intervention.components),
+                    "state_policy": intervention.state_policy,
                     "controller_condition": Condition.C1.value,
                     "run_seed": run_seed,
                     "run_id": run_id,
@@ -230,6 +246,7 @@ def _snapshot_semantic_prompts(
                 "label": item.label,
                 "family": item.family,
                 "components": list(item.components),
+                "state_policy": item.state_policy,
                 "prompt_path": (
                     Path("semantic-interventions") / item.prompt_path
                 ).as_posix(),
@@ -367,6 +384,7 @@ def create_semantic_campaign(
                     "label": assignment["condition_label"],
                     "family": assignment["condition_family"],
                     "components": assignment["components"],
+                    "state_policy": assignment.get("state_policy", PRESERVE),
                     "prompt_path": prompt_by_id[intervention_id],
                     "opportunities": list(spec.transition_opportunities),
                 },
@@ -772,6 +790,362 @@ def _copy_prefix_to_shadow(
     state["conversation_session_id"] = None
     state["revision"] = int(shadow.state.revision) + 1
     atomic_json(shadow_dir / "state.json", state)
+
+
+def _inherit_completed_prefix(
+    campaign: Path,
+    *,
+    spec: FactorialSpec,
+    leader_run_id: str,
+    shadow_run_id: str,
+    shared_through: int,
+) -> None:
+    """Create an exact logical prefix copy after its leader has moved ahead."""
+
+    leader_dir = campaign / "runs" / leader_run_id
+    shadow_dir = campaign / "runs" / shadow_run_id
+    shadow = SearchController.load(shadow_dir, spec)
+    if shadow.state.proposals_used == shared_through:
+        return
+    if shadow.state.proposals_used != 0:
+        raise RuntimeError("late-added semantic arm is not at its seed state")
+    records = [
+        json.loads(line)
+        for line in (leader_dir / "events.jsonl")
+        .read_text(encoding="utf-8")
+        .splitlines()
+    ]
+    completed = [
+        row
+        for row in records
+        if row.get("event") == "proposal_completed"
+        and 1 <= int(row.get("opportunity", 0)) <= shared_through
+    ]
+    if len(completed) != shared_through:
+        raise RuntimeError("prefix leader lacks a complete reusable prefix")
+    final = max(completed, key=lambda row: int(row["opportunity"]))
+    leader = SearchController.load(leader_dir, spec)
+    candidates = {
+        identifier: Candidate(**asdict(candidate))
+        for identifier, candidate in leader.state.candidates.items()
+        if candidate.created_opportunity <= shared_through
+    }
+    incumbent_id = str(final["incumbent_after"])
+    if incumbent_id not in candidates:
+        raise RuntimeError("prefix incumbent is absent from leader candidate records")
+    for candidate in candidates.values():
+        candidate.selected_count = 0
+    for row in records:
+        if row.get("event") != "proposal_started":
+            continue
+        opportunity = int(row.get("opportunity", 0))
+        if not 1 <= opportunity <= shared_through:
+            continue
+        for identifier in row.get("selected_parent_ids", []):
+            if str(identifier) in candidates:
+                candidates[str(identifier)].selected_count += 1
+    for identifier in candidates:
+        source = leader_dir / "candidates" / identifier
+        target = shadow_dir / "candidates" / identifier
+        if source.is_dir() and not target.exists():
+            shutil.copytree(source, target)
+    for opportunity in range(1, shared_through + 1):
+        source = leader_dir / "opportunities" / f"{opportunity:04d}"
+        target = shadow_dir / "opportunities" / f"{opportunity:04d}"
+        if not target.exists():
+            shutil.copytree(source, target)
+        for name in ("result.json", "recovery.json"):
+            path = target / name
+            if path.is_file():
+                value = _read_object(path)
+                value.update(
+                    {
+                        "run_id": shadow_run_id,
+                        "shared_prefix": True,
+                        "shared_prefix_source_run_id": leader_run_id,
+                        "resource_accounting": (
+                            "shared_prefix_charge_once_per_replicate"
+                        ),
+                    }
+                )
+                atomic_json(path, value)
+    for row in records:
+        opportunity = row.get("opportunity")
+        if not isinstance(opportunity, int) or not 1 <= opportunity <= shared_through:
+            continue
+        copied = dict(row)
+        copied.update(
+            {
+                "run_id": shadow_run_id,
+                "shared_prefix": True,
+                "shared_prefix_source_run_id": leader_run_id,
+                "resource_accounting": "shared_prefix_charge_once_per_replicate",
+                "source_event_sha256": _json_hash(row),
+            }
+        )
+        append_jsonl(shadow_dir / "events.jsonl", copied)
+    usage = dict(final["usage_cumulative"])
+    usage.pop("total_tokens", None)
+    state = shadow.state
+    state.status = "running"
+    state.next_opportunity = shared_through + 1
+    state.proposals_used = int(final["proposals_cumulative"])
+    state.evaluations_used = int(final["evaluator_calls_cumulative"])
+    state.evaluator_seconds_used = float(final["evaluator_seconds_cumulative"])
+    from .state import Usage
+
+    state.usage = Usage(**usage)
+    state.incumbent_id = incumbent_id
+    state.portfolio_ids = [str(value) for value in final["portfolio_after"]]
+    state.candidates = candidates
+    state.active = None
+    state.conversation_session_id = None
+    state.revision += 1
+    atomic_json(shadow_dir / "state.json", state.to_dict())
+
+
+def extend_semantic_campaign_with_periodic_refresh(
+    campaign: str | Path, *, repo_root: Path, reason: str
+) -> dict[str, Any]:
+    """Append one periodic-refresh trajectory per replicate to a live v4 study."""
+
+    if not reason.strip():
+        raise ValueError("extension reason cannot be blank")
+    root, spec, task, framework, old_plan = load_semantic_campaign(campaign)
+    if PERIODIC_REFRESH_ID in old_plan.intervention_ids:
+        raise ValueError("periodic_full_refresh is already registered")
+    with _orchestrator_lock(root):
+        timestamp = utc_now()
+        receipt_id = timestamp.replace(":", "-").replace("+", "_")
+        snapshot = root / "amendments" / f"{receipt_id}-periodic-full-refresh"
+        snapshot.mkdir(parents=True, exist_ok=False)
+        for relative in (
+            "campaign.json",
+            "schedule.json",
+            SEMANTIC_MANIFEST.as_posix(),
+            SEMANTIC_PREFIX.as_posix(),
+            SEMANTIC_RUN_CONTROL.as_posix(),
+            "inputs/semantic-interventions.toml",
+            "inputs/v3-runtime.json",
+            "prompt-bundle/manifest.json",
+        ):
+            source = root / relative
+            destination = snapshot / "before" / relative
+            destination.parent.mkdir(parents=True, exist_ok=True)
+            shutil.copy2(source, destination)
+
+        plan_path = root / "inputs/semantic-interventions.toml"
+        addition = (
+            "\n[[interventions]]\n"
+            'id = "periodic_full_refresh"\n'
+            'label = "Periodic full refresh"\n'
+            'family = "memory_control"\n'
+            'prompt_path = "periodic_full_refresh.md"\n'
+            'components = ["periodic_full_refresh"]\n'
+            'state_policy = "refresh_incumbent_at_phase_start"\n'
+        )
+        temporary_plan = plan_path.with_name(f".{plan_path.name}.partial-{os.getpid()}")
+        temporary_plan.write_text(
+            plan_path.read_text(encoding="utf-8").rstrip() + "\n" + addition,
+            encoding="utf-8",
+        )
+        os.replace(temporary_plan, plan_path)
+        plan = load_intervention_plan(plan_path)
+        intervention = next(
+            item
+            for item in plan.interventions
+            if item.intervention_id == PERIODIC_REFRESH_ID
+        )
+
+        bundle = root / V3_PROMPT_BUNDLE
+        source_prompt = (
+            repo_root
+            / "experiments/c0c3_factorial/templates/semantic_interventions_v4"
+            / intervention.prompt_path
+        )
+        for relative in (
+            Path("semantic_interventions_v4") / intervention.prompt_path,
+            Path("semantic-interventions") / intervention.prompt_path,
+        ):
+            destination = bundle / relative
+            destination.parent.mkdir(parents=True, exist_ok=True)
+            shutil.copy2(source_prompt, destination)
+        prompt_manifest = _read_object(bundle / "manifest.json")
+        prompt_manifest["interventions"].append(
+            {
+                "id": intervention.intervention_id,
+                "label": intervention.label,
+                "family": intervention.family,
+                "components": list(intervention.components),
+                "state_policy": intervention.state_policy,
+                "prompt_path": "semantic-interventions/periodic_full_refresh.md",
+                "sha256": hashlib.sha256(source_prompt.read_bytes()).hexdigest(),
+            }
+        )
+        bundle_hash = tree_hash(
+            bundle, ignored_relative_paths=frozenset({"manifest.json"})
+        )
+        prompt_manifest["bundle_sha256"] = bundle_hash
+        prompt_manifest["files"] = [
+            row for row in _file_manifest(bundle) if row["path"] != "manifest.json"
+        ]
+        atomic_json(bundle / "manifest.json", prompt_manifest)
+
+        schedule = json.loads((root / "schedule.json").read_text(encoding="utf-8"))
+        prefix = _read_object(root / SEMANTIC_PREFIX)
+        new_rows: list[dict[str, Any]] = []
+        for replicate in range(1, plan.replicates + 1):
+            members = [row for row in schedule if int(row["replicate"]) == replicate]
+            leader_id = str(
+                next(row for row in members if row["condition"] == "passive_control")[
+                    "run_id"
+                ]
+            )
+            run_id = (
+                f"{spec.study_id}-{task.task_id}-{framework.framework_key}-"
+                f"r{replicate:02d}-{PERIODIC_REFRESH_ID}"
+            )
+            row = {
+                "replicate": replicate,
+                "block": replicate,
+                "order": max(int(item["order"]) for item in members) + 1,
+                "condition": PERIODIC_REFRESH_ID,
+                "condition_label": intervention.label,
+                "condition_family": intervention.family,
+                "components": list(intervention.components),
+                "state_policy": intervention.state_policy,
+                "controller_condition": Condition.C1.value,
+                "run_seed": int(members[0]["run_seed"]),
+                "run_id": run_id,
+            }
+            leader = SearchController.load(root / "runs" / leader_id, spec)
+            original = min(
+                leader.state.candidates.values(),
+                key=lambda value: (value.created_opportunity, value.candidate_id),
+            )
+            seed = Candidate(**asdict(original))
+            seed.parent_ids = []
+            seed.created_opportunity = 0
+            seed.selected_count = 0
+            run_dir = root / "runs" / run_id
+            SearchController.create(
+                run_dir,
+                spec,
+                run_id=run_id,
+                condition=Condition.C1,
+                seed_candidate=seed,
+            )
+            shutil.copytree(
+                root / "runs" / leader_id / "task-support", run_dir / "task-support"
+            )
+            seed_destination = run_dir / seed.artifact_path
+            seed_destination.parent.mkdir(parents=True, exist_ok=True)
+            if not seed_destination.exists():
+                shutil.copytree(
+                    root / "runs" / leader_id / original.artifact_path, seed_destination
+                )
+            atomic_json(
+                run_dir / "manifest.json",
+                {
+                    "schema_version": SEMANTIC_PROTOCOL_VERSION,
+                    "assignment": row,
+                    "protocol_hash": spec.protocol_hash,
+                    "task_hash": sha256_json(task_hash_payload(task)),
+                    "framework_hash": sha256_json(framework_hash_payload(framework)),
+                    "scientific_runtime_hash": _read_object(root / "campaign.json")[
+                        "scientific_runtime_hash"
+                    ],
+                    "baseline": _read_object(
+                        root / "runs" / leader_id / "manifest.json"
+                    )["baseline"],
+                    "repo_revision": _repo_revision(repo_root),
+                    "campaign_prompt_bundle_sha256": bundle_hash,
+                    "campaign_prompt_bundle": V3_PROMPT_BUNDLE.as_posix(),
+                    "semantic_intervention": {
+                        "id": PERIODIC_REFRESH_ID,
+                        "label": intervention.label,
+                        "family": intervention.family,
+                        "components": list(intervention.components),
+                        "state_policy": intervention.state_policy,
+                        "prompt_path": (
+                            "semantic-interventions/periodic_full_refresh.md"
+                        ),
+                        "opportunities": list(spec.transition_opportunities),
+                    },
+                },
+            )
+            pair = next(
+                item
+                for item in prefix["replicates"]
+                if int(item["replicate"]) == replicate
+            )
+            _inherit_completed_prefix(
+                root,
+                spec=spec,
+                leader_run_id=leader_id,
+                shadow_run_id=run_id,
+                shared_through=int(pair["shared_through_opportunity"]),
+            )
+            pair["shadow_run_ids"].append(run_id)
+            new_rows.append(row)
+
+        schedule.extend(new_rows)
+        schedule.sort(key=lambda row: (int(row["replicate"]), int(row["order"])))
+        atomic_json(root / "schedule.json", schedule)
+        atomic_json(root / SEMANTIC_PREFIX, prefix)
+        atomic_json(
+            root / SEMANTIC_MANIFEST,
+            {
+                "schema_version": SEMANTIC_PROTOCOL_VERSION,
+                "plan": asdict(plan),
+                "prompt_bundle_sha256": bundle_hash,
+            },
+        )
+        control = _read_object(root / SEMANTIC_RUN_CONTROL)
+        for row in new_rows:
+            control["runs"][str(row["run_id"])] = {
+                "desired": "running",
+                "reason": "periodic refresh arm added to live semantic campaign",
+                "updated_at": timestamp,
+            }
+        atomic_json(root / SEMANTIC_RUN_CONTROL, control)
+        runtime = load_runtime_options(root)
+        runtime["semantic_interventions"]["intervention_ids"] = list(
+            plan.intervention_ids
+        )
+        update_runtime_options(root, replacement=runtime, reason=reason)
+        campaign_manifest = _read_object(root / "campaign.json")
+        campaign_manifest.update(
+            {
+                "campaign_prompt_bundle_sha256": bundle_hash,
+                "intervention_plan_sha256": hashlib.sha256(
+                    plan_path.read_bytes()
+                ).hexdigest(),
+                "intervention_count": len(plan.interventions),
+                "scheduled_runs": len(schedule),
+            }
+        )
+        atomic_json(root / "campaign.json", campaign_manifest)
+        for run_dir in (root / "runs").iterdir():
+            manifest_path = run_dir / "manifest.json"
+            manifest = _read_object(manifest_path)
+            manifest["campaign_prompt_bundle_sha256"] = bundle_hash
+            atomic_json(manifest_path, manifest)
+        receipt = {
+            "schema_version": SEMANTIC_PROTOCOL_VERSION,
+            "event": "periodic_full_refresh_condition_added",
+            "timestamp": timestamp,
+            "reason": reason.strip(),
+            "new_run_ids": [str(row["run_id"]) for row in new_rows],
+            "inherited_prefix_opportunities": old_plan.shared_prefix_opportunities,
+            "physical_prefix_calls_added": 0,
+            "intervention_count": len(plan.interventions),
+            "scheduled_runs": len(schedule),
+            "prompt_bundle_sha256": bundle_hash,
+        }
+        atomic_json(snapshot / "receipt.json", receipt)
+        append_jsonl(root / "campaign-amendments.jsonl", receipt)
+        return receipt
 
 
 def _mirror_prefix_completion(

@@ -786,4 +786,6 @@ Important operational differences:
 - campaign pause is cooperative and never deletes an active opportunity;
 - shadow prefix usage is visible on conceptual trajectories but charged once
   in campaign physical totals;
+- the periodic-refresh arm keeps its incumbent checkpoint but clears search
+  population, visible history, and session state every five proposals;
 - `semantic_intervention_overnight.py status` is the authoritative quick view.
