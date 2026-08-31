@@ -393,15 +393,18 @@ not disclosed to the subject.
 
 The shared local scheduler is an operational machine-load control, not a
 factorial treatment. Protocols 1.7/2.1 use one campaign slot per declared block;
-older campaigns retain their frozen ceiling. It enforces twelve local
-evaluations across all participating campaigns combined.
+older campaigns retain their frozen ceiling. Its host-wide operator-set ceiling
+defaults to twelve local evaluations across participating campaigns and has no
+fixed maximum in the shared scheduler.
 It does not schedule Codex calls, alter proposal order or parent selection,
 charge queue time, or change evaluator seeds, commands, timeouts, and budgets.
 Evaluator-only Modal calls retain their campaign remote-call limit but do not
 consume a local host slot.
 
-Unified v3 and semantic-v4 campaigns also enter one crash-releasing host pool
-of thirty subject-agent workers across campaigns. A lease is acquired before
+Unified v3 and semantic-v4 campaigns also enter one crash-releasing,
+operator-sized host pool whose default ceiling is thirty concurrent
+subject-agent calls across campaigns and whose shared scheduler has no fixed
+maximum. A lease is acquired before
 an opportunity is marked active and released as soon as its subject call
 returns; evaluators use their separate task and host pools. Queued work consumes
 no proposal or evaluator budget. Slot release immediately admits any

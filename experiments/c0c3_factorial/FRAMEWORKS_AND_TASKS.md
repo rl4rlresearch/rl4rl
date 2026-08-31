@@ -210,6 +210,28 @@ Protocol 1.5 also freezes independently controlled trajectory execution and
 lifecycle provenance; those controls do not alter the task or model-validity
 standard described here.
 
+### Tiny AdderBoard semantic-v4 task
+
+Configuration: `configs/tasks/tiny_adderboard_semantic_v4_mps.toml`
+
+This local task preserves the architecture-compression objective and 99% exact
+accuracy requirement while reducing the arithmetic problem to four-digit
+addition. Only `train.py` is editable. The subject sees a learned four-digit
+addition transformer task, not the benchmark name or experimental apparatus.
+
+The protected evaluator owns deterministic hash-disjoint training, public, and
+sealed-holdout pair partitions; fresh initialization; the training loop;
+generic autoregressive decoding; exact accuracy; deduplicated learned-parameter
+counting; and attention execution/ablation checks. Source preflight rejects
+filesystem or process access and recognized embedded arithmetic solvers.
+
+Its bounded literal `EVALUATION_LADDER` is one continuous training trajectory,
+not repeated training from scratch. Public accuracy is checked at each rung and
+training stops at the first rung reaching 99%. Candidate policies cannot exceed
+the evaluator-owned terminal step or rung count. The seed and terminal rung are
+calibrated on MPS against the Fashion-MNIST seed evaluator before an official
+campaign starts; the resulting timing receipt is stored beside the campaign.
+
 ### Protocol-2.0 pair-token variants
 
 Configurations:

@@ -30,12 +30,14 @@ from experiments.c0c3_factorial.periodic_refresh import (
 from experiments.c0c3_factorial.runner import recover_active_opportunity
 from experiments.c0c3_factorial.semantic_interventions import (
     create_semantic_campaign,
+    extend_semantic_campaign_budget,
     extend_semantic_campaign_with_restrictive_assumption_challenge,
     run_semantic_campaign,
     run_semantic_opportunity,
     semantic_status,
     set_semantic_control,
     set_semantic_run_control,
+    set_semantic_task_evaluator_capacity,
     validate_semantic_campaign,
 )
 from experiments.c0c3_factorial.spec import (
@@ -98,12 +100,141 @@ def test_semantic_launchers_preserve_virtualenv_symlink(tmp_path: Path) -> None:
         assert rendered.is_symlink()
 
 
+def test_semantic_after_drain_reload_accepts_separate_scientific_root(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    monkeypatch.setattr(
+        sys,
+        "argv",
+        [
+            "semantic_intervention_overnight.py",
+            "resume-after-drain",
+            "--campaign",
+            "campaign-a",
+            "--campaign",
+            "campaign-b",
+            "--runtime-root",
+            "runtime",
+            "--scientific-repo-root",
+            "frozen-science",
+        ],
+    )
+
+    args = semantic_overnight._parser().parse_args()
+
+    assert args.campaign == [Path("campaign-a"), Path("campaign-b")]
+    assert args.runtime_root == Path("runtime")
+    assert args.scientific_repo_root == Path("frozen-science")
+
+
 def test_zero_semantic_worker_limit_means_all_runnable() -> None:
     assert semantic_module._resolve_worker_limit(0, 2) is None
     assert semantic_module._resolve_worker_limit(None, 0) is None
     assert semantic_module._resolve_worker_limit(None, 3) == 3
     with pytest.raises(ValueError, match="nonnegative"):
         semantic_module._resolve_worker_limit(-1, 2)
+
+
+def test_semantic_budget_extension_reopens_completed_runs(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    spec = _spec()
+    seed = Candidate(
+        candidate_id="seed",
+        parent_ids=[],
+        fitness=0.0,
+        metrics={"score": 0.0},
+        artifact_path="candidates/seed",
+        hypothesis="starting design",
+        intended_edit="none",
+        created_opportunity=0,
+        retained_order=0,
+    )
+    campaign = tmp_path / "campaign"
+    (campaign / "runs").mkdir(parents=True)
+    run_dir = campaign / "runs/run"
+    controller = SearchController.create(
+        run_dir,
+        spec,
+        run_id="run",
+        condition=Condition.C1,
+        seed_candidate=seed,
+    )
+    (run_dir / "manifest.json").write_text(
+        json.dumps(
+            {
+                "protocol_hash": spec.protocol_hash,
+                "semantic_intervention": {"opportunities": [2, 3]},
+            }
+        ),
+        encoding="utf-8",
+    )
+    controller.state.status = "completed"
+    controller.state.next_opportunity = 4
+    controller.state.proposals_used = 3
+    controller.state.evaluations_used = 3
+    controller._write_state()
+    (campaign / "inputs").mkdir()
+    (campaign / "inputs/protocol.json").write_text(
+        json.dumps(semantic_module.asdict(spec)), encoding="utf-8"
+    )
+    (campaign / "inputs/task.json").write_text("{}", encoding="utf-8")
+    (campaign / "inputs/framework.json").write_text("{}", encoding="utf-8")
+    (campaign / "inputs/semantic-interventions.toml").write_text(
+        "schema_version = \"4.0\"\n"
+        "replicates = 1\n"
+        "shared_prefix_opportunities = 1\n"
+        "session_span_opportunities = 1\n"
+        "max_parallel_agent_calls = 1\n"
+        "task_evaluator_capacity = 1\n\n"
+        "[[interventions]]\n"
+        "id = \"passive_control\"\nlabel = \"Passive\"\nfamily = \"control\"\n"
+        "prompt_path = \"passive.md\"\ncomponents = []\n\n"
+        "[[interventions]]\n"
+        "id = \"challenge\"\nlabel = \"Challenge\"\nfamily = \"test\"\n"
+        "prompt_path = \"challenge.md\"\ncomponents = []\n",
+        encoding="utf-8",
+    )
+    (campaign / "campaign.json").write_text(
+        json.dumps(
+            {
+                "schema_version": "4.0",
+                "protocol_hash": spec.protocol_hash,
+                "proposals_per_run": 3,
+            }
+        ),
+        encoding="utf-8",
+    )
+    (campaign / "semantic-control.json").write_text(
+        '{"desired":"paused"}', encoding="utf-8"
+    )
+    (campaign / "semantic-run-control.json").write_text(
+        '{"runs":{"run":{"desired":"running"}}}', encoding="utf-8"
+    )
+
+    # Avoid constructing unrelated task/framework fixtures: the migration only
+    # consumes the loaded spec and intervention cadence.
+    plan = semantic_module.load_intervention_plan(
+        campaign / "inputs/semantic-interventions.toml"
+    )
+    monkeypatch.setattr(
+        semantic_module,
+        "load_semantic_campaign",
+        lambda _campaign: (campaign, spec, object(), object(), plan),
+    )
+    receipt = extend_semantic_campaign_budget(
+        campaign, proposals=5, reason="test extension"
+    )
+
+    extended = semantic_module._spec_from_json(campaign / "inputs/protocol.json")
+    state = SearchController.load(run_dir, extended).state
+    assert extended.budget.proposals == 5
+    assert extended.budget.candidate_evaluations == 5
+    assert extended.budget.max_evaluator_seconds == pytest.approx(500 / 3)
+    assert extended.transition_opportunities == (2, 3, 4, 5)
+    assert state.status == "running"
+    assert state.next_opportunity == 4
+    assert receipt["reopened_run_ids"] == ["run"]
 
 
 def test_periodic_refresh_keeps_accounting_and_incumbent_but_forgets_history(
@@ -459,6 +590,33 @@ def test_semantic_campaign_shares_prefix_then_forks(tmp_path: Path) -> None:
     )
     campaign_manifest = json.loads((campaign / "campaign.json").read_text())
     assert campaign_manifest["search_architecture"] == "karpathy_autoresearch"
+    assert validate_semantic_campaign(campaign, repo_root=ROOT)["valid"]
+    capacity_receipt = set_semantic_task_evaluator_capacity(
+        campaign,
+        capacity=2,
+        reason="test live evaluator expansion",
+    )
+    assert capacity_receipt["previous_plan_capacity"] == 1
+    assert capacity_receipt["task_evaluator_capacity"] == 2
+    assert (
+        semantic_module.load_intervention_plan(
+            campaign / "inputs/semantic-interventions.toml"
+        ).task_evaluator_capacity
+        == 2
+    )
+    runtime = semantic_module.load_runtime_options(campaign)
+    assert runtime["evaluation"]["task_pool_capacity"] == 2
+    semantic_manifest = json.loads(
+        (campaign / semantic_module.SEMANTIC_MANIFEST).read_text()
+    )
+    assert semantic_manifest["plan"]["task_evaluator_capacity"] == 2
+    expanded_receipt = set_semantic_task_evaluator_capacity(
+        campaign,
+        capacity=20,
+        reason="test capacity follows an expanded host ceiling",
+    )
+    assert expanded_receipt["previous_plan_capacity"] == 2
+    assert expanded_receipt["task_evaluator_capacity"] == 20
     assert validate_semantic_campaign(campaign, repo_root=ROOT)["valid"]
     schedule = json.loads((campaign / "schedule.json").read_text())
     by_condition = {row["condition"]: row["run_id"] for row in schedule}

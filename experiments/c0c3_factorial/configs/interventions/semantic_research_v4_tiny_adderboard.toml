@@ -2,9 +2,8 @@ schema_version = "4.0"
 replicates = 3
 shared_prefix_opportunities = 5
 session_span_opportunities = 5
-# Zero means every currently runnable trajectory may issue a subject call.
-max_parallel_agent_calls = 0
-task_evaluator_capacity = 6
+max_parallel_agent_calls = 30
+task_evaluator_capacity = 16
 
 [[interventions]]
 id = "passive_control"
@@ -32,12 +31,7 @@ id = "restrictive_assumption_challenge"
 label = "Restrictive assumption challenge"
 family = "prompt_philosophy"
 prompt_path = "restrictive_assumption_challenge.md"
-components = [
-  "assumption_challenge",
-  "single_alternative_mechanism",
-  "mechanism_class_exclusions",
-  "specific_result_schema",
-]
+components = ["assumption_challenge", "single_alternative_mechanism", "mechanism_class_exclusions", "specific_result_schema"]
 
 [[interventions]]
 id = "alternative_mechanism"

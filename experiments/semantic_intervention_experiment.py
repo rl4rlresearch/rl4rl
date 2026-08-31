@@ -17,6 +17,7 @@ from experiments.c0c3_factorial.campaign import calibrate_task  # noqa: E402
 from experiments.c0c3_factorial.fashion_mnist import DATA_ROOT_ENV  # noqa: E402
 from experiments.c0c3_factorial.semantic_interventions import (  # noqa: E402
     create_semantic_campaign,
+    extend_semantic_campaign_budget,
     extend_semantic_campaign_with_periodic_refresh,
     extend_semantic_campaign_with_restrictive_assumption_challenge,
     run_semantic_campaign,
@@ -24,6 +25,7 @@ from experiments.c0c3_factorial.semantic_interventions import (  # noqa: E402
     semantic_status,
     set_semantic_control,
     set_semantic_run_control,
+    set_semantic_task_evaluator_capacity,
     validate_semantic_campaign,
 )
 from experiments.c0c3_factorial.spec import (  # noqa: E402
@@ -155,6 +157,21 @@ def command_control_run(args: argparse.Namespace) -> int:
     return 0
 
 
+def command_evaluator_capacity(args: argparse.Namespace) -> int:
+    print(
+        json.dumps(
+            set_semantic_task_evaluator_capacity(
+                args.campaign,
+                capacity=args.capacity,
+                reason=args.reason,
+            ),
+            indent=2,
+            sort_keys=True,
+        )
+    )
+    return 0
+
+
 def command_add_periodic_refresh(args: argparse.Namespace) -> int:
     result = extend_semantic_campaign_with_periodic_refresh(
         args.campaign,
@@ -169,6 +186,16 @@ def command_add_restrictive_assumption_challenge(args: argparse.Namespace) -> in
     result = extend_semantic_campaign_with_restrictive_assumption_challenge(
         args.campaign,
         repo_root=args.repo_root.resolve(),
+        reason=args.reason,
+    )
+    print(json.dumps(result, indent=2, sort_keys=True))
+    return 0
+
+
+def command_extend_budget(args: argparse.Namespace) -> int:
+    result = extend_semantic_campaign_budget(
+        args.campaign,
+        proposals=args.proposals,
         reason=args.reason,
     )
     print(json.dumps(result, indent=2, sort_keys=True))
@@ -233,6 +260,11 @@ def _parser() -> argparse.ArgumentParser:
     )
     control_run.add_argument("--reason", required=True)
     control_run.set_defaults(handler=command_control_run)
+    evaluator_capacity = sub.add_parser("set-evaluator-capacity")
+    evaluator_capacity.add_argument("--campaign", type=Path, required=True)
+    evaluator_capacity.add_argument("--capacity", type=int, required=True)
+    evaluator_capacity.add_argument("--reason", required=True)
+    evaluator_capacity.set_defaults(handler=command_evaluator_capacity)
     extend = sub.add_parser("add-periodic-full-refresh")
     extend.add_argument("--campaign", type=Path, required=True)
     extend.add_argument("--repo-root", type=Path, default=REPO_ROOT)
@@ -243,6 +275,11 @@ def _parser() -> argparse.ArgumentParser:
     restrictive.add_argument("--repo-root", type=Path, default=REPO_ROOT)
     restrictive.add_argument("--reason", required=True)
     restrictive.set_defaults(handler=command_add_restrictive_assumption_challenge)
+    budget = sub.add_parser("extend-budget")
+    budget.add_argument("--campaign", type=Path, required=True)
+    budget.add_argument("--proposals", type=int, required=True)
+    budget.add_argument("--reason", required=True)
+    budget.set_defaults(handler=command_extend_budget)
     return parser
 
 

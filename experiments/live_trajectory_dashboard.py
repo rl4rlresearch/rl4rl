@@ -1,26 +1,31 @@
 #!/usr/bin/env python3
 # ruff: noqa: E501
-"""Dashboard for C0-C3 and multi-arm research trajectories.
+"""Dashboard and host-capacity controller for RL4RL research trajectories.
 
-The server reads campaign logs only when a browser requests ``/api/data``.  It
-does not import the experiment controller, acquire a campaign lock, or write to
-any campaign artifact, so it is safe to use while controllers are running.  A
-separate, sanitized dashboard history records the generic Codex primary-window
-percentage for the quota-burn-rate panel.
+Campaign views remain read-only.  The controller page can reduce the shared
+subject-agent and local-evaluator concurrency ceilings by reserving unused
+scheduler slots; it never edits campaign artifacts or interrupts active work.
+A separate, sanitized dashboard history records the generic Codex
+primary-window percentage for the quota-burn-rate panel.
 """
 
 from __future__ import annotations
 
 import argparse
+import ctypes
+import fcntl
 import gzip
 import hashlib
 import json
 import os
+import re
 import select
+import shutil
 import subprocess
 import sys
 import threading
 import time
+import tomllib
 from collections import Counter
 from collections.abc import Iterable
 from contextlib import suppress
@@ -28,12 +33,57 @@ from datetime import UTC, datetime, timedelta
 from http import HTTPStatus
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
-from typing import Any
+from typing import Any, TextIO
+
+try:
+    from experiments.campaign_lifecycle_control import (
+        campaign_lifecycle_payload,
+        discover_campaigns,
+        set_campaign_lifecycle,
+    )
+except ModuleNotFoundError:  # Direct ``python experiments/...py`` launch.
+    from campaign_lifecycle_control import (  # type: ignore[no-redef]
+        campaign_lifecycle_payload,
+        discover_campaigns,
+        set_campaign_lifecycle,
+    )
+
+try:
+    from experiments.c0c3_factorial.capacity_control import (
+        MAX_SUBJECT_WORKERS,
+        campaign_evaluator_status,
+        load_campaign_capacity,
+        set_campaign_capacity,
+    )
+    from experiments.c0c3_factorial.state import (
+        append_jsonl,
+        atomic_json,
+        utc_now,
+    )
+    from experiments.c0c3_factorial.v3 import (
+        campaign_metadata_lock,
+        load_runtime_options,
+        update_runtime_options,
+    )
+except ModuleNotFoundError:  # Direct ``python experiments/...py`` launch.
+    from c0c3_factorial.capacity_control import (  # type: ignore[no-redef]
+        MAX_SUBJECT_WORKERS,
+        campaign_evaluator_status,
+        load_campaign_capacity,
+        set_campaign_capacity,
+    )
+    from c0c3_factorial.state import (  # type: ignore[no-redef]
+        append_jsonl,
+        atomic_json,
+        utc_now,
+    )
+    from c0c3_factorial.v3 import (  # type: ignore[no-redef]
+        campaign_metadata_lock,
+        load_runtime_options,
+        update_runtime_options,
+    )
 
 REPO_ROOT = Path(__file__).resolve().parents[1]
-DEFAULT_AUTORESEARCH = Path(
-    "/private/tmp/rl4rl-v16-codex1644-confined-campaign-fresh-20260822c"
-)
 DEFAULT_OPENEVOLVE = (
     REPO_ROOT / "data/c0c3/controlled-openevolve-transformer-v2-mps-campaign"
 )
@@ -59,11 +109,23 @@ DEFAULT_SEMANTIC_V4_FASHION_MNIST = (
     REPO_ROOT / "data/c0c3/semantic-interventions-v4-fashion-openevolve-campaign"
 )
 DEFAULT_SEMANTIC_V4_FASHION_MNIST_NATIVE = (
+    REPO_ROOT / "data/c0c3/semantic-interventions-v4-fashion-native-openevolve-campaign"
+)
+DEFAULT_SEMANTIC_V4_TINY_ADDERBOARD = (
+    REPO_ROOT / "data/c0c3/semantic-interventions-v4-tiny-adderboard-terra-campaign"
+)
+DEFAULT_SEMANTIC_V4_TINY_ADDERBOARD_NATIVE = (
     REPO_ROOT
-    / "data/c0c3/semantic-interventions-v4-fashion-native-openevolve-campaign"
+    / "data/c0c3/semantic-interventions-v4-tiny-adderboard-native-openevolve-terra-campaign"
 )
 DEFAULT_UNIFIED_V3_ADDERBOARD_GREEDY = (
     REPO_ROOT / "data/c0c3/unified-v3-adderboard-greedy-3block-campaign"
+)
+DEFAULT_UNIFIED_V3_TINY_ADDERBOARD_GREEDY = (
+    REPO_ROOT / "data/c0c3/unified-v3-tiny-adderboard-greedy-campaign"
+)
+DEFAULT_UNIFIED_V3_TINY_ADDERBOARD_NATIVE = (
+    REPO_ROOT / "data/c0c3/unified-v3-tiny-adderboard-native-campaign"
 )
 
 # These are display-only price weights, not a billing record.  They match the
@@ -75,12 +137,31 @@ DEFAULT_PRICE_PER_MILLION = {"input": 1.75, "cached_input": 0.175, "output": 14.
 DEFAULT_MODAL_H100_PRICE_PER_SECOND = 0.001097
 DEFAULT_CODEX_RATE_LIMIT_HISTORY = REPO_ROOT / "data/codex-rate-limit-history.jsonl"
 DEFAULT_CODEX_RATE_LIMIT_SAMPLE_SECONDS = 30.0
+DEFAULT_CONTROLLER_STATE = REPO_ROOT / "data/dashboard-controller.json"
+SHARED_AGENT_WORKER_CAPACITY = 30
+SHARED_LOCAL_EVALUATOR_CAPACITY = 16
+SHARED_AGENT_WORKER_ROOT_ENV = "RL4RL_SHARED_AGENT_WORKER_ROOT"
+SHARED_LOCAL_EVALUATOR_ROOT_ENV = "RL4RL_SHARED_LOCAL_EVALUATOR_ROOT"
 CODEX_RATE_LIMIT_LOOKBACK_SECONDS = 30 * 60
 DEFAULT_CODEX_SESSION_ROOT = Path.home() / ".codex" / "sessions"
 CODEX_EXPERIMENT_WORKSPACE_PREFIXES = (
     "transformer-design-cycle-",
     "native-openevolve-codex-",
 )
+
+
+def shared_agent_worker_root() -> Path:
+    configured = os.environ.get(SHARED_AGENT_WORKER_ROOT_ENV)
+    if configured:
+        return Path(configured).expanduser().resolve()
+    return Path("/private/tmp") / f"rl4rl-c0c3-agent-workers-{os.getuid()}-v1"
+
+
+def shared_local_evaluator_root() -> Path:
+    configured = os.environ.get(SHARED_LOCAL_EVALUATOR_ROOT_ENV)
+    if configured:
+        return Path(configured).expanduser().resolve()
+    return Path("/private/tmp") / f"rl4rl-c0c3-local-evaluators-{os.getuid()}-v1"
 
 
 def read_json(path: Path, default: Any) -> Any:
@@ -676,7 +757,9 @@ def codex_session_paths(
     paths: list[Path] = []
     day = start_day
     while day <= end_day:
-        directory = session_root / f"{day.year:04d}" / f"{day.month:02d}" / f"{day.day:02d}"
+        directory = (
+            session_root / f"{day.year:04d}" / f"{day.month:02d}" / f"{day.day:02d}"
+        )
         if directory.is_dir():
             paths.extend(sorted(directory.glob("*.jsonl")))
         day += timedelta(days=1)
@@ -722,7 +805,9 @@ def local_codex_session_usage(
             ),
             {},
         )
-        source = codex_session_source(metadata.get("cwd") if isinstance(metadata, dict) else None)
+        source = codex_session_source(
+            metadata.get("cwd") if isinstance(metadata, dict) else None
+        )
         scanned_sessions += 1
         for record in records:
             payload = record.get("payload")
@@ -730,7 +815,9 @@ def local_codex_session_usage(
                 continue
             timestamp = parse_timestamp(record.get("timestamp"))
             info = payload.get("info")
-            last_usage = info.get("last_token_usage") if isinstance(info, dict) else None
+            last_usage = (
+                info.get("last_token_usage") if isinstance(info, dict) else None
+            )
             if timestamp is None or timestamp < start or timestamp > end:
                 continue
             usage = normalized_usage(last_usage)
@@ -816,14 +903,14 @@ def codex_rate_limit_payload(
         observed_minutes_per_percent = weighted_minutes / observed_percent
 
     direct_calibrations = [
-        point
-        for point in change_points
-        if int(point.get("tracked_tokens", 0)) > 0
+        point for point in change_points if int(point.get("tracked_tokens", 0)) > 0
     ]
     tokens_per_percent: float | None = None
     calibration_method = "waiting for a percentage-change/token pairing"
     if direct_calibrations:
-        known_tokens = sum(int(point["tracked_tokens"]) for point in direct_calibrations)
+        known_tokens = sum(
+            int(point["tracked_tokens"]) for point in direct_calibrations
+        )
         known_percent = sum(int(point["percent_drop"]) for point in direct_calibrations)
         if known_percent:
             tokens_per_percent = known_tokens / known_percent
@@ -849,10 +936,12 @@ def codex_rate_limit_payload(
         session_usage["other_local_codex"]["recent"]["total_tokens"]
     )
     recent_all_local_tokens = recent_experiment_tokens + recent_other_tokens
-    session_attributed_experiment_minutes_per_percent = experiment_only_minutes_per_percent(
-        observed_minutes_per_percent,
-        experiment_tokens=recent_experiment_tokens,
-        all_local_tokens=recent_all_local_tokens,
+    session_attributed_experiment_minutes_per_percent = (
+        experiment_only_minutes_per_percent(
+            observed_minutes_per_percent,
+            experiment_tokens=recent_experiment_tokens,
+            all_local_tokens=recent_all_local_tokens,
+        )
     )
     headline_minutes_per_percent = (
         session_attributed_experiment_minutes_per_percent
@@ -914,7 +1003,9 @@ def codex_rate_limit_payload(
             else None
         ),
         "calibration": {
-            "method": "local-session attribution" if session_attributed_experiment_minutes_per_percent is not None else calibration_method,
+            "method": "local-session attribution"
+            if session_attributed_experiment_minutes_per_percent is not None
+            else calibration_method,
             "tokens_per_percent": (
                 round(tokens_per_percent, 2) if tokens_per_percent is not None else None
             ),
@@ -1170,6 +1261,329 @@ def display_status(run_dir: Path, scientific_status: Any) -> str:
     return status
 
 
+def _locked_json(path: Path) -> dict[str, Any] | None:
+    """Read one live file-lock holder without disturbing the owner."""
+
+    try:
+        handle = path.open("a+", encoding="utf-8")
+    except OSError:
+        return None
+    try:
+        try:
+            fcntl.flock(handle.fileno(), fcntl.LOCK_EX | fcntl.LOCK_NB)
+        except BlockingIOError:
+            handle.seek(0)
+            try:
+                value = json.loads(handle.read() or "{}")
+            except json.JSONDecodeError:
+                value = {}
+            return value if isinstance(value, dict) else {}
+        else:
+            fcntl.flock(handle.fileno(), fcntl.LOCK_UN)
+            return None
+    finally:
+        handle.close()
+
+
+def runtime_activity_snapshot(campaigns: Iterable[Path]) -> dict[str, Any]:
+    """Capture live Codex, evaluator, and controller ownership read-only."""
+
+    campaign_paths = tuple(Path(path).resolve() for path in campaigns)
+    agent_holders: list[dict[str, Any]] = []
+    for path in sorted(shared_agent_worker_root().glob("slot-*.lock")):
+        holder = _locked_json(path)
+        if holder is not None:
+            agent_holders.append(holder)
+
+    evaluator_paths = set(shared_local_evaluator_root().glob("slot-*.lock"))
+    temporary = Path("/private/tmp")
+    evaluator_paths.update(
+        temporary.glob(f"rl4rl-c0c3-task-evaluators-{os.getuid()}-v1/*/slot-*.lock")
+    )
+    evaluator_paths.update(
+        temporary.glob(f"rl4rl-c0c3-campaign-evaluators-{os.getuid()}-v1/*/slot-*.lock")
+    )
+    for campaign in campaign_paths:
+        evaluator_paths.update((campaign / ".evaluator-slots").glob("**/slot-*.lock"))
+
+    evaluator_holders: list[dict[str, Any]] = []
+    shared_evaluator_root = shared_local_evaluator_root().resolve()
+    shared_evaluator_occupied = 0
+    for path in sorted(evaluator_paths):
+        holder = _locked_json(path)
+        if holder is None:
+            continue
+        evaluator_holders.append(holder)
+        if path.parent.resolve() == shared_evaluator_root:
+            shared_evaluator_occupied += 1
+
+    campaign_controllers = {
+        str(campaign)
+        for campaign in campaign_paths
+        if _locked_json(campaign / ".semantic-orchestrator.lock") is not None
+    }
+    run_controllers: set[str] = set()
+    for campaign in campaign_paths:
+        for path in (campaign / "runs").glob("*/.trajectory-controller.lock"):
+            if _locked_json(path) is not None:
+                run_controllers.add(path.parent.name)
+
+    return {
+        "agent_holders": agent_holders,
+        "agent_capacity": SHARED_AGENT_WORKER_CAPACITY,
+        "evaluator_holders": evaluator_holders,
+        "shared_evaluator_occupied": shared_evaluator_occupied,
+        "shared_evaluator_capacity": SHARED_LOCAL_EVALUATOR_CAPACITY,
+        "campaign_controllers": campaign_controllers,
+        "run_controllers": run_controllers,
+    }
+
+
+def _active_evaluation_root(opportunity_root: Path) -> Path | None:
+    """Return the latest evaluator workspace, including a fidelity rung."""
+
+    fidelity = sorted(
+        path
+        for path in (opportunity_root / "fidelity").glob("stage-*")
+        if path.is_dir()
+    )
+    if fidelity:
+        return fidelity[-1]
+    replicated = sorted(
+        path
+        for path in (opportunity_root / "evaluation-replicates").glob("seed-*")
+        if path.is_dir()
+    )
+    if replicated:
+        return replicated[-1]
+    if any(
+        (opportunity_root / name).exists()
+        for name in (
+            "evaluation-workspace",
+            "evaluation.stdout.log",
+            "evaluation.stderr.log",
+            "evaluation.json",
+            "evaluator-queue.json",
+            "remote-dispatch.json",
+        )
+    ):
+        return opportunity_root
+    return None
+
+
+def _evaluation_stage_suffix(evaluation_root: Path, opportunity_root: Path) -> str:
+    if evaluation_root.parent == opportunity_root / "fidelity":
+        match = re.fullmatch(r"stage-(\d+)-(\d+)", evaluation_root.name)
+        if match:
+            return f" · rung {int(match.group(1))} ({int(match.group(2)):,})"
+    if evaluation_root.parent == opportunity_root / "evaluation-replicates":
+        match = re.fullmatch(r"seed-(\d+)", evaluation_root.name)
+        if match:
+            return f" · training seed {int(match.group(1))}"
+    return ""
+
+
+def operational_stage(
+    run_dir: Path,
+    state: dict[str, Any],
+    *,
+    status: str,
+    desired_state: str | None,
+    campaign_desired: str | None,
+    evaluator_backend: str,
+    runtime_activity: dict[str, Any] | None,
+    campaign: Path,
+    campaign_subject_limit: int | None,
+    campaign_active_opportunities: int | None,
+    semantic: bool,
+) -> dict[str, Any]:
+    """Explain what a trajectory is doing, or exactly what it is waiting for."""
+
+    activity = runtime_activity or {}
+    active = state.get("active")
+    active = active if isinstance(active, dict) else None
+    opportunity = active.get("index") if active else None
+    opportunity = opportunity if isinstance(opportunity, int) else None
+    run_id = str(state.get("run_id", run_dir.name))
+    draining = status == "pausing" or campaign_desired in {"paused", "stopped"}
+    drain_suffix = " · finishing before pause" if draining else ""
+
+    def result(kind: str, label: str, detail: str) -> dict[str, Any]:
+        return {
+            "kind": kind,
+            "label": label,
+            "detail": detail,
+            "opportunity": opportunity,
+        }
+
+    if active is not None and opportunity is not None:
+        agent_holders = activity.get("agent_holders", [])
+        agent_owned = any(
+            run_id in {holder.get("run_id"), holder.get("requested_run_id")}
+            and holder.get("opportunity") == opportunity
+            for holder in agent_holders
+            if isinstance(holder, dict)
+        )
+        if agent_owned:
+            return result(
+                "codex",
+                f"Codex working · P{opportunity}{drain_suffix}",
+                "Codex is reasoning, using tools, or editing the candidate.",
+            )
+
+        opportunity_root = (run_dir / "opportunities" / f"{opportunity:04d}").resolve()
+        evaluation_root = _active_evaluation_root(opportunity_root)
+        evaluation_holders = activity.get("evaluator_holders", [])
+        evaluation_owned = any(
+            isinstance(holder, dict)
+            and isinstance(holder.get("opportunity_root"), str)
+            and (
+                Path(str(holder["opportunity_root"])).resolve() == opportunity_root
+                or opportunity_root
+                in Path(str(holder["opportunity_root"])).resolve().parents
+            )
+            for holder in evaluation_holders
+        )
+        if evaluation_owned:
+            suffix = (
+                _evaluation_stage_suffix(evaluation_root, opportunity_root)
+                if evaluation_root is not None
+                else ""
+            )
+            backend = (
+                "Modal GPU"
+                if evaluator_backend == "hybrid_modal"
+                else "local evaluator"
+            )
+            return result(
+                "evaluating",
+                f"Evaluating · {backend}{suffix} · P{opportunity}{drain_suffix}",
+                "The candidate is currently training or being verified.",
+            )
+
+        if evaluation_root is not None:
+            suffix = _evaluation_stage_suffix(evaluation_root, opportunity_root)
+            evaluation_done = (evaluation_root / "evaluation.json").is_file()
+            remote = read_json(evaluation_root / "remote-dispatch.json", {})
+            remote_status = remote.get("status") if isinstance(remote, dict) else None
+            if evaluation_done or remote_status == "completed_result_received":
+                return result(
+                    "recording",
+                    f"Recording result{suffix} · P{opportunity}{drain_suffix}",
+                    "Evaluation finished; the controller is recording metrics and retention.",
+                )
+            queue_receipt = (evaluation_root / "evaluator-queue.json").is_file()
+            evaluator_started = (evaluation_root / "evaluation.stdout.log").is_file()
+            if evaluator_started and queue_receipt:
+                return result(
+                    "result_pending",
+                    f"Evaluator result pending{suffix} · P{opportunity}{drain_suffix}",
+                    "The evaluator released its slot and the controller is collecting its result.",
+                )
+            if evaluator_backend == "hybrid_modal":
+                wait_target = "campaign Modal slot"
+            elif int(activity.get("shared_evaluator_occupied", 0)) >= int(
+                activity.get(
+                    "shared_evaluator_capacity", SHARED_LOCAL_EVALUATOR_CAPACITY
+                )
+            ):
+                wait_target = "host evaluator slot"
+            else:
+                wait_target = "evaluator slot"
+            article = "an" if wait_target == "evaluator slot" else "a"
+            return result(
+                "waiting_evaluator",
+                f"Waiting · {wait_target}{suffix} · P{opportunity}{drain_suffix}",
+                f"The candidate is ready and is queued for {article} {wait_target}.",
+            )
+
+        codex_finished = (
+            opportunity_root / "codex" / f"proposal-{opportunity}.jsonl"
+        ).is_file()
+        if codex_finished:
+            return result(
+                "preparing_evaluation",
+                f"Preparing evaluation · P{opportunity}{drain_suffix}",
+                "Codex finished; the candidate is being checked and staged for evaluation.",
+            )
+        return result(
+            "starting_codex",
+            f"Starting Codex · P{opportunity}{drain_suffix}",
+            "The opportunity is initialized and the Codex call is starting.",
+        )
+
+    if status == "completed":
+        return result(
+            "completed", "Completed", "All configured proposals are complete."
+        )
+    if status == "paused" or desired_state == "paused" or campaign_desired == "paused":
+        return result(
+            "paused", "Paused", "No new opportunity will start until resumed."
+        )
+    if status == "pausing":
+        return result("pausing", "Pausing", "No new opportunity will start.")
+    if status in {"failed", "error"}:
+        return result("error", "Error", "The run stopped after an error.")
+    if status in {"ready", "not_started"}:
+        return result(
+            "ready", "Ready · not started", "The run is prepared but has not started."
+        )
+    if (
+        status == "stopped"
+        or desired_state == "stopped"
+        or campaign_desired == "stopped"
+    ):
+        return result("stopped", "Stopped", "The run is not scheduled to continue.")
+
+    agent_holders = activity.get("agent_holders", [])
+    campaign_key = str(campaign.resolve())
+    host_full = len(agent_holders) >= int(
+        activity.get("agent_capacity", SHARED_AGENT_WORKER_CAPACITY)
+    )
+    controller_active = (
+        campaign_key in activity.get("campaign_controllers", set())
+        if semantic
+        else run_id in activity.get("run_controllers", set())
+    )
+    if controller_active:
+        if (
+            campaign_subject_limit is not None
+            and campaign_active_opportunities is not None
+            and campaign_active_opportunities >= campaign_subject_limit
+        ):
+            return result(
+                "waiting_campaign_opportunity",
+                "Waiting · campaign active-opportunity limit",
+                (
+                    f"All {campaign_subject_limit} campaign opportunity slots are "
+                    "occupied by proposals that are in Codex, evaluation, or "
+                    "result-recording stages."
+                ),
+            )
+        if host_full:
+            return result(
+                "waiting_host_worker",
+                "Waiting · host active-Codex-call slot",
+                "The shared host-wide active Codex call pool is full.",
+            )
+        return result(
+            "queued",
+            "Queued · controller dispatch",
+            "The controller is active and will dispatch this run independently.",
+        )
+    if semantic or (run_dir / ".trajectory-controller.lock").exists():
+        return result(
+            "controller_offline",
+            "Waiting · controller offline",
+            "The run is marked runnable, but its campaign or trajectory controller is not active.",
+        )
+    return result(
+        "idle",
+        "Idle · between proposals",
+        "No proposal is active and no more specific live scheduler state is available.",
+    )
+
+
 def build_run(
     run_dir: Path,
     prices: dict[str, float],
@@ -1182,6 +1596,12 @@ def build_run(
     shared_prefix_through: int = 0,
     desired_state: str | None = None,
     manipulation_reviews: dict[tuple[str, int], dict[str, Any]] | None = None,
+    evaluator_backend: str = "local",
+    runtime_activity: dict[str, Any] | None = None,
+    campaign_desired: str | None = None,
+    campaign_subject_limit: int | None = None,
+    campaign_active_opportunities: int | None = None,
+    semantic_campaign: bool = False,
 ) -> dict[str, Any] | None:
     state = read_json(run_dir / "state.json", {})
     if not isinstance(state, dict):
@@ -1408,18 +1828,14 @@ def build_run(
                 "source_changed_files": int(
                     numeric(provenance.get("changed_files")) or 0
                 ),
-                "source_added_lines": int(
-                    numeric(provenance.get("added_lines")) or 0
-                ),
+                "source_added_lines": int(numeric(provenance.get("added_lines")) or 0),
                 "source_deleted_lines": int(
                     numeric(provenance.get("deleted_lines")) or 0
                 ),
                 "semantic_delta_fingerprint": provenance.get(
                     "semantic_delta_fingerprint"
                 ),
-                "manipulation_review": manipulation_reviews.get(
-                    (run_id, opportunity)
-                ),
+                "manipulation_review": manipulation_reviews.get((run_id, opportunity)),
                 "prompt_provenance_available": bool(event.get("prompt_hashes")),
                 "timestamp": event.get("timestamp"),
                 "is_seed": False,
@@ -1489,6 +1905,19 @@ def build_run(
     status = display_status(run_dir, scientific_status)
     if scientific_status == "running" and desired_state in {"paused", "stopped"}:
         status = str(desired_state)
+    stage = operational_stage(
+        run_dir,
+        state,
+        status=status,
+        desired_state=desired_state,
+        campaign_desired=campaign_desired,
+        evaluator_backend=evaluator_backend,
+        runtime_activity=runtime_activity,
+        campaign=run_dir.parent.parent,
+        campaign_subject_limit=campaign_subject_limit,
+        campaign_active_opportunities=campaign_active_opportunities,
+        semantic=semantic_campaign,
+    )
     charged_points = [
         point for point in points if point.get("physical_resource_charge", True)
     ]
@@ -1537,6 +1966,8 @@ def build_run(
         "desired": desired_state,
         "status": status,
         "scientific_status": scientific_status,
+        "operational_stage": stage,
+        "operational_stage_label": stage["label"],
         "proposals_used": state.get("proposals_used", 0),
         "total_tokens": usage["total_tokens"],
         "token_cost": round(weighted_cost(usage, prices), 6),
@@ -1627,6 +2058,7 @@ def campaign_data(
     prices: dict[str, float],
     *,
     modal_h100_price_per_second: float = DEFAULT_MODAL_H100_PRICE_PER_SECOND,
+    runtime_activity: dict[str, Any] | None = None,
 ) -> dict[str, Any]:
     runs_root = campaign / "runs"
     campaign_manifest = read_json(campaign / "campaign.json", {})
@@ -1664,6 +2096,36 @@ def campaign_data(
     }.get(framework_id, framework_id)
     objective_metric = str(task.get("objective_metric", "parameters"))
     objective_direction = str(task.get("objective_direction", "minimize"))
+    evaluator_backend = str(task.get("preferred_backend", "local"))
+    semantic_control = read_json(campaign / "semantic-control.json", {})
+    campaign_desired = (
+        str(semantic_control["desired"])
+        if isinstance(semantic_control, dict) and semantic_control.get("desired")
+        else None
+    )
+    capacity_control = read_json(campaign / "capacity-control.json", {})
+    campaign_subject_limit = (
+        int(capacity_control["subject_workers"])
+        if isinstance(capacity_control, dict)
+        and isinstance(capacity_control.get("subject_workers"), int)
+        else None
+    )
+    if campaign_subject_limit is None:
+        semantic_plan_path = campaign / "inputs/semantic-interventions.toml"
+        try:
+            semantic_plan = tomllib.loads(
+                semantic_plan_path.read_text(encoding="utf-8")
+            )
+        except (FileNotFoundError, OSError, tomllib.TOMLDecodeError):
+            semantic_plan = {}
+        configured_limit = semantic_plan.get("max_parallel_agent_calls")
+        if isinstance(configured_limit, int) and configured_limit > 0:
+            campaign_subject_limit = configured_limit
+    run_paths = sorted(path for path in runs_root.glob("*") if path.is_dir())
+    campaign_active_opportunities = sum(
+        isinstance(state, dict) and isinstance(state.get("active"), dict)
+        for state in (read_json(path / "state.json", {}) for path in run_paths)
+    )
     modal_by_run, modal_summary = modal_usage_index(
         campaign, h100_price_per_second=modal_h100_price_per_second
     )
@@ -1686,9 +2148,14 @@ def campaign_data(
                 else None
             ),
             manipulation_reviews=manipulation_reviews,
+            evaluator_backend=evaluator_backend,
+            runtime_activity=runtime_activity,
+            campaign_desired=campaign_desired,
+            campaign_subject_limit=campaign_subject_limit,
+            campaign_active_opportunities=campaign_active_opportunities,
+            semantic_campaign=semantic,
         )
-        for path in sorted(runs_root.glob("*"))
-        if path.is_dir()
+        for path in run_paths
     ]
     visible_runs = [
         run
@@ -1900,11 +2367,13 @@ def dashboard_data(
     codex_rate_limit_sample_seconds: float = DEFAULT_CODEX_RATE_LIMIT_SAMPLE_SECONDS,
     codex_token_campaign_roots: Iterable[Path] = (),
 ) -> dict[str, Any]:
+    runtime_activity = runtime_activity_snapshot(campaigns.values())
     campaign_payloads = {
         key: campaign_data(
             path,
             prices,
             modal_h100_price_per_second=modal_h100_price_per_second,
+            runtime_activity=runtime_activity,
         )
         for key, path in campaigns.items()
     }
@@ -1921,9 +2390,7 @@ def dashboard_data(
         "campaigns": campaign_payloads,
     }
     # Keep tabs loaded before the multi-campaign dashboard upgrade functional.
-    # Those clients refresh in place and still read these two top-level keys.
-    if "autoresearch_v16" in campaign_payloads:
-        payload["autoresearch"] = campaign_payloads["autoresearch_v16"]
+    # Those clients refresh in place and still read this top-level key.
     if "openevolve_v2" in campaign_payloads:
         payload["openevolve_v2"] = campaign_payloads["openevolve_v2"]
     return payload
@@ -1934,8 +2401,10 @@ def dashboard_data(
 PYTHON_SOURCE_PATH = Path(__file__).resolve()
 PAGE_PATH = PYTHON_SOURCE_PATH.with_name("live_trajectory_dashboard.html")
 SCIENCE_PAGE_PATH = PYTHON_SOURCE_PATH.with_name("scientific_process_dashboard.html")
+CONTROLLER_PAGE_PATH = PYTHON_SOURCE_PATH.with_name("controller_dashboard.html")
 PAGE = PAGE_PATH.read_text(encoding="utf-8")
 SCIENCE_PAGE = SCIENCE_PAGE_PATH.read_text(encoding="utf-8")
+CONTROLLER_PAGE = CONTROLLER_PAGE_PATH.read_text(encoding="utf-8")
 
 
 def read_dashboard_page() -> str:
@@ -1957,10 +2426,24 @@ def read_science_page() -> str:
         return SCIENCE_PAGE
 
 
+def read_controller_page() -> str:
+    """Read the host controller page without requiring a server restart."""
+
+    try:
+        return CONTROLLER_PAGE_PATH.read_text(encoding="utf-8")
+    except OSError:
+        return CONTROLLER_PAGE
+
+
 def dashboard_revision(paths: tuple[Path, ...] | None = None) -> str:
     """Return a content revision for browser and server hot reload checks."""
     digest = hashlib.sha256()
-    for path in paths or (PYTHON_SOURCE_PATH, PAGE_PATH, SCIENCE_PAGE_PATH):
+    for path in paths or (
+        PYTHON_SOURCE_PATH,
+        PAGE_PATH,
+        SCIENCE_PAGE_PATH,
+        CONTROLLER_PAGE_PATH,
+    ):
         digest.update(str(path).encode("utf-8"))
         try:
             digest.update(path.read_bytes())
@@ -2046,6 +2529,12 @@ class DashboardPayloadCache:
             daemon=True,
         ).start()
 
+    def latest(self) -> bytes | None:
+        """Return the latest snapshot without waiting for a cold build."""
+
+        with self._condition:
+            return self._body
+
     def response(self, accept_encoding: str) -> tuple[bytes, str | None]:
         """Return a current snapshot, coalescing simultaneous cold requests."""
 
@@ -2090,6 +2579,1033 @@ class DashboardPayloadCache:
         return body, None
 
 
+def _macos_size_bytes(value: str) -> int | None:
+    """Parse the compact K/M/G/T sizes emitted by macOS command-line tools."""
+
+    match = re.fullmatch(r"\s*([0-9]+(?:\.[0-9]+)?)\s*([KMGT]?)B?\s*", value)
+    if not match:
+        return None
+    scale = {"": 1, "K": 1024, "M": 1024**2, "G": 1024**3, "T": 1024**4}
+    return int(float(match.group(1)) * scale[match.group(2)])
+
+
+def _macos_vm_stat_bytes(text: str) -> dict[str, int | None]:
+    """Extract memory counters from ``vm_stat`` without relying on ``top``.
+
+    Sandboxed macOS processes can be allowed to call ``vm_stat`` while being
+    denied the process inspection that ``top`` performs.  The counters are
+    therefore a deliberately independent fallback for the controller page.
+    """
+    page_match = re.search(r"page size of\s+(\d+)\s+bytes", text, re.IGNORECASE)
+    page_size = int(page_match.group(1)) if page_match else None
+
+    def pages(label: str) -> int | None:
+        match = re.search(rf"^{re.escape(label)}:\s*(\d+)\.", text, re.MULTILINE)
+        return int(match.group(1)) if match else None
+
+    def byte_count(label: str) -> int | None:
+        count = pages(label)
+        return (
+            count * page_size if count is not None and page_size is not None else None
+        )
+
+    reported_total = re.search(r"The system has\s+(\d+)", text, re.IGNORECASE)
+    return {
+        "reported_total_bytes": int(reported_total.group(1))
+        if reported_total
+        else None,
+        "free_bytes": byte_count("Pages free"),
+        "speculative_bytes": byte_count("Pages speculative"),
+        "wired_bytes": byte_count("Pages wired down"),
+        "compressed_bytes": byte_count("Pages occupied by compressor"),
+    }
+
+
+def _macos_cpu_ticks() -> tuple[int, int, int] | None:
+    """Read aggregate CPU ticks through Mach without process inspection.
+
+    ``top`` is sometimes denied by macOS sandbox policy because it enumerates
+    processes.  ``host_processor_info`` is the OS-level counter behind a
+    regular host monitor and remains available in that situation.
+    """
+    if sys.platform != "darwin":
+        return None
+    try:
+        lib_system = ctypes.CDLL("/usr/lib/libSystem.B.dylib")
+        lib_system.mach_host_self.restype = ctypes.c_uint
+        lib_system.mach_task_self.restype = ctypes.c_uint
+        host_processor_info = lib_system.host_processor_info
+        host_processor_info.argtypes = [
+            ctypes.c_uint,
+            ctypes.c_int,
+            ctypes.POINTER(ctypes.c_uint),
+            ctypes.POINTER(ctypes.POINTER(ctypes.c_int)),
+            ctypes.POINTER(ctypes.c_uint),
+        ]
+        host_processor_info.restype = ctypes.c_int
+        vm_deallocate = lib_system.vm_deallocate
+        vm_deallocate.argtypes = [ctypes.c_uint, ctypes.c_uint64, ctypes.c_size_t]
+        vm_deallocate.restype = ctypes.c_int
+
+        processor_info = ctypes.POINTER(ctypes.c_int)()
+        processor_count = ctypes.c_uint()
+        info_count = ctypes.c_uint()
+        # PROCESSOR_CPU_LOAD_INFO = 2; each processor exposes user, system,
+        # idle, and nice ticks in that order.
+        result = host_processor_info(
+            lib_system.mach_host_self(),
+            2,
+            ctypes.byref(processor_count),
+            ctypes.byref(processor_info),
+            ctypes.byref(info_count),
+        )
+        if result != 0 or processor_count.value == 0 or info_count.value < 4:
+            return None
+        values = [processor_info[index] for index in range(info_count.value)]
+        return (
+            sum(
+                values[index] + values[index + 3] for index in range(0, len(values), 4)
+            ),
+            sum(values[index + 1] for index in range(0, len(values), 4)),
+            sum(values[index + 2] for index in range(0, len(values), 4)),
+        )
+    except (AttributeError, OSError):
+        return None
+    finally:
+        if "processor_info" in locals() and bool(processor_info):
+            address = ctypes.cast(processor_info, ctypes.c_void_p).value
+            if address is not None:
+                with suppress(OSError, AttributeError):
+                    vm_deallocate(
+                        lib_system.mach_task_self(),
+                        address,
+                        info_count.value * ctypes.sizeof(ctypes.c_int),
+                    )
+
+
+def _macos_cpu_percentages(
+    previous: tuple[int, int, int] | None,
+    current: tuple[int, int, int] | None,
+) -> tuple[float, float, float] | None:
+    """Return user, system, and idle percentages from two Mach tick samples."""
+    if previous is None or current is None:
+        return None
+    user, system, idle = (
+        max(0, after - before) for before, after in zip(previous, current, strict=True)
+    )
+    total = user + system + idle
+    if total <= 0:
+        return None
+    return (100.0 * user / total, 100.0 * system / total, 100.0 * idle / total)
+
+
+def _command_output(command: list[str], *, timeout: float = 3.0) -> str:
+    """Return best-effort local telemetry output without making sampling fatal."""
+
+    try:
+        result = subprocess.run(
+            command,
+            capture_output=True,
+            check=False,
+            text=True,
+            timeout=timeout,
+        )
+    except (OSError, subprocess.SubprocessError):
+        return ""
+    return result.stdout if result.returncode == 0 else ""
+
+
+class MacComputeMonitor:
+    """Small cached sampler for Mac CPU, GPU, memory, power, and storage."""
+
+    def __init__(self, *, ttl_seconds: float = 3.0) -> None:
+        self._ttl_seconds = ttl_seconds
+        self._lock = threading.Lock()
+        self._sampled_at = 0.0
+        self._sample: dict[str, Any] = {}
+        self._cpu_ticks: tuple[int, int, int] | None = None
+
+    def sample(self) -> dict[str, Any]:
+        with self._lock:
+            if self._sample and time.monotonic() - self._sampled_at < self._ttl_seconds:
+                return self._sample
+            self._sample, self._cpu_ticks = self._collect(self._cpu_ticks)
+            self._sampled_at = time.monotonic()
+            return self._sample
+
+    @staticmethod
+    def _collect(
+        previous_cpu_ticks: tuple[int, int, int] | None,
+    ) -> tuple[dict[str, Any], tuple[int, int, int] | None]:
+        top = _command_output(["top", "-l", "1", "-n", "0"], timeout=5.0)
+        vm_stat = _command_output(["vm_stat"])
+        ioreg = _command_output(
+            ["ioreg", "-r", "-d", "1", "-w", "0", "-c", "AGXAccelerator"],
+            timeout=5.0,
+        )
+        battery = _command_output(["pmset", "-g", "batt"])
+        thermal = _command_output(["pmset", "-g", "therm"])
+        thermal_available = bool(thermal) and "Error:" not in thermal
+        hardware = _command_output(
+            ["sysctl", "-n", "hw.physicalcpu", "hw.logicalcpu", "hw.memsize"]
+        ).splitlines()
+
+        def number(pattern: str, text: str) -> float | None:
+            match = re.search(pattern, text, flags=re.IGNORECASE)
+            return float(match.group(1)) if match else None
+
+        cpu_match = re.search(
+            r"CPU usage:\s*([0-9.]+)% user,\s*([0-9.]+)% sys,\s*([0-9.]+)% idle",
+            top,
+        )
+        cpu_user = float(cpu_match.group(1)) if cpu_match else None
+        cpu_system = float(cpu_match.group(2)) if cpu_match else None
+        cpu_idle = float(cpu_match.group(3)) if cpu_match else None
+        current_cpu_ticks = _macos_cpu_ticks()
+        mach_cpu = _macos_cpu_percentages(previous_cpu_ticks, current_cpu_ticks)
+        if cpu_idle is None and mach_cpu is not None:
+            cpu_user, cpu_system, cpu_idle = mach_cpu
+        load_match = re.search(r"Load Avg:\s*([0-9.]+),\s*([0-9.]+),\s*([0-9.]+)", top)
+        memory_match = re.search(
+            r"PhysMem:\s*([^ ]+) used \(([^ ]+) wired,\s*([^ ]+) compressor\),\s*([^ ]+) unused",
+            top,
+        )
+        process_match = re.search(
+            r"Processes:\s*(\d+) total,\s*(\d+) running,\s*(\d+) sleeping",
+            top,
+        )
+        vm_memory = _macos_vm_stat_bytes(vm_stat)
+        total_memory = (
+            int(hardware[2]) if len(hardware) >= 3 and hardware[2].isdigit() else None
+        )
+        if total_memory is None:
+            total_memory = vm_memory["reported_total_bytes"]
+        used_memory = _macos_size_bytes(memory_match.group(1)) if memory_match else None
+        free_memory = _macos_size_bytes(memory_match.group(4)) if memory_match else None
+        wired_memory = (
+            _macos_size_bytes(memory_match.group(2)) if memory_match else None
+        )
+        compressed_memory = (
+            _macos_size_bytes(memory_match.group(3)) if memory_match else None
+        )
+        memory_source = "top" if memory_match else None
+        if memory_match is None:
+            # ``vm_stat`` exposes pages that are physically free and pages
+            # immediately reclaimable for speculative work.  This makes the
+            # fallback useful even when sandbox policy denies ``top``.
+            free_memory = (
+                sum(
+                    value
+                    for value in (
+                        vm_memory["free_bytes"],
+                        vm_memory["speculative_bytes"],
+                    )
+                    if value is not None
+                )
+                or None
+            )
+            used_memory = (
+                max(0, total_memory - free_memory)
+                if total_memory is not None and free_memory is not None
+                else None
+            )
+            wired_memory = vm_memory["wired_bytes"]
+            compressed_memory = vm_memory["compressed_bytes"]
+            if used_memory is not None:
+                memory_source = "vm_stat"
+
+        swap = _command_output(["sysctl", "-n", "vm.swapusage"])
+        swap_total_bytes = None
+        swap_used_bytes = None
+        for label in ("total", "used"):
+            match = re.search(rf"{label}\s*=\s*([0-9.]+)([MG])", swap)
+            if not match:
+                continue
+            parsed = _macos_size_bytes(match.group(1) + match.group(2))
+            if label == "total":
+                swap_total_bytes = parsed
+            else:
+                swap_used_bytes = parsed
+
+        model_match = re.search(r'"model"\s*=\s*<?"([^"]+)">?', ioreg)
+        gpu_cores = number(r'"gpu-core-count"\s*=\s*(\d+)', ioreg)
+        gpu_device = number(r'"Device Utilization %"\s*=\s*(\d+)', ioreg)
+        gpu_renderer = number(r'"Renderer Utilization %"\s*=\s*(\d+)', ioreg)
+        gpu_tiler = number(r'"Tiler Utilization %"\s*=\s*(\d+)', ioreg)
+        gpu_allocated = number(r'"Alloc system memory"\s*=\s*(\d+)', ioreg)
+        gpu_in_use = number(r'"In use system memory"\s*=\s*(\d+)', ioreg)
+
+        battery_percent = number(r"(\d+)%", battery)
+        battery_state_match = re.search(r"\d+%;\s*([^;\n]+)", battery)
+        battery_time_match = re.search(r"(\d+:\d+) remaining", battery)
+        cpu_limit = number(r"CPU_Speed_Limit\s*=\s*(\d+)", thermal)
+        thermal_limit = number(r"Thermal_Level\s*=\s*(\d+)", thermal)
+        scheduler_limit = number(r"Scheduler_Limit\s*=\s*(\d+)", thermal)
+        disk = shutil.disk_usage(REPO_ROOT)
+
+        cpu_cores = int(hardware[0]) if hardware and hardware[0].isdigit() else None
+        logical_cores = (
+            int(hardware[1]) if len(hardware) >= 2 and hardware[1].isdigit() else None
+        )
+        load_average = [
+            float(load_match.group(index)) if load_match else None
+            for index in range(1, 4)
+        ]
+        if load_match is None:
+            with suppress(OSError):
+                load_average = [float(value) for value in os.getloadavg()]
+        cpu_utilization = None if cpu_idle is None else max(0.0, 100.0 - cpu_idle)
+        cpu_load_saturation = (
+            100.0 * load_average[0] / logical_cores
+            if load_average[0] is not None and logical_cores
+            else None
+        )
+        memory_percent = (
+            100.0 * used_memory / total_memory
+            if used_memory is not None and total_memory
+            else None
+        )
+        return {
+            "available": bool(top),
+            "sampled_at": datetime.now().astimezone().isoformat(),
+            "cpu": {
+                "utilization_percent": cpu_utilization,
+                "user_percent": cpu_user,
+                "system_percent": cpu_system,
+                "idle_percent": cpu_idle,
+                "physical_cores": cpu_cores,
+                "logical_cores": logical_cores,
+                "load_average": load_average,
+                "load_saturation_percent": cpu_load_saturation,
+                "source": (
+                    "top"
+                    if cpu_match is not None
+                    else "mach_host_processor_info"
+                    if mach_cpu is not None
+                    else "load_average"
+                ),
+            },
+            "gpu": {
+                "available": gpu_device is not None,
+                "model": model_match.group(1) if model_match else None,
+                "cores": int(gpu_cores) if gpu_cores is not None else None,
+                "device_utilization_percent": gpu_device,
+                "renderer_utilization_percent": gpu_renderer,
+                "tiler_utilization_percent": gpu_tiler,
+                "allocated_system_memory_bytes": gpu_allocated,
+                "in_use_system_memory_bytes": gpu_in_use,
+                "note": "Apple silicon reports shared system memory, not dedicated VRAM.",
+            },
+            "memory": {
+                "total_bytes": total_memory,
+                "used_bytes": used_memory,
+                "free_bytes": free_memory,
+                "wired_bytes": wired_memory,
+                "compressed_bytes": compressed_memory,
+                "used_percent": memory_percent,
+                "source": memory_source,
+                "swap_total_bytes": swap_total_bytes,
+                "swap_used_bytes": swap_used_bytes,
+            },
+            "processes": {
+                "total": int(process_match.group(1)) if process_match else None,
+                "running": int(process_match.group(2)) if process_match else None,
+                "sleeping": int(process_match.group(3)) if process_match else None,
+            },
+            "power": {
+                "battery_percent": battery_percent,
+                "state": battery_state_match.group(1).strip()
+                if battery_state_match
+                else None,
+                "time_remaining": battery_time_match.group(1)
+                if battery_time_match
+                else None,
+                "cpu_speed_limit_percent": cpu_limit,
+                "scheduler_limit_percent": scheduler_limit,
+                "thermal_level": thermal_limit,
+                "thermal_ok": (
+                    all(
+                        value in {None, 0.0, 100.0}
+                        for value in (thermal_limit, cpu_limit, scheduler_limit)
+                    )
+                    if thermal_available
+                    else None
+                ),
+            },
+            "storage": {
+                "total_bytes": disk.total,
+                "used_bytes": disk.used,
+                "free_bytes": disk.free,
+                "used_percent": 100.0 * disk.used / disk.total if disk.total else None,
+            },
+        }, current_cpu_ticks
+
+
+class CapacityController:
+    """Set expandable shared ceilings while active work drains cooperatively.
+
+    The file-lock range grows monotonically whenever an operator requests a
+    larger limit. Lowering a limit reserves currently free slots and converges
+    as occupied slots finish; there is no fixed host maximum in this layer.
+    """
+
+    def __init__(
+        self,
+        *,
+        state_path: Path = DEFAULT_CONTROLLER_STATE,
+        worker_root: Path | None = None,
+        evaluator_root: Path | None = None,
+        worker_capacity: int = SHARED_AGENT_WORKER_CAPACITY,
+        evaluator_capacity: int = SHARED_LOCAL_EVALUATOR_CAPACITY,
+        reconcile_seconds: float = 0.25,
+    ) -> None:
+        self.state_path = state_path
+        self._lock = threading.RLock()
+        self._stop = threading.Event()
+        self._reconcile_seconds = reconcile_seconds
+        self._pools = {
+            "workers": {
+                "label": "Active Codex calls",
+                "root": (worker_root or shared_agent_worker_root()).resolve(),
+                "slot_capacity": worker_capacity,
+                "handles": {},
+            },
+            "evaluators": {
+                "label": "Host-local evaluators",
+                "root": (evaluator_root or shared_local_evaluator_root()).resolve(),
+                "slot_capacity": evaluator_capacity,
+                "handles": {},
+            },
+        }
+        stored = read_json(state_path, {})
+        limits = stored.get("limits", {}) if isinstance(stored, dict) else {}
+        self._desired = {
+            name: self._validated_limit(limits.get(name, pool["slot_capacity"]))
+            for name, pool in self._pools.items()
+        }
+        self._updated_at = (
+            stored.get("updated_at") if isinstance(stored, dict) else None
+        )
+        with self._lock:
+            self._reconcile_locked()
+        self._thread = threading.Thread(
+            target=self._run,
+            name="dashboard-capacity-controller",
+            daemon=True,
+        )
+        self._thread.start()
+
+    @staticmethod
+    def _validated_limit(value: Any) -> int:
+        if isinstance(value, bool):
+            raise ValueError("capacity limits must be integers")
+        try:
+            result = int(value)
+        except (TypeError, ValueError) as exc:
+            raise ValueError("capacity limits must be integers") from exc
+        if result < 1:
+            raise ValueError("capacity limits must be positive integers")
+        return result
+
+    @staticmethod
+    def _ensure_slot_capacity(pool: dict[str, Any], minimum: int) -> int:
+        """Monotonically expand a shared range without breaking legacy runners."""
+
+        root = Path(pool["root"])
+        root.mkdir(parents=True, exist_ok=True)
+        config_path = root / "scheduler.json"
+        lock_path = root / "scheduler-config.lock"
+        with lock_path.open("a+", encoding="utf-8") as handle:
+            fcntl.flock(handle.fileno(), fcntl.LOCK_EX)
+            payload = read_json(config_path, {})
+            payload = payload if isinstance(payload, dict) else {}
+            base_capacity = payload.get("capacity", pool["slot_capacity"])
+            base_capacity = (
+                int(base_capacity)
+                if isinstance(base_capacity, int)
+                and not isinstance(base_capacity, bool)
+                else int(pool["slot_capacity"])
+            )
+            if base_capacity < 1:
+                base_capacity = int(pool["slot_capacity"])
+            if not config_path.is_file():
+                payload.update(
+                    {
+                        "schema_version": "1.0",
+                        "capacity": base_capacity,
+                        "scheduler": "crash_releasing_host_file_locks_v1",
+                    }
+                )
+                temporary = config_path.with_name(
+                    f".{config_path.name}.{os.getpid()}.tmp"
+                )
+                temporary.write_text(
+                    json.dumps(payload, indent=2, sort_keys=True) + "\n",
+                    encoding="utf-8",
+                )
+                os.replace(temporary, config_path)
+            override_path = root / "operator-capacity.json"
+            override_payload = read_json(override_path, {})
+            override_payload = (
+                override_payload if isinstance(override_payload, dict) else {}
+            )
+            override_capacity = override_payload.get("capacity", 0)
+            override_capacity = (
+                int(override_capacity)
+                if isinstance(override_capacity, int)
+                and not isinstance(override_capacity, bool)
+                else 0
+            )
+            capacity = max(1, base_capacity, override_capacity, minimum)
+            if capacity > override_capacity and capacity > base_capacity:
+                override_payload.update(
+                    {
+                        "schema_version": "1.0",
+                        "capacity": capacity,
+                        "scheduler": "operator_expandable_host_file_locks_v1",
+                    }
+                )
+                temporary = override_path.with_name(
+                    f".{override_path.name}.{os.getpid()}.tmp"
+                )
+                temporary.write_text(
+                    json.dumps(override_payload, indent=2, sort_keys=True) + "\n",
+                    encoding="utf-8",
+                )
+                os.replace(temporary, override_path)
+            fcntl.flock(handle.fileno(), fcntl.LOCK_UN)
+        pool["slot_capacity"] = capacity
+        return capacity
+
+    def _run(self) -> None:
+        while not self._stop.wait(self._reconcile_seconds):
+            with self._lock:
+                self._reconcile_locked()
+
+    def _reserve(self, name: str, pool: dict[str, Any], index: int) -> bool:
+        root = Path(pool["root"])
+        root.mkdir(parents=True, exist_ok=True)
+        path = root / f"slot-{index:02d}.lock"
+        handle = path.open("a+", encoding="utf-8")
+        try:
+            fcntl.flock(handle.fileno(), fcntl.LOCK_EX | fcntl.LOCK_NB)
+        except BlockingIOError:
+            handle.close()
+            return False
+        handle.seek(0)
+        handle.truncate()
+        json.dump(
+            {
+                "schema_version": "1.0",
+                "pid": os.getpid(),
+                "holder": "dashboard_capacity_controller",
+                "pool": name,
+                "reserved_at": datetime.now().astimezone().isoformat(),
+            },
+            handle,
+            sort_keys=True,
+        )
+        handle.flush()
+        pool["handles"][index] = handle
+        return True
+
+    @staticmethod
+    def _release(handle: TextIO) -> None:
+        with suppress(OSError):
+            fcntl.flock(handle.fileno(), fcntl.LOCK_UN)
+        with suppress(OSError):
+            handle.close()
+
+    def _reconcile_locked(self) -> None:
+        for name, pool in self._pools.items():
+            slot_capacity = self._ensure_slot_capacity(pool, self._desired[name])
+            target = slot_capacity - self._desired[name]
+            handles: dict[int, TextIO] = pool["handles"]
+            while len(handles) > target:
+                index = min(handles)
+                self._release(handles.pop(index))
+            if len(handles) >= target:
+                continue
+            for index in range(slot_capacity - 1, -1, -1):
+                if index in handles:
+                    continue
+                self._reserve(name, pool, index)
+                if len(handles) >= target:
+                    break
+
+    def _pool_status_locked(self, name: str, pool: dict[str, Any]) -> dict[str, Any]:
+        root = Path(pool["root"])
+        root.mkdir(parents=True, exist_ok=True)
+        handles: dict[int, TextIO] = pool["handles"]
+        active = 0
+        holders: list[dict[str, Any]] = []
+        slot_capacity = self._ensure_slot_capacity(pool, self._desired[name])
+        for index in range(slot_capacity):
+            if index in handles:
+                continue
+            path = root / f"slot-{index:02d}.lock"
+            handle = path.open("a+", encoding="utf-8")
+            try:
+                fcntl.flock(handle.fileno(), fcntl.LOCK_EX | fcntl.LOCK_NB)
+            except BlockingIOError:
+                active += 1
+                handle.seek(0)
+                try:
+                    holder = json.loads(handle.read() or "{}")
+                except json.JSONDecodeError:
+                    holder = {}
+                holders.append({"slot": index, "holder": holder})
+            else:
+                fcntl.flock(handle.fileno(), fcntl.LOCK_UN)
+            finally:
+                handle.close()
+        reserved = len(handles)
+        desired = self._desired[name]
+        pending = max(0, slot_capacity - desired - reserved)
+        effective = slot_capacity - reserved
+        return {
+            "label": pool["label"],
+            "desired_limit": desired,
+            "fixed_maximum": None,
+            "slot_capacity": slot_capacity,
+            "effective_limit": effective,
+            "active": active,
+            "available": max(0, effective - active),
+            "reserved": reserved,
+            "pending_reservations": pending,
+            "converged": pending == 0,
+            "root": str(root),
+            "active_holders": holders,
+        }
+
+    def status(self) -> dict[str, Any]:
+        with self._lock:
+            self._reconcile_locked()
+            return {
+                "schema_version": "1.0",
+                "updated_at": self._updated_at,
+                "enforcement": (
+                    "Free-slot reservations; active work drains normally when a "
+                    "limit is lowered."
+                ),
+                "pools": {
+                    name: self._pool_status_locked(name, pool)
+                    for name, pool in self._pools.items()
+                },
+            }
+
+    def set_limits(self, *, workers: Any, evaluators: Any) -> dict[str, Any]:
+        with self._lock:
+            next_limits = {
+                "workers": self._validated_limit(workers),
+                "evaluators": self._validated_limit(evaluators),
+            }
+            self._desired = next_limits
+            self._updated_at = datetime.now().astimezone().isoformat()
+            self._persist_locked()
+            self._reconcile_locked()
+            return self.status()
+
+    def _persist_locked(self) -> None:
+        self.state_path.parent.mkdir(parents=True, exist_ok=True)
+        temporary = self.state_path.with_name(
+            f".{self.state_path.name}.{os.getpid()}.tmp"
+        )
+        temporary.write_text(
+            json.dumps(
+                {
+                    "schema_version": "1.0",
+                    "limits": self._desired,
+                    "updated_at": self._updated_at,
+                },
+                indent=2,
+                sort_keys=True,
+            )
+            + "\n",
+            encoding="utf-8",
+        )
+        os.replace(temporary, self.state_path)
+
+    def close(self) -> None:
+        self._stop.set()
+        with self._lock:
+            for pool in self._pools.values():
+                for handle in pool["handles"].values():
+                    self._release(handle)
+                pool["handles"].clear()
+
+
+def _task_evaluator_campaigns(
+    campaigns: dict[str, Path],
+) -> dict[str, list[dict[str, Any]]]:
+    """Group live-configurable local evaluator pools by task identity."""
+
+    grouped: dict[str, list[dict[str, Any]]] = {}
+    for key, campaign in campaigns.items():
+        root = campaign.resolve()
+        task = read_json(root / "inputs/task.json", {})
+        runtime = read_json(root / "inputs/v3-runtime.json", {})
+        if not isinstance(task, dict) or not isinstance(runtime, dict):
+            continue
+        evaluation = runtime.get("evaluation", {})
+        evaluation = evaluation if isinstance(evaluation, dict) else {}
+        capacity = evaluation.get("task_pool_capacity")
+        task_id = task.get("task_id")
+        backend = str(task.get("preferred_backend", "local"))
+        if (
+            not isinstance(task_id, str)
+            or not task_id
+            or isinstance(capacity, bool)
+            or not isinstance(capacity, int)
+            or backend != "local"
+        ):
+            continue
+        grouped.setdefault(task_id, []).append(
+            {
+                "campaign_id": key,
+                "campaign": root,
+                "capacity": capacity,
+                "display_name": str(task.get("display_name", task_id)),
+                "semantic": (root / "inputs/semantic-interventions.toml").is_file(),
+            }
+        )
+    return grouped
+
+
+def _host_local_evaluator_limit(global_status: dict[str, Any]) -> int:
+    """Return the operator's live host-local evaluator ceiling."""
+
+    evaluators = global_status.get("pools", {}).get("evaluators", {})
+    value = evaluators.get("desired_limit", evaluators.get("effective_limit"))
+    if isinstance(value, bool) or not isinstance(value, int) or value < 1:
+        return SHARED_LOCAL_EVALUATOR_CAPACITY
+    return value
+
+
+def task_evaluator_capacity_payload(
+    campaigns: dict[str, Path],
+    dashboard_snapshot: dict[str, Any],
+    global_status: dict[str, Any],
+) -> dict[str, Any]:
+    """Describe task-wide pools that sit between host and campaign ceilings."""
+
+    evaluator_holders = global_status["pools"]["evaluators"].get("active_holders", [])
+    host_capacity = _host_local_evaluator_limit(global_status)
+    snapshot_campaigns = dashboard_snapshot.get("campaigns", {})
+    rows: list[dict[str, Any]] = []
+    for task_id, members in sorted(_task_evaluator_campaigns(campaigns).items()):
+        roots = tuple(str(member["campaign"]) + os.sep for member in members)
+        active = sum(
+            any(
+                str(item.get("holder", {}).get("opportunity_root", "")).startswith(root)
+                for root in roots
+            )
+            for item in evaluator_holders
+            if isinstance(item, dict)
+        )
+        capacities = sorted({int(member["capacity"]) for member in members})
+        capacity = min(capacities)
+        campaign_rows = []
+        for member in members:
+            payload = snapshot_campaigns.get(member["campaign_id"], {})
+            campaign_rows.append(
+                {
+                    "id": member["campaign_id"],
+                    "label": (
+                        f"{payload.get('framework_label', member['campaign_id'])} · "
+                        f"{Path(member['campaign']).name}"
+                    ),
+                    "path": str(member["campaign"]),
+                }
+            )
+        display_name = str(members[0]["display_name"])
+        if task_id.startswith("fashion_mnist"):
+            display_name = "Fashion-MNIST"
+        elif task_id.startswith("tiny-adderboard"):
+            display_name = "Tiny AdderBoard · 4-digit addition"
+        elif "adderboard" in task_id or "addition" in task_id:
+            display_name = "AdderBoard · 10-digit addition"
+        rows.append(
+            {
+                "id": task_id,
+                "label": display_name,
+                "capacity": capacity,
+                "configured_capacities": capacities,
+                "consistent": len(capacities) == 1,
+                "hard_capacity": host_capacity,
+                "host_evaluator_capacity": host_capacity,
+                "active": active,
+                "available": max(0, capacity - active),
+                "campaigns": campaign_rows,
+                "campaign_count": len(campaign_rows),
+                "scope": "shared_task_local_evaluator_pool",
+                "semantics": "cooperative_future_evaluations_only",
+            }
+        )
+    return {
+        "available": bool(rows),
+        "hierarchy": "effective=min(host_task_campaign)",
+        "host_evaluator_capacity": host_capacity,
+        "lifecycle_changes": False,
+        "tasks": rows,
+    }
+
+
+def _set_semantic_task_evaluator_capacity(
+    campaign: Path, *, capacity: int, reason: str
+) -> dict[str, Any]:
+    """Update an operational semantic task ceiling outside scientific code.
+
+    The semantic runner consumes this value at opportunity boundaries, but the
+    dashboard owns the operator policy that bounds it by the live host limit.
+    Keeping this writer here avoids changing a running campaign's frozen
+    scientific module merely to expand an operational scheduler range.
+    """
+
+    plan_path = campaign / "inputs/semantic-interventions.toml"
+    timestamp = utc_now()
+    with campaign_metadata_lock(campaign, exclusive=True):
+        before_plan = tomllib.loads(plan_path.read_text(encoding="utf-8"))
+        before_capacity = int(before_plan["task_evaluator_capacity"])
+        lines = plan_path.read_text(encoding="utf-8").splitlines(keepends=True)
+        replacements = 0
+        updated_lines: list[str] = []
+        for line in lines:
+            if line.strip().startswith("task_evaluator_capacity ="):
+                newline = "\n" if line.endswith("\n") else ""
+                updated_lines.append(f"task_evaluator_capacity = {capacity}{newline}")
+                replacements += 1
+            else:
+                updated_lines.append(line)
+        if replacements != 1:
+            raise ValueError(
+                "semantic intervention plan must define task_evaluator_capacity once"
+            )
+        temporary = plan_path.with_name(f".{plan_path.name}.capacity.tmp")
+        temporary.write_text("".join(updated_lines), encoding="utf-8")
+        os.replace(temporary, plan_path)
+
+        runtime = load_runtime_options(campaign)
+        before_runtime = int(runtime["evaluation"]["task_pool_capacity"])
+        runtime["evaluation"]["task_pool_capacity"] = capacity
+        update_runtime_options(campaign, replacement=runtime, reason=reason)
+
+        semantic_manifest_path = campaign / "semantic-interventions.json"
+        semantic_manifest = read_json(semantic_manifest_path, {})
+        if not isinstance(semantic_manifest.get("plan"), dict):
+            raise ValueError("semantic intervention manifest lacks its plan")
+        semantic_manifest["plan"]["task_evaluator_capacity"] = capacity
+        atomic_json(semantic_manifest_path, semantic_manifest)
+
+        campaign_manifest_path = campaign / "campaign.json"
+        campaign_manifest = read_json(campaign_manifest_path, {})
+        campaign_manifest["intervention_plan_sha256"] = hashlib.sha256(
+            plan_path.read_bytes()
+        ).hexdigest()
+        atomic_json(campaign_manifest_path, campaign_manifest)
+
+    receipt = {
+        "schema_version": "4.0",
+        "event": "task_evaluator_capacity_changed",
+        "timestamp": timestamp,
+        "reason": reason,
+        "previous_plan_capacity": before_capacity,
+        "previous_runtime_capacity": before_runtime,
+        "task_evaluator_capacity": capacity,
+        "semantics": "cooperative_future_evaluations_only",
+    }
+    append_jsonl(campaign / "semantic-lifecycle.jsonl", receipt)
+    return receipt
+
+
+def set_task_evaluator_capacity(
+    campaigns: dict[str, Path], *, task_id: str, capacity: int, host_capacity: int
+) -> dict[str, Any]:
+    """Set one local task pool across every campaign that shares it."""
+
+    if isinstance(capacity, bool) or not isinstance(capacity, int):
+        raise ValueError("task evaluator limit must be an integer")
+    if (
+        isinstance(host_capacity, bool)
+        or not isinstance(host_capacity, int)
+        or host_capacity < 1
+    ):
+        raise ValueError("host evaluator limit must be a positive integer")
+    if capacity < 1 or capacity > host_capacity:
+        raise ValueError(
+            f"task evaluator limit must be between 1 and the host ceiling "
+            f"({host_capacity})"
+        )
+    grouped = _task_evaluator_campaigns(campaigns)
+    members = grouped.get(task_id)
+    if not members:
+        raise ValueError("unknown local evaluator task pool")
+
+    # Validate the complete target set before changing any campaign.
+    for member in members:
+        runtime = load_runtime_options(member["campaign"])
+        if not isinstance(runtime.get("evaluation"), dict):
+            raise ValueError("v3 runtime lacks evaluator options")
+
+    reason = f"dashboard operator set shared task evaluator capacity to {capacity}"
+    receipts = []
+    for member in members:
+        root = member["campaign"]
+        plan_path = root / "inputs/semantic-interventions.toml"
+        if plan_path.is_file():
+            receipt = _set_semantic_task_evaluator_capacity(
+                root, capacity=capacity, reason=reason
+            )
+            plan = tomllib.loads(plan_path.read_text(encoding="utf-8"))
+            default_workers = int(plan.get("max_parallel_agent_calls", 0))
+            limits = load_campaign_capacity(
+                root,
+                default_subject_workers=default_workers,
+                default_local_evaluators=capacity,
+            )
+            if limits.local_evaluators > capacity:
+                set_campaign_capacity(
+                    root,
+                    subject_workers=limits.subject_workers,
+                    local_evaluators=capacity,
+                )
+        else:
+            with campaign_metadata_lock(root, exclusive=True):
+                runtime = load_runtime_options(root)
+                previous = int(runtime["evaluation"]["task_pool_capacity"])
+                runtime["evaluation"]["task_pool_capacity"] = capacity
+                receipt = update_runtime_options(
+                    root, replacement=runtime, reason=reason
+                )
+            # A non-semantic v3 campaign currently has no separate evaluator
+            # control surface. Mirror its sole task ceiling into the dynamic
+            # campaign lease so already-queued evaluators see decreases live.
+            set_campaign_capacity(
+                root,
+                subject_workers=MAX_SUBJECT_WORKERS,
+                local_evaluators=capacity,
+            )
+            receipt = receipt | {
+                "previous_task_pool_capacity": previous,
+                "task_pool_capacity": capacity,
+            }
+        receipts.append(
+            {
+                "campaign_id": member["campaign_id"],
+                "campaign": str(root),
+                "receipt": receipt,
+            }
+        )
+    return {
+        "task_id": task_id,
+        "capacity": capacity,
+        "host_evaluator_capacity": host_capacity,
+        "affected_campaigns": receipts,
+        "semantics": "cooperative_future_evaluations_only_no_pause_or_restart",
+    }
+
+
+def campaign_capacity_payload(
+    campaigns: dict[str, Path],
+    dashboard_snapshot: dict[str, Any],
+    global_status: dict[str, Any],
+) -> dict[str, Any]:
+    """Describe v3 semantic campaigns with live per-campaign controls."""
+
+    worker_holders = global_status["pools"]["workers"].get("active_holders", [])
+    evaluator_holders = global_status["pools"]["evaluators"].get("active_holders", [])
+    host_capacity = _host_local_evaluator_limit(global_status)
+    snapshot_campaigns = dashboard_snapshot.get("campaigns", {})
+    rows: list[dict[str, Any]] = []
+    for key, campaign in campaigns.items():
+        root = campaign.resolve()
+        plan_path = root / "inputs/semantic-interventions.toml"
+        if not plan_path.is_file():
+            continue
+        try:
+            plan = tomllib.loads(plan_path.read_text(encoding="utf-8"))
+            default_workers = int(plan.get("max_parallel_agent_calls", 0))
+            task_evaluator_capacity = int(plan["task_evaluator_capacity"])
+            limits = load_campaign_capacity(
+                root,
+                default_subject_workers=default_workers,
+                default_local_evaluators=task_evaluator_capacity,
+            )
+        except (OSError, ValueError, KeyError, TypeError, tomllib.TOMLDecodeError):
+            continue
+        payload = snapshot_campaigns.get(key, {})
+        active_workers = sum(
+            str(item.get("holder", {}).get("campaign", "")) == str(root)
+            for item in worker_holders
+            if isinstance(item, dict)
+        )
+        active_evaluators = sum(
+            str(item.get("holder", {}).get("opportunity_root", "")).startswith(
+                str(root) + os.sep
+            )
+            for item in evaluator_holders
+            if isinstance(item, dict)
+        )
+        evaluator_pool = campaign_evaluator_status(
+            root,
+            hard_capacity=max(
+                host_capacity, task_evaluator_capacity, limits.local_evaluators
+            ),
+        )
+        active_runs = sum(
+            isinstance(state, dict) and state.get("active") is not None
+            for state in (
+                read_json(run_dir / "state.json", {})
+                for run_dir in (root / "runs").glob("*")
+                if run_dir.is_dir()
+            )
+        )
+        rows.append(
+            {
+                "id": key,
+                "label": (
+                    f"{payload.get('task_display_name', 'Task')} · "
+                    f"{payload.get('framework_label', key)}"
+                ),
+                "path": str(root),
+                "subject_workers": limits.subject_workers,
+                "max_active_runs": limits.subject_workers,
+                "active_opportunity_limit": limits.subject_workers,
+                "local_evaluators": limits.local_evaluators,
+                "max_subject_workers": MAX_SUBJECT_WORKERS,
+                "max_campaign_runs": MAX_SUBJECT_WORKERS,
+                "max_active_opportunities": MAX_SUBJECT_WORKERS,
+                # The editable campaign ceiling follows the live host ceiling.
+                # A campaign may therefore keep a higher latent preference than
+                # the task pool currently permits; execution still takes the
+                # minimum of all three operational limits.
+                "max_local_evaluators": host_capacity,
+                "host_evaluator_capacity": host_capacity,
+                "task_evaluator_capacity": task_evaluator_capacity,
+                "effective_local_evaluator_limit": min(
+                    host_capacity,
+                    task_evaluator_capacity,
+                    limits.local_evaluators,
+                ),
+                "active_subject_workers": active_workers,
+                "active_runs": active_runs,
+                "active_codex_calls": active_workers,
+                "active_opportunities": active_runs,
+                "active_local_evaluators": active_evaluators,
+                "campaign_evaluator_leases": evaluator_pool["active"],
+                "updated_at": limits.updated_at,
+            }
+        )
+    return {
+        "available": bool(rows),
+        "semantics": "live_future_dispatches_only_no_lifecycle_change",
+        "lifecycle_changes": False,
+        "host_evaluator_capacity": host_capacity,
+        "control_poll_seconds": 0.5,
+        "campaigns": rows,
+    }
+
+
 def make_handler(
     campaigns: dict[str, Path],
     prices: dict[str, float],
@@ -2098,13 +3614,25 @@ def make_handler(
     codex_rate_limit_history: Path = DEFAULT_CODEX_RATE_LIMIT_HISTORY,
     codex_rate_limit_sample_seconds: float = DEFAULT_CODEX_RATE_LIMIT_SAMPLE_SECONDS,
     codex_token_campaign_roots: Iterable[Path] = (),
+    capacity_controller: CapacityController | None = None,
+    compute_monitor: MacComputeMonitor | None = None,
+    campaign_discovery_roots: Iterable[Path] = (REPO_ROOT / "data/c0c3",),
 ):
     codex_token_campaign_roots = tuple(codex_token_campaign_roots)
+    capacity_controller = capacity_controller or CapacityController()
+    compute_monitor = compute_monitor or MacComputeMonitor()
+    configured_campaigns = dict(campaigns)
+
+    def lifecycle_campaigns() -> dict[str, Path]:
+        return discover_campaigns(
+            configured_campaigns,
+            roots=campaign_discovery_roots,
+        )
 
     def build_dashboard_payload() -> bytes:
         return json.dumps(
             dashboard_data(
-                campaigns,
+                configured_campaigns,
                 prices,
                 modal_h100_price_per_second=modal_h100_price_per_second,
                 codex_rate_limit_history=codex_rate_limit_history,
@@ -2117,6 +3645,33 @@ def make_handler(
     payload_cache = DashboardPayloadCache(build_dashboard_payload)
     payload_cache.prewarm()
 
+    def build_controller_payload() -> dict[str, Any]:
+        dashboard_body = payload_cache.latest()
+        dashboard_snapshot = (
+            json.loads(dashboard_body)
+            if dashboard_body is not None
+            else {"campaigns": {}}
+        )
+        global_status = capacity_controller.status()
+        live_campaigns = configured_campaigns
+        lifecycle_roster = lifecycle_campaigns()
+        return {
+            "schema_version": "1.0",
+            "generated_at": datetime.now().astimezone().isoformat(),
+            "controller": global_status,
+            "task_evaluator_limits": task_evaluator_capacity_payload(
+                live_campaigns, dashboard_snapshot, global_status
+            ),
+            "campaign_limits": campaign_capacity_payload(
+                live_campaigns, dashboard_snapshot, global_status
+            ),
+            "campaign_lifecycle": campaign_lifecycle_payload(
+                lifecycle_roster, dashboard_snapshot
+            ),
+            "compute": compute_monitor.sample(),
+            "codex_rate_limit": dashboard_snapshot.get("codex_rate_limit", {}),
+        }
+
     class Handler(BaseHTTPRequestHandler):
         def send_payload(
             self,
@@ -2124,6 +3679,7 @@ def make_handler(
             content_type: str,
             *,
             content_encoding: str | None = None,
+            status: HTTPStatus = HTTPStatus.OK,
         ) -> None:
             if content_encoding is None:
                 body, content_encoding = encode_response(
@@ -2132,10 +3688,15 @@ def make_handler(
             # A reload can abandon an in-flight multi-megabyte response before
             # either headers or body finish. Keep the read-only server healthy.
             with suppress(BrokenPipeError, ConnectionResetError):
-                self.send_response(HTTPStatus.OK)
+                self.send_response(status)
                 self.send_header("Content-Type", content_type)
                 self.send_header("Cache-Control", "no-store")
                 self.send_header("Access-Control-Allow-Origin", "*")
+                self.send_header(
+                    "Access-Control-Allow-Headers",
+                    "Content-Type, X-RL4RL-Controller",
+                )
+                self.send_header("Access-Control-Allow-Methods", "GET, POST, OPTIONS")
                 self.send_header("Vary", "Accept-Encoding")
                 if content_encoding:
                     self.send_header("Content-Encoding", content_encoding)
@@ -2154,6 +3715,11 @@ def make_handler(
                     read_science_page().encode("utf-8"),
                     "text/html; charset=utf-8",
                 )
+            elif self.path in {"/controller", "/controller.html"}:
+                self.send_payload(
+                    read_controller_page().encode("utf-8"),
+                    "text/html; charset=utf-8",
+                )
             elif self.path == "/api/revision":
                 payload = json.dumps(
                     {"revision": dashboard_revision()}, separators=(",", ":")
@@ -2168,8 +3734,145 @@ def make_handler(
                     "application/json; charset=utf-8",
                     content_encoding=content_encoding,
                 )
+            elif self.path == "/api/controller":
+                self.send_payload(
+                    json.dumps(
+                        build_controller_payload(), separators=(",", ":")
+                    ).encode("utf-8"),
+                    "application/json; charset=utf-8",
+                )
             else:
                 self.send_error(HTTPStatus.NOT_FOUND)
+
+        def do_OPTIONS(self) -> None:  # noqa: N802
+            if self.path not in {
+                "/api/controller/limits",
+                "/api/controller/task-limits",
+                "/api/controller/campaign-limits",
+                "/api/controller/campaign-lifecycle",
+            }:
+                self.send_error(HTTPStatus.NOT_FOUND)
+                return
+            self.send_payload(b"", "text/plain; charset=utf-8")
+
+        def do_POST(self) -> None:  # noqa: N802
+            if self.path not in {
+                "/api/controller/limits",
+                "/api/controller/task-limits",
+                "/api/controller/campaign-limits",
+                "/api/controller/campaign-lifecycle",
+            }:
+                self.send_error(HTTPStatus.NOT_FOUND)
+                return
+            if self.client_address[0] not in {"127.0.0.1", "::1"}:
+                self.send_payload(
+                    b'{"error":"controller writes are local-only"}',
+                    "application/json; charset=utf-8",
+                    status=HTTPStatus.FORBIDDEN,
+                )
+                return
+            if self.headers.get("X-RL4RL-Controller") != "1":
+                self.send_payload(
+                    b'{"error":"missing local controller confirmation header"}',
+                    "application/json; charset=utf-8",
+                    status=HTTPStatus.FORBIDDEN,
+                )
+                return
+            try:
+                length = int(self.headers.get("Content-Length", "0"))
+                if length < 2 or length > 4096:
+                    raise ValueError("invalid controller request size")
+                request = json.loads(self.rfile.read(length))
+                if not isinstance(request, dict):
+                    raise ValueError("controller request must be a JSON object")
+                live_campaigns = configured_campaigns
+                if self.path == "/api/controller/limits":
+                    capacity_controller.set_limits(
+                        workers=request.get("workers"),
+                        evaluators=request.get("evaluators"),
+                    )
+                elif self.path == "/api/controller/task-limits":
+                    task_id = request.get("task")
+                    if not isinstance(task_id, str):
+                        raise ValueError("task must be a task-pool identifier")
+                    set_task_evaluator_capacity(
+                        live_campaigns,
+                        task_id=task_id,
+                        capacity=request.get("evaluators", request.get("capacity")),
+                        host_capacity=_host_local_evaluator_limit(
+                            capacity_controller.status()
+                        ),
+                    )
+                elif self.path == "/api/controller/campaign-limits":
+                    campaign_id = request.get("campaign")
+                    if (
+                        not isinstance(campaign_id, str)
+                        or campaign_id not in live_campaigns
+                    ):
+                        raise ValueError("unknown campaign")
+                    campaign = live_campaigns[campaign_id].resolve()
+                    plan_path = campaign / "inputs/semantic-interventions.toml"
+                    if not plan_path.is_file():
+                        raise ValueError("campaign does not support live limits")
+                    host_capacity = _host_local_evaluator_limit(
+                        capacity_controller.status()
+                    )
+                    evaluator_ceiling = host_capacity
+                    evaluators = request.get("evaluators")
+                    if (
+                        isinstance(evaluators, bool)
+                        or not isinstance(evaluators, int)
+                        or evaluators < 1
+                        or evaluators > evaluator_ceiling
+                    ):
+                        raise ValueError(
+                            "campaign evaluator limit must be an integer between "
+                            f"1 and the live host evaluator ceiling "
+                            f"({evaluator_ceiling})"
+                        )
+                    set_campaign_capacity(
+                        campaign,
+                        subject_workers=request.get("runs", request.get("workers")),
+                        local_evaluators=evaluators,
+                    )
+                else:
+                    lifecycle_roster = lifecycle_campaigns()
+                    campaign_id = request.get("campaign")
+                    action = request.get("action")
+                    if not isinstance(campaign_id, str):
+                        raise ValueError("campaign must be a campaign identifier")
+                    if action not in {"pause", "resume"}:
+                        raise ValueError("campaign action must be pause or resume")
+                    set_campaign_lifecycle(
+                        lifecycle_roster,
+                        campaign_id=campaign_id,
+                        desired="paused" if action == "pause" else "running",
+                        reason=(
+                            f"controller dashboard operator requested campaign {action}"
+                        ),
+                    )
+                payload = build_controller_payload()
+            except (
+                OSError,
+                KeyError,
+                TypeError,
+                ValueError,
+                RuntimeError,
+                json.JSONDecodeError,
+                tomllib.TOMLDecodeError,
+            ) as exc:
+                self.send_payload(
+                    json.dumps({"error": str(exc)}, separators=(",", ":")).encode(
+                        "utf-8"
+                    ),
+                    "application/json; charset=utf-8",
+                    status=HTTPStatus.BAD_REQUEST,
+                )
+                return
+            self.send_payload(
+                json.dumps(payload, separators=(",", ":")).encode("utf-8"),
+                "application/json; charset=utf-8",
+            )
 
         def log_message(self, format: str, *args: Any) -> None:
             print(f"dashboard: {format % args}")
@@ -2179,13 +3882,10 @@ def make_handler(
 
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(
-        description="Serve a read-only live C0-C3 trajectory dashboard."
+        description="Serve the live RL4RL trajectory and host-controller dashboard."
     )
     parser.add_argument("--host", default="127.0.0.1")
     parser.add_argument("--port", default=8765, type=int)
-    parser.add_argument(
-        "--autoresearch-campaign", type=Path, default=DEFAULT_AUTORESEARCH
-    )
     parser.add_argument("--openevolve-campaign", type=Path, default=DEFAULT_OPENEVOLVE)
     parser.add_argument(
         "--autoresearch-v17-campaign", type=Path, default=DEFAULT_AUTORESEARCH_V17
@@ -2224,9 +3924,29 @@ def parse_args() -> argparse.Namespace:
         default=DEFAULT_SEMANTIC_V4_FASHION_MNIST_NATIVE,
     )
     parser.add_argument(
+        "--semantic-v4-tiny-adderboard-campaign",
+        type=Path,
+        default=DEFAULT_SEMANTIC_V4_TINY_ADDERBOARD,
+    )
+    parser.add_argument(
+        "--semantic-v4-tiny-adderboard-native-campaign",
+        type=Path,
+        default=DEFAULT_SEMANTIC_V4_TINY_ADDERBOARD_NATIVE,
+    )
+    parser.add_argument(
         "--unified-v3-adderboard-greedy-campaign",
         type=Path,
         default=DEFAULT_UNIFIED_V3_ADDERBOARD_GREEDY,
+    )
+    parser.add_argument(
+        "--unified-v3-tiny-adderboard-greedy-campaign",
+        type=Path,
+        default=DEFAULT_UNIFIED_V3_TINY_ADDERBOARD_GREEDY,
+    )
+    parser.add_argument(
+        "--unified-v3-tiny-adderboard-native-campaign",
+        type=Path,
+        default=DEFAULT_UNIFIED_V3_TINY_ADDERBOARD_NATIVE,
     )
     parser.add_argument(
         "--input-per-million", type=float, default=DEFAULT_PRICE_PER_MILLION["input"]
@@ -2268,7 +3988,6 @@ def main() -> None:
         "output": args.output_per_million,
     }
     campaigns = {
-        "autoresearch_v16": args.autoresearch_campaign,
         "openevolve_v2": args.openevolve_campaign,
         "autoresearch_v17": args.autoresearch_v17_campaign,
         "openevolve_v21": args.openevolve_v21_campaign,
@@ -2282,8 +4001,16 @@ def main() -> None:
         "semantic_v4_fashion_mnist_native": (
             args.semantic_v4_fashion_mnist_native_campaign
         ),
-        "unified_v3_adderboard_greedy": (
-            args.unified_v3_adderboard_greedy_campaign
+        "semantic_v4_tiny_adderboard": args.semantic_v4_tiny_adderboard_campaign,
+        "semantic_v4_tiny_adderboard_native": (
+            args.semantic_v4_tiny_adderboard_native_campaign
+        ),
+        "unified_v3_adderboard_greedy": (args.unified_v3_adderboard_greedy_campaign),
+        "unified_v3_tiny_adderboard_greedy": (
+            args.unified_v3_tiny_adderboard_greedy_campaign
+        ),
+        "unified_v3_tiny_adderboard_native": (
+            args.unified_v3_tiny_adderboard_native_campaign
         ),
     }
     token_campaign_roots = dashboard_campaign_roots(campaigns)
@@ -2308,7 +4035,6 @@ def main() -> None:
     start_python_hot_reloader()
     print("Hot reload: watching dashboard HTML and Python")
     print(f"Dashboard: http://{args.host}:{args.port}")
-    print(f"Autoresearch: {args.autoresearch_campaign}")
     print(f"Greedy OpenEvolve v2: {args.openevolve_campaign}")
     print(f"Autoresearch v1.7: {args.autoresearch_v17_campaign}")
     print(f"Greedy OpenEvolve v2.1: {args.openevolve_v21_campaign}")
@@ -2328,8 +4054,24 @@ def main() -> None:
         f"{args.semantic_v4_fashion_mnist_native_campaign}"
     )
     print(
+        "Semantic v4 Tiny AdderBoard Greedy OpenEvolve: "
+        f"{args.semantic_v4_tiny_adderboard_campaign}"
+    )
+    print(
+        "Semantic v4 Tiny AdderBoard Native OpenEvolve: "
+        f"{args.semantic_v4_tiny_adderboard_native_campaign}"
+    )
+    print(
         "Unified v3 AdderBoard Greedy OpenEvolve: "
         f"{args.unified_v3_adderboard_greedy_campaign}"
+    )
+    print(
+        "Unified v3 Tiny AdderBoard Greedy OpenEvolve: "
+        f"{args.unified_v3_tiny_adderboard_greedy_campaign}"
+    )
+    print(
+        "Unified v3 Tiny AdderBoard Native OpenEvolve: "
+        f"{args.unified_v3_tiny_adderboard_native_campaign}"
     )
     print(
         "Codex quota burn-rate history: "

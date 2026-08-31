@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import json
 import subprocess
 import sys
 from pathlib import Path
@@ -83,11 +84,15 @@ def test_waiting_worker_can_be_cancelled_before_attempt_start(
     assert shared_agent_worker_status(root, capacity=1)["occupied"] == 0
 
 
-def test_scheduler_rejects_capacity_drift(tmp_path: Path) -> None:
+def test_scheduler_expands_and_older_defaults_adopt_larger_range(
+    tmp_path: Path,
+) -> None:
     root = tmp_path / "agent-workers"
     assert shared_agent_worker_status(root, capacity=2)["capacity"] == 2
-    with pytest.raises(RuntimeError, match="capacity mismatch"):
-        shared_agent_worker_status(root, capacity=3)
+    assert shared_agent_worker_status(root, capacity=3)["capacity"] == 3
+    assert shared_agent_worker_status(root, capacity=2)["capacity"] == 3
+    assert json.loads((root / "scheduler.json").read_text())["capacity"] == 2
+    assert json.loads((root / "operator-capacity.json").read_text())["capacity"] == 3
 
 
 def test_worker_slot_releases_when_holder_process_exits(tmp_path: Path) -> None:

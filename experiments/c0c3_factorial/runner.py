@@ -44,6 +44,7 @@ from .neutral_task import (
     PAIR_TOKEN_TASK_ADAPTER_V2,
     PAIR_TOKEN_TASK_ADAPTER_V3,
     SUBJECT_NEUTRAL_PROMPT_PROFILES,
+    TINY_ADDERBOARD_TASK_ADAPTER,
 )
 from .periodic_refresh import (
     REFRESH_INCUMBENT,
@@ -67,6 +68,7 @@ from .spec import (
 )
 from .state import Evaluation, SearchController
 from .task_evaluators import preflight_candidate_source
+from .tiny_adderboard import preflight_candidate_source as preflight_tiny_adderboard
 from .training_ladder import assess_developmental_value, evaluate_training_ladder
 from .v3 import load_runtime_options, prompt_renderer_paths
 from .v3_analysis import record_candidate_provenance, write_manipulation_packet
@@ -931,6 +933,12 @@ def _run_one_opportunity_unlocked(
         and task.adapter == FASHION_MNIST_TASK_ADAPTER
     ):
         preflight_error = preflight_fashion_mnist(workspace)
+    elif (
+        proposal.codex.returncode == 0
+        and adapter_error is None
+        and task.adapter == TINY_ADDERBOARD_TASK_ADAPTER
+    ):
+        preflight_error = preflight_tiny_adderboard(workspace)
     if proposal.codex.returncode != 0 or adapter_error or preflight_error:
         failure_kind = (
             "provider"
@@ -982,6 +990,14 @@ def _run_one_opportunity_unlocked(
                 python_bin=python_bin,
                 slot_root=slot_root,
                 max_parallel_evaluators=max_parallel_evaluators,
+                capacity_campaign=(
+                    run_dir.parent.parent if spec.protocol_version == "3.0" else None
+                ),
+                default_campaign_evaluator_capacity=(
+                    max_parallel_evaluators
+                    if spec.protocol_version == "3.0"
+                    else None
+                ),
             )
 
         replicate_count = (

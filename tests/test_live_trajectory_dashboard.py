@@ -8,10 +8,16 @@ from pathlib import Path
 import pytest
 
 from experiments.live_trajectory_dashboard import (
+    CONTROLLER_PAGE,
     DEFAULT_MODAL_H100_PRICE_PER_SECOND,
     PAGE,
+    CapacityController,
     DashboardPayloadCache,
+    _macos_cpu_percentages,
+    _macos_size_bytes,
+    _macos_vm_stat_bytes,
     build_run,
+    campaign_capacity_payload,
     campaign_data,
     codex_primary_rate_limit_sample,
     codex_rate_limit_payload,
@@ -23,6 +29,8 @@ from experiments.live_trajectory_dashboard import (
     local_codex_token_usage,
     projected_remaining_percent,
     projected_zero_crossing_time,
+    set_task_evaluator_capacity,
+    task_evaluator_capacity_payload,
     weighted_cost,
 )
 
@@ -143,14 +151,11 @@ def _example_run(tmp_path: Path) -> Path:
     return run
 
 
-def test_dashboard_data_keeps_legacy_refresh_keys(tmp_path: Path) -> None:
-    autoresearch = tmp_path / "autoresearch"
+def test_dashboard_data_keeps_legacy_openevolve_refresh_key(tmp_path: Path) -> None:
     openevolve = tmp_path / "openevolve"
-    autoresearch.mkdir()
     openevolve.mkdir()
     data = dashboard_data(
         {
-            "autoresearch_v16": autoresearch,
             "openevolve_v2": openevolve,
             "autoresearch_v17": tmp_path / "not-started",
         },
@@ -158,7 +163,8 @@ def test_dashboard_data_keeps_legacy_refresh_keys(tmp_path: Path) -> None:
     )
 
     assert data["schema_version"] == "3.1"
-    assert data["autoresearch"] == data["campaigns"]["autoresearch_v16"]
+    assert "autoresearch" not in data
+    assert "autoresearch_v16" not in data["campaigns"]
     assert data["openevolve_v2"] == data["campaigns"]["openevolve_v2"]
     assert data["campaigns"]["autoresearch_v17"]["available"] is False
 
@@ -252,11 +258,14 @@ def test_projected_zero_crossing_time_uses_remaining_quota() -> None:
         2,
         from_time=observed_at,
     ) == datetime.fromisoformat("2026-01-01T00:50:00+00:00")
-    assert projected_zero_crossing_time(
-        100,
-        2,
-        from_time=observed_at,
-    ) == observed_at
+    assert (
+        projected_zero_crossing_time(
+            100,
+            2,
+            from_time=observed_at,
+        )
+        == observed_at
+    )
 
 
 def test_local_session_attribution_uses_completed_turn_token_records(
@@ -488,6 +497,79 @@ def test_build_run_returns_to_scientific_status_after_resume(tmp_path: Path) -> 
     assert run["status"] == "running"
 
 
+def test_build_run_reports_live_evaluator_stage_and_wait_reason(tmp_path: Path) -> None:
+    run_dir = _example_run(tmp_path)
+    state = json.loads((run_dir / "state.json").read_text(encoding="utf-8"))
+    state["active"] = {"index": 3, "started_at": "2026-01-01T00:20:00+00:00"}
+    _write_json(run_dir / "state.json", state)
+    opportunity = run_dir / "opportunities/0003"
+    (opportunity / "codex").mkdir(parents=True)
+    (opportunity / "codex/proposal-3.jsonl").write_text("{}\n", encoding="utf-8")
+    (opportunity / "evaluation-workspace").mkdir()
+
+    waiting = build_run(
+        run_dir,
+        PRICES,
+        objective_metric="parameters",
+        objective_direction="minimize",
+        runtime_activity={
+            "agent_holders": [],
+            "evaluator_holders": [],
+            "shared_evaluator_occupied": 12,
+            "shared_evaluator_capacity": 12,
+        },
+    )
+
+    assert waiting is not None
+    assert waiting["operational_stage"]["kind"] == "waiting_evaluator"
+    assert waiting["operational_stage_label"] == ("Waiting · host evaluator slot · P3")
+
+    (opportunity / "evaluation.stdout.log").write_text("training", encoding="utf-8")
+    evaluating = build_run(
+        run_dir,
+        PRICES,
+        objective_metric="parameters",
+        objective_direction="minimize",
+        runtime_activity={
+            "agent_holders": [],
+            "evaluator_holders": [{"opportunity_root": str(opportunity)}],
+        },
+    )
+
+    assert evaluating is not None
+    assert evaluating["operational_stage"]["kind"] == "evaluating"
+    assert evaluating["operational_stage_label"] == "Evaluating · local evaluator · P3"
+
+
+def test_build_run_reports_campaign_active_opportunity_limit(
+    tmp_path: Path,
+) -> None:
+    run_dir = _example_run(tmp_path)
+    campaign = run_dir.parent.parent.resolve()
+
+    waiting = build_run(
+        run_dir,
+        PRICES,
+        objective_metric="parameters",
+        objective_direction="minimize",
+        runtime_activity={
+            "agent_holders": [],
+            "campaign_controllers": {str(campaign)},
+        },
+        campaign_desired="running",
+        campaign_subject_limit=12,
+        campaign_active_opportunities=12,
+        semantic_campaign=True,
+    )
+
+    assert waiting is not None
+    assert waiting["operational_stage"]["kind"] == ("waiting_campaign_opportunity")
+    assert waiting["operational_stage_label"] == (
+        "Waiting · campaign active-opportunity limit"
+    )
+    assert "All 12 campaign opportunity slots" in waiting["operational_stage"]["detail"]
+
+
 def test_cost_fields_distinguish_cumulative_and_incremental_usage(
     tmp_path: Path,
 ) -> None:
@@ -677,32 +759,37 @@ def test_semantic_campaign_uses_arm_labels_and_charges_shared_prefix_once(
 def test_page_contains_live_controls_and_raw_outcome_overlay() -> None:
     assert "Refresh now" in PAGE
     assert "Auto-refresh" in PAGE
-    assert "Experiment-only 1% burn time" in PAGE
-    assert "function fmtDurationMinutes(value)" in PAGE
-    assert "function quotaTokenHtml(quota)" in PAGE
-    assert "function drawQuota(quota)" in PAGE
-    assert "function drawResetProjection(quota)" in PAGE
-    assert "Predicted 0%:" in PAGE
-    assert 'id="quota-reset-date"' in PAGE
-    assert "Experiments-only projection at reset" in PAGE
-    assert "All-Codex projection at reset" in PAGE
+    assert "Experiment-only 1% burn time" not in PAGE
+    assert 'href="/controller"' in PAGE
     assert "seriesMode:'runs'" in PAGE
-    assert "Experiment-only session-attributed pace" in PAGE
-    assert "Model and settings ledger" in PAGE
-    assert "Minutes per 1% of primary limit used" in PAGE
     assert 'id="campaign-select"' in PAGE
+    assert "semantic_v4_tiny_adderboard" in PAGE
+    assert "Semantic interventions v4 · Tiny AdderBoard Greedy OpenEvolve" in PAGE
+    assert "autoresearch_v16" not in PAGE
+    assert "Autoresearch v1.6" not in PAGE
     assert "function syncCampaignSelector(sections)" in PAGE
     assert "shownSections=selected?[selected]:[]" in PAGE
     assert "Raw outcome overlay" in PAGE
+    assert "Live stage" in PAGE
+    assert "operational_stage_label" in PAGE
+    assert "function summaryCellTitle(run,key)" in PAGE
     assert "yScale:'data'" in PAGE
     assert "overlay:false" in PAGE
     assert "Y-axis range" in PAGE
     assert "Fit visible data" in PAGE
+    assert "x:'proposal'" in PAGE
+    assert "const primaryXAxisKeys=['proposal','token_cost','active_hours']" in PAGE
+    assert '<optgroup label="Primary x axes">' in PAGE
+    assert '<optgroup label="Other metrics">' in PAGE
+    assert "height:660px" in PAGE
+    assert "state.xs.map" not in PAGE
+    assert 'canvas id="${id}-chart"' in PAGE
+    assert 'canvas id="${id}-chart-${index}"' not in PAGE
     assert "Individual runs" in PAGE
     assert "Condition median" in PAGE
     assert "Condition mean" in PAGE
     assert "function legendActions(state)" in PAGE
-    assert "data-legend-action=\"show-all\"" in PAGE
+    assert 'data-legend-action="show-all"' in PAGE
     assert "data-condition-toggle" in PAGE
     assert "data-aggregate-condition" not in PAGE
     assert "data-family" not in PAGE
@@ -744,6 +831,341 @@ def test_page_contains_live_controls_and_raw_outcome_overlay() -> None:
     assert "/api/revision" in PAGE
     assert "function checkHotReload()" in PAGE
     assert "setInterval(checkHotReload,2000)" in PAGE
+
+
+def test_controller_page_contains_capacity_compute_and_codex_panels() -> None:
+    assert "Shared concurrency limits" in CONTROLLER_PAGE
+    assert "Active Codex calls" in CONTROLLER_PAGE
+    assert "No fixed maximum" in CONTROLLER_PAGE
+    assert "input.removeAttribute('max')" in CONTROLLER_PAGE
+    assert 'id="workers-limit"' in CONTROLLER_PAGE
+    assert 'id="evaluators-limit"' in CONTROLLER_PAGE
+    assert "Mac compute" in CONTROLLER_PAGE
+    assert "CPU uses 1-min load per logical core" in CONTROLLER_PAGE
+    assert "Experiment-only 1% burn time" in CONTROLLER_PAGE
+    assert "function quotaTokenHtml(quota)" in CONTROLLER_PAGE
+    assert "function drawQuota(quota)" in CONTROLLER_PAGE
+    assert "function drawResetProjection(quota)" in CONTROLLER_PAGE
+    assert "Experiment-only session-attributed pace" in CONTROLLER_PAGE
+    assert "Model and settings ledger" in CONTROLLER_PAGE
+    assert "Minutes per 1% of primary limit used" in CONTROLLER_PAGE
+    assert 'id="quota-reset-date"' in CONTROLLER_PAGE
+    assert "/api/controller/limits" in CONTROLLER_PAGE
+    assert "Task evaluator limits" in CONTROLLER_PAGE
+    assert "/api/controller/task-limits" in CONTROLLER_PAGE
+    assert "function renderTaskLimits(payload)" in CONTROLLER_PAGE
+    assert "minimum of the host, task, and campaign limits" in CONTROLLER_PAGE
+    assert "Campaign-specific limits" in CONTROLLER_PAGE
+    assert "/api/controller/campaign-limits" in CONTROLLER_PAGE
+    assert "Active opportunity max" in CONTROLLER_PAGE
+    assert "active end-to-end opportunit" in CONTROLLER_PAGE
+    assert "No pause or restart occurred" in CONTROLLER_PAGE
+    assert "runs:draft.runs" in CONTROLLER_PAGE
+    assert "Campaign lifecycle" in CONTROLLER_PAGE
+    assert "Safely pause" in CONTROLLER_PAGE
+    assert "Future campaign directories are discovered automatically" in CONTROLLER_PAGE
+    assert "/api/controller/campaign-lifecycle" in CONTROLLER_PAGE
+    assert "function renderCampaignLifecycle(payload)" in CONTROLLER_PAGE
+    assert "function applyCampaignLifecycle(id,action)" in CONTROLLER_PAGE
+
+
+def test_task_evaluator_payload_groups_shared_local_task_pools(
+    tmp_path: Path,
+) -> None:
+    first = tmp_path / "fashion-greedy"
+    second = tmp_path / "fashion-native"
+    for campaign in (first, second):
+        _write_json(
+            campaign / "inputs/task.json",
+            {
+                "task_id": "fashion_mnist_semantic_v4_mps",
+                "display_name": "Fashion research",
+                "preferred_backend": "local",
+            },
+        )
+        _write_json(
+            campaign / "inputs/v3-runtime.json",
+            {
+                "schema_version": "3.0",
+                "evaluation": {"task_pool_capacity": 6},
+            },
+        )
+    opportunity = first / "runs/example/opportunities/0001"
+    payload = task_evaluator_capacity_payload(
+        {"greedy": first, "native": second},
+        {
+            "campaigns": {
+                "greedy": {"framework_label": "Greedy OpenEvolve"},
+                "native": {"framework_label": "Native OpenEvolve"},
+            }
+        },
+        {
+            "pools": {
+                "evaluators": {
+                    "desired_limit": 20,
+                    "active_holders": [
+                        {"holder": {"opportunity_root": str(opportunity)}}
+                    ],
+                }
+            }
+        },
+    )
+
+    assert payload["hierarchy"] == "effective=min(host_task_campaign)"
+    assert len(payload["tasks"]) == 1
+    task = payload["tasks"][0]
+    assert task["id"] == "fashion_mnist_semantic_v4_mps"
+    assert task["label"] == "Fashion-MNIST"
+    assert task["capacity"] == 6
+    assert task["hard_capacity"] == 20
+    assert task["host_evaluator_capacity"] == 20
+    assert task["active"] == 1
+    assert task["available"] == 5
+    assert task["campaign_count"] == 2
+    assert task["consistent"] is True
+
+
+def test_campaign_evaluator_editable_max_follows_host_not_task(
+    tmp_path: Path,
+) -> None:
+    campaign = tmp_path / "fashion"
+    _write_json(campaign / "campaign.json", {"schema_version": "4.0"})
+    (campaign / "inputs").mkdir(parents=True)
+    (campaign / "inputs/semantic-interventions.toml").write_text(
+        "max_parallel_agent_calls = 12\ntask_evaluator_capacity = 6\n",
+        encoding="utf-8",
+    )
+    _write_json(
+        campaign / "capacity-control.json",
+        {"subject_workers": 12, "local_evaluators": 10},
+    )
+
+    payload = campaign_capacity_payload(
+        {"fashion": campaign},
+        {"campaigns": {"fashion": {"framework_label": "Greedy OpenEvolve"}}},
+        {
+            "pools": {
+                "workers": {"active_holders": []},
+                "evaluators": {
+                    "desired_limit": 20,
+                    "active_holders": [],
+                },
+            }
+        },
+    )
+
+    row = payload["campaigns"][0]
+    assert row["max_local_evaluators"] == 20
+    assert row["task_evaluator_capacity"] == 6
+    assert row["local_evaluators"] == 10
+    assert row["effective_local_evaluator_limit"] == 6
+
+
+def test_set_task_evaluator_capacity_updates_nonsemantic_v3_campaign(
+    tmp_path: Path,
+) -> None:
+    campaign = tmp_path / "addition"
+    task_id = "adderboard-training-ladder-v4-mps"
+    _write_json(campaign / "campaign.json", {"schema_version": "3.0"})
+    _write_json(
+        campaign / "inputs/task.json",
+        {
+            "task_id": task_id,
+            "display_name": "Addition",
+            "preferred_backend": "local",
+        },
+    )
+    _write_json(
+        campaign / "inputs/v3-runtime.json",
+        {
+            "schema_version": "3.0",
+            "evaluation": {"task_pool_capacity": 3},
+        },
+    )
+
+    result = set_task_evaluator_capacity(
+        {"addition": campaign},
+        task_id=task_id,
+        capacity=5,
+        host_capacity=20,
+    )
+
+    runtime = json.loads((campaign / "inputs/v3-runtime.json").read_text())
+    control = json.loads((campaign / "capacity-control.json").read_text())
+    history = [
+        json.loads(line)
+        for line in (campaign / "v3-runtime-history.jsonl").read_text().splitlines()
+    ]
+    assert result["capacity"] == 5
+    assert runtime["evaluation"]["task_pool_capacity"] == 5
+    assert control["local_evaluators"] == 5
+    assert control["subject_workers"] == 30
+    assert history[-1]["after"]["evaluation"]["task_pool_capacity"] == 5
+
+
+def test_task_evaluator_capacity_cannot_exceed_live_host_limit(
+    tmp_path: Path,
+) -> None:
+    campaign = tmp_path / "addition"
+    task_id = "adderboard-training-ladder-v4-mps"
+    _write_json(campaign / "campaign.json", {"schema_version": "3.0"})
+    _write_json(
+        campaign / "inputs/task.json",
+        {
+            "task_id": task_id,
+            "display_name": "Addition",
+            "preferred_backend": "local",
+        },
+    )
+    _write_json(
+        campaign / "inputs/v3-runtime.json",
+        {
+            "schema_version": "3.0",
+            "evaluation": {"task_pool_capacity": 3},
+        },
+    )
+
+    with pytest.raises(ValueError, match="host ceiling \\(20\\)"):
+        set_task_evaluator_capacity(
+            {"addition": campaign},
+            task_id=task_id,
+            capacity=21,
+            host_capacity=20,
+        )
+
+
+def test_task_evaluator_capacity_can_expand_semantic_pool_to_host_limit(
+    tmp_path: Path,
+) -> None:
+    campaign = tmp_path / "tiny"
+    task_id = "tiny-adderboard-training-ladder-v4-mps"
+    _write_json(campaign / "campaign.json", {"schema_version": "4.0"})
+    _write_json(
+        campaign / "inputs/task.json",
+        {
+            "task_id": task_id,
+            "display_name": "Tiny AdderBoard",
+            "preferred_backend": "local",
+        },
+    )
+    _write_json(
+        campaign / "inputs/v3-runtime.json",
+        {
+            "schema_version": "3.0",
+            "evaluation": {"task_pool_capacity": 16},
+        },
+    )
+    (campaign / "inputs/semantic-interventions.toml").write_text(
+        "task_evaluator_capacity = 16\nmax_parallel_agent_calls = 30\n",
+        encoding="utf-8",
+    )
+    _write_json(
+        campaign / "semantic-interventions.json",
+        {"schema_version": "4.0", "plan": {"task_evaluator_capacity": 16}},
+    )
+
+    result = set_task_evaluator_capacity(
+        {"tiny": campaign},
+        task_id=task_id,
+        capacity=20,
+        host_capacity=20,
+    )
+
+    runtime = json.loads((campaign / "inputs/v3-runtime.json").read_text())
+    manifest = json.loads((campaign / "semantic-interventions.json").read_text())
+    plan = (campaign / "inputs/semantic-interventions.toml").read_text()
+    assert result["capacity"] == 20
+    assert runtime["evaluation"]["task_pool_capacity"] == 20
+    assert manifest["plan"]["task_evaluator_capacity"] == 20
+    assert "task_evaluator_capacity = 20" in plan
+
+
+def test_capacity_controller_reserves_slots_and_persists_limits(tmp_path: Path) -> None:
+    controller = CapacityController(
+        state_path=tmp_path / "controller.json",
+        worker_root=tmp_path / "workers",
+        evaluator_root=tmp_path / "evaluators",
+        worker_capacity=4,
+        evaluator_capacity=3,
+    )
+    try:
+        initial = controller.status()
+        assert initial["pools"]["workers"]["label"] == "Active Codex calls"
+        assert initial["pools"]["workers"]["fixed_maximum"] is None
+        assert initial["pools"]["workers"]["effective_limit"] == 4
+        assert initial["pools"]["evaluators"]["effective_limit"] == 3
+
+        changed = controller.set_limits(workers=2, evaluators=1)
+
+        assert changed["pools"]["workers"]["desired_limit"] == 2
+        assert changed["pools"]["workers"]["reserved"] == 2
+        assert changed["pools"]["workers"]["effective_limit"] == 2
+        assert changed["pools"]["evaluators"]["reserved"] == 2
+        assert changed["pools"]["evaluators"]["effective_limit"] == 1
+        stored = json.loads((tmp_path / "controller.json").read_text())
+        assert stored["limits"] == {"workers": 2, "evaluators": 1}
+
+        expanded = controller.set_limits(workers=7, evaluators=5)
+
+        assert expanded["pools"]["workers"]["desired_limit"] == 7
+        assert expanded["pools"]["workers"]["slot_capacity"] == 7
+        assert expanded["pools"]["workers"]["effective_limit"] == 7
+        assert expanded["pools"]["evaluators"]["desired_limit"] == 5
+        assert expanded["pools"]["evaluators"]["slot_capacity"] == 5
+        assert (
+            json.loads((tmp_path / "workers/scheduler.json").read_text())["capacity"]
+            == 4
+        )
+        assert (
+            json.loads((tmp_path / "evaluators/scheduler.json").read_text())["capacity"]
+            == 3
+        )
+        assert (
+            json.loads((tmp_path / "workers/operator-capacity.json").read_text())[
+                "capacity"
+            ]
+            == 7
+        )
+        assert (
+            json.loads((tmp_path / "evaluators/operator-capacity.json").read_text())[
+                "capacity"
+            ]
+            == 5
+        )
+    finally:
+        controller.close()
+
+
+def test_macos_size_parser_handles_dashboard_telemetry_units() -> None:
+    assert _macos_size_bytes("243M") == 243 * 1024**2
+    assert _macos_size_bytes("35G") == 35 * 1024**3
+    assert _macos_size_bytes("1.5 GB") == int(1.5 * 1024**3)
+    assert _macos_size_bytes("unknown") is None
+
+
+def test_macos_vm_stat_parser_recovers_memory_without_top() -> None:
+    metrics = _macos_vm_stat_bytes(
+        """Mach Virtual Memory Statistics: (page size of 16384 bytes)
+The system has 38654705664 (2359296 pages with a page size of 16384).
+Pages free:                                   102535.
+Pages speculative:                             62835.
+Pages wired down:                             585222.
+Pages occupied by compressor:                 409604.
+"""
+    )
+
+    assert metrics["reported_total_bytes"] == 38654705664
+    assert metrics["free_bytes"] == 102535 * 16384
+    assert metrics["speculative_bytes"] == 62835 * 16384
+    assert metrics["wired_bytes"] == 585222 * 16384
+    assert metrics["compressed_bytes"] == 409604 * 16384
+
+
+def test_macos_cpu_percentages_uses_tick_deltas() -> None:
+    assert _macos_cpu_percentages((100, 200, 700), (125, 225, 750)) == pytest.approx(
+        (25.0, 25.0, 50.0)
+    )
+    assert _macos_cpu_percentages(None, (125, 225, 750)) is None
 
 
 def test_dashboard_labels_native_and_legacy_openevolve_architectures(
@@ -817,3 +1239,11 @@ def test_dashboard_payload_cache_builds_once_and_reuses_gzip() -> None:
     assert first_encoding == second_encoding == "gzip"
     assert first == second
     assert gzip.decompress(first) == b"process-evidence" * 1000
+
+
+def test_dashboard_payload_cache_latest_never_blocks_on_cold_build() -> None:
+    cache = DashboardPayloadCache(lambda: b"snapshot")
+
+    assert cache.latest() is None
+    assert cache.response("")[0] == b"snapshot"
+    assert cache.latest() == b"snapshot"

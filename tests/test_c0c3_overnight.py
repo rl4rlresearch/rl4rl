@@ -34,9 +34,7 @@ def test_screen_running_requires_an_exact_session_name(monkeypatch) -> None:
         overnight.subprocess,
         "run",
         lambda *args, **kwargs: SimpleNamespace(
-            stdout=(
-                "\t77885.rl4rl-c0c3-autoresearch-v1-7-nanogpt\t(Detached)\n"
-            ),
+            stdout=("\t77885.rl4rl-c0c3-autoresearch-v1-7-nanogpt\t(Detached)\n"),
             stderr="",
         ),
     )
@@ -54,6 +52,32 @@ def test_screen_running_accepts_the_exact_numbered_session(monkeypatch) -> None:
         ),
     )
     assert overnight.screen_running() is True
+
+
+def test_supervisor_metadata_registers_campaigns_for_future_dashboard_control(
+    tmp_path: Path, monkeypatch
+) -> None:
+    metadata = tmp_path / "control/supervisor-metadata.json"
+    monkeypatch.setattr(overnight, "SUPERVISOR_METADATA_PATH", metadata)
+    monkeypatch.setattr(overnight, "PROFILE", "future-profile")
+    monkeypatch.setattr(overnight, "CONTROL_ROOT", tmp_path / "control")
+    monkeypatch.setattr(overnight, "SCREEN_SESSION", "rl4rl-c0c3-future")
+    job = Job(
+        key="future:b01-c0",
+        group="future",
+        runtime_root=tmp_path,
+        campaign=tmp_path / "campaign",
+        mode="individual-trajectories",
+        run_id="b01-c0",
+    )
+
+    overnight.write_supervisor_metadata([job])
+
+    payload = json.loads(metadata.read_text(encoding="utf-8"))
+    assert payload["profile"] == "future-profile"
+    assert payload["screen_session"] == "rl4rl-c0c3-future"
+    assert payload["jobs"][job.key]["campaign"] == str(job.campaign)
+    assert payload["jobs"][job.key]["run_id"] == "b01-c0"
 
 
 def test_default_roster_excludes_autoresearch_v14() -> None:
@@ -312,9 +336,10 @@ def test_live_shadow_controller_owns_active_v3_prefix(tmp_path: Path) -> None:
     )
     live = SimpleNamespace(poll=lambda: None)
 
-    assert paired_prefix_peer_owner(
-        leader, [leader, shadow], {shadow.key: live}
-    ) == shadow.key
+    assert (
+        paired_prefix_peer_owner(leader, [leader, shadow], {shadow.key: live})
+        == shadow.key
+    )
     assert paired_prefix_peer_owner(leader, [leader, shadow], {}) is None
 
 

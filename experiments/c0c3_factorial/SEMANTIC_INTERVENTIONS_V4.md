@@ -39,10 +39,14 @@ understanding.
   public evidence policy, proposal budget, and maximum evaluator budget are
   used across arms.
 - The orchestrator issues every currently runnable subject call without an
-  artificial Sol-worker ceiling. Local Fashion-MNIST evaluation is
-  independently capped at three MPS slots, so unbounded research-call
-  concurrency does not increase GPU training concurrency beyond the calibrated
-  limit.
+  artificial Sol-worker ceiling by default. An operator may set a live
+  campaign concurrent-run ceiling; it is polled every half-second and changes
+  dispatch eligibility only, never the campaign's running/paused state. Local
+  Fashion-MNIST evaluation is
+  independently capped at six shared MPS slots, so research-call concurrency
+  does not increase GPU training concurrency beyond that task-wide ceiling.
+  Each campaign also has a live cooperative evaluator ceiling at or below six;
+  the controller dashboard can change it without interrupting active training.
 - Post-fork trajectories are scheduled independently. When one trajectory
   finishes an opportunity, its next opportunity is dispatched immediately;
   it does not wait for slower trajectories to reach a round boundary.
@@ -185,6 +189,23 @@ cannot redefine success.
 Training-rung receipts record every stage, metric, time, failure, accepted or
 fallback candidate policy, highest level, and qualification level.
 
+### Tiny AdderBoard
+
+The four-digit task uses a single uninterrupted evaluator-owned trajectory with
+default checks at 200, 400, 600, and 1,000 optimizer steps. It stops at the
+first rung reaching 99% exact public accuracy. The candidate may edit a literal
+`EVALUATION_LADDER`, but the evaluator enforces 100-1,000 steps, at most six
+rungs, and the common 1,000-step terminal check. Unlike the ten-digit bridge,
+no prefix is retrained for a later rung.
+
+Training/public/holdout examples occupy disjoint deterministic hash buckets.
+Every evaluation begins from fresh initialization and uses protected generic
+autoregressive decoding, learned-attention execution and ablation checks, and a
+25,000-parameter ceiling. A pre-launch MPS timing gate compares its seed
+evaluation with the Fashion-MNIST seed evaluation under the same idle host
+conditions; the Tiny task must fall within the declared matching tolerance
+before an official campaign is launched.
+
 ## Developmental value without hidden selection changes
 
 Every proposal receives a separate developmental assessment:
@@ -321,6 +342,15 @@ CAMPAIGN=data/c0c3/semantic-interventions-v4-fashion-native-openevolve-campaign
 ```
 
 Preparation and validation do not start any trajectory.
+
+The Fashion-MNIST preset runs each trajectory for 200 proposals. To extend an
+already drained semantic campaign to the same total without discarding prior
+work, use:
+
+```bash
+$PY "$EXP" extend-budget --campaign "$CAMPAIGN" --proposals 200 \
+  --reason "operator-authorized 200-proposal trajectory budget"
+```
 
 Status and cooperative campaign controls:
 

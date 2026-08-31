@@ -54,10 +54,10 @@ Future coding agents must also follow [AGENTS.md](AGENTS.md).
 - `campaign.py`: portable calibration and immutable campaign construction.
 - `runner.py`: one locked proposal/evaluation opportunity.
 - `evaluator.py`: campaign-local evaluator limits plus one crash-releasing,
-  twelve-slot host scheduler shared by every local 1.6/1.7/2.0/2.1 campaign.
-- `agent_scheduler.py`: crash-releasing, thirty-slot host subject-agent
-  scheduler shared by unified and semantic campaigns, without a wave or peer
-  barrier.
+  operator-sized host scheduler shared by every local campaign (default 12).
+- `agent_scheduler.py`: crash-releasing, operator-sized host subject-agent
+  scheduler shared by unified and semantic campaigns (default 30), without a
+  wave or peer barrier.
 - `orchestration.py`: versioned serial, synchronized-wave, and independently
   advancing parallel execution, plus campaign writer locks and append-only
   execution provenance.
@@ -168,7 +168,8 @@ Future coding agents must also follow [AGENTS.md](AGENTS.md).
 - `configs/protocols/semantic_interventions_v4.toml` is the exploratory
   multi-arm expansion built on the unified v3 controller. Twenty-three semantic
   research operations receive three matched replicates, share one literal
-  five-proposal prefix per replicate, and then run in five-proposal sessions.
+  five-proposal prefix per replicate, and then run to 200 proposals in
+  five-proposal sessions.
   It adds candidate-editable bounded training ladders, non-selective
   developmental evidence, independent arm controls, physical resource
   de-duplication, and an incumbent-preserving full-search refresh arm. See
@@ -178,7 +179,15 @@ Future coding agents must also follow [AGENTS.md](AGENTS.md).
   New campaigns may instead select
   `configs/frameworks/fashion_mnist_native_openevolve_v3.toml` to use the
   vendored OpenEvolve population engine while leaving the active pinned greedy
-  campaign unchanged.
+  campaign unchanged. The local dashboard's Controller tab exposes shared
+  local task-evaluator ceilings and collapsible live run/evaluator limits for
+  each compatible semantic campaign. Task and campaign evaluator controls use
+  the operator-set host evaluator limit as their editable maximum; actual
+  execution remains the minimum of host, task, and campaign ceilings. A
+  campaign's concurrent-run
+  maximum is reloaded every half-second: raising it dispatches more eligible
+  runs, while lowering it only suppresses new starts until current work ends.
+  Neither operation pauses, drains, or restarts the campaign.
 
 Run the dev protocol end to end before spending on the paper protocol. Do not
 reinterpret dev results as a pilot effect estimate: its transition density and

@@ -18,11 +18,18 @@ from pathlib import Path
 from typing import TextIO
 
 from .artifacts import materialize_candidate
+from .capacity_control import (
+    CampaignEvaluatorLease,
+    load_campaign_capacity,
+    release_campaign_evaluator,
+    try_acquire_campaign_evaluator,
+)
 from .environment import controlled_subprocess_environment
 from .spec import ObjectiveDirection, TaskSpec
 from .state import Evaluation
 
-SHARED_LOCAL_EVALUATOR_CAPACITY = 12
+SHARED_LOCAL_EVALUATOR_CAPACITY = 16
+OPERATOR_CAPACITY_FILENAME = "operator-capacity.json"
 SHARED_LOCAL_EVALUATOR_ROOT_ENV = "RL4RL_SHARED_LOCAL_EVALUATOR_ROOT"
 TASK_LOCAL_EVALUATOR_ROOT_ENV = "RL4RL_TASK_LOCAL_EVALUATOR_ROOT"
 
@@ -114,9 +121,11 @@ def _try_acquire_slot(
     return None
 
 
-def _ensure_shared_scheduler(root: Path, capacity: int) -> None:
-    """Create or verify the immutable host-wide scheduler configuration."""
+def _ensure_shared_scheduler(root: Path, capacity: int) -> int:
+    """Create or monotonically expand a host-wide scheduler configuration."""
 
+    if capacity < 1:
+        raise ValueError("shared local evaluator capacity must be positive")
     root.mkdir(parents=True, exist_ok=True)
     config_path = root / "scheduler.json"
     lock_path = root / "scheduler-config.lock"
@@ -125,12 +134,10 @@ def _ensure_shared_scheduler(root: Path, capacity: int) -> None:
         if config_path.is_file():
             payload = json.loads(config_path.read_text(encoding="utf-8"))
             configured_capacity = int(payload.get("capacity", 0))
-            if configured_capacity > capacity:
-                raise RuntimeError(
-                    "shared local evaluator scheduler capacity mismatch: "
-                    f"requested at least {capacity}, found {configured_capacity}"
-                )
+            if configured_capacity < 1:
+                raise RuntimeError("shared local evaluator scheduler is invalid")
         else:
+            configured_capacity = capacity
             config_path.write_text(
                 json.dumps(
                     {
@@ -144,7 +151,37 @@ def _ensure_shared_scheduler(root: Path, capacity: int) -> None:
                 + "\n",
                 encoding="utf-8",
             )
+        override_path = root / OPERATOR_CAPACITY_FILENAME
+        override_payload: dict[str, object] = {}
+        if override_path.is_file():
+            loaded = json.loads(override_path.read_text(encoding="utf-8"))
+            if isinstance(loaded, dict):
+                override_payload = loaded
+        override_capacity = override_payload.get("capacity", 0)
+        override_capacity = (
+            int(override_capacity)
+            if isinstance(override_capacity, int)
+            and not isinstance(override_capacity, bool)
+            else 0
+        )
+        effective_capacity = max(configured_capacity, override_capacity, capacity)
+        if (
+            effective_capacity > override_capacity
+            and effective_capacity > configured_capacity
+        ):
+            override_payload.update(
+                {
+                    "schema_version": "1.0",
+                    "capacity": effective_capacity,
+                    "scheduler": "operator_expandable_host_file_locks_v1",
+                }
+            )
+            override_path.write_text(
+                json.dumps(override_payload, indent=2, sort_keys=True) + "\n",
+                encoding="utf-8",
+            )
         fcntl.flock(handle.fileno(), fcntl.LOCK_UN)
+    return effective_capacity
 
 
 def shared_local_evaluator_status(
@@ -154,7 +191,7 @@ def shared_local_evaluator_status(
     """Inspect host-wide slots without disturbing an active lease."""
 
     selected_root = (root or shared_local_evaluator_root()).resolve()
-    _ensure_shared_scheduler(selected_root, capacity)
+    capacity = _ensure_shared_scheduler(selected_root, capacity)
     slots: list[dict[str, object]] = []
     for index in range(capacity):
         path = selected_root / f"slot-{index:02d}.lock"
@@ -235,6 +272,8 @@ class CommandEvaluator:
         max_parallel_evaluators: int | None = None,
         shared_slot_root: Path | None = None,
         max_shared_parallel_evaluators: int | None = None,
+        capacity_campaign: Path | None = None,
+        default_campaign_evaluator_capacity: int | None = None,
     ) -> None:
         self.task = task
         self.support_source = support_source
@@ -266,6 +305,21 @@ class CommandEvaluator:
             max_shared_parallel_evaluators = SHARED_LOCAL_EVALUATOR_CAPACITY
         self.shared_slot_root = shared_slot_root
         self.max_shared_parallel_evaluators = max_shared_parallel_evaluators
+        if (capacity_campaign is None) != (
+            default_campaign_evaluator_capacity is None
+        ):
+            raise ValueError(
+                "capacity_campaign and default_campaign_evaluator_capacity must "
+                "be configured together"
+            )
+        self.capacity_campaign = (
+            capacity_campaign.resolve() if capacity_campaign is not None else None
+        )
+        self.default_campaign_evaluator_capacity = (
+            int(default_campaign_evaluator_capacity)
+            if default_campaign_evaluator_capacity is not None
+            else None
+        )
         if "/" in python_bin:
             # Make relative paths safe for the evaluator's temporary cwd without
             # dereferencing a virtual-environment interpreter symlink. Resolving
@@ -302,10 +356,13 @@ class CommandEvaluator:
         if shared_root is not None and shared_capacity is not None:
             if shared_root == campaign_root:
                 raise ValueError("campaign and shared evaluator slot roots must differ")
-            _ensure_shared_scheduler(shared_root, shared_capacity)
+            shared_capacity = _ensure_shared_scheduler(
+                shared_root, shared_capacity
+            )
 
         campaign_lease: _SlotLease | None = None
         shared_lease: _SlotLease | None = None
+        dynamic_campaign_lease: CampaignEvaluatorLease | None = None
         started = time.monotonic()
         campaign_first = _slot_first(
             opportunity_root,
@@ -323,6 +380,25 @@ class CommandEvaluator:
         )
         try:
             while campaign_lease is None:
+                if (
+                    self.capacity_campaign is not None
+                    and self.default_campaign_evaluator_capacity is not None
+                ):
+                    limits = load_campaign_capacity(
+                        self.capacity_campaign,
+                        default_subject_workers=1,
+                        default_local_evaluators=(
+                            self.default_campaign_evaluator_capacity
+                        ),
+                    )
+                    dynamic_campaign_lease = try_acquire_campaign_evaluator(
+                        self.capacity_campaign,
+                        capacity=limits.local_evaluators,
+                        opportunity_root=opportunity_root,
+                    )
+                    if dynamic_campaign_lease is None:
+                        time.sleep(0.5)
+                        continue
                 campaign_lease = _try_acquire_slot(
                     root=campaign_root,
                     capacity=self.max_parallel_evaluators,
@@ -331,6 +407,8 @@ class CommandEvaluator:
                     scope="campaign",
                 )
                 if campaign_lease is None:
+                    release_campaign_evaluator(dynamic_campaign_lease)
+                    dynamic_campaign_lease = None
                     time.sleep(0.5)
                     continue
                 if shared_root is not None and shared_capacity is not None:
@@ -346,6 +424,8 @@ class CommandEvaluator:
                         # Never occupy a campaign lease while queued globally.
                         _release_slot(campaign_lease)
                         campaign_lease = None
+                        release_campaign_evaluator(dynamic_campaign_lease)
+                        dynamic_campaign_lease = None
                         time.sleep(0.5)
             (opportunity_root / "evaluator-queue.json").write_text(
                 json.dumps(
@@ -357,6 +437,11 @@ class CommandEvaluator:
                         "campaign_slot": str(campaign_lease.path),
                         "shared_slot": (
                             str(shared_lease.path) if shared_lease is not None else None
+                        ),
+                        "dynamic_campaign_slot": (
+                            str(dynamic_campaign_lease.path)
+                            if dynamic_campaign_lease is not None
+                            else None
                         ),
                         "shared_capacity": shared_capacity,
                     },
@@ -370,6 +455,7 @@ class CommandEvaluator:
         finally:
             _release_slot(shared_lease)
             _release_slot(campaign_lease)
+            release_campaign_evaluator(dynamic_campaign_lease)
 
     def evaluate(
         self,
@@ -493,6 +579,8 @@ def make_command_evaluator(
     max_parallel_evaluators: int | None = None,
     shared_slot_root: Path | None = None,
     max_shared_parallel_evaluators: int | None = None,
+    capacity_campaign: Path | None = None,
+    default_campaign_evaluator_capacity: int | None = None,
 ) -> CommandEvaluator:
     """Construct the evaluator transport frozen by the task specification."""
 
@@ -507,6 +595,10 @@ def make_command_evaluator(
         "max_parallel_evaluators": max_parallel_evaluators,
         "shared_slot_root": shared_slot_root,
         "max_shared_parallel_evaluators": max_shared_parallel_evaluators,
+        "capacity_campaign": capacity_campaign,
+        "default_campaign_evaluator_capacity": (
+            default_campaign_evaluator_capacity
+        ),
     }
     if task.extension_module is not None:
         extension = importlib.import_module(task.extension_module)

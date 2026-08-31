@@ -92,6 +92,11 @@ elif PROFILE == "unified-v3-adderboard-greedy":
         REPO_ROOT / "data/c0c3/overnight-control-unified-v3-adderboard-greedy"
     )
     DEFAULT_SCREEN_SESSION = "rl4rl-unified-v3-adderboard-greedy"
+elif PROFILE == "unified-v3-tiny-adderboard":
+    DEFAULT_CONTROL_ROOT = (
+        REPO_ROOT / "data/c0c3/overnight-control-unified-v3-tiny-adderboard"
+    )
+    DEFAULT_SCREEN_SESSION = "rl4rl-unified-v3-tiny-adderboard"
 else:
     raise RuntimeError(f"unknown overnight profile: {PROFILE}")
 CONTROL_ROOT = Path(
@@ -99,6 +104,7 @@ CONTROL_ROOT = Path(
 ).expanduser().resolve()
 DESIRED_PATH = CONTROL_ROOT / "desired.json"
 STATUS_PATH = CONTROL_ROOT / "status.json"
+SUPERVISOR_METADATA_PATH = CONTROL_ROOT / "supervisor-metadata.json"
 SUPERVISOR_LOCK = CONTROL_ROOT / "supervisor.lock"
 CONTROL_LOCK = CONTROL_ROOT / "control.lock"
 SUPERVISOR_LOG = CONTROL_ROOT / "supervisor.log"
@@ -374,6 +380,35 @@ def plans(profile: str | None = None) -> tuple[CampaignPlan, ...]:
                 blocks=(1, 2, 3),
             ),
         )
+    if selected_profile == "unified-v3-tiny-adderboard":
+        runtime_root = _env_path(
+            "RL4RL_UNIFIED_V3_TINY_ADDERBOARD_RUNTIME",
+            REPO_ROOT,
+        )
+        return (
+            CampaignPlan(
+                key="unified-v3-tiny-adderboard-greedy",
+                runtime_root=runtime_root,
+                campaign=_env_path(
+                    "RL4RL_UNIFIED_V3_TINY_ADDERBOARD_GREEDY_CAMPAIGN",
+                    REPO_ROOT
+                    / "data/c0c3/unified-v3-tiny-adderboard-greedy-campaign",
+                ),
+                mode="individual-trajectories",
+                blocks=tuple(range(1, 9)),
+            ),
+            CampaignPlan(
+                key="unified-v3-tiny-adderboard-native",
+                runtime_root=runtime_root,
+                campaign=_env_path(
+                    "RL4RL_UNIFIED_V3_TINY_ADDERBOARD_NATIVE_CAMPAIGN",
+                    REPO_ROOT
+                    / "data/c0c3/unified-v3-tiny-adderboard-native-campaign",
+                ),
+                mode="individual-trajectories",
+                blocks=tuple(range(1, 9)),
+            ),
+        )
     if selected_profile != "primary":
         raise RuntimeError(f"unknown overnight profile: {selected_profile}")
     return (
@@ -433,6 +468,32 @@ def atomic_json(path: Path, value: Any) -> None:
         json.dumps(value, indent=2, sort_keys=True) + "\n", encoding="utf-8"
     )
     os.replace(temporary, path)
+
+
+def write_supervisor_metadata(jobs: list[Job]) -> None:
+    """Register campaign ownership for generic dashboard lifecycle controls."""
+
+    atomic_json(
+        SUPERVISOR_METADATA_PATH,
+        {
+            "schema_version": SCHEMA_VERSION,
+            "profile": PROFILE,
+            "control_root": str(CONTROL_ROOT),
+            "screen_session": SCREEN_SESSION,
+            "python_bin": str(PYTHON_BIN),
+            "updated_at": utc_now(),
+            "jobs": {
+                job.key: {
+                    "group": job.group,
+                    "campaign": str(job.campaign.resolve()),
+                    "runtime_root": str(job.runtime_root.resolve()),
+                    "mode": job.mode,
+                    "run_id": job.run_id,
+                }
+                for job in jobs
+            },
+        },
+    )
 
 
 @contextlib.contextmanager
@@ -702,6 +763,8 @@ def command_environment(job: Job) -> dict[str, str]:
         "openevolve-v2.1-fashion-mnist",
         "openevolve-v2.1-fashion-mnist-extension",
         "unified-v3-adderboard-greedy",
+        "unified-v3-tiny-adderboard-greedy",
+        "unified-v3-tiny-adderboard-native",
     }:
         environment["RL4RL_C0C3_OPERATOR_PROMPT_ROOT"] = str(
             REPO_ROOT / "experiments/c0c3_factorial/templates"
@@ -739,6 +802,7 @@ def ensure_service_tier_control() -> None:
         "openevolve-v2.1-fashion-mnist",
         "openevolve-v2.1-fashion-mnist-extension",
         "unified-v3-adderboard-greedy",
+        "unified-v3-tiny-adderboard",
     }:
         return
     if not SERVICE_TIER_PATH.exists():
@@ -1253,6 +1317,15 @@ class Supervisor:
             runtime = json.loads(json.dumps(self.runtime))
         for job in self.jobs:
             runtime[job.key]["desired"] = desired["jobs"][job.key]["desired"]
+            runtime[job.key].update(
+                {
+                    "group": job.group,
+                    "campaign": str(job.campaign.resolve()),
+                    "runtime_root": str(job.runtime_root.resolve()),
+                    "mode": job.mode,
+                    "run_id": job.run_id,
+                }
+            )
             try:
                 runtime[job.key]["progress"] = progress_for(job)
             except Exception as error:  # noqa: BLE001 - status remains available
@@ -1337,6 +1410,7 @@ def command_start(args: argparse.Namespace) -> int:
     CONTROL_ROOT.mkdir(parents=True, exist_ok=True)
     ensure_service_tier_control()
     jobs = expand_jobs()
+    write_supervisor_metadata(jobs)
     if screen_running():
         raise SystemExit(f"screen session {SCREEN_SESSION!r} is already running")
     errors = preflight(jobs, allow_active=args.recover_interrupted)
@@ -1384,6 +1458,7 @@ def command_daemon(args: argparse.Namespace) -> int:
                 "another overnight supervisor already owns the lock"
             ) from error
         jobs = expand_jobs()
+        write_supervisor_metadata(jobs)
         errors = preflight(jobs, allow_active=args.recover_interrupted)
         if errors:
             raise SystemExit("daemon preflight failed:\n- " + "\n- ".join(errors))

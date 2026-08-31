@@ -20,6 +20,7 @@ from pathlib import Path
 from typing import TextIO
 
 SHARED_AGENT_WORKER_CAPACITY = 30
+OPERATOR_CAPACITY_FILENAME = "operator-capacity.json"
 SHARED_AGENT_WORKER_ROOT_ENV = "RL4RL_SHARED_AGENT_WORKER_ROOT"
 
 
@@ -56,7 +57,16 @@ def release_agent_worker_slot(lease: AgentWorkerLease | None) -> None:
     lease.handle.close()
 
 
-def _ensure_scheduler(root: Path, capacity: int) -> None:
+def _ensure_scheduler(root: Path, capacity: int) -> int:
+    """Create or monotonically expand the shared slot range.
+
+    The caller's capacity is a minimum/default, not a permanent maximum. A
+    dashboard or another current runtime may expand the operator-capacity
+    record; every later acquisition adopts that larger range without a process
+    restart.  The immutable original ``scheduler.json`` capacity is left in
+    place so controllers already running an older implementation keep working.
+    """
+
     if capacity < 1:
         raise ValueError("shared agent worker capacity must be positive")
     root.mkdir(parents=True, exist_ok=True)
@@ -67,12 +77,10 @@ def _ensure_scheduler(root: Path, capacity: int) -> None:
         if config_path.is_file():
             payload = json.loads(config_path.read_text(encoding="utf-8"))
             configured_capacity = int(payload.get("capacity", 0))
-            if configured_capacity != capacity:
-                raise RuntimeError(
-                    "shared agent worker scheduler capacity mismatch: "
-                    f"requested {capacity}, found {configured_capacity}"
-                )
+            if configured_capacity < 1:
+                raise RuntimeError("shared agent worker scheduler is invalid")
         else:
+            configured_capacity = capacity
             config_path.write_text(
                 json.dumps(
                     {
@@ -88,7 +96,38 @@ def _ensure_scheduler(root: Path, capacity: int) -> None:
                 + "\n",
                 encoding="utf-8",
             )
+        override_path = root / OPERATOR_CAPACITY_FILENAME
+        override_payload: dict[str, object] = {}
+        if override_path.is_file():
+            loaded = json.loads(override_path.read_text(encoding="utf-8"))
+            if isinstance(loaded, dict):
+                override_payload = loaded
+        override_capacity = override_payload.get("capacity", 0)
+        override_capacity = (
+            int(override_capacity)
+            if isinstance(override_capacity, int)
+            and not isinstance(override_capacity, bool)
+            else 0
+        )
+        effective_capacity = max(configured_capacity, override_capacity, capacity)
+        if (
+            effective_capacity > override_capacity
+            and effective_capacity > configured_capacity
+        ):
+            override_payload.update(
+                {
+                    "schema_version": "1.0",
+                    "capacity": effective_capacity,
+                    "scope": "all_campaigns",
+                    "scheduler": "operator_expandable_host_file_locks_v1",
+                }
+            )
+            override_path.write_text(
+                json.dumps(override_payload, indent=2, sort_keys=True) + "\n",
+                encoding="utf-8",
+            )
         fcntl.flock(handle.fileno(), fcntl.LOCK_UN)
+    return effective_capacity
 
 
 def _first_slot(worker_id: str, capacity: int) -> int:
@@ -109,7 +148,7 @@ def try_acquire_agent_worker_slot(
     """Try once to claim any host slot without starting a scientific attempt."""
 
     selected_root = (root or shared_agent_worker_root()).resolve()
-    _ensure_scheduler(selected_root, capacity)
+    capacity = _ensure_scheduler(selected_root, capacity)
     requested_at = requested_at_unix or time.time()
     first = _first_slot(worker_id, capacity)
     for offset in range(capacity):
@@ -188,7 +227,7 @@ def shared_agent_worker_status(
     """Inspect the aggregate campaign worker pool without disturbing leases."""
 
     selected_root = (root or shared_agent_worker_root()).resolve()
-    _ensure_scheduler(selected_root, capacity)
+    capacity = _ensure_scheduler(selected_root, capacity)
     slots: list[dict[str, object]] = []
     for index in range(capacity):
         path = selected_root / f"slot-{index:02d}.lock"

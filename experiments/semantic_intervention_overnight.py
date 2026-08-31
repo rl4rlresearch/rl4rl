@@ -4,6 +4,7 @@
 from __future__ import annotations
 
 import argparse
+import datetime as dt
 import hashlib
 import json
 import os
@@ -23,6 +24,8 @@ from experiments.c0c3_factorial.semantic_interventions import (  # noqa: E402
     semantic_status,
     set_semantic_control,
 )
+
+SEMANTIC_SUPERVISOR_METADATA = "semantic-supervisor.json"
 
 
 def _session(campaign: Path) -> str:
@@ -80,8 +83,40 @@ def _screen_running(session: str) -> bool:
 
 def _launch(args: argparse.Namespace) -> dict[str, object]:
     campaign = args.campaign.resolve()
+    scientific_repo_root = (
+        args.scientific_repo_root.resolve()
+        if getattr(args, "scientific_repo_root", None) is not None
+        else args.runtime_root.resolve()
+    )
     runtime_worker_count = _runtime_worker_count(campaign, args.max_workers)
     session = _session(campaign)
+    fashion_data_root = _fashion_data_root(args, campaign)
+    metadata_path = campaign / SEMANTIC_SUPERVISOR_METADATA
+    temporary = metadata_path.with_name(
+        f".{metadata_path.name}.{os.getpid()}.tmp"
+    )
+    temporary.write_text(
+        json.dumps(
+            {
+                "schema_version": "1.0",
+                "campaign": str(campaign),
+                "runtime_root": str(args.runtime_root.resolve()),
+                "scientific_repo_root": str(scientific_repo_root),
+                "python_bin": _python_bin(args.python_bin),
+                "fashion_data_root": (
+                    str(fashion_data_root) if fashion_data_root is not None else None
+                ),
+                "max_workers": args.max_workers,
+                "screen_session": session,
+                "updated_at": dt.datetime.now(dt.UTC).isoformat(),
+            },
+            indent=2,
+            sort_keys=True,
+        )
+        + "\n",
+        encoding="utf-8",
+    )
+    os.replace(temporary, metadata_path)
     if _screen_running(session):
         return {"status": "already-running", "screen_session": session}
     if shutil.which("screen") is None:
@@ -98,14 +133,13 @@ def _launch(args: argparse.Namespace) -> dict[str, object]:
         "--campaign",
         str(campaign),
         "--repo-root",
-        str(args.runtime_root.resolve()),
+        str(scientific_repo_root),
         "--python-bin",
         _python_bin(args.python_bin),
         "--max-workers",
         str(runtime_worker_count),
         "--recover-interrupted",
     ]
-    fashion_data_root = _fashion_data_root(args, campaign)
     if fashion_data_root is not None:
         command.extend(("--fashion-data-root", str(fashion_data_root)))
     shell = (
@@ -136,6 +170,30 @@ def _launch(args: argparse.Namespace) -> dict[str, object]:
         ),
         "concurrency_policy": ("all_runnable" if args.max_workers == 0 else "bounded"),
     }
+
+
+def command_resume_after_drain(args: argparse.Namespace) -> int:
+    """Wait for graceful drains, then reload campaigns on the requested runtime."""
+
+    if args.poll_seconds <= 0:
+        raise ValueError("poll interval must be positive")
+    campaigns = [path.resolve() for path in args.campaign]
+    while any(_screen_running(_session(campaign)) for campaign in campaigns):
+        time.sleep(args.poll_seconds)
+    results: list[dict[str, object]] = []
+    for campaign in campaigns:
+        launch_args = argparse.Namespace(
+            campaign=campaign,
+            runtime_root=args.runtime_root,
+            scientific_repo_root=args.scientific_repo_root,
+            python_bin=args.python_bin,
+            fashion_data_root=args.fashion_data_root,
+            max_workers=args.max_workers,
+            reason=args.reason,
+        )
+        results.append(_launch(launch_args))
+    print(json.dumps({"status": "reloaded", "campaigns": results}, indent=2))
+    return 0
 
 
 def command_status(args: argparse.Namespace) -> int:
@@ -169,6 +227,14 @@ def _parser() -> argparse.ArgumentParser:
         item = sub.add_parser(name)
         item.add_argument("--campaign", type=Path, required=True)
         item.add_argument("--runtime-root", type=Path, required=True)
+        item.add_argument(
+            "--scientific-repo-root",
+            type=Path,
+            help=(
+                "optional frozen scientific source root; runtime code still loads "
+                "from --runtime-root"
+            ),
+        )
         item.add_argument("--python-bin", type=Path, default=Path(sys.executable))
         item.add_argument("--fashion-data-root", type=Path)
         item.add_argument(
@@ -183,6 +249,22 @@ def _parser() -> argparse.ArgumentParser:
         item.set_defaults(
             handler=lambda args: (print(json.dumps(_launch(args), indent=2)), 0)[1]
         )
+    reload_after_drain = sub.add_parser("resume-after-drain")
+    reload_after_drain.add_argument(
+        "--campaign", type=Path, action="append", required=True
+    )
+    reload_after_drain.add_argument("--runtime-root", type=Path, required=True)
+    reload_after_drain.add_argument("--scientific-repo-root", type=Path)
+    reload_after_drain.add_argument(
+        "--python-bin", type=Path, default=Path(sys.executable)
+    )
+    reload_after_drain.add_argument("--fashion-data-root", type=Path)
+    reload_after_drain.add_argument("--max-workers", type=int, default=0)
+    reload_after_drain.add_argument("--poll-seconds", type=float, default=5.0)
+    reload_after_drain.add_argument(
+        "--reason", default="graceful orchestrator runtime reload after drain"
+    )
+    reload_after_drain.set_defaults(handler=command_resume_after_drain)
     status = sub.add_parser("status")
     status.add_argument("--campaign", type=Path, required=True)
     status.set_defaults(handler=command_status)

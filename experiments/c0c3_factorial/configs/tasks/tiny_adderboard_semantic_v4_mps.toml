@@ -1,0 +1,39 @@
+task_id = "tiny-adderboard-training-ladder-v4-mps"
+display_name = "learned transformer for exact four-digit addition"
+adapter = "tiny_adderboard_source_only_v1"
+seed_source = "experiments/c0c3_factorial/task_sources/tiny_adderboard"
+editable_paths = ["train.py"]
+evaluator_command = [
+  "{python}", "{repo_root}/experiments/c0c3_factorial/tiny_adderboard.py",
+  "evaluate-ladder", "--workspace", "{workspace}", "--repo-root", "{repo_root}",
+  "--output", "{output}", "--device", "mps",
+  "--max-steps", "1000", "--ladder-levels", "200", "400", "600", "1000",
+  "--ladder-minimum", "100", "--ladder-max-rungs", "6",
+  "--qualification-minimum", "0.99", "--validation-cases", "10000",
+  "--holdout-cases", "10000", "--evaluation-batch-size", "2048",
+  "--minimum-batch-size", "32", "--maximum-batch-size", "2048",
+  "--max-parameters", "25000",
+]
+objective_metric = "parameters"
+objective_direction = "minimize"
+qualification_metric = "accuracy"
+qualification_minimum = 0.99
+public_feedback_metrics = [
+  "accuracy", "parameters", "training_steps", "training_seconds",
+  "fidelity_highest_level", "fidelity_qualification_level",
+  "attention_ablation_accuracy",
+]
+final_holdout_command = [
+  "{python}", "{repo_root}/experiments/c0c3_factorial/tiny_adderboard.py",
+  "holdout", "--workspace", "{workspace}", "--repo-root", "{repo_root}",
+  "--output", "{output}", "--device", "mps",
+  "--max-steps", "1000", "--ladder-levels", "200", "400", "600", "1000",
+  "--ladder-minimum", "100", "--ladder-max-rungs", "6",
+  "--qualification-minimum", "0.99", "--validation-cases", "10000",
+  "--holdout-cases", "10000", "--evaluation-batch-size", "2048",
+  "--minimum-batch-size", "32", "--maximum-batch-size", "2048",
+  "--max-parameters", "25000",
+]
+preferred_backend = "local"
+
+[metric_patterns]

@@ -22,7 +22,7 @@ from collections import Counter
 from collections.abc import Iterator
 from concurrent.futures import FIRST_COMPLETED, Future, ThreadPoolExecutor, wait
 from contextlib import contextmanager
-from dataclasses import asdict, dataclass
+from dataclasses import asdict, dataclass, replace
 from pathlib import Path
 from typing import Any
 
@@ -38,6 +38,7 @@ from .artifacts import (
     tree_hash,
 )
 from .campaign import _load_calibration, _repo_revision
+from .capacity_control import load_campaign_capacity
 from .frameworks import preload_framework_runtime
 from .native_openevolve import is_native_openevolve, mirror_native_prefix_state
 from .periodic_refresh import POLICIES, PRESERVE
@@ -464,6 +465,25 @@ def create_semantic_campaign(
                 "max_rungs": 6,
             },
         }
+    elif task.task_id.startswith("tiny-adderboard"):
+        multi_fidelity = {
+            "enabled": True,
+            "strategy": "in_process_continuous_escalate_until_qualified_v1",
+            "levels": [200, 400, 600, 1000],
+            "command_argument": "--max-steps",
+            "full_fidelity_required_for_retention": False,
+            "stop_at_first_qualification": True,
+            "single_training_trajectory": True,
+            "candidate_editable_policy": {
+                "enabled": True,
+                "path": "train.py",
+                "levels_symbol": "EVALUATION_LADDER",
+                "minimum_level": 100,
+                "maximum_level": 1000,
+                "required_terminal_level": 1000,
+                "max_rungs": 6,
+            },
+        }
     elif "adderboard-training-ladder" in task.task_id:
         multi_fidelity = {
             "enabled": True,
@@ -608,6 +628,167 @@ def _spec_from_json(path: Path) -> FactorialSpec:
     value["conversation_mode"] = ConversationMode(value["conversation_mode"])
     value["transition_opportunities"] = tuple(value["transition_opportunities"])
     return FactorialSpec(**value)
+
+
+def extend_semantic_campaign_budget(
+    campaign: str | Path,
+    *,
+    proposals: int,
+    reason: str,
+) -> dict[str, Any]:
+    """Extend a stopped semantic campaign without discarding prior work.
+
+    The proposal and evaluation ceilings move together, the evaluator-seconds
+    ceiling scales in direct proportion, and phase-start interventions retain
+    the campaign's existing cadence.  Every state and manifest is migrated to
+    the resulting protocol hash under exclusive campaign locks.  The caller
+    must first cooperatively drain all in-flight opportunities.
+    """
+
+    if proposals < 1:
+        raise ValueError("proposals must be positive")
+    if not reason.strip():
+        raise ValueError("budget extension reason cannot be blank")
+    root = Path(campaign).resolve()
+    with _orchestrator_lock(root), campaign_metadata_lock(root, exclusive=True):
+        root, old_spec, _task, _framework, plan = load_semantic_campaign(root)
+        old_proposals = old_spec.budget.proposals
+        if proposals <= old_proposals:
+            raise ValueError("new proposal budget must exceed the current budget")
+        desired = str(_read_object(root / SEMANTIC_CONTROL).get("desired"))
+        if desired == "running":
+            raise RuntimeError("cooperatively pause the semantic campaign first")
+
+        run_dirs = sorted(path for path in (root / "runs").iterdir() if path.is_dir())
+        controllers = [SearchController.load(path, old_spec) for path in run_dirs]
+        active = [item.state.run_id for item in controllers if item.state.active]
+        if active:
+            raise RuntimeError(
+                "cannot extend a campaign with active opportunities: "
+                + ", ".join(active)
+            )
+
+        evaluator_seconds_per_proposal = (
+            old_spec.budget.max_evaluator_seconds / old_proposals
+        )
+        new_budget = replace(
+            old_spec.budget,
+            proposals=proposals,
+            candidate_evaluations=proposals,
+            max_evaluator_seconds=evaluator_seconds_per_proposal * proposals,
+        )
+        transition_opportunities = tuple(
+            range(
+                plan.shared_prefix_opportunities + 1,
+                proposals + 1,
+                plan.session_span_opportunities,
+            )
+        )
+        new_spec = replace(
+            old_spec,
+            budget=new_budget,
+            transition_opportunities=transition_opportunities,
+        )
+        timestamp = utc_now()
+        receipt_id = timestamp.replace(":", "-").replace("+", "_")
+        snapshot = (
+            root
+            / "amendments"
+            / f"{receipt_id}-budget-{old_proposals}-to-{proposals}"
+        )
+        before = snapshot / "before"
+        before.mkdir(parents=True, exist_ok=False)
+        for relative in (
+            "campaign.json",
+            "inputs/protocol.json",
+            SEMANTIC_CONTROL.as_posix(),
+            SEMANTIC_RUN_CONTROL.as_posix(),
+        ):
+            source = root / relative
+            destination = before / relative
+            destination.parent.mkdir(parents=True, exist_ok=True)
+            shutil.copy2(source, destination)
+        for run_dir in run_dirs:
+            destination = before / "runs" / run_dir.name
+            destination.mkdir(parents=True, exist_ok=True)
+            shutil.copy2(run_dir / "state.json", destination / "state.json")
+            shutil.copy2(run_dir / "manifest.json", destination / "manifest.json")
+
+        marker = {
+            "schema_version": SEMANTIC_PROTOCOL_VERSION,
+            "event": "semantic_budget_extension_in_progress",
+            "timestamp": timestamp,
+            "reason": reason.strip(),
+            "old_proposals_per_run": old_proposals,
+            "new_proposals_per_run": proposals,
+            "old_protocol_hash": old_spec.protocol_hash,
+            "new_protocol_hash": new_spec.protocol_hash,
+        }
+        atomic_json(root / ".semantic-budget-extension.json", marker)
+        atomic_json(root / "inputs/protocol.json", asdict(new_spec))
+
+        reopened_run_ids: list[str] = []
+        for controller in controllers:
+            state = controller.state
+            if state.proposals_used > proposals:
+                raise RuntimeError(
+                    f"{state.run_id} already exceeds the requested proposal budget"
+                )
+            state.protocol_hash = new_spec.protocol_hash
+            if state.status == "completed" and state.next_opportunity <= proposals:
+                state.status = "running"
+                reopened_run_ids.append(state.run_id)
+            state.revision += 1
+            # Validate against the extended contract before replacing state.
+            SearchController(controller.run_dir, new_spec, state)
+            atomic_json(controller.state_path, state.to_dict())
+
+            manifest_path = controller.run_dir / "manifest.json"
+            manifest = _read_object(manifest_path)
+            manifest["protocol_hash"] = new_spec.protocol_hash
+            semantic = manifest.get("semantic_intervention")
+            if isinstance(semantic, dict):
+                semantic["opportunities"] = list(transition_opportunities)
+            atomic_json(manifest_path, manifest)
+            append_jsonl(
+                controller.events_path,
+                {
+                    "schema_version": SEMANTIC_PROTOCOL_VERSION,
+                    "event": "campaign_budget_extended",
+                    "timestamp": timestamp,
+                    "run_id": state.run_id,
+                    "reason": reason.strip(),
+                    "old_proposals_per_run": old_proposals,
+                    "new_proposals_per_run": proposals,
+                    "old_protocol_hash": old_spec.protocol_hash,
+                    "new_protocol_hash": new_spec.protocol_hash,
+                    "boundary_after_opportunity": state.proposals_used,
+                },
+            )
+
+        campaign_manifest = _read_object(root / "campaign.json")
+        campaign_manifest.update(
+            {
+                "protocol_hash": new_spec.protocol_hash,
+                "proposals_per_run": proposals,
+            }
+        )
+        atomic_json(root / "campaign.json", campaign_manifest)
+        receipt = marker | {
+            "event": "semantic_campaign_budget_extended",
+            "completed_at": utc_now(),
+            "scheduled_runs": len(run_dirs),
+            "reopened_run_ids": reopened_run_ids,
+            "transition_opportunities": list(transition_opportunities),
+            "old_max_evaluator_seconds_per_run": (
+                old_spec.budget.max_evaluator_seconds
+            ),
+            "new_max_evaluator_seconds_per_run": new_budget.max_evaluator_seconds,
+        }
+        atomic_json(snapshot / "receipt.json", receipt)
+        append_jsonl(root / "campaign-amendments.jsonl", receipt)
+        (root / ".semantic-budget-extension.json").unlink()
+        return receipt
 
 
 def _task_from_json(path: Path) -> TaskSpec:
@@ -1409,6 +1590,75 @@ def set_semantic_control(
     return value
 
 
+def set_semantic_task_evaluator_capacity(
+    campaign: str | Path, *, capacity: int, reason: str
+) -> dict[str, Any]:
+    """Change the shared task-local evaluator ceiling at an opportunity boundary.
+
+    Already-running evaluations keep their leases. New opportunities read the
+    revised runtime and can use the expanded pool, so this operation neither
+    interrupts candidate training nor changes completed scientific records.
+    """
+
+    if isinstance(capacity, bool) or not isinstance(capacity, int):
+        raise ValueError("task evaluator capacity must be an integer")
+    if capacity < 1:
+        raise ValueError("task evaluator capacity must be a positive integer")
+    if not reason.strip():
+        raise ValueError("task evaluator capacity reason cannot be blank")
+    root = Path(campaign).resolve()
+    plan_path = root / "inputs/semantic-interventions.toml"
+    timestamp = utc_now()
+    with campaign_metadata_lock(root, exclusive=True):
+        before_plan = load_intervention_plan(plan_path)
+        lines = plan_path.read_text(encoding="utf-8").splitlines(keepends=True)
+        replacements = 0
+        updated_lines: list[str] = []
+        for line in lines:
+            if line.strip().startswith("task_evaluator_capacity ="):
+                newline = "\n" if line.endswith("\n") else ""
+                updated_lines.append(f"task_evaluator_capacity = {capacity}{newline}")
+                replacements += 1
+            else:
+                updated_lines.append(line)
+        if replacements != 1:
+            raise ValueError(
+                "semantic intervention plan must define task_evaluator_capacity once"
+            )
+        temporary = plan_path.with_name(f".{plan_path.name}.capacity.tmp")
+        temporary.write_text("".join(updated_lines), encoding="utf-8")
+        os.replace(temporary, plan_path)
+        after_plan = load_intervention_plan(plan_path)
+
+        runtime = load_runtime_options(root)
+        before_runtime = int(runtime["evaluation"]["task_pool_capacity"])
+        runtime["evaluation"]["task_pool_capacity"] = capacity
+        update_runtime_options(root, replacement=runtime, reason=reason)
+
+        semantic_manifest = _read_object(root / SEMANTIC_MANIFEST)
+        semantic_manifest["plan"] = asdict(after_plan)
+        atomic_json(root / SEMANTIC_MANIFEST, semantic_manifest)
+
+        campaign_manifest = _read_object(root / "campaign.json")
+        campaign_manifest["intervention_plan_sha256"] = hashlib.sha256(
+            plan_path.read_bytes()
+        ).hexdigest()
+        atomic_json(root / "campaign.json", campaign_manifest)
+
+    receipt = {
+        "schema_version": SEMANTIC_PROTOCOL_VERSION,
+        "event": "task_evaluator_capacity_changed",
+        "timestamp": timestamp,
+        "reason": reason.strip(),
+        "previous_plan_capacity": before_plan.task_evaluator_capacity,
+        "previous_runtime_capacity": before_runtime,
+        "task_evaluator_capacity": after_plan.task_evaluator_capacity,
+        "semantics": "cooperative_future_evaluations_only",
+    }
+    append_jsonl(root / "semantic-lifecycle.jsonl", receipt)
+    return receipt
+
+
 @contextmanager
 def _run_control_lock(campaign: Path) -> Iterator[None]:
     path = campaign / ".semantic-run-control.lock"
@@ -1569,10 +1819,10 @@ def run_semantic_campaign(
                                 recovered=True,
                             )
         completed_calls = 0
-        # ThreadPoolExecutor creates threads lazily. A generous reserve lets an
-        # unbounded campaign discover newly registered arms without restarting;
-        # explicit nonzero limits remain exact.
-        worker_capacity = worker_limit or max(4096, len(schedule))
+        # ThreadPoolExecutor creates threads lazily. A generous reserve lets the
+        # cooperative campaign ceiling move up or down without restarting the
+        # orchestrator; the shared host scheduler remains the hard ceiling.
+        worker_capacity = max(4096, len(schedule))
         schedule_order = {
             str(row["run_id"]): index for index, row in enumerate(schedule)
         }
@@ -1590,6 +1840,13 @@ def run_semantic_campaign(
                     schedule = json.loads(
                         (root / "schedule.json").read_text(encoding="utf-8")
                     )
+                capacity_limits = load_campaign_capacity(
+                    root,
+                    default_subject_workers=(
+                        worker_limit if worker_limit is not None else 0
+                    ),
+                    default_local_evaluators=plan.task_evaluator_capacity,
+                )
                 schedule_order = {
                     str(row["run_id"]): index for index, row in enumerate(schedule)
                 }
@@ -1632,7 +1889,9 @@ def run_semantic_campaign(
                             schedule_order[job[0]],
                         )
                     )
-                    available = worker_capacity - len(futures)
+                    available = max(
+                        0, capacity_limits.subject_workers - len(futures)
+                    )
                     for run_id, is_prefix in candidates[:available]:
                         next_opportunity = states[run_id].proposals_used + 1
                         physical_run_id = (
@@ -1683,7 +1942,7 @@ def run_semantic_campaign(
                                 "shared_prefix": is_prefix,
                                 "dispatch_sequence": dispatch_sequence,
                                 "active_dispatches": len(futures),
-                                "worker_limit": worker_limit,
+                                "worker_limit": capacity_limits.subject_workers,
                                 "worker_capacity": worker_capacity,
                                 "scheduling_policy": "independent_event_driven",
                             },
@@ -1717,7 +1976,15 @@ def run_semantic_campaign(
                         "unfinished": len(unfinished),
                     }
 
-                done, _pending = wait(futures, return_when=FIRST_COMPLETED)
+                # Poll the operational control file even when no opportunity
+                # has just finished. Raising the live run ceiling therefore
+                # dispatches additional runs promptly; lowering it simply
+                # suppresses future dispatches until active work finishes.
+                done, _pending = wait(
+                    futures,
+                    timeout=0.5,
+                    return_when=FIRST_COMPLETED,
+                )
                 for future in done:
                     run_id, is_prefix = futures.pop(future)
                     try:

@@ -3,6 +3,25 @@
 Run every command from the repository root. Paths below are repository-relative
 or operator-chosen; no user-specific absolute path is embedded in a campaign.
 
+## Goal-driven execution rule
+
+When the operator assigns an end-to-end goal, carry it through to its stated
+and verified end state without inserting an unrequested human checkpoint. In
+particular, a goal that says to start, run, launch, resume, or continue a
+campaign is itself authorization to perform that action after its required
+validation and safety gates pass. Do not stop after preparation or validation
+to ask the operator to confirm the launch again. This authorization persists
+across automatic goal continuations and agent turns; assume the operator may be
+away.
+
+Use repository evidence and reasonable in-scope defaults to resolve ordinary
+ambiguity, repair failed gates when possible, and keep working. Stop for input
+only when the operator explicitly requested a hold or decision, essential
+information or authority cannot be inferred, or an external permission
+boundary makes the action impossible. A tool-level approval mechanism should
+cite the original operator instruction directly and must not be preceded by a
+duplicate chat confirmation request.
+
 For unified v3, read [UNIFIED_V3.md](UNIFIED_V3.md). Use
 `configs/protocols/unified_v3.toml` with either a v3 framework adapter. After
 campaign creation, deliberately run `snapshot-v3-prompts`, then `validate` and
@@ -603,16 +622,18 @@ Inspect the shared local pool at any time without changing it:
 $PY -m $CLI local-evaluator-status
 ```
 
-The JSON reports twelve host slots and the opportunity holding each occupied
-slot. `experiments/c0c3_overnight.py status` also prints the compact occupied
-count. Protocols 1.7 and 2.1 set their campaign-local limit equal to their
+The JSON reports the current operator-set host ceiling and the opportunity
+holding each occupied slot. The shared scheduler defaults to twelve but has no
+fixed maximum. `experiments/c0c3_overnight.py status` also prints the compact
+occupied count. Protocols 1.7 and 2.1 set their campaign-local limit equal to their
 declared block count; older campaigns retain their frozen local limit. Queue waiting happens before
 the evaluator clock starts. Modal evaluator-only campaigns do not take local
 host slots.
 
-Unified v3 and semantic-v4 controllers also share a separate 30-slot host pool
-for subject-agent calls. Evaluators retain their independent task and host
-pools. Inspect the agent pool without changing state:
+Unified v3 and semantic-v4 controllers also share a separate operator-sized
+host pool for subject-agent calls. It defaults to 30 and has no fixed maximum.
+Evaluators retain their independent task and host pools. Inspect the agent pool
+without changing state:
 
 ```bash
 $PY -m $CLI agent-worker-status

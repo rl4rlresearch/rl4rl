@@ -14,12 +14,6 @@
   label { font-size:12px; color:#aab4c3; }
   .topbar { display:flex; align-items:center; gap:10px; flex-wrap:wrap; margin:14px 0 4px; }
   .sub,.stamp,.path { color:#9da7b5; } .sub { margin:6px 0 14px; } .stamp { font-size:13px; }
-  .quota { display:grid; grid-template-columns:minmax(250px,340px) minmax(0,1fr); gap:16px; margin:18px 0 0; padding:13px; border:1px solid #35506a; border-radius:8px; background:#101925; }
-  .quota h2 { font-size:15px; } .quota-value { display:block; margin-top:6px; font-size:28px; font-weight:750; color:#9de2bd; } .quota-detail { margin:5px 0 0; color:#9da7b5; font-size:11px; line-height:1.4; }
-  .quota-projection { margin-top:10px; padding-top:9px; border-top:1px solid #2b4055; font-size:11px; color:#c9d1d9; } .quota-projection strong { display:block; } .quota-projection-value { display:block; margin-top:2px; font-size:20px; font-weight:750; color:#9de2bd; } .quota-projection-value.secondary { color:#9da7b5; font-size:16px; } .quota-projection-value.negative { color:#ff7b72; } .quota-reset-fallback { display:flex; align-items:center; flex-wrap:wrap; gap:6px; margin-top:7px; } .quota-reset-fallback input { padding:4px 6px; border:1px solid #49566b; border-radius:5px; background:#0d1117; color:inherit; } .quota-reset-fallback span { color:#8b98a9; }
-  .quota-tokens { margin-top:10px; font-size:11px; color:#c9d1d9; } .quota-tokens strong { display:block; margin-bottom:4px; } .quota-token-grid { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:3px 10px; } .quota-token-grid span { color:#9da7b5; } .quota-token-grid b { color:#e6edf3; font-weight:600; }
-  .quota details { margin-top:8px; color:#9da7b5; font-size:11px; } .quota details summary { cursor:pointer; } .quota-models { width:100%; margin-top:6px; font-size:10px; } .quota-models th,.quota-models td { padding:4px; white-space:normal; vertical-align:top; }
-  .quota-chart { height:130px; min-height:130px; position:relative; contain:layout size; overflow:hidden; }
   .section { margin-top:30px; border-top:1px solid #30363d; padding-top:20px; }
   .section-head { display:flex; justify-content:space-between; gap:16px; align-items:flex-start; flex-wrap:wrap; }
   .path { font:11px ui-monospace,SFMono-Regular,Menlo,monospace; margin:5px 0 0; overflow-wrap:anywhere; }
@@ -49,11 +43,11 @@
   .line-swatch { width:16px; height:0; border-top:3px solid; }
   .line-swatch.r2 { border-top-style:dashed; }
   .line-swatch.r3 { border-top-style:dotted; }
-  .charts { display:grid; grid-template-columns:repeat(3,minmax(300px,1fr)); gap:16px; }
+  .charts { display:block; }
   .chart-card { min-width:0; border:1px solid #30363d; border-radius:8px; padding:10px; background:#0f151e; }
   .chart-head { display:flex; align-items:center; justify-content:space-between; gap:8px; margin-bottom:7px; }
-  .chart-head strong { font-size:13px; } .chart-head select { max-width:72%; font-size:12px; padding:5px 7px; }
-  .chart { height:330px; min-height:330px; max-height:330px; position:relative; contain:layout size; overflow:hidden; }
+  .chart-head strong { font-size:13px; } .chart-head label { display:flex; align-items:center; gap:7px; } .chart-head select { max-width:min(520px,72vw); font-size:12px; padding:5px 7px; }
+  .chart { height:660px; min-height:660px; max-height:660px; position:relative; contain:layout size; overflow:hidden; }
   .table-tools { display:flex; justify-content:space-between; gap:10px; align-items:center; flex-wrap:wrap; margin-top:16px; }
   .table-wrap { overflow-x:auto; }
   table { width:100%; border-collapse:collapse; margin-top:8px; font-size:12px; white-space:nowrap; }
@@ -67,10 +61,10 @@
   .page-tabs { display:flex; gap:6px; margin:0 0 20px; border-bottom:1px solid #30363d; }
   .page-tabs a { color:#9aa7b7; text-decoration:none; padding:9px 12px; border-bottom:2px solid transparent; }
   .page-tabs a.active { color:#f0f6fc; border-bottom-color:#58a6ff; }
-  @media (max-width:1100px) { .charts { grid-template-columns:1fr; } .stats { grid-template-columns:repeat(2,1fr); } .quota { grid-template-columns:1fr; } }
+  @media (max-width:1100px) { .stats { grid-template-columns:repeat(2,1fr); } }
   @media (max-width:600px) { body { padding:14px; } .stats { grid-template-columns:1fr 1fr; } .legend.grouped { grid-template-columns:1fr; } }
 </style>
-<nav class="page-tabs" aria-label="Dashboard pages"><a class="active" href="/">Trajectory explorer</a><a href="/science">Scientific process</a></nav>
+<nav class="page-tabs" aria-label="Dashboard pages"><a class="active" href="/">Trajectory explorer</a><a href="/science">Scientific process</a><a href="/controller">Controller</a></nav>
 <h1>RL4RL live trajectories</h1>
 <p class="sub">Read-only, log-backed dashboard for factorial and semantic-intervention research. It tracks complete trajectories, physical resource accounting, proposal-to-discovery funnels, developmental stepping stones, and multi-fidelity evaluation. NanoGPT campaigns also expose campaign-attributed Modal GPU estimates.</p>
 <div class="topbar">
@@ -79,26 +73,6 @@
   <label>Auto-refresh <select id="auto-refresh"><option value="0">Off</option><option value="15">15 sec</option><option value="30" selected>30 sec</option><option value="60">1 min</option><option value="120">2 min</option></select></label>
   <span class="stamp" id="stamp">Loading…</span>
 </div>
-<section class="quota" aria-labelledby="quota-title">
-  <div>
-    <h2 id="quota-title">Experiment-only 1% burn time</h2>
-    <output class="quota-value" id="quota-value">Collecting…</output>
-    <p class="quota-detail" id="quota-detail">Measuring the rolling time to use one percentage point of the primary Codex limit.</p>
-    <div class="quota-projection">
-      <strong>Experiments-only projection at reset</strong>
-      <output class="quota-projection-value" id="quota-reset-value">Collecting…</output>
-      <p class="quota-detail" id="quota-reset-detail">Attributing the observed account pace using local Codex session token records.</p>
-      <label class="quota-reset-fallback" id="quota-reset-fallback" hidden>Reset date <input type="date" id="quota-reset-date"><span>assumes 11:59 PM local time</span></label>
-    </div>
-    <div class="quota-projection">
-      <strong>All-Codex projection at reset</strong>
-      <output class="quota-projection-value secondary" id="quota-account-reset-value">Collecting…</output>
-      <p class="quota-detail" id="quota-account-reset-detail">Using observed primary-quota changes from every shared Codex surface.</p>
-    </div>
-    <div class="quota-tokens" id="quota-tokens"></div>
-  </div>
-  <div class="quota-chart"><canvas id="quota-chart" aria-label="Codex minutes per one percent of primary quota used over time"></canvas></div>
-</section>
 <div id="content"></div>
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
 <script>
@@ -108,8 +82,8 @@ const semanticFamilyColors={control:['#cbd5e1','#94a3b8','#64748b','#475569'],ep
 const semanticConditionColors={passive_control:'#F5D742',active_reflection_control:'#D60AFF',assumption_challenge:'#3196AA',alternative_mechanism:'#FF0A0A',failure_diagnosis:'#F0A3E3',evidence_contradiction:'#0AFFFF',counterfactual_design:'#1FBD1F',falsification:'#6666FF',competing_hypotheses:'#BD881F',representation_reframe:'#5CFF0A',uncertainty_calibration:'#D2659C',experimental_redesign:'#88C1DD',causal_attribution:'#FF7F66',information_gain:'#88DD96',ablation_first:'#FF66FF',bottleneck_diagnosis:'#A694FF',mechanism_recombination:'#FAB999',constraint_inversion:'#FF0AAD',exploitation_focus:'#1FBDA2',assumption_plus_falsification:'#389CFF',diagnosis_plus_redesign:'#D6FF0A'};
 const semanticFamilyOrder=['control','epistemic','methodological','strategic','strategic_control','limited_combination'];
 const semanticConditionOrder=['passive_control','active_reflection_control','assumption_challenge','alternative_mechanism','failure_diagnosis','evidence_contradiction','counterfactual_design','falsification','competing_hypotheses','representation_reframe','uncertainty_calibration','experimental_redesign','causal_attribution','information_gain','ablation_first','bottleneck_diagnosis','mechanism_recombination','constraint_inversion','exploitation_focus','assumption_plus_falsification','diagnosis_plus_redesign'];
+const primaryXAxisKeys=['proposal','token_cost','active_hours'];
 const campaignDefs=[
-  ['autoresearchv16','Autoresearch v1.6','autoresearch_v16','autoresearch'],
   ['openevolvev2','Greedy OpenEvolve v2.0','openevolve_v2','openevolve_v2'],
   ['autoresearchv17','Autoresearch v1.7 · addition','autoresearch_v17'],
   ['openevolvev21','Greedy OpenEvolve v2.1 · addition','openevolve_v21'],
@@ -119,7 +93,11 @@ const campaignDefs=[
   ['openevolvev21fashionmnist','Greedy OpenEvolve v2.1 · Fashion-MNIST MPS','openevolve_v21_fashion_mnist'],
   ['semanticv4fashionmnist','Semantic interventions v4 · Fashion-MNIST Greedy OpenEvolve','semantic_v4_fashion_mnist'],
   ['semanticv4fashionmnistnative','Semantic interventions v4 · Fashion-MNIST Native OpenEvolve','semantic_v4_fashion_mnist_native'],
-  ['unifiedv3adderboardgreedy','Unified v3 · AdderBoard Greedy OpenEvolve','unified_v3_adderboard_greedy']
+  ['semanticv4tinyadderboard','Semantic interventions v4 · Tiny AdderBoard Greedy OpenEvolve','semantic_v4_tiny_adderboard'],
+  ['semanticv4tinyadderboardnative','Semantic interventions v4 · Tiny AdderBoard Native OpenEvolve','semantic_v4_tiny_adderboard_native'],
+  ['unifiedv3adderboardgreedy','Unified v3 · AdderBoard Greedy OpenEvolve','unified_v3_adderboard_greedy'],
+  ['unifiedv3tinyadderboardgreedy','Unified v3 · Tiny AdderBoard Greedy OpenEvolve','unified_v3_tiny_adderboard_greedy'],
+  ['unifiedv3tinyadderboardnative','Unified v3 · Tiny AdderBoard Native OpenEvolve','unified_v3_tiny_adderboard_native']
 ];
 const charts=new Map();
 const states={};
@@ -135,16 +113,9 @@ let clientRevision=null;
 let hotReloadTimer=null;
 let sectionObserver=null;
 let chartLoadPromise=null;
-let quotaChart=null;
-let quotaResetDateOverride='';
 
 function html(value){return String(value??'').replace(/[&<>"']/g,ch=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]));}
 function finite(value){const number=Number(value);return value===null||value===''||!Number.isFinite(number)?null:number;}
-function fmtDurationMinutes(value){const minutes=finite(value);if(minutes===null||minutes<0)return 'Collecting…';const seconds=Math.round(minutes*60);if(seconds<60)return `${seconds} sec`;const wholeMinutes=Math.floor(seconds/60),remainingSeconds=seconds%60;if(wholeMinutes<120)return remainingSeconds?`${wholeMinutes} min ${remainingSeconds} sec`:`${wholeMinutes} min`;const hours=Math.floor(wholeMinutes/60),remainingMinutes=wholeMinutes%60;return remainingMinutes?`${hours} hr ${remainingMinutes} min`:`${hours} hr`;}
-function fmtTokens(value){const tokens=finite(value);if(tokens===null)return '—';return Math.round(tokens).toLocaleString();}
-function fmtSignedPercent(value){const percent=finite(value);if(percent===null)return '—';const rounded=Math.round(percent*10)/10;return `${rounded.toLocaleString(undefined,{minimumFractionDigits:1,maximumFractionDigits:1})}%`;}
-function localEndOfDay(value){if(!/^\d{4}-\d{2}-\d{2}$/.test(String(value||'')))return null;const [year,month,day]=value.split('-').map(Number),date=new Date(year,month-1,day,23,59,59,999);return Number.isFinite(date.getTime())?date:null;}
-function projectedRemainingAt(quota,target,rateValue){const used=finite(quota?.latest_used_percent),rate=finite(rateValue),sampledAt=quota?.latest_sampled_at?new Date(quota.latest_sampled_at):null;if(used===null||rate===null||rate<=0||!sampledAt||!Number.isFinite(sampledAt.getTime())||!target||!Number.isFinite(target.getTime()))return null;return 100-used-(target.getTime()-sampledAt.getTime())/60000/rate;}
 function stableIndex(value,size){let hash=2166136261;for(const ch of String(value)){hash^=ch.charCodeAt(0);hash=Math.imul(hash,16777619);}return Math.abs(hash)%Math.max(1,size);}
 function runPalette(run){return conditionColors[run.condition]||semanticFamilyColors[run.condition_family]||['#c9d1d9'];}
 function color(run){if(semanticConditionColors[run.condition])return semanticConditionColors[run.condition];const palette=runPalette(run);const replicate=finite(run.replicate);return palette[replicate===null?stableIndex(run.condition,palette.length):Math.max(0,replicate-1)%palette.length];}
@@ -158,15 +129,16 @@ function improvementAt(point,baseline,direction,percent){const current=finite(po
 function valueAt(point,key,baseline=null,direction='minimize'){if(key==='objective_improvement')return improvementAt(point,baseline,direction,false);if(key==='objective_improvement_percent')return improvementAt(point,baseline,direction,true);if(key.startsWith('metric:'))return finite(point.metrics?.[key.slice(7)]);return finite(point[key]);}
 function labelFor(payload,key,state=null){if(state&&(key==='objective_improvement'||key==='objective_improvement_percent')){const suffix=key.endsWith('_percent')?' (%)':'';return `Best ${payload.objective_metric} improvement from proposal ${proposalBounds(state).start}${suffix}`;}return payload.axis_catalog?.find(item=>item.key===key)?.label||key;}
 function fmt(value,key=''){const n=finite(value);if(n===null)return '—';if(key.includes('cost'))return '$'+n.toLocaleString(undefined,{minimumFractionDigits:2,maximumFractionDigits:4});if(key.includes('percent'))return n.toLocaleString(undefined,{maximumFractionDigits:2})+'%';if(key.includes('tokens')||key==='proposal'||key==='evaluator_calls')return Math.round(n).toLocaleString();return n.toLocaleString(undefined,{maximumFractionDigits:5});}
-function summaryColumns(payload){const columns=[['label','Run'],['condition','Condition']];if(payload.semantic)columns.push(['condition_family','Family'],['replicate','Replicate']);columns.push(['status','Status'],['proposals_used','Proposals'],['valid_rate','Valid'],['retained_proposals','Retained']);if(payload.semantic)columns.push(['postfork_novel_delta_proposals','Novel deltas'],['intervention_phase_successes','Successful phases'],['accounted_total_tokens','Physical tokens'],['accounted_token_cost','Physical token cost']);else columns.push(['total_tokens','Reported tokens'],['token_cost','Token cost']);if(payload.modal_usage?.available)columns.push(['modal_gpu_cost','Modal GPU estimate']);columns.push(['active_hours','Active hours'],['best_objective','Best '+payload.objective_metric],['latest_raw_objective','Latest raw']);return columns;}
+function summaryColumns(payload){const columns=[['label','Run'],['condition','Condition']];if(payload.semantic)columns.push(['condition_family','Family'],['replicate','Replicate']);columns.push(['status','Status'],['operational_stage_label','Live stage'],['proposals_used','Proposals'],['valid_rate','Valid'],['retained_proposals','Retained']);if(payload.semantic)columns.push(['postfork_novel_delta_proposals','Novel deltas'],['intervention_phase_successes','Successful phases'],['accounted_total_tokens','Physical tokens'],['accounted_token_cost','Physical token cost']);else columns.push(['total_tokens','Reported tokens'],['token_cost','Token cost']);if(payload.modal_usage?.available)columns.push(['modal_gpu_cost','Modal GPU estimate']);columns.push(['active_hours','Active hours'],['best_objective','Best '+payload.objective_metric],['latest_raw_objective','Latest raw']);return columns;}
 function median(values){const sorted=values.map(finite).filter(value=>value!==null).sort((a,b)=>a-b);if(!sorted.length)return null;const middle=Math.floor(sorted.length/2);return sorted.length%2?sorted[middle]:(sorted[middle-1]+sorted[middle])/2;}
 function mean(values){const numbers=values.map(finite).filter(value=>value!==null);return numbers.length?numbers.reduce((sum,value)=>sum+value,0)/numbers.length:null;}
 function conditionColor(condition,payload){if(semanticConditionColors[condition])return semanticConditionColors[condition];const info=(payload?.condition_catalog||[]).find(item=>item.id===condition);const palette=conditionColors[condition]||semanticFamilyColors[info?.family]||['#c9d1d9'];return palette[stableIndex(condition,palette.length)];}
 function allConditions(payload){return orderedCatalog(payload).map(item=>item.id);}
 function allFamilies(payload){const families=[...new Set(orderedCatalog(payload).map(item=>item.family))];return payload.semantic?[...semanticFamilyOrder.filter(family=>families.includes(family)),...families.filter(family=>!semanticFamilyOrder.includes(family))]:families;}
-function defaultState(payload=null){return {y:'best_objective',yScale:'data',seriesMode:'runs',xs:['proposal','token_cost','active_hours'],proposalStart:'0',proposalEnd:'',filter:'all',proposalType:'all',conditions:payload?allConditions(payload):['C0','C1','C2','C3'],families:payload?allFamilies(payload):['factorial'],hiddenRuns:[],showSeed:true,connect:true,overlay:false,query:'',sort:'label',sortDirection:1};}
-function stateFor(id,payload){if(!states[id])states[id]=defaultState(payload);const available=allConditions(payload);states[id].conditions=Array.isArray(states[id].conditions)?states[id].conditions.filter(value=>available.includes(value)):[...available];const families=allFamilies(payload);states[id].families=Array.isArray(states[id].families)?states[id].families.filter(value=>families.includes(value)):[...families];if(!['zero','data'].includes(states[id].yScale))states[id].yScale='zero';if(!['runs','conditionMedian','conditionMean'].includes(states[id].seriesMode))states[id].seriesMode='runs';const keys=new Set((payload.axis_catalog||[]).map(item=>item.key));if(!keys.has(states[id].y))states[id].y='best_objective';states[id].xs=states[id].xs.map((key,index)=>keys.has(key)?key:['proposal','token_cost','active_hours'][index]);return states[id];}
+function defaultState(payload=null){return {y:'best_objective',x:'proposal',yScale:'data',seriesMode:'runs',proposalStart:'0',proposalEnd:'',filter:'all',proposalType:'all',conditions:payload?allConditions(payload):['C0','C1','C2','C3'],families:payload?allFamilies(payload):['factorial'],hiddenRuns:[],showSeed:true,connect:true,overlay:false,query:'',sort:'label',sortDirection:1};}
+function stateFor(id,payload){if(!states[id])states[id]=defaultState(payload);const available=allConditions(payload);states[id].conditions=Array.isArray(states[id].conditions)?states[id].conditions.filter(value=>available.includes(value)):[...available];const families=allFamilies(payload);states[id].families=Array.isArray(states[id].families)?states[id].families.filter(value=>families.includes(value)):[...families];if(!['zero','data'].includes(states[id].yScale))states[id].yScale='zero';if(!['runs','conditionMedian','conditionMean'].includes(states[id].seriesMode))states[id].seriesMode='runs';const keys=new Set((payload.axis_catalog||[]).map(item=>item.key));if(!keys.has(states[id].y))states[id].y='best_objective';const previousX=states[id].x??(Array.isArray(states[id].xs)?states[id].xs[0]:null);states[id].x=keys.has(previousX)?previousX:'proposal';delete states[id].xs;return states[id];}
 function axisOptions(payload,selected,state){return (payload.axis_catalog||[]).map(item=>`<option value="${html(item.key)}"${item.key===selected?' selected':''}>${html(labelFor(payload,item.key,state))}</option>`).join('');}
+function xAxisOptions(payload,selected,state){const catalog=payload.axis_catalog||[],byKey=new Map(catalog.map(item=>[item.key,item])),option=item=>`<option value="${html(item.key)}"${item.key===selected?' selected':''}>${html(labelFor(payload,item.key,state))}</option>`,primary=primaryXAxisKeys.map(key=>byKey.get(key)).filter(Boolean),other=catalog.filter(item=>!primaryXAxisKeys.includes(item.key));return `<optgroup label="Primary x axes">${primary.map(option).join('')}</optgroup>${other.length?`<optgroup label="Other metrics">${other.map(option).join('')}</optgroup>`:''}`;}
 function proposalTypes(payload){return [...new Set(payload.runs.flatMap(run=>run.points.map(point=>point.proposal_type)).filter(type=>type&&type!=='seed'))].sort();}
 function runVisible(state,run){return state.conditions.includes(run.condition)&&!state.hiddenRuns.includes(run.run_id);}
 const semanticCompactLabels={passive_control:'Passive control',active_reflection_control:'Reflection control',assumption_challenge:'Assumption challenge',alternative_mechanism:'Alt. mechanism',failure_diagnosis:'Failure diagnosis',evidence_contradiction:'Evidence contradiction',counterfactual_design:'Counterfactual design',falsification:'Falsification',competing_hypotheses:'Competing hypotheses',representation_reframe:'Representation reframe',uncertainty_calibration:'Uncertainty calibration',experimental_redesign:'Experimental redesign',causal_attribution:'Causal attribution',information_gain:'Information gain',ablation_first:'Ablation first',bottleneck_diagnosis:'Bottleneck diagnosis',mechanism_recombination:'Mechanism recombination',constraint_inversion:'Constraint inversion',exploitation_focus:'Exploitation focus',assumption_plus_falsification:'Challenge + falsification',diagnosis_plus_redesign:'Diagnosis + redesign',periodic_full_refresh:'Periodic refresh',restrictive_assumption_challenge:'Restrictive challenge'};
@@ -203,8 +175,8 @@ function sectionHtml(id,title,payload){
     </div>
     <div class="stats" id="${id}-stats"></div>
     <div class="legend${payload.semantic&&state.seriesMode==='runs'?' grouped':''}" id="${id}-legend">${legend}</div>
-    <div class="charts">${state.xs.map((xKey,index)=>`<div class="chart-card"><div class="chart-head"><strong>Chart ${index+1}</strong><select data-x="${index}">${axisOptions(payload,xKey,state)}</select></div><div class="chart"><canvas id="${id}-chart-${index}"></canvas></div></div>`).join('')}</div>
-    <p class="note">Marker key: ● seed or retained · × invalid · ○ other valid. Proposal start/end window all three charts, even when X displays cost or time. Improvement metrics use each run's best score at Proposal start as zero. Summary lines align runs by proposal number. Y follows the selected range and defaults to a zero origin. Paused time and gaps between completed proposals are excluded from active wall-clock time. ${payload.semantic?'All arms in one replicate share proposals 1–'+(payload.semantic_summary?.shared_prefix_opportunities||0)+' literally; conceptual trajectory charts include that history, while physical campaign totals charge it only once. ':''}Modal estimates price only recorded evaluator GPU worker seconds, not a Modal invoice.</p>
+    <div class="charts"><div class="chart-card"><div class="chart-head"><strong>Trajectory chart</strong><label>X axis<select data-x>${xAxisOptions(payload,state.x,state)}</select></label></div><div class="chart"><canvas id="${id}-chart"></canvas></div></div></div>
+    <p class="note">Marker key: ● seed or retained · × invalid · ○ other valid. The proposal start/end window applies to the chart even when X displays cost or time. Improvement metrics use each run's best score at Proposal start as zero. Summary lines align runs by proposal number. Y follows the selected range and defaults to a zero origin. Paused time and gaps between completed proposals are excluded from active wall-clock time. ${payload.semantic?'All arms in one replicate share proposals 1–'+(payload.semantic_summary?.shared_prefix_opportunities||0)+' literally; the conceptual trajectory chart includes that history, while physical campaign totals charge it only once. ':''}Modal estimates price only recorded evaluator GPU worker seconds, not a Modal invoice.</p>
     ${semanticPanelHtml(id,payload)}
     <div class="table-tools"><strong>Run summary</strong><input type="search" data-control="query" value="${html(state.query)}" placeholder="Filter runs"></div>
     <div class="table-wrap"><table><thead><tr>${columns.map(([key,label])=>`<th><button data-sort="${key}">${html(label)}</button></th>`).join('')}</tr></thead><tbody id="${id}-rows"></tbody></table></div>
@@ -253,30 +225,26 @@ function chartOptions(payload,xKey,yKey,yScale,state){
 function drawCharts(id,payload){
   if(typeof Chart==='undefined')return;
   const state=states[id],runs=visibleRuns(payload,state);
-  state.xs.forEach((xKey,index)=>{
-    const chartId=`${id}-chart-${index}`;
-    charts.get(chartId)?.destroy();
-    const canvas=document.getElementById(chartId);if(!canvas)return;
-    const datasets=[];
-    if(state.seriesMode!=='runs'){
-      const aggregateMethod=state.seriesMode==='conditionMean'?'mean':'median';
-      for(const condition of state.conditions){const conditionRuns=runs.filter(run=>run.condition===condition);if(conditionRuns.length)datasets.push(aggregateDataset(condition,conditionRuns,xKey,state.y,state,payload,aggregateMethod));}
-    }else{
-      for(const run of runs){
-        const points=run.points.filter(point=>pointAllowed(point,state));
-        datasets.push(dataset(run,points,xKey,state.y,state,payload));
-        if(state.y==='best_objective'&&state.overlay)datasets.push(dataset(run,points.filter(point=>!point.is_seed),xKey,'raw_objective',state,payload,'raw'));
-      }
+  const xKey=state.x,chartId=`${id}-chart`;
+  charts.get(chartId)?.destroy();
+  const canvas=document.getElementById(chartId);if(!canvas)return;
+  const datasets=[];
+  if(state.seriesMode!=='runs'){
+    const aggregateMethod=state.seriesMode==='conditionMean'?'mean':'median';
+    for(const condition of state.conditions){const conditionRuns=runs.filter(run=>run.condition===condition);if(conditionRuns.length)datasets.push(aggregateDataset(condition,conditionRuns,xKey,state.y,state,payload,aggregateMethod));}
+  }else{
+    for(const run of runs){
+      const points=run.points.filter(point=>pointAllowed(point,state));
+      datasets.push(dataset(run,points,xKey,state.y,state,payload));
+      if(state.y==='best_objective'&&state.overlay)datasets.push(dataset(run,points.filter(point=>!point.is_seed),xKey,'raw_objective',state,payload,'raw'));
     }
-    charts.set(chartId,new Chart(canvas,{type:'line',data:{datasets},options:chartOptions(payload,xKey,state.y,state.yScale,state)}));
-  });
+  }
+  charts.set(chartId,new Chart(canvas,{type:'line',data:{datasets},options:chartOptions(payload,xKey,state.y,state.yScale,state)}));
 }
 function destroySectionCharts(id){
-  for(let index=0;index<3;index++){
-    const chartId=`${id}-chart-${index}`;
-    charts.get(chartId)?.destroy();
-    charts.delete(chartId);
-  }
+  const chartId=`${id}-chart`;
+  charts.get(chartId)?.destroy();
+  charts.delete(chartId);
 }
 function overallBest(runs,direction){const values=runs.map(run=>finite(run.best_objective)).filter(value=>value!==null);if(!values.length)return null;return direction==='maximize'?Math.max(...values):Math.min(...values);}
 function drawStats(id,payload){
@@ -289,12 +257,13 @@ function drawStats(id,payload){
 }
 function comparable(run,key){if(key==='valid_rate')return run.proposals_used?run.valid_proposals/run.proposals_used:-1;return run[key];}
 function summaryCell(run,key,payload){if(key==='valid_rate')return run.proposals_used?(100*run.valid_proposals/run.proposals_used).toFixed(1)+'%':'—';if(key==='condition')return run.condition_label||run.condition;if(key==='condition_family')return String(run.condition_family||'').replaceAll('_',' ');if(key.includes('cost'))return fmt(run[key],key);if(['proposals_used','retained_proposals','postfork_novel_delta_proposals','intervention_phase_successes','total_tokens','accounted_total_tokens','replicate'].includes(key))return fmt(run[key],key==='replicate'?'proposal':key);if(['active_hours','best_objective','latest_raw_objective'].includes(key))return fmt(run[key],key);return String(run[key]??'—');}
+function summaryCellTitle(run,key){return key==='operational_stage_label'?String(run.operational_stage?.detail||''):'';}
 function drawTable(id,payload){
   const state=states[id],query=state.query.trim().toLowerCase();
-  const runs=visibleRuns(payload,state).filter(run=>!query||run.label.toLowerCase().includes(query)||run.condition.toLowerCase().includes(query)||String(run.status).toLowerCase().includes(query));
+  const runs=visibleRuns(payload,state).filter(run=>!query||run.label.toLowerCase().includes(query)||run.condition.toLowerCase().includes(query)||String(run.status).toLowerCase().includes(query)||String(run.operational_stage_label).toLowerCase().includes(query));
   runs.sort((a,b)=>{const av=comparable(a,state.sort),bv=comparable(b,state.sort);if(typeof av==='number'&&typeof bv==='number')return (av-bv)*state.sortDirection;return String(av??'').localeCompare(String(bv??''))*state.sortDirection;});
   const columns=summaryColumns(payload);
-  document.getElementById(id+'-rows').innerHTML=runs.map(run=>`<tr>${columns.map(([key])=>`<td>${html(summaryCell(run,key,payload))}</td>`).join('')}</tr>`).join('');
+  document.getElementById(id+'-rows').innerHTML=runs.map(run=>`<tr>${columns.map(([key])=>{const title=summaryCellTitle(run,key);return `<td${title?` title="${html(title)}"`:''}>${html(summaryCell(run,key,payload))}</td>`;}).join('')}</tr>`).join('');
 }
 function drawSemanticTable(id,payload){if(!payload.semantic)return;const target=document.getElementById(id+'-semantic-rows');if(!target)return;const state=states[id],runs=visibleRuns(payload,state),catalog=orderedCatalog(payload);const rows=[];for(const item of catalog){const members=runs.filter(run=>run.condition===item.id);if(!members.length)continue;const total=key=>members.reduce((sum,run)=>sum+Number(run[key]||0),0),proposals=total('postfork_proposals'),phases=total('intervention_phase_count'),best=overallBest(members,payload.objective_direction);rows.push(`<tr><td>${html(item.label||item.id)}</td><td>${html(String(item.family||'').replaceAll('_',' '))}</td><td>${members.length}</td><td>${fmt(proposals,'proposal')}</td><td>${proposals?(100*total('postfork_valid_proposals')/proposals).toFixed(1)+'%':'—'}</td><td>${proposals?(100*total('postfork_retained_proposals')/proposals).toFixed(1)+'%':'—'}</td><td>${proposals?(100*total('postfork_novel_delta_proposals')/proposals).toFixed(1)+'%':'—'}</td><td>${phases?(100*total('intervention_mechanism_reported')/phases).toFixed(1)+'%':'—'}</td><td>${phases?(100*total('intervention_phase_successes')/phases).toFixed(1)+'%':'—'}</td><td>${fmt(total('postfork_token_cost')/members.length,'token_cost')}</td><td>${fmt(total('postfork_evaluator_seconds')/members.length/3600,'active_hours')}</td><td>${fmt(best,'best_objective')}</td></tr>`);}target.innerHTML=rows.join('');}
 function drawLegend(id){const state=states[id];document.querySelectorAll(`#${id}-legend [data-run]`).forEach(button=>{const shown=state.conditions.includes(button.dataset.runCondition)&&!state.hiddenRuns.includes(button.dataset.run);button.classList.toggle('off',!shown);button.setAttribute('aria-pressed',String(shown));});document.querySelectorAll(`#${id}-legend [data-condition-toggle]`).forEach(button=>{const shown=state.conditions.includes(button.dataset.conditionToggle);button.classList.toggle('off',!shown);button.setAttribute('aria-pressed',String(shown));});}
@@ -316,7 +285,7 @@ function attachSection(id,payload){
   root.querySelector('[data-control="filter"]').value=state.filter;
   root.querySelector('[data-control="proposalType"]').value=state.proposalType;
   root.querySelectorAll('[data-control]').forEach(control=>control.addEventListener('change',()=>{const key=control.dataset.control;if(['showSeed','connect','overlay'].includes(key))state[key]=control.checked;else state[key]=control.value;if(['proposalStart','proposalEnd'].includes(key))normalizeProposalWindow(state);if(['seriesMode','proposalStart','proposalEnd'].includes(key))render();else redraw(id,payload);}));
-  root.querySelectorAll('[data-x]').forEach(control=>control.addEventListener('change',()=>{state.xs[Number(control.dataset.x)]=control.value;drawCharts(id,payload);}));
+  root.querySelector('[data-x]').addEventListener('change',event=>{state.x=event.target.value;drawCharts(id,payload);});
   root.querySelectorAll('[data-run]').forEach(button=>button.addEventListener('click',()=>{const run=payload.runs.find(item=>item.run_id===button.dataset.run);if(!run)return;if(runVisible(state,run))state.hiddenRuns=[...state.hiddenRuns,run.run_id];else{state.conditions=[...new Set([...state.conditions,run.condition])];state.hiddenRuns=state.hiddenRuns.filter(value=>value!==run.run_id);}redraw(id,payload);}));
   root.querySelectorAll('[data-condition-toggle]').forEach(button=>button.addEventListener('click',()=>{const condition=button.dataset.conditionToggle;if(state.conditions.includes(condition))state.conditions=state.conditions.filter(value=>value!==condition);else{state.conditions=[...new Set([...state.conditions,condition])];state.hiddenRuns=state.hiddenRuns.filter(runId=>payload.runs.find(run=>run.run_id===runId)?.condition!==condition);}redraw(id,payload);}));
   root.querySelectorAll('[data-legend-action]').forEach(button=>button.addEventListener('click',()=>{const show=button.dataset.legendAction==='show-all';state.conditions=show?allConditions(payload):[];state.hiddenRuns=show?[]:payload.runs.map(run=>run.run_id);redraw(id,payload);}));
@@ -356,45 +325,6 @@ function observeSections(sections){
   },{rootMargin:'500px 0px'});
   payloadsById.forEach((_payload,id)=>sectionObserver.observe(document.getElementById(id+'-section')));
 }
-function quotaTokenHtml(quota){
-  const usage=quota?.token_usage,total=usage?.total||{},recent=usage?.recent||{},models=usage?.models||[];
-  if(!usage)return '<span>Waiting for token-ledger scan…</span>';
-  const modelRows=models.map(model=>`<tr><td>${html(model.model)}</td><td>${html(model.reasoning_effort)} · ${html(model.service_tier)}</td><td>${html(model.sandbox)} · ${html(model.approval_policy)}</td><td>${html(model.conversation_mode)}</td><td>${fmtTokens(model.total_tokens)}</td><td>${fmtTokens(model.input_tokens)} / ${fmtTokens(model.cached_input_tokens)} / ${fmtTokens(model.output_tokens)} / ${fmtTokens(model.reasoning_output_tokens)}</td></tr>`).join('');
-  return `<strong>Completed local experiment tokens in this quota window</strong><div class="quota-token-grid"><span>Total <b>${fmtTokens(total.total_tokens)}</b></span><span>Recent (${Number(recent.minutes||0).toFixed(0)} min) <b>${fmtTokens(recent.total_tokens)}</b></span><span>Input <b>${fmtTokens(total.input_tokens)}</b></span><span>Uncached input <b>${fmtTokens(total.uncached_input_tokens)}</b></span><span>Cached input* <b>${fmtTokens(total.cached_input_tokens)}</b></span><span>Output <b>${fmtTokens(total.output_tokens)}</b></span><span>Reasoning output* <b>${fmtTokens(total.reasoning_output_tokens)}</b></span><span>Non-reasoning output <b>${fmtTokens(total.nonreasoning_output_tokens)}</b></span></div><p class="quota-detail">*Subset, not additional tokens. ${Number(usage.active_calls_not_yet_logged||0)} active call${Number(usage.active_calls_not_yet_logged||0)===1?'':'s'} will appear after Codex finalizes its JSONL usage record.</p><details><summary>Model and settings ledger (${models.length} group${models.length===1?'':'s'})</summary><div class="table-wrap"><table class="quota-models"><thead><tr><th>Model</th><th>Reasoning · tier</th><th>Sandbox · approval</th><th>Conversation</th><th>Total</th><th>Input / cache / output / reasoning</th></tr></thead><tbody>${modelRows||'<tr><td colspan="6">No completed calls in this window.</td></tr>'}</tbody></table></div></details>`;
-}
-function drawResetProjection(quota){
-  const value=document.getElementById('quota-reset-value'),detail=document.getElementById('quota-reset-detail'),accountValue=document.getElementById('quota-account-reset-value'),accountDetail=document.getElementById('quota-account-reset-detail'),fallback=document.getElementById('quota-reset-fallback'),input=document.getElementById('quota-reset-date');
-  const automatic=quota?.reset_at_iso?new Date(quota.reset_at_iso):null,hasAutomatic=automatic&&Number.isFinite(automatic.getTime());
-  if(input&&quotaResetDateOverride)input.value=quotaResetDateOverride;
-  if(fallback)fallback.hidden=Boolean(hasAutomatic);
-  const target=hasAutomatic?automatic:localEndOfDay(quotaResetDateOverride);
-  const experimentProjected=target?projectedRemainingAt(quota,target,quota?.experiment_only_minutes_per_percent):null;
-  const accountProjected=target?projectedRemainingAt(quota,target,quota?.account_wide_minutes_per_percent):null;
-  const experimentZero=quota?.experiment_only_zero_crossing_at?new Date(quota.experiment_only_zero_crossing_at):null;
-  const accountZero=quota?.account_wide_zero_crossing_at?new Date(quota.account_wide_zero_crossing_at):null;
-  const formatZero=value=>value&&Number.isFinite(value.getTime())?value.toLocaleString():'not available';
-  value.classList.toggle('negative',experimentProjected!==null&&experimentProjected<0);
-  accountValue.classList.toggle('negative',accountProjected!==null&&accountProjected<0);
-  const attribution=quota?.session_attribution||{},share=finite(attribution.recent_experiment_share);
-  if(experimentProjected===null){value.textContent=target?'Collecting…':'Set reset date';detail.textContent=target?'Waiting for local experiment-runner and other-Codex token records.':'The quota service did not report a reset timestamp; choose the calendar date shown in Codex.';}else{value.textContent=fmtSignedPercent(experimentProjected);}
-  const used=finite(quota?.latest_used_percent);
-  if(experimentProjected!==null)detail.textContent=`Experiments were ${fmtSignedPercent((share??0)*100)} of recently logged local Codex token activity; this attributes that share of the observed primary-quota pace to experiments, then assumes all other local Codex usage becomes zero${hasAutomatic?` through ${target.toLocaleString()}`:' through the end of the selected local date'}. Predicted 0%: ${formatZero(experimentZero)}. Negative means exhaustion before reset.`;
-  if(accountProjected===null){accountValue.textContent=target?'Collecting…':'Set reset date';accountDetail.textContent=target?'Waiting for enough real primary-quota changes to estimate the all-Codex pace.':'This becomes available after a reset date is known.';return;}
-  accountValue.textContent=fmtSignedPercent(accountProjected);
-  accountDetail.textContent=`Observed account-wide primary-quota pace${used===null?'':` (${fmtSignedPercent(used)} used now)`}; includes desktop Codex and other shared Codex activity, but is based only on actual percentage-change samples. Predicted 0%: ${formatZero(accountZero)}.`;
-}
-function drawQuota(quota){
-  const value=document.getElementById('quota-value'),detail=document.getElementById('quota-detail'),tokens=document.getElementById('quota-tokens');
-  const rate=finite(quota?.experiment_only_minutes_per_percent),sampleCount=Number(quota?.sample_count||0),sampledAt=quota?.latest_sampled_at,attribution=quota?.session_attribution||{},share=finite(attribution.recent_experiment_share),experimentRecent=attribution.experiment_runners?.recent||{},otherRecent=attribution.other_local_codex?.recent||{};
-  value.textContent=rate===null?'Collecting…':`${fmtDurationMinutes(rate)} / 1%`;
-  detail.textContent=rate===null?`Waiting for an observed quota change and local session token records (${sampleCount} quota sample${sampleCount===1?'':'s'} so far).`:`Session-attributed experiment estimate · ${fmtSignedPercent((share??0)*100)} of ${fmtTokens(Number(experimentRecent.total_tokens||0)+Number(otherRecent.total_tokens||0))} recent local Codex tokens came from experiment runners · ${fmtTokens(otherRecent.total_tokens)} from other local Codex work${sampledAt?`; latest quota read ${new Date(sampledAt).toLocaleTimeString()}`:''}.`;
-  drawResetProjection(quota);
-  tokens.innerHTML=quotaTokenHtml(quota);
-  quotaChart?.destroy();quotaChart=null;
-  const canvas=document.getElementById('quota-chart'),observedPoints=(quota?.points||[]).map(point=>({x:new Date(point.timestamp).getTime(),y:finite(point.minutes_per_percent),point})).filter(item=>Number.isFinite(item.x)&&item.y!==null),estimatePoint=rate===null||!sampledAt?[]:[{x:new Date(sampledAt).getTime(),y:rate}];
-  if(!canvas||typeof Chart==='undefined')return;
-  quotaChart=new Chart(canvas,{type:'line',data:{datasets:[{label:'All-Codex observed primary pace',data:observedPoints,borderColor:'#58a6ff',backgroundColor:'#58a6ff',borderWidth:2,pointRadius:4,pointHoverRadius:6,tension:.15,spanGaps:true},{label:'Experiment-only session-attributed pace',data:estimatePoint,borderColor:'#9de2bd',backgroundColor:'#9de2bd',borderWidth:0,pointRadius:6,pointHoverRadius:7,showLine:false}]},options:{responsive:true,maintainAspectRatio:false,animation:false,normalized:true,parsing:false,plugins:{legend:{display:true,labels:{boxWidth:10,font:{size:10}}},tooltip:{callbacks:{title:items=>items.length?new Date(items[0].raw.x).toLocaleString():'',label:context=>`${context.dataset.label}: ${fmtDurationMinutes(context.raw.y)} per 1% used`,afterLabel:context=>context.raw.point?`quota change: ${context.raw.point.percent_drop}% · logged interval tokens: ${fmtTokens(context.raw.point.tracked_tokens)}`:''}}},scales:{x:{type:'linear',title:{display:true,text:'Wall-clock time'},ticks:{maxTicksLimit:6,callback:value=>new Date(value).toLocaleTimeString([], {hour:'numeric',minute:'2-digit'})}},y:{beginAtZero:true,title:{display:true,text:'Minutes per 1% of primary limit used'},ticks:{maxTicksLimit:5}}}}});
-}
 function render(){
   if(!latestData)return;
   sectionObserver?.disconnect();
@@ -404,7 +334,6 @@ function render(){
   document.getElementById('content').innerHTML=shownSections.length?shownSections.map(([id,title,payload])=>sectionHtml(id,title,payload)).join(''):'<div class="empty">No configured campaign directories are currently available.</div>';
   shownSections.forEach(([id,_title,payload])=>attachSection(id,payload));
   observeSections(shownSections);
-  drawQuota(latestData.codex_rate_limit);
 }
 function loadScript(url){
   return new Promise((resolve,reject)=>{
@@ -422,7 +351,6 @@ function ensureChartLibrary(){
   chartLoadPromise=loadScript('https://unpkg.com/chart.js@4.4.4/dist/chart.umd.min.js').then(()=>{
     if(typeof Chart==='undefined')throw new Error('chart library unavailable');
     payloadsById.forEach((payload,id)=>{if(visibleSections.has(id))drawCharts(id,payload);});
-    drawQuota(latestData?.codex_rate_limit);
     return true;
   }).catch(error=>{chartLoadPromise=null;throw error;});
   return chartLoadPromise;
@@ -445,7 +373,6 @@ function setAutoRefresh(){if(refreshTimer)clearInterval(refreshTimer);const seco
 document.getElementById('refresh').addEventListener('click',refresh);
 document.getElementById('campaign-select').addEventListener('change',event=>{selectedCampaignId=event.target.value;render();});
 document.getElementById('auto-refresh').addEventListener('change',setAutoRefresh);
-document.getElementById('quota-reset-date').addEventListener('change',event=>{quotaResetDateOverride=event.target.value;drawResetProjection(latestData?.codex_rate_limit);});
 document.addEventListener('visibilitychange',()=>{if(!document.hidden)refresh();});
 startHotReload();setAutoRefresh();refresh();
 </script>
