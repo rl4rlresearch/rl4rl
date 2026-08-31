@@ -38,7 +38,7 @@ def test_full_mps_receipt_hashes_and_revalidates_training_artifacts(
         "profile_hash": FULL_TRAIN_V1.profile_hash,
         "requested_device": "mps",
         "selected_device": "mps",
-        "parameter_count_role": "descriptive_metadata_only",
+        "parameter_count_role": "constrained_search_objective",
         "isolation_level": "scientific_gate_allowed",
         "runtime": {
             "mps_built": True,

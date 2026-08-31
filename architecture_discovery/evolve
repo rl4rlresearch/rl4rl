@@ -34,6 +34,7 @@ from common.evolution_run import (  # noqa: E402
     EVOLUTION_MAX_ITERATIONS,
     EvolutionRunSpec,
 )
+from common.training_config import TRAJECTORY_TRAIN_CUDA_V2  # noqa: E402
 from modal_boundary import (  # noqa: E402
     ModalLiveCohortIdentity,
     modal_live_cohort_root,
@@ -47,6 +48,12 @@ from scripts.evolution_plan import (  # noqa: E402
 )
 from scripts.record_local_engineering_evidence import (  # noqa: E402
     validate_local_engineering_freeze_receipt,
+)
+from research_dynamics.contracts import (  # noqa: E402
+    ENV_INITIAL_CANDIDATE_PATH,
+    FrameworkKind,
+    build_modal_process_payload,
+    config_from_environment,
 )
 from study.serialization import create_json_exclusive  # noqa: E402
 
@@ -109,12 +116,13 @@ def _default_run_id(spec: EvolutionRunSpec) -> str:
 
 
 def _plan_summary(spec: EvolutionRunSpec, run_id: str) -> dict[str, Any]:
-    return {
+    summary = {
         "action": EVOLUTION_ACTION,
         "engine": spec.harness,
-        "evolution_spec": spec.token,
+        "evolution_spec": spec.base_token,
         "iterations": spec.iterations,
         "run_id": run_id,
+        "process_intervention_attached": spec.process_payload is not None,
         "paid_work_started": False,
         "provider_request_ceiling": spec.iterations,
         "provider_input_bytes_per_request_ceiling": (
@@ -122,6 +130,13 @@ def _plan_summary(spec: EvolutionRunSpec, run_id: str) -> dict[str, Any]:
         ),
         "provider_completion_token_ceiling": (
             spec.iterations * EVOLUTION_COMPLETION_TOKENS_PER_REQUEST
+        ),
+        "training_profile": TRAJECTORY_TRAIN_CUDA_V2.name,
+        "optimizer_steps_per_candidate": TRAJECTORY_TRAIN_CUDA_V2.max_steps,
+        "global_batch_size": TRAJECTORY_TRAIN_CUDA_V2.global_batch_size,
+        "training_examples_per_candidate": (
+            TRAJECTORY_TRAIN_CUDA_V2.max_steps
+            * TRAJECTORY_TRAIN_CUDA_V2.global_batch_size
         ),
         "controller_timeout_seconds": spec.controller_timeout_seconds,
         "modal_function_timeout_seconds": spec.function_timeout_seconds,
@@ -131,6 +146,40 @@ def _plan_summary(spec: EvolutionRunSpec, run_id: str) -> dict[str, Any]:
             "--provider-cost-cap-usd"
         ),
     }
+    if spec.process_payload is not None:
+        summary["process_transport_sha256"] = hashlib.sha256(
+            spec.process_payload.encode("ascii")
+        ).hexdigest()
+    return summary
+
+
+def _attach_process_intervention(spec: EvolutionRunSpec) -> EvolutionRunSpec:
+    config = config_from_environment()
+    raw_candidate = os.environ.get(ENV_INITIAL_CANDIDATE_PATH)
+    if config is None:
+        if raw_candidate is not None:
+            raise ValueError(
+                f"{ENV_INITIAL_CANDIDATE_PATH} requires RL4RL_PROCESS_CONFIG"
+            )
+        return spec
+    expected_framework = (
+        FrameworkKind.OPENEVOLVE
+        if spec.harness.startswith("openevolve_")
+        else FrameworkKind.AUTORESEARCH
+    )
+    if config.framework is not expected_framework:
+        raise ValueError(
+            "research-process framework differs from the selected evolution engine"
+        )
+    if config.challenge_opportunities and (
+        config.challenge_opportunities[-1] > spec.iterations
+    ):
+        raise ValueError("challenge schedule exceeds the evolution horizon")
+    payload = build_modal_process_payload(
+        config,
+        initial_candidate=raw_candidate,
+    )
+    return spec.with_process_payload(payload)
 
 
 def _candidate_preflight(root: Path, identity: ModalLiveCohortIdentity) -> Path:
@@ -394,7 +443,9 @@ def main() -> int:
     parser = _parser()
     args = parser.parse_args()
     try:
-        spec = EvolutionRunSpec.from_cli(args.engine, args.iterations)
+        spec = _attach_process_intervention(
+            EvolutionRunSpec.from_cli(args.engine, args.iterations)
+        )
         run_id = validate_run_id(args.run_id) if args.run_id else _default_run_id(spec)
         if args.accept_estimated_cost and not args.execute:
             raise ValueError("--accept-estimated-cost requires --execute")

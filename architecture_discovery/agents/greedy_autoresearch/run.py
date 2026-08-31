@@ -58,8 +58,17 @@ from common.provider_attempts import (
 )
 from common.task_adapter import DEFAULT_TASK
 from common.trainer import trusted_component_hashes, trusted_component_set_sha256
-from common.training_config import PROFILES, TrainingSeedBundle, get_training_profile
+from common.training_config import (
+    DEFAULT_ENGINEERING_TRAINING_PROFILE,
+    ENGINEERING_TRAINING_PROFILE_NAMES,
+    PROFILES,
+    TrainingSeedBundle,
+    get_training_profile,
+)
 from evaluation.records import ControllerSearchView
+from research_dynamics.contracts import FrameworkKind, resolve_initial_candidate
+from research_dynamics.extraction import export_run as export_process_run
+from research_dynamics.protocol import ProcessProtocol
 
 
 AGENT_DIR = Path(__file__).resolve().parent
@@ -129,6 +138,7 @@ class RunOptions:
     engineering_pilot: bool = False
     max_ir_bytes: int = DEFAULT_MAX_IR_BYTES
     accept_valid_plateau_moves: bool = True
+    use_parameter_count: bool = True
     modal_evolution_run: bool = False
 
 
@@ -442,11 +452,12 @@ def _validate_options(
         )
     if options.engineering_pilot:
         if (
-            training.name != "smoke_train_cuda_v2"
+            training.name not in ENGINEERING_TRAINING_PROFILE_NAMES
             or evaluation.name != "smoke_eval_v1"
         ):
             raise ValueError(
-                "engineering pilot requires smoke_train_cuda_v2 and smoke_eval_v1"
+                "engineering pilot requires an approved non-scientific CUDA "
+                "training profile and smoke_eval_v1"
             )
         if options.pi_decision_record_id is not None:
             raise ValueError("engineering pilot cannot claim a PI decision record")
@@ -562,15 +573,19 @@ def _prompt_for_incumbent(
     system_prompt: str,
     incumbent_ir: str,
     incumbent_score: float,
+    incumbent_parameter_count: int,
     opportunity: int,
 ) -> list[dict[str, str]]:
     user_prompt = (
         f"Proposal opportunity {opportunity}.\n"
         f"Current public search score: {incumbent_score:.6f}.\n\n"
+        f"Current parameter count: {incumbent_parameter_count}.\n\n"
         "Return exactly one complete replacement architecture IR JSON object. "
         "Put one testable hypothesis in metadata.mechanism_hypothesis. Do not "
         "return Python, a diff, markdown prose, or executable content. A single "
-        "json fence is allowed. Parameter count is metadata only.\n\n"
+        "json fence is allowed. Propose a structurally unique graph. Preserve "
+        "the public eligibility floor, then reduce parameter count; accuracy "
+        "breaks exact parameter-count ties.\n\n"
         f"Current architecture IR:\n```json\n{incumbent_ir}\n```"
     )
     return [
@@ -659,6 +674,10 @@ def run_greedy_autoresearch(
     provider.preflight()
 
     output_dir = _prepare_fresh_output(requested_output)
+    process_protocol = ProcessProtocol.from_environment(
+        output_dir,
+        expected_framework=FrameworkKind.AUTORESEARCH,
+    )
     if isinstance(provider, OpenAIProposalProvider):
         provider.bind_attempt_ledger(
             output_dir,
@@ -729,14 +748,17 @@ def run_greedy_autoresearch(
             "engineering_pilot" if options.engineering_pilot else "scientific_replication"
         ),
         "exploratory_only": options.engineering_pilot,
-        "selection_semantics": (
-            "mechanics_only_transformer_validity"
-            if options.engineering_pilot
-            else "frozen_scientific_parent_eligibility"
-        ),
+        "selection_semantics": "eligibility_then_minimum_parameter_count",
+        "optimization_objective": {
+            "primary_constraint": "public_parent_eligibility",
+            "primary_objective_after_eligibility": "minimize_parameter_count",
+            "tie_breaker": "public_search_score",
+            "architecture_uniqueness": "run_wide_executable_hash_gate",
+        },
         "greedy_retention": {
             "requires_parent_eligibility": True,
-            "rejects_search_score_regressions": True,
+            "prefers_smaller_eligible_candidates": options.use_parameter_count,
+            "accuracy_breaks_equal_size_ties": True,
             "accept_valid_plateau_moves": options.accept_valid_plateau_moves,
         },
         "generator": dict(provider.manifest_fields()),
@@ -793,6 +815,13 @@ def run_greedy_autoresearch(
         manifest.update(
             {"schema_name": "ControllerRunManifest", "schema_version": "2.0"}
         )
+    if process_protocol is not None:
+        manifest["research_process"] = {
+            "config_path": "research_process/study_config.json",
+            "config_hash": process_protocol.config.config_hash,
+            "treatment_fields": ["memory_policy", "deliberation_policy"],
+            "selection_or_reward_changed": False,
+        }
     _atomic_json(output_dir / "run_manifest.json", manifest)
 
     seed_lineage_id = "lineage-" + text_hash(f"{run_id}|lineage|0")
@@ -881,6 +910,7 @@ def run_greedy_autoresearch(
     parent_id = seed_id
     parent_lineage_id = seed_lineage_id
     incumbent_score = float(seed_view.search_score)
+    incumbent_parameter_count = seed_view.parameter_count_metadata
     incumbent_architecture_hash = initial_architecture_hash
     completed = 0
     for opportunity in range(1, options.iterations + 1):
@@ -892,8 +922,15 @@ def run_greedy_autoresearch(
             system_prompt=system_prompt,
             incumbent_ir=incumbent_ir,
             incumbent_score=incumbent_score,
+            incumbent_parameter_count=incumbent_parameter_count,
             opportunity=opportunity,
         )
+        if process_protocol is not None:
+            messages = process_protocol.augment_messages(
+                messages,
+                opportunity,
+                lineage_path=ledger,
+            )
         prompt_hash = _canonical_messages_hash(messages)
         artifact_base = artifacts / f"{opportunity:04d}"
         artifact_base.with_suffix(".prompt.md").write_text(
@@ -1088,23 +1125,40 @@ def run_greedy_autoresearch(
             continue
 
         child_score = float(view.search_score)
+        child_parameter_count = view.parameter_count_metadata
         score_improved = child_score > incumbent_score
         score_tied = child_score == incumbent_score
+        size_improved = child_parameter_count < incumbent_parameter_count
+        size_tied = child_parameter_count == incumbent_parameter_count
         accepted = bool(
             view.eligible_for_parent
             and (
-                score_improved
-                or (options.accept_valid_plateau_moves and score_tied)
+                size_improved
+                or (
+                    size_tied
+                    and (
+                        score_improved
+                        or (options.accept_valid_plateau_moves and score_tied)
+                    )
+                )
             )
         )
         if accepted:
-            decision = "accept"
+            decision = (
+                "accept_smaller"
+                if size_improved
+                else "accept_accuracy_tiebreak"
+                if score_improved
+                else "accept_unique_objective_plateau"
+            )
         elif not view.eligible_for_parent:
             decision = "reject"
-        elif score_tied:
-            decision = "reject_score_tie"
+        elif child_parameter_count > incumbent_parameter_count:
+            decision = "reject_larger"
+        elif size_tied and score_tied:
+            decision = "reject_objective_tie"
         else:
-            decision = "reject_score_regression"
+            decision = "reject_equal_size_accuracy_regression"
         rollback = None if accepted else parent_id
         evaluation = _lineage_evaluation(view)
         evaluation.update(
@@ -1141,6 +1195,7 @@ def run_greedy_autoresearch(
             parent_id = candidate_id
             parent_lineage_id = lineage_id
             incumbent_score = child_score
+            incumbent_parameter_count = child_parameter_count
             incumbent_architecture_hash = child_architecture_hash
         completed += 1
 
@@ -1164,6 +1219,8 @@ def run_greedy_autoresearch(
             {"schema_name": "ControllerRunSummary", "schema_version": "2.0"}
         )
     _atomic_json(output_dir / "run_summary.json", summary)
+    if process_protocol is not None:
+        export_process_run(output_dir, process_protocol.config)
     return summary
 
 
@@ -1223,12 +1280,14 @@ def main() -> None:
     parser.add_argument("--iterations", type=_positive_int, default=config["iterations"])
     parser.add_argument("--seed", type=int, default=config["seed"])
     parser.add_argument("--output-dir", type=Path)
+    parser.add_argument("--initial-candidate", type=Path)
     parser.add_argument(
         "--engineering-pilot",
         action="store_true",
         help=(
-            "run an exploratory IR-only CUDA canary; forces smoke_train_cuda_v2 and "
-            "smoke_eval_v1 and never creates authoritative scientific evidence"
+            "run an exploratory IR-only CUDA evaluation; defaults to "
+            "smoke_train_cuda_v2, permits the bounded trajectory profile, and "
+            "never creates authoritative scientific evidence"
         ),
     )
     parser.add_argument("--training-profile", choices=tuple(sorted(PROFILES)))
@@ -1247,12 +1306,11 @@ def main() -> None:
     )
     arguments = parser.parse_args()
 
-    if arguments.engineering_pilot and arguments.training_profile not in {
-        None,
-        "smoke_train_cuda_v2",
-    }:
+    if arguments.engineering_pilot and arguments.training_profile not in (
+        {None} | ENGINEERING_TRAINING_PROFILE_NAMES
+    ):
         parser.error(
-            "--engineering-pilot forces --training-profile smoke_train_cuda_v2"
+            "--engineering-pilot requires an approved non-scientific CUDA profile"
         )
     if arguments.engineering_pilot and arguments.evaluation_profile not in {
         None,
@@ -1269,8 +1327,16 @@ def main() -> None:
     configured_candidate = (ROOT / str(config["candidate_path"])).resolve()
     if configured_candidate != DEFAULT_INITIAL_CANDIDATE.resolve():
         parser.error("configured candidate_path differs from the trusted initial IR")
+    try:
+        initial_candidate = resolve_initial_candidate(
+            DEFAULT_INITIAL_CANDIDATE,
+            explicit=arguments.initial_candidate,
+            expected_framework=FrameworkKind.AUTORESEARCH,
+        )
+    except (FileNotFoundError, ValueError) as error:
+        parser.error(str(error))
     training_profile = (
-        "smoke_train_cuda_v2"
+        arguments.training_profile or DEFAULT_ENGINEERING_TRAINING_PROFILE
         if arguments.engineering_pilot
         else arguments.training_profile or str(config["training"]["profile"])
     )
@@ -1295,7 +1361,7 @@ def main() -> None:
         iterations=arguments.iterations,
         seed=arguments.seed,
         output_dir=arguments.output_dir,
-        initial_candidate=DEFAULT_INITIAL_CANDIDATE,
+        initial_candidate=initial_candidate,
         training_profile=training_profile,
         evaluation_profile=evaluation_profile,
         evaluation_case_count=case_count,
@@ -1314,6 +1380,7 @@ def main() -> None:
         accept_valid_plateau_moves=bool(
             config["acceptance"]["accept_valid_plateau_moves"]
         ),
+        use_parameter_count=bool(config["acceptance"]["use_parameter_count"]),
         modal_evolution_run=arguments.modal_evolution_run,
     )
     try:

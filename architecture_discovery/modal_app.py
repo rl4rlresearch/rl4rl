@@ -39,6 +39,12 @@ from common.provider_attempts import (
     load_provider_attempt_ledger,
 )
 from common.runtime_context import ExecutionContextV1
+from research_dynamics.contracts import (
+    ENV_CONFIG_PATH,
+    ENV_INITIAL_CANDIDATE_PATH,
+    FrameworkKind,
+    materialize_modal_process_payload,
+)
 from modal_boundary import (
     APP_NAME,
     ARTIFACT_MANIFEST_FILENAMES,
@@ -120,6 +126,7 @@ except ModuleNotFoundError as error:  # Core/offline imports remain usable.
 PROJECT_ROOT = Path(__file__).resolve().parent
 LOCAL_MODAL_COMMAND_PYTHON = PROJECT_ROOT / ".venv" / "bin" / "python"
 CUDA_SMOKE_PROFILE = "smoke_train_cuda_v2"
+CUDA_TRAJECTORY_PROFILE = "trajectory_train_cuda_v2"
 RESUME_ACTION_DEADLINE_SECONDS = 240
 RESUME_PROBE_TIMEOUT_SECONDS = 20
 RESUME_TRAIN_TIMEOUT_SECONDS = 180
@@ -592,6 +599,7 @@ def _run_command(
     requested_device: str,
     timeout_seconds: int = CONTROLLER_SUBPROCESS_TIMEOUT_SECONDS,
     function_timeout_seconds: int = FUNCTION_TIMEOUT_SECONDS,
+    extra_environment: Mapping[str, str] | None = None,
 ) -> dict[str, Any]:
     if timeout_seconds <= 0 or timeout_seconds >= function_timeout_seconds:
         raise ValueError("subprocess timeout must remain inside the function timeout")
@@ -605,6 +613,19 @@ def _run_command(
                 provider=provider,
                 requested_device=requested_device,
             )
+            if extra_environment is not None:
+                allowed = {ENV_CONFIG_PATH, ENV_INITIAL_CANDIDATE_PATH}
+                if not set(extra_environment).issubset(allowed):
+                    raise ValueError("Modal controller environment contains unsafe keys")
+                for name, value in extra_environment.items():
+                    if not isinstance(value, str):
+                        raise TypeError("Modal controller environment paths must be text")
+                    path = Path(value)
+                    if not path.is_absolute() or not path.is_file() or path.is_symlink():
+                        raise ValueError(
+                            "Modal controller environment path is missing or unsafe"
+                        )
+                environment.update(extra_environment)
             environment[OUTER_PROCESS_DEADLINE_ENV] = format(
                 time.monotonic() + timeout_seconds,
                 ".9f",
@@ -2771,6 +2792,20 @@ def _evolution_action(
     *,
     spec: EvolutionRunSpec,
 ):
+    process_environment: dict[str, str] | None = None
+    process_summary: dict[str, Any] | None = None
+    if spec.process_payload is not None:
+        expected_framework = (
+            FrameworkKind.OPENEVOLVE
+            if spec.harness.startswith("openevolve_")
+            else FrameworkKind.AUTORESEARCH
+        )
+        process_environment, process_summary = materialize_modal_process_payload(
+            spec.process_payload,
+            run_directory=run_directory,
+            expected_framework=expected_framework,
+            maximum_opportunities=spec.iterations,
+        )
     command = [
         sys.executable,
         "-m",
@@ -2783,7 +2818,7 @@ def _evolution_action(
         str(run_directory / "controller"),
         "--engineering-pilot",
         "--training-profile",
-        CUDA_SMOKE_PROFILE,
+        CUDA_TRAJECTORY_PROFILE,
         "--evaluation-profile",
         "smoke_eval_v1",
         "--evaluation-cases",
@@ -2792,12 +2827,12 @@ def _evolution_action(
         "cuda",
         "--modal-evolution-run",
     ]
-    return {
+    result = {
         "mode": "bounded_non_scientific_evolution",
-        "evolution_spec": spec.token,
+        "evolution_spec": spec.base_token,
         "harness": spec.harness,
         "iterations": spec.iterations,
-        "training_profile": CUDA_SMOKE_PROFILE,
+        "training_profile": CUDA_TRAJECTORY_PROFILE,
         "scientific": False,
         **_run_command(
             command,
@@ -2806,8 +2841,12 @@ def _evolution_action(
             requested_device="cuda",
             timeout_seconds=spec.controller_timeout_seconds,
             function_timeout_seconds=spec.function_timeout_seconds,
+            extra_environment=process_environment,
         ),
     }
+    if process_summary is not None:
+        result["research_process"] = process_summary
+    return result
 
 
 def _load_volume_manifest(run_id: str) -> RawArtifactManifestV1:

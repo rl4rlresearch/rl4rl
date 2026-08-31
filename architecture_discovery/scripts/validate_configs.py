@@ -576,19 +576,19 @@ def _validate_readiness_contract(readiness: dict, *, manifest_version: str) -> N
 
 
 def _check_fitness_source() -> None:
-    for function in (_quality, checkpoint_is_better):
-        source = inspect.getsource(function)
-        _require(
-            "parameter_count_metadata" not in source,
-            f"{function.__name__} uses parameter-count metadata",
-        )
-        _require(
-            "parameter_count" not in source,
-            f"{function.__name__} uses parameter count",
-        )
+    source = inspect.getsource(_quality)
     _require(
-        "parameter_count_metadata" not in CONTROLLER_SEARCH_FIELDS,
-        "controller view exposes parameter-count metadata",
+        "_parameter_count" in source,
+        "OpenEvolve quality omits the constrained size objective",
+    )
+    checkpoint_source = inspect.getsource(checkpoint_is_better)
+    _require(
+        "parameter_count" not in checkpoint_source,
+        "within-candidate checkpoint selection must not use architecture size",
+    )
+    _require(
+        "parameter_count_metadata" in CONTROLLER_SEARCH_FIELDS,
+        "controller view omits trusted parameter-count metadata",
     )
     _require(
         "shadow_accuracy" not in CONTROLLER_SEARCH_FIELDS,
@@ -619,16 +619,16 @@ def main() -> None:
         "evaluation profile roster changed",
     )
     _require(
-        greedy["acceptance"]["use_parameter_count"] is False,
-        "greedy acceptance uses parameter count",
+        greedy["acceptance"]["use_parameter_count"] is True,
+        "greedy acceptance does not minimize parameter count",
     )
     _require(
         semantic_autoresearch["condition"] == "semantic_autoresearch",
         "semantic Autoresearch condition ID changed",
     )
     _require(
-        semantic_autoresearch["acceptance"]["use_parameter_count"] is False,
-        "semantic Autoresearch acceptance uses parameter count",
+        semantic_autoresearch["acceptance"]["use_parameter_count"] is True,
+        "semantic Autoresearch does not minimize parameter count",
     )
     _require(
         all(
@@ -906,22 +906,19 @@ def main() -> None:
             "blocked readiness reports main-study readiness",
         )
 
-    forbidden_incentives = (
-        "smallest model",
-        "minimize parameter",
-        "fewer parameter",
-        "low-parameter",
-        "compress the model",
+    objective_prompt_paths = (
+        ROOT / "common" / "prompts" / "shared_system.md",
+        ROOT / "agents" / "greedy_autoresearch" / "program.md",
+        ROOT / "agents" / "semantic_autoresearch" / "program.md",
+        ROOT / "agents" / "openevolve_generic" / "system_prompt.md",
+        ROOT / "agents" / "openevolve_semantic" / "system_prompt.md",
     )
-    prompt_paths = list((ROOT / "common" / "prompts").glob("*.md"))
-    prompt_paths += list((ROOT / "agents").glob("**/*.md"))
-    for path in prompt_paths:
+    for path in objective_prompt_paths:
         text = path.read_text().lower()
-        for phrase in forbidden_incentives:
-            _require(
-                phrase not in text,
-                f"{path} contains forbidden incentive {phrase}",
-            )
+        _require(
+            "parameter count" in text and "eligib" in text,
+            f"{path} omits the accuracy-constrained size objective",
+        )
 
     generic_prompt = (
         ROOT / "agents" / "openevolve_generic" / "system_prompt.md"

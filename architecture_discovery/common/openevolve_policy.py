@@ -1,4 +1,4 @@
-"""Validity-first replacement policy shared by both OpenEvolve conditions."""
+"""Accuracy-constrained size and uniqueness policy shared by OpenEvolve."""
 
 from __future__ import annotations
 
@@ -7,9 +7,32 @@ import random
 from functools import cmp_to_key
 from typing import Any
 
+from architecture_ir.interpreter import DEFAULT_LIMITS
 
-def _quality(metrics: dict[str, Any]) -> tuple[float, float]:
-    """Rank only by frozen validity/accuracy fields; metadata is intentionally absent."""
+
+MAX_PARAMETER_COUNT = DEFAULT_LIMITS.max_parameters
+
+
+def _parameter_count(metrics: dict[str, Any]) -> int:
+    """Return a bounded count; missing or malformed counts rank as worst."""
+
+    try:
+        value = float(metrics.get("parameter_count_metadata", MAX_PARAMETER_COUNT))
+    except (TypeError, ValueError):
+        return MAX_PARAMETER_COUNT
+    if not math.isfinite(value) or not value.is_integer() or value < 1:
+        return MAX_PARAMETER_COUNT
+    return min(int(value), MAX_PARAMETER_COUNT)
+
+
+def _quality(metrics: dict[str, Any]) -> tuple[float, float, float]:
+    """Rank candidates lexicographically under the constrained objective.
+
+    Ineligible candidates are ranked by accuracy so search can approach the
+    frozen threshold.  Once eligible, fewer parameters is the primary objective
+    and accuracy breaks exact size ties.  Run-wide architecture hashes reject
+    duplicate executable graphs before this policy is reached.
+    """
     try:
         eligible_value = float(metrics.get("eligible_for_parent", 0.0))
     except (TypeError, ValueError):
@@ -20,22 +43,32 @@ def _quality(metrics: dict[str, Any]) -> tuple[float, float]:
         score_value = 0.0
     eligible = 1.0 if math.isfinite(eligible_value) and eligible_value >= 0.5 else 0.0
     score = score_value if math.isfinite(score_value) else 0.0
-    return (
-        eligible,
-        max(0.0, min(1.0, score)),
-    )
+    score = max(0.0, min(1.0, score))
+    parameters = _parameter_count(metrics)
+    if eligible:
+        return (eligible, float(-parameters), score)
+    return (eligible, score, float(-parameters))
 
 
 def canonical_combined_score(metrics: dict[str, Any]) -> float:
     """Encode validity-first quality for vendor paths that require one scalar.
 
-    Eligible candidates occupy ``[2, 3]`` and ineligible candidates occupy
-    ``[0, 1]``.  The score therefore preserves the same lexicographic ordering
-    as :func:`_quality` without reading descriptors or model-size metadata.
+    Eligible candidates occupy ``[2, 3)`` and ineligible candidates occupy
+    ``[0, 1]``.  Within the eligible interval, one parameter of improvement is
+    worth more than the complete accuracy tie-break range.  The patched database
+    comparator remains the authoritative lexicographic implementation.
     """
 
-    eligible, score = _quality(metrics)
-    return 2.0 * eligible + score
+    quality = _quality(metrics)
+    eligible = quality[0]
+    score = quality[2] if eligible else quality[1]
+    if not eligible:
+        return score
+    parameters = _parameter_count(metrics)
+    denominator = float(MAX_PARAMETER_COUNT + 1)
+    size_component = (MAX_PARAMETER_COUNT - parameters + 1) / denominator
+    accuracy_tiebreak = score / (2.0 * denominator)
+    return 2.0 + size_component + accuracy_tiebreak
 
 
 def _eligible(program: Any) -> bool:
@@ -43,7 +76,7 @@ def _eligible(program: Any) -> bool:
 
 
 def install_validity_first_policy() -> None:
-    """Patch comparison and parent pools without modifying the vendor checkout."""
+    """Patch constrained size comparison and parent pools without vendor edits."""
     from openevolve.database import ProgramDatabase
 
     if getattr(ProgramDatabase, "_discovery_quality_policy_installed", False):

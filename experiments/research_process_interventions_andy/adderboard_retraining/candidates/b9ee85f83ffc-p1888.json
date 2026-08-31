@@ -1,0 +1,164 @@
+{
+  "schema_name": "architecture_tensor_graph",
+  "schema_version": "1.0",
+  "graph_id": "attention_only_residual_adder_decoder_v2",
+  "input_node_id": "tokens",
+  "output_node_id": "readout",
+  "nodes": [
+    {
+      "node_id": "tokens",
+      "kind": "input",
+      "input_shapes": [],
+      "output_shape": ["Batch", "Time"],
+      "attributes": {}
+    },
+    {
+      "node_id": "token_embedding",
+      "kind": "token_embedding",
+      "input_shapes": [["Batch", "Time"]],
+      "output_shape": ["Batch", "Time", 16],
+      "attributes": {
+        "vocab": 15
+      }
+    },
+    {
+      "node_id": "position",
+      "kind": "positional",
+      "input_shapes": [["Batch", "Time", 16]],
+      "output_shape": ["Batch", "Time", 16],
+      "attributes": {
+        "mechanism": "learned"
+      }
+    },
+    {
+      "node_id": "attention_norm",
+      "kind": "normalization",
+      "input_shapes": [["Batch", "Time", 16]],
+      "output_shape": ["Batch", "Time", 16],
+      "attributes": {
+        "affine": true,
+        "epsilon": 0.00001,
+        "mechanism": "layer_norm"
+      }
+    },
+    {
+      "node_id": "causal_attention",
+      "kind": "attention",
+      "input_shapes": [["Batch", "Time", 16]],
+      "output_shape": ["Batch", "Time", 16],
+      "attributes": {
+        "bias": false,
+        "causal": true,
+        "heads": 2
+      }
+    },
+    {
+      "node_id": "attention_residual",
+      "kind": "algebraic",
+      "input_shapes": [
+        ["Batch", "Time", 16],
+        ["Batch", "Time", 16]
+      ],
+      "output_shape": ["Batch", "Time", 16],
+      "attributes": {
+        "mechanism": "add"
+      }
+    },
+    {
+      "node_id": "final_norm",
+      "kind": "normalization",
+      "input_shapes": [["Batch", "Time", 16]],
+      "output_shape": ["Batch", "Time", 16],
+      "attributes": {
+        "affine": true,
+        "epsilon": 0.00001,
+        "mechanism": "layer_norm"
+      }
+    },
+    {
+      "node_id": "readout",
+      "kind": "readout",
+      "input_shapes": [["Batch", "Time", 16]],
+      "output_shape": ["Batch", "Time", 15],
+      "attributes": {
+        "bias": false,
+        "tie_embedding": "token_embedding",
+        "vocab": 15
+      }
+    }
+  ],
+  "edges": [
+    {
+      "source": "tokens",
+      "target": "token_embedding",
+      "target_port": 0,
+      "kind": "data"
+    },
+    {
+      "source": "token_embedding",
+      "target": "position",
+      "target_port": 0,
+      "kind": "data"
+    },
+    {
+      "source": "position",
+      "target": "attention_norm",
+      "target_port": 0,
+      "kind": "data"
+    },
+    {
+      "source": "attention_norm",
+      "target": "causal_attention",
+      "target_port": 0,
+      "kind": "data"
+    },
+    {
+      "source": "position",
+      "target": "attention_residual",
+      "target_port": 0,
+      "kind": "residual"
+    },
+    {
+      "source": "causal_attention",
+      "target": "attention_residual",
+      "target_port": 1,
+      "kind": "data"
+    },
+    {
+      "source": "attention_residual",
+      "target": "final_norm",
+      "target_port": 0,
+      "kind": "data"
+    },
+    {
+      "source": "final_norm",
+      "target": "readout",
+      "target_port": 0,
+      "kind": "data"
+    }
+  ],
+  "metadata": {
+    "architecture": "pre-normalized causal-attention-only residual decoder",
+    "author": "anadim, declarative experiment wrapper",
+    "max_sequence_length": 35,
+    "mechanism_hypothesis": "A direct causal-attention residual avoids dilution by the token-local branch while removing its parameters.",
+    "name": "Attention-Only Residual AdderBoard Decoder",
+    "parameter_count_role": "constrained_search_objective",
+    "tokenization": "digit_reversed_output",
+    "tricks": [
+      "reversed output digits",
+      "autoregressive carry propagation"
+    ],
+    "vocab_size": 15,
+    "research_current_explanation": "The eligible parallel fusion produced zero public accuracy, so its token-local branch has no visible evidence of benefit. A direct attention residual preserves the required causal path with fewer transformations.",
+    "research_evidence": "The available public records show execution_ok, transformer_valid, and eligible_for_parent at 1.0, but public_accuracy at 0.0 for the parallel architecture.",
+    "research_next_experiment": "Remove the feed-forward branch and fixed fusion, routing pre-normalized causal attention directly through one residual connection.",
+    "research_expected_result": "The graph should preserve eligibility with a lower trusted parameter count and may improve optimization by preventing equal fusion from diluting causal context.",
+    "research_decision_rule": "Retain only if public eligibility is preserved; among eligible candidates prefer lower trusted parameter count, using public accuracy only for exact size ties.",
+    "research_previous_interpretation": "The parallel candidate established validity, but its zero public accuracy did not demonstrate that the feed-forward branch or equal branch fusion was useful.",
+    "research_previous_changed": "yes",
+    "research_challenged_assumption": "not_requested",
+    "research_alternative_explanation": "not_requested",
+    "research_discriminating_evidence": "not_requested"
+  }
+}

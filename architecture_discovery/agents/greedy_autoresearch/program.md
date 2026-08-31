@@ -16,7 +16,9 @@ For each iteration:
    `architecture_tensor_graph` schema version `1.0`. A single `json` fenced
    block is permitted, but prose outside the JSON is forbidden.
 4. Let the shared evaluator initialize and train the child from scratch.
-5. Accept the child when it passes the validity gate and the frozen robustness floor.
+5. Accept a structurally unique child when it passes the validity gate and the
+   frozen robustness floor and improves the constrained objective: fewer
+   parameters first, then public accuracy for equal-size candidates.
 6. Preserve rejected and crashed response artifacts before restoring the incumbent.
 7. Stop at the configured candidate limit.
 
@@ -25,4 +27,6 @@ analysis of the typed graph and observed failures. Only evaluator-owned,
 versioned primitive names are permitted. Python callbacks, import paths,
 commands, file paths, checkpoints, and arbitrary expressions are forbidden.
 
-Parameter count stays in metadata. Do not use it in proposals or decisions.
+Use trusted evaluator-reported parameter count to search for the smallest
+architecture that remains above the public eligibility threshold. Do not infer
+size from cosmetic metadata or sacrifice eligibility for compression.

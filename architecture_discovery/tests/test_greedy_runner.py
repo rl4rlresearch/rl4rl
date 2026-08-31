@@ -73,6 +73,15 @@ def _options(tmp_path: Path, *, iterations: int = 1) -> RunOptions:
     )
 
 
+def test_engineering_trajectory_profile_is_accepted(tmp_path):
+    options = replace(
+        _options(tmp_path),
+        training_profile="trajectory_train_cuda_v2",
+    )
+    training, _plan, _count = run._validate_options(options)
+    assert training.max_steps == 5_000
+
+
 class FakeProvider:
     def __init__(self, responses):
         self.responses = list(responses)
@@ -98,9 +107,12 @@ class FakeProvider:
 class FakeEvaluator:
     controller_only_test_double = True
 
-    def __init__(self, *, eligible=True, scores=None):
+    def __init__(self, *, eligible=True, scores=None, parameter_counts=None):
         self.eligible = eligible
         self.scores = list(scores) if scores is not None else None
+        self.parameter_counts = (
+            list(parameter_counts) if parameter_counts is not None else None
+        )
         self.requests = []
 
     def __call__(self, request):
@@ -125,6 +137,11 @@ class FakeEvaluator:
             failure_stage="" if eligible else "public_accuracy",
             infrastructure_failure=False,
             online_descriptor_codes=(),
+            parameter_count_metadata=(
+                6_080
+                if self.parameter_counts is None
+                else self.parameter_counts[index - 1]
+            ),
         )
 
 
@@ -168,8 +185,8 @@ def test_ten_ir_opportunities_use_ten_provider_calls_and_eleven_evaluations(tmp_
     assert manifest["authoritative_scientific_evidence"] is False
     assert manifest["candidate_format"] == "architecture_tensor_graph@1.0"
     assert manifest["architecture_hash_schema"] == "architecture_executable_v2"
-    assert manifest["selection_semantics"] == "mechanics_only_transformer_validity"
-    assert manifest["greedy_retention"]["rejects_search_score_regressions"] is True
+    assert manifest["selection_semantics"] == "eligibility_then_minimum_parameter_count"
+    assert manifest["greedy_retention"]["prefers_smaller_eligible_candidates"] is True
     assert manifest["architecture_deduplication"]["duplicate_proposals_train"] is False
     assert manifest["trusted_executable_component_hashes"] == run.trusted_component_hashes()
     assert manifest["trusted_component_set_sha256"] == run.trusted_component_set_sha256(
@@ -313,9 +330,29 @@ def test_eligible_score_regression_does_not_replace_incumbent(tmp_path):
     )
 
     records = _lineage(tmp_path / "run" / "lineage.jsonl")
-    assert records[1]["retention_decision"] == "reject_score_regression"
+    assert records[1]["retention_decision"] == "reject_equal_size_accuracy_regression"
     assert records[2]["parent_id"] == records[0]["candidate_id"]
     assert _ir(0, hypothesis=False) in provider.messages[1][-1]["content"]
+
+
+def test_eligible_search_minimizes_parameters_before_accuracy(tmp_path):
+    provider = FakeProvider([_ir(1), _ir(2)])
+    evaluator = FakeEvaluator(
+        scores=[0.99, 0.99, 1.0],
+        parameter_counts=[6_080, 5_000, 7_000],
+    )
+
+    run_greedy_autoresearch(
+        _options(tmp_path, iterations=2),
+        provider=provider,
+        evaluator=evaluator,
+    )
+
+    records = _lineage(tmp_path / "run" / "lineage.jsonl")
+    assert records[1]["retention_decision"] == "accept_smaller"
+    assert records[2]["parent_id"] == records[1]["candidate_id"]
+    assert records[2]["retention_decision"] == "reject_larger"
+    assert records[1]["parameter_count_metadata"] == 5_000
 
 
 def test_run_wide_duplicate_is_charged_without_retraining(tmp_path):

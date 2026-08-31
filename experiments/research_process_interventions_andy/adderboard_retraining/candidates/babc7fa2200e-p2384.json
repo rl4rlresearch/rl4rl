@@ -1,0 +1,328 @@
+{
+  "schema_name": "architecture_tensor_graph",
+  "schema_version": "1.0",
+  "graph_id": "sinusoidal_attention_only_adderboard_v2",
+  "input_node_id": "tokens",
+  "output_node_id": "readout",
+  "nodes": [
+    {
+      "node_id": "tokens",
+      "kind": "input",
+      "input_shapes": [],
+      "output_shape": [
+        "Batch",
+        "Time"
+      ],
+      "attributes": {}
+    },
+    {
+      "node_id": "token_embedding",
+      "kind": "token_embedding",
+      "input_shapes": [
+        [
+          "Batch",
+          "Time"
+        ]
+      ],
+      "output_shape": [
+        "Batch",
+        "Time",
+        16
+      ],
+      "attributes": {
+        "vocab": 15
+      }
+    },
+    {
+      "node_id": "position",
+      "kind": "positional",
+      "input_shapes": [
+        [
+          "Batch",
+          "Time",
+          16
+        ]
+      ],
+      "output_shape": [
+        "Batch",
+        "Time",
+        16
+      ],
+      "attributes": {
+        "mechanism": "sinusoidal"
+      }
+    },
+    {
+      "node_id": "block1_norm",
+      "kind": "normalization",
+      "input_shapes": [
+        [
+          "Batch",
+          "Time",
+          16
+        ]
+      ],
+      "output_shape": [
+        "Batch",
+        "Time",
+        16
+      ],
+      "attributes": {
+        "affine": true,
+        "epsilon": 0.00001,
+        "mechanism": "layer_norm"
+      }
+    },
+    {
+      "node_id": "block1_attention",
+      "kind": "attention",
+      "input_shapes": [
+        [
+          "Batch",
+          "Time",
+          16
+        ]
+      ],
+      "output_shape": [
+        "Batch",
+        "Time",
+        16
+      ],
+      "attributes": {
+        "bias": false,
+        "causal": true,
+        "heads": 2
+      }
+    },
+    {
+      "node_id": "block1_output",
+      "kind": "algebraic",
+      "input_shapes": [
+        [
+          "Batch",
+          "Time",
+          16
+        ],
+        [
+          "Batch",
+          "Time",
+          16
+        ]
+      ],
+      "output_shape": [
+        "Batch",
+        "Time",
+        16
+      ],
+      "attributes": {
+        "mechanism": "add"
+      }
+    },
+    {
+      "node_id": "block2_norm",
+      "kind": "normalization",
+      "input_shapes": [
+        [
+          "Batch",
+          "Time",
+          16
+        ]
+      ],
+      "output_shape": [
+        "Batch",
+        "Time",
+        16
+      ],
+      "attributes": {
+        "affine": true,
+        "epsilon": 0.00001,
+        "mechanism": "layer_norm"
+      }
+    },
+    {
+      "node_id": "block2_attention",
+      "kind": "attention",
+      "input_shapes": [
+        [
+          "Batch",
+          "Time",
+          16
+        ]
+      ],
+      "output_shape": [
+        "Batch",
+        "Time",
+        16
+      ],
+      "attributes": {
+        "bias": false,
+        "causal": true,
+        "heads": 2
+      }
+    },
+    {
+      "node_id": "block2_output",
+      "kind": "algebraic",
+      "input_shapes": [
+        [
+          "Batch",
+          "Time",
+          16
+        ],
+        [
+          "Batch",
+          "Time",
+          16
+        ]
+      ],
+      "output_shape": [
+        "Batch",
+        "Time",
+        16
+      ],
+      "attributes": {
+        "mechanism": "add"
+      }
+    },
+    {
+      "node_id": "final_norm",
+      "kind": "normalization",
+      "input_shapes": [
+        [
+          "Batch",
+          "Time",
+          16
+        ]
+      ],
+      "output_shape": [
+        "Batch",
+        "Time",
+        16
+      ],
+      "attributes": {
+        "affine": true,
+        "epsilon": 0.00001,
+        "mechanism": "layer_norm"
+      }
+    },
+    {
+      "node_id": "readout",
+      "kind": "readout",
+      "input_shapes": [
+        [
+          "Batch",
+          "Time",
+          16
+        ]
+      ],
+      "output_shape": [
+        "Batch",
+        "Time",
+        15
+      ],
+      "attributes": {
+        "bias": false,
+        "tie_embedding": "token_embedding",
+        "vocab": 15
+      }
+    }
+  ],
+  "edges": [
+    {
+      "source": "tokens",
+      "target": "token_embedding",
+      "target_port": 0,
+      "kind": "data"
+    },
+    {
+      "source": "token_embedding",
+      "target": "position",
+      "target_port": 0,
+      "kind": "data"
+    },
+    {
+      "source": "position",
+      "target": "block1_norm",
+      "target_port": 0,
+      "kind": "data"
+    },
+    {
+      "source": "block1_norm",
+      "target": "block1_attention",
+      "target_port": 0,
+      "kind": "data"
+    },
+    {
+      "source": "position",
+      "target": "block1_output",
+      "target_port": 0,
+      "kind": "residual"
+    },
+    {
+      "source": "block1_attention",
+      "target": "block1_output",
+      "target_port": 1,
+      "kind": "data"
+    },
+    {
+      "source": "block1_output",
+      "target": "block2_norm",
+      "target_port": 0,
+      "kind": "data"
+    },
+    {
+      "source": "block2_norm",
+      "target": "block2_attention",
+      "target_port": 0,
+      "kind": "data"
+    },
+    {
+      "source": "block1_output",
+      "target": "block2_output",
+      "target_port": 0,
+      "kind": "residual"
+    },
+    {
+      "source": "block2_attention",
+      "target": "block2_output",
+      "target_port": 1,
+      "kind": "data"
+    },
+    {
+      "source": "block2_output",
+      "target": "final_norm",
+      "target_port": 0,
+      "kind": "data"
+    },
+    {
+      "source": "final_norm",
+      "target": "readout",
+      "target_port": 0,
+      "kind": "data"
+    }
+  ],
+  "metadata": {
+    "architecture": "two-layer pre-normalized attention-only causal decoder with sinusoidal positions",
+    "author": "anadim, declarative experiment wrapper",
+    "max_sequence_length": 35,
+    "mechanism_hypothesis": "Fixed sinusoidal positions can expose stable digit-distance structure while eliminating learned positional parameters.",
+    "name": "Sinusoidal Attention-Only AdderBoard Decoder",
+    "parameter_count_role": "constrained_search_objective",
+    "tokenization": "digit_reversed_output",
+    "tricks": [
+      "reversed output digits",
+      "autoregressive carry propagation"
+    ],
+    "vocab_size": 15,
+    "research_current_explanation": "The zero-accuracy public record provides no evidence that learned absolute positional vectors help addition. They may spend capacity memorizing positions rather than encoding reusable digit distances.",
+    "research_evidence": "The current visible record executed successfully and was eligible, but public accuracy was 0.0. Its result does not isolate or support learned positional parameters.",
+    "research_next_experiment": "Replace only the learned positional mechanism with a parameter-free sinusoidal mechanism while preserving width, attention topology, residual algebra, normalization, and tied readout.",
+    "research_expected_result": "The graph should remain eligible with fewer trusted parameters, and stable positional phases may produce non-worse or improved public accuracy.",
+    "research_decision_rule": "Retain the sinusoidal mechanism if eligibility is preserved and trusted parameter count decreases; apply public accuracy only when comparing architectures with equal trusted size.",
+    "research_previous_interpretation": "The previous direction removed unsupported feed-forward parameters, but its evidence did not establish that learned positional parameters were necessary.",
+    "research_previous_changed": "yes",
+    "research_challenged_assumption": "Learned absolute positional embeddings are needed to represent digit alignment and carry distance in this short autoregressive task.",
+    "research_alternative_explanation": "Fixed sinusoidal phases may provide sufficient ordinal and distance information while avoiding position-specific parameters that receive sparse or unstable training signals.",
+    "research_discriminating_evidence": "Preserved eligibility with lower parameter count and non-worse accuracy would favor fixed positions; loss of eligibility or a decisive accuracy decrease would favor learned positional embeddings."
+  }
+}

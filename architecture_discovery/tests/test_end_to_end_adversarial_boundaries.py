@@ -39,6 +39,7 @@ def _search_record() -> SearchEvaluationRecord:
         public_accuracy=0.8,
         search_score=0.8,
         eligible_for_parent=True,
+        parameter_count_metadata=6_080,
     )
 
 

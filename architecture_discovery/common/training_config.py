@@ -343,6 +343,34 @@ SMOKE_TRAIN_CUDA_V2 = TrainingProfile(
     cublas_workspace_config=":4096:8",
 )
 
+# Non-scientific training budget used to compare proposal trajectories.  Unlike
+# the ten-step plumbing smoke above, this gives every valid architecture the
+# same substantive optimization budget used by the standalone 5k follow-up.
+TRAJECTORY_TRAIN_CUDA_V2 = TrainingProfile(
+    name="trajectory_train_cuda_v2",
+    version="2",
+    max_steps=5_000,
+    global_batch_size=512,
+    microbatch_size=None,
+    gradient_accumulation_steps=1,
+    peak_learning_rate=0.001,
+    adamw_betas=(0.9, 0.98),
+    weight_decay=0.1,
+    warmup_steps=300,
+    scheduler="cosine_decay_to_zero",
+    gradient_clip_norm=1.0,
+    validation_interval=500,
+    validation_examples=1_000,
+    checkpoint_interval=500,
+    maximum_wall_seconds=1_800,
+    dtype="float32",
+    deterministic_algorithms=True,
+    device_requirement="cuda",
+    accelerator_memory_fraction=None,
+    scientific=False,
+    cublas_workspace_config=":4096:8",
+)
+
 # Deliberately tiny CUDA-only profile for the exploratory Modal lane.  This is
 # useful for plumbing and hypothesis generation, but it is never a scientific
 # ranking profile and must not be used to unlock the formal study gates.
@@ -376,8 +404,17 @@ PROFILES = {
     SMOKE_TRAIN_V1.name: SMOKE_TRAIN_V1,
     FULL_TRAIN_CUDA_V2.name: FULL_TRAIN_CUDA_V2,
     SMOKE_TRAIN_CUDA_V2.name: SMOKE_TRAIN_CUDA_V2,
+    TRAJECTORY_TRAIN_CUDA_V2.name: TRAJECTORY_TRAIN_CUDA_V2,
     EXPLORATORY_TRAIN_CUDA_V2.name: EXPLORATORY_TRAIN_CUDA_V2,
 }
+
+DEFAULT_ENGINEERING_TRAINING_PROFILE = SMOKE_TRAIN_CUDA_V2.name
+ENGINEERING_TRAINING_PROFILE_NAMES = frozenset(
+    {
+        SMOKE_TRAIN_CUDA_V2.name,
+        TRAJECTORY_TRAIN_CUDA_V2.name,
+    }
+)
 
 
 def get_training_profile(name: str) -> TrainingProfile:

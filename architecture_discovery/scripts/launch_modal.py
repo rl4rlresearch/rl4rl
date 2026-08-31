@@ -591,19 +591,17 @@ class _ModalLocalContainmentBinding:
             self.machine_identity_provider(),
         ) != self.machine_binding_sha256:
             raise ValueError("local host anchor belongs to another machine")
-        current = _validated_boot_started_at_unix_microseconds(
-            self.boot_session_provider()
-        )
-        if _boot_started_at_unix_second(current) != _boot_started_at_unix_second(
-            self.boot_started_at_unix_microseconds
-        ):
-            raise ValueError("local boot-start time changed during Modal launch")
+        _validated_boot_started_at_unix_microseconds(self.boot_session_provider())
         current_session_sha256 = _local_boot_session_sha256(
             self.host_anchor_sha256,
             self.boot_identity_provider(),
         )
         if current_session_sha256 != self.boot_session_sha256:
             raise ValueError("local OS boot identity changed during Modal launch")
+        # ``kern.boottime`` is wall-clock-derived on Darwin and may move even
+        # at whole-second precision after a clock correction.  The kernel boot
+        # UUID is the session invariant; the validated timestamp is retained
+        # as supporting evidence and for ordering genuinely different UUIDs.
 
     def close(self) -> None:
         self.anchor.close()
@@ -1854,8 +1852,9 @@ def modal_local_boot_session_relation(
         identity_provider(),
     )
     if current_session_sha256 == local_boot_session_sha256:
-        if current_start_second != recorded_start_second:
-            raise ValueError("same OS boot identity has a changed start time")
+        # The boot UUID is authoritative for equality.  Darwin can adjust the
+        # wall-clock-derived ``kern.boottime`` by a whole second without
+        # rebooting, so an exact timestamp comparison creates false reboots.
         return "same_boot_session"
     if current_start_second <= recorded_start_second:
         raise ValueError("changed OS boot identity does not have a later start time")

@@ -411,7 +411,7 @@ def training_manifest(
         # Backward-compatible name retained for existing evidence readers.  It
         # now identifies the complete named set above, not an opaque file concat.
         "controller_source_hash": trusted_set_hash,
-        "parameter_count_role": "descriptive_metadata_only",
+        "parameter_count_role": "constrained_search_objective",
         "development_only_checkpoint_selection": profile.checkpoint_selection_rule,
         "scientific_limitations": (
             []

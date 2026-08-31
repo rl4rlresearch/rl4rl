@@ -207,6 +207,7 @@ CONTROLLER_SEARCH_FIELDS = frozenset(
         "public_accuracy",
         "search_score",
         "eligible_for_parent",
+        "parameter_count_metadata",
         "failure_stage",
         "infrastructure_failure",
         "online_descriptor_codes",
@@ -232,6 +233,7 @@ class ControllerSearchView:
     failure_stage: str
     infrastructure_failure: bool
     online_descriptor_codes: tuple[tuple[str, float], ...]
+    parameter_count_metadata: int
 
     def as_dict(self) -> Mapping[str, Any]:
         payload = asdict(self)
@@ -277,6 +279,10 @@ class SearchEvaluationRecord:
             raise ValueError(
                 "only successfully executed, transformer-valid candidates are eligible"
             )
+        if self.eligible_for_parent is True and self.parameter_count_metadata < 1:
+            raise ValueError(
+                "eligible candidates require a positive trusted parameter count"
+            )
         _metric_pairs(self.online_descriptor_codes, "online descriptor")
         for artifact in self.public_artifacts:
             artifact.validate(expected_layer=EvaluationLayer.SEARCH)
@@ -301,6 +307,7 @@ class SearchEvaluationRecord:
             failure_stage=self.failure_stage,
             infrastructure_failure=self.infrastructure_failure,
             online_descriptor_codes=self.online_descriptor_codes,
+            parameter_count_metadata=self.parameter_count_metadata,
         )
 
     def to_dict(self) -> dict[str, Any]:

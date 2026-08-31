@@ -7,14 +7,19 @@ from dataclasses import dataclass
 
 EVOLUTION_ACTION = "evolve"
 EVOLUTION_FUNCTION_NAME = "evolution_run"
-EVOLUTION_MAX_ITERATIONS = 345
+EVOLUTION_MAX_ITERATIONS = 40
 EVOLUTION_INPUT_BYTES_PER_REQUEST = 1_048_576
 EVOLUTION_COMPLETION_TOKENS_PER_REQUEST = 16_384
 EVOLUTION_PROVIDER_TIMEOUT_SECONDS = 180
-EVOLUTION_TRAINING_TIMEOUT_SECONDS = 60
+# One seed/proposal evaluation may use the complete 5,000-step trajectory
+# profile.  The per-run horizon is capped so the conservative sequential bound
+# still fits Modal's 24-hour Function limit.
+EVOLUTION_TRAINING_TIMEOUT_SECONDS = 1_800
 EVOLUTION_FINALIZATION_RESERVE_SECONDS = 300
 EVOLUTION_IMAGE_BUILD_TIMEOUT_SECONDS = 600
 EVOLUTION_CLI_RESERVE_SECONDS = 300
+EVOLUTION_PROCESS_TOKEN_SEPARATOR = "--process-v1-"
+EVOLUTION_MAX_PROCESS_PAYLOAD_CHARS = 196_608
 
 EVOLUTION_HARNESSES = (
     "greedy_autoresearch",
@@ -28,15 +33,17 @@ EVOLUTION_ENGINE_ALIASES = {
     "openevolve": "openevolve_generic",
     "semantic-openevolve": "openevolve_semantic",
 }
-_SPEC = re.compile(
+_BASE_SPEC = re.compile(
     rf"\A({'|'.join(re.escape(item) for item in EVOLUTION_HARNESSES)})-n([1-9][0-9]*)\Z"
 )
+_PROCESS_PAYLOAD = re.compile(r"\A[A-Za-z0-9_-]+\Z")
 
 
 @dataclass(frozen=True, slots=True)
 class EvolutionRunSpec:
     harness: str
     iterations: int
+    process_payload: str | None = None
 
     def __post_init__(self) -> None:
         if self.harness not in EVOLUTION_HARNESSES:
@@ -49,14 +56,32 @@ class EvolutionRunSpec:
             raise ValueError(
                 f"iterations must be between 1 and {EVOLUTION_MAX_ITERATIONS}"
             )
+        if self.process_payload is not None:
+            if (
+                not isinstance(self.process_payload, str)
+                or not self.process_payload
+                or len(self.process_payload) > EVOLUTION_MAX_PROCESS_PAYLOAD_CHARS
+                or _PROCESS_PAYLOAD.fullmatch(self.process_payload) is None
+            ):
+                raise ValueError("evolution process payload is invalid or too large")
 
     @property
-    def token(self) -> str:
+    def base_token(self) -> str:
         return f"{self.harness}-n{self.iterations}"
 
     @property
+    def token(self) -> str:
+        if self.process_payload is None:
+            return self.base_token
+        return (
+            self.base_token
+            + EVOLUTION_PROCESS_TOKEN_SEPARATOR
+            + self.process_payload
+        )
+
+    @property
     def controller_timeout_seconds(self) -> int:
-        # One initial smoke evaluation, then one provider request and one smoke
+        # One initial 5k evaluation, then one provider request and one 5k
         # evaluation per opportunity. Reserve at least one minute plus nine
         # seconds per opportunity for controller bookkeeping.
         return (
@@ -88,10 +113,19 @@ class EvolutionRunSpec:
     def parse(cls, token: str) -> "EvolutionRunSpec":
         if not isinstance(token, str):
             raise TypeError("evolution spec must be text")
-        match = _SPEC.fullmatch(token)
+        base, separator, process_payload = token.partition(
+            EVOLUTION_PROCESS_TOKEN_SEPARATOR
+        )
+        match = _BASE_SPEC.fullmatch(base)
         if match is None:
             raise ValueError("evolution spec must be <harness>-n<iterations>")
-        return cls(match.group(1), int(match.group(2)))
+        if separator and not process_payload:
+            raise ValueError("evolution process payload is empty")
+        return cls(
+            match.group(1),
+            int(match.group(2)),
+            process_payload if separator else None,
+        )
 
     @classmethod
     def from_cli(cls, engine: str, iterations: int) -> "EvolutionRunSpec":
@@ -100,3 +134,8 @@ class EvolutionRunSpec:
         except KeyError as error:
             raise ValueError("evolution engine alias is unsupported") from error
         return cls(harness, iterations)
+
+    def with_process_payload(self, payload: str) -> "EvolutionRunSpec":
+        if self.process_payload is not None:
+            raise ValueError("evolution process payload is already attached")
+        return EvolutionRunSpec(self.harness, self.iterations, payload)

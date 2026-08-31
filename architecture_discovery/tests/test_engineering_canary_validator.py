@@ -19,6 +19,12 @@ from common.gpt56_sol import (
     GPT56SolProfile,
     resolve_provider_endpoint,
 )
+from common.evolution_run import (
+    EVOLUTION_COMPLETION_TOKENS_PER_REQUEST,
+    EVOLUTION_FUNCTION_NAME,
+    EVOLUTION_INPUT_BYTES_PER_REQUEST,
+    EvolutionRunSpec,
+)
 from common.provider_attempts import (
     PROVIDER_ATTEMPT_LEDGER_FILENAME,
     PROVIDER_ATTEMPT_SCHEMA,
@@ -62,6 +68,8 @@ from modal_boundary import (
 )
 from scripts.validate_engineering_canaries import (
     _MODAL_CANARY_GENERATOR_CONTRACT,
+    _validate_private_canary_tree,
+    _validate_modal_canary_generator,
     HARNESSES,
     MAX_FAKE_RESPONSE_BYTES,
     DeterministicFakeProvider,
@@ -74,6 +82,7 @@ from scripts.validate_engineering_canaries import (
     validate_existing_mps_smoke,
     validate_private_canary_staging,
 )
+from scripts.validate_evolution_run import validate_private_evolution_staging
 from scripts.validate_engineering_canaries import (
     main as validator_main,
 )
@@ -91,6 +100,26 @@ def _write_json(path: Path, payload: dict) -> None:
         json.dumps(payload, indent=2, sort_keys=True) + "\n",
         encoding="utf-8",
     )
+
+
+def test_private_canary_tree_accepts_empty_research_decision_ledger(
+    tmp_path: Path,
+) -> None:
+    controller = tmp_path / "controller"
+    decisions = controller / "research_process" / "decisions.jsonl"
+    decisions.parent.mkdir(parents=True)
+    decisions.write_bytes(b"")
+
+    assert _validate_private_canary_tree(controller) == (1, 0)
+
+
+def test_private_canary_tree_rejects_other_empty_files(tmp_path: Path) -> None:
+    controller = tmp_path / "controller"
+    controller.mkdir()
+    (controller / "lineage.jsonl").write_bytes(b"")
+
+    with pytest.raises(ValueError, match="publication byte cap"):
+        _validate_private_canary_tree(controller)
 
 
 def _selector_identity(
@@ -245,7 +274,7 @@ def _synthetic_mps_smoke(project: Path, tmp_path: Path) -> Path:
         "profile_hash": SMOKE_TRAIN_V1.profile_hash,
         "requested_device": "mps",
         "selected_device": "mps",
-        "parameter_count_role": "descriptive_metadata_only",
+        "parameter_count_role": "constrained_search_objective",
         "isolation_level": "engineering_only_or_scientific_gate_blocked",
         "runtime": {
             "mps_built": True,
@@ -337,7 +366,7 @@ def _synthetic_pre_ir_mps_smoke(project: Path, tmp_path: Path) -> Path:
         "profile_hash": SMOKE_TRAIN_V1.profile_hash,
         "requested_device": "mps",
         "selected_device": "mps",
-        "parameter_count_role": "descriptive_metadata_only",
+        "parameter_count_role": "constrained_search_objective",
         "isolation_level": "engineering_only_or_scientific_gate_blocked",
         "runtime": {
             "mps_built": True,
@@ -749,7 +778,15 @@ def _synthetic_modal_canary_bundle(
                     "max_ir_bytes": 40_000,
                     "run_mode": "engineering_pilot",
                     "exploratory_only": True,
-                    "selection_semantics": "mechanics_only_transformer_validity",
+                    "selection_semantics": (
+                        "eligibility_then_minimum_parameter_count"
+                        if harness == "greedy_autoresearch"
+                        else "semantic_coverage_then_minimum_parameter_count"
+                    ),
+                    "optimization_objective": {
+                        "primary_constraint": "public_parent_eligibility",
+                        "architecture_uniqueness": "run_wide_executable_hash_gate",
+                    },
                     "prompt_protocol": {},
                     "preflight": {},
                     "evidence_scope": "secondary_native_replication",
@@ -758,16 +795,17 @@ def _synthetic_modal_canary_bundle(
             if harness == "greedy_autoresearch":
                 run_manifest["greedy_retention"] = {
                     "requires_parent_eligibility": True,
-                    "rejects_search_score_regressions": True,
+                    "prefers_smaller_eligible_candidates": True,
+                    "accuracy_breaks_equal_size_ties": True,
                     "accept_valid_plateau_moves": True,
                 }
             else:
                 run_manifest["semantic_archive"] = {
                     "axes": [],
-                    "parent_policy": "least_used_cell_then_accuracy",
-                    "novelty_role": "exploratory_coverage_tiebreak_only",
+                    "parent_policy": "least_used_cell_then_minimum_parameter_count",
+                    "novelty_role": "unique_semantic_coverage_within_accuracy_constraint",
                     "scientific_novelty_claim": False,
-                    "parameter_count_role": "descriptive_metadata_only",
+                    "parameter_count_role": "within_cell_optimization_objective",
                 }
             summary = {
                 "schema_name": "ControllerRunSummary",
@@ -806,6 +844,13 @@ def _synthetic_modal_canary_bundle(
                     "generated_python_execution": False,
                     "containment_bypass": False,
                     "parent_relative_architecture_change_required": True,
+                    "optimization_objective": {
+                        "primary_constraint": "public_parent_eligibility",
+                        "primary_objective_after_eligibility": "minimize_parameter_count",
+                        "tie_breaker": "public_search_score",
+                        "architecture_uniqueness": "run_wide_executable_hash_gate",
+                        "semantic_coverage": harness == "openevolve_semantic",
+                    },
                     "proposal_terminal_ledger": "proposal_terminal_outcomes.jsonl",
                     "evidence_scope": "exploratory_engineering_pilot",
                     "eligibility_threshold": 0.0,
@@ -1633,7 +1678,7 @@ def _synthetic_private_semantic_canary(
             "schema_version": "2.0",
             "axes": axes,
             "coverage_cells": 1,
-            "novelty_role": "exploratory_coverage_tiebreak_only",
+            "novelty_role": "unique_semantic_coverage_within_accuracy_constraint",
             "scientific_novelty_claim": False,
             "cells": [
                 {
@@ -1644,6 +1689,7 @@ def _synthetic_private_semantic_canary(
                     "source_path": "artifacts/0000_seed.ir.json",
                     "search_score": 0.5,
                     "public_accuracy": 0.5,
+                    "parameter_count_metadata": 6_080,
                     "discovered_opportunity": 0,
                     "parent_uses": 1,
                 }
@@ -2856,6 +2902,140 @@ def test_modal_canary_controller_configs_emit_the_frozen_generator_contract(
     }
 
     assert emitted_contract == _MODAL_CANARY_GENERATOR_CONTRACT
+
+
+def test_modal_evolution_generator_requires_frozen_controller_configuration() -> None:
+    generator = {
+        **_MODAL_CANARY_GENERATOR_CONTRACT,
+        "request_settings_source": "frozen_controller_configuration",
+    }
+
+    _validate_modal_canary_generator(
+        generator,
+        request_settings_source="frozen_controller_configuration",
+    )
+    with pytest.raises(ValueError, match="request_settings_source differs"):
+        _validate_modal_canary_generator(generator)
+
+
+def test_private_evolution_staging_accepts_controller_provider_action(
+    tmp_path: Path,
+) -> None:
+    project = _project_fixture(tmp_path)
+    candidate = _synthetic_cuda_smoke(project, tmp_path)
+    controller = tmp_path / "evolution-controller"
+    stored_candidate = controller / "candidate_training" / "seed"
+    shutil.copytree(candidate, stored_candidate)
+
+    context = ExecutionContextV1(
+        execution_backend="modal",
+        run_id="evolution-action-run",
+        app_name=APP_NAME,
+        function_name=EVOLUTION_FUNCTION_NAME,
+        modal_app_id="ap-evolution",
+        modal_function_id="fu-evolution",
+        modal_call_id="fc-evolution",
+        modal_image_id="im-evolution",
+        image_source_sha256="a" * 64,
+        artifact_uri=volume_artifact_uri("evolution-action-run"),
+    )
+    training_manifest_path = stored_candidate / "training_manifest.json"
+    training_manifest_payload = json.loads(training_manifest_path.read_text())
+    training_manifest_payload["execution_context"] = context.to_dict()
+    _write_json(training_manifest_path, training_manifest_payload)
+
+    spec = EvolutionRunSpec("openevolve_generic", 1)
+    controller_run_id = "controller-evolution-1"
+    _write_json(
+        controller / "run_manifest.json",
+        {
+            "run_id": controller_run_id,
+            "condition": spec.harness,
+            "modal_evolution_run": True,
+            "provider_input_bytes_per_request_ceiling": (
+                EVOLUTION_INPUT_BYTES_PER_REQUEST
+            ),
+            "candidate_budget": 2,
+            "mutation_budget": 1,
+            "maximum_provider_attempts": 1,
+            "candidate_training_budget": 2,
+            "authoritative_scientific_evidence": False,
+            "training": {
+                "profile": "smoke_train_cuda_v2",
+                "device": "cuda",
+                "allow_cpu_for_tests": False,
+            },
+            "evaluation": {
+                "profile": "smoke_eval_v1",
+                "case_count": 24,
+                "scientific": False,
+            },
+            "generator": {
+                **_MODAL_CANARY_GENERATOR_CONTRACT,
+                "request_settings_source": "frozen_controller_configuration",
+            },
+            "engineering_pilot": True,
+            "proposal_opportunities": 1,
+        },
+    )
+    _write_json(
+        controller / "run_result.json",
+        {
+            "run_id": controller_run_id,
+            "condition": spec.harness,
+            "completed": True,
+            "proposal_opportunities_requested": 1,
+            "proposal_opportunities_completed": 1,
+            "proposal_accounting_errors": [],
+            "failure_stage": "",
+        },
+    )
+    record = ProviderAttemptRecord(
+        schema_name=ProviderAttemptRecord.SCHEMA_NAME,
+        schema_version=ProviderAttemptRecord.SCHEMA_VERSION,
+        harness=spec.harness,
+        action=EVOLUTION_FUNCTION_NAME,
+        controller_run_id=controller_run_id,
+        execution_backend="modal",
+        action_run_id=context.run_id,
+        modal_call_id=context.modal_call_id,
+        attempt_ordinal=1,
+        started_at_utc="2026-08-21T00:00:00.000000Z",
+        ended_at_utc="2026-08-21T00:00:01.000000Z",
+        status="success",
+        api_endpoint=OFFICIAL_OPENAI_API_BASE,
+        model=TARGET_MODEL,
+        generation_settings_sha256=generation_settings_sha256(
+            {
+                "model": TARGET_MODEL,
+                "max_completion_tokens": (
+                    EVOLUTION_COMPLETION_TOKENS_PER_REQUEST
+                ),
+                "reasoning_effort": "high",
+                "seed": 1,
+            }
+        ),
+        provider_response_id="chatcmpl-evolution",
+        provider_request_id="req-evolution",
+        usage_known=True,
+        input_tokens=100,
+        output_tokens=100,
+        total_tokens=200,
+        error_class=None,
+    )
+    (controller / PROVIDER_ATTEMPT_LEDGER_FILENAME).write_text(
+        json.dumps(record.to_dict(), sort_keys=True, separators=(",", ":")) + "\n",
+        encoding="utf-8",
+    )
+
+    result = validate_private_evolution_staging(
+        controller,
+        spec=spec,
+        execution_context=context,
+    )
+
+    assert result["valid"] is True
+    assert result["provider_attempt_count"] == 1
 
 
 def test_downloaded_modal_canary_bundle_accepts_one_retried_attempt(tmp_path):

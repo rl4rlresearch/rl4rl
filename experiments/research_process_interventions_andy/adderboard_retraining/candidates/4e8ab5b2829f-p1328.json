@@ -1,0 +1,164 @@
+{
+  "schema_name": "architecture_tensor_graph",
+  "schema_version": "1.0",
+  "graph_id": "single_attention_carry_decoder_v1",
+  "input_node_id": "tokens",
+  "output_node_id": "readout",
+  "nodes": [
+    {
+      "node_id": "tokens",
+      "kind": "input",
+      "input_shapes": [],
+      "output_shape": ["Batch", "Time"],
+      "attributes": {}
+    },
+    {
+      "node_id": "token_embedding",
+      "kind": "token_embedding",
+      "input_shapes": [["Batch", "Time"]],
+      "output_shape": ["Batch", "Time", 16],
+      "attributes": {
+        "vocab": 15
+      }
+    },
+    {
+      "node_id": "position",
+      "kind": "positional",
+      "input_shapes": [["Batch", "Time", 16]],
+      "output_shape": ["Batch", "Time", 16],
+      "attributes": {
+        "mechanism": "sinusoidal"
+      }
+    },
+    {
+      "node_id": "attention_norm",
+      "kind": "normalization",
+      "input_shapes": [["Batch", "Time", 16]],
+      "output_shape": ["Batch", "Time", 16],
+      "attributes": {
+        "affine": true,
+        "epsilon": 0.00001,
+        "mechanism": "layer_norm"
+      }
+    },
+    {
+      "node_id": "causal_attention",
+      "kind": "attention",
+      "input_shapes": [["Batch", "Time", 16]],
+      "output_shape": ["Batch", "Time", 16],
+      "attributes": {
+        "bias": false,
+        "causal": true,
+        "heads": 2
+      }
+    },
+    {
+      "node_id": "attention_output",
+      "kind": "algebraic",
+      "input_shapes": [
+        ["Batch", "Time", 16],
+        ["Batch", "Time", 16]
+      ],
+      "output_shape": ["Batch", "Time", 16],
+      "attributes": {
+        "mechanism": "add"
+      }
+    },
+    {
+      "node_id": "final_norm",
+      "kind": "normalization",
+      "input_shapes": [["Batch", "Time", 16]],
+      "output_shape": ["Batch", "Time", 16],
+      "attributes": {
+        "affine": true,
+        "epsilon": 0.00001,
+        "mechanism": "layer_norm"
+      }
+    },
+    {
+      "node_id": "readout",
+      "kind": "readout",
+      "input_shapes": [["Batch", "Time", 16]],
+      "output_shape": ["Batch", "Time", 15],
+      "attributes": {
+        "bias": false,
+        "tie_embedding": "token_embedding",
+        "vocab": 15
+      }
+    }
+  ],
+  "edges": [
+    {
+      "source": "tokens",
+      "target": "token_embedding",
+      "target_port": 0,
+      "kind": "data"
+    },
+    {
+      "source": "token_embedding",
+      "target": "position",
+      "target_port": 0,
+      "kind": "data"
+    },
+    {
+      "source": "position",
+      "target": "attention_norm",
+      "target_port": 0,
+      "kind": "data"
+    },
+    {
+      "source": "attention_norm",
+      "target": "causal_attention",
+      "target_port": 0,
+      "kind": "data"
+    },
+    {
+      "source": "position",
+      "target": "attention_output",
+      "target_port": 0,
+      "kind": "residual"
+    },
+    {
+      "source": "causal_attention",
+      "target": "attention_output",
+      "target_port": 1,
+      "kind": "data"
+    },
+    {
+      "source": "attention_output",
+      "target": "final_norm",
+      "target_port": 0,
+      "kind": "data"
+    },
+    {
+      "source": "final_norm",
+      "target": "readout",
+      "target_port": 0,
+      "kind": "data"
+    }
+  ],
+  "metadata": {
+    "architecture": "single-layer pre-normalized attention-only causal decoder",
+    "author": "anadim, declarative experiment wrapper",
+    "max_sequence_length": 35,
+    "mechanism_hypothesis": "One full-prefix causal attention stage may route carry information directly, making the second attention stage redundant.",
+    "name": "Single-Attention Carry Decoder",
+    "parameter_count_role": "constrained_search_objective",
+    "tokenization": "digit_reversed_output",
+    "tricks": [
+      "reversed output digits",
+      "autoregressive carry propagation"
+    ],
+    "vocab_size": 15,
+    "research_current_explanation": "Each causal attention operation can access the complete available prefix, so the second attention stage may duplicate routing capacity while adding optimization burden.",
+    "research_evidence": "The two-stage attention-only parent was eligible, but visible public evidence reported zero accuracy and therefore did not establish a benefit from its second stage.",
+    "research_next_experiment": "Remove the second normalization, causal attention, and residual stage while preserving width, heads, positional encoding, tied readout, and the first attention stage.",
+    "research_expected_result": "The single-stage graph should preserve eligibility with fewer parameters; equal or higher public accuracy would indicate that the removed stage was unnecessary.",
+    "research_decision_rule": "Retain the single-stage design if eligibility is preserved and trusted parameter count decreases; at an exact size tie, prefer higher public accuracy.",
+    "research_previous_interpretation": "The attention-only parent showed that feed-forward branches were not required for eligibility, but its zero public accuracy provided no evidence that two sequential attention stages were useful.",
+    "research_previous_changed": "yes",
+    "research_challenged_assumption": "The current direction assumes that carry propagation requires two sequential causal attention transformations rather than one direct full-prefix routing operation.",
+    "research_alternative_explanation": "A single causal attention stage may directly retrieve the relevant prior digit and carry context, with the second stage only increasing parameters and optimization depth.",
+    "research_discriminating_evidence": "Preserved eligibility with equal or better accuracy and fewer parameters favors direct single-stage routing; lost eligibility or lower accuracy favors the two-stage carry-composition explanation."
+  }
+}

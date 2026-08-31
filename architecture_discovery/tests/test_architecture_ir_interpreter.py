@@ -156,7 +156,7 @@ def test_initial_ir_builds_equivalent_conventional_decoder_on_cpu():
     assert candidate.graph is validation.graph or candidate.graph.graph_hash == validation.graph_hash
     assert candidate.validation.valid
     assert candidate.metadata["parameter_count"] == 6080
-    assert candidate.metadata["parameter_count_role"] == "descriptive_metadata_only"
+    assert candidate.metadata["parameter_count_role"] == "constrained_search_objective"
     assert candidate.metadata["execution_provenance"] == "trusted_ir_interpreter"
     assert (
         candidate.metadata["architecture_ir_architecture_hash_schema"]

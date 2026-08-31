@@ -200,6 +200,7 @@ IMAGE_SOURCE_DIRECTORIES = (
     "reconstruction",
     "replication",
     "reporting",
+    "research_dynamics",
     "research_ledger",
     "review",
     "sealed_eval",
