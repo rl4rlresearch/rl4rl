@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+# ruff: noqa: E501
 """Build the AISciK-ready Paper 1 PDF in a NeurIPS-like layout."""
 
 from __future__ import annotations
@@ -6,22 +7,21 @@ from __future__ import annotations
 import csv
 import json
 from pathlib import Path
-from typing import Any, Iterable
+from typing import Any
 
 from reportlab.lib import colors
 from reportlab.lib.enums import TA_CENTER, TA_JUSTIFY, TA_LEFT
 from reportlab.lib.pagesizes import letter
 from reportlab.lib.styles import ParagraphStyle, getSampleStyleSheet
 from reportlab.lib.units import inch
-from reportlab.pdfbase.ttfonts import TTFont
 from reportlab.pdfbase import pdfmetrics
+from reportlab.pdfbase.ttfonts import TTFont
 from reportlab.platypus import (
     BaseDocTemplate,
     Flowable,
     Frame,
     HRFlowable,
     Image,
-    KeepTogether,
     PageBreak,
     PageTemplate,
     Paragraph,
@@ -29,7 +29,6 @@ from reportlab.platypus import (
     Table,
     TableStyle,
 )
-
 
 HERE = Path(__file__).resolve().parent
 DERIVED = HERE / "derived"

@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+# ruff: noqa: E501
 """Reproducible Paper 1 audit of the completed Fashion-MNIST campaign.
 
 The script uses only Python's standard library plus NumPy and Matplotlib. It
@@ -24,12 +25,12 @@ import re
 import statistics
 import tokenize
 from collections import Counter, defaultdict
+from collections.abc import Sequence
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Any, Iterable, Sequence
+from typing import Any
 
 import numpy as np
-
 
 HERE = Path(__file__).resolve().parent
 REPO = HERE.parents[2]
@@ -879,7 +880,7 @@ def make_figures(
 
     xs = [float(row["correct_gain"]) for row in runs]
     ys = [float(row["post_accuracy_plateau_token_fraction"]) for row in runs]
-    for row, x, yval in zip(runs, xs, ys):
+    for row, x, yval in zip(runs, xs, ys, strict=True):
         axes[1].scatter(x, yval, color=colors[row["condition"]], s=30, edgecolor="white", linewidth=0.5)
         axes[1].annotate(f"B{row['block']}{row['condition']}", (x, yval), xytext=(3, 2), textcoords="offset points", fontsize=6.5)
     axes[1].set_xlabel("Validation-correct gain over baseline")
