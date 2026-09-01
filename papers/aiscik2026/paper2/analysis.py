@@ -254,6 +254,52 @@ def family_tags(text: str) -> set[str]:
     return {name for name, pattern in FAMILY_PATTERNS.items() if pattern.search(text)}
 
 
+def mechanism_family(text: str) -> str:
+    """Assign one mutually exclusive, interpretable family to a proposal.
+
+    The taxonomy was induced after reading all 64 fork summaries.  Ordering is
+    intentional: a proposal that reuses attention projections as an FFN is
+    coded as projection reuse rather than generic feedforward compression;
+    likewise recurrent depth and token-interface factorization take priority
+    over incidental width language.
+    """
+    lowered = text.lower()
+    if (
+        re.search(r"reus(?:e|ing).*(?:projection|mixer).*(?:feedforward|ffn)", lowered)
+        or re.search(r"(?:feedforward|ffn).*(?:reus(?:e|ing)).*(?:projection|mixer)", lowered)
+    ):
+        return "projection_reuse"
+    if re.search(r"relative[- ](?:offset|distance|position)|remove absolute positional", lowered):
+        return "relative_position_attention"
+    if re.search(
+        r"recurrent|iterative|shared[- ]depth|depth[- ]for[- ]width|"
+        r"appl(?:y|ication|ications).*(?:twice|two)|two full learned causal-attention blocks",
+        lowered,
+    ):
+        return "iterative_or_shared_depth"
+    if re.search(
+        r"lexical|vocabulary|symbol manifold|symbol representation|token (?:code|codebook|interface)|"
+        r"token/input-output|token embedding|embedding/output|tied embedding|rank[- ]?\d+.*(?:token|symbol)|"
+        r"factor(?:ed|ing|iz(?:e|ing)).*(?:token|embedding)",
+        lowered,
+    ):
+        return "token_interface_factorization"
+    if re.search(
+        r"multi[- ]query|shared[- ]key/value|shared key/value|key/value.*shar|shar(?:e|ing).*key/value|"
+        r"narrow routing|routing subspace|attention communication bottleneck|"
+        r"query/key heads?|qkv projection|replacing residual[- ]width attention",
+        lowered,
+    ):
+        return "attention_routing_reparameterization"
+    if re.search(r"layernorm|normalization|pre[- ]normal|bias|affine|offset[- ]free", lowered):
+        return "normalization_or_bias_pruning"
+    if re.search(r"feed[- ]?forward|ffn|nonlinear bottleneck|positionwise nonlinear", lowered):
+        return "feedforward_compression"
+    if re.search(r"(?:residual|model) width|attention heads?", lowered):
+        return "width_or_head_adjustment"
+    return "other"
+
+
 def lexical_novelty(event: dict[str, Any], prior_events: Sequence[dict[str, Any]]) -> float:
     current = words(event_text(event))
     histories = [words(event_text(prior)) for prior in prior_events]
@@ -352,6 +398,10 @@ def event_record(run: Run, event: dict[str, Any]) -> dict[str, Any]:
         "deleted_lines": deleted,
         "declared_lexical_novelty": lexical_novelty(event, prior),
         "family_tags": ";".join(sorted(tags)),
+        # The mechanism field names the proposed computation.  Other fields
+        # often mention preserved incumbent components or prior failures, which
+        # would miscode a feedforward edit as (for example) token factorization.
+        "mechanism_family": mechanism_family(str(event.get("mechanism") or text)),
         "new_family_tag": int(new_family),
         "assumption_language": int(bool(ASSUMPTION_RE.search(text))),
         "mechanism_shift_language": int(bool(MECHANISM_SHIFT_RE.search(text))),
@@ -546,6 +596,38 @@ def safe_float(value: Any) -> float:
         return float(value)
     except (TypeError, ValueError):
         return math.nan
+
+
+def fork_mechanism_summary(
+    records: Sequence[dict[str, Any]],
+) -> list[dict[str, Any]]:
+    output: list[dict[str, Any]] = []
+    for arm, treated in (("ordinary", 0), ("assumption_challenge", 1)):
+        arm_rows = [row for row in records if int(row["treated"]) == treated]
+        families = sorted({str(row["mechanism_family"]) for row in arm_rows})
+        for family in families:
+            rows = [row for row in arm_rows if row["mechanism_family"] == family]
+            reductions = [safe_float(row["immediate_parameter_reduction"]) for row in rows]
+            successful = [value for value in reductions if value > 0]
+            output.append(
+                {
+                    "arm": arm,
+                    "mechanism_family": family,
+                    "n": len(rows),
+                    "share_within_arm": len(rows) / len(arm_rows),
+                    "qualified_rate": mean(row["qualified"] for row in rows),
+                    "successful_update_rate": mean(value > 0 for value in reductions),
+                    "mean_parameter_reduction": mean(reductions),
+                    "median_successful_parameter_reduction": (
+                        statistics.median(successful) if successful else math.nan
+                    ),
+                    "mean_structural_novelty": mean(
+                        safe_float(row["structural_novelty"]) for row in rows
+                    ),
+                    "mean_changed_lines": mean(row["changed_lines"] for row in rows),
+                }
+            )
+    return output
 
 
 def summarize_records(records: Sequence[dict[str, Any]], group_keys: Sequence[str]) -> list[dict[str, Any]]:
@@ -988,6 +1070,7 @@ def write_csv(path: Path, rows: Sequence[dict[str, Any]]) -> None:
 def make_figures(
     records: Sequence[dict[str, Any]],
     fork_effects: Sequence[dict[str, Any]],
+    mechanism_summary: Sequence[dict[str, Any]],
     trajectory_rows: Sequence[dict[str, Any]],
     horizon_rows: Sequence[dict[str, Any]],
     output: Path,
@@ -1134,6 +1217,60 @@ def make_figures(
         fig.savefig(output / f"fig4_horizon_effect.{suffix}", bbox_inches="tight")
     plt.close(fig)
 
+    family_order = [
+        "normalization_or_bias_pruning",
+        "feedforward_compression",
+        "relative_position_attention",
+        "projection_reuse",
+        "iterative_or_shared_depth",
+        "attention_routing_reparameterization",
+        "token_interface_factorization",
+    ]
+    family_labels = [
+        "Normalization / bias pruning",
+        "Feedforward compression",
+        "Relative-position attention",
+        "Cross-sublayer projection reuse",
+        "Iterative / shared depth",
+        "Attention-routing reparameterization",
+        "Token-interface factorization",
+    ]
+    mechanism_map = {
+        (row["arm"], row["mechanism_family"]): int(row["n"])
+        for row in mechanism_summary
+    }
+    y = np.arange(len(family_order))
+    ordinary = [mechanism_map.get(("ordinary", family), 0) for family in family_order]
+    challenged = [
+        mechanism_map.get(("assumption_challenge", family), 0)
+        for family in family_order
+    ]
+    fig, axis = plt.subplots(figsize=(7.3, 3.25))
+    axis.barh(y - 0.18, ordinary, height=0.34, color="#4575b4", label="Ordinary")
+    axis.barh(
+        y + 0.18,
+        challenged,
+        height=0.34,
+        color="#d73027",
+        label="Assumption challenge",
+    )
+    for index, value in enumerate(ordinary):
+        if value:
+            axis.text(value + 0.25, index - 0.18, str(value), va="center", fontsize=8)
+    for index, value in enumerate(challenged):
+        if value:
+            axis.text(value + 0.25, index + 0.18, str(value), va="center", fontsize=8)
+    axis.set_yticks(y, family_labels)
+    axis.set_xlim(0, 20)
+    axis.set_xlabel("Number of matched-fork proposals (32 per arm)")
+    axis.set_title("The prompt redirects local pruning toward alternative computational mechanisms")
+    axis.grid(axis="x", color="#e2e2e2", linewidth=0.6)
+    axis.legend(frameon=False, loc="center right")
+    fig.tight_layout()
+    for suffix in ("png", "pdf"):
+        fig.savefig(output / f"fig5_mechanism_taxonomy.{suffix}", bbox_inches="tight")
+    plt.close(fig)
+
 
 PRIMARY_RUNS: list[Run] = []
 
@@ -1153,6 +1290,7 @@ def analyse(output: Path) -> dict[str, Any]:
     fork_records = [row for row in records if row["opportunity"] == FORK]
     pairs = fork_pair_rows(fork_records)
     fork_effects = paired_effect_summary(pairs)
+    mechanism_summary = fork_mechanism_summary(fork_records)
     trajectory_rows = [
         trajectory_record(run, records, COMMON_HORIZON) for run in PRIMARY_RUNS
     ]
@@ -1170,6 +1308,7 @@ def analyse(output: Path) -> dict[str, Any]:
     write_csv(output / "fork_proposals.csv", fork_records)
     write_csv(output / "fork_pairs.csv", pairs)
     write_csv(output / "fork_effects.csv", fork_effects)
+    write_csv(output / "fork_mechanism_summary.csv", mechanism_summary)
     write_csv(output / "trajectory_summary.csv", trajectory_rows)
     write_csv(output / "trajectory_pairs.csv", trajectory_pair_rows)
     write_csv(output / "trajectory_effects.csv", trajectory_effects)
@@ -1181,7 +1320,14 @@ def analyse(output: Path) -> dict[str, Any]:
     write_csv(output / "fashion_checkpoint_pairs.csv", fashion_pairs)
     write_csv(output / "fashion_effects.csv", fashion_effects)
 
-    make_figures(records, fork_effects, trajectory_rows, horizon_rows, output)
+    make_figures(
+        records,
+        fork_effects,
+        mechanism_summary,
+        trajectory_rows,
+        horizon_rows,
+        output,
+    )
     aggregate = {
         "analysis_seed": SEED,
         "primary_campaigns": [
@@ -1239,6 +1385,14 @@ def analyse(output: Path) -> dict[str, Any]:
                     if float(row["treated_immediate_parameter_reduction"]) > 0
                 ],
             }.items()
+        },
+        "fork_mechanism_counts": {
+            arm: {
+                row["mechanism_family"]: row["n"]
+                for row in mechanism_summary
+                if row["arm"] == arm
+            }
+            for arm in ("ordinary", "assumption_challenge")
         },
         "horizon70_all_effects": {
             row["metric"]: {

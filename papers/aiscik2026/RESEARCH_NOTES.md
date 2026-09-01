@@ -307,3 +307,294 @@ holdout, the corpus cannot determine which improvements generalize.
 - Messeri & Crockett (2024), *Artificial intelligence and illusions of
   understanding in scientific research*, Nature 627:49--58, DOI
   10.1038/s41586-024-07146-0.
+
+## Paper 2 evidence lock (2026-09-01)
+
+Working title: **Can a Prompt Defixate an AI Researcher? State-Matched Forks
+in Autonomous Model Compression.**
+
+Primary research question:
+
+> In autonomous neural-architecture search, does adding an explicit
+> assumption-challenge instruction to an otherwise identical research state
+> increase feasible mechanistic novelty, and what does it cost or gain in
+> qualification, search efficiency, and downstream model compression?
+
+The paper studies an intervention on a research process, not creativity as a
+latent psychological trait and not the quality of private reasoning. All
+language analyses use recorded final proposal messages. "Novel" means new
+relative to the trajectory's recorded history or structurally different from
+the selected parent; it does not mean globally or scientifically unprecedented.
+"Feasible" means that the evaluator reports at least 99% exact accuracy.
+
+### Primary design and integrity gates
+
+Primary campaigns:
+
+- `data/c0c3/unified-v3-tiny-adderboard-greedy-campaign`
+- `data/c0c3/unified-v3-tiny-adderboard-native-campaign`
+
+Each campaign has eight blocks and four conditions. C0/C1 have single-incumbent
+memory; C2/C3 have portfolio memory. C1/C3 receive an assumption-challenge
+direction every tenth opportunity; C0/C2 receive the ordinary direction.
+Within each block, C0/C1 and C2/C3 are literal shared trajectories through
+opportunity 9 and fork at opportunity 10 from the same selected parent. Thus
+the immediate comparison and opportunities 10--19 are state-matched contrasts.
+Repeated-intervention analyses through opportunity 70 compare treatment
+regimes after subsequent path divergence. They are not interpreted as the
+effect of only the first prompt.
+
+The analysis stops at opportunity 70, the largest fully observed horizon for
+all 64 trajectories. Deterministic validation in
+`papers/aiscik2026/paper2/analysis.py` verifies:
+
+- 64 runs and 32 matched control/treatment forks;
+- 288 paired prefix proposal events are identical;
+- 288 prefix candidate sources or recorded provenance fingerprints match;
+- all 32 opportunity-10 selected parents match;
+- all 32 treated prompts differ from controls only by inserted text, and every
+  insertion contains the assumption-challenge direction;
+- 4,480 proposal-completed records and 4,480 final proposal messages are
+  present through the common horizon.
+
+Tiny AdderBoard asks a learned transformer to add two four-digit numbers. The
+qualified objective is at least 99% exact-answer accuracy while minimizing
+deduplicated learned parameters. The baseline has 21,952 parameters. The
+candidate source, evaluator, data generator, integrity checks, and
+attention-dependence test are task-owned. The same GPT-5.6 Sol xhigh subject
+configuration and task/prompt bundle are used across arms. Greedy and native
+OpenEvolve are treated as two architecture strata, not as independent model
+families.
+
+Uncertainty intervals use 10,000 fixed-seed cluster-bootstrap resamples. A
+cluster is architecture x block and contains both single- and portfolio-memory
+pairs; this preserves within-block dependence. Intervals are descriptive
+sensitivity intervals, not randomized-assignment p-values: the protocol used
+matched blocks and exact prefix mirroring, but the condition labels were fixed.
+
+### Operational measures
+
+- Source structural novelty: Jaccard distance between normalized Python token
+  3-grams after identifiers and literals are abstracted.
+- AST distance: multiset distance between Python AST node types.
+- Declared lexical novelty: minimum word-set Jaccard distance between the
+  current recorded proposal summary and earlier summaries in that trajectory.
+- Mechanism-family novelty: whether broad keyword families appear for the first
+  time in the trajectory. This is a transparent lexical proxy, not a validated
+  semantic-creativity instrument.
+- Mechanism-shift and assumption language: predeclared regex indicators.
+- Qualification: at least 99% exact accuracy under the recorded evaluator.
+- Retention/incumbency: recorded controller outcome.
+- Immediate parameter reduction: qualified incumbent parameters immediately
+  before minus immediately after the proposal.
+- Mutually exclusive fork taxonomy: induced after reading all 64 opportunity-10
+  messages, then encoded as a deterministic mechanism-label classifier. The
+  categories are token-interface factorization, attention-routing
+  reparameterization, iterative/shared depth, cross-sublayer projection reuse,
+  relative-position attention, feedforward compression, and
+  normalization/bias pruning. The mechanism field alone is classified because
+  other fields mention preserved incumbent components and prior failures.
+
+No private chain-of-thought is claimed or analyzed. Source and language proxies
+triangulate behavior but do not establish latent cognition. The task, model,
+and benchmark are single cases. Parameter count is not a universal measure of
+scientific value.
+
+### Primary quantitative findings
+
+At the exact opportunity-10 fork (32 pairs):
+
+- Mean normalized source novelty rises from 0.00345 to 0.03418; paired
+  difference +0.03085, cluster-bootstrap 95% interval [0.02161, 0.04278].
+- Mean AST distance rises by 0.03421 [0.02480, 0.04445].
+- Mean changed lines rise from 4.34 to 17.47; +13.13 [11.63, 14.69].
+- Declared lexical novelty rises from 0.540 to 0.810; +0.270 [0.226, 0.319].
+- A new broad family tag appears in 9.4% of controls and 62.5% of treated
+  proposals; +53.1 percentage points [34.4, 71.9].
+- The transparent assumption-language regex fires in 0% versus 87.5%; +87.5
+  points [71.9, 100]. Manual inspection shows that the four regex misses still
+  propose clear structural alternatives, illustrating proxy undercounting.
+- Qualification and retention fall from 50.0% to 40.6%; -9.4 points
+  [-28.1, 9.4]. Qualified structural proposals rise from 28.1% to 40.6%;
+  +12.5 points [-3.1, 28.1].
+- Mean immediate parameter reduction rises from 67.2 to 604.0; +536.8
+  [209.1, 940.9]. Sixteen control and 13 treated proposals improve the
+  incumbent. Conditional on improvement, the control mean/median reduction is
+  134/81 parameters versus 1,487/1,765 for treatment. This conditional
+  magnitude is descriptive and selection-conditioned; the unconditional paired
+  contrast is the primary result.
+- Mean output tokens rise from 1,418 to 3,869; +2,451 [2,026, 2,907]. Total
+  tokens rise by 2,696 [2,266, 3,157], and evaluator time rises by 17.9 seconds
+  [3.0, 33.3].
+
+Mechanism taxonomy at the exact fork:
+
+- Ordinary: 18/32 feedforward compression, 13/32 normalization or bias pruning,
+  and 1/32 attention-routing reparameterization.
+- Assumption challenge: 17/32 token-interface factorization, 9/32 attention
+  routing, 4/32 iterative/shared depth, 1/32 projection reuse, and 1/32
+  relative-position attention.
+- The intervention therefore breaks local width/bias fixation, but it does not
+  generate unconstrained population diversity: 53.1% of treated agents
+  independently converge on token-interface factorization.
+
+In the clean one-intervention phase, opportunities 10--19 (before the second
+treated prompt):
+
+- Mean final incumbent parameters are 5,344 control versus 4,557 treatment;
+  paired difference -786 [-1,271, -345].
+- Parameter-reduction fraction is 7.72% versus 16.03%; +8.31 points
+  [4.37, 12.68].
+- Qualification rate is 57.2% versus 54.1%; -3.13 points [-9.69, 3.13].
+- Mean structural novelty over all ten proposals differs by only +0.00315
+  [-0.00273, 0.00887].
+- Evaluator time is +144 seconds [47, 248]. Output-token difference is +3,124
+  [-123, 6,580].
+
+This pattern supports **punctuated defixation**: the treated fork makes a larger
+architectural move and ordinary follow-ups exploit it. It does not keep every
+subsequent edit structurally novel.
+
+Under the repeated treatment regime through the common horizon 70:
+
+- Mean final incumbent parameters are 4,667 control versus 3,015 treatment;
+  paired difference -1,652 [-2,301, -1,083]. Treatment is lower in 28/32 pairs,
+  control in 4/32, with no ties.
+- Mean reduction fraction is 14.89% versus 35.18%; +20.29 points
+  [15.53, 25.27].
+- Qualification rate is 60.86% versus 51.02%; -9.84 points
+  [-16.50, -2.87].
+- Mean source novelty is 0.0682 versus 0.0647; difference -0.00347
+  [-0.0186, 0.0127]. Declared lexical novelty remains +0.0565
+  [0.0353, 0.0793].
+- Accounted total tokens are essentially unchanged: +5,045 on a 1.68M control
+  mean, interval [-89,197, 90,148]. Evaluator time increases by 1,378 seconds
+  [367, 2,371].
+- Greedy paired final-parameter difference: -843 [-1,427, -407], treatment
+  lower in 14/16. Native difference: -2,461 [-3,611, -1,437], lower in 14/16.
+- Single-memory difference: -2,177 [-3,489, -1,148], treatment lower in 16/16.
+  Portfolio difference: -1,127 [-1,913, -407], lower in 12/16. Portfolio memory
+  already helps ordinary search, plausibly reducing the marginal value of the
+  prompt, but this moderation is exploratory and not a randomized interaction.
+
+The treated-control parameter difference is -537 at opportunity 10, -786 at
+19, -1,013 at 20, -1,326 at 30, and -1,652 at 70. The effect accumulates rather
+than appearing only at the endpoint.
+
+### Qualitative anchors and mechanism lineage
+
+- Greedy B1 single control at opportunity 10 performs a two-line midpoint FFN
+  width test (24 to 22) after a width-20 miss. Its treated twin explicitly
+  separates symbol rank from the supported residual width using a learned
+  rank-8 token manifold. Both fail, demonstrating that novelty is not itself
+  feasibility.
+- Greedy B6 single treatment replaces absolute position vectors with learned
+  relative-offset attention. It qualifies, removes 176 parameters, and its
+  ordinary follow-ups prune normalization, FFN width, and redundant relative
+  biases while retaining the new positional mechanism.
+- Greedy B8 single treatment challenges one-pass wide attention with two
+  narrower learned stages. It qualifies and removes 4,080 parameters at once;
+  ordinary opportunities 12--19 exploit the new architecture to remove another
+  352 parameters. The ordinary twin instead accumulates 160 parameters of
+  normalization/bias micro-pruning over the same phase.
+- Native B2 single treatment shares query and output projections across the
+  attention and FFN sublayers. It qualifies and removes 2,080 parameters, then
+  an ordinary follow-up ties those two projections and removes another 1,024.
+  Later follow-ups prune normalization and attention bias. The ordinary twin
+  remains on FFN-width and bias boundary search.
+- Native B5 portfolio treatment switches to multi-query attention and removes
+  2,904 parameters. Follow-ups reduce width and FFN capacity while retaining
+  shared key/value transport, reaching 6,450 parameters at opportunity 19 from
+  the shared 13,860-parameter fork. Its ordinary twin reaches 11,169.
+- Native B7 single control interpolates FFN width 18 to 16 and saves 50
+  parameters. Its treated twin factors the tied token interface through rank 8,
+  qualifies, and saves 360. This is a compact matched example of local versus
+  mechanism-level search.
+
+All quoted/paraphrased anchors trace to
+`opportunities/0010/codex/proposal-10.last-message.md` and the corresponding
+proposal-completed event/source snapshots. The paper will quote only short
+fragments and provide run/block/opportunity identifiers in the appendix.
+
+### Cross-task descriptive replication
+
+The complete Fashion-MNIST v2.1 campaign contains 20 runs and 4,000 proposals.
+C1/C3 receive the same intervention every tenth opportunity. Unlike Tiny
+AdderBoard, same-block trajectories had already diverged before checkpoints,
+so these are matched descriptive contrasts plus checkpoint-minus-previous-step
+differences, not exact causal forks.
+
+Across 200 matched checkpoints, treated versus ordinary:
+
+- source structural novelty: 0.0640 versus 0.0298, +0.0346;
+- new family tag: 9.0% versus 0.5%, +8.5 points;
+- assumption-language proxy: 78.0% versus 0.5%, +77.5 points;
+- qualification: 31.0% versus 62.0%, -31.0 points;
+- retention: 5.0% versus 36.5%, -31.5 points;
+- output tokens: +3,261.
+
+The checkpoint-versus-prior-opportunity difference-in-differences is +0.0383
+for structural novelty (169 source-available pairs), -31.5 points for
+qualification, -29.5 points for retention, and +2,765 output tokens. The
+original Blocks 1--3 show the same directions with smaller magnitudes than the
+Blocks 4--5 extension. Fashion-MNIST therefore behaviorally replicates the
+novelty/feasibility/token tradeoff, but it does not supply the exact-fork causal
+identification or a clear endpoint benefit.
+
+### Paper 2 related work verified from primary records
+
+- Jansson & Smith (1991), *Design fixation*, Design Studies 12(1):3--11, DOI
+  10.1016/0142-694X(91)90003-F. Defines and experimentally demonstrates blind
+  adherence to limiting concepts in conceptual design.
+- Shinn et al. (2023), *Reflexion: Language Agents with Verbal Reinforcement
+  Learning*, NeurIPS 36, DOI 10.52202/075280-0377. Treats linguistic feedback
+  and episodic memory as a semantic gradient for agent behavior.
+- Mu et al. (2024), *DDPrompt: Differential Diversity Prompting in Large
+  Language Models*, ACL Short Papers:168--174, DOI
+  10.18653/v1/2024.acl-short.17. Uses task-adaptive prompts to generate diverse
+  reasoning paths, but evaluates answer ensembles rather than executable
+  long-horizon scientific search.
+- Tian et al. (2024), *MacGyver: Are Large Language Models Creative Problem
+  Solvers?*, NAACL:5303--5324, DOI 10.18653/v1/2024.naacl-long.297. Finds
+  physically infeasible LLM ideas and tests iterative reflection and
+  divergent-convergent prompting.
+- Lu et al. (2025), *Benchmarking Language Model Creativity: A Case Study on
+  Code Generation*, NAACL Long Paper 141. Introduces denial prompting and
+  NEOGAUGE to jointly assess convergent and divergent code creativity.
+- Li et al. (2025), *DORA: Dynamic Optimization Prompt for Continuous
+  Reflection of LLM-based Agent*, COLING:7546--7557. Identifies "Early Stop
+  Reflection" and uses dynamically diversified reflection advice.
+- Chen & Ding (2023), *Probing the Creativity of Large Language Models*,
+  Findings of EMNLP:12881--12888, DOI 10.18653/v1/2023.findings-emnlp.858.
+  Reports a creativity-stability tradeoff under stochastic prompting.
+- Nakajima, Zuiderveld & Pezzelle (2026), *Beyond Divergent Creativity*,
+  Findings of EACL:2639--2660, DOI 10.18653/v1/2026.findings-eacl.138. Shows
+  that novelty without contextual appropriateness is not a valid creativity
+  measure and motivates the paper's novelty-by-qualification analysis.
+- Ege et al. (2024/2025), *ChatGPT as an inventor*, arXiv:2404.18479 and
+  Artificial Intelligence for Engineering Design, Analysis and Manufacturing.
+  Reports design fixation, premature abandonment, and needless complexity in
+  an LLM-directed engineering prototyping study.
+- Huang et al. (2024), *MLAgentBench: Evaluating Language Agents on Machine
+  Learning Experimentation*, ICML/PMLR 235:20271--20309. Establishes iterative
+  ML experimentation as an agent benchmark and identifies planning and
+  hallucination challenges.
+- Toledo et al. (2025), *AI Research Agents for Machine Learning: Search,
+  Exploration, and Generalization in MLE-bench*, arXiv:2507.02554. Formalizes
+  research agents as search policies with operators and shows that operator-set
+  and search-policy interaction matters.
+- Novikov et al. (2025), *AlphaEvolve: A coding agent for scientific and
+  algorithmic discovery*, arXiv:2506.13131. Uses iterative LLM code mutation,
+  evaluator feedback, and evolutionary search.
+- Sharma (2025--2026), *OpenEvolve: an open-source evolutionary coding agent*,
+  software repository https://github.com/algorithmicsuperintelligence/openevolve.
+- Lu et al. (2024), *The AI Scientist*, arXiv:2408.06292, and Yamada et al.
+  (2025), *The AI Scientist-v2*, arXiv:2504.08066. Provide broader autonomous
+  scientific-workflow context.
+
+Paper 2's gap is not that prompts can diversify one-shot text. It is the lack
+of a state-matched test of whether a semantic defixation instruction changes
+executable mechanisms, feasibility, search cost, and downstream progress inside
+an autonomous research loop. The exact shared-prefix forks and source/evaluator
+triangulation provide that evidence while the Fashion-MNIST corpus bounds its
+generality.
