@@ -3,6 +3,31 @@
 Run every command from the repository root. Paths below are repository-relative
 or operator-chosen; no user-specific absolute path is embedded in a campaign.
 
+## Goal-driven execution rule
+
+When the operator assigns an end-to-end goal, carry it through to its stated
+and verified end state without inserting an unrequested human checkpoint. In
+particular, a goal that says to start, run, launch, resume, or continue a
+campaign is itself authorization to perform that action after its required
+validation and safety gates pass. Do not stop after preparation or validation
+to ask the operator to confirm the launch again. This authorization persists
+across automatic goal continuations and agent turns; assume the operator may be
+away.
+
+Use repository evidence and reasonable in-scope defaults to resolve ordinary
+ambiguity, repair failed gates when possible, and keep working. Stop for input
+only when the operator explicitly requested a hold or decision, essential
+information or authority cannot be inferred, or an external permission
+boundary makes the action impossible. A tool-level approval mechanism should
+cite the original operator instruction directly and must not be preceded by a
+duplicate chat confirmation request.
+
+For unified v3, read [UNIFIED_V3.md](UNIFIED_V3.md). Use
+`configs/protocols/unified_v3.toml` with either a v3 framework adapter. After
+campaign creation, deliberately run `snapshot-v3-prompts`, then `validate` and
+`v3-health`; no v3 start command is automatic. Prefix pairs are owned jointly
+until their first intervention and become independently controllable after it.
+
 ## 1. Choose immutable inputs
 
 ```bash
@@ -64,7 +89,7 @@ lifecycle. It must use a fresh calibration and campaign. Do not reuse
 protocol-1.4 artifacts, and do not expose the internal campaign directory or
 documentation to a subject session.
 
-For prospective controlled OpenEvolve protocol 2.0, use:
+For prospective Greedy OpenEvolve protocol 2.0, use:
 
 ```bash
 PROTOCOL=$C0C3/configs/protocols/controlled_openevolve_transformer_v2.toml
@@ -87,7 +112,7 @@ FRAMEWORK=$C0C3/configs/frameworks/autoresearch_confined_v1_7.toml
 OUT=data/c0c3/transformer-optimization-v1-7-source-only
 ```
 
-For artifact-clean controlled OpenEvolve protocol 2.1, use:
+For artifact-clean Greedy OpenEvolve protocol 2.1, use:
 
 ```bash
 PROTOCOL=$C0C3/configs/protocols/controlled_openevolve_transformer_v2_1.toml
@@ -434,7 +459,7 @@ automatically charges/recoveries an interrupted opportunity before relaunching
 only that trajectory. Inspect its `status`, `supervisor.log`, per-job logs, the
 campaign thread registry, and each run's `state.json`/`events.jsonl`.
 
-### Protocol 2.0 controlled OpenEvolve trajectories
+### Protocol 2.0 Greedy OpenEvolve trajectories
 
 Use the same individual start/pause/resume commands as protocol 1.6. All twelve
 C0–C3 run IDs are primary scope and may be supervised independently; no N0 run
@@ -486,7 +511,7 @@ RL4RL_OVERNIGHT_PROFILE=autoresearch-v1.7 \
 RL4RL_OVERNIGHT_PROFILE=autoresearch-v1.7 \
   $PY experiments/c0c3_overnight.py start --recover-interrupted --all-running
 
-# OpenEvolve 2.1
+# Greedy OpenEvolve 2.1
 git worktree add --detach /private/tmp/rl4rl-c0c3-openevolve-v2-1 HEAD
 RL4RL_OVERNIGHT_PROFILE=openevolve-v2.1 \
   $PY experiments/c0c3_overnight.py check
@@ -524,7 +549,7 @@ the tier with which it began.
 
 For the isolated nanoGPT campaigns, use the dedicated H100 deployment in
 `MODAL.md`, then create separate detached runtimes for the four-block
-Autoresearch v1.7 campaign and three-block OpenEvolve v2.1 campaign:
+Autoresearch v1.7 campaign and three-block Greedy OpenEvolve v2.1 campaign:
 
 ```bash
 git worktree add --detach /private/tmp/rl4rl-c0c3-openevolve-v2-1-nanogpt HEAD
@@ -561,18 +586,65 @@ The corresponding `start --recover-interrupted --all-running` commands are
 intentionally separate from preparation. Both use the shared local evaluator
 pool and a stable dataset cache path; they do not invoke Modal.
 
+### Operator-authorized Fashion-MNIST block expansion
+
+An active C0–C3-only Fashion-MNIST campaign can be extended without restarting
+or modifying its already-running trajectories. This is an in-place amendment:
+the helper preserves the original controller protocol input, appends complete
+seed-paired C0–C3 blocks, copies the byte-identical seed/task-support tree into
+each new run, and records the boundary in `campaign-amendments.jsonl` plus an
+`amendments/` snapshot directory. Do not edit `schedule.json` or run
+directories manually.
+
+For example, to extend the local Greedy OpenEvolve Fashion-MNIST campaign from three
+to five blocks and launch only B4–B5 under a separate durable supervisor:
+
+```bash
+$PY experiments/c0c3_campaign_amend.py extend-blocks \
+  --campaign data/c0c3/fashion-mnist-openevolve-v2-1-mps-campaign \
+  --target-blocks 5 \
+  --reason 'operator-authorized additional replication blocks'
+
+RL4RL_OVERNIGHT_PROFILE=openevolve-v2.1-fashion-mnist-extension \
+  $PY experiments/c0c3_overnight.py check
+RL4RL_OVERNIGHT_PROFILE=openevolve-v2.1-fashion-mnist-extension \
+  $PY experiments/c0c3_overnight.py start --recover-interrupted --all-running
+```
+
+The extension supervisor controls B4–B5 only. The existing
+`openevolve-v2.1-fashion-mnist` supervisor continues to own B1–B3, so the two
+sets can be paused, resumed, or recovered independently while sharing the same
+host-wide evaluator scheduler.
+
 Inspect the shared local pool at any time without changing it:
 
 ```bash
 $PY -m $CLI local-evaluator-status
 ```
 
-The JSON reports twelve host slots and the opportunity holding each occupied
-slot. `experiments/c0c3_overnight.py status` also prints the compact occupied
-count. Protocols 1.7 and 2.1 set their campaign-local limit equal to their
+The JSON reports the current operator-set host ceiling and the opportunity
+holding each occupied slot. The shared scheduler defaults to twelve but has no
+fixed maximum. `experiments/c0c3_overnight.py status` also prints the compact
+occupied count. Protocols 1.7 and 2.1 set their campaign-local limit equal to their
 declared block count; older campaigns retain their frozen local limit. Queue waiting happens before
 the evaluator clock starts. Modal evaluator-only campaigns do not take local
 host slots.
+
+Unified v3 and semantic-v4 controllers also share a separate operator-sized
+host pool for subject-agent calls. It defaults to 30 and has no fixed maximum.
+Evaluators retain their independent task and host pools. Inspect the agent pool
+without changing state:
+
+```bash
+$PY -m $CLI agent-worker-status
+```
+
+This is admission control, not a round scheduler: each trajectory takes the
+next available slot and advances independently, with no wave or synchronization
+barrier. A newly created campaign can join this pool without pausing any
+campaign already using it. Only a controller running code from before the
+shared pool existed needs one cooperative stop/start to adopt it; subsequent
+campaign additions do not require a global drain.
 
 ## 6. Inspect progress without changing it
 
@@ -732,3 +804,24 @@ Preserve, read-only:
 Create hashes for the archive before transferring it. Never publish secrets,
 Codex authentication state, or the Layer B private salt/mapping before review is
 frozen.
+
+## 12. Semantic-intervention v4 campaigns
+
+Semantic v4 uses a separate launcher because its schedule contains arbitrary
+intervention IDs rather than C0-C3 conditions. The complete copyable prepare,
+validate, detached start, per-arm control, dashboard, and recovery commands are
+in [SEMANTIC_INTERVENTIONS_V4.md](SEMANTIC_INTERVENTIONS_V4.md).
+
+Important operational differences:
+
+- one physical prefix leader supplies proposals 1-5 to every arm in a
+  replicate;
+- all post-fork arms are independently schedulable and controllable;
+- a worker exception pauses only its arm, except that a prefix exception
+  pauses that replicate until the shared state is recovered;
+- campaign pause is cooperative and never deletes an active opportunity;
+- shadow prefix usage is visible on conceptual trajectories but charged once
+  in campaign physical totals;
+- the periodic-refresh arm keeps its incumbent checkpoint but clears search
+  population, visible history, and session state every five proposals;
+- `semantic_intervention_overnight.py status` is the authoritative quick view.

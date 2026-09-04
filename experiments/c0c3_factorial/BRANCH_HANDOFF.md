@@ -60,7 +60,7 @@ The implementation was built in these stages:
      prompt treatment slots.
 2. `8aa5adf Add Codex Autoresearch and OpenEvolve runners`
    - Added non-interactive Codex transport, direct Autoresearch editing,
-     controlled OpenEvolve SEARCH/REPLACE editing, task evaluation, campaign
+     Greedy OpenEvolve SEARCH/REPLACE editing, task evaluation, campaign
      construction, and one-opportunity execution.
 3. `ae5e909 Harden C0-C3 execution and sealed analysis`
    - Added validation, crash-safe accounting, failure/recovery behavior,
@@ -240,7 +240,7 @@ Framework configs are:
 
 - `configs/frameworks/autoresearch.toml` for direct-edit Karpathy-style
   Autoresearch;
-- `configs/frameworks/openevolve.toml` for the controlled OpenEvolve adapter.
+- `configs/frameworks/openevolve.toml` for the Greedy OpenEvolve adapter.
 
 Tasks are:
 

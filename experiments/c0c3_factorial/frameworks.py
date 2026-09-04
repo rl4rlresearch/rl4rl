@@ -1,12 +1,16 @@
-"""Codex CLI proposal adapters for controlled Autoresearch and OpenEvolve."""
+"""Codex CLI proposal adapters for Autoresearch and OpenEvolve architectures."""
 
 from __future__ import annotations
 
+import hashlib
+import importlib
+import random
 import re
 import shutil
 import sys
 import tempfile
-from dataclasses import dataclass
+import threading
+from dataclasses import dataclass, field
 from pathlib import Path
 
 from .codex_cli import CodexCli, CodexResult
@@ -23,6 +27,33 @@ _MARKDOWN_FIELD = re.compile(
     r"^(?:#{1,6}\s*)?(?:\*\*)?(?P<label>[A-Za-z _-]+?)(?:\*\*)?\s*:\s*(?P<value>.+)$",
     re.MULTILINE,
 )
+_OPENEVOLVE_IMPORT_LOCK = threading.Lock()
+_OPENEVOLVE_PROMPT_LOCK = threading.Lock()
+
+
+def _openevolve_imports(vendor_root: Path):
+    """Load vendored OpenEvolve symbols without racing Python module setup."""
+
+    with _OPENEVOLVE_IMPORT_LOCK:
+        value = str(vendor_root)
+        if value not in sys.path:
+            sys.path.insert(0, value)
+        from openevolve.config import PromptConfig
+        from openevolve.database import ProgramDatabase  # noqa: F401
+        from openevolve.prompt.sampler import PromptSampler
+        from openevolve.utils.code_utils import apply_diff, extract_diffs
+
+    return PromptConfig, PromptSampler, apply_diff, extract_diffs
+
+
+def preload_framework_runtime(framework: FrameworkSpec, *, repo_root: Path) -> None:
+    """Initialize thread-sensitive framework imports before worker dispatch."""
+
+    if framework.framework_id in {
+        FrameworkKind.GREEDY_OPENEVOLVE,
+        FrameworkKind.NATIVE_OPENEVOLVE,
+    }:
+        _openevolve_imports(repo_root / "architecture_discovery/vendor/openevolve")
 
 
 @dataclass(frozen=True)
@@ -34,6 +65,7 @@ class ProposalExecution:
     adapter_failure_kind: str | None = None
     mechanism: str = "[not recorded]"
     evidence: str = "[not recorded]"
+    framework_metadata: dict[str, object] = field(default_factory=dict)
 
 
 def parse_metadata(message: str) -> tuple[str, str]:
@@ -63,17 +95,11 @@ def parse_flexible_metadata(message: str) -> tuple[str, str]:
         None,
     )
     useful_lines = [
-        line.strip(" -*#\t")
-        for line in message.splitlines()
-        if line.strip(" -*#\t")
+        line.strip(" -*#\t") for line in message.splitlines() if line.strip(" -*#\t")
     ]
     if hypothesis is None:
         hypothesis = next(
-            (
-                line
-                for line in useful_lines
-                if "hypothes" in line.casefold()
-            ),
+            (line for line in useful_lines if "hypothes" in line.casefold()),
             useful_lines[0] if useful_lines else "No summary was returned.",
         )
     if intended_edit is None:
@@ -225,7 +251,7 @@ class AutoresearchAdapter:
 
 
 class OpenEvolveAdapter:
-    """Controlled port of OpenEvolve prompt sampling and SEARCH/REPLACE mutation.
+    """Greedy port of OpenEvolve prompt sampling and SEARCH/REPLACE mutation.
 
     The shared factorial controller intentionally replaces OpenEvolve's native
     database sampling and retention: those are the randomized factors here.
@@ -240,23 +266,18 @@ class OpenEvolveAdapter:
         vendor_root: Path,
         v2: bool = False,
         v21: bool = False,
+        metadata_optional: bool = False,
         template_root: Path | None = None,
     ) -> None:
         self.codex = codex
         self.vendor_root = vendor_root
         self.v2 = v2
         self.v21 = v21
+        self.metadata_optional = metadata_optional
         self.template_root = template_root
 
     def _imports(self):
-        value = str(self.vendor_root)
-        if value not in sys.path:
-            sys.path.insert(0, value)
-        from openevolve.config import PromptConfig
-        from openevolve.prompt.sampler import PromptSampler
-        from openevolve.utils.code_utils import apply_diff, extract_diffs
-
-        return PromptConfig, PromptSampler, apply_diff, extract_diffs
+        return _openevolve_imports(self.vendor_root)
 
     def propose(
         self,
@@ -326,9 +347,7 @@ class OpenEvolveAdapter:
                     f"```text\n{program['code']}\n```"
                 )
             if alternatives:
-                design_programs = "# Reference source\n\n" + "\n\n".join(
-                    alternatives
-                )
+                design_programs = "# Reference source\n\n" + "\n\n".join(alternatives)
         elif self.v2:
             alternatives = []
             for program in programs:
@@ -407,9 +426,14 @@ class OpenEvolveAdapter:
             mechanism, evidence = "[not recorded]", "[not recorded]"
         error: str | None = None
         failure_kind: str | None = None
-        if self.v2 and result.returncode == 0 and any(
-            value.startswith("[missing")
-            for value in (hypothesis, intended_edit, mechanism, evidence)
+        if (
+            self.v2
+            and not self.metadata_optional
+            and result.returncode == 0
+            and any(
+                value.startswith("[missing")
+                for value in (hypothesis, intended_edit, mechanism, evidence)
+            )
         ):
             error = "OpenEvolve response omitted required proposal metadata"
             failure_kind = "missing_metadata"
@@ -453,9 +477,179 @@ class OpenEvolveAdapter:
         )
 
 
+class NativeOpenEvolveAdapter:
+    """Codex transport bridge for OpenEvolve's native population controller.
+
+    Search selection and retention are deliberately absent here: the vendored
+    ``ProgramDatabase`` owns them in :mod:`native_openevolve`.  This class does
+    the same prompt construction, diff parsing, and code mutation as an
+    official OpenEvolve iteration, with Codex CLI substituted for an API LLM.
+    """
+
+    def __init__(
+        self,
+        codex: CodexCli,
+        *,
+        vendor_root: Path,
+        options: dict[str, object],
+    ) -> None:
+        self.codex = codex
+        self.vendor_root = vendor_root
+        self.options = options
+
+    def propose(
+        self,
+        *,
+        rendered: RenderedPrompt,
+        workspace: Path,
+        model: ModelSpec,
+        log_root: Path,
+        call_id: str,
+        timeout_seconds: int,
+        run_seed: int,
+        task: TaskSpec,
+        visible_workspaces: tuple[Path, ...],
+        visible_records: tuple[dict[str, object], ...],
+        selected_parent_id: str,
+        native_prompt_context: dict[str, object] | None = None,
+        resume_session_id: str | None = None,
+        persist_session: bool = False,
+        neutral_subject: bool = False,
+        artifact_clean_subject: bool = False,
+        **_unused: object,
+    ) -> ProposalExecution:
+        if native_prompt_context is None:
+            raise ValueError("native OpenEvolve proposal lacks database context")
+        PromptConfig, PromptSampler, apply_diff, extract_diffs = _openevolve_imports(
+            self.vendor_root
+        )
+        from openevolve.utils.code_utils import format_diff_summary
+
+        by_id: dict[str, dict[str, object]] = {}
+        for candidate_workspace, record in zip(
+            visible_workspaces, visible_records, strict=True
+        ):
+            identifier = str(record["candidate_id"])
+            by_id[identifier] = {
+                "id": identifier,
+                "code": bundle_workspace(candidate_workspace, task.editable_paths),
+                "metrics": record["metrics"],
+                "changes_description": record.get("hypothesis", ""),
+                "metadata": {},
+            }
+        if selected_parent_id not in by_id:
+            raise ValueError("native OpenEvolve selected parent is not visible")
+        parent = by_id[selected_parent_id]
+
+        def programs(name: str) -> list[dict[str, object]]:
+            identifiers = native_prompt_context.get(name, ())
+            if not isinstance(identifiers, list | tuple):
+                raise ValueError(f"native OpenEvolve {name} is malformed")
+            return [by_id[str(identifier)] for identifier in identifiers]
+
+        prompt_config = PromptConfig(
+            system_message=rendered.text,
+            num_top_programs=int(self.options.get("num_top_programs", 3)),
+            num_diverse_programs=int(self.options.get("num_diverse_programs", 2)),
+            use_template_stochasticity=bool(
+                self.options.get("use_template_stochasticity", True)
+            ),
+            include_artifacts=False,
+        )
+        sampler = PromptSampler(prompt_config)
+        prompt_seed = int.from_bytes(
+            hashlib.sha256(f"{run_seed}:{call_id}:native-prompt".encode()).digest()[:8],
+            "big",
+        )
+        with _OPENEVOLVE_PROMPT_LOCK:
+            prior_random_state = random.getstate()
+            random.seed(prompt_seed)
+            try:
+                sampled = sampler.build_prompt(
+                    current_program=str(parent["code"]),
+                    parent_program=str(parent["code"]),
+                    program_metrics=dict(parent["metrics"]),
+                    previous_programs=programs("previous_ids"),
+                    top_programs=programs("top_ids"),
+                    inspirations=programs("inspiration_ids"),
+                    language="python",
+                    evolution_round=int(native_prompt_context["opportunity"]),
+                    diff_based_evolution=True,
+                    feature_dimensions=list(
+                        native_prompt_context.get("feature_dimensions", ())
+                    ),
+                )
+            finally:
+                random.setstate(prior_random_state)
+        combined_prompt = f"{sampled['system']}\n\n{sampled['user']}"
+        prompt_workspace = Path(tempfile.mkdtemp(prefix="native-openevolve-codex-"))
+        try:
+            result = self.codex.run(
+                prompt=combined_prompt,
+                workspace=prompt_workspace,
+                model=model,
+                log_root=log_root,
+                call_id=call_id,
+                sandbox="read-only",
+                run_seed=run_seed,
+                timeout_seconds=timeout_seconds,
+                resume_session_id=resume_session_id,
+                persist_session=persist_session,
+                neutral_subject=neutral_subject,
+                artifact_clean_subject=artifact_clean_subject,
+            )
+        finally:
+            shutil.rmtree(prompt_workspace, ignore_errors=True)
+        hypothesis, intended_edit = parse_flexible_metadata(result.last_message)
+        error: str | None = None
+        failure_kind: str | None = None
+        changes_summary = "No valid source change was produced."
+        if result.returncode == 0:
+            try:
+                diffs = extract_diffs(result.last_message)
+                if not diffs:
+                    raise ValueError("OpenEvolve response contained no valid diff")
+                changes_summary = format_diff_summary(
+                    diffs,
+                    max_line_len=prompt_config.diff_summary_max_line_len,
+                    max_lines=prompt_config.diff_summary_max_lines,
+                )
+                child_bundle = apply_diff(str(parent["code"]), result.last_message)
+                if child_bundle == parent["code"]:
+                    raise ValueError("OpenEvolve diff did not match selected parent")
+                maximum = int(self.options.get("max_code_length", 1_000_000))
+                if len(child_bundle) > maximum:
+                    raise ValueError(
+                        f"generated source exceeds maximum length "
+                        f"({len(child_bundle)} > {maximum})"
+                    )
+                unbundle_workspace(child_bundle, workspace, task.editable_paths)
+            except (OSError, ValueError) as exception:
+                error = str(exception)
+                failure_kind = "invalid_diff"
+        return ProposalExecution(
+            codex=result,
+            hypothesis=hypothesis,
+            intended_edit=intended_edit,
+            adapter_error=error,
+            adapter_failure_kind=failure_kind,
+            mechanism=hypothesis,
+            evidence=intended_edit,
+            framework_metadata={
+                "native_prompt": sampled,
+                "llm_response": result.last_message,
+                "changes_summary": changes_summary,
+            },
+        )
+
+
 def make_framework_adapter(
-    framework: FrameworkSpec, codex: CodexCli, *, repo_root: Path
-) -> AutoresearchAdapter | OpenEvolveAdapter:
+    framework: FrameworkSpec,
+    codex: CodexCli,
+    *,
+    repo_root: Path,
+    prompt_template_root: Path | None = None,
+) -> AutoresearchAdapter | OpenEvolveAdapter | NativeOpenEvolveAdapter:
     if framework.framework_id is FrameworkKind.AUTORESEARCH:
         return AutoresearchAdapter(
             codex,
@@ -463,23 +657,56 @@ def make_framework_adapter(
                 framework.adapter == "codex_direct_editor_confined_session_resume_v2"
             ),
         )
-    if framework.framework_id is FrameworkKind.OPENEVOLVE:
-        v21 = framework.adapter == "controlled_openevolve_prompt_diff_v2_1"
+    if framework.framework_id is FrameworkKind.GREEDY_OPENEVOLVE:
+        v21 = framework.adapter in {
+            "controlled_openevolve_prompt_diff_v2_1",
+            "controlled_openevolve_prompt_diff_v3",
+        }
         v2 = framework.adapter in {
             "controlled_openevolve_prompt_diff_v2",
             "controlled_openevolve_prompt_diff_v2_1",
+            "controlled_openevolve_prompt_diff_v3",
         }
         return OpenEvolveAdapter(
             codex,
             vendor_root=repo_root / "architecture_discovery/vendor/openevolve",
             v2=v2,
             v21=v21,
+            metadata_optional=(
+                framework.adapter == "controlled_openevolve_prompt_diff_v3"
+            ),
             template_root=(
-                repo_root
-                / "experiments/c0c3_factorial/templates"
+                (
+                    prompt_template_root
+                    if prompt_template_root is not None
+                    else repo_root / "experiments/c0c3_factorial/templates"
+                )
                 / ("openevolve_v2_1" if v21 else "openevolve_v2")
                 if v2
                 else None
             ),
         )
+    if framework.framework_id is FrameworkKind.NATIVE_OPENEVOLVE:
+        if framework.adapter != "native_openevolve_v1":
+            raise ValueError("unsupported native OpenEvolve adapter version")
+        return NativeOpenEvolveAdapter(
+            codex,
+            vendor_root=repo_root / "architecture_discovery/vendor/openevolve",
+            options=dict(framework.adapter_options),
+        )
+    if framework.adapter_factory is not None:
+        module_name, separator, attribute = framework.adapter_factory.partition(":")
+        if not separator or not module_name or not attribute:
+            raise ValueError("adapter_factory must use the form 'module:callable'")
+        factory = getattr(importlib.import_module(module_name), attribute)
+        adapter = factory(
+            framework=framework,
+            codex=codex,
+            repo_root=repo_root,
+            prompt_template_root=prompt_template_root,
+            options=dict(framework.adapter_options),
+        )
+        if not hasattr(adapter, "propose"):
+            raise TypeError("custom framework adapter must provide propose()")
+        return adapter
     raise ValueError(f"unsupported framework {framework.framework_id}")

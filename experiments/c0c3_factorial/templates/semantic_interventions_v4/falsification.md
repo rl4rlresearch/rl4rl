@@ -1,0 +1,1 @@
+Identify the strongest current mechanism claim and seek a serious falsification test. Implement a change or controlled contrast that would produce a different result if the claim is wrong. Choose a test that remains useful whether it succeeds or fails, and make the expected discriminating outcomes explicit.

@@ -1,0 +1,22 @@
+task_id = "example_task"
+display_name = "Example extensible optimization task"
+adapter = "command_json_v1"
+seed_source = "path/to/portable/seed"
+editable_paths = ["candidate.py"]
+evaluator_command = ["{python}", "evaluate.py", "--output", "{output}"]
+objective_metric = "score"
+objective_direction = "maximize"
+qualification_metric = "qualified"
+qualification_minimum = 1.0
+public_feedback_metrics = ["score", "qualified"]
+final_holdout_command = ["{python}", "holdout.py", "--output", "{output}"]
+preferred_backend = "local"
+# Optional: module may implement prepare_seed_workspace(...).
+extension_module = "your_package.c0c3_task"
+
+[metric_patterns]
+score = "score=([0-9.]+)"
+qualified = "qualified=([01])"
+
+[extension_options]
+example_option = true

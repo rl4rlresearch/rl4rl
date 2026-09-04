@@ -1,0 +1,1 @@
+Imagine the current incumbent design were unavailable. Using only the task contract and the evidence, decide what learned system you would build instead. Implement the most informative feasible version of that counterfactual design, rather than recreating the incumbent under different names.

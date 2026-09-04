@@ -1,4 +1,4 @@
-# C0–C3 protocols v1.0–v2.1
+# C0–C3 protocols v1.0–v3
 
 This document describes the implemented protocol. The executable contract is
 `FactorialSpec`; a campaign records its canonical protocol hash, task hash,
@@ -27,7 +27,7 @@ process cwd ownership, isolates Codex configuration and thread identity, freezes
 inference preprocessing, strengthens fresh-training/attention-dependence checks,
 and caps concurrent local evaluators at three per campaign while all twelve
 controllers run. Local campaigns also enter one twelve-slot host scheduler.
-Version 2.0 is the prospective controlled OpenEvolve replacement. It removes N0,
+Version 2.0 is the prospective Greedy OpenEvolve replacement. It removes N0,
 uses the 1,644-parameter pair-token parent and 5,000-step training path, gives
 each proposal a bounded ephemeral session with structured trajectory evidence,
 and adds strict patch/source preflight plus optional evaluator-only Modal L4
@@ -36,6 +36,11 @@ Version 1.7 is the source-only, artifact-clean continuous Autoresearch
 successor. Version 2.1 applies the same subject-boundary cleanup to bounded
 OpenEvolve while retaining its patch interface and evaluator controls. Their
 task-specific presets freeze every declared C0–C3 block as primary and omit N0.
+Version 3.0 is the unified framework/task-extensible successor described in
+[UNIFIED_V3.md](UNIFIED_V3.md). It uses fresh bounded state capsules and one
+campaign-wide prompt snapshot. Within each block, C0/C1 and C2/C3 are literal
+shared trajectories before the first assumption-changing intervention, then
+fork from identical state and advance independently.
 
 ## 1. Research question and unit of analysis
 
@@ -112,7 +117,7 @@ summary of up to twelve preceding outcomes from its own trajectory. This is a
 common online evidence channel, not a fifth factorial factor. Portfolio cells
 still differ only by access to multiple live qualified source branches.
 
-### Protocols 2.0–2.1 bounded OpenEvolve exception
+### Protocols 2.0–2.1 bounded Greedy OpenEvolve exception
 
 Protocol 2.0 uses a fresh ephemeral Codex call for every proposal. It provides
 structured continuity common to all four cells: the selected source, all
@@ -388,12 +393,25 @@ not disclosed to the subject.
 
 The shared local scheduler is an operational machine-load control, not a
 factorial treatment. Protocols 1.7/2.1 use one campaign slot per declared block;
-older campaigns retain their frozen ceiling. It enforces twelve local
-evaluations across all participating campaigns combined.
+older campaigns retain their frozen ceiling. Its host-wide operator-set ceiling
+defaults to twelve local evaluations across participating campaigns and has no
+fixed maximum in the shared scheduler.
 It does not schedule Codex calls, alter proposal order or parent selection,
 charge queue time, or change evaluator seeds, commands, timeouts, and budgets.
 Evaluator-only Modal calls retain their campaign remote-call limit but do not
 consume a local host slot.
+
+Unified v3 and semantic-v4 campaigns also enter one crash-releasing,
+operator-sized host pool whose default ceiling is thirty concurrent
+subject-agent calls across campaigns and whose shared scheduler has no fixed
+maximum. A lease is acquired before
+an opportunity is marked active and released as soon as its subject call
+returns; evaluators use their separate task and host pools. Queued work consumes
+no proposal or evaluator budget. Slot release immediately admits any
+independently waiting trajectory; the pool has no proposal wave, block barrier,
+or campaign synchronization rule. This is a condition-common operational load
+ceiling and does not change selection, retention, prompts, seeds, or proposal
+order within a trajectory.
 
 `C0C3_RUN_SEED` and `PYTHONHASHSEED` are supplied to evaluator and legacy
 non-neutral subprocesses. Task code may use `C0C3_RUN_SEED`; task-specific fixed
@@ -430,9 +448,10 @@ orchestrators reject their execution-rule identifiers.
 - Layer A field definitions.
 - Scientific runtime code, verified before every opportunity.
 
-Frameworks and tasks are separate experimental strata. OpenEvolve and direct
-Autoresearch have different edit interfaces by definition; all four conditions
-within one framework use the identical interface.
+Frameworks and tasks are separate experimental strata. Greedy OpenEvolve,
+Native OpenEvolve, and direct Autoresearch have different search/edit
+architectures by definition; all conditions within one framework use the
+identical architecture.
 
 ## 10. Budget and stopping
 
@@ -492,6 +511,13 @@ execution, and nonqualification failures are recorded and never retained. A
 proposal opportunity is always consumed after it starts. An evaluator call is
 consumed only if evaluation started.
 
+The duplicate rule is exact-content based and covers every source snapshot
+that has already entered the evaluator, regardless of whether that evaluation
+qualified, failed during execution, timed out, or was otherwise invalid. Such
+source is rejected before another evaluator call and is recorded with
+`failure_kind=duplicate`, so artifact-clean subjects receive the corresponding
+sanitized duplicate explanation rather than a generic unverifiable result.
+
 An infrastructure interruption can leave `state.active` populated. The only
 valid continuation is `recover-active`, which logs the reason, recovers any
 available Codex usage, records a zero-evaluator infrastructure failure, consumes
@@ -540,8 +566,9 @@ are excluded. The operator must activate any optional extension before Layer
 B/C is created, after which the runner forbids more collection.
 For protocol 1.6 the frozen factorial scope is all twelve C0–C3 runs across its
 three prospectively declared blocks; dormant N0 assignments remain excluded.
-For protocols 1.7, 2.0, and 2.1 the frozen scope is every campaign-declared
-C0–C3 run and no dormant N0 assignment exists.
+For protocols 1.7 and 2.0 the frozen scope is every campaign-declared C0–C3 run
+and no dormant N0 assignment exists. Protocol 2.1 retains that primary 2×2
+scope and adds the separately identified C4 memory-control arm described below.
 Every valid proposal becomes an opaque packet containing parent and candidate
 source plus the stated hypothesis/edit. Condition, run, opportunity, and Layer
 A scores are hidden. Independent reviewers decide whether the delta is a
@@ -583,6 +610,19 @@ Any pooled synthesis across tasks/frameworks should be hierarchical or a
 clearly labeled descriptive meta-analysis, not a replacement for stratum-level
 results.
 
+### Protocol 2.1 C4 amendment
+
+Every Greedy OpenEvolve v2.1 block additionally includes C4. C4 uses the C0
+single-incumbent ordinary-proposal policy, but after each ten completed
+physical proposals it retains the incumbent as a new starting model and clears
+all subject-visible evidence that an earlier epoch occurred. Subject-visible
+proposal/accounting counters restart at one/full budget, and its actual Codex
+workspace path does not contain the physical opportunity number. Private
+append-only history and cumulative resource accounting remain authoritative,
+and the controller still stops at 200 physical proposals. C4 is reported as a
+memory-control comparison and does not alter the original C0–C3 factorial
+contrasts.
+
 Protocols 1.3–1.5 primary stages have one trajectory per cell. Their cell values and
 three factorial contrasts are descriptive: there is no between-block sampling
 variance estimate and proposals cannot be substituted as replicates. If later
@@ -605,3 +645,24 @@ post-change behavior explicit. A new protocol version, campaign, calibration,
 or analysis stratum is optional rather than automatic; choose those boundaries
 according to the scientific question and disclose the executed history in any
 analysis that uses the affected data.
+
+## 15. Semantic-intervention v4 extension
+
+The semantic-intervention experiment is a separate multi-arm analysis stratum,
+not another C0-C3 factorial cell. It reuses the unified v3 execution and
+artifact contracts while randomizing 23 research operations after a literal
+five-proposal shared prefix. It resets provider conversations every five
+proposals, preserves verified evidence in bounded capsules, and records
+developmental outcomes without changing primary retention.
+
+One memory-control arm performs a full search refresh at every phase boundary:
+the latest retained model and all cumulative accounting remain, while search
+population, subject-visible history, developmental memory, and session state
+restart around that model with a new search seed. Evaluator/data seeds remain
+paired and fixed.
+
+Its unit of replication is the complete trajectory. Its cleanest causal
+estimand is the first five-proposal phase after the shared-prefix fork; later
+phases estimate cumulative adaptive-trajectory effects. The design, treatment
+registry, fidelity policies, resource accounting, and analysis requirements are
+specified in [SEMANTIC_INTERVENTIONS_V4.md](SEMANTIC_INTERVENTIONS_V4.md).

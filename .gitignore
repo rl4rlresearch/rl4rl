@@ -230,8 +230,17 @@ data/processed/*
 # Local C0-C3 campaign state, event logs, checkpoints, and evaluations.
 # These are reproducibility artifacts retained on the run host, not source inputs.
 data/c0c3/
+# Local, sanitized Codex quota samples written by the live dashboard.
+data/codex-rate-limit-history.jsonl
+# Local dashboard control state is operational host state, not a source input.
+data/dashboard-controller.json
+data/dashboard-lifecycle.jsonl
 outputs/*
 !outputs/.gitkeep
+
+# Paper analysis outputs are reproducible from the recorded campaign artifacts.
+# Keep generated tables, figures, and embedded agent transcripts out of Git.
+/papers/**/derived/
 
 # Marimo
 marimo/_static/

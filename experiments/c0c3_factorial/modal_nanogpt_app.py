@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import hashlib
 import io
 import json
 import os
@@ -120,6 +121,9 @@ if modal is not None:
     )
     app = modal.App(NANOGPT_APP_NAME)
     cache = modal.Volume.from_name(CACHE_VOLUME_NAME, create_if_missing=True)
+    result_cache = modal.Dict.from_name(
+        "rl4rl-c0c3-nanogpt-evaluator-results-v3", create_if_missing=True
+    )
 
     @app.function(
         image=image,
@@ -159,9 +163,7 @@ if modal is not None:
         scaledown_window=300,
         retries=0,
         include_source=False,
-        volumes={
-            "/root/.cache/autoresearch": cache.with_mount_options(read_only=True)
-        },
+        volumes={"/root/.cache/autoresearch": cache.with_mount_options(read_only=True)},
     )
     def evaluate_candidate(
         payload: bytes,
@@ -179,6 +181,24 @@ if modal is not None:
             TaskSpec,
         )
 
+        payload_sha256 = hashlib.sha256(payload).hexdigest()
+        cached = result_cache.get(call_id)
+        if cached is not None:
+            if cached.get("payload_sha256") != payload_sha256:
+                raise RuntimeError("stable evaluator call ID was reused with new input")
+            if cached.get("status") == "completed":
+                return cached["response"]
+            deadline = time.monotonic() + timeout_seconds
+            while cached.get("status") == "running" and time.monotonic() < deadline:
+                time.sleep(1)
+                cached = result_cache.get(call_id)
+            if cached.get("status") == "completed":
+                return cached["response"]
+            raise RuntimeError(f"existing evaluator call is {cached.get('status')}")
+        result_cache[call_id] = {
+            "status": "running",
+            "payload_sha256": payload_sha256,
+        }
         os.environ["HF_HUB_OFFLINE"] = "1"
         started = time.monotonic()
         with tempfile.TemporaryDirectory(prefix=f"nanogpt-{call_id}-") as temporary:
@@ -210,20 +230,28 @@ if modal is not None:
                 timeout_seconds=timeout_seconds,
                 run_seed=run_seed,
             )
-            return {
+            response = {
                 "schema_version": "1.0",
                 "call_id": call_id,
+                "payload_sha256": payload_sha256,
                 "evaluation": asdict(artifacts.evaluation),
                 "artifacts": _archive_outputs(output),
                 "worker_seconds": time.monotonic() - started,
                 "gpu_name": torch.cuda.get_device_name(0),
             }
+            result_cache[call_id] = {
+                "status": "completed",
+                "payload_sha256": payload_sha256,
+                "response": response,
+            }
+            return response
 else:
     image = None
     app = None
     cache = None
     prepare_cache = None
     evaluate_candidate = None
+    result_cache = None
 
 
 def main() -> None:

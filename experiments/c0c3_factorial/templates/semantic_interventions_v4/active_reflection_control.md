@@ -1,0 +1,1 @@
+Before choosing the next change, review the available evidence carefully. Weigh the strongest positive and negative results, decide which next step is most justified, and implement the best coherent change you identify.

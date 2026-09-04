@@ -39,7 +39,7 @@ memory on top of C0–C3.
 
 Edit mode: `direct_workspace`.
 
-## 3. Controlled OpenEvolve adapter
+## 3. Greedy OpenEvolve adapter
 
 Configuration: `configs/frameworks/openevolve.toml`
 
@@ -59,11 +59,11 @@ to the selected parent bundle and restores the declared file set.
 Native OpenEvolve database sampling, island/population updates, and retention
 are intentionally not used: those are precisely the memory/selection variables
 controlled by C0–C3. Calling this “full native OpenEvolve” would be inaccurate;
-the paper should call it the **controlled OpenEvolve proposal adapter**.
+the paper should call it the **Greedy OpenEvolve proposal adapter**.
 
 Edit mode: `search_replace_diff`.
 
-### Protocol-2.0 controlled OpenEvolve adapter
+### Protocol-2.0 Greedy OpenEvolve adapter
 
 Configuration: `configs/frameworks/openevolve_v2.toml`
 
@@ -75,7 +75,7 @@ previous/top/inspiration sections. Codex runs ephemerally in an opaque,
 read-only, network-disabled workspace; only the resulting patch is applied to
 the candidate workspace. See [OPENEVOLVE_V2.md](OPENEVOLVE_V2.md).
 
-### Protocol-2.1 artifact-clean OpenEvolve adapter
+### Protocol-2.1 artifact-clean Greedy OpenEvolve adapter
 
 Configuration: `configs/frameworks/openevolve_v2_1.toml`
 
@@ -85,7 +85,37 @@ once each. It receives no controller budgets/horizon, selection counts, raw
 runner fields, nonexistent reference paths, run seed, or trained checkpoint.
 See [ARTIFACT_CLEAN_PROTOCOLS.md](ARTIFACT_CLEAN_PROTOCOLS.md).
 
-## 4. Adding another research framework
+## 4. Native OpenEvolve architecture
+
+Configurations:
+
+- `configs/frameworks/native_openevolve_v3.toml`
+- `configs/frameworks/fashion_mnist_native_openevolve_v3.toml`
+
+This architecture delegates the search system to the vendored OpenEvolve
+`ProgramDatabase`: official parent and inspiration sampling, MAP-Elites cells,
+island populations, the elite archive, population limits, generation counters,
+and migration all remain active. The v3 runner wraps that database only to use
+Codex CLI for LLM calls, invoke the task's existing evaluator, inject scheduled
+semantic directions, and preserve exact accounting, pause, recovery, and
+checkpoint provenance. Every native database checkpoint is stored under the
+run's `native-openevolve/` directory.
+
+This is the closest supported architecture to official OpenEvolve. It is not a
+claim that the surrounding execution environment is byte-for-byte identical:
+the repository's Codex transport, task bridge, multi-file bundle, and durable
+one-opportunity scheduler replace OpenEvolve's API client, evaluator subprocess,
+and internal process-pool loop. OpenEvolve's search decisions are not replaced.
+
+Because this architecture owns population memory, parent selection, and
+retention, it is a separate search-architecture stratum. Do not interpret it as
+one cell in the older C0-C3 memory/selection factorial; use it with the semantic
+v4 protocol or another design that explicitly treats search architecture as a
+configuration choice.
+
+Edit mode: `search_replace_diff`.
+
+## 5. Adding another research framework
 
 Adding MAP-Elites, Go-Explore, Islands, curiosity, or another Heuresis-style
 proposal strategy should require a narrow adapter rather than a controller fork:
@@ -105,7 +135,7 @@ proposal strategy should require a narrow adapter rather than a controller fork:
 The task, prompt renderer, controller, campaign, analysis, and Modal code should
 not change for a normal new adapter.
 
-## 5. Task contract
+## 6. Task contract
 
 A task TOML defines:
 
@@ -128,7 +158,7 @@ For minimization, the controller stores `fitness = -objective`; logs retain the
 human-readable positive metric. A candidate is valid only if the evaluator exits
 zero, emits the objective, and meets any qualification threshold.
 
-## 6. AdderBoard task
+## 7. AdderBoard task
 
 Configuration: `configs/tasks/adderboard.toml`
 
@@ -180,6 +210,28 @@ Protocol 1.5 also freezes independently controlled trajectory execution and
 lifecycle provenance; those controls do not alter the task or model-validity
 standard described here.
 
+### Tiny AdderBoard semantic-v4 task
+
+Configuration: `configs/tasks/tiny_adderboard_semantic_v4_mps.toml`
+
+This local task preserves the architecture-compression objective and 99% exact
+accuracy requirement while reducing the arithmetic problem to four-digit
+addition. Only `train.py` is editable. The subject sees a learned four-digit
+addition transformer task, not the benchmark name or experimental apparatus.
+
+The protected evaluator owns deterministic hash-disjoint training, public, and
+sealed-holdout pair partitions; fresh initialization; the training loop;
+generic autoregressive decoding; exact accuracy; deduplicated learned-parameter
+counting; and attention execution/ablation checks. Source preflight rejects
+filesystem or process access and recognized embedded arithmetic solvers.
+
+Its bounded literal `EVALUATION_LADDER` is one continuous training trajectory,
+not repeated training from scratch. Public accuracy is checked at each rung and
+training stops at the first rung reaching 99%. Candidate policies cannot exceed
+the evaluator-owned terminal step or rung count. The seed and terminal rung are
+calibrated on MPS against the Fashion-MNIST seed evaluator before an official
+campaign starts; the resulting timing receipt is stored beside the campaign.
+
 ### Protocol-2.0 pair-token variants
 
 Configurations:
@@ -207,7 +259,7 @@ protected source and decoder wrapper but never copies the seed's
 `checkpoints/best.pt`. Baseline calibration and every candidate evaluation
 therefore train in evaluator-owned workspaces from fresh initialization.
 
-## 7. Official Karpathy Autoresearch nanoGPT task
+## 8. Official Karpathy Autoresearch nanoGPT task
 
 Configuration: `configs/tasks/karpathy_nanogpt.toml`
 

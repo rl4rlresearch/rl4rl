@@ -269,12 +269,8 @@ def _trained_model_contract_error(
             return "token logits do not materially depend on learned self-attention"
 
         rng = random.Random(9_417_203)
-        probes = [
-            (rng.randrange(10**10), rng.randrange(10**10)) for _ in range(64)
-        ]
-        normal_correct = sum(
-            submission.add(model, a, b) == a + b for a, b in probes
-        )
+        probes = [(rng.randrange(10**10), rng.randrange(10**10)) for _ in range(64)]
+        normal_correct = sum(submission.add(model, a, b) == a + b for a, b in probes)
         with torch.no_grad():
             try:
                 for parameter in attention_parameters:
@@ -431,6 +427,9 @@ def evaluate_pair_token_ten_digit_transformer(args: argparse.Namespace) -> int:
         train_device = getattr(args, "train_device", None)
         if train_device:
             train_command.extend(("--device", train_device))
+        training_steps = getattr(args, "training_steps", None)
+        if training_steps is not None:
+            train_command.extend(("--train-steps", str(training_steps)))
         train_exit, train_output = _run(train_command, cwd=workspace)
         if train_exit:
             return train_exit
@@ -444,9 +443,7 @@ def evaluate_pair_token_ten_digit_transformer(args: argparse.Namespace) -> int:
 
     trained_error = _trained_model_contract_error(
         workspace,
-        require_last_checkpoint=bool(
-            getattr(args, "require_last_checkpoint", False)
-        ),
+        require_last_checkpoint=bool(getattr(args, "require_last_checkpoint", False)),
     )
     if trained_error is not None:
         return _report_contract_violation(trained_error)
@@ -543,6 +540,15 @@ def build_parser() -> argparse.ArgumentParser:
         subparser.add_argument("--verify-existing-checkpoint", action="store_true")
         subparser.add_argument(
             "--train-device", choices=("cpu", "mps", "cuda"), default=None
+        )
+        subparser.add_argument(
+            "--training-steps",
+            type=int,
+            default=None,
+            help=(
+                "Evaluator-owned training budget passed to the candidate's "
+                "--train-steps interface."
+            ),
         )
         subparser.set_defaults(
             handler=evaluate_pair_token_ten_digit_transformer,

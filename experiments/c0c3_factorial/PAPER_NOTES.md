@@ -337,7 +337,7 @@ pretend within-run points are independent replicates.
   mechanism equally. Keep performance and replication as secondary dimensions.
 - The controller’s portfolio is `K=4` with one specific selection/retention rule;
   conclusions do not cover every population method.
-- The OpenEvolve stratum is a controlled proposal adapter, not native OpenEvolve
+- The Greedy OpenEvolve stratum is a controlled proposal adapter, not native OpenEvolve
   end-to-end.
 
 ### External validity
@@ -449,7 +449,7 @@ create a new campaign/protocol identifier.
       explicitly reported as having no N0.
 - [ ] Invalid/failure rates and full compute/token costs are reported.
 - [ ] nanoGPT Layer C is called replication, not holdout/generalization.
-- [ ] Controlled OpenEvolve is not mislabeled as native end-to-end OpenEvolve.
+- [ ] Greedy OpenEvolve is not mislabeled as native end-to-end OpenEvolve.
 - [ ] Limitations include provider nondeterminism, prompt-length cost, annotation
       subjectivity, small block count, and task/framework scope.
 - [ ] Artifact archive hashes and public/private release plan are complete.

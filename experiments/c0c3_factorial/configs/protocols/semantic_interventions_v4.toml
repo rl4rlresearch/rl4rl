@@ -1,0 +1,32 @@
+protocol_version = "3.0"
+study_id = "semantic-interventions-v4-fashion-openevolve"
+study_seed = 20260826
+blocks = 3
+portfolio_capacity = 4
+transition_opportunities = [
+  6, 11, 16, 21, 26, 31, 36, 41, 46, 51,
+  56, 61, 66, 71, 76, 81, 86, 91, 96, 101,
+  106, 111, 116, 121, 126, 131, 136, 141, 146, 151,
+  156, 161, 166, 171, 176, 181, 186, 191, 196,
+]
+conversation_mode = "bounded_state_capsule_per_opportunity_v1"
+retention_rule = "fill_open_slots_then_replace_selected_lineage_on_strict_improvement_v1"
+parent_selection_rule = "fill_from_seed_then_least_selected_lineage_then_best_then_oldest_then_id_v1"
+single_retention_rule = "strict_incumbent_improvement_v1"
+failure_rule = "consume_opportunity_and_evaluation_if_started;never_retain_v1"
+execution_rule = "unified_individual_trajectories_with_paired_prefix_fork_v3"
+include_no_search = false
+
+[model]
+name = "gpt-5.6-sol"
+reasoning_effort = "xhigh"
+sandbox = "workspace-write"
+approval_policy = "never"
+service_tier = "default"
+
+[budget]
+proposals = 200
+candidate_evaluations = 200
+max_total_tokens = 1000000000000
+max_evaluator_seconds = 150000.0
+evaluator_timeout_seconds = 600

@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import hashlib
 import io
 import json
 import tempfile
@@ -77,7 +78,9 @@ def _archive_outputs(root: Path) -> bytes:
 if modal is not None:
     image = (
         modal.Image.debian_slim(python_version="3.12")
-        .pip_install("torch==2.9.1", extra_index_url="https://download.pytorch.org/whl/cu128")
+        .pip_install(
+            "torch==2.9.1", extra_index_url="https://download.pytorch.org/whl/cu128"
+        )
         .add_local_dir(
             str(LOCAL_REPO / "experiments"),
             remote_path=str(REMOTE_REPO / "experiments"),
@@ -93,6 +96,9 @@ if modal is not None:
         .workdir(str(REMOTE_REPO))
     )
     app = modal.App(APP_NAME)
+    result_cache = modal.Dict.from_name(
+        "rl4rl-c0c3-evaluator-results-v3", create_if_missing=True
+    )
 
     @app.function(
         image=image,
@@ -121,6 +127,24 @@ if modal is not None:
             TaskSpec,
         )
 
+        payload_sha256 = hashlib.sha256(payload).hexdigest()
+        cached = result_cache.get(call_id)
+        if cached is not None:
+            if cached.get("payload_sha256") != payload_sha256:
+                raise RuntimeError("stable evaluator call ID was reused with new input")
+            if cached.get("status") == "completed":
+                return cached["response"]
+            deadline = time.monotonic() + timeout_seconds
+            while cached.get("status") == "running" and time.monotonic() < deadline:
+                time.sleep(1)
+                cached = result_cache.get(call_id)
+            if cached.get("status") == "completed":
+                return cached["response"]
+            raise RuntimeError(f"existing evaluator call is {cached.get('status')}")
+        result_cache[call_id] = {
+            "status": "running",
+            "payload_sha256": payload_sha256,
+        }
         started = time.monotonic()
         with tempfile.TemporaryDirectory(prefix=f"c0c3-{call_id}-") as temporary:
             root = Path(temporary)
@@ -151,18 +175,26 @@ if modal is not None:
                 timeout_seconds=timeout_seconds,
                 run_seed=run_seed,
             )
-            return {
+            response = {
                 "schema_version": "1.0",
                 "call_id": call_id,
+                "payload_sha256": payload_sha256,
                 "evaluation": asdict(artifacts.evaluation),
                 "artifacts": _archive_outputs(output),
                 "worker_seconds": time.monotonic() - started,
                 "gpu_name": torch.cuda.get_device_name(0),
             }
+            result_cache[call_id] = {
+                "status": "completed",
+                "payload_sha256": payload_sha256,
+                "response": response,
+            }
+            return response
 else:
     image = None
     app = None
     evaluate_candidate = None
+    result_cache = None
 
 
 def main() -> None:

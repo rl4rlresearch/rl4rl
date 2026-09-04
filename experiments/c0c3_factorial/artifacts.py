@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import hashlib
+import importlib
 import os
 import re
 import shutil
@@ -25,6 +26,10 @@ from .neutral_task import (
     PAIR_TOKEN_TASK_ADAPTER_V2,
     PAIR_TOKEN_TASK_ADAPTER_V3,
     SANITIZED_SEED_PATHS,
+    TINY_ADDERBOARD_SOURCE_ONLY_SEED_PATHS,
+    TINY_ADDERBOARD_TASK_ADAPTER,
+    TINY_KWS_RNN_SOURCE_ONLY_SEED_PATHS,
+    TINY_KWS_RNN_TASK_ADAPTER,
 )
 from .spec import FrameworkKind, FrameworkSpec, TaskSpec, canonical_json, sha256_json
 
@@ -70,6 +75,24 @@ def prepare_seed_workspace(
     """Copy the immutable task support tree and add task-owned seed glue."""
 
     source = resolve_source(task.seed_source, repo_root=repo_root)
+    if task.extension_module is not None:
+        extension = importlib.import_module(task.extension_module)
+        prepare = getattr(extension, "prepare_seed_workspace", None)
+        if prepare is not None:
+            prepare(
+                task=task,
+                source=source,
+                destination=destination,
+                repo_root=repo_root,
+                options=dict(task.extension_options),
+            )
+            for relative in task.editable_paths:
+                path = destination / relative
+                if not path.is_file():
+                    raise FileNotFoundError(
+                        f"task extension seed is missing editable file {relative}"
+                    )
+            return
     if task.adapter in {
         NEUTRAL_TASK_ADAPTER,
         PAIR_TOKEN_TASK_ADAPTER,
@@ -77,6 +100,8 @@ def prepare_seed_workspace(
         PAIR_TOKEN_TASK_ADAPTER_V3,
         NANOGPT_TASK_ADAPTER,
         FASHION_MNIST_TASK_ADAPTER,
+        TINY_ADDERBOARD_TASK_ADAPTER,
+        TINY_KWS_RNN_TASK_ADAPTER,
     }:
         destination.mkdir(parents=True, exist_ok=False)
         if task.adapter == NANOGPT_TASK_ADAPTER:
@@ -84,6 +109,12 @@ def prepare_seed_workspace(
             submission_wrapper = None
         elif task.adapter == FASHION_MNIST_TASK_ADAPTER:
             sanitized_paths = FASHION_MNIST_SOURCE_ONLY_SEED_PATHS
+            submission_wrapper = None
+        elif task.adapter == TINY_ADDERBOARD_TASK_ADAPTER:
+            sanitized_paths = TINY_ADDERBOARD_SOURCE_ONLY_SEED_PATHS
+            submission_wrapper = None
+        elif task.adapter == TINY_KWS_RNN_TASK_ADAPTER:
+            sanitized_paths = TINY_KWS_RNN_SOURCE_ONLY_SEED_PATHS
             submission_wrapper = None
         elif task.adapter == NEUTRAL_TASK_ADAPTER:
             sanitized_paths = SANITIZED_SEED_PATHS
@@ -153,7 +184,10 @@ def scientific_runtime_hash(
     roots = {
         "factorial_controller": repo_root / "experiments/c0c3_factorial",
     }
-    if framework.framework_id is FrameworkKind.OPENEVOLVE:
+    if framework.framework_id in {
+        FrameworkKind.GREEDY_OPENEVOLVE,
+        FrameworkKind.NATIVE_OPENEVOLVE,
+    }:
         roots["openevolve_adapter_runtime"] = (
             repo_root / "architecture_discovery/vendor/openevolve/openevolve"
         )

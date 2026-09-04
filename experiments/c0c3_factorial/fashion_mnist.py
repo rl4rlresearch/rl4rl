@@ -130,9 +130,7 @@ def prepare_dataset(root: Path) -> dict[str, Any]:
             urllib.request.urlretrieve(f"{DOWNLOAD_BASE}/{name}", temporary)
             actual = md5(temporary)
             if actual != expected:
-                raise RuntimeError(
-                    f"downloaded checksum mismatch for {name}: {actual}"
-                )
+                raise RuntimeError(f"downloaded checksum mismatch for {name}: {actual}")
             os.replace(temporary, destination)
         finally:
             temporary.unlink(missing_ok=True)
@@ -186,12 +184,8 @@ def load_dataset(root: Path):
     train_label_shape, train_label_bytes = _read_idx(
         root / "train-labels-idx1-ubyte.gz"
     )
-    test_image_shape, test_image_bytes = _read_idx(
-        root / "t10k-images-idx3-ubyte.gz"
-    )
-    test_label_shape, test_label_bytes = _read_idx(
-        root / "t10k-labels-idx1-ubyte.gz"
-    )
+    test_image_shape, test_image_bytes = _read_idx(root / "t10k-images-idx3-ubyte.gz")
+    test_label_shape, test_label_bytes = _read_idx(root / "t10k-labels-idx1-ubyte.gz")
     if train_image_shape != (60_000, 28, 28) or train_label_shape != (60_000,):
         raise ValueError("official training IDX shapes are not 60000x28x28 and 60000")
     if test_image_shape != (10_000, 28, 28) or test_label_shape != (10_000,):
@@ -258,6 +252,7 @@ def preflight_candidate_source(workspace: Path) -> str | None:
     missing = sorted(required - defined)
     if missing:
         return f"train.py is missing required functions: {', '.join(missing)}"
+
     def dotted_name(node: ast.AST) -> str:
         if isinstance(node, ast.Name):
             return node.id
@@ -285,6 +280,118 @@ def preflight_candidate_source(workspace: Path) -> str | None:
             ):
                 return f"train.py calls protected I/O operation {name}"
     return None
+
+
+def _literal_assignment(path: Path, symbol: str) -> object | None:
+    try:
+        tree = ast.parse(path.read_text(encoding="utf-8"), filename=str(path))
+    except (OSError, SyntaxError, UnicodeError):
+        return None
+    result: object | None = None
+    for node in tree.body:
+        targets: list[ast.expr] = []
+        value: ast.expr | None = None
+        if isinstance(node, ast.Assign):
+            targets = list(node.targets)
+            value = node.value
+        elif isinstance(node, ast.AnnAssign):
+            targets = [node.target]
+            value = node.value
+        if value is None or not any(
+            isinstance(target, ast.Name) and target.id == symbol for target in targets
+        ):
+            continue
+        try:
+            result = ast.literal_eval(value)
+        except (ValueError, TypeError):
+            return None
+    return result
+
+
+def _resolved_fidelity_policy(
+    workspace: Path, args: argparse.Namespace
+) -> tuple[list[int], list[float | None], dict[str, Any]]:
+    terminal = int(args.training_examples)
+    defaults = [
+        int(value)
+        for value in getattr(
+            args, "ladder_levels", [25_000, 50_000, terminal]
+        )
+    ]
+    default_thresholds = [
+        None if value is None else float(value)
+        for value in getattr(
+            args, "promotion_thresholds", [0.82, 0.87, None]
+        )
+    ]
+    if terminal not in defaults:
+        defaults.append(terminal)
+        default_thresholds.append(None)
+    defaults = sorted(set(defaults))
+    if len(default_thresholds) != len(defaults):
+        raise ValueError("default ladder levels and thresholds must have equal length")
+    if defaults[-1] != terminal:
+        raise ValueError("the final default ladder rung must equal training-examples")
+    receipt: dict[str, Any] = {
+        "source": "controller_default",
+        "accepted": False,
+        "reason": "candidate policy absent",
+        "levels": defaults,
+        "promotion_thresholds": default_thresholds,
+    }
+    path = workspace / "train.py"
+    raw_levels = _literal_assignment(path, "EVALUATION_LADDER")
+    raw_thresholds = _literal_assignment(path, "EVALUATION_PROMOTION_THRESHOLDS")
+    if not isinstance(raw_levels, list | tuple) or not isinstance(
+        raw_thresholds, list | tuple
+    ):
+        return defaults, default_thresholds, receipt
+    try:
+        levels = [int(value) for value in raw_levels]
+        thresholds = [
+            None if value is None else float(value) for value in raw_thresholds
+        ]
+    except (TypeError, ValueError):
+        receipt["reason"] = "candidate policy is not a literal numeric sequence"
+        return defaults, default_thresholds, receipt
+    if terminal not in levels:
+        levels.append(terminal)
+        if len(thresholds) == len(levels) - 1:
+            thresholds.append(None)
+    if len(thresholds) == len(levels) - 1:
+        thresholds.append(None)
+    if levels != sorted(set(levels)):
+        receipt["reason"] = "candidate ladder levels must be sorted and unique"
+        return defaults, default_thresholds, receipt
+    minimum = int(getattr(args, "ladder_minimum", 10_000))
+    maximum_rungs = int(getattr(args, "ladder_max_rungs", 6))
+    if (
+        not levels
+        or levels[-1] != terminal
+        or any(level < minimum or level > terminal for level in levels)
+        or len(levels) > maximum_rungs
+        or len(thresholds) != len(levels)
+        or any(
+            threshold is not None and not 0.0 <= threshold <= 1.0
+            for threshold in thresholds
+        )
+    ):
+        receipt["reason"] = "candidate policy exceeded evaluator-owned bounds"
+        return defaults, default_thresholds, receipt
+    thresholds[-1] = None
+    receipt.update(
+        {
+            "source": "train.py",
+            "accepted": True,
+            "reason": "safe literal candidate policy accepted",
+            "levels": levels,
+            "promotion_thresholds": thresholds,
+            "enforced_minimum_level": minimum,
+            "enforced_terminal_level": terminal,
+            "enforced_max_rungs": maximum_rungs,
+        }
+    )
+    return levels, thresholds, receipt
 
 
 def _load_program(workspace: Path):
@@ -349,9 +456,49 @@ def _seed_everything(seed: int) -> None:
     torch.manual_seed(seed)
 
 
-def evaluate(args: argparse.Namespace) -> int:
+def _score_model(
+    model,
+    *,
+    evaluation_images,
+    evaluation_labels,
+    evaluation_batch_size: int,
+    device,
+) -> dict[str, float | int]:
     import torch
     from torch.nn import functional as F
+
+    model.eval()
+    correct = 0
+    loss_sum = 0.0
+    with torch.no_grad():
+        for offset in range(0, len(evaluation_labels), evaluation_batch_size):
+            images = _normalized(
+                evaluation_images[offset : offset + evaluation_batch_size],
+                device=device,
+            )
+            labels = evaluation_labels[
+                offset : offset + evaluation_batch_size
+            ].to(device=device, dtype=torch.long)
+            logits = model(images)
+            if logits.shape != (labels.shape[0], 10):
+                raise ValueError(
+                    "model must return one 10-class logit vector per image"
+                )
+            loss_sum += float(F.cross_entropy(logits, labels, reduction="sum"))
+            correct += int((logits.argmax(dim=1) == labels).sum())
+    cases = int(len(evaluation_labels))
+    cross_entropy = loss_sum / cases
+    return {
+        "validation_score": validation_score(correct, cross_entropy),
+        "validation_correct": correct,
+        "validation_accuracy": correct / cases,
+        "validation_cross_entropy": cross_entropy,
+        "evaluation_cases": cases,
+    }
+
+
+def evaluate(args: argparse.Namespace) -> int:
+    import torch
 
     source_error = preflight_candidate_source(args.workspace.resolve())
     if source_error is not None:
@@ -395,7 +542,22 @@ def evaluate(args: argparse.Namespace) -> int:
     }
     if not initial_parameters:
         raise ValueError("model must have trainable parameters")
-    total_steps = planned_optimizer_steps(args.training_examples, batch_size)
+    multi_fidelity = bool(getattr(args, "multi_fidelity", False))
+    if multi_fidelity:
+        ladder, promotion_thresholds, ladder_receipt = _resolved_fidelity_policy(
+            args.workspace.resolve(), args
+        )
+    else:
+        ladder = [int(args.training_examples)]
+        promotion_thresholds = [None]
+        ladder_receipt = {
+            "source": "single_full_fidelity_evaluation",
+            "accepted": False,
+            "levels": ladder,
+            "promotion_thresholds": promotion_thresholds,
+        }
+    terminal_exposure = ladder[-1]
+    total_steps = planned_optimizer_steps(terminal_exposure, batch_size)
     optimizer = program.build_optimizer(model, total_steps)
     if not isinstance(optimizer, torch.optim.Optimizer):
         raise TypeError("build_optimizer must return a torch optimizer")
@@ -403,46 +565,84 @@ def evaluate(args: argparse.Namespace) -> int:
     order_generator = torch.Generator(device="cpu").manual_seed(seed)
     seen = 0
     optimizer_steps = 0
+    epoch_order = None
+    epoch_offset = 0
+    ladder_index = 0
+    fidelity_stages: list[dict[str, Any]] = []
+    latest_metrics: dict[str, float | int] | None = None
+    screen_failure = False
     model.train()
     _synchronize(device)
     training_started = time.monotonic()
-    while seen < args.training_examples:
-        epoch_order = candidate_indices[
-            torch.randperm(TRAIN_EXAMPLES, generator=order_generator)
-        ]
-        for offset in range(0, TRAIN_EXAMPLES, batch_size):
-            if seen >= args.training_examples:
+    while seen < terminal_exposure and not screen_failure:
+        if epoch_order is None or epoch_offset >= TRAIN_EXAMPLES:
+            epoch_order = candidate_indices[
+                torch.randperm(TRAIN_EXAMPLES, generator=order_generator)
+            ]
+            epoch_offset = 0
+        take = min(
+            batch_size,
+            terminal_exposure - seen,
+            TRAIN_EXAMPLES - epoch_offset,
+        )
+        indices = epoch_order[epoch_offset : epoch_offset + take]
+        epoch_offset += take
+        images = _normalized(train_images[indices], device=device)
+        labels = train_labels[indices].to(device=device, dtype=torch.long)
+        step = optimizer_steps + 1
+        images, labels = program.prepare_training_batch(
+            images, labels, step, total_steps
+        )
+        if images.shape[0] != take or labels.shape[0] != take:
+            raise ValueError("prepare_training_batch must preserve batch length")
+        optimizer.zero_grad(set_to_none=True)
+        loss = program.training_loss(model, images, labels, step, total_steps)
+        if not isinstance(loss, torch.Tensor) or loss.ndim != 0:
+            raise TypeError("training_loss must return one scalar tensor")
+        if not torch.isfinite(loss):
+            raise ValueError("training_loss became non-finite")
+        loss.backward()
+        clip = getattr(program, "GRAD_CLIP_NORM", None)
+        if clip is not None:
+            torch.nn.utils.clip_grad_norm_(model.parameters(), float(clip))
+        optimizer.step()
+        optimizer_steps += 1
+        seen += take
+        program.after_optimizer_step(optimizer, optimizer_steps, total_steps)
+        while ladder_index < len(ladder) and seen >= ladder[ladder_index]:
+            _synchronize(device)
+            latest_metrics = _score_model(
+                model,
+                evaluation_images=evaluation_images,
+                evaluation_labels=evaluation_labels,
+                evaluation_batch_size=args.evaluation_batch_size,
+                device=device,
+            )
+            threshold = promotion_thresholds[ladder_index]
+            promoted = (
+                ladder_index == len(ladder) - 1
+                or threshold is None
+                or float(latest_metrics["validation_accuracy"]) >= threshold
+            )
+            fidelity_stages.append(
+                {
+                    "stage": ladder_index + 1,
+                    "requested_level": ladder[ladder_index],
+                    "actual_examples_processed": seen,
+                    "promotion_threshold": threshold,
+                    "promoted": promoted,
+                    # Keep the stage snapshot independent from ``latest_metrics``.
+                    # The latter receives the full ``fidelity_stages`` list below;
+                    # retaining this same dictionary here would create a circular
+                    # object graph that cannot be serialized to JSON.
+                    "metrics": dict(latest_metrics),
+                }
+            )
+            ladder_index += 1
+            if not promoted:
+                screen_failure = True
                 break
-            take = min(
-                batch_size,
-                args.training_examples - seen,
-                TRAIN_EXAMPLES - offset,
-            )
-            indices = epoch_order[offset : offset + take]
-            images = _normalized(train_images[indices], device=device)
-            labels = train_labels[indices].to(device=device, dtype=torch.long)
-            step = optimizer_steps + 1
-            images, labels = program.prepare_training_batch(
-                images, labels, step, total_steps
-            )
-            if images.shape[0] != take or labels.shape[0] != take:
-                raise ValueError("prepare_training_batch must preserve batch length")
-            optimizer.zero_grad(set_to_none=True)
-            loss = program.training_loss(
-                model, images, labels, step, total_steps
-            )
-            if not isinstance(loss, torch.Tensor) or loss.ndim != 0:
-                raise TypeError("training_loss must return one scalar tensor")
-            if not torch.isfinite(loss):
-                raise ValueError("training_loss became non-finite")
-            loss.backward()
-            clip = getattr(program, "GRAD_CLIP_NORM", None)
-            if clip is not None:
-                torch.nn.utils.clip_grad_norm_(model.parameters(), float(clip))
-            optimizer.step()
-            optimizer_steps += 1
-            seen += take
-            program.after_optimizer_step(optimizer, optimizer_steps, total_steps)
+            model.train()
     _synchronize(device)
     training_seconds = time.monotonic() - training_started
     learned_change = any(
@@ -453,55 +653,55 @@ def evaluate(args: argparse.Namespace) -> int:
     if not learned_change:
         raise ValueError("training did not change any learned parameter")
 
-    model.eval()
-    correct = 0
-    loss_sum = 0.0
-    with torch.no_grad():
-        for offset in range(0, len(evaluation_labels), args.evaluation_batch_size):
-            images = _normalized(
-                evaluation_images[offset : offset + args.evaluation_batch_size],
-                device=device,
-            )
-            labels = evaluation_labels[
-                offset : offset + args.evaluation_batch_size
-            ].to(device=device, dtype=torch.long)
-            logits = model(images)
-            if logits.shape != (labels.shape[0], 10):
-                raise ValueError(
-                    "model must return one 10-class logit vector per image"
-                )
-            loss_sum += float(F.cross_entropy(logits, labels, reduction="sum"))
-            correct += int((logits.argmax(dim=1) == labels).sum())
-    cases = int(len(evaluation_labels))
-    cross_entropy = loss_sum / cases
-    score = validation_score(correct, cross_entropy)
-    payload = {
-        "schema_version": "1.0",
-        "layer": args.layer,
-        "metrics": {
-            "validation_score": score,
-            "validation_correct": correct,
-            "validation_accuracy": correct / cases,
-            "validation_cross_entropy": cross_entropy,
+    if latest_metrics is None:
+        latest_metrics = _score_model(
+            model,
+            evaluation_images=evaluation_images,
+            evaluation_labels=evaluation_labels,
+            evaluation_batch_size=args.evaluation_batch_size,
+            device=device,
+        )
+    reached_full = not screen_failure and seen == terminal_exposure
+    latest_metrics.update(
+        {
             "parameters": parameters,
             "examples_processed": seen,
             "optimizer_steps": optimizer_steps,
             "training_seconds": training_seconds,
             "batch_size": batch_size,
-            "evaluation_cases": cases,
             "evaluation_split": split_name,
-        },
+            "fidelity_highest_level": ladder[ladder_index - 1],
+            "fidelity_reached_full": reached_full,
+            "fidelity_stage_count": len(fidelity_stages),
+            "fidelity_stages": fidelity_stages,
+            "fidelity_policy": ladder_receipt,
+        }
+    )
+    payload = {
+        "schema_version": "1.0",
+        "layer": args.layer,
+        "valid": not screen_failure,
+        "failure_kind": (
+            "fidelity_screen_not_promoted" if screen_failure else None
+        ),
+        "metrics": latest_metrics,
     }
     args.output.write_text(
         json.dumps(payload, indent=2, sort_keys=True) + "\n", encoding="utf-8"
     )
-    print(f"validation_score: {score:.9f}")
-    print(f"validation_accuracy: {correct / cases:.6f}")
-    print(f"validation_cross_entropy: {cross_entropy:.9f}")
+    print(f"validation_score: {latest_metrics['validation_score']:.9f}")
+    print(f"validation_accuracy: {latest_metrics['validation_accuracy']:.6f}")
+    print(
+        "validation_cross_entropy: "
+        f"{latest_metrics['validation_cross_entropy']:.9f}"
+    )
     print(f"parameters: {parameters}")
     print(f"examples_processed: {seen}")
     print(f"optimizer_steps: {optimizer_steps}")
     print(f"training_seconds: {training_seconds:.6f}")
+    if multi_fidelity:
+        print(f"fidelity_reached_full: {str(reached_full).lower()}")
+        print(f"fidelity_stage_count: {len(fidelity_stages)}")
     return 0
 
 
@@ -512,7 +712,11 @@ def build_parser() -> argparse.ArgumentParser:
     prepare.add_argument("--repo-root", type=Path, default=Path.cwd())
     prepare.add_argument("--data-root", type=Path)
 
-    for name, layer in (("evaluate", "A"), ("holdout", "C")):
+    for name, layer, multi_fidelity in (
+        ("evaluate", "A", False),
+        ("evaluate-ladder", "A", True),
+        ("holdout", "C", False),
+    ):
         command = subparsers.add_parser(name)
         command.add_argument("--workspace", type=Path, required=True)
         command.add_argument("--repo-root", type=Path, required=True)
@@ -527,7 +731,24 @@ def build_parser() -> argparse.ArgumentParser:
         )
         command.add_argument("--evaluation-batch-size", type=int, default=512)
         command.add_argument("--seed", type=int, default=20_260_823)
-        command.set_defaults(handler=evaluate, layer=layer)
+        if multi_fidelity:
+            command.add_argument(
+                "--ladder-levels",
+                type=int,
+                nargs="+",
+                default=[25_000, 50_000, 100_000],
+            )
+            command.add_argument(
+                "--promotion-thresholds",
+                type=lambda value: None if value.casefold() == "none" else float(value),
+                nargs="+",
+                default=[0.82, 0.87, None],
+            )
+            command.add_argument("--ladder-minimum", type=int, default=10_000)
+            command.add_argument("--ladder-max-rungs", type=int, default=6)
+        command.set_defaults(
+            handler=evaluate, layer=layer, multi_fidelity=multi_fidelity
+        )
     return parser
 
 

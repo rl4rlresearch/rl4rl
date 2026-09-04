@@ -1,0 +1,1 @@
+Identify a load-bearing assumption and the strongest evidence for and against it. Replace it with a genuinely different learned mechanism, but design the implementation as a falsification test: state what result would undermine the alternative and keep unrelated components fixed enough to make that result interpretable.

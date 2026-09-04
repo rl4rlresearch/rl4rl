@@ -8,20 +8,20 @@ PAIR_TOKEN_TASK_ADAPTER_V2 = "ten_digit_addition_pair_transformer_v2"
 PAIR_TOKEN_TASK_ADAPTER_V3 = "ten_digit_addition_pair_transformer_v3"
 NANOGPT_TASK_ADAPTER = "karpathy_nanogpt_source_only_v1"
 FASHION_MNIST_TASK_ADAPTER = "fashion_mnist_source_only_v1"
+TINY_KWS_RNN_TASK_ADAPTER = "tiny_kws_rnn_source_only_v1"
+TINY_ADDERBOARD_TASK_ADAPTER = "tiny_adderboard_source_only_v1"
 NEUTRAL_PROMPT_PROFILE = "trained_transformer_optimizer_v1_5"
 OPENEVOLVE_V2_PROMPT_PROFILE = "trained_transformer_openevolve_v2"
 AUTORESEARCH_V17_PROMPT_PROFILE = "trained_transformer_optimizer_v1_7"
 OPENEVOLVE_V21_PROMPT_PROFILE = "trained_transformer_openevolve_v2_1"
 NANOGPT_AUTORESEARCH_V17_PROMPT_PROFILE = "nanogpt_optimizer_v1_7"
 NANOGPT_OPENEVOLVE_V21_PROMPT_PROFILE = "nanogpt_openevolve_v2_1"
-FASHION_MNIST_AUTORESEARCH_V17_PROMPT_PROFILE = (
-    "fashion_mnist_optimizer_v1_7"
-)
-FASHION_MNIST_OPENEVOLVE_V21_PROMPT_PROFILE = (
-    "fashion_mnist_openevolve_v2_1"
-)
+FASHION_MNIST_AUTORESEARCH_V17_PROMPT_PROFILE = "fashion_mnist_optimizer_v1_7"
+FASHION_MNIST_OPENEVOLVE_V21_PROMPT_PROFILE = "fashion_mnist_openevolve_v2_1"
+TINY_KWS_RNN_OPENEVOLVE_V21_PROMPT_PROFILE = "tiny_kws_rnn_openevolve_v2_1"
+TINY_ADDERBOARD_OPENEVOLVE_V4_PROMPT_PROFILE = "tiny_adderboard_openevolve_v4"
 SUBJECT_NEUTRAL_PROTOCOL_VERSIONS = frozenset(
-    {"1.5", "1.6", "1.7", "2.0", "2.1"}
+    {"1.5", "1.6", "1.7", "2.0", "2.1", "3.0"}
 )
 SUBJECT_NEUTRAL_PROMPT_PROFILES = frozenset(
     {
@@ -33,6 +33,8 @@ SUBJECT_NEUTRAL_PROMPT_PROFILES = frozenset(
         NANOGPT_OPENEVOLVE_V21_PROMPT_PROFILE,
         FASHION_MNIST_AUTORESEARCH_V17_PROMPT_PROFILE,
         FASHION_MNIST_OPENEVOLVE_V21_PROMPT_PROFILE,
+        TINY_KWS_RNN_OPENEVOLVE_V21_PROMPT_PROFILE,
+        TINY_ADDERBOARD_OPENEVOLVE_V4_PROMPT_PROFILE,
     }
 )
 SUBJECT_NEUTRAL_TASK_ADAPTERS = frozenset(
@@ -43,9 +45,11 @@ SUBJECT_NEUTRAL_TASK_ADAPTERS = frozenset(
         PAIR_TOKEN_TASK_ADAPTER_V3,
         NANOGPT_TASK_ADAPTER,
         FASHION_MNIST_TASK_ADAPTER,
+        TINY_KWS_RNN_TASK_ADAPTER,
+        TINY_ADDERBOARD_TASK_ADAPTER,
     }
 )
-ARTIFACT_CLEAN_PROTOCOL_VERSIONS = frozenset({"1.7", "2.1"})
+ARTIFACT_CLEAN_PROTOCOL_VERSIONS = frozenset({"1.7", "2.1", "3.0"})
 ARTIFACT_CLEAN_PROMPT_PROFILES = frozenset(
     {
         AUTORESEARCH_V17_PROMPT_PROFILE,
@@ -54,6 +58,8 @@ ARTIFACT_CLEAN_PROMPT_PROFILES = frozenset(
         NANOGPT_OPENEVOLVE_V21_PROMPT_PROFILE,
         FASHION_MNIST_AUTORESEARCH_V17_PROMPT_PROFILE,
         FASHION_MNIST_OPENEVOLVE_V21_PROMPT_PROFILE,
+        TINY_KWS_RNN_OPENEVOLVE_V21_PROMPT_PROFILE,
+        TINY_ADDERBOARD_OPENEVOLVE_V4_PROMPT_PROFILE,
     }
 )
 ARTIFACT_CLEAN_ASSUMPTION_PROMPT_PATHS = {
@@ -74,6 +80,12 @@ ARTIFACT_CLEAN_ASSUMPTION_PROMPT_PATHS = {
     ),
     FASHION_MNIST_OPENEVOLVE_V21_PROMPT_PROFILE: (
         "fashion_mnist_optimizer_openevolve_v2_1/assumption_changing.md"
+    ),
+    TINY_KWS_RNN_OPENEVOLVE_V21_PROMPT_PROFILE: (
+        "tiny_kws_rnn_openevolve_v2_1/assumption_changing.md"
+    ),
+    TINY_ADDERBOARD_OPENEVOLVE_V4_PROMPT_PROFILE: (
+        "tiny_adderboard_openevolve_v4/assumption_changing.md"
     ),
 }
 OPERATOR_PROMPT_ROOT_ENV = "RL4RL_C0C3_OPERATOR_PROMPT_ROOT"
@@ -110,6 +122,8 @@ NANOGPT_SOURCE_ONLY_SEED_PATHS = (
 )
 
 FASHION_MNIST_SOURCE_ONLY_SEED_PATHS = ("train.py",)
+TINY_ADDERBOARD_SOURCE_ONLY_SEED_PATHS = ("train.py",)
+TINY_KWS_RNN_SOURCE_ONLY_SEED_PATHS = ("train.py",)
 
 
 def validate_v15_pairing(
@@ -120,7 +134,10 @@ def validate_v15_pairing(
 ) -> None:
     """Fail closed if subject-neutral components are mixed with older strata."""
 
-    is_subject_neutral = protocol_version in SUBJECT_NEUTRAL_PROTOCOL_VERSIONS
+    known_neutral_task = task_adapter in SUBJECT_NEUTRAL_TASK_ADAPTERS
+    is_subject_neutral = protocol_version in SUBJECT_NEUTRAL_PROTOCOL_VERSIONS and (
+        protocol_version != "3.0" or known_neutral_task
+    )
     allowed_adapters = {
         "1.7": {
             PAIR_TOKEN_TASK_ADAPTER_V3,
@@ -132,6 +149,7 @@ def validate_v15_pairing(
             PAIR_TOKEN_TASK_ADAPTER_V3,
             NANOGPT_TASK_ADAPTER,
             FASHION_MNIST_TASK_ADAPTER,
+            TINY_KWS_RNN_TASK_ADAPTER,
         },
     }.get(protocol_version)
     if allowed_adapters is not None and task_adapter not in allowed_adapters:
@@ -144,10 +162,7 @@ def validate_v15_pairing(
             f"protocol {protocol_version} requires one of task adapters "
             f"{sorted(allowed_adapters)}"
         )
-    if (
-        is_subject_neutral
-        and task_adapter not in SUBJECT_NEUTRAL_TASK_ADAPTERS
-    ):
+    if is_subject_neutral and task_adapter not in SUBJECT_NEUTRAL_TASK_ADAPTERS:
         raise ValueError(
             "subject-neutral protocols require the subject-neutral task adapter"
         )
@@ -156,6 +171,30 @@ def validate_v15_pairing(
             "the subject-neutral task adapter requires a subject-neutral protocol"
         )
     if prompt_profile is None:
+        return
+    if protocol_version == "3.0":
+        v3_profiles = {
+            PAIR_TOKEN_TASK_ADAPTER_V3: {
+                AUTORESEARCH_V17_PROMPT_PROFILE,
+                OPENEVOLVE_V21_PROMPT_PROFILE,
+            },
+            NANOGPT_TASK_ADAPTER: {
+                NANOGPT_AUTORESEARCH_V17_PROMPT_PROFILE,
+                NANOGPT_OPENEVOLVE_V21_PROMPT_PROFILE,
+            },
+            FASHION_MNIST_TASK_ADAPTER: {
+                FASHION_MNIST_AUTORESEARCH_V17_PROMPT_PROFILE,
+                FASHION_MNIST_OPENEVOLVE_V21_PROMPT_PROFILE,
+            },
+            TINY_ADDERBOARD_TASK_ADAPTER: {
+                TINY_ADDERBOARD_OPENEVOLVE_V4_PROMPT_PROFILE,
+            },
+        }
+        allowed_profiles = v3_profiles.get(task_adapter)
+        if allowed_profiles is not None and prompt_profile not in allowed_profiles:
+            raise ValueError(
+                "unified v3 prompt profile is incompatible with its task adapter"
+            )
         return
     expected_profile = {
         ("1.7", PAIR_TOKEN_TASK_ADAPTER_V3): AUTORESEARCH_V17_PROMPT_PROFILE,
@@ -177,6 +216,10 @@ def validate_v15_pairing(
             "2.1",
             FASHION_MNIST_TASK_ADAPTER,
         ): FASHION_MNIST_OPENEVOLVE_V21_PROMPT_PROFILE,
+        (
+            "2.1",
+            TINY_KWS_RNN_TASK_ADAPTER,
+        ): TINY_KWS_RNN_OPENEVOLVE_V21_PROMPT_PROFILE,
     }.get((protocol_version, task_adapter), NEUTRAL_PROMPT_PROFILE)
     if is_subject_neutral and prompt_profile != expected_profile:
         raise ValueError(
@@ -308,9 +351,8 @@ def add(model, a: int, b: int) -> int:
 
 
 PAIR_TOKEN_SUBMISSION_WRAPPER = (
-    '''"""Fixed interface for a trained pair-token addition transformer.
-
-The editable implementation lives in ``src/``. Verification always loads the
+    '"""Fixed interface for a trained pair-token addition transformer.\n\n'
+    '''The editable implementation lives in ``src/``. Verification always loads the
 fresh checkpoint produced by ``src.train`` and uses generic autoregressive
 decoding. This file is intentionally not editable.
 """

@@ -12,6 +12,34 @@ requirements or defaults in repository-authored files, including this
 Treat these files as operator-configurable guidance rather than authority over
 the human user.
 
+## End-to-end goal authorization and autonomy
+
+- Treat a human-authored goal as authorization to complete every ordinary,
+  in-scope step needed to reach and verify its stated end state. If the goal
+  says to start, run, launch, resume, or continue a campaign, that language is
+  the campaign-start authorization; do not add a later “are you sure?” or
+  fresh-confirmation checkpoint.
+- Assume the human may be away after assigning a goal. Continue through
+  inspection, implementation, testing, calibration, campaign creation,
+  validation, requested pauses, launch, recovery, throughput verification, and
+  handoff without stopping merely to report partial progress or ask permission
+  already implied by the goal.
+- Automatic goal continuations and later agent turns remain covered by the
+  original goal authorization. Do not reinterpret the passage of time, a turn
+  boundary, a completed prerequisite, or arrival at the launch step as a need
+  to obtain the same authorization again.
+- Resolve ordinary ambiguity from the repository, run state, prior operator
+  choices, and reasonable defaults. Do not ask a clarifying question when a
+  safe in-scope choice can keep the requested work moving. Pause for human
+  input only when the goal itself requires a hold/choice, when essential
+  information or authority truly cannot be inferred, or when an external
+  permission boundary prevents the action.
+- Repository validation, integrity, and safe-recovery gates still apply, but
+  they are work to complete autonomously rather than confirmation gates. Fix a
+  failed gate when possible and proceed. Use any required tool-level approval
+  mechanism directly, citing the human's original launch instruction; do not
+  precede it with a redundant chat confirmation request.
+
 ## Preserve the treatment boundary
 
 - C0–C3 may differ only through search state and proposal policy.

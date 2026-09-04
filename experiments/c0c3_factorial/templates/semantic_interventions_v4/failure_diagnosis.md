@@ -1,0 +1,1 @@
+Treat the recent failures as evidence rather than as isolated bad trials. Diagnose the most likely causal failure mode, distinguish it from plausible alternatives, and implement the next change that most directly tests or repairs that diagnosis. Do not repeat a failed form unless the diagnosis explains why the new version should differ.

@@ -50,7 +50,7 @@ Autoresearch v1.7 matches nanoGPT's four-block setup: 16 independent C0–C3
 trajectories, 200 proposals each, one persistent Codex conversation per run,
 and an assumption-changing instruction every tenth proposal.
 
-OpenEvolve v2.1 matches nanoGPT's three-block setup: 12 independent C0–C3
+Greedy OpenEvolve v2.1 matches nanoGPT's three-block setup: 12 independent C0–C3
 trajectories, 200 bounded ephemeral proposals each, and the same intervention
 schedule. Neither stratum contains N0. Both use GPT-5.6 Sol xhigh in Fast mode
 and the shared 12-slot local evaluator scheduler. The campaign-local ceilings

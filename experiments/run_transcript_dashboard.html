@@ -1,0 +1,116 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="dashboard-hot-reload" content="enabled">
+<title>RL4RL run transcripts</title>
+<style>
+  :root { color-scheme:dark; --bg:#080c12; --panel:#0d131c; --panel2:#111923; --line:#273140; --text:#e6edf3; --muted:#8d9aaa; --blue:#58a6ff; --green:#3fb950; --amber:#d29922; --red:#f85149; }
+  * { box-sizing:border-box; }
+  body { margin:0; padding:24px 30px 56px; background:var(--bg); color:var(--text); font:13px/1.5 Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif; }
+  .shell { max-width:1500px; margin:auto; }
+  .page-tabs { display:flex; gap:6px; margin:0 0 22px; border-bottom:1px solid var(--line); }
+  .page-tabs a { color:#9aa7b7; text-decoration:none; padding:9px 12px; border-bottom:2px solid transparent; }
+  .page-tabs a.active { color:#f0f6fc; border-bottom-color:var(--blue); }
+  h1 { margin:0; font-size:30px; letter-spacing:-.03em; }
+  .subtitle { max-width:920px; margin:7px 0 18px; color:var(--muted); font-size:14px; }
+  .toolbar { display:grid; grid-template-columns:minmax(260px,1fr) minmax(360px,1.7fr) auto auto; gap:10px; align-items:end; padding:14px; border:1px solid var(--line); background:var(--panel); }
+  label { display:grid; min-width:0; gap:5px; color:var(--muted); font-size:11px; font-weight:650; letter-spacing:.04em; text-transform:uppercase; }
+  select,button { min-height:36px; padding:7px 10px; border:1px solid #344052; border-radius:5px; color:var(--text); background:#0b1119; font:inherit; }
+  .toolbar select { width:100%; min-width:0; }
+  button { cursor:pointer; } button:hover { border-color:#52647c; } button:disabled { opacity:.55; cursor:wait; }
+  #stamp { min-height:20px; margin:8px 1px 14px; color:var(--muted); font-size:12px; }
+  .run-summary { display:grid; grid-template-columns:minmax(300px,2fr) repeat(4,minmax(120px,.55fr)); border:1px solid var(--line); background:var(--panel); margin-bottom:14px; }
+  .summary-cell { min-width:0; padding:13px 15px; border-right:1px solid var(--line); }
+  .summary-cell:last-child { border-right:0; }
+  .summary-cell span { display:block; color:var(--muted); font-size:10px; font-weight:700; letter-spacing:.05em; text-transform:uppercase; }
+  .summary-cell strong { display:block; margin-top:4px; overflow-wrap:anywhere; font-size:14px; }
+  .proposal-list { display:grid; gap:14px; }
+  .proposal { border:1px solid var(--line); background:var(--panel); }
+  .proposal-head { display:flex; justify-content:space-between; gap:14px; align-items:flex-start; padding:14px 16px; border-bottom:1px solid #202a37; }
+  .proposal-title { display:flex; align-items:center; flex-wrap:wrap; gap:8px; }
+  .proposal-title h2 { margin:0; font-size:17px; }
+  .badges { display:flex; gap:5px; flex-wrap:wrap; }
+  .badge { display:inline-block; padding:2px 7px; border:1px solid #354257; border-radius:999px; color:#bac6d4; background:#111a26; font-size:10px; letter-spacing:.03em; text-transform:uppercase; }
+  .badge.good { border-color:#28643a; color:#7ee787; background:#102719; }
+  .badge.bad { border-color:#723532; color:#ff8b85; background:#281414; }
+  .badge.pending { border-color:#6d5727; color:#e4bd68; background:#251e10; }
+  .timestamp { color:var(--muted); font-size:11px; text-align:right; white-space:nowrap; }
+  .mechanism { display:grid; grid-template-columns:145px minmax(0,1fr); gap:12px; padding:12px 16px; border-bottom:1px solid #202a37; background:#0b1119; }
+  .mechanism span { color:var(--muted); font-size:10px; font-weight:700; letter-spacing:.05em; text-transform:uppercase; }
+  .mechanism strong { overflow-wrap:anywhere; color:#dce9f7; }
+  .proposal-body { display:grid; grid-template-columns:minmax(0,1.45fr) minmax(320px,.55fr); }
+  .messages { min-width:0; padding:15px 16px 18px; border-right:1px solid #202a37; }
+  .results { min-width:0; padding:15px 16px 18px; }
+  h3 { margin:0 0 10px; color:#d6dee8; font-size:12px; letter-spacing:.05em; text-transform:uppercase; }
+  h3.spaced { margin-top:14px; }
+  .message { margin:0 0 12px; border-left:3px solid #396fa8; background:#0a1018; }
+  .message:last-child { margin-bottom:0; }
+  .message header { padding:7px 10px; border-bottom:1px solid #1d2734; color:#9eacbd; font-size:10px; text-transform:uppercase; letter-spacing:.04em; }
+  pre { margin:0; padding:11px 12px; overflow-wrap:anywhere; white-space:pre-wrap; word-break:break-word; color:#d7e0ea; font:12px/1.55 ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,"Liberation Mono",monospace; }
+  .source-note { margin:-3px 0 10px; color:#9aa8b9; font-size:11px; }
+  .metric-grid { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:7px; margin-bottom:12px; }
+  .metric { min-width:0; padding:8px 9px; border:1px solid #263140; background:#0a1018; }
+  .metric span { display:block; overflow-wrap:anywhere; color:var(--muted); font-size:9px; font-weight:700; letter-spacing:.04em; text-transform:uppercase; }
+  .metric strong { display:block; margin-top:3px; overflow-wrap:anywhere; font-size:12px; font-variant-numeric:tabular-nums; }
+  .record { margin-top:12px; }
+  .record dt { margin-top:9px; color:var(--muted); font-size:10px; font-weight:700; letter-spacing:.04em; text-transform:uppercase; }
+  .record dd { margin:3px 0 0; overflow-wrap:anywhere; color:#cbd5e1; }
+  details { margin-top:10px; border-top:1px solid #263140; }
+  summary { padding:9px 0 0; cursor:pointer; color:#aebaca; font-size:11px; }
+  details pre { margin-top:7px; border:1px solid #263140; background:#080d14; }
+  .empty { padding:42px; border:1px dashed #344052; color:var(--muted); text-align:center; }
+  @media (max-width:1050px) { .toolbar { grid-template-columns:1fr 1fr; } .run-summary { grid-template-columns:1fr 1fr; } .summary-cell { border-bottom:1px solid var(--line); } .proposal-body { grid-template-columns:1fr; } .messages { border-right:0; border-bottom:1px solid #202a37; } }
+  @media (max-width:650px) { body { padding:15px; } .toolbar,.run-summary { grid-template-columns:1fr; } .summary-cell { border-right:0; } .proposal-head { display:block; } .timestamp { margin-top:8px; text-align:left; } .mechanism { grid-template-columns:1fr; gap:3px; } .metric-grid { grid-template-columns:1fr; } }
+</style>
+</head>
+<body><main class="shell">
+  <nav class="page-tabs" aria-label="Dashboard pages"><a href="/">Trajectory explorer</a><a href="/science">Scientific process</a><a class="active" href="/transcripts">Run transcripts</a><a href="/controller">Controller</a></nav>
+  <h1>Run transcripts</h1>
+  <p class="subtitle">Read each proposal in order: every public agent message recorded by Codex, its free-form mechanism family, and the resulting evaluator metrics.</p>
+  <section class="toolbar">
+    <label>Campaign<select id="campaign" disabled><option>Loading campaigns…</option></select></label>
+    <label>Run<select id="run" disabled><option>Select a campaign</option></select></label>
+    <button id="refresh" disabled>Refresh now</button>
+    <label>Auto refresh<select id="auto"><option value="0">Off</option><option value="30" selected>30 s</option><option value="60">1 min</option><option value="120">2 min</option></select></label>
+  </section>
+  <div id="stamp">Loading transcript index…</div>
+  <div id="content"></div>
+</main>
+<script>
+'use strict';
+const indexUrl=location.protocol==='file:'?'http://127.0.0.1:8765/api/transcripts':'/api/transcripts';
+const transcriptUrl=location.protocol==='file:'?'http://127.0.0.1:8765/api/transcript':'/api/transcript';
+const revisionUrl=location.protocol==='file:'?'http://127.0.0.1:8765/api/revision':'/api/revision';
+let indexData=null,currentTranscript=null,loading=false,refreshTimer=null,revision=null,revisionTimer=null,requestController=null,requestSequence=0;
+const $=id=>document.getElementById(id);
+function esc(value){return String(value??'').replace(/[&<>"']/g,ch=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]));}
+function present(value){return value!==null&&value!==undefined&&value!=='';}
+function fmt(value){if(!present(value))return '—';if(typeof value==='number')return value.toLocaleString(undefined,{maximumFractionDigits:6});if(typeof value==='boolean')return value?'Yes':'No';return String(value);}
+function campaignLabel(campaign){const parts=[campaign.task_display_name||campaign.campaign_id,campaign.framework_label,campaign.protocol_version?`protocol ${campaign.protocol_version}`:null];return parts.filter(Boolean).join(' · ');}
+function runLabel(run){const condition=run.condition_label||run.condition||'unassigned';const progress=`${Number(run.proposals_used||0).toLocaleString()} proposals`;return `${run.label||run.run_id} · ${condition} · ${progress}`;}
+function scalar(value){return value===null||['string','number','boolean'].includes(typeof value);}
+function metricTile(label,value){return `<div class="metric"><span>${esc(String(label).replaceAll('_',' '))}</span><strong>${esc(fmt(value))}</strong></div>`;}
+function jsonDetails(label,value){return `<details><summary>${esc(label)}</summary><pre>${esc(JSON.stringify(value,null,2))}</pre></details>`;}
+function statusBadges(proposal){const evaluation=proposal.evaluation||{},badges=[];badges.push(`<span class="badge">${esc(proposal.proposal_type||'proposal')}</span>`);if(!evaluation.available)badges.push('<span class="badge pending">In progress</span>');else badges.push(`<span class="badge ${evaluation.valid?'good':'bad'}">${evaluation.valid?'Valid':'Invalid'}</span>`);if(proposal.retained===true)badges.push('<span class="badge good">Retained</span>');else if(proposal.retained===false)badges.push('<span class="badge bad">Not retained</span>');return badges.join('');}
+function messagesHtml(proposal){if(!proposal.messages?.length)return '<div class="empty">No public agent message has been recorded for this proposal yet.</div>';const source=proposal.message_source_run_id?`<p class="source-note">Shared-prefix messages recorded by ${esc(proposal.message_source_run_id)}</p>`:'';return source+proposal.messages.map((message,index)=>`<article class="message"><header>Agent message ${index+1}${message.source?` · ${esc(message.source)}`:''}</header><pre>${esc(message.text)}</pre></article>`).join('');}
+function resultHtml(proposal){const evaluation=proposal.evaluation||{},metrics=evaluation.metrics||{},usage=proposal.usage||{},scalarMetrics=Object.entries(metrics).filter(([,value])=>scalar(value)),nestedMetrics=Object.entries(metrics).filter(([,value])=>!scalar(value));const overview=[['Valid',evaluation.available?evaluation.valid:null],['Fitness',evaluation.fitness],['Failure',evaluation.failure_kind],['Retention',proposal.retention_decision],['Evaluator calls',evaluation.evaluator_calls],['Evaluator seconds',evaluation.evaluator_seconds]];const claims=[['Hypothesis',proposal.hypothesis],['Intended edit',proposal.intended_edit],['Evidence',proposal.evidence]].filter(([,value])=>present(value));return `<h3>Resulting proposal metrics</h3><div class="metric-grid">${overview.map(([label,value])=>metricTile(label,value)).join('')}</div>${scalarMetrics.length?`<h3>Evaluator metrics</h3><div class="metric-grid">${scalarMetrics.map(([label,value])=>metricTile(label,value)).join('')}</div>`:''}${nestedMetrics.map(([label,value])=>jsonDetails(String(label).replaceAll('_',' '),value)).join('')}${Object.keys(usage).length?`<h3 class="spaced">Token usage</h3><div class="metric-grid">${Object.entries(usage).map(([label,value])=>metricTile(label,value)).join('')}</div>`:''}${claims.length?`<dl class="record">${claims.map(([label,value])=>`<dt>${esc(label)}</dt><dd>${esc(value)}</dd>`).join('')}</dl>`:''}${proposal.prompt?`<details><summary>Prompt sent to the agent</summary><pre>${esc(proposal.prompt)}</pre></details>`:''}`;}
+function proposalHtml(proposal){const completed=proposal.completed_at?new Date(proposal.completed_at).toLocaleString():'Awaiting completion';return `<article class="proposal"><header class="proposal-head"><div class="proposal-title"><h2>Proposal ${proposal.opportunity}</h2><div class="badges">${statusBadges(proposal)}</div></div><div class="timestamp">${esc(completed)}</div></header><div class="mechanism"><span>Mechanism family</span><strong>${esc(proposal.mechanism_family||'[not recorded]')}</strong></div><div class="proposal-body"><section class="messages"><h3>Agent messages · ${proposal.messages?.length||0}</h3>${messagesHtml(proposal)}</section><aside class="results">${resultHtml(proposal)}</aside></div></article>`;}
+function renderTranscript(payload){currentTranscript=payload;const run=payload.run||{},proposals=payload.proposals||[];$('content').innerHTML=`<section class="run-summary"><div class="summary-cell"><span>Run</span><strong>${esc(run.label||run.run_id)}</strong></div><div class="summary-cell"><span>Condition</span><strong>${esc(run.condition_label||run.condition||'—')}</strong></div><div class="summary-cell"><span>Intervention family</span><strong>${esc(run.condition_family||'—')}</strong></div><div class="summary-cell"><span>Status</span><strong>${esc(run.status||'—')}</strong></div><div class="summary-cell"><span>Proposals</span><strong>${proposals.length.toLocaleString()}</strong></div></section><section class="proposal-list">${proposals.length?proposals.map(proposalHtml).join(''):'<div class="empty">This run has no proposal records yet.</div>'}</section>`;$('stamp').textContent=`Updated ${new Date(payload.generated_at).toLocaleString()} · ${proposals.length.toLocaleString()} proposals`;
+}
+function selectedCampaign(){return indexData?.campaigns?.find(campaign=>campaign.campaign_id===$('campaign').value);}
+function syncRunOptions(preferred=null){const campaign=selectedCampaign(),runs=campaign?.runs||[],selector=$('run');selector.innerHTML=runs.map(run=>`<option value="${esc(run.run_id)}"${run.run_id===preferred?' selected':''}>${esc(runLabel(run))}</option>`).join('');selector.disabled=!runs.length;return runs.some(run=>run.run_id===preferred)?preferred:runs[0]?.run_id||null;}
+function syncUrl(){const url=new URL(location.href);url.searchParams.set('campaign',$('campaign').value);url.searchParams.set('run',$('run').value);history.replaceState(null,'',url);}
+async function loadTranscript(){const campaign=$('campaign').value,run=$('run').value;if(!campaign||!run)return;const sequence=++requestSequence;requestController?.abort();requestController=new AbortController();loading=true;$('refresh').disabled=true;$('refresh').textContent='Refreshing…';$('stamp').textContent='Loading all proposal messages and metrics…';syncUrl();try{const url=`${transcriptUrl}?campaign=${encodeURIComponent(campaign)}&run=${encodeURIComponent(run)}`,response=await fetch(url,{cache:'no-store',signal:requestController.signal});if(!response.ok)throw new Error(`HTTP ${response.status}`);const payload=await response.json();if(sequence===requestSequence)renderTranscript(payload);}catch(error){if(sequence===requestSequence&&error.name!=='AbortError'){$('content').innerHTML=`<div class="empty">Could not load this transcript: ${esc(error.message)}</div>`;$('stamp').textContent='Transcript load failed';}}finally{if(sequence===requestSequence){loading=false;$('refresh').disabled=false;$('refresh').textContent='Refresh now';}}}
+async function loadIndex(){try{const response=await fetch(indexUrl,{cache:'no-store'});if(!response.ok)throw new Error(`HTTP ${response.status}`);indexData=await response.json();const params=new URLSearchParams(location.search),preferredCampaign=params.get('campaign'),preferredRun=params.get('run'),campaigns=indexData.campaigns||[],campaignId=campaigns.some(item=>item.campaign_id===preferredCampaign)?preferredCampaign:campaigns[0]?.campaign_id;$('campaign').innerHTML=campaigns.map(campaign=>`<option value="${esc(campaign.campaign_id)}"${campaign.campaign_id===campaignId?' selected':''}>${esc(campaignLabel(campaign))}</option>`).join('');$('campaign').disabled=!campaigns.length;const runId=syncRunOptions(preferredRun);if(runId){$('run').value=runId;await loadTranscript();}else{$('stamp').textContent='No runs are available';$('content').innerHTML='<div class="empty">No campaign runs are available.</div>';}}catch(error){$('stamp').textContent=`Could not load transcript index: ${error.message}`;$('content').innerHTML='<div class="empty">The transcript index is unavailable.</div>';}}
+function scheduleRefresh(){clearInterval(refreshTimer);const seconds=Number($('auto').value);if(seconds>0)refreshTimer=setInterval(()=>{if(!loading)loadTranscript();},seconds*1000);}
+async function pollRevision(){try{const response=await fetch(revisionUrl,{cache:'no-store'});if(!response.ok)return;const next=(await response.json()).revision;if(revision&&next&&next!==revision){location.reload();return;}revision=next;}catch(_error){/* Retry silently. */}}
+$('campaign').addEventListener('change',()=>{const runId=syncRunOptions();if(runId){$('run').value=runId;loadTranscript();}});
+$('run').addEventListener('change',loadTranscript);
+$('refresh').addEventListener('click',loadTranscript);
+$('auto').addEventListener('change',scheduleRefresh);
+scheduleRefresh();pollRevision();revisionTimer=setInterval(pollRevision,1500);loadIndex();
+</script>
+</body>
+</html>

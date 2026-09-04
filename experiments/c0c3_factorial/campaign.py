@@ -22,10 +22,13 @@ from .spec import (
     FactorialSpec,
     FrameworkSpec,
     TaskSpec,
+    framework_hash_payload,
     make_assignments,
     sha256_json,
+    task_hash_payload,
 )
 from .state import Candidate, SearchController
+from .v3 import create_pairing_manifest, initialize_runtime_options
 
 
 def _write_json(path: Path, value: object) -> None:
@@ -212,16 +215,12 @@ def create_campaign(
     )
     if include_no_search is None:
         include_no_search = spec.include_no_search
-    if (
-        include_no_search != spec.include_no_search
-        and spec.c0c3_only
-    ):
+    if include_no_search != spec.include_no_search and spec.c0c3_only:
         raise ValueError(
             f"protocol {spec.protocol_version} campaign composition forbids N0"
         )
     if (
-        spec.execution_rule
-        in STAGED_EXECUTION_RULES
+        spec.execution_rule in STAGED_EXECUTION_RULES
         and not include_no_search
         and not spec.c0c3_only
     ):
@@ -246,13 +245,11 @@ def create_campaign(
         make_assignments(
             spec,
             task_id=task.task_id,
-            framework_id=framework.framework_id.value,
+            framework_id=framework.framework_key,
         )
     )
     schedule: list[dict[str, object]] = []
-    runtime_hash = scientific_runtime_hash(
-        repo_root, task=task, framework=framework
-    )
+    runtime_hash = scientific_runtime_hash(repo_root, task=task, framework=framework)
     for assignment in assignments:
         schedule.append(asdict(assignment) | {"condition": assignment.condition.value})
     if include_no_search:
@@ -266,7 +263,7 @@ def create_campaign(
                     "run_seed": paired.run_seed,
                     "run_id": (
                         f"{spec.study_id}-{task.task_id}-"
-                        f"{framework.framework_id.value}-b{block:02d}-n0"
+                        f"{framework.framework_key}-b{block:02d}-n0"
                     ),
                 }
             )
@@ -305,11 +302,36 @@ def create_campaign(
                 "schema_version": "1.0",
                 "assignment": assignment,
                 "protocol_hash": spec.protocol_hash,
-                "task_hash": sha256_json(asdict(task)),
-                "framework_hash": sha256_json(asdict(framework)),
+                "task_hash": sha256_json(task_hash_payload(task)),
+                "framework_hash": sha256_json(framework_hash_payload(framework)),
                 "scientific_runtime_hash": runtime_hash,
                 "baseline": calibration,
                 "repo_revision": _repo_revision(repo_root),
+                **(
+                    {
+                        "periodic_full_refresh": {
+                            "schema_version": "1.0",
+                            "interval_proposals": 10,
+                            "first_refresh_opportunity": 11,
+                            "preserve": [
+                                "incumbent_artifact",
+                                "private_cumulative_accounting",
+                                "private_audit_history",
+                                "evaluator_seed",
+                            ],
+                            "clear": [
+                                "subject_visible_outcomes",
+                                "mechanism_history",
+                                "candidate_population",
+                                "parent_history",
+                                "conversation_binding",
+                                "search_seed",
+                            ],
+                        }
+                    }
+                    if condition_label == "C4"
+                    else {}
+                ),
             },
         )
     inputs = output / "inputs"
@@ -341,18 +363,33 @@ def create_campaign(
             "schema_version": "1.0",
             "study_id": spec.study_id,
             "task_id": task.task_id,
-            "framework_id": framework.framework_id.value,
+            "framework_id": framework.framework_key,
             "protocol_hash": spec.protocol_hash,
-            "task_hash": sha256_json(asdict(task)),
-            "framework_hash": sha256_json(asdict(framework)),
+            "task_hash": sha256_json(task_hash_payload(task)),
+            "framework_hash": sha256_json(framework_hash_payload(framework)),
             "scientific_runtime_hash": runtime_hash,
             "seed_candidate_id": candidate_id,
             "include_no_search": include_no_search,
             "run_count": len(schedule),
             "primary_run_ids": primary_run_ids if staged else all_run_ids,
             "optional_run_ids": optional_run_ids if staged else [],
+            **(
+                {
+                    "v2_1_c4": {
+                        "condition": "C4",
+                        "policy": "incumbent_preserving_full_search_refresh",
+                        "interval_proposals": 10,
+                        "first_refresh_opportunity": 11,
+                    }
+                }
+                if spec.protocol_version == "2.1"
+                else {}
+            ),
         },
     )
+    if spec.protocol_version == "3.0":
+        initialize_runtime_options(output)
+        create_pairing_manifest(output, spec=spec)
     shutil.rmtree(output / "seed-candidate")
     shutil.rmtree(common_support)
     return output

@@ -1,8 +1,8 @@
-# Controlled OpenEvolve transformer protocols v2.0 and v2.1
+# Greedy OpenEvolve transformer protocols v2.0 and v2.1
 
-Protocol 2.0 is a prospective, scientifically separate OpenEvolve stratum. It
+Protocol 2.0 is a prospective, scientifically separate Greedy OpenEvolve stratum. It
 keeps the C0–C3 2×2 question and removes N0 entirely. It must not be pooled with
-the legacy protocol-1.1 OpenEvolve campaign, whose task surface allowed direct
+the legacy protocol-1.1 Greedy OpenEvolve campaign, whose task surface allowed direct
 arithmetic transducers and whose 30,000-step failures consumed many hours.
 Protocol 2.1 is the prospective source-only, artifact-clean successor. It keeps
 the same execution geometry and validity checks but removes unnecessary
@@ -11,8 +11,9 @@ collection; existing 2.0 campaigns remain scientifically separate.
 
 ## Frozen design
 
-- V2.0 uses three paired blocks; the v2.1 addition preset uses five. Both have
-  four C0–C3 trajectories per block and no N0 assignment.
+- V2.0 uses three paired blocks. Under the operator-authorized v2.1 C4
+  amendment, every v2.1 block has the original four C0–C3 trajectories plus
+  one C4 periodic-full-refresh trajectory and no N0 assignment.
 - `K=4`, the existing fair lineage selector, and strict lineage-local retention.
 - 200 proposal opportunities per trajectory, with C1/C3 assumption changes at
   every tenth opportunity.
@@ -27,6 +28,24 @@ collection; existing 2.0 campaigns remain scientifically separate.
 - The 1,644-parameter pair-token transformer is the common seed. Its ordinary
   training path is 5,000 steps rather than the legacy 6,080-parent 30,000-step
   path. The evaluator timeout is 1,800 seconds.
+
+## V2.1 C4 periodic full refresh amendment
+
+C4 uses the same single-incumbent, ordinary-proposal search behavior as C0.
+After each ten completed physical proposals, immediately before physical
+proposals 11, 21, 31, and so on, the current retained model becomes a new
+starting design. The subject-visible outcome and mechanism history, candidate
+population, parent history, conversation binding, and search seed are reset.
+The subject-visible proposal number and any rendered accounting also restart,
+and the Codex workspace path is opaque, so the researcher cannot infer that an
+earlier search epoch occurred.
+
+The private controller retains immutable audit events and true cumulative
+tokens, evaluations, evaluator time, and physical proposal count. It stops the
+trajectory after exactly 200 physical proposals. The task evaluator/data seed
+does not change at a refresh. Existing v2.1 campaigns store C4 assignments in
+`v2-1-c4-schedule.json` so their already-running C0–C3 schedules and supervisors
+remain untouched; future v2.1 campaign creation includes C4 directly.
 
 ## Subject and model validity
 
@@ -51,9 +70,9 @@ markers, empty design placeholders, selection counts, nonpublic `cases` or
 `correct` fields, raw runner errors, filesystem paths that do not exist, or
 run-derived environment seed. See `ARTIFACT_CLEAN_PROTOCOLS.md`.
 
-## Controlled OpenEvolve boundary
+## Greedy OpenEvolve boundary
 
-This is the controlled OpenEvolve proposal adapter, not native end-to-end
+This is the Greedy OpenEvolve proposal adapter, not native end-to-end
 OpenEvolve. The vendored `PromptSampler`, SEARCH/REPLACE representation, parser,
 and patch workflow remain. The shared C0–C3 instrument deliberately owns parent
 selection, portfolio state, retention, budgets, and evaluator feedback because

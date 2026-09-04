@@ -20,6 +20,8 @@ from .neutral_task import (
     OPENEVOLVE_V21_PROMPT_PROFILE,
     OPERATOR_PROMPT_ROOT_ENV,
     SUBJECT_NEUTRAL_PROMPT_PROFILES,
+    TINY_ADDERBOARD_OPENEVOLVE_V4_PROMPT_PROFILE,
+    TINY_KWS_RNN_OPENEVOLVE_V21_PROMPT_PROFILE,
 )
 from .neutral_task import NEUTRAL_PROMPT_PROFILE as _NEUTRAL_PROMPT_PROFILE
 from .spec import (
@@ -118,6 +120,9 @@ class VisibleOutcome:
     failure_kind: str | None
     mechanism: str = "[not recorded]"
     evidence: str = "[not recorded]"
+    developmental_status: str | None = None
+    developmental_credit: float | None = None
+    developmental_reasons: tuple[str, ...] = ()
 
 
 @dataclass(frozen=True)
@@ -135,6 +140,9 @@ class PromptContext:
     no_search: bool = False
     recent_outcomes: tuple[VisibleOutcome, ...] = ()
     mechanism_ledger: str = "No earlier mechanism result is available."
+    phased_session: bool = False
+    proposal_policy_override: str | None = None
+    evaluation_policy_note: str | None = None
 
 
 @dataclass(frozen=True)
@@ -183,15 +191,19 @@ class PromptRenderer:
             encoding="utf-8"
         )
         self.neutral_transition = (
-            neutral_root / "assumption_changing.md"
-        ).read_text(encoding="utf-8").strip()
+            (neutral_root / "assumption_changing.md")
+            .read_text(encoding="utf-8")
+            .strip()
+        )
         openevolve_root = root / "transformer_optimizer_openevolve_v2"
-        self.openevolve_v2_common_template = (
-            openevolve_root / "PROGRAM.md"
-        ).read_text(encoding="utf-8")
+        self.openevolve_v2_common_template = (openevolve_root / "PROGRAM.md").read_text(
+            encoding="utf-8"
+        )
         self.openevolve_v2_transition = (
-            openevolve_root / "assumption_changing.md"
-        ).read_text(encoding="utf-8").strip()
+            (openevolve_root / "assumption_changing.md")
+            .read_text(encoding="utf-8")
+            .strip()
+        )
         autoresearch_v17_root = root / "transformer_optimizer_v1_7"
         self.autoresearch_v17_initial_template = (
             autoresearch_v17_root / "PROGRAM.md"
@@ -256,9 +268,7 @@ class PromptRenderer:
             .read_text(encoding="utf-8")
             .strip()
         )
-        fashion_openevolve_root = (
-            root / "fashion_mnist_optimizer_openevolve_v2_1"
-        )
+        fashion_openevolve_root = root / "fashion_mnist_optimizer_openevolve_v2_1"
         self.fashion_openevolve_v21_common_template = (
             fashion_openevolve_root / "PROGRAM.md"
         ).read_text(encoding="utf-8")
@@ -266,6 +276,28 @@ class PromptRenderer:
             override_text
             if override_text is not None
             else (fashion_openevolve_root / "assumption_changing.md")
+            .read_text(encoding="utf-8")
+            .strip()
+        )
+        tiny_adderboard_openevolve_root = root / "tiny_adderboard_openevolve_v4"
+        self.tiny_adderboard_openevolve_v4_common_template = (
+            tiny_adderboard_openevolve_root / "PROGRAM.md"
+        ).read_text(encoding="utf-8")
+        self.tiny_adderboard_openevolve_v4_transition = (
+            override_text
+            if override_text is not None
+            else (tiny_adderboard_openevolve_root / "assumption_changing.md")
+            .read_text(encoding="utf-8")
+            .strip()
+        )
+        tiny_kws_openevolve_root = root / "tiny_kws_rnn_openevolve_v2_1"
+        self.tiny_kws_openevolve_v21_common_template = (
+            tiny_kws_openevolve_root / "PROGRAM.md"
+        ).read_text(encoding="utf-8")
+        self.tiny_kws_openevolve_v21_transition = (
+            override_text
+            if override_text is not None
+            else (tiny_kws_openevolve_root / "assumption_changing.md")
             .read_text(encoding="utf-8")
             .strip()
         )
@@ -397,6 +429,26 @@ class PromptRenderer:
                 "{proposal_guidance_section}",
             },
         )
+        self._require_tokens(
+            self.tiny_adderboard_openevolve_v4_common_template,
+            {
+                "{task_contract}",
+                "{framework_contract}",
+                "{design_context}",
+                "{recent_outcomes}",
+                "{proposal_guidance_section}",
+            },
+        )
+        self._require_tokens(
+            self.tiny_kws_openevolve_v21_common_template,
+            {
+                "{task_contract}",
+                "{framework_contract}",
+                "{design_context}",
+                "{recent_outcomes}",
+                "{proposal_guidance_section}",
+            },
+        )
 
     @staticmethod
     def _require_tokens(template: str, required: set[str]) -> None:
@@ -442,17 +494,29 @@ class PromptRenderer:
             f"{', '.join(task.public_feedback_metrics)}."
         )
 
+    @classmethod
+    def _neutral_task_contract_with_policy(
+        cls, task: TaskSpec, context: PromptContext
+    ) -> str:
+        contract = cls._neutral_task_contract(task)
+        if context.evaluation_policy_note:
+            contract += f"\n{context.evaluation_policy_note.strip()}"
+        return contract
+
     @staticmethod
     def _framework_contract(framework: FrameworkSpec) -> str:
         return (
-            f"Framework: {framework.framework_id.value}\n"
+            f"Framework: {framework.framework_key}\n"
             f"Proposal adapter: {framework.adapter}\n"
             f"Edit representation: {framework.edit_mode}"
         )
 
     @staticmethod
     def _neutral_framework_contract(framework: FrameworkSpec) -> str:
-        if framework.framework_id is FrameworkKind.OPENEVOLVE:
+        if framework.framework_id in {
+            FrameworkKind.GREEDY_OPENEVOLVE,
+            FrameworkKind.NATIVE_OPENEVOLVE,
+        }:
             return (
                 "Propose changes through exact SEARCH/REPLACE blocks. The patching "
                 "interface applies them to the supplied editable source."
@@ -478,7 +542,16 @@ class PromptRenderer:
         )
 
     @staticmethod
-    def _neutral_conversation_contract(spec: FactorialSpec) -> str:
+    def _neutral_conversation_contract(
+        spec: FactorialSpec, *, phased_session: bool = False
+    ) -> str:
+        if phased_session:
+            return (
+                "This working conversation covers a short research phase. The "
+                "current filesystem, available-design section, and verification "
+                "evidence are authoritative whenever they differ from an earlier "
+                "message. A later phase may begin with a fresh conversation."
+            )
         if spec.conversation_mode is ConversationMode.CONTINUOUS:
             return (
                 "This working conversation continues across cycles. The current "
@@ -528,8 +601,7 @@ class PromptRenderer:
                 "workspace."
             )
         return (
-            "The current editable design is provided. No reference design is "
-            "available."
+            "The current editable design is provided. No reference design is available."
         )
 
     @staticmethod
@@ -733,12 +805,17 @@ class PromptRenderer:
                 normalized = value.strip()
                 if normalized and normalized != omitted:
                     parts.append(f"{label}: {normalized}")
+            if outcome.developmental_status is not None:
+                parts.append(
+                    "developmental_status: "
+                    f"{outcome.developmental_status}; "
+                    f"credit={outcome.developmental_credit}; "
+                    f"evidence={', '.join(outcome.developmental_reasons) or 'none'}"
+                )
             parts.append(f"result: {result}")
             metrics = cls._public_metrics(outcome.metrics, task)
             if metrics:
-                parts.append(
-                    f"reported_values: {json.dumps(metrics, sort_keys=True)}"
-                )
+                parts.append(f"reported_values: {json.dumps(metrics, sort_keys=True)}")
             rows.append("\n".join(parts))
         return "\n\n".join(rows)
 
@@ -751,13 +828,9 @@ class PromptRenderer:
     ) -> RenderedPrompt:
         neutral = framework.prompt_profile in SUBJECT_NEUTRAL_PROMPT_PROFILES
         artifact_clean = framework.prompt_profile in ARTIFACT_CLEAN_PROMPT_PROFILES
-        autoresearch_v17 = (
-            framework.prompt_profile == AUTORESEARCH_V17_PROMPT_PROFILE
-        )
+        autoresearch_v17 = framework.prompt_profile == AUTORESEARCH_V17_PROMPT_PROFILE
         openevolve_v2 = framework.prompt_profile == OPENEVOLVE_V2_PROMPT_PROFILE
-        openevolve_v21 = (
-            framework.prompt_profile == OPENEVOLVE_V21_PROMPT_PROFILE
-        )
+        openevolve_v21 = framework.prompt_profile == OPENEVOLVE_V21_PROMPT_PROFILE
         nanogpt_autoresearch_v17 = (
             framework.prompt_profile == NANOGPT_AUTORESEARCH_V17_PROMPT_PROFILE
         )
@@ -765,12 +838,16 @@ class PromptRenderer:
             framework.prompt_profile == NANOGPT_OPENEVOLVE_V21_PROMPT_PROFILE
         )
         fashion_autoresearch_v17 = (
-            framework.prompt_profile
-            == FASHION_MNIST_AUTORESEARCH_V17_PROMPT_PROFILE
+            framework.prompt_profile == FASHION_MNIST_AUTORESEARCH_V17_PROMPT_PROFILE
         )
         fashion_openevolve_v21 = (
-            framework.prompt_profile
-            == FASHION_MNIST_OPENEVOLVE_V21_PROMPT_PROFILE
+            framework.prompt_profile == FASHION_MNIST_OPENEVOLVE_V21_PROMPT_PROFILE
+        )
+        tiny_adderboard_openevolve_v4 = (
+            framework.prompt_profile == TINY_ADDERBOARD_OPENEVOLVE_V4_PROMPT_PROFILE
+        )
+        tiny_kws_openevolve_v21 = (
+            framework.prompt_profile == TINY_KWS_RNN_OPENEVOLVE_V21_PROMPT_PROFILE
         )
         transition_active = (
             False
@@ -811,9 +888,7 @@ class PromptRenderer:
                         context.condition, spec.portfolio_capacity
                     )
                     if neutral
-                    else self._search_state(
-                        context.condition, spec.portfolio_capacity
-                    )
+                    else self._search_state(context.condition, spec.portfolio_capacity)
                 )
             )
             if transition_active:
@@ -831,15 +906,23 @@ class PromptRenderer:
                                     self.fashion_openevolve_v21_transition
                                     if fashion_openevolve_v21
                                     else (
-                                        self.autoresearch_v17_transition
-                                        if autoresearch_v17
+                                        self.tiny_adderboard_openevolve_v4_transition
+                                        if tiny_adderboard_openevolve_v4
                                         else (
-                                            self.openevolve_v21_transition
-                                            if openevolve_v21
+                                            self.tiny_kws_openevolve_v21_transition
+                                            if tiny_kws_openevolve_v21
                                             else (
-                                                self.openevolve_v2_transition
-                                                if openevolve_v2
-                                                else self.neutral_transition
+                                                self.autoresearch_v17_transition
+                                                if autoresearch_v17
+                                                else (
+                                                    self.openevolve_v21_transition
+                                                    if openevolve_v21
+                                                    else (
+                                                        self.openevolve_v2_transition
+                                                        if openevolve_v2
+                                                        else self.neutral_transition
+                                                    )
+                                                )
                                             )
                                         )
                                     )
@@ -855,24 +938,19 @@ class PromptRenderer:
                         else self.transition
                     )
             else:
-                proposal_policy = (
-                    "" if neutral else self.ordinary
-                )
+                proposal_policy = "" if neutral else self.ordinary
+            if transition_active and context.proposal_policy_override is not None:
+                proposal_policy = context.proposal_policy_override.strip()
         treatment_skeleton_sha256 = ""
         if artifact_clean:
             include_source_paths = (
-                autoresearch_v17
-                or nanogpt_autoresearch_v17
-                or fashion_autoresearch_v17
+                autoresearch_v17 or nanogpt_autoresearch_v17 or fashion_autoresearch_v17
             )
-            design_context = (
-                f"{search_state}\n\n"
-                + self._clean_slots(
-                    context.visible_candidates,
-                    selected_parent_id=context.selected_parent_id,
-                    task=task,
-                    include_source_paths=include_source_paths,
-                )
+            design_context = f"{search_state}\n\n" + self._clean_slots(
+                context.visible_candidates,
+                selected_parent_id=context.selected_parent_id,
+                task=task,
+                include_source_paths=include_source_paths,
             )
             guidance_section = (
                 f"## Direction\n\n{proposal_policy}" if proposal_policy else ""
@@ -899,12 +977,20 @@ class PromptRenderer:
                 common_template = self.nanogpt_openevolve_v21_common_template
             elif fashion_openevolve_v21:
                 common_template = self.fashion_openevolve_v21_common_template
+            elif tiny_adderboard_openevolve_v4:
+                common_template = self.tiny_adderboard_openevolve_v4_common_template
+            elif tiny_kws_openevolve_v21:
+                common_template = self.tiny_kws_openevolve_v21_common_template
             else:
                 common_template = self.openevolve_v21_common_template
             values = {
-                "task_contract": self._neutral_task_contract(task),
+                "task_contract": self._neutral_task_contract_with_policy(
+                    task, context
+                ),
                 "framework_contract": self._neutral_framework_contract(framework),
-                "conversation_contract": self._neutral_conversation_contract(spec),
+                "conversation_contract": self._neutral_conversation_contract(
+                    spec, phased_session=context.phased_session
+                ),
                 "design_context": design_context,
                 "recent_outcomes": self._clean_recent_outcomes(
                     () if context.no_search else context.recent_outcomes,
@@ -915,9 +1001,7 @@ class PromptRenderer:
             text = common_template.format(**values)
             skeleton_values = dict(values)
             skeleton_values["design_context"] = "[DESIGN CONTEXT REDACTED]"
-            skeleton_values["proposal_guidance_section"] = (
-                "[DIRECTION REDACTED]"
-            )
+            skeleton_values["proposal_guidance_section"] = "[DIRECTION REDACTED]"
             treatment_skeleton_sha256 = self._hash(
                 common_template.format(**skeleton_values)
             )
@@ -956,9 +1040,11 @@ class PromptRenderer:
                 else self.neutral_common_template
             )
             text = common_template.format(
-                task_contract=self._neutral_task_contract(task),
+                task_contract=self._neutral_task_contract_with_policy(task, context),
                 framework_contract=self._neutral_framework_contract(framework),
-                conversation_contract=self._neutral_conversation_contract(spec),
+                conversation_contract=self._neutral_conversation_contract(
+                    spec, phased_session=context.phased_session
+                ),
                 design_context=design_context,
                 recent_outcomes=self._neutral_recent_outcomes(
                     () if context.no_search else context.recent_outcomes
@@ -976,8 +1062,7 @@ class PromptRenderer:
             if not context.hide_token_budget:
                 budget_parts.append(f"tokens_remaining={context.remaining_tokens}")
             budget_parts.append(
-                "evaluator_seconds_remaining="
-                f"{context.remaining_evaluator_seconds:.3f}"
+                f"evaluator_seconds_remaining={context.remaining_evaluator_seconds:.3f}"
             )
             budget = "; ".join(budget_parts)
             if context.token_budget_continuation_notice:

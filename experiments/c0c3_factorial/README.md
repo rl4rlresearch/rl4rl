@@ -22,7 +22,8 @@ N0, outside the 2×2 contrasts. Protocols 1.7, 2.0, and 2.1 contain only C0–C3
 2. [RUNBOOK.md](RUNBOOK.md) — exact local commands from calibration through
    sealed analysis and recovery.
 3. [FRAMEWORKS_AND_TASKS.md](FRAMEWORKS_AND_TASKS.md) — what “Karpathy
-   Autoresearch” and “OpenEvolve” mean here, AdderBoard and nanoGPT setup, and
+   Autoresearch”, “Greedy OpenEvolve”, and “Native OpenEvolve” mean here,
+   AdderBoard and nanoGPT setup, and
    extension interfaces.
 4. [MODAL.md](MODAL.md) — target-backend calibration, persistent volumes, and
    serialized GPU execution for protocol 1.0. Parallel protocols 1.1, 1.3,
@@ -30,9 +31,11 @@ N0, outside the 2×2 contrasts. Protocols 1.7, 2.0, and 2.1 contain only C0–C3
 5. [PAPER_NOTES.md](PAPER_NOTES.md) — literature, hypotheses, reviewer rubric,
    figures, statistical cautions, and paper-writing checklist.
 6. [OPENEVOLVE_V2.md](OPENEVOLVE_V2.md) — the no-N0, validity-constrained
-   controlled OpenEvolve protocols and launch commands.
+   Greedy OpenEvolve protocols and launch commands.
 7. [ARTIFACT_CLEAN_PROTOCOLS.md](ARTIFACT_CLEAN_PROTOCOLS.md) — the v1.7 and
    v2.1 source-only subject boundary and prompt-cleanliness guarantees.
+8. [UNIFIED_V3.md](UNIFIED_V3.md) — the unified extensible successor,
+   campaign-wide prompt snapshot, bounded capsules, and paired-prefix fork.
 
 Future coding agents must also follow [AGENTS.md](AGENTS.md).
 
@@ -44,12 +47,17 @@ Future coding agents must also follow [AGENTS.md](AGENTS.md).
   retention, event log, and crash-safe state.
 - `prompts.py` plus `templates/`: one common prompt with exactly two marked
   treatment regions.
-- `frameworks.py`: direct-edit Autoresearch and controlled OpenEvolve
-  SEARCH/REPLACE adapters.
+- `frameworks.py`: direct-edit Autoresearch, Greedy OpenEvolve, and native
+  OpenEvolve Codex/diff adapters.
+- `native_openevolve.py`: checkpointed bridge to OpenEvolve's official
+  population database, island, MAP-Elites, archive, and migration policies.
 - `campaign.py`: portable calibration and immutable campaign construction.
 - `runner.py`: one locked proposal/evaluation opportunity.
 - `evaluator.py`: campaign-local evaluator limits plus one crash-releasing,
-  twelve-slot host scheduler shared by every local 1.6/1.7/2.0/2.1 campaign.
+  operator-sized host scheduler shared by every local campaign (default 12).
+- `agent_scheduler.py`: crash-releasing, operator-sized host subject-agent
+  scheduler shared by unified and semantic campaigns (default 30), without a
+  wave or peer barrier.
 - `orchestration.py`: versioned serial, synchronized-wave, and independently
   advancing parallel execution, plus campaign writer locks and append-only
   execution provenance.
@@ -58,6 +66,8 @@ Future coding agents must also follow [AGENTS.md](AGENTS.md).
   and factorial contrasts.
 - `modal_app.py`: the same runner on a serialized Modal H100 worker.
 - `configs/`: switchable protocols, tasks, and framework adapters.
+- `v3.py` and `v3_analysis.py`: unified flexible controls, campaign-wide prompt
+  snapshot, literal prefix sharing/forking, provenance, health, and audit.
 
 ## Scope presets
 
@@ -114,7 +124,7 @@ Future coding agents must also follow [AGENTS.md](AGENTS.md).
   resumes once with a minimal continuation notice, and omits token-budget
   language from every later prompt.
 - `configs/protocols/controlled_openevolve_transformer_v2.toml` is the
-  prospective controlled OpenEvolve replacement: three C0–C3-only blocks, 200
+  prospective Greedy OpenEvolve replacement: three C0–C3-only blocks, 200
   bounded ephemeral proposals per run, the 1,644-parameter/5,000-step parent,
   neutral prompts, strict patch/source preflight, trained-attention checks,
   three campaign-local evaluator slots, the shared twelve-slot host scheduler,
@@ -125,7 +135,7 @@ Future coding agents must also follow [AGENTS.md](AGENTS.md).
   preset has two blocks/eight primary trajectories, no N0, no subject-visible
   resource/horizon accounting, source-only workspaces, and no token-based stop.
 - `configs/protocols/controlled_openevolve_transformer_v2_1.toml` is the
-  artifact-clean ephemeral OpenEvolve successor. It preserves v2.0's search
+  artifact-clean ephemeral Greedy OpenEvolve successor. It preserves v2.0's search
   geometry and evaluator controls while removing subject-visible orchestration
   artifacts and redundant prompt composition; its current addition-task preset
   has five blocks/twenty trajectories. In both 1.7 and 2.1, the main
@@ -144,6 +154,44 @@ Future coding agents must also follow [AGENTS.md](AGENTS.md).
   100,000 presented training examples, and the sealed official test set. See
   [FASHION_MNIST.md](FASHION_MNIST.md); setup does not download, calibrate, or
   launch this task automatically.
+- `configs/protocols/tiny_kws_rnn_openevolve_v2_1.toml` defines a five-block
+  Mini Speech Commands causal-recurrence stratum with exact executed-MAC
+  minimization, speaker-disjoint validation/Layer C, and a task-isolated
+  ten-slot CPU evaluator pool. See [TINY_KWS_RNN.md](TINY_KWS_RNN.md).
+- `configs/protocols/unified_v3.toml` is the single successor protocol for
+  Autoresearch, Greedy OpenEvolve, Native OpenEvolve, plugin frameworks, and
+  plugin tasks. Its supplied
+  preset uses eight 100-proposal blocks and no N0. C0/C1 and C2/C3 literally
+  share their pre-intervention trajectories and fork from identical state at
+  the first intervention. See [UNIFIED_V3.md](UNIFIED_V3.md). No official v3
+  run is launched by setup or validation.
+- `configs/protocols/unified_v3_adderboard_greedy_3block.toml` is the
+  three-block C0-C3 Greedy OpenEvolve AdderBoard preset. Its matching runtime
+  options enable the 5k-to-30k qualification ladder and exactly three
+  task-isolated evaluator slots.
+- `configs/protocols/semantic_interventions_v4.toml` is the exploratory
+  multi-arm expansion built on the unified v3 controller. Twenty-three semantic
+  research operations receive three matched replicates, share one literal
+  five-proposal prefix per replicate, and then run to 200 proposals in
+  five-proposal sessions.
+  It adds candidate-editable bounded training ladders, non-selective
+  developmental evidence, independent arm controls, physical resource
+  de-duplication, and an incumbent-preserving full-search refresh arm. See
+  [SEMANTIC_INTERVENTIONS_V4.md](SEMANTIC_INTERVENTIONS_V4.md).
+  The first launched stratum used Fashion-MNIST/Greedy OpenEvolve; AdderBoard,
+  nanoGPT, and Autoresearch are prepared but are not started automatically.
+  New campaigns may instead select
+  `configs/frameworks/fashion_mnist_native_openevolve_v3.toml` to use the
+  vendored OpenEvolve population engine while leaving the active pinned greedy
+  campaign unchanged. The local dashboard's Controller tab exposes shared
+  local task-evaluator ceilings and collapsible live run/evaluator limits for
+  each compatible semantic campaign. Task and campaign evaluator controls use
+  the operator-set host evaluator limit as their editable maximum; actual
+  execution remains the minimum of host, task, and campaign ceilings. A
+  campaign's concurrent-run
+  maximum is reloaded every half-second: raising it dispatches more eligible
+  runs, while lowering it only suppresses new starts until current work ends.
+  Neither operation pauses, drains, or restarts the campaign.
 
 Run the dev protocol end to end before spending on the paper protocol. Do not
 reinterpret dev results as a pilot effect estimate: its transition density and

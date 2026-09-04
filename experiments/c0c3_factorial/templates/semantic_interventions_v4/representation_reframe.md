@@ -1,0 +1,1 @@
+Reconsider how the inputs, intermediate features, or outputs are represented. Identify a representation assumption that may be making the computation unnecessarily difficult, then implement a different learned representation that gives the model a meaningfully different computational route.
