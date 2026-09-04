@@ -660,9 +660,13 @@ else:
             raise SystemExit('four independent trajectories did not overlap at launch')
         time.sleep(0.01)
     if run_id.endswith('-c0'):
-        time.sleep(0.5)
-        if not (markers / 'resumed').exists():
-            raise SystemExit('C0 waited for its peers before starting opportunity 2')
+        deadline = time.monotonic() + 5
+        while not (markers / 'resumed').exists():
+            if time.monotonic() >= deadline:
+                raise SystemExit(
+                    'C0 waited for its peers before starting opportunity 2'
+                )
+            time.sleep(0.01)
 previous = int((workspace / 'candidate.py').read_text().split('=')[1])
 (workspace / 'candidate.py').write_text(f'SCORE = {{previous + 1}}\\n')
 last.write_text('HYPOTHESIS: increment score\\nINTENDED_EDIT: increment SCORE\\n')
