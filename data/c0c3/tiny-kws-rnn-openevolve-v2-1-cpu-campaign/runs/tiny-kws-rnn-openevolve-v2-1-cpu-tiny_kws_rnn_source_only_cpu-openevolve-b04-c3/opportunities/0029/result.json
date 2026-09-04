@@ -1,0 +1,105 @@
+{
+  "artifact_path": "candidates/dd54d01acd37f306a85a68b9985d2e571a6e96c98eac81fb00bbae6833f0eecd",
+  "candidate_id": "dd54d01acd37f306a85a68b9985d2e571a6e96c98eac81fb00bbae6833f0eecd",
+  "codex_service_tier": "default",
+  "condition": "C3",
+  "conversation_session_id": null,
+  "evaluation": {
+    "evaluator_calls": 1,
+    "evaluator_seconds": 65.45749479089864,
+    "failure_kind": "nonqualification",
+    "fitness": null,
+    "metrics": {
+      "batch_size": 128,
+      "evaluation_cases": 815,
+      "evaluation_split": "public_speaker_disjoint_validation",
+      "examples_processed": 50000,
+      "inference_cost": 5492937523337997417,
+      "maximum_recurrent_steps": 26,
+      "mean_recurrent_steps": 26.0,
+      "median_recurrent_steps": 26,
+      "optimizer_steps": 397,
+      "p95_recurrent_steps": 26,
+      "parameters": 52297,
+      "peak_hidden_elements": 122368,
+      "recurrent_logit_effect": 0.05444321408867836,
+      "recurrent_macs": 1051511370,
+      "recurrent_steps": 21190,
+      "state_dependence_effect": 0.39299383759498596,
+      "state_update_effect": 0.39412936568260193,
+      "total_inference_macs": 1053063130,
+      "trained_recurrent_logit_effect": 0.3414452373981476,
+      "trained_state_dependence_effect": 0.4395676553249359,
+      "trained_state_update_effect": 0.43605896830558777,
+      "training_seconds": 53.00572799984366,
+      "validation_accuracy": 0.8368098159509203,
+      "validation_correct": 682,
+      "validation_cross_entropy": 0.4435740933096482
+    },
+    "valid": false
+  },
+  "evaluator_calls_cumulative": 29,
+  "evaluator_calls_increment": 1,
+  "evaluator_seconds_cumulative": 3491.6026899185963,
+  "evaluator_seconds_increment": 65.45749479089864,
+  "event": "proposal_completed",
+  "evicted_candidate_id": null,
+  "evidence": "The prior 119-unit design missed qualification narrowly at 84.66%, while training-only dual-view supervision raised the 124-unit design from 84.79% to 86.38%; tying those supervised views directly to inference targets the optimization gap without increasing inference MACs.",
+  "hypothesis": "A 119-unit GRU whose independently supervised mean and terminal heads are also used for inference will recover the failed 119-unit design\u2019s 0.34-point accuracy deficit, reaching at least 85% while retaining approximately 1.053B inference MACs and reducing learned parameters.",
+  "incumbent_after": "d10624c443dfcf75349e1ea81d6fb14a3d849c4ad8fd78f4750cb1e9428e4b28",
+  "intended_edit": "Reduce the recurrent width to 119, remove the redundant concatenated classifier, and average the separately supervised mean-state and terminal-state logits for the final prediction.",
+  "mechanism": "Inference-head-tied dual-view supervision",
+  "opportunity": 29,
+  "parent_ids": [
+    "d10624c443dfcf75349e1ea81d6fb14a3d849c4ad8fd78f4750cb1e9428e4b28"
+  ],
+  "portfolio_after": [
+    "016d906da09d1fe9115b3d48dd009dea2faccbbb35792057b39773f1cdb8582b",
+    "3a4bee0732f976937dd311bc195a8325d5ae17980e5ae11d150a75feef1fa454",
+    "546fb2810f070ace1b9fab6c39040860e99b3daac71b604b86c4b862babff8ab",
+    "d10624c443dfcf75349e1ea81d6fb14a3d849c4ad8fd78f4750cb1e9428e4b28"
+  ],
+  "prompt_hashes": {
+    "common_template_sha256": "dee04faf4c430276c1036ba97f5705a339857dbdf19117dac88952a5a3a47e9d",
+    "prompt_sha256": "5b5c89be61739cd10809fea616efaec282c40e66adc567e3f931fac56eec37b0",
+    "proposal_policy_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "search_state_sha256": "c938ac007bf70fe8d27f64661175531e51fcb16b38318c328493c32ee292e27e",
+    "treatment_skeleton_sha256": "f79c24abbd0382f4b9892437e15f780f10a9b146e32b38a26f5eb1aa7dbf8e2d"
+  },
+  "proposal_type": "ordinary",
+  "proposals_cumulative": 29,
+  "remaining_budget": {
+    "evaluations": 171,
+    "evaluator_seconds": 56508.397310081404,
+    "proposals": 171,
+    "tokens": 99217641
+  },
+  "retained": false,
+  "retention_decision": "invalid",
+  "run_id": "tiny-kws-rnn-openevolve-v2-1-cpu-tiny_kws_rnn_source_only_cpu-openevolve-b04-c3",
+  "schema_version": "1.0",
+  "selected_parent_ids": [
+    "d10624c443dfcf75349e1ea81d6fb14a3d849c4ad8fd78f4750cb1e9428e4b28"
+  ],
+  "timestamp": "2026-09-04T04:37:14.304413+00:00",
+  "usage_cumulative": {
+    "cached_input_tokens": 345984,
+    "input_tokens": 694570,
+    "output_tokens": 87789,
+    "reasoning_output_tokens": 73607,
+    "total_tokens": 782359
+  },
+  "usage_increment": {
+    "cached_input_tokens": 10752,
+    "input_tokens": 24276,
+    "output_tokens": 3640,
+    "reasoning_output_tokens": 3106,
+    "total_tokens": 27916
+  },
+  "visible_candidate_ids": [
+    "016d906da09d1fe9115b3d48dd009dea2faccbbb35792057b39773f1cdb8582b",
+    "3a4bee0732f976937dd311bc195a8325d5ae17980e5ae11d150a75feef1fa454",
+    "546fb2810f070ace1b9fab6c39040860e99b3daac71b604b86c4b862babff8ab",
+    "d10624c443dfcf75349e1ea81d6fb14a3d849c4ad8fd78f4750cb1e9428e4b28"
+  ]
+}

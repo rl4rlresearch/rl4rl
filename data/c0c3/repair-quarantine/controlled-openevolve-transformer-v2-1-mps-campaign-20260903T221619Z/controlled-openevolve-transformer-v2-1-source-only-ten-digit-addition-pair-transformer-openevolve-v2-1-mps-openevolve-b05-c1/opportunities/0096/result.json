@@ -1,0 +1,79 @@
+{
+  "artifact_path": "candidates/3a94c2b45c6ebfae8af01bc545a8b2727060be331a736eeb3ac390e8a5930fe6",
+  "candidate_id": "3a94c2b45c6ebfae8af01bc545a8b2727060be331a736eeb3ac390e8a5930fe6",
+  "codex_service_tier": "default",
+  "condition": "C1",
+  "conversation_session_id": null,
+  "evaluation": {
+    "evaluator_calls": 1,
+    "evaluator_seconds": 1282.113340666052,
+    "failure_kind": "nonqualification",
+    "fitness": null,
+    "metrics": {
+      "accuracy": 0.5575,
+      "cases": 10010,
+      "correct": 5581,
+      "parameters": 1267,
+      "training_steps": 49999
+    },
+    "valid": false
+  },
+  "evaluator_calls_cumulative": 96,
+  "evaluator_calls_increment": 1,
+  "evaluator_seconds_cumulative": 106033.35408987629,
+  "evaluator_seconds_increment": 1282.113340666052,
+  "event": "proposal_completed",
+  "evicted_candidate_id": null,
+  "evidence": "The first column-mean reuse achieved 100% at 1,268 parameters, while the second mean-based reuse failed at 1,267. A column mean dilutes the scale\u2019s effective AdamW gradient across eight coefficients; normalized-sum sharing directly tests whether conditioning caused that failure.",
+  "hypothesis": "Reusing attention-output column 1\u2019s LayerNorm-invisible sum, normalized by \u221a8, as final-LayerNorm scale coordinate 2 will reduce the model from 1,268 to 1,267 parameters while retaining at least 99% accuracy, because it preserves the function class while giving the shared scale the same effective gradient step size as a dedicated scalar.",
+  "incumbent_after": "4f2c888111907114e780fa71c5867d98bd3d81eb95b42d5023e7e54a4cd82540",
+  "intended_edit": "Remove the second dedicated final-LayerNorm scale, derive it from the normalized sum of projection column 1, and initialize that null component so the scale starts at one.",
+  "mechanism": "Variance-normalized null-direction parameter reuse",
+  "opportunity": 96,
+  "parent_ids": [
+    "4f2c888111907114e780fa71c5867d98bd3d81eb95b42d5023e7e54a4cd82540"
+  ],
+  "portfolio_after": [
+    "4f2c888111907114e780fa71c5867d98bd3d81eb95b42d5023e7e54a4cd82540"
+  ],
+  "prompt_hashes": {
+    "common_template_sha256": "3f2bea6418b6969c4bf2aa1df18dcda8a3a4ac075bf20c79068c754698b6be5e",
+    "prompt_sha256": "43520976562d3284cbfbc634867148156177b8cb5e9255a9cac8a53e3f924d61",
+    "proposal_policy_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "search_state_sha256": "04e5eb078ae1964e4ec65bfeeeb1acd0ffa246e7d54d5e0f997f81f602da28c5",
+    "treatment_skeleton_sha256": "356c62cc25446c3f697485cb8026dc03fd0cd104cc4b15561d705773649c5d8d"
+  },
+  "proposal_type": "ordinary",
+  "proposals_cumulative": 96,
+  "remaining_budget": {
+    "evaluations": 104,
+    "evaluator_seconds": 253966.6459101237,
+    "proposals": 104,
+    "tokens": 97613826
+  },
+  "retained": false,
+  "retention_decision": "invalid",
+  "run_id": "controlled-openevolve-transformer-v2-1-source-only-ten-digit-addition-pair-transformer-openevolve-v2-1-mps-openevolve-b05-c1",
+  "schema_version": "1.0",
+  "selected_parent_ids": [
+    "4f2c888111907114e780fa71c5867d98bd3d81eb95b42d5023e7e54a4cd82540"
+  ],
+  "timestamp": "2026-09-03T21:50:20.903283+00:00",
+  "usage_cumulative": {
+    "cached_input_tokens": 1030656,
+    "input_tokens": 2052488,
+    "output_tokens": 333686,
+    "reasoning_output_tokens": 287103,
+    "total_tokens": 2386174
+  },
+  "usage_increment": {
+    "cached_input_tokens": 10752,
+    "input_tokens": 23060,
+    "output_tokens": 3831,
+    "reasoning_output_tokens": 3057,
+    "total_tokens": 26891
+  },
+  "visible_candidate_ids": [
+    "4f2c888111907114e780fa71c5867d98bd3d81eb95b42d5023e7e54a4cd82540"
+  ]
+}

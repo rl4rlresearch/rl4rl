@@ -1,0 +1,91 @@
+{
+  "artifact_path": "candidates/09c924d073d8d5cd305e0e6c364e5687680375e91c281aca969cc9443cfa2399",
+  "candidate_id": "09c924d073d8d5cd305e0e6c364e5687680375e91c281aca969cc9443cfa2399",
+  "codex_service_tier": "default",
+  "condition": "C3",
+  "conversation_session_id": null,
+  "evaluation": {
+    "evaluator_calls": 1,
+    "evaluator_seconds": 64.75993166700937,
+    "failure_kind": null,
+    "fitness": 9276.414162911356,
+    "metrics": {
+      "batch_size": 192,
+      "evaluation_cases": 10000,
+      "evaluation_split": "public_validation",
+      "examples_processed": 100000,
+      "optimizer_steps": 522,
+      "parameters": 245152,
+      "training_seconds": 47.81579783302732,
+      "validation_accuracy": 0.9276,
+      "validation_correct": 9276,
+      "validation_cross_entropy": 0.207254407119751,
+      "validation_score": 9276.414162911356
+    },
+    "valid": true
+  },
+  "evaluator_calls_cumulative": 183,
+  "evaluator_calls_increment": 1,
+  "evaluator_seconds_cumulative": 11153.931259704055,
+  "evaluator_seconds_increment": 64.75993166700937,
+  "event": "proposal_completed",
+  "evicted_candidate_id": null,
+  "evidence": "Architectural changes, smaller batches, EMA, and flip-consistency regularization all reduced validation_correct; this motivates a minimal schedule change that removes only late training-time noise from the otherwise validated computation.",
+  "hypothesis": "Decaying dropout from 0.10 to zero will exceed 9,284 correct predictions by retaining early regularization while making low-learning-rate fine-tuning match deterministic evaluation.",
+  "incumbent_after": "6d1e325c6bf3ed86c2f2453ff1d86b65725a4b86620d32321c6e0ff71998bca7",
+  "intended_edit": "Preserve the validated architecture, loss, augmentation, optimizer, TTA, and calibration while annealing the existing classifier dropout probability over training.",
+  "mechanism": "Cosine-annealed classifier dropout",
+  "opportunity": 197,
+  "parent_ids": [
+    "6d1e325c6bf3ed86c2f2453ff1d86b65725a4b86620d32321c6e0ff71998bca7"
+  ],
+  "portfolio_after": [
+    "5902f103a073dd581f340eb727bfed4870acfcac1b00ed095a31b946c4ca73f5",
+    "6d1e325c6bf3ed86c2f2453ff1d86b65725a4b86620d32321c6e0ff71998bca7",
+    "1707815d5aa4d7b2b05ac248da030d41574bf61352222b6d6518226507895416",
+    "c9721619a4a697569c6da4d56c88f1caea3435a1dc0f5234a6eb8fa6ecc1f4fd"
+  ],
+  "prompt_hashes": {
+    "common_template_sha256": "e8327ba94bab12abc7c7ec7c6615378a3ae62434efb944d4a7d9492f1d19bc14",
+    "prompt_sha256": "ed5d523f4ef834a5b19923b77c50bcaeba0394fc032fb9a0ce18d06f1db56d9f",
+    "proposal_policy_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "search_state_sha256": "c938ac007bf70fe8d27f64661175531e51fcb16b38318c328493c32ee292e27e",
+    "treatment_skeleton_sha256": "7f899c93d21cfe53f431c02b4f18881068bf7dc80b74147b323fcd49597fbd10"
+  },
+  "proposal_type": "ordinary",
+  "proposals_cumulative": 197,
+  "remaining_budget": {
+    "evaluations": 17,
+    "evaluator_seconds": 12846.068740295945,
+    "proposals": 3,
+    "tokens": 94467455
+  },
+  "retained": false,
+  "retention_decision": "not_strictly_better_than_selected_parent",
+  "run_id": "fashion-mnist-openevolve-v2-1-mps-fashion_mnist_source_only_mps-openevolve-b03-c3",
+  "schema_version": "1.0",
+  "selected_parent_ids": [
+    "6d1e325c6bf3ed86c2f2453ff1d86b65725a4b86620d32321c6e0ff71998bca7"
+  ],
+  "timestamp": "2026-08-25T07:58:46.351043+00:00",
+  "usage_cumulative": {
+    "cached_input_tokens": 2051584,
+    "input_tokens": 5023615,
+    "output_tokens": 508930,
+    "reasoning_output_tokens": 416422,
+    "total_tokens": 5532545
+  },
+  "usage_increment": {
+    "cached_input_tokens": 12032,
+    "input_tokens": 26758,
+    "output_tokens": 5950,
+    "reasoning_output_tokens": 5696,
+    "total_tokens": 32708
+  },
+  "visible_candidate_ids": [
+    "5902f103a073dd581f340eb727bfed4870acfcac1b00ed095a31b946c4ca73f5",
+    "6d1e325c6bf3ed86c2f2453ff1d86b65725a4b86620d32321c6e0ff71998bca7",
+    "1707815d5aa4d7b2b05ac248da030d41574bf61352222b6d6518226507895416",
+    "c9721619a4a697569c6da4d56c88f1caea3435a1dc0f5234a6eb8fa6ecc1f4fd"
+  ]
+}

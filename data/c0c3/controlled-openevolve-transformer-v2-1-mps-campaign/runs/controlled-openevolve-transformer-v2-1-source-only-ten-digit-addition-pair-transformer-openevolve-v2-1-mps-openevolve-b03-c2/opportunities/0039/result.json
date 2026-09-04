@@ -1,0 +1,85 @@
+{
+  "artifact_path": "candidates/caa349ab388470463a9a93fe2ed5024620a2e26f6bab7ddb3c6c382b914c7445",
+  "candidate_id": "caa349ab388470463a9a93fe2ed5024620a2e26f6bab7ddb3c6c382b914c7445",
+  "codex_service_tier": "default",
+  "condition": "C2",
+  "conversation_session_id": null,
+  "evaluation": {
+    "evaluator_calls": 1,
+    "evaluator_seconds": 653.9235694168601,
+    "failure_kind": null,
+    "fitness": -1514.0,
+    "metrics": {
+      "accuracy": 0.9997,
+      "cases": 10010,
+      "correct": 10007,
+      "parameters": 1514,
+      "training_steps": 4999
+    },
+    "valid": true
+  },
+  "evaluator_calls_cumulative": 39,
+  "evaluator_calls_increment": 1,
+  "evaluator_seconds_cumulative": 16259.839831708581,
+  "evaluator_seconds_increment": 653.9235694168601,
+  "event": "proposal_completed",
+  "evicted_candidate_id": "e10885e353d99e1b9c4a10357c8270b0566e61e8bcc3c38c454f5bad8e13fba3",
+  "evidence": "Reference Design 3 achieved 100% accuracy at 1550 parameters after quotienting all attention and MLP residual-output columns. Its QKV and `fc1` projections both consume non-affine LayerNorm outputs, making one feature-uniform input direction per row functionally null and motivating the additional 36-parameter reduction.",
+  "hypothesis": "Applying the qualified residual-output quotients and removing the feature-uniform input coordinate from every QKV and `fc1` row will produce a 1514-parameter model with at least 99% accuracy, because non-affine LayerNorm outputs have zero feature mean and the optimizer reconstructs the omitted coordinates for folded-factor AdamW and clipping.",
+  "incumbent_after": "caa349ab388470463a9a93fe2ed5024620a2e26f6bab7ddb3c6c382b914c7445",
+  "intended_edit": "Store attention and MLP residual-output weights with seven relative output coordinates, and store all 24 QKV plus 12 `fc1` rows with seven relative input coordinates while maintaining their full-coordinate optimizer dynamics.",
+  "mechanism": "LayerNorm-nullspace input-weight quotient",
+  "opportunity": 39,
+  "parent_ids": [
+    "e10885e353d99e1b9c4a10357c8270b0566e61e8bcc3c38c454f5bad8e13fba3"
+  ],
+  "portfolio_after": [
+    "2b9cea175ed60b009337ac54f6e8ad23bf2c014eb4080237777bfb70bfd9fd5b",
+    "09dda3e1f6b5ce7ca26147ebf5c4e50887d43ded45323c67f4ae8037ecede281",
+    "caa349ab388470463a9a93fe2ed5024620a2e26f6bab7ddb3c6c382b914c7445",
+    "0d26f99a8aa7971e4750d6c947bbca1874927ea73316a7e925f7c3b5aeb76a20"
+  ],
+  "prompt_hashes": {
+    "common_template_sha256": "3f2bea6418b6969c4bf2aa1df18dcda8a3a4ac075bf20c79068c754698b6be5e",
+    "prompt_sha256": "e2982902e0076cc5ca442d65c08583b2fb3ef16cdeab5c565ac4d80014bfa59e",
+    "proposal_policy_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "search_state_sha256": "c938ac007bf70fe8d27f64661175531e51fcb16b38318c328493c32ee292e27e",
+    "treatment_skeleton_sha256": "6a8702a47e76fee497d1613bda573448458f4bd4fe07ef9486203c1d054ec3aa"
+  },
+  "proposal_type": "ordinary",
+  "proposals_cumulative": 39,
+  "remaining_budget": {
+    "evaluations": 161,
+    "evaluator_seconds": 343740.1601682914,
+    "proposals": 161,
+    "tokens": 98532415
+  },
+  "retained": true,
+  "retention_decision": "replaced_selected_parent_on_strict_improvement",
+  "run_id": "controlled-openevolve-transformer-v2-1-source-only-ten-digit-addition-pair-transformer-openevolve-v2-1-mps-openevolve-b03-c2",
+  "schema_version": "1.0",
+  "selected_parent_ids": [
+    "e10885e353d99e1b9c4a10357c8270b0566e61e8bcc3c38c454f5bad8e13fba3"
+  ],
+  "timestamp": "2026-08-24T10:33:25.447285+00:00",
+  "usage_cumulative": {
+    "cached_input_tokens": 452864,
+    "input_tokens": 1290227,
+    "output_tokens": 177358,
+    "reasoning_output_tokens": 138158,
+    "total_tokens": 1467585
+  },
+  "usage_increment": {
+    "cached_input_tokens": 12032,
+    "input_tokens": 42550,
+    "output_tokens": 9445,
+    "reasoning_output_tokens": 6732,
+    "total_tokens": 51995
+  },
+  "visible_candidate_ids": [
+    "2b9cea175ed60b009337ac54f6e8ad23bf2c014eb4080237777bfb70bfd9fd5b",
+    "09dda3e1f6b5ce7ca26147ebf5c4e50887d43ded45323c67f4ae8037ecede281",
+    "e10885e353d99e1b9c4a10357c8270b0566e61e8bcc3c38c454f5bad8e13fba3",
+    "0d26f99a8aa7971e4750d6c947bbca1874927ea73316a7e925f7c3b5aeb76a20"
+  ]
+}

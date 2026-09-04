@@ -1,0 +1,80 @@
+{
+  "artifact_path": "candidates/fada12cdbab195de68c9422579bc660529326d55ccdf0e831cb14062141170ef",
+  "candidate_id": "fada12cdbab195de68c9422579bc660529326d55ccdf0e831cb14062141170ef",
+  "codex_service_tier": "fast",
+  "condition": "C2",
+  "conversation_session_id": null,
+  "evaluation": {
+    "evaluator_calls": 1,
+    "evaluator_seconds": 336.44454987498466,
+    "failure_kind": null,
+    "fitness": -1636.0,
+    "metrics": {
+      "accuracy": 0.9989,
+      "cases": 10010,
+      "correct": 9999,
+      "parameters": 1636,
+      "training_steps": 4999
+    },
+    "valid": true
+  },
+  "evaluator_calls_cumulative": 6,
+  "evaluator_calls_increment": 1,
+  "evaluator_seconds_cumulative": 1540.6474999570055,
+  "evaluator_seconds_increment": 336.44454987498466,
+  "event": "proposal_completed",
+  "evicted_candidate_id": null,
+  "evidence": "The 1,644-parameter baseline achieved 99.96%, while the prior 1,636-parameter implementation reached 97.79% after applying biases separately; preserving the baseline fused bias-add computation targets that remaining numerical difference.",
+  "hypothesis": "Removing the eight softmax-invariant key-bias parameters while retaining the baseline\u2019s constructor RNG stream and single fused linear bias addition will achieve at least 99% accuracy in 5,000 steps with 1,636 parameters.",
+  "incumbent_after": "fada12cdbab195de68c9422579bc660529326d55ccdf0e831cb14062141170ef",
+  "intended_edit": "Preserve fused QKV construction, replace its bias with learned query/value components, synthesize the zero key component, and pass the complete bias through one fused `F.linear` call.",
+  "mechanism": "Fused zero-key-bias reparameterization",
+  "opportunity": 6,
+  "parent_ids": [
+    "2b9cea175ed60b009337ac54f6e8ad23bf2c014eb4080237777bfb70bfd9fd5b"
+  ],
+  "portfolio_after": [
+    "2b9cea175ed60b009337ac54f6e8ad23bf2c014eb4080237777bfb70bfd9fd5b",
+    "fada12cdbab195de68c9422579bc660529326d55ccdf0e831cb14062141170ef"
+  ],
+  "prompt_hashes": {
+    "common_template_sha256": "3f2bea6418b6969c4bf2aa1df18dcda8a3a4ac075bf20c79068c754698b6be5e",
+    "prompt_sha256": "8d0fee7f5e66464a61229e414c6018d71cacd3ded83a8f82c10c66f4ffb2030f",
+    "proposal_policy_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "search_state_sha256": "c938ac007bf70fe8d27f64661175531e51fcb16b38318c328493c32ee292e27e",
+    "treatment_skeleton_sha256": "e08d961d83c2c06367599ca5cf77e85c396b1032f1576852bfb9156c067f03e3"
+  },
+  "proposal_type": "ordinary",
+  "proposals_cumulative": 6,
+  "remaining_budget": {
+    "evaluations": 194,
+    "evaluator_seconds": 358459.352500043,
+    "proposals": 194,
+    "tokens": 99872513
+  },
+  "retained": true,
+  "retention_decision": "filled_open_portfolio_slot",
+  "run_id": "controlled-openevolve-transformer-v2-1-source-only-ten-digit-addition-pair-transformer-openevolve-v2-1-mps-openevolve-b01-c2",
+  "schema_version": "1.0",
+  "selected_parent_ids": [
+    "2b9cea175ed60b009337ac54f6e8ad23bf2c014eb4080237777bfb70bfd9fd5b"
+  ],
+  "timestamp": "2026-08-23T12:46:41.325903+00:00",
+  "usage_cumulative": {
+    "cached_input_tokens": 62976,
+    "input_tokens": 114344,
+    "output_tokens": 13143,
+    "reasoning_output_tokens": 11281,
+    "total_tokens": 127487
+  },
+  "usage_increment": {
+    "cached_input_tokens": 12032,
+    "input_tokens": 19501,
+    "output_tokens": 2279,
+    "reasoning_output_tokens": 1898,
+    "total_tokens": 21780
+  },
+  "visible_candidate_ids": [
+    "2b9cea175ed60b009337ac54f6e8ad23bf2c014eb4080237777bfb70bfd9fd5b"
+  ]
+}

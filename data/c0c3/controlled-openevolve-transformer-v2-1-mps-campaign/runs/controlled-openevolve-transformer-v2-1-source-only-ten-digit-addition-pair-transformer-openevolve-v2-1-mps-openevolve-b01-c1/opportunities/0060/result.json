@@ -1,0 +1,73 @@
+{
+  "artifact_path": "candidates/8167e09f6d478d3fcecc57eb0c4e64aa1d0f9ef2218eac3f3af3445cb8236d00",
+  "candidate_id": "8167e09f6d478d3fcecc57eb0c4e64aa1d0f9ef2218eac3f3af3445cb8236d00",
+  "codex_service_tier": "default",
+  "condition": "C1",
+  "conversation_session_id": null,
+  "evaluation": {
+    "evaluator_calls": 1,
+    "evaluator_seconds": 2.992149375146255,
+    "failure_kind": "execution",
+    "fitness": null,
+    "metrics": {},
+    "valid": false
+  },
+  "evaluator_calls_cumulative": 60,
+  "evaluator_calls_increment": 1,
+  "evaluator_seconds_cumulative": 30695.467355246423,
+  "evaluator_seconds_increment": 2.992149375146255,
+  "event": "proposal_completed",
+  "evicted_candidate_id": null,
+  "evidence": "The successful 1,554-parameter model still spends 798 parameters on an unconstrained per-token content table, while positional-coordinate removal failed despite preserving that table. This tests the different load-bearing assumption that every token requires seven unrelated content coordinates; learned factorization is plausible because operand-pair symbols can share latent behavior, and it preserves the row-offset channel required by the successful final-LayerNorm quotient.",
+  "hypothesis": "Factorizing the token-content table through a learned six-dimensional subspace will reduce the model from 1,554 to 1,482 parameters while retaining at least 99% accuracy, because the 100 operand-pair tokens need learned behavioral similarity rather than seven independent content coordinates, while token-specific output biases and the full eight-dimensional transformer state remain available.",
+  "incumbent_after": "11bfb9fdba996255746ceb9fc36d59da8adfb44c137b754174eac37cf2381f1f",
+  "intended_edit": "Replace the independent seven-coordinate content vector for every vocabulary item with six learned token factors and a shared learned 6-by-7 mixing matrix, initialized by the best rank-six approximation of the original fresh random embedding; keep the independent mean-free token-row offsets, tied output projection, attention, positional representation, and training schedule unchanged.",
+  "mechanism": "Learned low-rank vocabulary content subspace",
+  "opportunity": 60,
+  "parent_ids": [
+    "11bfb9fdba996255746ceb9fc36d59da8adfb44c137b754174eac37cf2381f1f"
+  ],
+  "portfolio_after": [
+    "11bfb9fdba996255746ceb9fc36d59da8adfb44c137b754174eac37cf2381f1f"
+  ],
+  "prompt_hashes": {
+    "common_template_sha256": "3f2bea6418b6969c4bf2aa1df18dcda8a3a4ac075bf20c79068c754698b6be5e",
+    "prompt_sha256": "1249246e5ae251117c740bbbd6f86b3d73f82aa84044be598c566157f9f57ff6",
+    "proposal_policy_sha256": "4a27c08e098e719db007f4d6b37fabe2967b41836bb9070e2513a8a24ff7ce90",
+    "search_state_sha256": "04e5eb078ae1964e4ec65bfeeeb1acd0ffa246e7d54d5e0f997f81f602da28c5",
+    "treatment_skeleton_sha256": "937b5fc42136ddf7124d7c5c1275f89023bdb2e6497d96f14f5759f070390cf4"
+  },
+  "proposal_type": "assumption_changing",
+  "proposals_cumulative": 60,
+  "remaining_budget": {
+    "evaluations": 140,
+    "evaluator_seconds": 329304.5326447536,
+    "proposals": 140,
+    "tokens": 98415873
+  },
+  "retained": false,
+  "retention_decision": "invalid",
+  "run_id": "controlled-openevolve-transformer-v2-1-source-only-ten-digit-addition-pair-transformer-openevolve-v2-1-mps-openevolve-b01-c1",
+  "schema_version": "1.0",
+  "selected_parent_ids": [
+    "11bfb9fdba996255746ceb9fc36d59da8adfb44c137b754174eac37cf2381f1f"
+  ],
+  "timestamp": "2026-08-25T05:14:39.543720+00:00",
+  "usage_cumulative": {
+    "cached_input_tokens": 644608,
+    "input_tokens": 1337209,
+    "output_tokens": 246918,
+    "reasoning_output_tokens": 205218,
+    "total_tokens": 1584127
+  },
+  "usage_increment": {
+    "cached_input_tokens": 12032,
+    "input_tokens": 23793,
+    "output_tokens": 6667,
+    "reasoning_output_tokens": 5178,
+    "total_tokens": 30460
+  },
+  "visible_candidate_ids": [
+    "11bfb9fdba996255746ceb9fc36d59da8adfb44c137b754174eac37cf2381f1f"
+  ]
+}

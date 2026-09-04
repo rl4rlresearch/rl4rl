@@ -1,0 +1,79 @@
+{
+  "artifact_path": "candidates/cf419633ce544ef7b605b579ca98dada2e0b298e8284de8d3a2e05c3d74199ea",
+  "candidate_id": "cf419633ce544ef7b605b579ca98dada2e0b298e8284de8d3a2e05c3d74199ea",
+  "codex_service_tier": "fast",
+  "condition": "C1",
+  "conversation_session_id": null,
+  "evaluation": {
+    "evaluator_calls": 1,
+    "evaluator_seconds": 333.7714926659828,
+    "failure_kind": null,
+    "fitness": -1576.0,
+    "metrics": {
+      "accuracy": 0.9982,
+      "cases": 10010,
+      "correct": 9992,
+      "parameters": 1576,
+      "training_steps": 4999
+    },
+    "valid": true
+  },
+  "evaluator_calls_cumulative": 11,
+  "evaluator_calls_increment": 1,
+  "evaluator_seconds_cumulative": 2687.2733482089825,
+  "evaluator_seconds_increment": 333.7714926659828,
+  "event": "proposal_completed",
+  "evicted_candidate_id": "dfd60da0e2966ac09fa94a167e97bcaa6b5c92d6b0518bfe59e3acb8831cfc4c",
+  "evidence": "The seven-coordinate non-affine MLP input reached 99.99%, while reducing positional embeddings to four dimensions failed at 73.99%; this patch retains all seven observable positional contrast dimensions and removes only exact LayerNorm-invariant common-mode degrees of freedom.",
+  "hypothesis": "Removing the unobservable all-ones component from every positional embedding and from the MLP output bias will reduce the model from 1,600 to 1,576 parameters while preserving at least 99% accuracy, because all subsequent pre-LayerNorm computations and the final LayerNorm are invariant to per-position scalar residual shifts.",
+  "incumbent_after": "cf419633ce544ef7b605b579ca98dada2e0b298e8284de8d3a2e05c3d74199ea",
+  "intended_edit": "Store seven learned coordinates per positional embedding and seven learned coordinates for the MLP output bias, padding each with a fixed zero eighth coordinate in the residual stream.",
+  "mechanism": "Residual-stream common-mode gauge fixing",
+  "opportunity": 11,
+  "parent_ids": [
+    "dfd60da0e2966ac09fa94a167e97bcaa6b5c92d6b0518bfe59e3acb8831cfc4c"
+  ],
+  "portfolio_after": [
+    "cf419633ce544ef7b605b579ca98dada2e0b298e8284de8d3a2e05c3d74199ea"
+  ],
+  "prompt_hashes": {
+    "common_template_sha256": "3f2bea6418b6969c4bf2aa1df18dcda8a3a4ac075bf20c79068c754698b6be5e",
+    "prompt_sha256": "4c5976545558f488262a190f43248cd9ed450973e5a1b8bf23cb201d09bd97ab",
+    "proposal_policy_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "search_state_sha256": "04e5eb078ae1964e4ec65bfeeeb1acd0ffa246e7d54d5e0f997f81f602da28c5",
+    "treatment_skeleton_sha256": "8cc1d8806dc79e9908a48ebdeea6233d3a14597a44d90b85e50e219b5176e386"
+  },
+  "proposal_type": "ordinary",
+  "proposals_cumulative": 11,
+  "remaining_budget": {
+    "evaluations": 189,
+    "evaluator_seconds": 357312.726651791,
+    "proposals": 189,
+    "tokens": 99737495
+  },
+  "retained": true,
+  "retention_decision": "strict_incumbent_improvement",
+  "run_id": "controlled-openevolve-transformer-v2-1-source-only-ten-digit-addition-pair-transformer-openevolve-v2-1-mps-openevolve-b02-c1",
+  "schema_version": "1.0",
+  "selected_parent_ids": [
+    "dfd60da0e2966ac09fa94a167e97bcaa6b5c92d6b0518bfe59e3acb8831cfc4c"
+  ],
+  "timestamp": "2026-08-23T12:41:00.872391+00:00",
+  "usage_cumulative": {
+    "cached_input_tokens": 91648,
+    "input_tokens": 216031,
+    "output_tokens": 46474,
+    "reasoning_output_tokens": 42731,
+    "total_tokens": 262505
+  },
+  "usage_increment": {
+    "cached_input_tokens": 12032,
+    "input_tokens": 20613,
+    "output_tokens": 4091,
+    "reasoning_output_tokens": 3624,
+    "total_tokens": 24704
+  },
+  "visible_candidate_ids": [
+    "dfd60da0e2966ac09fa94a167e97bcaa6b5c92d6b0518bfe59e3acb8831cfc4c"
+  ]
+}

@@ -1,0 +1,99 @@
+{
+  "artifact_path": "candidates/948705c5f602e9c33d6402751d5d86654381fa11f3f45de4094dcd378379ccb3",
+  "candidate_id": "948705c5f602e9c33d6402751d5d86654381fa11f3f45de4094dcd378379ccb3",
+  "codex_service_tier": "default",
+  "condition": "C1",
+  "conversation_session_id": null,
+  "evaluation": {
+    "evaluator_calls": 1,
+    "evaluator_seconds": 133.2090564169921,
+    "failure_kind": null,
+    "fitness": -2471524730303178038,
+    "metrics": {
+      "batch_size": 128,
+      "evaluation_cases": 815,
+      "evaluation_split": "public_speaker_disjoint_validation",
+      "examples_processed": 50000,
+      "inference_cost": 2471524730303178038,
+      "maximum_recurrent_steps": 26,
+      "mean_recurrent_steps": 26.0,
+      "median_recurrent_steps": 26,
+      "optimizer_steps": 397,
+      "p95_recurrent_steps": 26,
+      "parameters": 25008,
+      "peak_hidden_elements": 147968,
+      "recurrent_logit_effect": 0.10887378454208374,
+      "recurrent_macs": 471943680,
+      "recurrent_steps": 21190,
+      "state_dependence_effect": 0.35597968101501465,
+      "state_update_effect": 0.3411518633365631,
+      "total_inference_macs": 473821440,
+      "trained_recurrent_logit_effect": 0.32021886110305786,
+      "trained_state_dependence_effect": 0.3483591377735138,
+      "trained_state_update_effect": 0.32869720458984375,
+      "training_seconds": 116.72218300006352,
+      "validation_accuracy": 0.8773006134969326,
+      "validation_correct": 715,
+      "validation_cross_entropy": 0.3903332482086369
+    },
+    "valid": true
+  },
+  "evaluator_calls_cumulative": 30,
+  "evaluator_calls_increment": 1,
+  "evaluator_seconds_cumulative": 3195.826961081475,
+  "evaluator_seconds_increment": 133.2090564169921,
+  "event": "proposal_completed",
+  "evicted_candidate_id": "a2484a1f4591365f44b81694b77e4ef12d5cc7545a73fc61662eb7ab8c3d6d5e",
+  "evidence": "The current 81-unit GRU reaches 86.99%, providing accuracy margin, while the 128-unit rank-32 recurrent bottleneck failed at 82.70%. This motivates challenging the assumption that three gates are necessary without repeating the failed low-rank assumption: both retained state and proposal remain full-rank, and the wider state compensates for removing the reset gate.",
+  "hypothesis": "A 96-unit full-rank single-gate recurrent state will retain at least 85% validation accuracy on the verified 26-frame max-augmented schedule while reducing total dense inference MACs by about 9.2%, from 521.65M to 473.82M.",
+  "incumbent_after": "948705c5f602e9c33d6402751d5d86654381fa11f3f45de4094dcd378379ccb3",
+  "intended_edit": "Replace the 81-unit three-gate GRU with a wider 96-unit recurrent update using one learned retention gate and one full-rank normalized proposal, while preserving mean-max-terminal classification and the successful frame schedule.",
+  "mechanism": "Full-rank single-retention-gate recurrence",
+  "opportunity": 30,
+  "parent_ids": [
+    "a2484a1f4591365f44b81694b77e4ef12d5cc7545a73fc61662eb7ab8c3d6d5e"
+  ],
+  "portfolio_after": [
+    "948705c5f602e9c33d6402751d5d86654381fa11f3f45de4094dcd378379ccb3"
+  ],
+  "prompt_hashes": {
+    "common_template_sha256": "dee04faf4c430276c1036ba97f5705a339857dbdf19117dac88952a5a3a47e9d",
+    "prompt_sha256": "c91304e8ee97b15a096107728400d262263e3c0d28e4eb1c55efa0eb837bea0c",
+    "proposal_policy_sha256": "f3e935f1a3cb6334e7f39b20b1b6b601cd727de9c5f0c3630206a91f08e358c9",
+    "search_state_sha256": "04e5eb078ae1964e4ec65bfeeeb1acd0ffa246e7d54d5e0f997f81f602da28c5",
+    "treatment_skeleton_sha256": "34ffb5cd5363f1bb7cd728a44f93d2669147ce100e8111da3a80c23b699252c4"
+  },
+  "proposal_type": "assumption_changing",
+  "proposals_cumulative": 30,
+  "remaining_budget": {
+    "evaluations": 170,
+    "evaluator_seconds": 56804.173038918525,
+    "proposals": 170,
+    "tokens": 99354709
+  },
+  "retained": true,
+  "retention_decision": "strict_incumbent_improvement",
+  "run_id": "tiny-kws-rnn-openevolve-v2-1-cpu-tiny_kws_rnn_source_only_cpu-openevolve-b05-c1",
+  "schema_version": "1.0",
+  "selected_parent_ids": [
+    "a2484a1f4591365f44b81694b77e4ef12d5cc7545a73fc61662eb7ab8c3d6d5e"
+  ],
+  "timestamp": "2026-09-04T04:16:52.596934+00:00",
+  "usage_cumulative": {
+    "cached_input_tokens": 322560,
+    "input_tokens": 584684,
+    "output_tokens": 60607,
+    "reasoning_output_tokens": 46271,
+    "total_tokens": 645291
+  },
+  "usage_increment": {
+    "cached_input_tokens": 10752,
+    "input_tokens": 20746,
+    "output_tokens": 5157,
+    "reasoning_output_tokens": 3624,
+    "total_tokens": 25903
+  },
+  "visible_candidate_ids": [
+    "a2484a1f4591365f44b81694b77e4ef12d5cc7545a73fc61662eb7ab8c3d6d5e"
+  ]
+}

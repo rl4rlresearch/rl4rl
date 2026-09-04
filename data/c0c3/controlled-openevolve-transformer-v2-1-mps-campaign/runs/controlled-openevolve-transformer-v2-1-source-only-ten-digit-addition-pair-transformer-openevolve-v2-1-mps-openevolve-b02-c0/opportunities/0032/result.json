@@ -1,0 +1,79 @@
+{
+  "artifact_path": "candidates/e36193a89679fa336ddf8d004853a5faf90026ea702926f3c7333e748a7f5bc1",
+  "candidate_id": "e36193a89679fa336ddf8d004853a5faf90026ea702926f3c7333e748a7f5bc1",
+  "codex_service_tier": "default",
+  "condition": "C0",
+  "conversation_session_id": null,
+  "evaluation": {
+    "evaluator_calls": 1,
+    "evaluator_seconds": 665.9492289999034,
+    "failure_kind": "nonqualification",
+    "fitness": null,
+    "metrics": {
+      "accuracy": 0.8468000000000001,
+      "cases": 10010,
+      "correct": 8476,
+      "parameters": 1630,
+      "training_steps": 4999
+    },
+    "valid": false
+  },
+  "evaluator_calls_cumulative": 32,
+  "evaluator_calls_increment": 1,
+  "evaluator_seconds_cumulative": 12650.126019165851,
+  "evaluator_seconds_increment": 665.9492289999034,
+  "event": "proposal_completed",
+  "evicted_candidate_id": null,
+  "evidence": "A single positional common-mode anchor achieved 99.93% at 1,631 parameters, while extending it to a second positional row fell to 72.89%; this motivates testing the same exact normalization gauge in the distinct tied-token embedding rather than further constraining positional rows.",
+  "hypothesis": "Anchoring one global scalar of the tied token embedding will reduce the model from 1,631 to 1,630 parameters while retaining at least 99% accuracy, because subtracting that scalar from every embedding coordinate produces only a LayerNorm-invariant input offset and a softmax-invariant common logit offset.",
+  "incumbent_after": "70305a6023a70af08c91245bdcc37e5e5c5da8b082c5f467d9c7dda37d6fd0cd",
+  "intended_edit": "Store one fewer token-embedding scalar, reconstruct the final scalar as zero, initialize by subtracting the sampled final scalar globally, and preserve weight tying through a parameterless output projection wrapper.",
+  "mechanism": "Global tied-token embedding common-mode gauge anchoring",
+  "opportunity": 32,
+  "parent_ids": [
+    "70305a6023a70af08c91245bdcc37e5e5c5da8b082c5f467d9c7dda37d6fd0cd"
+  ],
+  "portfolio_after": [
+    "70305a6023a70af08c91245bdcc37e5e5c5da8b082c5f467d9c7dda37d6fd0cd"
+  ],
+  "prompt_hashes": {
+    "common_template_sha256": "3f2bea6418b6969c4bf2aa1df18dcda8a3a4ac075bf20c79068c754698b6be5e",
+    "prompt_sha256": "c0e3c19bc19b91201ea6fd0dc6e248800bc893e937ae7b57442310f262a3b0c0",
+    "proposal_policy_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "search_state_sha256": "04e5eb078ae1964e4ec65bfeeeb1acd0ffa246e7d54d5e0f997f81f602da28c5",
+    "treatment_skeleton_sha256": "f1ae879b82d856af23fdc175782aa9324a54e028aa23c0f3ab1a30e2652fe5ac"
+  },
+  "proposal_type": "ordinary",
+  "proposals_cumulative": 32,
+  "remaining_budget": {
+    "evaluations": 168,
+    "evaluator_seconds": 347349.87398083415,
+    "proposals": 168,
+    "tokens": 99266760
+  },
+  "retained": false,
+  "retention_decision": "invalid",
+  "run_id": "controlled-openevolve-transformer-v2-1-source-only-ten-digit-addition-pair-transformer-openevolve-v2-1-mps-openevolve-b02-c0",
+  "schema_version": "1.0",
+  "selected_parent_ids": [
+    "70305a6023a70af08c91245bdcc37e5e5c5da8b082c5f467d9c7dda37d6fd0cd"
+  ],
+  "timestamp": "2026-08-24T04:39:10.794944+00:00",
+  "usage_cumulative": {
+    "cached_input_tokens": 361728,
+    "input_tokens": 668082,
+    "output_tokens": 65158,
+    "reasoning_output_tokens": 52024,
+    "total_tokens": 733240
+  },
+  "usage_increment": {
+    "cached_input_tokens": 12032,
+    "input_tokens": 21781,
+    "output_tokens": 4034,
+    "reasoning_output_tokens": 3384,
+    "total_tokens": 25815
+  },
+  "visible_candidate_ids": [
+    "70305a6023a70af08c91245bdcc37e5e5c5da8b082c5f467d9c7dda37d6fd0cd"
+  ]
+}

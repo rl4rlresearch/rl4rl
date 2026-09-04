@@ -1,0 +1,85 @@
+{
+  "artifact_path": "candidates/f81e161d4bd0c2f8e91740ae8b83515faff24bdd564ba27a3169d9eeb1fcd945",
+  "candidate_id": "f81e161d4bd0c2f8e91740ae8b83515faff24bdd564ba27a3169d9eeb1fcd945",
+  "codex_service_tier": "default",
+  "condition": "C0",
+  "conversation_session_id": null,
+  "evaluation": {
+    "evaluator_calls": 1,
+    "evaluator_seconds": 86.03894279198721,
+    "failure_kind": null,
+    "fitness": 9258.406751047785,
+    "metrics": {
+      "batch_size": 32,
+      "evaluation_cases": 10000,
+      "evaluation_split": "public_validation",
+      "examples_processed": 100000,
+      "optimizer_steps": 3126,
+      "parameters": 239634,
+      "training_seconds": 80.91814229195006,
+      "validation_accuracy": 0.9258,
+      "validation_correct": 9258,
+      "validation_cross_entropy": 0.229253133392334,
+      "validation_score": 9258.406751047785
+    },
+    "valid": true
+  },
+  "evaluator_calls_cumulative": 54,
+  "evaluator_calls_increment": 1,
+  "evaluator_seconds_cumulative": 4129.9737740021665,
+  "evaluator_seconds_increment": 86.03894279198721,
+  "event": "proposal_completed",
+  "evicted_candidate_id": "0d4ce615f4dd23390a53f3e3656218c9c45890286a1b26e948b779a5c6100318",
+  "evidence": "Full BatchNorm-buffer EMA improved validation_correct from 9,254 to 9,255 but took 84.95 seconds; its parameter EMA effectively represents roughly 75% of the way through the tail, so one endpoint interpolation targets the same alignment with negligible per-step work.",
+  "hypothesis": "Approximating the proven tail-EMA BatchNorm statistics from their midpoint and final values will retain at least 9,255 correct predictions without the runtime cost of updating buffer averages throughout training.",
+  "incumbent_after": "f81e161d4bd0c2f8e91740ae8b83515faff24bdd564ba27a3169d9eeb1fcd945",
+  "intended_edit": "Attach the model to the optimizer, snapshot floating-point buffers when parameter EMA begins, and interpolate BatchNorm statistics to the EMA\u2019s approximate 75%-through-tail position when restoring averaged parameters.",
+  "mechanism": "Endpoint-interpolated BatchNorm statistics",
+  "opportunity": 54,
+  "parent_ids": [
+    "0d4ce615f4dd23390a53f3e3656218c9c45890286a1b26e948b779a5c6100318"
+  ],
+  "portfolio_after": [
+    "f81e161d4bd0c2f8e91740ae8b83515faff24bdd564ba27a3169d9eeb1fcd945"
+  ],
+  "prompt_hashes": {
+    "common_template_sha256": "e8327ba94bab12abc7c7ec7c6615378a3ae62434efb944d4a7d9492f1d19bc14",
+    "prompt_sha256": "3a66237541208cee7720926512b974edbbf43e02377ef5e033bd38961ba09653",
+    "proposal_policy_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "search_state_sha256": "04e5eb078ae1964e4ec65bfeeeb1acd0ffa246e7d54d5e0f997f81f602da28c5",
+    "treatment_skeleton_sha256": "713df312507f66046878308cc4ad2647a5b026c9f2465c3719f735bb44336107"
+  },
+  "proposal_type": "ordinary",
+  "proposals_cumulative": 54,
+  "remaining_budget": {
+    "evaluations": 146,
+    "evaluator_seconds": 19870.026225997834,
+    "proposals": 146,
+    "tokens": 98913801
+  },
+  "retained": true,
+  "retention_decision": "strict_incumbent_improvement",
+  "run_id": "fashion-mnist-openevolve-v2-1-mps-fashion_mnist_source_only_mps-openevolve-b05-c0",
+  "schema_version": "1.0",
+  "selected_parent_ids": [
+    "0d4ce615f4dd23390a53f3e3656218c9c45890286a1b26e948b779a5c6100318"
+  ],
+  "timestamp": "2026-08-24T11:54:53.567975+00:00",
+  "usage_cumulative": {
+    "cached_input_tokens": 576512,
+    "input_tokens": 936492,
+    "output_tokens": 149707,
+    "reasoning_output_tokens": 127963,
+    "total_tokens": 1086199
+  },
+  "usage_increment": {
+    "cached_input_tokens": 12032,
+    "input_tokens": 17527,
+    "output_tokens": 4558,
+    "reasoning_output_tokens": 3965,
+    "total_tokens": 22085
+  },
+  "visible_candidate_ids": [
+    "0d4ce615f4dd23390a53f3e3656218c9c45890286a1b26e948b779a5c6100318"
+  ]
+}

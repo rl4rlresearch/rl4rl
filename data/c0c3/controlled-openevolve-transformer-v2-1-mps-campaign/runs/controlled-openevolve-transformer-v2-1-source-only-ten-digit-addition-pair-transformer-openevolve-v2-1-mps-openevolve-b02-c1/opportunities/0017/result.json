@@ -1,0 +1,79 @@
+{
+  "artifact_path": "candidates/06d038491db29220bba1f393e1a1a376df93d7a22a25c83b0262f337fc954188",
+  "candidate_id": "06d038491db29220bba1f393e1a1a376df93d7a22a25c83b0262f337fc954188",
+  "codex_service_tier": "fast",
+  "condition": "C1",
+  "conversation_session_id": null,
+  "evaluation": {
+    "evaluator_calls": 1,
+    "evaluator_seconds": 371.6825642080512,
+    "failure_kind": "nonqualification",
+    "fitness": null,
+    "metrics": {
+      "accuracy": 0.7172,
+      "cases": 10010,
+      "correct": 7179,
+      "parameters": 1564,
+      "training_steps": 4999
+    },
+    "valid": false
+  },
+  "evaluator_calls_cumulative": 17,
+  "evaluator_calls_increment": 1,
+  "evaluator_seconds_cumulative": 4832.495367458207,
+  "evaluator_seconds_increment": 371.6825642080512,
+  "event": "proposal_completed",
+  "evicted_candidate_id": null,
+  "evidence": "Direct seven-coordinate MLP output projections failed at 93.33% and 12.75% despite common-mode redundancy, suggesting harmful optimization geometry; the successful 1,576-parameter design confirms that residual common modes are unobservable. This patch preserves the full output-weight tensor and repurposes its redundant orthogonal component instead of deleting it.",
+  "hypothesis": "Reusing the LayerNorm-invisible common-mode component of the 12 MLP output-weight columns as the 12 hidden biases will reduce parameters from 1,576 to 1,564 while maintaining at least 99% accuracy.",
+  "incumbent_after": "cf419633ce544ef7b605b579ca98dada2e0b298e8284de8d3a2e05c3d74199ea",
+  "intended_edit": "Remove the independent `fc1` bias, derive an equally conditioned hidden bias from the normalized row-sum of `fc2.weight`, and center that weight before producing the residual update.",
+  "mechanism": "Orthogonal reuse of residual common-mode weights",
+  "opportunity": 17,
+  "parent_ids": [
+    "cf419633ce544ef7b605b579ca98dada2e0b298e8284de8d3a2e05c3d74199ea"
+  ],
+  "portfolio_after": [
+    "cf419633ce544ef7b605b579ca98dada2e0b298e8284de8d3a2e05c3d74199ea"
+  ],
+  "prompt_hashes": {
+    "common_template_sha256": "3f2bea6418b6969c4bf2aa1df18dcda8a3a4ac075bf20c79068c754698b6be5e",
+    "prompt_sha256": "0b6829846fb4b65b9c7ce464e707fe68338e1af5d292c3193f7e2e758ff2af9a",
+    "proposal_policy_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "search_state_sha256": "04e5eb078ae1964e4ec65bfeeeb1acd0ffa246e7d54d5e0f997f81f602da28c5",
+    "treatment_skeleton_sha256": "6afd804cef8f908e0bef0c280e4409c2937753448480442d70ac0f05cecc27e0"
+  },
+  "proposal_type": "ordinary",
+  "proposals_cumulative": 17,
+  "remaining_budget": {
+    "evaluations": 183,
+    "evaluator_seconds": 355167.5046325418,
+    "proposals": 183,
+    "tokens": 99588840
+  },
+  "retained": false,
+  "retention_decision": "invalid",
+  "run_id": "controlled-openevolve-transformer-v2-1-source-only-ten-digit-addition-pair-transformer-openevolve-v2-1-mps-openevolve-b02-c1",
+  "schema_version": "1.0",
+  "selected_parent_ids": [
+    "cf419633ce544ef7b605b579ca98dada2e0b298e8284de8d3a2e05c3d74199ea"
+  ],
+  "timestamp": "2026-08-23T15:08:01.128407+00:00",
+  "usage_cumulative": {
+    "cached_input_tokens": 146688,
+    "input_tokens": 342925,
+    "output_tokens": 68235,
+    "reasoning_output_tokens": 61744,
+    "total_tokens": 411160
+  },
+  "usage_increment": {
+    "cached_input_tokens": 6912,
+    "input_tokens": 21225,
+    "output_tokens": 4906,
+    "reasoning_output_tokens": 4426,
+    "total_tokens": 26131
+  },
+  "visible_candidate_ids": [
+    "cf419633ce544ef7b605b579ca98dada2e0b298e8284de8d3a2e05c3d74199ea"
+  ]
+}

@@ -1,0 +1,88 @@
+{
+  "artifact_path": "candidates/bf77539e964d900c01f64ffc2c23258c0d3e3e943a95a5bdd9fee7ebf0faefd7",
+  "candidate_id": "bf77539e964d900c01f64ffc2c23258c0d3e3e943a95a5bdd9fee7ebf0faefd7",
+  "codex_service_tier": "fast",
+  "condition": "C2",
+  "conversation_session_id": null,
+  "evaluation": {
+    "evaluator_calls": 1,
+    "evaluator_seconds": 335.7977961880006,
+    "failure_kind": null,
+    "fitness": -0.988196,
+    "metrics": {
+      "depth": 8.0,
+      "mfu_percent": 38.59,
+      "num_params_M": 50.3,
+      "num_steps": 1838.0,
+      "peak_vram_mb": 44908.2,
+      "total_tokens_M": 481.8,
+      "training_seconds": 300.1,
+      "val_bpb": 0.988196
+    },
+    "valid": true
+  },
+  "evaluator_calls_cumulative": 8,
+  "evaluator_calls_increment": 1,
+  "evaluator_seconds_cumulative": 2884.129626085002,
+  "evaluator_seconds_increment": 335.7977961880006,
+  "event": "proposal_completed",
+  "evicted_candidate_id": "abfc01eb449c555c8f2152edb66d289da6ead6d7988f12d3aeb0084b1af88f1f",
+  "evidence": "The 262K-token design with a 300-step ramp achieved the best val_bpb of 0.987182, while extending that ramp to 600 steps worsened val_bpb to 0.988827. Halving the batch doubles updates per token, motivating a separate test of longer variance-statistic averaging without altering the successful first-moment trajectory.",
+  "hypothesis": "Restoring the proven 300-step momentum ramp while increasing NorMuon beta2 from 0.95 to 0.975 will lower val_bpb below 0.987182 by smoothing noisy matrix-update statistics over approximately the same token horizon as the original 524K-token batch.",
+  "incumbent_after": "8f89c706baa430d0251c4944cdb0202c21478db30fa3dcb407aaeca3bfe23b7d",
+  "intended_edit": "Restore the best-performing Muon momentum ramp and lengthen only NorMuon\u2019s second-moment averaging for the 262K-token batch.",
+  "mechanism": "Token-horizon NorMuon variance averaging",
+  "opportunity": 8,
+  "parent_ids": [
+    "abfc01eb449c555c8f2152edb66d289da6ead6d7988f12d3aeb0084b1af88f1f"
+  ],
+  "portfolio_after": [
+    "2865e528e18dc51191e4037eaeb5824cb0ea83ede79061b59b8f3caac686da6b",
+    "bf77539e964d900c01f64ffc2c23258c0d3e3e943a95a5bdd9fee7ebf0faefd7",
+    "f737cb07b1d48d33f44dc3a9a4040391eca02fe6d81ebc33d757bb9b9da814d6",
+    "8f89c706baa430d0251c4944cdb0202c21478db30fa3dcb407aaeca3bfe23b7d"
+  ],
+  "prompt_hashes": {
+    "common_template_sha256": "ba85b39aa7288f4f48475376da6cff65661f39cfeb7ac7cde15b2a9a2e692fde",
+    "prompt_sha256": "4b484e3e50f0ebf1c72d9b794a9a660c82af7036f26d87e94565575fe39cbe05",
+    "proposal_policy_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "search_state_sha256": "c938ac007bf70fe8d27f64661175531e51fcb16b38318c328493c32ee292e27e",
+    "treatment_skeleton_sha256": "b8f6e5ae084e13375497cc6146e84325f02cd36259fe39cc732636af0c7443c8"
+  },
+  "proposal_type": "ordinary",
+  "proposals_cumulative": 8,
+  "remaining_budget": {
+    "evaluations": 192,
+    "evaluator_seconds": 717115.870373915,
+    "proposals": 192,
+    "tokens": 99657988
+  },
+  "retained": true,
+  "retention_decision": "replaced_selected_parent_on_strict_improvement",
+  "run_id": "nanogpt-openevolve-v2-1-h100-karpathy_nanogpt_source_only_h100-openevolve-b02-c2",
+  "schema_version": "1.0",
+  "selected_parent_ids": [
+    "abfc01eb449c555c8f2152edb66d289da6ead6d7988f12d3aeb0084b1af88f1f"
+  ],
+  "timestamp": "2026-08-23T21:40:04.588173+00:00",
+  "usage_cumulative": {
+    "cached_input_tokens": 79104,
+    "input_tokens": 314547,
+    "output_tokens": 27465,
+    "reasoning_output_tokens": 23068,
+    "total_tokens": 342012
+  },
+  "usage_increment": {
+    "cached_input_tokens": 12032,
+    "input_tokens": 45677,
+    "output_tokens": 2432,
+    "reasoning_output_tokens": 2032,
+    "total_tokens": 48109
+  },
+  "visible_candidate_ids": [
+    "2865e528e18dc51191e4037eaeb5824cb0ea83ede79061b59b8f3caac686da6b",
+    "abfc01eb449c555c8f2152edb66d289da6ead6d7988f12d3aeb0084b1af88f1f",
+    "f737cb07b1d48d33f44dc3a9a4040391eca02fe6d81ebc33d757bb9b9da814d6",
+    "8f89c706baa430d0251c4944cdb0202c21478db30fa3dcb407aaeca3bfe23b7d"
+  ]
+}

@@ -1,0 +1,79 @@
+{
+  "artifact_path": "candidates/6eaa7122940e2806fcc48b3972c52bdaca542a72fa3226ac7827cc99c1d28c8d",
+  "candidate_id": "6eaa7122940e2806fcc48b3972c52bdaca542a72fa3226ac7827cc99c1d28c8d",
+  "codex_service_tier": "fast",
+  "condition": "C1",
+  "conversation_session_id": null,
+  "evaluation": {
+    "evaluator_calls": 1,
+    "evaluator_seconds": 459.13223533297423,
+    "failure_kind": "nonqualification",
+    "fitness": null,
+    "metrics": {
+      "accuracy": 0.3638,
+      "cases": 10010,
+      "correct": 3642,
+      "parameters": 1523,
+      "training_steps": 4999
+    },
+    "valid": false
+  },
+  "evaluator_calls_cumulative": 20,
+  "evaluator_calls_increment": 1,
+  "evaluator_seconds_cumulative": 6666.971744666691,
+  "evaluator_seconds_increment": 459.13223533297423,
+  "event": "proposal_completed",
+  "evicted_candidate_id": null,
+  "evidence": "The current two-head model reaches 99.88%, while recent one-parameter affine pruning has become optimization-sensitive and yielded diminishing reductions. This challenges the load-bearing assumption that each query head requires its own key and value projections, while retaining the two independent attention distributions likely needed for simultaneous operand retrieval.",
+  "hypothesis": "Replacing two independent key/value heads with one shared learned key/value head will reduce parameters from 1,593 to 1,523 while retaining at least 99% accuracy, because the two distinct query heads can retrieve both operand digits from the same content-addressed memory.",
+  "incumbent_after": "d20407400ad0de7f3ae6871237d8d0137029fef842c23cbf4edfb3a97ef44b25",
+  "intended_edit": "Keep two learned query heads but broadcast one four-dimensional learned key/value head across them, preserving the original full-width initialization draws so the experiment isolates head sharing.",
+  "mechanism": "Multi-query attention with a shared learned key/value memory",
+  "opportunity": 20,
+  "parent_ids": [
+    "d20407400ad0de7f3ae6871237d8d0137029fef842c23cbf4edfb3a97ef44b25"
+  ],
+  "portfolio_after": [
+    "d20407400ad0de7f3ae6871237d8d0137029fef842c23cbf4edfb3a97ef44b25"
+  ],
+  "prompt_hashes": {
+    "common_template_sha256": "3f2bea6418b6969c4bf2aa1df18dcda8a3a4ac075bf20c79068c754698b6be5e",
+    "prompt_sha256": "754d67147a66f03fa9742312863c16eef7a5355d04614ad6d6dded82875c0146",
+    "proposal_policy_sha256": "4a27c08e098e719db007f4d6b37fabe2967b41836bb9070e2513a8a24ff7ce90",
+    "search_state_sha256": "04e5eb078ae1964e4ec65bfeeeb1acd0ffa246e7d54d5e0f997f81f602da28c5",
+    "treatment_skeleton_sha256": "91e6fd85ac408a8cb80ce2d06d6478aedb05e9e7a9b876f58a286df363086c4e"
+  },
+  "proposal_type": "assumption_changing",
+  "proposals_cumulative": 20,
+  "remaining_budget": {
+    "evaluations": 180,
+    "evaluator_seconds": 353333.0282553333,
+    "proposals": 180,
+    "tokens": 99532743
+  },
+  "retained": false,
+  "retention_decision": "invalid",
+  "run_id": "controlled-openevolve-transformer-v2-1-source-only-ten-digit-addition-pair-transformer-openevolve-v2-1-mps-openevolve-b01-c1",
+  "schema_version": "1.0",
+  "selected_parent_ids": [
+    "d20407400ad0de7f3ae6871237d8d0137029fef842c23cbf4edfb3a97ef44b25"
+  ],
+  "timestamp": "2026-08-23T19:58:36.989702+00:00",
+  "usage_cumulative": {
+    "cached_input_tokens": 212224,
+    "input_tokens": 413346,
+    "output_tokens": 53911,
+    "reasoning_output_tokens": 44833,
+    "total_tokens": 467257
+  },
+  "usage_increment": {
+    "cached_input_tokens": 12032,
+    "input_tokens": 22239,
+    "output_tokens": 6836,
+    "reasoning_output_tokens": 5696,
+    "total_tokens": 29075
+  },
+  "visible_candidate_ids": [
+    "d20407400ad0de7f3ae6871237d8d0137029fef842c23cbf4edfb3a97ef44b25"
+  ]
+}

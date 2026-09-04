@@ -1,0 +1,82 @@
+{
+  "artifact_path": "candidates/5592e96287b495481d337453bb3905cdc925764836de0e6d303f2cdb5d2cf6e5",
+  "candidate_id": "5592e96287b495481d337453bb3905cdc925764836de0e6d303f2cdb5d2cf6e5",
+  "codex_service_tier": "default",
+  "condition": "C0",
+  "conversation_session_id": null,
+  "evaluation": {
+    "evaluator_calls": 1,
+    "evaluator_seconds": 359.63759643900266,
+    "failure_kind": null,
+    "fitness": -0.984117,
+    "metrics": {
+      "depth": 8.0,
+      "mfu_percent": 37.4,
+      "num_params_M": 50.3,
+      "num_steps": 1910.0,
+      "peak_vram_mb": 44908.2,
+      "total_tokens_M": 500.7,
+      "training_seconds": 300.0,
+      "val_bpb": 0.984117
+    },
+    "valid": true
+  },
+  "evaluator_calls_cumulative": 42,
+  "evaluator_calls_increment": 1,
+  "evaluator_seconds_cumulative": 15459.912506824967,
+  "evaluator_seconds_increment": 359.63759643900266,
+  "event": "proposal_completed",
+  "evicted_candidate_id": null,
+  "evidence": "The 1024-token window is best; equally spaced tests at 768 and 1280 regressed to 0.984493 and 0.984663 respectively, with the smaller-window side performing better. Testing 960 probes just below the observed optimum at finer resolution.",
+  "hypothesis": "A 960-token layer-6 window will beat 0.984059 val_bpb by preserving nearly all useful context from 1024 tokens while modestly increasing training throughput.",
+  "incumbent_after": "c537d035fb2713f584eb26b5a1a1da3b8e5a8a6d04e1ed3ff940d703b1a5b1db",
+  "intended_edit": "Reduce only layer 6\u2019s medium attention window from 1024 to 960 tokens; layers 4 and 8 remain full-attention and all other layers remain at 512 tokens.",
+  "mechanism": "Fine-grained layer-6 context\u2013throughput interpolation",
+  "opportunity": 42,
+  "parent_ids": [
+    "c537d035fb2713f584eb26b5a1a1da3b8e5a8a6d04e1ed3ff940d703b1a5b1db"
+  ],
+  "portfolio_after": [
+    "c537d035fb2713f584eb26b5a1a1da3b8e5a8a6d04e1ed3ff940d703b1a5b1db"
+  ],
+  "prompt_hashes": {
+    "common_template_sha256": "ba85b39aa7288f4f48475376da6cff65661f39cfeb7ac7cde15b2a9a2e692fde",
+    "prompt_sha256": "b4c9759c5103dfca97cb59fc75843645837c91e459acf43f6942e71a5ca5aa61",
+    "proposal_policy_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "search_state_sha256": "04e5eb078ae1964e4ec65bfeeeb1acd0ffa246e7d54d5e0f997f81f602da28c5",
+    "treatment_skeleton_sha256": "35d3c545d9cc56892ceeb2ae9b4131328919ac07b33d81201422e7488dad1dd2"
+  },
+  "proposal_type": "ordinary",
+  "proposals_cumulative": 42,
+  "remaining_budget": {
+    "evaluations": 158,
+    "evaluator_seconds": 704540.0874931751,
+    "proposals": 158,
+    "tokens": 98904086
+  },
+  "retained": false,
+  "retention_decision": "not_strictly_better_than_incumbent",
+  "run_id": "nanogpt-openevolve-v2-1-h100-karpathy_nanogpt_source_only_h100-openevolve-b01-c0",
+  "schema_version": "1.0",
+  "selected_parent_ids": [
+    "c537d035fb2713f584eb26b5a1a1da3b8e5a8a6d04e1ed3ff940d703b1a5b1db"
+  ],
+  "timestamp": "2026-08-24T10:07:57.480482+00:00",
+  "usage_cumulative": {
+    "cached_input_tokens": 481792,
+    "input_tokens": 1020758,
+    "output_tokens": 75156,
+    "reasoning_output_tokens": 65518,
+    "total_tokens": 1095914
+  },
+  "usage_increment": {
+    "cached_input_tokens": 12032,
+    "input_tokens": 24879,
+    "output_tokens": 780,
+    "reasoning_output_tokens": 516,
+    "total_tokens": 25659
+  },
+  "visible_candidate_ids": [
+    "c537d035fb2713f584eb26b5a1a1da3b8e5a8a6d04e1ed3ff940d703b1a5b1db"
+  ]
+}

@@ -1,0 +1,79 @@
+{
+  "artifact_path": "candidates/f504e6e61c04745f166ac84c9d954f9b771c759c1e7422bdb406e08190bcd8f4",
+  "candidate_id": "f504e6e61c04745f166ac84c9d954f9b771c759c1e7422bdb406e08190bcd8f4",
+  "codex_service_tier": "fast",
+  "condition": "C0",
+  "conversation_session_id": null,
+  "evaluation": {
+    "evaluator_calls": 1,
+    "evaluator_seconds": 202.96186024998315,
+    "failure_kind": "nonqualification",
+    "fitness": null,
+    "metrics": {
+      "accuracy": 0.1124,
+      "cases": 10010,
+      "correct": 1125,
+      "parameters": 1620,
+      "training_steps": 4999
+    },
+    "valid": false
+  },
+  "evaluator_calls_cumulative": 6,
+  "evaluator_calls_increment": 1,
+  "evaluator_seconds_cumulative": 1345.4725804599002,
+  "evaluator_seconds_increment": 202.96186024998315,
+  "event": "proposal_completed",
+  "evicted_candidate_id": null,
+  "evidence": "Sharing the redundant attention value/output biases achieved 99.76% at 1628 parameters, whereas deleting the value bias collapsed accuracy; this motivates another pathway-preserving tie instead of removing a redundant bias.",
+  "hypothesis": "Tying the second pre-LayerNorm bias to the MLP output bias will reduce parameters from 1628 to 1620 while retaining at least 99% accuracy, because the MLP input bias can absorb any LayerNorm-bias effect while both optimization pathways remain active.",
+  "incumbent_after": "ade72cf1d02e97b76dbd2f5fa1ee53d63a77cbe0a373f323c143e054f9851e05",
+  "intended_edit": "Make `ln2.bias` and `mlp.fc2.bias` reference the same learned 8-element parameter.",
+  "mechanism": "Shared reparameterizable MLP/LayerNorm bias",
+  "opportunity": 6,
+  "parent_ids": [
+    "ade72cf1d02e97b76dbd2f5fa1ee53d63a77cbe0a373f323c143e054f9851e05"
+  ],
+  "portfolio_after": [
+    "ade72cf1d02e97b76dbd2f5fa1ee53d63a77cbe0a373f323c143e054f9851e05"
+  ],
+  "prompt_hashes": {
+    "common_template_sha256": "3f2bea6418b6969c4bf2aa1df18dcda8a3a4ac075bf20c79068c754698b6be5e",
+    "prompt_sha256": "48929fefc210c3cedd3d4645feecaea64c0b651e8d5e2981f1068ca119fefb68",
+    "proposal_policy_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "search_state_sha256": "04e5eb078ae1964e4ec65bfeeeb1acd0ffa246e7d54d5e0f997f81f602da28c5",
+    "treatment_skeleton_sha256": "f8e484da9024fb1b42be4554c2b73883ba16a1a2698b1dcda9fe2d42ebc3fda3"
+  },
+  "proposal_type": "ordinary",
+  "proposals_cumulative": 6,
+  "remaining_budget": {
+    "evaluations": 194,
+    "evaluator_seconds": 358654.5274195401,
+    "proposals": 194,
+    "tokens": 99873372
+  },
+  "retained": false,
+  "retention_decision": "invalid",
+  "run_id": "controlled-openevolve-transformer-v2-1-source-only-ten-digit-addition-pair-transformer-openevolve-v2-1-mps-openevolve-b04-c0",
+  "schema_version": "1.0",
+  "selected_parent_ids": [
+    "ade72cf1d02e97b76dbd2f5fa1ee53d63a77cbe0a373f323c143e054f9851e05"
+  ],
+  "timestamp": "2026-08-23T09:53:16.491770+00:00",
+  "usage_cumulative": {
+    "cached_input_tokens": 62976,
+    "input_tokens": 115074,
+    "output_tokens": 11554,
+    "reasoning_output_tokens": 9687,
+    "total_tokens": 126628
+  },
+  "usage_increment": {
+    "cached_input_tokens": 12032,
+    "input_tokens": 19700,
+    "output_tokens": 1976,
+    "reasoning_output_tokens": 1739,
+    "total_tokens": 21676
+  },
+  "visible_candidate_ids": [
+    "ade72cf1d02e97b76dbd2f5fa1ee53d63a77cbe0a373f323c143e054f9851e05"
+  ]
+}

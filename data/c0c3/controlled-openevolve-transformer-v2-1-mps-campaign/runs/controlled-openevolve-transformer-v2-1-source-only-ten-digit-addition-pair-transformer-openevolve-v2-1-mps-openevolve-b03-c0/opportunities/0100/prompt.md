@@ -1,0 +1,173 @@
+# Optimize a transformer for 10-digit addition
+
+You are an autonomous ML engineer improving the source code for an
+autoregressive transformer that adds two 10-digit numbers.
+
+## Goal
+
+Minimize the actual number of deduplicated learned model parameters while
+maintaining at least 99% accuracy under the fixed verification process. A
+smaller implementation is useful only when it meets that accuracy requirement.
+Every submitted implementation is trained from a fresh initialization.
+
+## Learned-model requirement
+
+Produce a smaller trained autoregressive transformer, not a hand-coded addition
+program. The submitted implementation must:
+
+- have nonzero trainable parameters;
+- contain and use at least one learned causal self-attention module;
+- map token inputs to token logits through the learned model;
+- train from a fresh initialization during verification;
+- write both `checkpoints/best.pt` and a positive-step `checkpoints/last.pt`;
+- keep source code unchanged while training; and
+- use the protected generic decoding interface exactly as supplied.
+
+Do not implement or embed decimal arithmetic, carry propagation, place-value
+rules, digit lookup tables, finite-state addition transitions, fixed answer
+rules, or input-dependent Python logic that directly computes the sum. Do not
+hide such a solver in model generation, token processing, training, or saved
+weights. Do not add dummy or zero-length parameters to disguise a fixed
+algorithm as a learned model.
+
+Do not modify protected files. Do not perform post-training state-dictionary
+surgery, substitute a different saved model, truncate weights after training,
+or report a parameter count that differs from the submitted model.
+
+## Work boundaries
+
+Minimize parameters. Required result: accuracy >= 0.99.
+Editable source files: src/model.py, src/train.py.
+Results reported after each verification: accuracy, parameters, training_steps.
+
+Propose changes through exact SEARCH/REPLACE blocks. The patching interface applies them to the supplied editable source.
+
+The editable source and any reference source are included below. Do not access
+parent directories, home directories, shared temporary directories, global
+session history, online sources, or any surrounding repository. Do not run
+training or verification yourself and do not generate hidden alternatives.
+Return one patch for one implementation; verification happens after you finish.
+
+## Available designs
+
+The current editable design is provided. No reference design is available.
+
+CURRENT DESIGN
+verified_results: {"accuracy": 0.9998, "parameters": 1573, "training_steps": 20999}
+prior_hypothesis: Gauge-anchoring initialized positional row `max_seq_len // 2 + 7` will reduce the model from 1,574 to 1,573 parameters while retaining at least 99% accuracy after 21,000 steps.
+
+## Recent verification evidence
+
+RECENT RESULT
+hypothesis: Gauge-anchoring positional row `max_seq_len // 2 - 1` will reduce the model from 1,573 to 1,572 parameters while retaining at least 99% accuracy after 21,000 steps.
+change: Split the row immediately before the successful midpoint region into seven learned relative coordinates plus a zero anchor, reconstruct it in place, and optimize it with `GaugeAdamW`.
+mechanism: Opposite-edge positional-row shift gauge
+evidence_used: All eight rows from the midpoint through `+7` succeeded, reaching 99.98% at 1,573 parameters; after unsuccessful or malformed attempts beyond the upper edge, extending the identical gauge from the untested opposite edge is the most informative next reduction.
+result: training did not finish within the verification time limit
+
+RECENT RESULT
+hypothesis: Gauge-anchoring row `max_seq_len // 2 - 1` will reduce the model from 1,573 to 1,572 parameters while retaining at least 99% accuracy, and halving evaluation frequency will let the previously timed-out experiment complete without changing its training trajectory.
+change: Add a seven-coordinate gauge representation for the positional row immediately before the successful midpoint region, reconstruct it with a zero anchor, optimize it with `GaugeAdamW`, and change the default evaluation interval from 300 to 600 steps.
+mechanism: Opposite-edge positional-row shift gauge with validation-cadence thinning
+evidence_used: All eight contiguous rows from the midpoint through `+7` succeeded, reaching 99.98% accuracy at 1,573 parameters; the only `-1` trial timed out rather than producing adverse accuracy evidence, so repeating that reduction with fewer expensive validation passes is the most informative next test.
+result: training did not finish within the verification time limit
+
+RECENT RESULT
+hypothesis: Gauge-anchoring positional row `max_seq_len // 2 - 1` will reduce the model from 1,573 to 1,572 parameters while retaining at least 99% accuracy, while evaluating only at schedule completion and the final step will allow the previously timed-out experiment to finish.
+change: Represent the positional row immediately before the successful midpoint region with seven learned relative coordinates and a zero anchor, optimize it with `GaugeAdamW`, and remove periodic validation passes while preserving positive-step best and last checkpoints.
+mechanism: Opposite-edge positional-row shift gauge with milestone-only validation
+evidence_used: Eight contiguous rows from the midpoint through `+7` retained at least 99% accuracy with the same gauge; both `-1` attempts timed out without adverse accuracy evidence, including one at a 600-step evaluation interval, motivating a much larger validation-cost reduction.
+result: training did not finish within the verification time limit
+
+RECENT RESULT
+hypothesis: Gauge-anchoring the sole remaining full `fc2` output column will reduce the model from 1,573 to 1,572 parameters while retaining at least 99% accuracy after 21,000 steps.
+change: Represent MLP column 6 with seven learned relative coordinates plus a zero anchor, reconstruct it during the forward pass, and optimize it with `GaugeAdamW`.
+mechanism: Final MLP output-column shift gauge
+evidence_used: The current 99.98%-accurate design already applies this identical output-shift gauge to the other eleven `fc2` columns; extending it to the sole remaining full column is a direct one-parameter reduction that avoids the positional-row experiments that failed or timed out.
+result: training did not finish within the verification time limit
+
+RECENT RESULT
+hypothesis: Gauge-anchoring positional row `max_seq_len // 2 + 8` while actually removing its original eight-parameter row will reduce the model from 1,573 to 1,572 parameters and retain at least 99% accuracy after 21,000 steps.
+change: Add a seven-coordinate representation for the `+8` positional row, reconstruct it with a zero anchor, exclude its original full row, and optimize it with `GaugeAdamW`.
+mechanism: Correctly excised adjacent positional-row shift gauge
+evidence_used: All eight contiguous rows from the midpoint through `+7` succeeded with this exact gauge, most recently at 99.98%; the earlier `+8` result reported 1,580 parameters instead of 1,572, showing that its full row was not excised and making a corrected `+8` implementation the most informative retry.
+result: the edit reproduced a previously verified implementation
+
+RECENT RESULT
+hypothesis: Jointly gauge-anchoring positional rows `max_seq_len // 2 + 7` and `+8` in one grouped parameter will reduce the model from 1,573 to 1,572 parameters while retaining at least 99% accuracy after 21,000 steps.
+change: Extend the existing `+7` positional gauge parameter to hold two seven-coordinate rows, excise the original `+8` row, reconstruct both rows with zero anchors, and generalize `GaugeAdamW` and gradient clipping to handle grouped gauges.
+mechanism: Batched adjacent positional-row shift gauge
+evidence_used: Rows from the midpoint through `+7` individually retained at least 99% accuracy, while the apparent `+8` failure reported 1,580 parameters and the corrected attempt reproduced the existing implementation; grouping `+8` with the successful `+7` gauge guarantees its full row is excised without adding another optimizer instance.
+result: training did not finish within the verification time limit
+
+RECENT RESULT
+hypothesis: Gauge-anchoring one additional attention projection column will reduce the verified model from 1,573 to 1,572 parameters while retaining at least 99% accuracy after 21,000 steps.
+change: Excise the last column of the remaining attention projection matrix, represent it with seven learned relative coordinates plus a zero anchor, reconstruct it during the forward pass, and optimize it with `GaugeAdamW`.
+mechanism: Attention output-column shift gauge
+evidence_used: The 99.98%-accurate 1,573-parameter design already gauge-anchors two attention projection columns and eleven MLP output columns; extending the same output-shift symmetry to another attention projection column tests a new reduction without repeating the positional or final-MLP experiments that timed out.
+result: training did not finish within the verification time limit
+
+RECENT RESULT
+hypothesis: Anchoring the sole remaining full `fc2` column inside its existing ordinary-AdamW parameter will reduce the model from 1,573 to 1,572 parameters while retaining at least 99% accuracy after 21,000 steps and avoiding an additional per-step gauge optimizer.
+change: Store MLP column 6 as seven relative coordinates in the existing `fc2.weight` parameter, reconstruct its zero-anchored eighth coordinate during the forward pass, and leave it in the ordinary optimizer.
+mechanism: Fused final MLP output-column shift gauge
+evidence_used: The verified 1,573-parameter design already gauge-anchors the other eleven `fc2` columns at 99.98% accuracy; the prior final-column attempt timed out without adverse accuracy evidence, motivating the same exact symmetry with no additional custom optimizer.
+result: the patch search text did not match the source
+
+RECENT RESULT
+hypothesis: Zero-anchoring `fc2` column 6 inside its existing ordinary-AdamW parameter will reduce the verified model from 1,573 to 1,572 learned parameters while retaining at least 99% accuracy after 21,000 steps.
+change: Store the sole remaining full `fc2` column as seven learned relative coordinates, reconstruct its eighth zero-anchored coordinate during the forward pass, and optimize it with the existing ordinary optimizer.
+mechanism: Fused final MLP output-column shift gauge
+evidence_used: The 1,573-parameter design reached 99.98% accuracy while identically anchoring the other eleven `fc2` columns; the previous fused-final-column proposal was not tested because its search text failed to match, while adding a separate gauge optimizer timed out.
+result: training did not finish within the verification time limit
+
+RECENT RESULT
+hypothesis: Zero-anchoring the remaining full `fc2` column will reduce the model from 1,573 to 1,572 parameters while retaining at least 99% accuracy, and batching all gauge updates into one optimizer will avoid the timeouts seen with prior final-column attempts.
+change: Replace MLP column 6 with seven learned relative coordinates and an implicit zero anchor, then update all gauge parameters through one foreach-based `GaugeAdamW` instance.
+mechanism: Batched final MLP output-column shift gauge
+evidence_used: The verified 1,573-parameter model reached 99.98% accuracy while applying the identical symmetry to the other eleven `fc2` columns; both previous final-column attempts timed out without adverse accuracy evidence, motivating the same reduction with lower optimizer dispatch overhead.
+result: training did not finish within the verification time limit
+
+RECENT RESULT
+hypothesis: Fixing one query-bias coordinate to zero will reduce the verified model from 1,573 to 1,572 parameters while retaining at least 99% accuracy after 21,000 steps.
+change: Store seven learned query-bias coordinates, reconstruct the eighth as zero, and remove the functionally irrelevant shared key bias without adding gauge-optimizer overhead.
+mechanism: Query-bias coordinate ablation
+evidence_used: The current 1,573-parameter model achieved 99.98% accuracy, while several exact-gauge reductions timed out after adding optimizer or reconstruction complexity; a one-coordinate attention-bias ablation tests the available accuracy margin while preserving the verified training path and runtime profile.
+result: training did not finish within the verification time limit
+
+RECENT RESULT
+hypothesis: Sharing the final LayerNorm gain with the already-shared block LayerNorm gain will reduce the model from 1,573 to 1,565 parameters while retaining at least 99% accuracy after 21,000 steps.
+change: Tie `ln_f.weight` to `blocks[0].ln1.weight`, completing the existing LayerNorm affine sharing without adding forward-pass or optimizer overhead.
+mechanism: Complete LayerNorm affine sharing
+evidence_used: The verified 1,573-parameter model reached 99.98% accuracy while already sharing the first and second block LayerNorm parameters and tying the final LayerNorm bias to them; recent one-parameter reconstructions repeatedly timed out, motivating a zero-overhead extension of the successful sharing pattern.
+result: training did not finish within the verification time limit
+
+
+
+Use the available technical evidence to choose the most informative next
+change. Treat unsuccessful or malformed work as evidence when a useful
+subject-level reason is provided. Do not invent missing evidence.
+
+## Response
+
+Return these short metadata lines followed by one or more exact
+`SEARCH`/`REPLACE` blocks that together produce one implementation:
+
+`MECHANISM: <a concise free-form name for the computational idea>`
+
+`HYPOTHESIS: <a falsifiable claim grounded in the evidence above>`
+
+`INTENDED_EDIT: <what this patch changes>`
+
+`EVIDENCE: <the most relevant prior result and why it motivates this patch>`
+
+Start each block with `<<<<<<< SEARCH`, put the exact existing lines next, use a
+line containing `=======` as the divider, put the replacement lines after it,
+and finish the block with `>>>>>>> REPLACE`.
+
+Every `SEARCH` section must be nonempty and match exactly once after earlier
+blocks have been applied. All blocks must apply. They may edit either or both
+editable files, but together they must describe one implementation ready for
+verification. The mechanism name is descriptive, not chosen from a fixed list.
+Do not paste whole files, lengthy logs, or routine progress reports outside the
+patch.

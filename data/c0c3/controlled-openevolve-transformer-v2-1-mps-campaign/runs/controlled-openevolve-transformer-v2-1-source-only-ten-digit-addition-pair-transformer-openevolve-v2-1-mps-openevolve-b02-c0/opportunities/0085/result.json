@@ -1,0 +1,79 @@
+{
+  "artifact_path": "candidates/015fedf0cdba3211786890c157d91f95d7b38f0a32b5500cae898863ba7f6154",
+  "candidate_id": "015fedf0cdba3211786890c157d91f95d7b38f0a32b5500cae898863ba7f6154",
+  "codex_service_tier": "default",
+  "condition": "C0",
+  "conversation_session_id": null,
+  "evaluation": {
+    "evaluator_calls": 1,
+    "evaluator_seconds": 253.26699079200625,
+    "failure_kind": null,
+    "fitness": -1581.0,
+    "metrics": {
+      "accuracy": 0.9992,
+      "cases": 10010,
+      "correct": 10002,
+      "parameters": 1581,
+      "training_steps": 4999
+    },
+    "valid": true
+  },
+  "evaluator_calls_cumulative": 85,
+  "evaluator_calls_increment": 1,
+  "evaluator_seconds_cumulative": 39344.44411712582,
+  "evaluator_seconds_increment": 253.26699079200625,
+  "event": "proposal_completed",
+  "evicted_candidate_id": "38a123dea2cfb60fbf969776db90172b000e444646ca52caf646d676c5669b0e",
+  "evidence": "Removing every `ln2` bias coordinate retained 99.96% accuracy, and the current 1,582-parameter design already fixes one `ln1` bias coordinate while achieving 99.91%; extending this affine redundancy by one coordinate is a controlled alternative to the positional, `fc2`, and attention-weight gauges whose next adjacent constraints failed.",
+  "hypothesis": "Fixing a second `ln1` bias coordinate to zero will reduce the model from 1,582 to 1,581 parameters while retaining at least 99% accuracy, because query shifts can be absorbed by the learned query bias, key shifts cancel in attention softmax, and value shifts can be absorbed by the attention projection bias up to its irrelevant common mode.",
+  "incumbent_after": "015fedf0cdba3211786890c157d91f95d7b38f0a32b5500cae898863ba7f6154",
+  "intended_edit": "Store six rather than seven learned `AnchoredLayerNorm` bias coordinates and reconstruct its final two coordinates as zeros.",
+  "mechanism": "Incremental pre-attention LayerNorm bias absorption",
+  "opportunity": 85,
+  "parent_ids": [
+    "38a123dea2cfb60fbf969776db90172b000e444646ca52caf646d676c5669b0e"
+  ],
+  "portfolio_after": [
+    "015fedf0cdba3211786890c157d91f95d7b38f0a32b5500cae898863ba7f6154"
+  ],
+  "prompt_hashes": {
+    "common_template_sha256": "3f2bea6418b6969c4bf2aa1df18dcda8a3a4ac075bf20c79068c754698b6be5e",
+    "prompt_sha256": "157e95147a83571e27dfe42abfa02e03be838a3cffccbede0bc0ab11a77bbc7c",
+    "proposal_policy_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "search_state_sha256": "04e5eb078ae1964e4ec65bfeeeb1acd0ffa246e7d54d5e0f997f81f602da28c5",
+    "treatment_skeleton_sha256": "f9c3a06e8afdc051d4ac30e5265f10017605e2f951fe8f6113be66ed543ccfd9"
+  },
+  "proposal_type": "ordinary",
+  "proposals_cumulative": 85,
+  "remaining_budget": {
+    "evaluations": 115,
+    "evaluator_seconds": 320655.5558828742,
+    "proposals": 115,
+    "tokens": 97884183
+  },
+  "retained": true,
+  "retention_decision": "strict_incumbent_improvement",
+  "run_id": "controlled-openevolve-transformer-v2-1-source-only-ten-digit-addition-pair-transformer-openevolve-v2-1-mps-openevolve-b02-c0",
+  "schema_version": "1.0",
+  "selected_parent_ids": [
+    "38a123dea2cfb60fbf969776db90172b000e444646ca52caf646d676c5669b0e"
+  ],
+  "timestamp": "2026-08-25T22:35:15.115713+00:00",
+  "usage_cumulative": {
+    "cached_input_tokens": 859392,
+    "input_tokens": 1919722,
+    "output_tokens": 196095,
+    "reasoning_output_tokens": 146767,
+    "total_tokens": 2115817
+  },
+  "usage_increment": {
+    "cached_input_tokens": 12032,
+    "input_tokens": 24634,
+    "output_tokens": 8240,
+    "reasoning_output_tokens": 7768,
+    "total_tokens": 32874
+  },
+  "visible_candidate_ids": [
+    "38a123dea2cfb60fbf969776db90172b000e444646ca52caf646d676c5669b0e"
+  ]
+}

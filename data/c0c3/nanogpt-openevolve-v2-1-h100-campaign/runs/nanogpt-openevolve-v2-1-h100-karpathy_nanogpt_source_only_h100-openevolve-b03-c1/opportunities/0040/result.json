@@ -1,0 +1,82 @@
+{
+  "artifact_path": "candidates/5067a53024e90833ba9daaffd598cdf0d4ab776fdd4a9a53c04e7e10ce55889f",
+  "candidate_id": "5067a53024e90833ba9daaffd598cdf0d4ab776fdd4a9a53c04e7e10ce55889f",
+  "codex_service_tier": "default",
+  "condition": "C1",
+  "conversation_session_id": null,
+  "evaluation": {
+    "evaluator_calls": 1,
+    "evaluator_seconds": 374.16199109199806,
+    "failure_kind": null,
+    "fitness": -0.992404,
+    "metrics": {
+      "depth": 8.0,
+      "mfu_percent": 38.65,
+      "num_params_M": 50.3,
+      "num_steps": 2163.0,
+      "peak_vram_mb": 36670.0,
+      "total_tokens_M": 496.1,
+      "training_seconds": 300.1,
+      "val_bpb": 0.992404
+    },
+    "valid": true
+  },
+  "evaluator_calls_cumulative": 40,
+  "evaluator_calls_increment": 1,
+  "evaluator_seconds_cumulative": 18562.01982657402,
+  "evaluator_seconds_increment": 374.16199109199806,
+  "event": "proposal_completed",
+  "evicted_candidate_id": null,
+  "evidence": "Attention-window changes around the winning design produced only small gains or regressions, suggesting that attention-only context formation is a load-bearing assumption worth challenging. The parameter-matched SwiGLU attempt fell to 474.6M tokens and 0.989071 with multiple expansion projections; this alternative keeps two matrix multiplications while testing a genuinely different mechanism in which the feature bank directly learns adjacent-token interactions.",
+  "hypothesis": "Replacing every tokenwise squared-ReLU MLP with a parameter-matched MLP that jointly transforms the current and immediately preceding hidden states will reduce val_bpb below 0.984083 by giving each block a direct learned local-context pathway without adding attention or the separate projections that reduced SwiGLU throughput.",
+  "incumbent_after": "95728985013fd9e1cfec4eb8e3d2c24c475c3a287aad6464397514f68717aa91",
+  "intended_edit": "Concatenate each normalized hidden state with a one-token causal shift before the MLP, and reduce the expansion width from 4d to approximately 8d/3 so the two-linear-layer MLP retains essentially the same parameter count and matrix FLOPs.",
+  "mechanism": "Parameter-matched causal bigram MLP",
+  "opportunity": 40,
+  "parent_ids": [
+    "95728985013fd9e1cfec4eb8e3d2c24c475c3a287aad6464397514f68717aa91"
+  ],
+  "portfolio_after": [
+    "95728985013fd9e1cfec4eb8e3d2c24c475c3a287aad6464397514f68717aa91"
+  ],
+  "prompt_hashes": {
+    "common_template_sha256": "ba85b39aa7288f4f48475376da6cff65661f39cfeb7ac7cde15b2a9a2e692fde",
+    "prompt_sha256": "4a3edd86d2c554c40c7555cc85f8bfd445d34f62c75e2a2984e74f1b8dab9ea4",
+    "proposal_policy_sha256": "cd7b9ba20a1cd1edd0663b5e3652baa9cd3c81925074103fe47e66c021d61a4a",
+    "search_state_sha256": "04e5eb078ae1964e4ec65bfeeeb1acd0ffa246e7d54d5e0f997f81f602da28c5",
+    "treatment_skeleton_sha256": "ae6b706df1373a0d87f12371ba67b9caa3fa3ce5047d665524d5a6850701799f"
+  },
+  "proposal_type": "assumption_changing",
+  "proposals_cumulative": 40,
+  "remaining_budget": {
+    "evaluations": 160,
+    "evaluator_seconds": 701437.980173426,
+    "proposals": 160,
+    "tokens": 98937048
+  },
+  "retained": false,
+  "retention_decision": "not_strictly_better_than_incumbent",
+  "run_id": "nanogpt-openevolve-v2-1-h100-karpathy_nanogpt_source_only_h100-openevolve-b03-c1",
+  "schema_version": "1.0",
+  "selected_parent_ids": [
+    "95728985013fd9e1cfec4eb8e3d2c24c475c3a287aad6464397514f68717aa91"
+  ],
+  "timestamp": "2026-08-24T07:14:56.009931+00:00",
+  "usage_cumulative": {
+    "cached_input_tokens": 466176,
+    "input_tokens": 973067,
+    "output_tokens": 89885,
+    "reasoning_output_tokens": 79009,
+    "total_tokens": 1062952
+  },
+  "usage_increment": {
+    "cached_input_tokens": 12032,
+    "input_tokens": 25051,
+    "output_tokens": 5196,
+    "reasoning_output_tokens": 4660,
+    "total_tokens": 30247
+  },
+  "visible_candidate_ids": [
+    "95728985013fd9e1cfec4eb8e3d2c24c475c3a287aad6464397514f68717aa91"
+  ]
+}

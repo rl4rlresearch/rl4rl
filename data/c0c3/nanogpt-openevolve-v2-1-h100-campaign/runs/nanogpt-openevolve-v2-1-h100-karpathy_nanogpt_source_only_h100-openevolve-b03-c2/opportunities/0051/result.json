@@ -1,0 +1,88 @@
+{
+  "artifact_path": "candidates/5c553bf89540b54b6be2c9eeeafe714a194436a5cb7f57f305b43168fd25058a",
+  "candidate_id": "5c553bf89540b54b6be2c9eeeafe714a194436a5cb7f57f305b43168fd25058a",
+  "codex_service_tier": "default",
+  "condition": "C2",
+  "conversation_session_id": null,
+  "evaluation": {
+    "evaluator_calls": 1,
+    "evaluator_seconds": 360.49183538399666,
+    "failure_kind": null,
+    "fitness": -0.983556,
+    "metrics": {
+      "depth": 8.0,
+      "mfu_percent": 36.49,
+      "num_params_M": 50.3,
+      "num_steps": 1939.0,
+      "peak_vram_mb": 44908.2,
+      "total_tokens_M": 508.3,
+      "training_seconds": 300.1,
+      "val_bpb": 0.983556
+    },
+    "valid": true
+  },
+  "evaluator_calls_cumulative": 51,
+  "evaluator_calls_increment": 1,
+  "evaluator_seconds_cumulative": 17749.737904334965,
+  "evaluator_seconds_increment": 360.49183538399666,
+  "event": "proposal_completed",
+  "evicted_candidate_id": "84dda2c03881ec4256d09602022fcf3a777d586f97a22d02a405fdea93d7f096",
+  "evidence": "The 512/256 design nearly tied the best result at 0.983620, while 384/256 reached 0.983738 with greater token exposure; 448/256 directly tests the midpoint of their early-context tradeoff while preserving the consistently favorable 256-token late windows.",
+  "hypothesis": "Using 448-token windows before the intermediate full-context layer and 256-token windows afterward will reduce val_bpb below 0.983618 by interpolating between the near-best 512/256 allocation and the higher-throughput 384/256 allocation.",
+  "incumbent_after": "5c553bf89540b54b6be2c9eeeafe714a194436a5cb7f57f305b43168fd25058a",
+  "intended_edit": "Set the three early local-attention layers to 448 tokens and the three late local-attention layers to 256 tokens, retaining full context at layers 4 and 8 and all optimizer settings.",
+  "mechanism": "Moderately front-loaded local context with late-layer pruning",
+  "opportunity": 51,
+  "parent_ids": [
+    "84dda2c03881ec4256d09602022fcf3a777d586f97a22d02a405fdea93d7f096"
+  ],
+  "portfolio_after": [
+    "68e4c0a093d8469cbb6dbc35418542522419bf7bea6f8075ef469190949e1a93",
+    "5c553bf89540b54b6be2c9eeeafe714a194436a5cb7f57f305b43168fd25058a",
+    "a3f3cb81162f7cc33c9dd54dd7a1e1ef57c16f6fdd35a6f6367c90da674dabfc",
+    "d5676ce9e63ecb929400f7ca1d2cde7048065597dddcde04804e36c386c5db08"
+  ],
+  "prompt_hashes": {
+    "common_template_sha256": "ba85b39aa7288f4f48475376da6cff65661f39cfeb7ac7cde15b2a9a2e692fde",
+    "prompt_sha256": "eac50d5754d96d7352051846c5b0d5392b21b157bb43ca65ad0f810e33b634ce",
+    "proposal_policy_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "search_state_sha256": "c938ac007bf70fe8d27f64661175531e51fcb16b38318c328493c32ee292e27e",
+    "treatment_skeleton_sha256": "10998f75bd675ee645d161d5fecbca3241e50fafc9aba0afe7e80b009cd2de14"
+  },
+  "proposal_type": "ordinary",
+  "proposals_cumulative": 51,
+  "remaining_budget": {
+    "evaluations": 149,
+    "evaluator_seconds": 702250.2620956651,
+    "proposals": 149,
+    "tokens": 97547247
+  },
+  "retained": true,
+  "retention_decision": "replaced_selected_parent_on_strict_improvement",
+  "run_id": "nanogpt-openevolve-v2-1-h100-karpathy_nanogpt_source_only_h100-openevolve-b03-c2",
+  "schema_version": "1.0",
+  "selected_parent_ids": [
+    "84dda2c03881ec4256d09602022fcf3a777d586f97a22d02a405fdea93d7f096"
+  ],
+  "timestamp": "2026-08-24T11:47:35.436735+00:00",
+  "usage_cumulative": {
+    "cached_input_tokens": 578048,
+    "input_tokens": 2341037,
+    "output_tokens": 111716,
+    "reasoning_output_tokens": 91651,
+    "total_tokens": 2452753
+  },
+  "usage_increment": {
+    "cached_input_tokens": 12032,
+    "input_tokens": 47388,
+    "output_tokens": 832,
+    "reasoning_output_tokens": 516,
+    "total_tokens": 48220
+  },
+  "visible_candidate_ids": [
+    "68e4c0a093d8469cbb6dbc35418542522419bf7bea6f8075ef469190949e1a93",
+    "84dda2c03881ec4256d09602022fcf3a777d586f97a22d02a405fdea93d7f096",
+    "a3f3cb81162f7cc33c9dd54dd7a1e1ef57c16f6fdd35a6f6367c90da674dabfc",
+    "d5676ce9e63ecb929400f7ca1d2cde7048065597dddcde04804e36c386c5db08"
+  ]
+}

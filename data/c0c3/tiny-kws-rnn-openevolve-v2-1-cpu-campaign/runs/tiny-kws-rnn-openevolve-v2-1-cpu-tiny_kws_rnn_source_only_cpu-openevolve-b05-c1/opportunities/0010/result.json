@@ -1,0 +1,99 @@
+{
+  "artifact_path": "candidates/ebc3e84e97920e476e96d8078c65ed8b7afaa5424e0e90aae125446fd4c03cc2",
+  "candidate_id": "ebc3e84e97920e476e96d8078c65ed8b7afaa5424e0e90aae125446fd4c03cc2",
+  "codex_service_tier": "default",
+  "condition": "C1",
+  "conversation_session_id": null,
+  "evaluation": {
+    "evaluator_calls": 1,
+    "evaluator_seconds": 126.09495704201981,
+    "failure_kind": "nonqualification",
+    "fitness": null,
+    "metrics": {
+      "batch_size": 128,
+      "evaluation_cases": 815,
+      "evaluation_split": "public_speaker_disjoint_validation",
+      "examples_processed": 50000,
+      "inference_cost": 1571502295649839760,
+      "maximum_recurrent_steps": 32,
+      "mean_recurrent_steps": 32.0,
+      "median_recurrent_steps": 32,
+      "optimizer_steps": 397,
+      "p95_recurrent_steps": 32,
+      "parameters": 31920,
+      "peak_hidden_elements": 131584,
+      "recurrent_logit_effect": 0.555916965007782,
+      "recurrent_macs": 300441600,
+      "recurrent_steps": 26080,
+      "state_dependence_effect": 0.3324301838874817,
+      "state_update_effect": 0.3458079695701599,
+      "total_inference_macs": 301276160,
+      "trained_recurrent_logit_effect": 0.5274069309234619,
+      "trained_state_dependence_effect": 0.3406347632408142,
+      "trained_state_update_effect": 0.33507925271987915,
+      "training_seconds": 97.52072033309378,
+      "validation_accuracy": 0.8294478527607362,
+      "validation_correct": 676,
+      "validation_cross_entropy": 0.4815550821690472
+    },
+    "valid": false
+  },
+  "evaluator_calls_cumulative": 10,
+  "evaluator_calls_increment": 1,
+  "evaluator_seconds_cumulative": 1173.6853295427281,
+  "evaluator_seconds_increment": 126.09495704201981,
+  "event": "proposal_completed",
+  "evicted_candidate_id": null,
+  "evidence": "Skipping frames at 16 and 20 steps failed, while 24 and 32 steps passed, indicating that retaining acoustic observations is load-bearing. This patch preserves every frame but challenges the assumption that the entire gated state must update at full rate.",
+  "hypothesis": "Encoding every frame with a 64-unit RNN reset every four frames, then updating a 64-unit GRU from each ordered block descriptor, will retain at least 85% accuracy while reducing recurrent MACs from 713.2M to approximately 300.4M.",
+  "incumbent_after": "7affbb62658eda080f2105e98ae9e6d9a3df08a7b24737de4dfd744aa8f761ae",
+  "intended_edit": "Replace the monolithic 86-unit full-rate GRU with a two-timescale recurrent hierarchy: a short-horizon local RNN processes all 32 frames, and a persistent GRU processes eight terminal-plus-mean block summaries.",
+  "mechanism": "Hierarchical four-frame acoustic recurrence with a slower lexical GRU",
+  "opportunity": 10,
+  "parent_ids": [
+    "7affbb62658eda080f2105e98ae9e6d9a3df08a7b24737de4dfd744aa8f761ae"
+  ],
+  "portfolio_after": [
+    "7affbb62658eda080f2105e98ae9e6d9a3df08a7b24737de4dfd744aa8f761ae"
+  ],
+  "prompt_hashes": {
+    "common_template_sha256": "dee04faf4c430276c1036ba97f5705a339857dbdf19117dac88952a5a3a47e9d",
+    "prompt_sha256": "9f517a701c5990ada84c98a686f59d2b4ce19679596c30f4fe308532472daf65",
+    "proposal_policy_sha256": "f3e935f1a3cb6334e7f39b20b1b6b601cd727de9c5f0c3630206a91f08e358c9",
+    "search_state_sha256": "04e5eb078ae1964e4ec65bfeeeb1acd0ffa246e7d54d5e0f997f81f602da28c5",
+    "treatment_skeleton_sha256": "408dd78b7fad8cefcd131edaa8108f3d840a1da66eff75377b395acae5474526"
+  },
+  "proposal_type": "assumption_changing",
+  "proposals_cumulative": 10,
+  "remaining_budget": {
+    "evaluations": 190,
+    "evaluator_seconds": 58826.31467045727,
+    "proposals": 190,
+    "tokens": 99796365
+  },
+  "retained": false,
+  "retention_decision": "invalid",
+  "run_id": "tiny-kws-rnn-openevolve-v2-1-cpu-tiny_kws_rnn_source_only_cpu-openevolve-b05-c1",
+  "schema_version": "1.0",
+  "selected_parent_ids": [
+    "7affbb62658eda080f2105e98ae9e6d9a3df08a7b24737de4dfd744aa8f761ae"
+  ],
+  "timestamp": "2026-09-04T03:06:01.740474+00:00",
+  "usage_cumulative": {
+    "cached_input_tokens": 107520,
+    "input_tokens": 177341,
+    "output_tokens": 26294,
+    "reasoning_output_tokens": 21626,
+    "total_tokens": 203635
+  },
+  "usage_increment": {
+    "cached_input_tokens": 10752,
+    "input_tokens": 19424,
+    "output_tokens": 7940,
+    "reasoning_output_tokens": 6098,
+    "total_tokens": 27364
+  },
+  "visible_candidate_ids": [
+    "7affbb62658eda080f2105e98ae9e6d9a3df08a7b24737de4dfd744aa8f761ae"
+  ]
+}

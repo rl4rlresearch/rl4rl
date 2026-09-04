@@ -1,0 +1,91 @@
+{
+  "artifact_path": "candidates/5392d8bb3e669324bf3c6c802ac87a4e41ccdec148f7194aab1f8ac453de72c9",
+  "candidate_id": "5392d8bb3e669324bf3c6c802ac87a4e41ccdec148f7194aab1f8ac453de72c9",
+  "codex_service_tier": "default",
+  "condition": "C3",
+  "conversation_session_id": null,
+  "evaluation": {
+    "evaluator_calls": 1,
+    "evaluator_seconds": 80.39919895795174,
+    "failure_kind": null,
+    "fitness": 9277.410123168878,
+    "metrics": {
+      "batch_size": 128,
+      "evaluation_cases": 10000,
+      "evaluation_split": "public_validation",
+      "examples_processed": 100000,
+      "optimizer_steps": 782,
+      "parameters": 249961,
+      "training_seconds": 67.18113620812073,
+      "validation_accuracy": 0.9277,
+      "validation_correct": 9277,
+      "validation_cross_entropy": 0.21914594917297364,
+      "validation_score": 9277.410123168878
+    },
+    "valid": true
+  },
+  "evaluator_calls_cumulative": 55,
+  "evaluator_calls_increment": 1,
+  "evaluator_seconds_cumulative": 4223.010919624008,
+  "evaluator_seconds_increment": 80.39919895795174,
+  "event": "proposal_completed",
+  "evicted_candidate_id": null,
+  "evidence": "Dense tail averaging achieved the best verified 9,285 correct, while explicitly averaging BatchNorm buffers timed out; batch-adaptive normalization targets the same unresolved parameter/statistics mismatch with no additional optimizer-step copies.",
+  "hypothesis": "Using evaluation-batch statistics will exceed 9,285 correct predictions by eliminating the mismatch between tail-averaged parameters and terminal BatchNorm running statistics without adding training-time averaging work.",
+  "incumbent_after": "74587e9a18c58d6fcf9cd1e8618eb7cf90efe933044b9645196874dac6513903",
+  "intended_edit": "Disable running-stat tracking for every BatchNorm2d layer so training remains unchanged while evaluation computes normalization statistics from the full concatenated ten-view batch.",
+  "mechanism": "Batch-adaptive normalization for averaged weights",
+  "opportunity": 55,
+  "parent_ids": [
+    "9af4c9e9dafd1cb542e672cb5410ab8db152c4ccc1fd4b2625a74958d08dffc8"
+  ],
+  "portfolio_after": [
+    "d54a21c0667f853b158fadfb68f372cc6da43f664d34a334ec30164d47291abe",
+    "9af4c9e9dafd1cb542e672cb5410ab8db152c4ccc1fd4b2625a74958d08dffc8",
+    "74587e9a18c58d6fcf9cd1e8618eb7cf90efe933044b9645196874dac6513903",
+    "0a69c1b05f79d55934f6af8f60522c45ea8fe0de54a945df93113087dd4fd2cb"
+  ],
+  "prompt_hashes": {
+    "common_template_sha256": "e8327ba94bab12abc7c7ec7c6615378a3ae62434efb944d4a7d9492f1d19bc14",
+    "prompt_sha256": "8d980690e5ea2a73ffc1efbfbf63d815d9801ddde2ce25a80396a0c65aa618e4",
+    "proposal_policy_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "search_state_sha256": "c938ac007bf70fe8d27f64661175531e51fcb16b38318c328493c32ee292e27e",
+    "treatment_skeleton_sha256": "b195f2a55282abb6b5d87c644bbbc774a4d7c1078c2c5449e3be676c49aef82e"
+  },
+  "proposal_type": "ordinary",
+  "proposals_cumulative": 55,
+  "remaining_budget": {
+    "evaluations": 145,
+    "evaluator_seconds": 19776.98908037599,
+    "proposals": 145,
+    "tokens": 98500709
+  },
+  "retained": false,
+  "retention_decision": "not_strictly_better_than_selected_parent",
+  "run_id": "fashion-mnist-openevolve-v2-1-mps-fashion_mnist_source_only_mps-openevolve-b01-c3",
+  "schema_version": "1.0",
+  "selected_parent_ids": [
+    "9af4c9e9dafd1cb542e672cb5410ab8db152c4ccc1fd4b2625a74958d08dffc8"
+  ],
+  "timestamp": "2026-08-24T10:41:38.151475+00:00",
+  "usage_cumulative": {
+    "cached_input_tokens": 594688,
+    "input_tokens": 1309980,
+    "output_tokens": 189311,
+    "reasoning_output_tokens": 141827,
+    "total_tokens": 1499291
+  },
+  "usage_increment": {
+    "cached_input_tokens": 12032,
+    "input_tokens": 25211,
+    "output_tokens": 4981,
+    "reasoning_output_tokens": 4660,
+    "total_tokens": 30192
+  },
+  "visible_candidate_ids": [
+    "d54a21c0667f853b158fadfb68f372cc6da43f664d34a334ec30164d47291abe",
+    "9af4c9e9dafd1cb542e672cb5410ab8db152c4ccc1fd4b2625a74958d08dffc8",
+    "74587e9a18c58d6fcf9cd1e8618eb7cf90efe933044b9645196874dac6513903",
+    "0a69c1b05f79d55934f6af8f60522c45ea8fe0de54a945df93113087dd4fd2cb"
+  ]
+}

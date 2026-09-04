@@ -1,0 +1,88 @@
+{
+  "artifact_path": "candidates/c321453a446535f2519748dba0243aef6d1fdf6c8d1feb33ff18b022aa7962c0",
+  "candidate_id": "c321453a446535f2519748dba0243aef6d1fdf6c8d1feb33ff18b022aa7962c0",
+  "codex_service_tier": "default",
+  "condition": "C3",
+  "conversation_session_id": null,
+  "evaluation": {
+    "evaluator_calls": 1,
+    "evaluator_seconds": 362.0496667269981,
+    "failure_kind": null,
+    "fitness": -0.993029,
+    "metrics": {
+      "depth": 8.0,
+      "mfu_percent": 38.18,
+      "num_params_M": 50.3,
+      "num_steps": 915.0,
+      "peak_vram_mb": 45832.5,
+      "total_tokens_M": 479.7,
+      "training_seconds": 300.3,
+      "val_bpb": 0.993029
+    },
+    "valid": true
+  },
+  "evaluator_calls_cumulative": 27,
+  "evaluator_calls_increment": 1,
+  "evaluator_seconds_cumulative": 10037.867899858995,
+  "evaluator_seconds_increment": 362.0496667269981,
+  "event": "proposal_completed",
+  "evicted_candidate_id": null,
+  "evidence": "Four handoff-layer gates achieved the best val_bpb of 0.992110, while predecessor-only gating regressed to 0.993768 and long-only gating reached 0.992949; this motivates preserving a complete predecessor-plus-long pair and testing whether the final pair supplies the useful synergy more efficiently.",
+  "hypothesis": "Retaining output gates only on the final short-context predecessor and full-context layer will preserve the complementary S-L gating benefit while processing more than 477.1M tokens, lowering val_bpb below 0.992110.",
+  "incumbent_after": "528755766b20deef30a32a5dd29aae232775b7555dc993f76a9a5bd80f1a972d",
+  "intended_edit": "Restore selective gating around only the final S-L handoff, removing gates and their computation from the first six layers while preserving the fixed two-lag embedding FIR.",
+  "mechanism": "Final short-to-long attention handoff gating",
+  "opportunity": 27,
+  "parent_ids": [
+    "9931424bd937324c0b9cc3301f65f06033626b33e060d110d5f4424b73c546cd"
+  ],
+  "portfolio_after": [
+    "9931424bd937324c0b9cc3301f65f06033626b33e060d110d5f4424b73c546cd",
+    "021833cad0c0546a7f0b572151648095ee7bb0de7c565cf4face4171caa2b92e",
+    "528755766b20deef30a32a5dd29aae232775b7555dc993f76a9a5bd80f1a972d",
+    "073c0c20ffce9f9c7373a4c08fde16f87d5b194ad21c03d8a86866625dafc42b"
+  ],
+  "prompt_hashes": {
+    "common_template_sha256": "ba85b39aa7288f4f48475376da6cff65661f39cfeb7ac7cde15b2a9a2e692fde",
+    "prompt_sha256": "162d78813c14cd62359150bd858b5179667a7ef9b9ca405b6e8c1f35f075da63",
+    "proposal_policy_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "search_state_sha256": "c938ac007bf70fe8d27f64661175531e51fcb16b38318c328493c32ee292e27e",
+    "treatment_skeleton_sha256": "15c2a4ec676ae824fbfc39903e29f209a36f6d65fe6401ed223a611596d99fcf"
+  },
+  "proposal_type": "ordinary",
+  "proposals_cumulative": 27,
+  "remaining_budget": {
+    "evaluations": 173,
+    "evaluator_seconds": 709962.132100141,
+    "proposals": 173,
+    "tokens": 98695751
+  },
+  "retained": false,
+  "retention_decision": "not_strictly_better_than_selected_parent",
+  "run_id": "nanogpt-openevolve-v2-1-h100-karpathy_nanogpt_source_only_h100-openevolve-b03-c3",
+  "schema_version": "1.0",
+  "selected_parent_ids": [
+    "9931424bd937324c0b9cc3301f65f06033626b33e060d110d5f4424b73c546cd"
+  ],
+  "timestamp": "2026-08-24T02:25:39.324859+00:00",
+  "usage_cumulative": {
+    "cached_input_tokens": 347392,
+    "input_tokens": 1219510,
+    "output_tokens": 84739,
+    "reasoning_output_tokens": 67201,
+    "total_tokens": 1304249
+  },
+  "usage_increment": {
+    "cached_input_tokens": 6912,
+    "input_tokens": 48607,
+    "output_tokens": 1994,
+    "reasoning_output_tokens": 1482,
+    "total_tokens": 50601
+  },
+  "visible_candidate_ids": [
+    "9931424bd937324c0b9cc3301f65f06033626b33e060d110d5f4424b73c546cd",
+    "021833cad0c0546a7f0b572151648095ee7bb0de7c565cf4face4171caa2b92e",
+    "528755766b20deef30a32a5dd29aae232775b7555dc993f76a9a5bd80f1a972d",
+    "073c0c20ffce9f9c7373a4c08fde16f87d5b194ad21c03d8a86866625dafc42b"
+  ]
+}

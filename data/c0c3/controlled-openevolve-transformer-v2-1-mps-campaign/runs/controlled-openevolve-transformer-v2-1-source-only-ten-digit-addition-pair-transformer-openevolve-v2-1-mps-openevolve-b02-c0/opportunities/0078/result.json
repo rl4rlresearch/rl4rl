@@ -1,0 +1,79 @@
+{
+  "artifact_path": "candidates/babb01e8c35e176040458c851f10a6ec15f1f7d7ea4001701f08b222c66361ab",
+  "candidate_id": "babb01e8c35e176040458c851f10a6ec15f1f7d7ea4001701f08b222c66361ab",
+  "codex_service_tier": "default",
+  "condition": "C0",
+  "conversation_session_id": null,
+  "evaluation": {
+    "evaluator_calls": 1,
+    "evaluator_seconds": 214.9752495829016,
+    "failure_kind": null,
+    "fitness": -1585.0,
+    "metrics": {
+      "accuracy": 0.9993000000000001,
+      "cases": 10010,
+      "correct": 10003,
+      "parameters": 1585,
+      "training_steps": 4999
+    },
+    "valid": true
+  },
+  "evaluator_calls_cumulative": 78,
+  "evaluator_calls_increment": 1,
+  "evaluator_seconds_cumulative": 37615.44262895873,
+  "evaluator_seconds_increment": 214.9752495829016,
+  "event": "proposal_completed",
+  "evicted_candidate_id": "616069ff4287d7ba00778aecde78911a6555e0e25c2f9548bc7ab075a5627916",
+  "evidence": "The 1,597-parameter design still achieved 99.27%, while a fifth fixed `ln2` scale collapsed to 68.93%; this motivates preserving the four-scale design and removing an independent exact downstream linear redundancy instead.",
+  "hypothesis": "Anchoring the final `fc1` weight in every output row to zero will reduce the model from 1,597 to 1,585 parameters while retaining at least 99% accuracy, because bias-free `ln2` produces normalized activations whose pre-scale coordinates sum to zero and whose final scale is fixed at one.",
+  "incumbent_after": "babb01e8c35e176040458c851f10a6ec15f1f7d7ea4001701f08b222c66361ab",
+  "intended_edit": "Replace `fc1` with a compact linear layer storing seven rather than eight weights per output, reconstruct its final column as zero, and initialize it to the same function distribution as a full linear layer on zero-mean inputs.",
+  "mechanism": "Zero-mean LayerNorm input gauge fixing",
+  "opportunity": 78,
+  "parent_ids": [
+    "616069ff4287d7ba00778aecde78911a6555e0e25c2f9548bc7ab075a5627916"
+  ],
+  "portfolio_after": [
+    "babb01e8c35e176040458c851f10a6ec15f1f7d7ea4001701f08b222c66361ab"
+  ],
+  "prompt_hashes": {
+    "common_template_sha256": "3f2bea6418b6969c4bf2aa1df18dcda8a3a4ac075bf20c79068c754698b6be5e",
+    "prompt_sha256": "1b4567d87cf839463085f296cfa22d1b955f40e57502f10ead3639033ace4797",
+    "proposal_policy_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "search_state_sha256": "04e5eb078ae1964e4ec65bfeeeb1acd0ffa246e7d54d5e0f997f81f602da28c5",
+    "treatment_skeleton_sha256": "21979c63548574407c3a8b57a68b24cfea18e787b3b7edbe5476d07e40aa45a2"
+  },
+  "proposal_type": "ordinary",
+  "proposals_cumulative": 78,
+  "remaining_budget": {
+    "evaluations": 122,
+    "evaluator_seconds": 322384.5573710413,
+    "proposals": 122,
+    "tokens": 98080253
+  },
+  "retained": true,
+  "retention_decision": "strict_incumbent_improvement",
+  "run_id": "controlled-openevolve-transformer-v2-1-source-only-ten-digit-addition-pair-transformer-openevolve-v2-1-mps-openevolve-b02-c0",
+  "schema_version": "1.0",
+  "selected_parent_ids": [
+    "616069ff4287d7ba00778aecde78911a6555e0e25c2f9548bc7ab075a5627916"
+  ],
+  "timestamp": "2026-08-25T18:57:13.406771+00:00",
+  "usage_cumulative": {
+    "cached_input_tokens": 778240,
+    "input_tokens": 1747883,
+    "output_tokens": 171864,
+    "reasoning_output_tokens": 129335,
+    "total_tokens": 1919747
+  },
+  "usage_increment": {
+    "cached_input_tokens": 6912,
+    "input_tokens": 23984,
+    "output_tokens": 4078,
+    "reasoning_output_tokens": 3482,
+    "total_tokens": 28062
+  },
+  "visible_candidate_ids": [
+    "616069ff4287d7ba00778aecde78911a6555e0e25c2f9548bc7ab075a5627916"
+  ]
+}

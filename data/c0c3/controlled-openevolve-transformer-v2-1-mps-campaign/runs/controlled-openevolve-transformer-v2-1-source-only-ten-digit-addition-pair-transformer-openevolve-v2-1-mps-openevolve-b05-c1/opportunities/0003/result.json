@@ -1,0 +1,79 @@
+{
+  "artifact_path": "candidates/0a3072e22bf4ba113df3e97faf5d08be10ee9c0455daca0f418b8541c45c9773",
+  "candidate_id": "0a3072e22bf4ba113df3e97faf5d08be10ee9c0455daca0f418b8541c45c9773",
+  "codex_service_tier": "fast",
+  "condition": "C1",
+  "conversation_session_id": null,
+  "evaluation": {
+    "evaluator_calls": 1,
+    "evaluator_seconds": 209.4938155420823,
+    "failure_kind": null,
+    "fitness": -1612.0,
+    "metrics": {
+      "accuracy": 0.9995999999999999,
+      "cases": 10010,
+      "correct": 10006,
+      "parameters": 1612,
+      "training_steps": 4999
+    },
+    "valid": true
+  },
+  "evaluator_calls_cumulative": 3,
+  "evaluator_calls_increment": 1,
+  "evaluator_seconds_cumulative": 664.5813706661575,
+  "evaluator_seconds_increment": 209.4938155420823,
+  "event": "proposal_completed",
+  "evicted_candidate_id": "2b9cea175ed60b009337ac54f6e8ad23bf2c014eb4080237777bfb70bfd9fd5b",
+  "evidence": "The 1,644-parameter `d_ff=12` model achieved 99.96%, whereas widths 11 and 10 failed; this motivates preserving the successful hidden width and reducing affine parameters that do not expand the attention function class.",
+  "hypothesis": "Removing two redundant LayerNorm biases and replacing the attention QKV bias with only a query bias will reduce parameters from 1,644 to 1,612 while retaining at least 99% accuracy.",
+  "incumbent_after": "0a3072e22bf4ba113df3e97faf5d08be10ee9c0455daca0f418b8541c45c9773",
+  "intended_edit": "Keep `d_ff=12`, remove both block LayerNorm biases, and retain only the functionally relevant query component of the QKV bias; constant key offsets cancel in softmax and constant value offsets are representable by the attention output bias.",
+  "mechanism": "Function-preserving affine redundancy removal",
+  "opportunity": 3,
+  "parent_ids": [
+    "2b9cea175ed60b009337ac54f6e8ad23bf2c014eb4080237777bfb70bfd9fd5b"
+  ],
+  "portfolio_after": [
+    "0a3072e22bf4ba113df3e97faf5d08be10ee9c0455daca0f418b8541c45c9773"
+  ],
+  "prompt_hashes": {
+    "common_template_sha256": "3f2bea6418b6969c4bf2aa1df18dcda8a3a4ac075bf20c79068c754698b6be5e",
+    "prompt_sha256": "d6e6e2beb8b9468170164f9ea1c1bb8e74771f13386f01c9bb094046cb0e3102",
+    "proposal_policy_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "search_state_sha256": "04e5eb078ae1964e4ec65bfeeeb1acd0ffa246e7d54d5e0f997f81f602da28c5",
+    "treatment_skeleton_sha256": "33cf78c6fa2b29374832a10a314dd2ef80962deb86a5efcf877a46f8a3b1abe7"
+  },
+  "proposal_type": "ordinary",
+  "proposals_cumulative": 3,
+  "remaining_budget": {
+    "evaluations": 197,
+    "evaluator_seconds": 359335.41862933384,
+    "proposals": 197,
+    "tokens": 99938277
+  },
+  "retained": true,
+  "retention_decision": "strict_incumbent_improvement",
+  "run_id": "controlled-openevolve-transformer-v2-1-source-only-ten-digit-addition-pair-transformer-openevolve-v2-1-mps-openevolve-b05-c1",
+  "schema_version": "1.0",
+  "selected_parent_ids": [
+    "2b9cea175ed60b009337ac54f6e8ad23bf2c014eb4080237777bfb70bfd9fd5b"
+  ],
+  "timestamp": "2026-08-23T09:46:25.354229+00:00",
+  "usage_cumulative": {
+    "cached_input_tokens": 30976,
+    "input_tokens": 56459,
+    "output_tokens": 5264,
+    "reasoning_output_tokens": 4458,
+    "total_tokens": 61723
+  },
+  "usage_increment": {
+    "cached_input_tokens": 12032,
+    "input_tokens": 18948,
+    "output_tokens": 3295,
+    "reasoning_output_tokens": 2826,
+    "total_tokens": 22243
+  },
+  "visible_candidate_ids": [
+    "2b9cea175ed60b009337ac54f6e8ad23bf2c014eb4080237777bfb70bfd9fd5b"
+  ]
+}

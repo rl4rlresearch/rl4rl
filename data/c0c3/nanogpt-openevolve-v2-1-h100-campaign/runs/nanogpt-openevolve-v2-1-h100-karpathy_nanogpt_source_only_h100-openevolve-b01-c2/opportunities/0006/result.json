@@ -1,0 +1,88 @@
+{
+  "artifact_path": "candidates/751f6421ee699b4c6ae86e4cb2e4fb251857399c2f9b5720235c590a65eaf50a",
+  "candidate_id": "751f6421ee699b4c6ae86e4cb2e4fb251857399c2f9b5720235c590a65eaf50a",
+  "codex_service_tier": "fast",
+  "condition": "C2",
+  "conversation_session_id": null,
+  "evaluation": {
+    "evaluator_calls": 1,
+    "evaluator_seconds": 351.64541436500076,
+    "failure_kind": null,
+    "fitness": -0.996687,
+    "metrics": {
+      "depth": 8.0,
+      "mfu_percent": 32.71,
+      "num_params_M": 50.3,
+      "num_steps": 1560.0,
+      "peak_vram_mb": 44908.2,
+      "total_tokens_M": 408.9,
+      "training_seconds": 300.1,
+      "val_bpb": 0.996687
+    },
+    "valid": true
+  },
+  "evaluator_calls_cumulative": 6,
+  "evaluator_calls_increment": 1,
+  "evaluator_seconds_cumulative": 2460.9502155280006,
+  "evaluator_seconds_increment": 351.64541436500076,
+  "event": "proposal_completed",
+  "evicted_candidate_id": "ee1f1cf686a479f175a9b2178602df52386a3561e80b0612b88ccd725e447c2e",
+  "evidence": "Reference Design 1 achieved 0.995558 with half-context SSSL and 128-sequence microbatches. Reference Design 2 suggests more frequent single-microbatch updates preserve quality despite fewer tokens, but its 192-sequence microbatch reduced throughput; retaining the efficient 128-sequence microbatch isolates the update-frequency benefit.",
+  "hypothesis": "Restoring the proven 1024-token short windows while reducing the optimizer batch to one 128-sequence microbatch will retain high token throughput and provide substantially more updates, lowering val_bpb below 0.995558.",
+  "incumbent_after": "2865e528e18dc51191e4037eaeb5824cb0ea83ede79061b59b8f3caac686da6b",
+  "intended_edit": "Restore half-context attention and use a 262,144-token batch with no gradient accumulation.",
+  "mechanism": "Single-microbatch half-window SSSL training",
+  "opportunity": 6,
+  "parent_ids": [
+    "ee1f1cf686a479f175a9b2178602df52386a3561e80b0612b88ccd725e447c2e"
+  ],
+  "portfolio_after": [
+    "2865e528e18dc51191e4037eaeb5824cb0ea83ede79061b59b8f3caac686da6b",
+    "751f6421ee699b4c6ae86e4cb2e4fb251857399c2f9b5720235c590a65eaf50a",
+    "2e2cbe56bf689ee5b5413e2bfb8ea74ccfb21838ac3e2da0a617dbfd5a7e1d4e",
+    "3f86c29c7b170f9b5dd7ccebde668fea2f9f9bc32c149a3e774ae1f52f25cd9d"
+  ],
+  "prompt_hashes": {
+    "common_template_sha256": "ba85b39aa7288f4f48475376da6cff65661f39cfeb7ac7cde15b2a9a2e692fde",
+    "prompt_sha256": "870030e6e55830b7af86b1d5883f1af11b09a10bce6189894d69fcaa76b4cdc2",
+    "proposal_policy_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "search_state_sha256": "c938ac007bf70fe8d27f64661175531e51fcb16b38318c328493c32ee292e27e",
+    "treatment_skeleton_sha256": "2eecce25109397ab49f74d924ff053077aa4135d8f38dcfe0ecd207134b33e18"
+  },
+  "proposal_type": "ordinary",
+  "proposals_cumulative": 6,
+  "remaining_budget": {
+    "evaluations": 194,
+    "evaluator_seconds": 717539.049784472,
+    "proposals": 194,
+    "tokens": 99756620
+  },
+  "retained": true,
+  "retention_decision": "replaced_selected_parent_on_strict_improvement",
+  "run_id": "nanogpt-openevolve-v2-1-h100-karpathy_nanogpt_source_only_h100-openevolve-b01-c2",
+  "schema_version": "1.0",
+  "selected_parent_ids": [
+    "ee1f1cf686a479f175a9b2178602df52386a3561e80b0612b88ccd725e447c2e"
+  ],
+  "timestamp": "2026-08-23T16:01:08.392314+00:00",
+  "usage_cumulative": {
+    "cached_input_tokens": 58112,
+    "input_tokens": 223484,
+    "output_tokens": 19896,
+    "reasoning_output_tokens": 18040,
+    "total_tokens": 243380
+  },
+  "usage_increment": {
+    "cached_input_tokens": 9984,
+    "input_tokens": 45409,
+    "output_tokens": 2695,
+    "reasoning_output_tokens": 2455,
+    "total_tokens": 48104
+  },
+  "visible_candidate_ids": [
+    "2865e528e18dc51191e4037eaeb5824cb0ea83ede79061b59b8f3caac686da6b",
+    "ee1f1cf686a479f175a9b2178602df52386a3561e80b0612b88ccd725e447c2e",
+    "2e2cbe56bf689ee5b5413e2bfb8ea74ccfb21838ac3e2da0a617dbfd5a7e1d4e",
+    "3f86c29c7b170f9b5dd7ccebde668fea2f9f9bc32c149a3e774ae1f52f25cd9d"
+  ]
+}

@@ -1,0 +1,88 @@
+{
+  "artifact_path": "candidates/49430dbb3ceb3519883177627f5686ca87f24e0ba8e73b868c0af466c528ec2d",
+  "candidate_id": "49430dbb3ceb3519883177627f5686ca87f24e0ba8e73b868c0af466c528ec2d",
+  "codex_service_tier": "default",
+  "condition": "C3",
+  "conversation_session_id": null,
+  "evaluation": {
+    "evaluator_calls": 1,
+    "evaluator_seconds": 368.79979434399866,
+    "failure_kind": null,
+    "fitness": -0.992264,
+    "metrics": {
+      "depth": 8.0,
+      "mfu_percent": 37.53,
+      "num_params_M": 50.3,
+      "num_steps": 899.0,
+      "peak_vram_mb": 46348.5,
+      "total_tokens_M": 471.3,
+      "training_seconds": 300.1,
+      "val_bpb": 0.992264
+    },
+    "valid": true
+  },
+  "evaluator_calls_cumulative": 40,
+  "evaluator_calls_increment": 1,
+  "evaluator_seconds_cumulative": 14801.304134102991,
+  "evaluator_seconds_increment": 368.79979434399866,
+  "event": "proposal_completed",
+  "evicted_candidate_id": null,
+  "evidence": "The 704/1024/1344 schedule achieved the best result, 0.991729, while further window refinements regressed. The low-rank prefix-memory path reached only 0.994246 and reduced throughput, motivating global-context representation inside the existing full-attention computation instead of another compressed context path.",
+  "hypothesis": "Leaving half of each full-context layer\u2019s query/key channels unrotated, while restoring the proven 704/1024/1344 short-window progression, will lower val_bpb below 0.991729 while retaining at least 475M training tokens.",
+  "incumbent_after": "fd87e46558e5b5165a3ef2b4520e844455b98914bbe06c5bc8dab0df2d4d7b44",
+  "intended_edit": "Use full RoPE in short-context layers but a mixed positional/content subspace in full-context layers, allowing their learned projections to perform position-independent semantic retrieval without weakening local order modeling.",
+  "mechanism": "Scale-selective hybrid positional attention",
+  "opportunity": 40,
+  "parent_ids": [
+    "528755766b20deef30a32a5dd29aae232775b7555dc993f76a9a5bd80f1a972d"
+  ],
+  "portfolio_after": [
+    "69a781d3c501ec298e2ac042b4908eea0334d1eefe548cab394e7d3affbd52bd",
+    "fd87e46558e5b5165a3ef2b4520e844455b98914bbe06c5bc8dab0df2d4d7b44",
+    "528755766b20deef30a32a5dd29aae232775b7555dc993f76a9a5bd80f1a972d",
+    "668a76aa8c1fd930ae5b19f3b218c1978e02a0ee04714d0df7698e1fd36246ce"
+  ],
+  "prompt_hashes": {
+    "common_template_sha256": "ba85b39aa7288f4f48475376da6cff65661f39cfeb7ac7cde15b2a9a2e692fde",
+    "prompt_sha256": "5dd9a343f2d96e9b6cc08f30a0f1648db0fddc632841fc62d22624b7f4a92e4d",
+    "proposal_policy_sha256": "cd7b9ba20a1cd1edd0663b5e3652baa9cd3c81925074103fe47e66c021d61a4a",
+    "search_state_sha256": "c938ac007bf70fe8d27f64661175531e51fcb16b38318c328493c32ee292e27e",
+    "treatment_skeleton_sha256": "31877150bc5015f34727cfbfac677d648796b1d97cf2329ca5459f35092861ec"
+  },
+  "proposal_type": "assumption_changing",
+  "proposals_cumulative": 40,
+  "remaining_budget": {
+    "evaluations": 160,
+    "evaluator_seconds": 705198.695865897,
+    "proposals": 160,
+    "tokens": 98020737
+  },
+  "retained": false,
+  "retention_decision": "not_strictly_better_than_selected_parent",
+  "run_id": "nanogpt-openevolve-v2-1-h100-karpathy_nanogpt_source_only_h100-openevolve-b03-c3",
+  "schema_version": "1.0",
+  "selected_parent_ids": [
+    "528755766b20deef30a32a5dd29aae232775b7555dc993f76a9a5bd80f1a972d"
+  ],
+  "timestamp": "2026-08-24T07:07:51.894946+00:00",
+  "usage_cumulative": {
+    "cached_input_tokens": 489728,
+    "input_tokens": 1853658,
+    "output_tokens": 125605,
+    "reasoning_output_tokens": 100628,
+    "total_tokens": 1979263
+  },
+  "usage_increment": {
+    "cached_input_tokens": 12032,
+    "input_tokens": 49042,
+    "output_tokens": 6481,
+    "reasoning_output_tokens": 5427,
+    "total_tokens": 55523
+  },
+  "visible_candidate_ids": [
+    "69a781d3c501ec298e2ac042b4908eea0334d1eefe548cab394e7d3affbd52bd",
+    "fd87e46558e5b5165a3ef2b4520e844455b98914bbe06c5bc8dab0df2d4d7b44",
+    "528755766b20deef30a32a5dd29aae232775b7555dc993f76a9a5bd80f1a972d",
+    "668a76aa8c1fd930ae5b19f3b218c1978e02a0ee04714d0df7698e1fd36246ce"
+  ]
+}

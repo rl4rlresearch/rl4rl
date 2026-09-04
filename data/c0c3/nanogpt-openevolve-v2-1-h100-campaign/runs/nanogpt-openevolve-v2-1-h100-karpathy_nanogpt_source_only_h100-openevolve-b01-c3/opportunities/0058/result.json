@@ -1,0 +1,88 @@
+{
+  "artifact_path": "candidates/7a5473eb4973cdfe9292a066a528afb40485c73b3c1074467d2a9e2782bb2be3",
+  "candidate_id": "7a5473eb4973cdfe9292a066a528afb40485c73b3c1074467d2a9e2782bb2be3",
+  "codex_service_tier": "default",
+  "condition": "C3",
+  "conversation_session_id": null,
+  "evaluation": {
+    "evaluator_calls": 1,
+    "evaluator_seconds": 343.28240527200023,
+    "failure_kind": null,
+    "fitness": -0.982963,
+    "metrics": {
+      "depth": 8.0,
+      "mfu_percent": 40.1,
+      "num_params_M": 54.5,
+      "num_steps": 1729.0,
+      "peak_vram_mb": 49047.2,
+      "total_tokens_M": 453.2,
+      "training_seconds": 300.1,
+      "val_bpb": 0.982963
+    },
+    "valid": true
+  },
+  "evaluator_calls_cumulative": 57,
+  "evaluator_calls_increment": 1,
+  "evaluator_seconds_cumulative": 23091.603655392948,
+  "evaluator_seconds_increment": 343.28240527200023,
+  "event": "proposal_completed",
+  "evicted_candidate_id": null,
+  "evidence": "Applying `sqrt(7/8)` to both residual-output projection families improved `val_bpb` from the MLP-projection-only result of 0.982763 to 0.982713 at 455.6M tokens, motivating an attention-specific stronger-side rate test while preserving the proven MLP setting.",
+  "hypothesis": "Reducing attention output projections to `7/8` of the base Muon rate while retaining `sqrt(7/8)` for MLP contractions will retain at least 445M training tokens and reduce `val_bpb` below 0.982713.",
+  "incumbent_after": "4d12d9e746bfd6febdbd47439efa74095de953f414dd6bbbf1279b4289687b64",
+  "intended_edit": "Restore base rates for attention inputs and MLP expansions, retain the verified MLP contraction rate, and move only attention `c_proj` matrices one step lower than the best shared residual-projection rate.",
+  "mechanism": "Stronger attention residual-write compensation",
+  "opportunity": 58,
+  "parent_ids": [
+    "06d7f1e870b93d437a6e75adb4a8ff9a697919c9236cc49edaf494de0fbe6b0d"
+  ],
+  "portfolio_after": [
+    "878a750553c393e4b8b6bab561dfb5a6c4c404145275aa6c22197126db46df94",
+    "06d7f1e870b93d437a6e75adb4a8ff9a697919c9236cc49edaf494de0fbe6b0d",
+    "d2a906260e211cb8442097d33f35b5d9d0c24b2d52ec7045fc9a474ba72b696f",
+    "4d12d9e746bfd6febdbd47439efa74095de953f414dd6bbbf1279b4289687b64"
+  ],
+  "prompt_hashes": {
+    "common_template_sha256": "ba85b39aa7288f4f48475376da6cff65661f39cfeb7ac7cde15b2a9a2e692fde",
+    "prompt_sha256": "efa86468716884034008088029d76b9d64d4bce6bf97d894f3406f4eb3bc5ce0",
+    "proposal_policy_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "search_state_sha256": "c938ac007bf70fe8d27f64661175531e51fcb16b38318c328493c32ee292e27e",
+    "treatment_skeleton_sha256": "4b62d4952da111d460b68618833cea0ef41f1e40cec737d27443815ebb4f7a8f"
+  },
+  "proposal_type": "ordinary",
+  "proposals_cumulative": 58,
+  "remaining_budget": {
+    "evaluations": 143,
+    "evaluator_seconds": 696908.396344607,
+    "proposals": 142,
+    "tokens": 97196752
+  },
+  "retained": false,
+  "retention_decision": "not_strictly_better_than_selected_parent",
+  "run_id": "nanogpt-openevolve-v2-1-h100-karpathy_nanogpt_source_only_h100-openevolve-b01-c3",
+  "schema_version": "1.0",
+  "selected_parent_ids": [
+    "06d7f1e870b93d437a6e75adb4a8ff9a697919c9236cc49edaf494de0fbe6b0d"
+  ],
+  "timestamp": "2026-08-24T13:06:40.262186+00:00",
+  "usage_cumulative": {
+    "cached_input_tokens": 768256,
+    "input_tokens": 2631910,
+    "output_tokens": 171338,
+    "reasoning_output_tokens": 143177,
+    "total_tokens": 2803248
+  },
+  "usage_increment": {
+    "cached_input_tokens": 12032,
+    "input_tokens": 47307,
+    "output_tokens": 1929,
+    "reasoning_output_tokens": 1323,
+    "total_tokens": 49236
+  },
+  "visible_candidate_ids": [
+    "878a750553c393e4b8b6bab561dfb5a6c4c404145275aa6c22197126db46df94",
+    "06d7f1e870b93d437a6e75adb4a8ff9a697919c9236cc49edaf494de0fbe6b0d",
+    "d2a906260e211cb8442097d33f35b5d9d0c24b2d52ec7045fc9a474ba72b696f",
+    "4d12d9e746bfd6febdbd47439efa74095de953f414dd6bbbf1279b4289687b64"
+  ]
+}

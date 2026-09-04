@@ -1,0 +1,85 @@
+{
+  "artifact_path": "candidates/ffd608c7eafd03e2e57293296535320df24ebc7389379bd90b424ab103f462ff",
+  "candidate_id": "ffd608c7eafd03e2e57293296535320df24ebc7389379bd90b424ab103f462ff",
+  "codex_service_tier": "default",
+  "condition": "C3",
+  "conversation_session_id": null,
+  "evaluation": {
+    "evaluator_calls": 1,
+    "evaluator_seconds": 282.5499624579679,
+    "failure_kind": null,
+    "fitness": -862.0,
+    "metrics": {
+      "accuracy": 0.9998999999999999,
+      "cases": 10010,
+      "correct": 10009,
+      "parameters": 862,
+      "training_steps": 4999
+    },
+    "valid": true
+  },
+  "evaluator_calls_cumulative": 127,
+  "evaluator_calls_increment": 1,
+  "evaluator_seconds_cumulative": 46705.35781312315,
+  "evaluator_seconds_increment": 282.5499624579679,
+  "event": "proposal_completed",
+  "evicted_candidate_id": "f8d251062e85232214de9fdcbb910270757590d48ca357c538d532abbb1dfc7d",
+  "evidence": "The five-unit MLP failed at 96.48%, identifying nonlinear width as load-bearing, whereas six units repeatedly exceeded 99%. The old designs implicitly assumed all seven learned vocabulary-feature coordinates were necessary; this patch instead tests a lower-rank learned input/output representation without revisiting the failed MLP bottleneck.",
+  "hypothesis": "The resulting 864-parameter transformer will maintain at least 99% accuracy because the six-unit MLP reached 100% while the 973-parameter gain-tied model reached 99.93%; retaining that nonlinear width but constraining the previously untested token/logit codebook to six centered features should preserve the learned computation.",
+  "incumbent_after": "ffd608c7eafd03e2e57293296535320df24ebc7389379bd90b424ab103f462ff",
+  "intended_edit": "Replace the full seven-coordinate centered vocabulary embedding with a learned six-coordinate embedding projected through a fixed orthonormal mean-zero basis, removing 111 parameters while preserving the eight-dimensional residual stream, six-unit MLP, causal attention, and tied learned logits.",
+  "mechanism": "Rank-six tied vocabulary bottleneck",
+  "opportunity": 130,
+  "parent_ids": [
+    "f8d251062e85232214de9fdcbb910270757590d48ca357c538d532abbb1dfc7d"
+  ],
+  "portfolio_after": [
+    "c1e9d871a1212b1e19f31d0dc4edafb99e7a5fe23d06514f25cac54e22c7f159",
+    "ffd608c7eafd03e2e57293296535320df24ebc7389379bd90b424ab103f462ff",
+    "b31d43702dae789701e60d5d2cf6644a3877e93ecb5e7a8b5d3a0815651a9726",
+    "323e5b9c28bcc297efc0375ba4bdd7894ef36c59db3b0203f815d004c25ccb05"
+  ],
+  "prompt_hashes": {
+    "common_template_sha256": "3f2bea6418b6969c4bf2aa1df18dcda8a3a4ac075bf20c79068c754698b6be5e",
+    "prompt_sha256": "5ed33ed9b20c420c667ac1dcdc11757a012bcb40c4a0902bce2ddf43f9d041e3",
+    "proposal_policy_sha256": "4a27c08e098e719db007f4d6b37fabe2967b41836bb9070e2513a8a24ff7ce90",
+    "search_state_sha256": "c938ac007bf70fe8d27f64661175531e51fcb16b38318c328493c32ee292e27e",
+    "treatment_skeleton_sha256": "aaa8117ea2341020fbcfa47789d72378d0697a9f7b01aef9789b9d698485afba"
+  },
+  "proposal_type": "assumption_changing",
+  "proposals_cumulative": 130,
+  "remaining_budget": {
+    "evaluations": 73,
+    "evaluator_seconds": 313294.64218687685,
+    "proposals": 70,
+    "tokens": 95073473
+  },
+  "retained": true,
+  "retention_decision": "replaced_selected_parent_on_strict_improvement",
+  "run_id": "controlled-openevolve-transformer-v2-1-source-only-ten-digit-addition-pair-transformer-openevolve-v2-1-mps-openevolve-b01-c3",
+  "schema_version": "1.0",
+  "selected_parent_ids": [
+    "f8d251062e85232214de9fdcbb910270757590d48ca357c538d532abbb1dfc7d"
+  ],
+  "timestamp": "2026-09-03T11:37:44.356478+00:00",
+  "usage_cumulative": {
+    "cached_input_tokens": 1307648,
+    "input_tokens": 4562084,
+    "output_tokens": 364443,
+    "reasoning_output_tokens": 286139,
+    "total_tokens": 4926527
+  },
+  "usage_increment": {
+    "cached_input_tokens": 10752,
+    "input_tokens": 38451,
+    "output_tokens": 4045,
+    "reasoning_output_tokens": 3624,
+    "total_tokens": 42496
+  },
+  "visible_candidate_ids": [
+    "c1e9d871a1212b1e19f31d0dc4edafb99e7a5fe23d06514f25cac54e22c7f159",
+    "f8d251062e85232214de9fdcbb910270757590d48ca357c538d532abbb1dfc7d",
+    "b31d43702dae789701e60d5d2cf6644a3877e93ecb5e7a8b5d3a0815651a9726",
+    "323e5b9c28bcc297efc0375ba4bdd7894ef36c59db3b0203f815d004c25ccb05"
+  ]
+}

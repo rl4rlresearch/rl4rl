@@ -1,0 +1,105 @@
+{
+  "artifact_path": "candidates/baf44eb8b01938d8a9e608c125635ffefa815ddfe14ca89516d8e0ca6adcdbcb",
+  "candidate_id": "baf44eb8b01938d8a9e608c125635ffefa815ddfe14ca89516d8e0ca6adcdbcb",
+  "codex_service_tier": "default",
+  "condition": "C3",
+  "conversation_session_id": null,
+  "evaluation": {
+    "evaluator_calls": 1,
+    "evaluator_seconds": 158.57054987503216,
+    "failure_kind": null,
+    "fitness": -2864944452068094588,
+    "metrics": {
+      "batch_size": 64,
+      "evaluation_cases": 815,
+      "evaluation_split": "public_speaker_disjoint_validation",
+      "examples_processed": 50000,
+      "inference_cost": 2864944452068094588,
+      "maximum_recurrent_steps": 20,
+      "mean_recurrent_steps": 20.0,
+      "median_recurrent_steps": 20,
+      "optimizer_steps": 786,
+      "p95_recurrent_steps": 20,
+      "parameters": 65488,
+      "peak_hidden_elements": 205824,
+      "recurrent_logit_effect": 0.02824871428310871,
+      "recurrent_macs": 547680000,
+      "recurrent_steps": 16300,
+      "state_dependence_effect": 0.19689486920833588,
+      "state_update_effect": 0.18921010196208954,
+      "total_inference_macs": 549244800,
+      "trained_recurrent_logit_effect": 0.0953308641910553,
+      "trained_state_dependence_effect": 0.20244625210762024,
+      "trained_state_update_effect": 0.19364725053310394,
+      "training_seconds": 139.1944524589926,
+      "validation_accuracy": 0.8674846625766871,
+      "validation_correct": 707,
+      "validation_cross_entropy": 0.38399118060714627
+    },
+    "valid": true
+  },
+  "evaluator_calls_cumulative": 40,
+  "evaluator_calls_increment": 1,
+  "evaluator_seconds_cumulative": 4479.943998874398,
+  "evaluator_seconds_increment": 158.57054987503216,
+  "event": "proposal_completed",
+  "evicted_candidate_id": "016d906da09d1fe9115b3d48dd009dea2faccbbb35792057b39773f1cdb8582b",
+  "evidence": "The 105-unit monolithic GRU achieved 86.75% at 643,181,700 MACs, while the custom bottleneck-gated recurrence narrowly missed at 84.91%. This challenges the shared assumption that one full-width transition must process every frame while retaining standard, well-qualified GRU gating at both timescales.",
+  "hypothesis": "An 80-unit fast GRU updated for all 20 scheduled frames plus an 80-unit slow GRU updated from four-frame summaries will retain at least 85% validation accuracy while reducing expected total inference MACs from 643,181,700 to approximately 549,244,800.",
+  "incumbent_after": "baf44eb8b01938d8a9e608c125635ffefa815ddfe14ca89516d8e0ca6adcdbcb",
+  "intended_edit": "Replace the monolithic recurrent state with fast and slow GRUCell states, execute the slow transition every fourth frame, classify from fast-scale and slow-scale summaries, and use the proven batch-64 training regime.",
+  "mechanism": "Clocked hierarchical dual-timescale GRU",
+  "opportunity": 40,
+  "parent_ids": [
+    "016d906da09d1fe9115b3d48dd009dea2faccbbb35792057b39773f1cdb8582b"
+  ],
+  "portfolio_after": [
+    "baf44eb8b01938d8a9e608c125635ffefa815ddfe14ca89516d8e0ca6adcdbcb",
+    "0f7b4100f9cf9dc80e79688f6afc250a5156997d0ae27205ec3bac60fe916694",
+    "1b68801b670ae9566fb35f340c62d89fcb36a838c0422cf255a8d476dc06514c",
+    "e11dd9154c635f39c9bc8674028e06a4eaaaf206fd2fa104ebe01bffe959de6b"
+  ],
+  "prompt_hashes": {
+    "common_template_sha256": "dee04faf4c430276c1036ba97f5705a339857dbdf19117dac88952a5a3a47e9d",
+    "prompt_sha256": "aafb28bb6ff6232544fba5f64c8f741959f58165b83fcf28c260642a37f289e7",
+    "proposal_policy_sha256": "f3e935f1a3cb6334e7f39b20b1b6b601cd727de9c5f0c3630206a91f08e358c9",
+    "search_state_sha256": "c938ac007bf70fe8d27f64661175531e51fcb16b38318c328493c32ee292e27e",
+    "treatment_skeleton_sha256": "2180056bde65abdf88c56351df06a302379ea147787054eab373a915fbd75079"
+  },
+  "proposal_type": "assumption_changing",
+  "proposals_cumulative": 40,
+  "remaining_budget": {
+    "evaluations": 160,
+    "evaluator_seconds": 55520.0560011256,
+    "proposals": 160,
+    "tokens": 99006113
+  },
+  "retained": true,
+  "retention_decision": "replaced_selected_parent_on_strict_improvement",
+  "run_id": "tiny-kws-rnn-openevolve-v2-1-cpu-tiny_kws_rnn_source_only_cpu-openevolve-b05-c3",
+  "schema_version": "1.0",
+  "selected_parent_ids": [
+    "016d906da09d1fe9115b3d48dd009dea2faccbbb35792057b39773f1cdb8582b"
+  ],
+  "timestamp": "2026-09-04T04:51:34.632930+00:00",
+  "usage_cumulative": {
+    "cached_input_tokens": 430080,
+    "input_tokens": 904142,
+    "output_tokens": 89745,
+    "reasoning_output_tokens": 71221,
+    "total_tokens": 993887
+  },
+  "usage_increment": {
+    "cached_input_tokens": 10752,
+    "input_tokens": 24093,
+    "output_tokens": 11774,
+    "reasoning_output_tokens": 10274,
+    "total_tokens": 35867
+  },
+  "visible_candidate_ids": [
+    "016d906da09d1fe9115b3d48dd009dea2faccbbb35792057b39773f1cdb8582b",
+    "0f7b4100f9cf9dc80e79688f6afc250a5156997d0ae27205ec3bac60fe916694",
+    "1b68801b670ae9566fb35f340c62d89fcb36a838c0422cf255a8d476dc06514c",
+    "e11dd9154c635f39c9bc8674028e06a4eaaaf206fd2fa104ebe01bffe959de6b"
+  ]
+}

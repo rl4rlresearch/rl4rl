@@ -1,0 +1,82 @@
+{
+  "artifact_path": "candidates/f0f91a88d8b64a98f48cf0774b0f238b4cbad09df8581ccce5fb2a8d79a59b71",
+  "candidate_id": "f0f91a88d8b64a98f48cf0774b0f238b4cbad09df8581ccce5fb2a8d79a59b71",
+  "codex_service_tier": "default",
+  "condition": "C0",
+  "conversation_session_id": null,
+  "evaluation": {
+    "evaluator_calls": 1,
+    "evaluator_seconds": 594.2943520890003,
+    "failure_kind": null,
+    "fitness": -0.984658,
+    "metrics": {
+      "depth": 8.0,
+      "mfu_percent": 34.96,
+      "num_params_M": 50.3,
+      "num_steps": 3050.0,
+      "peak_vram_mb": 30816.8,
+      "total_tokens_M": 499.7,
+      "training_seconds": 300.1,
+      "val_bpb": 0.984658
+    },
+    "valid": true
+  },
+  "evaluator_calls_cumulative": 33,
+  "evaluator_calls_increment": 1,
+  "evaluator_seconds_cumulative": 18969.871385492926,
+  "evaluator_seconds_increment": 594.2943520890003,
+  "event": "proposal_completed",
+  "evicted_candidate_id": null,
+  "evidence": "Moving from 512 to 256 tokens improved `val_bpb` from `0.983023` to `0.982793`, while 128 tokens increased throughput but slightly regressed to `0.982806`; quadratic interpolation over the 512/256/128 results places the estimated optimum near 192 tokens.",
+  "hypothesis": "Using 192-token local-attention windows will achieve `val_bpb < 0.982793` by balancing the quality advantage of 256-token windows with the higher throughput observed at 128 tokens.",
+  "incumbent_after": "f6b1e12990725a8c399a2452e2d3f0b4dbfc4ac75181b13aba8f3d612c6f4871",
+  "intended_edit": "Set the six `S` layers to a 3/32-context (192-token) attention window while retaining two full-context layers and all other settings.",
+  "mechanism": "Interpolated local-attention compute allocation",
+  "opportunity": 33,
+  "parent_ids": [
+    "f6b1e12990725a8c399a2452e2d3f0b4dbfc4ac75181b13aba8f3d612c6f4871"
+  ],
+  "portfolio_after": [
+    "f6b1e12990725a8c399a2452e2d3f0b4dbfc4ac75181b13aba8f3d612c6f4871"
+  ],
+  "prompt_hashes": {
+    "common_template_sha256": "ba85b39aa7288f4f48475376da6cff65661f39cfeb7ac7cde15b2a9a2e692fde",
+    "prompt_sha256": "cd584c70f2c438618099099e2c3f45bd5c8000da18fd3667f7b6cf262ff7f7c2",
+    "proposal_policy_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "search_state_sha256": "04e5eb078ae1964e4ec65bfeeeb1acd0ffa246e7d54d5e0f997f81f602da28c5",
+    "treatment_skeleton_sha256": "28c70bbc22d59b274f0776ed6fd5eac3dbea08ca93577b5d0345de59781320f6"
+  },
+  "proposal_type": "ordinary",
+  "proposals_cumulative": 33,
+  "remaining_budget": {
+    "evaluations": 167,
+    "evaluator_seconds": 701030.128614507,
+    "proposals": 167,
+    "tokens": 99131012
+  },
+  "retained": false,
+  "retention_decision": "not_strictly_better_than_incumbent",
+  "run_id": "nanogpt-openevolve-v2-1-h100-karpathy_nanogpt_source_only_h100-openevolve-b03-c0",
+  "schema_version": "1.0",
+  "selected_parent_ids": [
+    "f6b1e12990725a8c399a2452e2d3f0b4dbfc4ac75181b13aba8f3d612c6f4871"
+  ],
+  "timestamp": "2026-08-24T06:04:24.920329+00:00",
+  "usage_cumulative": {
+    "cached_input_tokens": 372736,
+    "input_tokens": 798857,
+    "output_tokens": 70131,
+    "reasoning_output_tokens": 61307,
+    "total_tokens": 868988
+  },
+  "usage_increment": {
+    "cached_input_tokens": 12032,
+    "input_tokens": 25003,
+    "output_tokens": 611,
+    "reasoning_output_tokens": 412,
+    "total_tokens": 25614
+  },
+  "visible_candidate_ids": [
+    "f6b1e12990725a8c399a2452e2d3f0b4dbfc4ac75181b13aba8f3d612c6f4871"
+  ]
+}

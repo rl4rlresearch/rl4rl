@@ -1,0 +1,105 @@
+{
+  "artifact_path": "candidates/f1cbd06837c4aed73268b5f18ce81362f692d9a70544c1b27e3e5ac684b11eb4",
+  "candidate_id": "f1cbd06837c4aed73268b5f18ce81362f692d9a70544c1b27e3e5ac684b11eb4",
+  "codex_service_tier": "default",
+  "condition": "C2",
+  "conversation_session_id": null,
+  "evaluation": {
+    "evaluator_calls": 1,
+    "evaluator_seconds": 58.33267808309756,
+    "failure_kind": "nonqualification",
+    "fitness": null,
+    "metrics": {
+      "batch_size": 96,
+      "evaluation_cases": 815,
+      "evaluation_split": "public_speaker_disjoint_validation",
+      "examples_processed": 50000,
+      "inference_cost": 1408984545768578761,
+      "maximum_recurrent_steps": 21,
+      "mean_recurrent_steps": 21.0,
+      "median_recurrent_steps": 21,
+      "optimizer_steps": 522,
+      "p95_recurrent_steps": 21,
+      "parameters": 18121,
+      "peak_hidden_elements": 129536,
+      "recurrent_logit_effect": 0.0736735388636589,
+      "recurrent_macs": 268483005,
+      "recurrent_steps": 17115,
+      "state_dependence_effect": 0.2653557360172272,
+      "state_update_effect": 0.27340811491012573,
+      "total_inference_macs": 270119525,
+      "trained_recurrent_logit_effect": 0.40871673822402954,
+      "trained_state_dependence_effect": 0.29333773255348206,
+      "trained_state_update_effect": 0.2978641390800476,
+      "training_seconds": 41.40846679196693,
+      "validation_accuracy": 0.8466257668711656,
+      "validation_correct": 690,
+      "validation_cross_entropy": 0.4255784953298744
+    },
+    "valid": false
+  },
+  "evaluator_calls_cumulative": 56,
+  "evaluator_calls_increment": 1,
+  "evaluator_seconds_cumulative": 4640.70212778938,
+  "evaluator_seconds_increment": 58.33267808309756,
+  "event": "proposal_completed",
+  "evicted_candidate_id": null,
+  "evidence": "The full 63-unit model qualified at 85.03%, while the otherwise identical one-channel fusion reached 84.79% and was only two validation predictions short; this was a much smaller accuracy deficit than the 62-unit or spectral contractions, motivating a training-only recovery attempt for the smallest known structural reduction.",
+  "hypothesis": "Reducing the batch size to 96 will provide enough additional optimizer updates for the single-channel mean/final fusion to recover at least 85% validation accuracy, while retaining 21 recurrent steps and reducing total inference MACs to approximately 270,119,525.",
+  "incumbent_after": "07ad9a18617a47c77e8458ef709c8e354b1a666e53d15930751e4062ea574cd6",
+  "intended_edit": "Fuse one corresponding mean/final summary channel, reduce the classifier input from 252 to 251 features, and lower training batch size from 128 to 96 without changing the qualified recurrent path or inference schedule.",
+  "mechanism": "Increased update density for minimally compressed readout",
+  "opportunity": 57,
+  "parent_ids": [
+    "07ad9a18617a47c77e8458ef709c8e354b1a666e53d15930751e4062ea574cd6"
+  ],
+  "portfolio_after": [
+    "a090b731c260373f127bac7a510eafb2d08a126eb9da57ecfba3bf58d896e4c9",
+    "07ad9a18617a47c77e8458ef709c8e354b1a666e53d15930751e4062ea574cd6",
+    "bbe11dc6ac8463d39632819f195ece93d7f15c3386604a62e83a7646a4261295",
+    "288c924600daeed8ec0fd23863e62bdfb97344929ec8e369b30a4a67074a0768"
+  ],
+  "prompt_hashes": {
+    "common_template_sha256": "dee04faf4c430276c1036ba97f5705a339857dbdf19117dac88952a5a3a47e9d",
+    "prompt_sha256": "a8ba479469f91cf3fb3143e8d287921e6fa2364d47c327d2a7f0eba9bc5a48b2",
+    "proposal_policy_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "search_state_sha256": "c938ac007bf70fe8d27f64661175531e51fcb16b38318c328493c32ee292e27e",
+    "treatment_skeleton_sha256": "a61c35a82c69464197f296d6fa6b62011950786c0c62181e5295a001e2d69a3c"
+  },
+  "proposal_type": "ordinary",
+  "proposals_cumulative": 57,
+  "remaining_budget": {
+    "evaluations": 144,
+    "evaluator_seconds": 55359.29787221062,
+    "proposals": 143,
+    "tokens": 98543747
+  },
+  "retained": false,
+  "retention_decision": "invalid",
+  "run_id": "tiny-kws-rnn-openevolve-v2-1-cpu-tiny_kws_rnn_source_only_cpu-openevolve-b05-c2",
+  "schema_version": "1.0",
+  "selected_parent_ids": [
+    "07ad9a18617a47c77e8458ef709c8e354b1a666e53d15930751e4062ea574cd6"
+  ],
+  "timestamp": "2026-09-04T05:09:53.855160+00:00",
+  "usage_cumulative": {
+    "cached_input_tokens": 620288,
+    "input_tokens": 1355665,
+    "output_tokens": 100588,
+    "reasoning_output_tokens": 70334,
+    "total_tokens": 1456253
+  },
+  "usage_increment": {
+    "cached_input_tokens": 10752,
+    "input_tokens": 25108,
+    "output_tokens": 1806,
+    "reasoning_output_tokens": 1447,
+    "total_tokens": 26914
+  },
+  "visible_candidate_ids": [
+    "a090b731c260373f127bac7a510eafb2d08a126eb9da57ecfba3bf58d896e4c9",
+    "07ad9a18617a47c77e8458ef709c8e354b1a666e53d15930751e4062ea574cd6",
+    "bbe11dc6ac8463d39632819f195ece93d7f15c3386604a62e83a7646a4261295",
+    "288c924600daeed8ec0fd23863e62bdfb97344929ec8e369b30a4a67074a0768"
+  ]
+}

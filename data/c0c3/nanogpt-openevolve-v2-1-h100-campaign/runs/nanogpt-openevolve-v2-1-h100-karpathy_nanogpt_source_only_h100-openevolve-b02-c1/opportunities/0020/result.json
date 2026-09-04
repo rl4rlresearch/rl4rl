@@ -1,0 +1,82 @@
+{
+  "artifact_path": "candidates/97b6435b3049459e7e29018e1f969b12903c7cecd4e444e6539a068ef6be3be6",
+  "candidate_id": "97b6435b3049459e7e29018e1f969b12903c7cecd4e444e6539a068ef6be3be6",
+  "codex_service_tier": "default",
+  "condition": "C1",
+  "conversation_session_id": null,
+  "evaluation": {
+    "evaluator_calls": 1,
+    "evaluator_seconds": 363.7756966459983,
+    "failure_kind": null,
+    "fitness": -0.987766,
+    "metrics": {
+      "depth": 8.0,
+      "mfu_percent": 38.27,
+      "num_params_M": 50.3,
+      "num_steps": 1823.0,
+      "peak_vram_mb": 45166.2,
+      "total_tokens_M": 477.9,
+      "training_seconds": 300.0,
+      "val_bpb": 0.987766
+    },
+    "valid": true
+  },
+  "evaluator_calls_cumulative": 20,
+  "evaluator_calls_increment": 1,
+  "evaluator_seconds_cumulative": 7400.039870849997,
+  "evaluator_seconds_increment": 363.7756966459983,
+  "event": "proposal_completed",
+  "evicted_candidate_id": null,
+  "evidence": "The static channel-wise current-token expert improved val_bpb from 0.995511 to 0.994364, whereas the additive multi-depth ensemble regressed to 0.997915. This motivates extending the successful direct readout with a genuinely new multiplicative token-pair interaction rather than another additive lexical source.",
+  "hypothesis": "Adding a rank-512 multiplicative feature of the previous and current token embeddings will reduce val_bpb below 0.987386 while retaining nearly all throughput.",
+  "incumbent_after": "b1c6392629d0d3293b3f1d120731d4e00751110a958b2207099a89b59922d331",
+  "intended_edit": "Replace the assumption that non-current lexical context must pass through attention with an asymmetric Hadamard-product expert that maps each ordered previous/current token pair directly into the pre-logit state; initialize its channel coefficients to zero and retain the proven 256K-token update regime.",
+  "mechanism": "Ordered low-rank trigram readout",
+  "opportunity": 20,
+  "parent_ids": [
+    "b1c6392629d0d3293b3f1d120731d4e00751110a958b2207099a89b59922d331"
+  ],
+  "portfolio_after": [
+    "b1c6392629d0d3293b3f1d120731d4e00751110a958b2207099a89b59922d331"
+  ],
+  "prompt_hashes": {
+    "common_template_sha256": "ba85b39aa7288f4f48475376da6cff65661f39cfeb7ac7cde15b2a9a2e692fde",
+    "prompt_sha256": "06d39b8f516d9f195639734db0339ae62397f3a76e0990fba4795c367348e590",
+    "proposal_policy_sha256": "cd7b9ba20a1cd1edd0663b5e3652baa9cd3c81925074103fe47e66c021d61a4a",
+    "search_state_sha256": "04e5eb078ae1964e4ec65bfeeeb1acd0ffa246e7d54d5e0f997f81f602da28c5",
+    "treatment_skeleton_sha256": "9743cd1377209d02a4a2319ba52df2727b3ecd9cdc71589e697f25697152e902"
+  },
+  "proposal_type": "assumption_changing",
+  "proposals_cumulative": 20,
+  "remaining_budget": {
+    "evaluations": 180,
+    "evaluator_seconds": 712599.96012915,
+    "proposals": 180,
+    "tokens": 99450647
+  },
+  "retained": false,
+  "retention_decision": "not_strictly_better_than_incumbent",
+  "run_id": "nanogpt-openevolve-v2-1-h100-karpathy_nanogpt_source_only_h100-openevolve-b02-c1",
+  "schema_version": "1.0",
+  "selected_parent_ids": [
+    "b1c6392629d0d3293b3f1d120731d4e00751110a958b2207099a89b59922d331"
+  ],
+  "timestamp": "2026-08-24T02:25:40.193161+00:00",
+  "usage_cumulative": {
+    "cached_input_tokens": 223744,
+    "input_tokens": 480633,
+    "output_tokens": 68720,
+    "reasoning_output_tokens": 59625,
+    "total_tokens": 549353
+  },
+  "usage_increment": {
+    "cached_input_tokens": 12032,
+    "input_tokens": 25097,
+    "output_tokens": 3432,
+    "reasoning_output_tokens": 2588,
+    "total_tokens": 28529
+  },
+  "visible_candidate_ids": [
+    "b1c6392629d0d3293b3f1d120731d4e00751110a958b2207099a89b59922d331"
+  ]
+}

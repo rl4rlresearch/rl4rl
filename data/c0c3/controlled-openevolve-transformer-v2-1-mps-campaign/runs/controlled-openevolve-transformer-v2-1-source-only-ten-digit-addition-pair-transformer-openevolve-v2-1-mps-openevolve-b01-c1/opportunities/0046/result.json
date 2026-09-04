@@ -1,0 +1,79 @@
+{
+  "artifact_path": "candidates/0db570d96b3a92065765061257b3c3114441631ae43ba3a976488072b3a09a3c",
+  "candidate_id": "0db570d96b3a92065765061257b3c3114441631ae43ba3a976488072b3a09a3c",
+  "codex_service_tier": "default",
+  "condition": "C1",
+  "conversation_session_id": null,
+  "evaluation": {
+    "evaluator_calls": 1,
+    "evaluator_seconds": 673.673482791055,
+    "failure_kind": null,
+    "fitness": -1578.0,
+    "metrics": {
+      "accuracy": 0.9992,
+      "cases": 10010,
+      "correct": 10002,
+      "parameters": 1578,
+      "training_steps": 4999
+    },
+    "valid": true
+  },
+  "evaluator_calls_cumulative": 46,
+  "evaluator_calls_increment": 1,
+  "evaluator_seconds_cumulative": 22479.600723582087,
+  "evaluator_seconds_increment": 673.673482791055,
+  "event": "proposal_completed",
+  "evicted_candidate_id": "9d9c0914c643457ae70436f1bbcdd9952a895265391543fc00477124d81f206f",
+  "evidence": "Removing a third `ln2` bias coordinate collapsed accuracy to 40.61%, while the current design with six learned `ln2` bias coordinates reaches 100%; this motivates preserving that optimization pathway and instead removing one downstream bias coordinate from the same exact affine redundancy.",
+  "hypothesis": "Removing one `fc1` bias scalar will reduce the model from 1,579 to 1,578 parameters while retaining at least 99% accuracy, because `ln2`\u2019s six learned bias coordinates can generate the omitted neuron offset through its learned weight row, while the other `fc1` biases cancel collateral offsets.",
+  "incumbent_after": "0db570d96b3a92065765061257b3c3114441631ae43ba3a976488072b3a09a3c",
+  "intended_edit": "Replace the MLP\u2019s first linear layer with an otherwise identical layer whose final output-bias coordinate is fixed at zero, preserving all successful attention, embedding, final-LayerNorm, initialization, and optimizer settings.",
+  "mechanism": "LayerNorm-beta/downstream-bias gauge reorientation",
+  "opportunity": 46,
+  "parent_ids": [
+    "9d9c0914c643457ae70436f1bbcdd9952a895265391543fc00477124d81f206f"
+  ],
+  "portfolio_after": [
+    "0db570d96b3a92065765061257b3c3114441631ae43ba3a976488072b3a09a3c"
+  ],
+  "prompt_hashes": {
+    "common_template_sha256": "3f2bea6418b6969c4bf2aa1df18dcda8a3a4ac075bf20c79068c754698b6be5e",
+    "prompt_sha256": "082a0f06affdf432f4cbff055434632f4c2cf14e3b327f248cc2a0c1aef32353",
+    "proposal_policy_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "search_state_sha256": "04e5eb078ae1964e4ec65bfeeeb1acd0ffa246e7d54d5e0f997f81f602da28c5",
+    "treatment_skeleton_sha256": "7fbb55036c07c069c48863d64fbcad82d81a15af1938b04202f71a06f62e69ac"
+  },
+  "proposal_type": "ordinary",
+  "proposals_cumulative": 46,
+  "remaining_budget": {
+    "evaluations": 154,
+    "evaluator_seconds": 337520.3992764179,
+    "proposals": 154,
+    "tokens": 98808958
+  },
+  "retained": true,
+  "retention_decision": "strict_incumbent_improvement",
+  "run_id": "controlled-openevolve-transformer-v2-1-source-only-ten-digit-addition-pair-transformer-openevolve-v2-1-mps-openevolve-b01-c1",
+  "schema_version": "1.0",
+  "selected_parent_ids": [
+    "9d9c0914c643457ae70436f1bbcdd9952a895265391543fc00477124d81f206f"
+  ],
+  "timestamp": "2026-08-24T15:38:07.835813+00:00",
+  "usage_cumulative": {
+    "cached_input_tokens": 480256,
+    "input_tokens": 1007068,
+    "output_tokens": 183974,
+    "reasoning_output_tokens": 154156,
+    "total_tokens": 1191042
+  },
+  "usage_increment": {
+    "cached_input_tokens": 6912,
+    "input_tokens": 23247,
+    "output_tokens": 3626,
+    "reasoning_output_tokens": 3106,
+    "total_tokens": 26873
+  },
+  "visible_candidate_ids": [
+    "9d9c0914c643457ae70436f1bbcdd9952a895265391543fc00477124d81f206f"
+  ]
+}

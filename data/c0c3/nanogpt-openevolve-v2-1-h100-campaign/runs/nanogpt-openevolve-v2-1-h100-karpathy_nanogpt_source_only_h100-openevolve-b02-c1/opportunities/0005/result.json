@@ -1,0 +1,82 @@
+{
+  "artifact_path": "candidates/1ccaede99f228b96372d20b3bd3c92d517aff3c5de6b97304fbe4720f1e39ff6",
+  "candidate_id": "1ccaede99f228b96372d20b3bd3c92d517aff3c5de6b97304fbe4720f1e39ff6",
+  "codex_service_tier": "fast",
+  "condition": "C1",
+  "conversation_session_id": null,
+  "evaluation": {
+    "evaluator_calls": 1,
+    "evaluator_seconds": 350.7822669699999,
+    "failure_kind": null,
+    "fitness": -0.995868,
+    "metrics": {
+      "depth": 8.0,
+      "mfu_percent": 39.35,
+      "num_params_M": 50.3,
+      "num_steps": 942.0,
+      "peak_vram_mb": 45060.2,
+      "total_tokens_M": 493.9,
+      "training_seconds": 300.0,
+      "val_bpb": 0.995868
+    },
+    "valid": true
+  },
+  "evaluator_calls_cumulative": 5,
+  "evaluator_calls_increment": 1,
+  "evaluator_seconds_cumulative": 1861.5491802839988,
+  "evaluator_seconds_increment": 350.7822669699999,
+  "event": "proposal_completed",
+  "evicted_candidate_id": null,
+  "evidence": "Native dense attention was valid and hardware-efficient at 38.44% MFU, while changing the frequency or size of attention windows reduced throughput and worsened val_bpb; isolating kernel dispatch avoids those architectural confounds.",
+  "hypothesis": "Routing only the two existing full-context layers through FlashAttention\u2019s native dense-causal path will preserve the baseline attention pattern and quality while increasing throughput beyond 497M tokens, lowering val_bpb below 0.995558.",
+  "incumbent_after": "2865e528e18dc51191e4037eaeb5824cb0ea83ede79061b59b8f3caac686da6b",
+  "intended_edit": "Keep the SSSL architecture unchanged, but encode its full-context layers with FlashAttention\u2019s `(-1, -1)` sentinel instead of an equivalent sliding-window configuration.",
+  "mechanism": "Native dense dispatch for existing global-attention layers",
+  "opportunity": 5,
+  "parent_ids": [
+    "2865e528e18dc51191e4037eaeb5824cb0ea83ede79061b59b8f3caac686da6b"
+  ],
+  "portfolio_after": [
+    "2865e528e18dc51191e4037eaeb5824cb0ea83ede79061b59b8f3caac686da6b"
+  ],
+  "prompt_hashes": {
+    "common_template_sha256": "ba85b39aa7288f4f48475376da6cff65661f39cfeb7ac7cde15b2a9a2e692fde",
+    "prompt_sha256": "172df4e85ba3dd2c337bceb3aaed6d2bbf5e410a5c6cddbe719fe7f5899db3bd",
+    "proposal_policy_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "search_state_sha256": "04e5eb078ae1964e4ec65bfeeeb1acd0ffa246e7d54d5e0f997f81f602da28c5",
+    "treatment_skeleton_sha256": "fa62da5b4a1e1e5c63ec4df2ed6756ec28a874a096d7b46d25a858b3ae604430"
+  },
+  "proposal_type": "ordinary",
+  "proposals_cumulative": 5,
+  "remaining_budget": {
+    "evaluations": 195,
+    "evaluator_seconds": 718138.450819716,
+    "proposals": 195,
+    "tokens": 99868521
+  },
+  "retained": false,
+  "retention_decision": "not_strictly_better_than_incumbent",
+  "run_id": "nanogpt-openevolve-v2-1-h100-karpathy_nanogpt_source_only_h100-openevolve-b02-c1",
+  "schema_version": "1.0",
+  "selected_parent_ids": [
+    "2865e528e18dc51191e4037eaeb5824cb0ea83ede79061b59b8f3caac686da6b"
+  ],
+  "timestamp": "2026-08-23T16:57:05.214082+00:00",
+  "usage_cumulative": {
+    "cached_input_tokens": 43008,
+    "input_tokens": 111714,
+    "output_tokens": 19765,
+    "reasoning_output_tokens": 18140,
+    "total_tokens": 131479
+  },
+  "usage_increment": {
+    "cached_input_tokens": 0,
+    "input_tokens": 22839,
+    "output_tokens": 3933,
+    "reasoning_output_tokens": 3624,
+    "total_tokens": 26772
+  },
+  "visible_candidate_ids": [
+    "2865e528e18dc51191e4037eaeb5824cb0ea83ede79061b59b8f3caac686da6b"
+  ]
+}

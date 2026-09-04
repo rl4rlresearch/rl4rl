@@ -1,0 +1,85 @@
+{
+  "artifact_path": "candidates/2d8ca4a958c37beba872b8bb92fbe750d25aa55bab46aac53e1a320a904e626c",
+  "candidate_id": "2d8ca4a958c37beba872b8bb92fbe750d25aa55bab46aac53e1a320a904e626c",
+  "codex_service_tier": "default",
+  "condition": "C0",
+  "conversation_session_id": null,
+  "evaluation": {
+    "evaluator_calls": 1,
+    "evaluator_seconds": 76.49066329188645,
+    "failure_kind": null,
+    "fitness": 9346.420878684226,
+    "metrics": {
+      "batch_size": 128,
+      "evaluation_cases": 10000,
+      "evaluation_split": "public_validation",
+      "examples_processed": 100000,
+      "optimizer_steps": 782,
+      "parameters": 237818,
+      "training_seconds": 70.16505929199047,
+      "validation_accuracy": 0.9346,
+      "validation_correct": 9346,
+      "validation_cross_entropy": 0.1879907886505127,
+      "validation_score": 9346.420878684226
+    },
+    "valid": true
+  },
+  "evaluator_calls_cumulative": 93,
+  "evaluator_calls_increment": 1,
+  "evaluator_seconds_cumulative": 6864.1868566244375,
+  "evaluator_seconds_increment": 76.49066329188645,
+  "event": "proposal_completed",
+  "evicted_candidate_id": null,
+  "evidence": "Equal-weight translation test-time ensembling reduced validation_correct from 9,359 to 9,348, showing that shifted views are not currently modeled robustly; learning limited translation invariance before a clean-data finishing phase directly tests whether that sensitivity can be reduced without averaging shifted logits at evaluation.",
+  "hypothesis": "Per-image one-pixel translations during the first 75% of training, followed by centered-image fine-tuning, will increase validation_correct above 9,359 without changing evaluation-time calibration.",
+  "incumbent_after": "ca12b2f2991960dd2bb56a4d04af9afdc0216d84e4e4e7b23b4bf158dbaebb79",
+  "intended_edit": "Apply random replicate-padded \u00b11-pixel crops in `prepare_training_batch` for the first three quarters of training, while preserving centered batches for the final quarter.",
+  "mechanism": "Early random translation augmentation with clean-data fine-tuning",
+  "opportunity": 94,
+  "parent_ids": [
+    "ca12b2f2991960dd2bb56a4d04af9afdc0216d84e4e4e7b23b4bf158dbaebb79"
+  ],
+  "portfolio_after": [
+    "ca12b2f2991960dd2bb56a4d04af9afdc0216d84e4e4e7b23b4bf158dbaebb79"
+  ],
+  "prompt_hashes": {
+    "common_template_sha256": "e8327ba94bab12abc7c7ec7c6615378a3ae62434efb944d4a7d9492f1d19bc14",
+    "prompt_sha256": "24183d9f6cffa639676b0f0e0af1df3fc50ca43b778d7d5fdb6d8ea69f2f3c4e",
+    "proposal_policy_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "search_state_sha256": "04e5eb078ae1964e4ec65bfeeeb1acd0ffa246e7d54d5e0f997f81f602da28c5",
+    "treatment_skeleton_sha256": "00dc0ec84015bb8a4217b058e7e1556fd6644551020c1506b125e790fc256dbc"
+  },
+  "proposal_type": "ordinary",
+  "proposals_cumulative": 94,
+  "remaining_budget": {
+    "evaluations": 107,
+    "evaluator_seconds": 17135.813143375563,
+    "proposals": 106,
+    "tokens": 98178528
+  },
+  "retained": false,
+  "retention_decision": "not_strictly_better_than_incumbent",
+  "run_id": "fashion-mnist-openevolve-v2-1-mps-fashion_mnist_source_only_mps-openevolve-b04-c0",
+  "schema_version": "1.0",
+  "selected_parent_ids": [
+    "ca12b2f2991960dd2bb56a4d04af9afdc0216d84e4e4e7b23b4bf158dbaebb79"
+  ],
+  "timestamp": "2026-08-24T18:32:15.066751+00:00",
+  "usage_cumulative": {
+    "cached_input_tokens": 997888,
+    "input_tokens": 1731066,
+    "output_tokens": 90406,
+    "reasoning_output_tokens": 67855,
+    "total_tokens": 1821472
+  },
+  "usage_increment": {
+    "cached_input_tokens": 12032,
+    "input_tokens": 18889,
+    "output_tokens": 3520,
+    "reasoning_output_tokens": 3106,
+    "total_tokens": 22409
+  },
+  "visible_candidate_ids": [
+    "ca12b2f2991960dd2bb56a4d04af9afdc0216d84e4e4e7b23b4bf158dbaebb79"
+  ]
+}

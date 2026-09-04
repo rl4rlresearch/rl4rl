@@ -1,0 +1,79 @@
+{
+  "artifact_path": "candidates/077094a907071565880137e84fb9f680bfcd4313dedefd9962eac48b44eedbd4",
+  "candidate_id": "077094a907071565880137e84fb9f680bfcd4313dedefd9962eac48b44eedbd4",
+  "codex_service_tier": "fast",
+  "condition": "C0",
+  "conversation_session_id": null,
+  "evaluation": {
+    "evaluator_calls": 1,
+    "evaluator_seconds": 397.35626266594045,
+    "failure_kind": "nonqualification",
+    "fitness": null,
+    "metrics": {
+      "accuracy": 0.1353,
+      "cases": 10010,
+      "correct": 1354,
+      "parameters": 1634,
+      "training_steps": 4999
+    },
+    "valid": false
+  },
+  "evaluator_calls_cumulative": 20,
+  "evaluator_calls_increment": 1,
+  "evaluator_seconds_cumulative": 6426.093669707887,
+  "evaluator_seconds_increment": 397.35626266594045,
+  "event": "proposal_completed",
+  "evicted_candidate_id": null,
+  "evidence": "A one-coordinate LayerNorm bias anchor previously achieved 99.95% accuracy, and the current design also achieves 99.95%; applying the same successful reduction before `fc1` preserves initialization and removes an exact LayerNorm-linear parameter redundancy.",
+  "hypothesis": "Fixing one `ln2` bias coordinate at zero will reduce the model from 1,635 to 1,634 parameters while retaining at least 99% accuracy, because the omitted offset can be absorbed exactly into the following `fc1` bias.",
+  "incumbent_after": "43cb4fd33f3606c2b7e1f7630bb7908a42026ce707687cc6a18778cc6ff79bfd",
+  "intended_edit": "Replace the standard pre-MLP LayerNorm with the existing initialization-preserving `AnchoredLayerNorm`, which learns seven bias coordinates and appends one fixed zero.",
+  "mechanism": "Pre-MLP LayerNorm-to-linear bias gauge anchoring",
+  "opportunity": 20,
+  "parent_ids": [
+    "43cb4fd33f3606c2b7e1f7630bb7908a42026ce707687cc6a18778cc6ff79bfd"
+  ],
+  "portfolio_after": [
+    "43cb4fd33f3606c2b7e1f7630bb7908a42026ce707687cc6a18778cc6ff79bfd"
+  ],
+  "prompt_hashes": {
+    "common_template_sha256": "3f2bea6418b6969c4bf2aa1df18dcda8a3a4ac075bf20c79068c754698b6be5e",
+    "prompt_sha256": "c34ba5d0772687fa564d74dde6e032693db26028a87b6e1f1da627894061109b",
+    "proposal_policy_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "search_state_sha256": "04e5eb078ae1964e4ec65bfeeeb1acd0ffa246e7d54d5e0f997f81f602da28c5",
+    "treatment_skeleton_sha256": "8ccfdcccafc7d58fa184016a95ce410709a09346751da0ad8afe18eacd3ce81a"
+  },
+  "proposal_type": "ordinary",
+  "proposals_cumulative": 20,
+  "remaining_budget": {
+    "evaluations": 180,
+    "evaluator_seconds": 353573.9063302921,
+    "proposals": 180,
+    "tokens": 99556013
+  },
+  "retained": false,
+  "retention_decision": "invalid",
+  "run_id": "controlled-openevolve-transformer-v2-1-source-only-ten-digit-addition-pair-transformer-openevolve-v2-1-mps-openevolve-b02-c0",
+  "schema_version": "1.0",
+  "selected_parent_ids": [
+    "43cb4fd33f3606c2b7e1f7630bb7908a42026ce707687cc6a18778cc6ff79bfd"
+  ],
+  "timestamp": "2026-08-23T21:43:47.915090+00:00",
+  "usage_cumulative": {
+    "cached_input_tokens": 229376,
+    "input_tokens": 409007,
+    "output_tokens": 34980,
+    "reasoning_output_tokens": 27679,
+    "total_tokens": 443987
+  },
+  "usage_increment": {
+    "cached_input_tokens": 6912,
+    "input_tokens": 21550,
+    "output_tokens": 2053,
+    "reasoning_output_tokens": 1849,
+    "total_tokens": 23603
+  },
+  "visible_candidate_ids": [
+    "43cb4fd33f3606c2b7e1f7630bb7908a42026ce707687cc6a18778cc6ff79bfd"
+  ]
+}

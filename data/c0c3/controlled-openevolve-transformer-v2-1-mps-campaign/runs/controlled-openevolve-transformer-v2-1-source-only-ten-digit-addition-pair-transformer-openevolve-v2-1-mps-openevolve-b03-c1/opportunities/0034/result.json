@@ -1,0 +1,79 @@
+{
+  "artifact_path": "candidates/3c17997b3312b3017ac1dfd905a0ac4d4c7142dff5a1c9aff90ad7f89a728659",
+  "candidate_id": "3c17997b3312b3017ac1dfd905a0ac4d4c7142dff5a1c9aff90ad7f89a728659",
+  "codex_service_tier": "fast",
+  "condition": "C1",
+  "conversation_session_id": null,
+  "evaluation": {
+    "evaluator_calls": 1,
+    "evaluator_seconds": 423.0694576250389,
+    "failure_kind": null,
+    "fitness": -1470.0,
+    "metrics": {
+      "accuracy": 0.9993000000000001,
+      "cases": 10010,
+      "correct": 10003,
+      "parameters": 1470,
+      "training_steps": 4999
+    },
+    "valid": true
+  },
+  "evaluator_calls_cumulative": 34,
+  "evaluator_calls_increment": 1,
+  "evaluator_seconds_cumulative": 11202.492275497993,
+  "evaluator_seconds_increment": 423.0694576250389,
+  "event": "proposal_completed",
+  "evicted_candidate_id": "a326da9aff492539925559fd2b31bd4cb3b3892fc18b94aa2c9006fdd7e15a4c",
+  "evidence": "The combined attention/MLP output reduction failed at 84.22%, while the 1,478-parameter baseline achieved 99.95%; isolating the smaller eight-parameter attention component directly tests which part of that combined change caused the optimization failure.",
+  "hypothesis": "Constraining only the attention output projection to the zero-mean feature subspace will reduce the model from 1,478 to 1,470 parameters while retaining at least 99% accuracy, because its removed per-token all-ones component is erased by subsequent LayerNorms under the fixed zero-dropout configuration.",
+  "incumbent_after": "3c17997b3312b3017ac1dfd905a0ac4d4c7142dff5a1c9aff90ad7f89a728659",
+  "intended_edit": "Store the 8-by-8 attention output projection as 7-by-8 coefficients in a fixed orthonormal zero-mean basis, reconstruct its centered 8-dimensional output during forward passes, and preserve the observable initialized function.",
+  "mechanism": "Isolated attention-output LayerNorm gauge fixing",
+  "opportunity": 34,
+  "parent_ids": [
+    "a326da9aff492539925559fd2b31bd4cb3b3892fc18b94aa2c9006fdd7e15a4c"
+  ],
+  "portfolio_after": [
+    "3c17997b3312b3017ac1dfd905a0ac4d4c7142dff5a1c9aff90ad7f89a728659"
+  ],
+  "prompt_hashes": {
+    "common_template_sha256": "3f2bea6418b6969c4bf2aa1df18dcda8a3a4ac075bf20c79068c754698b6be5e",
+    "prompt_sha256": "15cc59ab077eb19db7df416394d305babfe3f3af76df5a364a54b79f18ff6ebb",
+    "proposal_policy_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "search_state_sha256": "04e5eb078ae1964e4ec65bfeeeb1acd0ffa246e7d54d5e0f997f81f602da28c5",
+    "treatment_skeleton_sha256": "867d56179e2585a532371829dac929ae5b00b4fc63aa2fc7c14dcda858a6386e"
+  },
+  "proposal_type": "ordinary",
+  "proposals_cumulative": 34,
+  "remaining_budget": {
+    "evaluations": 166,
+    "evaluator_seconds": 348797.507724502,
+    "proposals": 166,
+    "tokens": 99181923
+  },
+  "retained": true,
+  "retention_decision": "strict_incumbent_improvement",
+  "run_id": "controlled-openevolve-transformer-v2-1-source-only-ten-digit-addition-pair-transformer-openevolve-v2-1-mps-openevolve-b03-c1",
+  "schema_version": "1.0",
+  "selected_parent_ids": [
+    "a326da9aff492539925559fd2b31bd4cb3b3892fc18b94aa2c9006fdd7e15a4c"
+  ],
+  "timestamp": "2026-08-23T20:57:14.142724+00:00",
+  "usage_cumulative": {
+    "cached_input_tokens": 373760,
+    "input_tokens": 722936,
+    "output_tokens": 95141,
+    "reasoning_output_tokens": 75685,
+    "total_tokens": 818077
+  },
+  "usage_increment": {
+    "cached_input_tokens": 12032,
+    "input_tokens": 23035,
+    "output_tokens": 2216,
+    "reasoning_output_tokens": 1552,
+    "total_tokens": 25251
+  },
+  "visible_candidate_ids": [
+    "a326da9aff492539925559fd2b31bd4cb3b3892fc18b94aa2c9006fdd7e15a4c"
+  ]
+}

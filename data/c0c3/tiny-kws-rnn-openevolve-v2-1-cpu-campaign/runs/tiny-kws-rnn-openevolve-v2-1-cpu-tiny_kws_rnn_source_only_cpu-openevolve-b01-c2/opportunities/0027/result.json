@@ -1,0 +1,105 @@
+{
+  "artifact_path": "candidates/3c5edd494270bed3d9e054a6c812d052a9608cc31de01b84366cdd2a00582b85",
+  "candidate_id": "3c5edd494270bed3d9e054a6c812d052a9608cc31de01b84366cdd2a00582b85",
+  "codex_service_tier": "default",
+  "condition": "C2",
+  "conversation_session_id": null,
+  "evaluation": {
+    "evaluator_calls": 1,
+    "evaluator_seconds": 59.912973625119776,
+    "failure_kind": null,
+    "fitness": -1535775512729067302,
+    "metrics": {
+      "batch_size": 128,
+      "evaluation_cases": 815,
+      "evaluation_split": "public_speaker_disjoint_validation",
+      "examples_processed": 50000,
+      "inference_cost": 1535775512729067302,
+      "maximum_recurrent_steps": 25,
+      "mean_recurrent_steps": 25.0,
+      "median_recurrent_steps": 25,
+      "optimizer_steps": 397,
+      "p95_recurrent_steps": 25,
+      "parameters": 16027,
+      "peak_hidden_elements": 92672,
+      "recurrent_logit_effect": 0.08328249305486679,
+      "recurrent_macs": 293400000,
+      "recurrent_steps": 20375,
+      "state_dependence_effect": 0.3413655757904053,
+      "state_update_effect": 0.5692995190620422,
+      "total_inference_macs": 294426900,
+      "trained_recurrent_logit_effect": 0.5223647356033325,
+      "trained_state_dependence_effect": 0.4009399712085724,
+      "trained_state_update_effect": 0.5942426323890686,
+      "training_seconds": 38.866629750002176,
+      "validation_accuracy": 0.8503067484662576,
+      "validation_correct": 693,
+      "validation_cross_entropy": 0.4617033975987347
+    },
+    "valid": true
+  },
+  "evaluator_calls_cumulative": 26,
+  "evaluator_calls_increment": 1,
+  "evaluator_seconds_cumulative": 2674.7019234183244,
+  "evaluator_seconds_increment": 59.912973625119776,
+  "event": "proposal_completed",
+  "evicted_candidate_id": "34d2cd869dc0068fd4760964fd3ed37c9cc532f8e48a7cbd53475e5b6704cb12",
+  "evidence": "Reference Design 2 achieved 85.77% accuracy at 294,426,900 MACs over 25 steps. LayerNorm\u2019s default affine transform is followed immediately by the GRU\u2019s learned affine input maps, so its scale and offset are structurally absorbable without reducing model expressivity.",
+  "hypothesis": "Removing LayerNorm\u2019s foldable affine parameters while adopting the qualified 25-step, seven-logit design will retain at least 85% validation accuracy at 294,426,900 MACs and reduce parameters from 16,067 to 16,027.",
+  "incumbent_after": "3c5edd494270bed3d9e054a6c812d052a9608cc31de01b84366cdd2a00582b85",
+  "intended_edit": "Process frames 3\u201326 and frame 28, learn seven relative logits with a fixed zero reference logit, and disable the redundant affine transform in the input LayerNorm.",
+  "mechanism": "Affine-folded input normalization with reference-class logits",
+  "opportunity": 27,
+  "parent_ids": [
+    "34d2cd869dc0068fd4760964fd3ed37c9cc532f8e48a7cbd53475e5b6704cb12"
+  ],
+  "portfolio_after": [
+    "e75a8f47dcdb9bafbd1add5a66723fc8f1ef898a762fcb6dda4c26d81d7f9a69",
+    "3c5edd494270bed3d9e054a6c812d052a9608cc31de01b84366cdd2a00582b85",
+    "e77876702bd53dc741ab7ef8f33b57d93bd02b9054773207af15947f741dfd97",
+    "5d7fe142ec7134d76a09f3c46d165b7784074f4e250430c14ad60379af9bf48e"
+  ],
+  "prompt_hashes": {
+    "common_template_sha256": "dee04faf4c430276c1036ba97f5705a339857dbdf19117dac88952a5a3a47e9d",
+    "prompt_sha256": "d84057a40d230e2cf7bca310b7b1b52d5d61165a9801256231f4c55fdee6d0a4",
+    "proposal_policy_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "search_state_sha256": "c938ac007bf70fe8d27f64661175531e51fcb16b38318c328493c32ee292e27e",
+    "treatment_skeleton_sha256": "aeeb22896ebd341df1fe9d983381c723faa11d5cf58409b70e9bb1202084de26"
+  },
+  "proposal_type": "ordinary",
+  "proposals_cumulative": 27,
+  "remaining_budget": {
+    "evaluations": 174,
+    "evaluator_seconds": 57325.298076581676,
+    "proposals": 173,
+    "tokens": 99340174
+  },
+  "retained": true,
+  "retention_decision": "replaced_selected_parent_on_strict_improvement",
+  "run_id": "tiny-kws-rnn-openevolve-v2-1-cpu-tiny_kws_rnn_source_only_cpu-openevolve-b01-c2",
+  "schema_version": "1.0",
+  "selected_parent_ids": [
+    "34d2cd869dc0068fd4760964fd3ed37c9cc532f8e48a7cbd53475e5b6704cb12"
+  ],
+  "timestamp": "2026-09-04T03:56:57.557048+00:00",
+  "usage_cumulative": {
+    "cached_input_tokens": 290304,
+    "input_tokens": 608915,
+    "output_tokens": 50911,
+    "reasoning_output_tokens": 40025,
+    "total_tokens": 659826
+  },
+  "usage_increment": {
+    "cached_input_tokens": 10752,
+    "input_tokens": 24242,
+    "output_tokens": 3320,
+    "reasoning_output_tokens": 2887,
+    "total_tokens": 27562
+  },
+  "visible_candidate_ids": [
+    "e75a8f47dcdb9bafbd1add5a66723fc8f1ef898a762fcb6dda4c26d81d7f9a69",
+    "34d2cd869dc0068fd4760964fd3ed37c9cc532f8e48a7cbd53475e5b6704cb12",
+    "e77876702bd53dc741ab7ef8f33b57d93bd02b9054773207af15947f741dfd97",
+    "5d7fe142ec7134d76a09f3c46d165b7784074f4e250430c14ad60379af9bf48e"
+  ]
+}

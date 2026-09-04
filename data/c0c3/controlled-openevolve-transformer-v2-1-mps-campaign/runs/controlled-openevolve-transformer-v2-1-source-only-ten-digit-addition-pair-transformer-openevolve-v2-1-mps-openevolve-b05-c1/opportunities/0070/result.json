@@ -1,0 +1,79 @@
+{
+  "artifact_path": "candidates/22f911c749ad1be5d72483dae0d78ae793bc6b1f4e6c8cf99a9a61d14cbd8402",
+  "candidate_id": "22f911c749ad1be5d72483dae0d78ae793bc6b1f4e6c8cf99a9a61d14cbd8402",
+  "codex_service_tier": "default",
+  "condition": "C1",
+  "conversation_session_id": null,
+  "evaluation": {
+    "evaluator_calls": 1,
+    "evaluator_seconds": 757.5644824160263,
+    "failure_kind": "nonqualification",
+    "fitness": null,
+    "metrics": {
+      "accuracy": 0.9763,
+      "cases": 10010,
+      "correct": 9773,
+      "parameters": 1184,
+      "training_steps": 49999
+    },
+    "valid": false
+  },
+  "evaluator_calls_cumulative": 70,
+  "evaluator_calls_increment": 1,
+  "evaluator_seconds_cumulative": 78673.6599992119,
+  "evaluator_seconds_increment": 757.5644824160263,
+  "event": "proposal_completed",
+  "evicted_candidate_id": null,
+  "evidence": "The learned rank-six positional factorization reached only 74.72%, identifying positional dimensionality as load-bearing, but it did not test whether independent vectors are necessary. This design restores all eight dimensions while challenging the assumption that every position needs separately learned parameters.",
+  "hypothesis": "Replacing the independent positional table with a normalized fixed eight-dimensional sinusoidal basis and a learned 8\u00d78 projection will remove `8 * INPUT_LEN - 64` parameters while retaining at least 99% accuracy, because it preserves full positional rank and trainable orientation.",
+  "incumbent_after": "c025c815770623f34ff3632d38081db430c41755d3b1d3ad0d669bcf6612d101",
+  "intended_edit": "Generate generic content-independent sinusoidal position codes, normalize them to match the existing embedding initialization scale after projection, and learn only their shared projection into the residual stream.",
+  "mechanism": "Full-rank sinusoidal positional subspace with learned orientation",
+  "opportunity": 70,
+  "parent_ids": [
+    "c025c815770623f34ff3632d38081db430c41755d3b1d3ad0d669bcf6612d101"
+  ],
+  "portfolio_after": [
+    "c025c815770623f34ff3632d38081db430c41755d3b1d3ad0d669bcf6612d101"
+  ],
+  "prompt_hashes": {
+    "common_template_sha256": "3f2bea6418b6969c4bf2aa1df18dcda8a3a4ac075bf20c79068c754698b6be5e",
+    "prompt_sha256": "59c6c2ef220dd652afa8c8c58d149c5c5c8f66dc694db0787c884aada785cdd6",
+    "proposal_policy_sha256": "4a27c08e098e719db007f4d6b37fabe2967b41836bb9070e2513a8a24ff7ce90",
+    "search_state_sha256": "04e5eb078ae1964e4ec65bfeeeb1acd0ffa246e7d54d5e0f997f81f602da28c5",
+    "treatment_skeleton_sha256": "c59fad6da559831d70278e82973519fcbbb952a6accd7ab0e29849b962d4032b"
+  },
+  "proposal_type": "assumption_changing",
+  "proposals_cumulative": 70,
+  "remaining_budget": {
+    "evaluations": 130,
+    "evaluator_seconds": 281326.3400007881,
+    "proposals": 130,
+    "tokens": 98317351
+  },
+  "retained": false,
+  "retention_decision": "invalid",
+  "run_id": "controlled-openevolve-transformer-v2-1-source-only-ten-digit-addition-pair-transformer-openevolve-v2-1-mps-openevolve-b05-c1",
+  "schema_version": "1.0",
+  "selected_parent_ids": [
+    "c025c815770623f34ff3632d38081db430c41755d3b1d3ad0d669bcf6612d101"
+  ],
+  "timestamp": "2026-08-25T22:06:36.704780+00:00",
+  "usage_cumulative": {
+    "cached_input_tokens": 767232,
+    "input_tokens": 1472110,
+    "output_tokens": 210539,
+    "reasoning_output_tokens": 181305,
+    "total_tokens": 1682649
+  },
+  "usage_increment": {
+    "cached_input_tokens": 12032,
+    "input_tokens": 21685,
+    "output_tokens": 3865,
+    "reasoning_output_tokens": 3288,
+    "total_tokens": 25550
+  },
+  "visible_candidate_ids": [
+    "c025c815770623f34ff3632d38081db430c41755d3b1d3ad0d669bcf6612d101"
+  ]
+}

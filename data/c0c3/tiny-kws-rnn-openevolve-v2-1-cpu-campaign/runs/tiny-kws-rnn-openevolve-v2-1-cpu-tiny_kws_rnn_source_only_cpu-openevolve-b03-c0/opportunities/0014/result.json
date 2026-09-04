@@ -1,0 +1,99 @@
+{
+  "artifact_path": "candidates/c582f9eb14937ba216eb3508d24283a3f34e64f77d681a7e9be7806e5c327eaa",
+  "candidate_id": "c582f9eb14937ba216eb3508d24283a3f34e64f77d681a7e9be7806e5c327eaa",
+  "codex_service_tier": "default",
+  "condition": "C0",
+  "conversation_session_id": null,
+  "evaluation": {
+    "evaluator_calls": 1,
+    "evaluator_seconds": 183.37471904186532,
+    "failure_kind": "nonqualification",
+    "fitness": null,
+    "metrics": {
+      "batch_size": 128,
+      "evaluation_cases": 815,
+      "evaluation_split": "public_speaker_disjoint_validation",
+      "examples_processed": 50000,
+      "inference_cost": 4634959100755551733,
+      "maximum_recurrent_steps": 32,
+      "mean_recurrent_steps": 32.0,
+      "median_recurrent_steps": 32,
+      "optimizer_steps": 397,
+      "p95_recurrent_steps": 32,
+      "parameters": 35453,
+      "peak_hidden_elements": 99840,
+      "recurrent_logit_effect": 0.06485570222139359,
+      "recurrent_macs": 887945760,
+      "recurrent_steps": 26080,
+      "state_dependence_effect": 0.40404829382896423,
+      "state_update_effect": 0.40395280718803406,
+      "total_inference_macs": 888578200,
+      "trained_recurrent_logit_effect": 0.7157780528068542,
+      "trained_state_dependence_effect": 0.45719537138938904,
+      "trained_state_update_effect": 0.44212302565574646,
+      "training_seconds": 163.8366866670549,
+      "validation_accuracy": 0.8404907975460123,
+      "validation_correct": 685,
+      "validation_cross_entropy": 0.45162806598686733
+    },
+    "valid": false
+  },
+  "evaluator_calls_cumulative": 14,
+  "evaluator_calls_increment": 1,
+  "evaluator_seconds_cumulative": 2125.8673418324906,
+  "evaluator_seconds_increment": 183.37471904186532,
+  "event": "proposal_completed",
+  "evicted_candidate_id": null,
+  "evidence": "The 97-unit model achieved 84.42% accuracy but lower validation cross-entropy than the passing 98-unit model (0.4598 versus 0.4703), indicating viable representations; the attempted smaller-batch remedy timed out, motivating a zero-runtime-cost objective adjustment.",
+  "hypothesis": "Removing label smoothing will sharpen class boundaries enough for the 97-unit GRU to recover the 0.58-point accuracy shortfall and reach at least 85%, while retaining its lower measured inference cost and avoiding the batch-64 timeout.",
+  "incumbent_after": "66cc6e1a66c9b7b46d0027da3b420cd37413acda3e54418b8d75485527dd30a6",
+  "intended_edit": "Reduce the GRU and classifier width from 98 to 97, keep batch size 128, and replace label-smoothed cross-entropy with standard cross-entropy.",
+  "mechanism": "Hard-target training-compensated recurrent-width compression",
+  "opportunity": 14,
+  "parent_ids": [
+    "66cc6e1a66c9b7b46d0027da3b420cd37413acda3e54418b8d75485527dd30a6"
+  ],
+  "portfolio_after": [
+    "66cc6e1a66c9b7b46d0027da3b420cd37413acda3e54418b8d75485527dd30a6"
+  ],
+  "prompt_hashes": {
+    "common_template_sha256": "dee04faf4c430276c1036ba97f5705a339857dbdf19117dac88952a5a3a47e9d",
+    "prompt_sha256": "1875f7f06fa074cbbaa254454362ea5f367b3a7363008a47b757e94878488a4a",
+    "proposal_policy_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "search_state_sha256": "04e5eb078ae1964e4ec65bfeeeb1acd0ffa246e7d54d5e0f997f81f602da28c5",
+    "treatment_skeleton_sha256": "249fc4c8911ae61702c57ef5aea112abef7c537d610dedccbf74a0be26e36b15"
+  },
+  "proposal_type": "ordinary",
+  "proposals_cumulative": 14,
+  "remaining_budget": {
+    "evaluations": 186,
+    "evaluator_seconds": 57874.13265816751,
+    "proposals": 186,
+    "tokens": 99718107
+  },
+  "retained": false,
+  "retention_decision": "invalid",
+  "run_id": "tiny-kws-rnn-openevolve-v2-1-cpu-tiny_kws_rnn_source_only_cpu-openevolve-b03-c0",
+  "schema_version": "1.0",
+  "selected_parent_ids": [
+    "66cc6e1a66c9b7b46d0027da3b420cd37413acda3e54418b8d75485527dd30a6"
+  ],
+  "timestamp": "2026-09-04T03:24:42.268765+00:00",
+  "usage_cumulative": {
+    "cached_input_tokens": 150528,
+    "input_tokens": 256337,
+    "output_tokens": 25556,
+    "reasoning_output_tokens": 21304,
+    "total_tokens": 281893
+  },
+  "usage_increment": {
+    "cached_input_tokens": 10752,
+    "input_tokens": 19895,
+    "output_tokens": 1199,
+    "reasoning_output_tokens": 825,
+    "total_tokens": 21094
+  },
+  "visible_candidate_ids": [
+    "66cc6e1a66c9b7b46d0027da3b420cd37413acda3e54418b8d75485527dd30a6"
+  ]
+}

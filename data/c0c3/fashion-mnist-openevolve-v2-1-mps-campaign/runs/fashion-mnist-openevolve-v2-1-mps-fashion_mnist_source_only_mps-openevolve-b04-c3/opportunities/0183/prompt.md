@@ -1,0 +1,177 @@
+# Improve fixed-exposure image classification
+
+You are an autonomous ML engineer improving a learned classifier for 28×28
+grayscale images in ten classes.
+
+## Goal
+
+Maximize `validation_score`. It ranks implementations first by the exact number
+of correct predictions on the fixed 10,000-image validation set, then—only when
+correct counts tie—by lower validation cross-entropy. Every verification starts
+from a fresh initialization and presents exactly 100,000 examples from the
+fixed 50,000-image training split.
+
+You may change the model architecture, optimizer, loss, augmentation, batch
+size, gradient handling, schedule, and other contents of `train.py`. The fixed
+data split, normalization, example accounting, validation calculation,
+250,000-learned-parameter ceiling, and device are not editable. The protected
+loop calls the functions already defined in `train.py`; keep that interface
+intact. The model must return one ten-class logit vector per image.
+
+## Work boundaries
+
+Maximize validation_score. No additional accuracy threshold.
+Editable source files: train.py.
+Results reported after each verification: validation_score, validation_correct, validation_accuracy, validation_cross_entropy, parameters, examples_processed, optimizer_steps, training_seconds, batch_size.
+
+Propose changes through exact SEARCH/REPLACE blocks. The patching interface applies them to the supplied editable source.
+
+The editable source and any reference source are included below. Do not access
+parent directories, home directories, shared temporary directories, global
+session history, online sources, external datasets, pretrained weights, or any
+surrounding repository. Do not run training or validation yourself and do not
+generate hidden alternatives. Return one patch for one implementation;
+verification happens after you finish.
+
+## Available designs
+
+The current editable design and the qualified reference designs below are available as technical evidence. Edit only the current workspace.
+
+CURRENT DESIGN
+verified_results: {"batch_size": 64, "examples_processed": 100000, "optimizer_steps": 1564, "parameters": 245040, "training_seconds": 66.43872454203665, "validation_accuracy": 0.9251, "validation_correct": 9251, "validation_cross_entropy": 0.20655155258178712, "validation_score": 9251.414404174384}
+prior_hypothesis: An inference scale of 1.0496144 will preserve all 9,251 class predictions while reducing validation cross-entropy below 0.20655155067443848.
+
+REFERENCE DESIGN 1
+verified_results: {"batch_size": 64, "examples_processed": 100000, "optimizer_steps": 1564, "parameters": 245040, "training_seconds": 71.36513733305037, "validation_accuracy": 0.9251, "validation_correct": 9251, "validation_cross_entropy": 0.2065504592895508, "validation_score": 9251.414404549889}
+prior_hypothesis: A 75.2/24.8 EMA/live probability blend will preserve all 9,251 correct predictions while reducing validation cross-entropy below 0.2065509983062744.
+
+REFERENCE DESIGN 2
+verified_results: {"batch_size": 64, "examples_processed": 100000, "optimizer_steps": 1564, "parameters": 245040, "training_seconds": 73.41271320800297, "validation_accuracy": 0.9251, "validation_correct": 9251, "validation_cross_entropy": 0.2065509983062744, "validation_score": 9251.414404364758}
+prior_hypothesis: A 75.1/24.9 EMA/live probability blend will preserve all 9,251 correct predictions while reducing validation cross-entropy below 0.20655155067443848.
+
+REFERENCE DESIGN 3
+verified_results: {"batch_size": 64, "examples_processed": 100000, "optimizer_steps": 1564, "parameters": 245040, "training_seconds": 82.7220510840416, "validation_accuracy": 0.9243, "validation_correct": 9243, "validation_cross_entropy": 0.20883300514221192, "validation_score": 9243.413622061835}
+prior_hypothesis: Restoring the verified 1.03592 inference scale will preserve 9,243 correct predictions and reduce cross-entropy below the current 0.20883301391601564.
+
+## Recent verification evidence
+
+RECENT RESULT
+hypothesis: An inference scale of 1.05016 will preserve all 9,251 class predictions while reducing validation cross-entropy below 0.20655155067443848.
+change: Change only the positive validation-time logit scale, leaving training, parameters, runtime, and predicted class rankings unchanged.
+mechanism: Empirical quadratic logit-temperature calibration
+evidence_used: The otherwise identical scales 1.03592, 1.0495, and 1.04953 produced cross-entropies 0.2065795532, 0.2065515560, and 0.2065515507 with 9,251 correct; quadratic interpolation places the local cross-entropy minimum near 1.05016.
+result: improved the objective and became an available design
+reported_values: {"batch_size": 64, "examples_processed": 100000, "optimizer_steps": 1564, "parameters": 245040, "training_seconds": 82.21973083307967, "validation_accuracy": 0.9251, "validation_correct": 9251, "validation_cross_entropy": 0.20655160598754882, "validation_score": 9251.414404156041}
+
+RECENT RESULT
+hypothesis: Restoring the exact Reference Design 2 procedure will increase validation_correct from 9,243 to 9,251 and reduce validation_cross_entropy to approximately 0.206551551.
+change: Track a 0.99 EMA during training, blend 75% EMA and 25% live flip-ensembled probabilities, and apply the verified 1.04953 calibration.
+mechanism: EMA–endpoint probability ensemble with flip test-time augmentation
+evidence_used: Reference Design 2 achieved the highest completed validation_score, with 9,251 correct and 0.20655155067443848 cross-entropy; unsuccessful restoration attempts supplied no contradictory performance result.
+result: the implementation could not be verified
+
+RECENT RESULT
+hypothesis: Scaling validation logits by 1.049736 will preserve all 9,251 predictions while reducing validation cross-entropy below 0.20655155067443848.
+change: Change only the positive validation-time logit scale, leaving training, parameters, runtime, and class rankings unchanged.
+mechanism: Local quadratic confidence calibration
+evidence_used: The identical implementation measured cross-entropies of 0.20655155601501465, 0.20655155067443848, and 0.20655160598754882 at scales 1.0495, 1.04953, and 1.05016; local quadratic interpolation places the minimum near 1.049736.
+result: was valid but was not a strict improvement
+reported_values: {"batch_size": 64, "examples_processed": 100000, "optimizer_steps": 1564, "parameters": 245040, "training_seconds": 78.926611749921, "validation_accuracy": 0.9251, "validation_correct": 9251, "validation_cross_entropy": 0.20655155754089355, "validation_score": 9251.414404172681}
+
+RECENT RESULT
+hypothesis: Reducing the live-model contribution from 25% to 22.5% will exceed 9,251 correct predictions, or preserve 9,251 while lowering cross-entropy, because increasing it to 27.5% reduced correctness to 9,249 and worsened cross-entropy.
+change: Change the validation probability ensemble from 75/25 to 77.5/22.5 EMA/live while leaving training, runtime, and calibration unchanged.
+mechanism: Lower-live EMA endpoint blending
+evidence_used: The verified 75/25 blend achieved 9,251 correct, whereas 72.5/27.5 achieved only 9,249; this symmetric lower-side test directly evaluates whether the EMA prediction is more reliable than the noisy final endpoint.
+result: was valid but was not a strict improvement
+reported_values: {"batch_size": 64, "examples_processed": 100000, "optimizer_steps": 1564, "parameters": 245040, "training_seconds": 71.69792249985039, "validation_accuracy": 0.9249, "validation_correct": 9249, "validation_cross_entropy": 0.20653982543945312, "validation_score": 9249.414408202247}
+
+RECENT RESULT
+hypothesis: An inference scale of 1.0496144 will preserve all 9,251 class predictions while reducing validation cross-entropy below 0.20655155067443848.
+change: Change only the positive validation-time logit scale; training, runtime, parameters, and class rankings remain unchanged.
+mechanism: Three-point quadratic logit calibration
+evidence_used: Scales 1.0495, 1.04953, and 1.049736 yielded cross-entropies 0.20655155601501465, 0.20655155067443848, and 0.20655155754089355 respectively; quadratic interpolation places the bracketed minimum near 1.0496144.
+result: improved the objective and became an available design
+reported_values: {"batch_size": 64, "examples_processed": 100000, "optimizer_steps": 1564, "parameters": 245040, "training_seconds": 66.43872454203665, "validation_accuracy": 0.9251, "validation_correct": 9251, "validation_cross_entropy": 0.20655155258178712, "validation_score": 9251.414404174384}
+
+RECENT RESULT
+hypothesis: Restoring the exact Reference Design 2 procedure will increase validation_correct from 9,243 to 9,251 and reduce validation_cross_entropy to approximately 0.206551551.
+change: Track a 0.99 parameter-and-buffer EMA, blend 75% EMA and 25% live flip-ensembled probabilities during validation, and apply the verified 1.04953 calibration.
+mechanism: EMA–endpoint probability ensemble with flip test-time augmentation
+evidence_used: Reference Design 2 achieved the strongest measured result—9,251 correct with 0.20655155067443848 cross-entropy—while unsuccessful restoration attempts supplied no contradictory validation measurement.
+result: the implementation could not be verified
+
+RECENT RESULT
+hypothesis: A 75.1/24.9 EMA/live probability blend will preserve all 9,251 correct predictions while reducing validation cross-entropy below 0.20655155067443848.
+change: Reduce the live-model validation contribution from 25% to 24.9%, leaving training, runtime, parameters, flip ensembling, and logit scaling unchanged.
+mechanism: Ultra-local EMA–endpoint blend calibration
+evidence_used: The 75/25 blend achieved 9,251 correct, while 77.5/22.5 lowered cross-entropy to 0.20653982543945312 but lost two correct predictions; this small lower-side step tests for tie-break improvement while minimizing the risk of crossing a prediction boundary.
+result: improved the objective and became an available design
+reported_values: {"batch_size": 64, "examples_processed": 100000, "optimizer_steps": 1564, "parameters": 245040, "training_seconds": 73.41271320800297, "validation_accuracy": 0.9251, "validation_correct": 9251, "validation_cross_entropy": 0.2065509983062744, "validation_score": 9251.414404364758}
+
+RECENT RESULT
+hypothesis: A 75.2/24.8 EMA/live probability blend will preserve all 9,251 correct predictions while reducing validation cross-entropy below 0.2065509983062744.
+change: Increase the EMA validation contribution from 75% to 75.2%, reduce the live contribution to 24.8%, and use the calibration verified with the improved 75.1/24.9 blend.
+mechanism: Ultra-local EMA–endpoint blend refinement
+evidence_used: The 75.1/24.9 blend preserved 9,251 correct while improving cross-entropy to 0.2065509983062744; 77.5/22.5 further lowered cross-entropy but lost two correct predictions, motivating a small continuation toward EMA rather than a large step.
+result: training did not finish within the verification time limit
+
+RECENT RESULT
+hypothesis: A 75.2/24.8 EMA/live probability blend will preserve all 9,251 correct predictions while reducing validation cross-entropy below 0.2065509983062744.
+change: Increase the EMA validation contribution from 75.0% to 75.2%, reduce the live contribution to 24.8%, and use the 1.04953 calibration associated with the best verified blend.
+mechanism: Ultra-local EMA–endpoint blend continuation
+evidence_used: Moving from 75/25 to 75.1/24.9 preserved 9,251 correct and reduced cross-entropy from 0.20655155067443848 to 0.2065509983062744; the prior 75.2/24.8 attempt timed out without contradictory validation evidence.
+result: improved the objective and became an available design
+reported_values: {"batch_size": 64, "examples_processed": 100000, "optimizer_steps": 1564, "parameters": 245040, "training_seconds": 71.36513733305037, "validation_accuracy": 0.9251, "validation_correct": 9251, "validation_cross_entropy": 0.2065504592895508, "validation_score": 9251.414404549889}
+
+RECENT RESULT
+hypothesis: Replacing the shared 38-dimensional prediction bottleneck with a 29-dimensional nonlinear context path plus a direct class-specific spatial path will exceed 9,251 correct predictions, or tie while lowering cross-entropy, under the verified EMA ensemble.
+change: Reallocate the classifier parameters into complementary contextual and direct spatial-logit paths, zero-initialize the direct residual for stable optimization, and retain the verified 75.2/24.8 EMA/live flip ensemble and calibration.
+mechanism: Residual class-specific spatial template head
+evidence_used: Existing designs devote about 73% of learned parameters to a single shared bottleneck, while blend and temperature refinements plateaued at 9,251 correct. The hybrid head tests a different prediction mechanism without the runtime cost that caused added high-resolution blocks and attention to time out.
+result: training did not finish within the verification time limit
+
+RECENT RESULT
+hypothesis: A 75.3/24.7 EMA/live probability blend will preserve all 9,251 correct predictions while reducing validation cross-entropy below 0.2065504592895508.
+change: Increase the EMA validation contribution from 75.2% to 75.3% and reduce the live contribution from 24.8% to 24.7%, leaving training and calibration unchanged.
+mechanism: Ultra-local EMA–endpoint blend continuation
+evidence_used: Successive moves from 75.0/25.0 to 75.1/24.9 and 75.2/24.8 each preserved 9,251 correct while lowering cross-entropy; the next equally sized step directly tests whether that improvement continues before the known accuracy loss at 77.5/22.5.
+result: was valid but was not a strict improvement
+reported_values: {"batch_size": 64, "examples_processed": 100000, "optimizer_steps": 1564, "parameters": 245040, "training_seconds": 74.78508037491702, "validation_accuracy": 0.925, "validation_correct": 9250, "validation_cross_entropy": 0.20654992179870604, "validation_score": 9250.414404734496}
+
+RECENT RESULT
+hypothesis: A 75.25/24.75 EMA/live probability blend will preserve all 9,251 correct predictions while reducing validation cross-entropy below 0.2065504592895508.
+change: Increase the EMA validation contribution from 75.1% to 75.25% and reduce the live contribution from 24.9% to 24.75%, leaving training and calibration unchanged.
+mechanism: Boundary-seeking EMA–endpoint blend refinement
+evidence_used: The 75.2/24.8 blend retained 9,251 correct with lower cross-entropy than 75.1/24.9, while 75.3/24.7 lost one correct prediction; their midpoint probes the accuracy boundary for further tie-break improvement.
+result: was valid but was not a strict improvement
+reported_values: {"batch_size": 64, "examples_processed": 100000, "optimizer_steps": 1564, "parameters": 245040, "training_seconds": 65.65688662510365, "validation_accuracy": 0.925, "validation_correct": 9250, "validation_cross_entropy": 0.20655018920898438, "validation_score": 9250.414404642652}
+
+
+
+Use the available technical evidence to choose the most informative next
+change. Treat unsuccessful or malformed work as evidence when a useful
+subject-level reason is provided. Do not invent missing evidence.
+
+## Response
+
+Return these short metadata lines followed by one or more exact
+`SEARCH`/`REPLACE` blocks that together produce one implementation:
+
+`MECHANISM: <a concise free-form name for the computational idea>`
+
+`HYPOTHESIS: <a falsifiable claim grounded in the evidence above>`
+
+`INTENDED_EDIT: <what this patch changes>`
+
+`EVIDENCE: <the most relevant prior result and why it motivates this patch>`
+
+Start each block with `<<<<<<< SEARCH`, put the exact existing lines next, use a
+line containing `=======` as the divider, put the replacement lines after it,
+and finish the block with `>>>>>>> REPLACE`.
+
+Every `SEARCH` section must be nonempty and match exactly once after earlier
+blocks have been applied. All blocks must apply. Together they must describe
+one implementation ready for verification. The mechanism name is descriptive,
+not chosen from a fixed list. Do not paste whole files, lengthy logs, or routine
+progress reports outside the patch.

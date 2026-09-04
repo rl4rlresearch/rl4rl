@@ -1,0 +1,87 @@
+{
+  "artifact_path": "candidates/005b27c638e8ced7b681518a1df47186e926fc1a87b4dda0797371df3c14496a",
+  "candidate_id": "005b27c638e8ced7b681518a1df47186e926fc1a87b4dda0797371df3c14496a",
+  "codex_service_tier": "fast",
+  "condition": "C3",
+  "conversation_session_id": null,
+  "evaluation": {
+    "evaluator_calls": 1,
+    "evaluator_seconds": 360.6720198639996,
+    "failure_kind": null,
+    "fitness": -1.001276,
+    "metrics": {
+      "depth": 8.0,
+      "mfu_percent": 30.08,
+      "num_params_M": 50.3,
+      "num_steps": 1435.0,
+      "peak_vram_mb": 44908.2,
+      "total_tokens_M": 376.2,
+      "training_seconds": 300.1,
+      "val_bpb": 1.001276
+    },
+    "valid": true
+  },
+  "evaluator_calls_cumulative": 3,
+  "evaluator_calls_increment": 1,
+  "evaluator_seconds_cumulative": 1071.3225826009998,
+  "evaluator_seconds_increment": 360.6720198639996,
+  "event": "proposal_completed",
+  "evicted_candidate_id": null,
+  "evidence": "Removing the softcap increased training from 497.0M to 500.7M tokens but worsened val_bpb from 0.995558 to 1.000923, showing that marginal token throughput alone is insufficient and motivating improved optimization efficiency per token.",
+  "hypothesis": "Halving the optimizer batch to 262,144 tokens will provide nearly twice as many parameter updates within five minutes and reduce val_bpb below 0.995558 despite modest optimizer overhead.",
+  "incumbent_after": "2865e528e18dc51191e4037eaeb5824cb0ea83ede79061b59b8f3caac686da6b",
+  "intended_edit": "Reduce gradient accumulation from two microbatches to one while retaining the 128-sequence device batch and all model, loss, and learning-rate settings.",
+  "mechanism": "Higher-frequency stochastic optimization",
+  "opportunity": 3,
+  "parent_ids": [
+    "2865e528e18dc51191e4037eaeb5824cb0ea83ede79061b59b8f3caac686da6b"
+  ],
+  "portfolio_after": [
+    "2865e528e18dc51191e4037eaeb5824cb0ea83ede79061b59b8f3caac686da6b",
+    "ee1f1cf686a479f175a9b2178602df52386a3561e80b0612b88ccd725e447c2e",
+    "a39023afe78be1039b829ba49590675b384d0dddbd6f197a410265a2d08ef6a2",
+    "005b27c638e8ced7b681518a1df47186e926fc1a87b4dda0797371df3c14496a"
+  ],
+  "prompt_hashes": {
+    "common_template_sha256": "ba85b39aa7288f4f48475376da6cff65661f39cfeb7ac7cde15b2a9a2e692fde",
+    "prompt_sha256": "7e024dd1f46c41cf5a577c3003812ad0b81caa03f0bfbfff7c809208b41e28cc",
+    "proposal_policy_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "search_state_sha256": "c938ac007bf70fe8d27f64661175531e51fcb16b38318c328493c32ee292e27e",
+    "treatment_skeleton_sha256": "9cebb1c902a88f133e574a73fa637e5423a30c3f9b407c2bb731c16072f8e1dd"
+  },
+  "proposal_type": "ordinary",
+  "proposals_cumulative": 3,
+  "remaining_budget": {
+    "evaluations": 197,
+    "evaluator_seconds": 718928.677417399,
+    "proposals": 197,
+    "tokens": 99903224
+  },
+  "retained": true,
+  "retention_decision": "filled_open_portfolio_slot",
+  "run_id": "nanogpt-openevolve-v2-1-h100-karpathy_nanogpt_source_only_h100-openevolve-b03-c3",
+  "schema_version": "1.0",
+  "selected_parent_ids": [
+    "2865e528e18dc51191e4037eaeb5824cb0ea83ede79061b59b8f3caac686da6b"
+  ],
+  "timestamp": "2026-08-23T13:34:14.207969+00:00",
+  "usage_cumulative": {
+    "cached_input_tokens": 34048,
+    "input_tokens": 88367,
+    "output_tokens": 8409,
+    "reasoning_output_tokens": 7851,
+    "total_tokens": 96776
+  },
+  "usage_increment": {
+    "cached_input_tokens": 9984,
+    "input_tokens": 37097,
+    "output_tokens": 1743,
+    "reasoning_output_tokens": 1552,
+    "total_tokens": 38840
+  },
+  "visible_candidate_ids": [
+    "2865e528e18dc51191e4037eaeb5824cb0ea83ede79061b59b8f3caac686da6b",
+    "ee1f1cf686a479f175a9b2178602df52386a3561e80b0612b88ccd725e447c2e",
+    "a39023afe78be1039b829ba49590675b384d0dddbd6f197a410265a2d08ef6a2"
+  ]
+}

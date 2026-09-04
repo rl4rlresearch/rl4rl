@@ -1,0 +1,79 @@
+{
+  "artifact_path": "candidates/90f91d3647a48dcb5f9dc3323e0180e75b22d5841cf2f0d5be79c419d321d8a8",
+  "candidate_id": "90f91d3647a48dcb5f9dc3323e0180e75b22d5841cf2f0d5be79c419d321d8a8",
+  "codex_service_tier": "default",
+  "condition": "C0",
+  "conversation_session_id": null,
+  "evaluation": {
+    "evaluator_calls": 1,
+    "evaluator_seconds": 1276.0977830418851,
+    "failure_kind": "nonqualification",
+    "fitness": null,
+    "metrics": {
+      "accuracy": 0.7341,
+      "cases": 10010,
+      "correct": 7348,
+      "parameters": 1599,
+      "training_steps": 4999
+    },
+    "valid": false
+  },
+  "evaluator_calls_cumulative": 40,
+  "evaluator_calls_increment": 1,
+  "evaluator_seconds_cumulative": 24285.47319266328,
+  "evaluator_seconds_increment": 1276.0977830418851,
+  "event": "proposal_completed",
+  "evicted_candidate_id": null,
+  "evidence": "The 1622-parameter model achieved 99.92% using the same virtual-coordinate optimizer for successful exact shift quotients; unlike the failed final value-bias and MLP-bias reductions, every positional-row shift is independently invisible to the pre-LayerNorm blocks and final LayerNorm.",
+  "hypothesis": "Fixing one all-coordinate shift per positional embedding row will reduce the model by `max_seq_len` learned parameters while retaining at least 99% accuracy, because with zero dropout each shift passes unchanged through residual connections and is removed by every subsequent LayerNorm.",
+  "incumbent_after": "9723a6a40a7dc59b42466fc4e4cfe1d708ff02143cddd98cfd9e5b081848395b",
+  "intended_edit": "Replace the positional embedding with row-wise gauge-fixed parameters and train each row using the existing virtual-coordinate AdamW and gradient-clipping logic.",
+  "mechanism": "Per-position residual-stream shift quotient",
+  "opportunity": 40,
+  "parent_ids": [
+    "9723a6a40a7dc59b42466fc4e4cfe1d708ff02143cddd98cfd9e5b081848395b"
+  ],
+  "portfolio_after": [
+    "9723a6a40a7dc59b42466fc4e4cfe1d708ff02143cddd98cfd9e5b081848395b"
+  ],
+  "prompt_hashes": {
+    "common_template_sha256": "3f2bea6418b6969c4bf2aa1df18dcda8a3a4ac075bf20c79068c754698b6be5e",
+    "prompt_sha256": "200754d284748b66d5d3fbf1a9434c15f4ab8c56874a164b846a78cddc5f9b8d",
+    "proposal_policy_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "search_state_sha256": "04e5eb078ae1964e4ec65bfeeeb1acd0ffa246e7d54d5e0f997f81f602da28c5",
+    "treatment_skeleton_sha256": "2e55d6e771a7c3925cd7d223fbc6a050bba2469c6704c30613d54d041c7cfd3d"
+  },
+  "proposal_type": "ordinary",
+  "proposals_cumulative": 40,
+  "remaining_budget": {
+    "evaluations": 160,
+    "evaluator_seconds": 335714.5268073367,
+    "proposals": 160,
+    "tokens": 98966738
+  },
+  "retained": false,
+  "retention_decision": "invalid",
+  "run_id": "controlled-openevolve-transformer-v2-1-source-only-ten-digit-addition-pair-transformer-openevolve-v2-1-mps-openevolve-b05-c0",
+  "schema_version": "1.0",
+  "selected_parent_ids": [
+    "9723a6a40a7dc59b42466fc4e4cfe1d708ff02143cddd98cfd9e5b081848395b"
+  ],
+  "timestamp": "2026-08-25T02:05:36.513175+00:00",
+  "usage_cumulative": {
+    "cached_input_tokens": 452608,
+    "input_tokens": 896356,
+    "output_tokens": 136906,
+    "reasoning_output_tokens": 109848,
+    "total_tokens": 1033262
+  },
+  "usage_increment": {
+    "cached_input_tokens": 12032,
+    "input_tokens": 24044,
+    "output_tokens": 4427,
+    "reasoning_output_tokens": 3624,
+    "total_tokens": 28471
+  },
+  "visible_candidate_ids": [
+    "9723a6a40a7dc59b42466fc4e4cfe1d708ff02143cddd98cfd9e5b081848395b"
+  ]
+}

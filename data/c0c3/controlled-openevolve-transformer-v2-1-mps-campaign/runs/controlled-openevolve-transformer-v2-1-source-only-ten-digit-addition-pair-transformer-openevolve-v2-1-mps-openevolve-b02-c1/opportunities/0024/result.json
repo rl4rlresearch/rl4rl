@@ -1,0 +1,79 @@
+{
+  "artifact_path": "candidates/be2ae3738759baf3b85a65ff9284a03fb5818ca437ddc9416cee5f93caa87bdd",
+  "candidate_id": "be2ae3738759baf3b85a65ff9284a03fb5818ca437ddc9416cee5f93caa87bdd",
+  "codex_service_tier": "fast",
+  "condition": "C1",
+  "conversation_session_id": null,
+  "evaluation": {
+    "evaluator_calls": 1,
+    "evaluator_seconds": 417.0940252910368,
+    "failure_kind": null,
+    "fitness": -1430.0,
+    "metrics": {
+      "accuracy": 0.9995,
+      "cases": 10010,
+      "correct": 10005,
+      "parameters": 1430,
+      "training_steps": 4999
+    },
+    "valid": true
+  },
+  "evaluator_calls_cumulative": 24,
+  "evaluator_calls_increment": 1,
+  "evaluator_seconds_cumulative": 7466.0256289982935,
+  "evaluator_seconds_increment": 417.0940252910368,
+  "event": "proposal_completed",
+  "evicted_candidate_id": "e65cb2f7d8ca2c801253eea43c01b7ac44610ecfc8407de7c102b8cc5d1b0790",
+  "evidence": "Quotient-aware optimization preserved 99.75% for the MLP residual quotient and 99.93% for the attention-output quotient, whereas removing `ln1` scales failed near 75%; this isolates an exact key-only redundancy without constraining the load-bearing query/value affine pathways.",
+  "hypothesis": "Reparameterizing all key projections on seven zero-mean LayerNorm coordinates will reduce the model from 1,438 to 1,430 parameters while retaining at least 99% accuracy, because key constants are softmax-invisible and virtual full-width AdamW moments preserve the successful optimization geometry.",
+  "incumbent_after": "be2ae3738759baf3b85a65ff9284a03fb5818ca437ddc9416cee5f93caa87bdd",
+  "intended_edit": "Replace the full-width key portion of QKV with an eight-by-seven learned projection over non-affine LayerNorm outputs, retain full-width query/value projections and `ln1` affine parameters, and add the omitted key coordinates to quotient-aware optimization.",
+  "mechanism": "Optimizer-preserving key-projection LayerNorm quotient",
+  "opportunity": 24,
+  "parent_ids": [
+    "e65cb2f7d8ca2c801253eea43c01b7ac44610ecfc8407de7c102b8cc5d1b0790"
+  ],
+  "portfolio_after": [
+    "be2ae3738759baf3b85a65ff9284a03fb5818ca437ddc9416cee5f93caa87bdd"
+  ],
+  "prompt_hashes": {
+    "common_template_sha256": "3f2bea6418b6969c4bf2aa1df18dcda8a3a4ac075bf20c79068c754698b6be5e",
+    "prompt_sha256": "4fa722684cfd442119f47a69bfa51f39f133992f5754dd0a91ecb34cfcfa4e4b",
+    "proposal_policy_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "search_state_sha256": "04e5eb078ae1964e4ec65bfeeeb1acd0ffa246e7d54d5e0f997f81f602da28c5",
+    "treatment_skeleton_sha256": "200f14783d28dd6595a4d9a5159222e12769bd31fe795f408f7f0c57d7f9b176"
+  },
+  "proposal_type": "ordinary",
+  "proposals_cumulative": 24,
+  "remaining_budget": {
+    "evaluations": 176,
+    "evaluator_seconds": 352533.9743710017,
+    "proposals": 176,
+    "tokens": 99386576
+  },
+  "retained": true,
+  "retention_decision": "strict_incumbent_improvement",
+  "run_id": "controlled-openevolve-transformer-v2-1-source-only-ten-digit-addition-pair-transformer-openevolve-v2-1-mps-openevolve-b02-c1",
+  "schema_version": "1.0",
+  "selected_parent_ids": [
+    "e65cb2f7d8ca2c801253eea43c01b7ac44610ecfc8407de7c102b8cc5d1b0790"
+  ],
+  "timestamp": "2026-08-23T18:38:42.820209+00:00",
+  "usage_cumulative": {
+    "cached_input_tokens": 209664,
+    "input_tokens": 508279,
+    "output_tokens": 105145,
+    "reasoning_output_tokens": 91043,
+    "total_tokens": 613424
+  },
+  "usage_increment": {
+    "cached_input_tokens": 12032,
+    "input_tokens": 23249,
+    "output_tokens": 9372,
+    "reasoning_output_tokens": 8279,
+    "total_tokens": 32621
+  },
+  "visible_candidate_ids": [
+    "e65cb2f7d8ca2c801253eea43c01b7ac44610ecfc8407de7c102b8cc5d1b0790"
+  ]
+}

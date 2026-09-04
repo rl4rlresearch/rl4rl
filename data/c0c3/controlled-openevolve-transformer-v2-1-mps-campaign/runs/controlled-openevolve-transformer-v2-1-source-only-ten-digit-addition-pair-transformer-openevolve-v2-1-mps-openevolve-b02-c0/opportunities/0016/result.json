@@ -1,0 +1,79 @@
+{
+  "artifact_path": "candidates/be718a788e8786be210b17ecaa12cd742d7ef41913cedd90670f81c8aae4d21c",
+  "candidate_id": "be718a788e8786be210b17ecaa12cd742d7ef41913cedd90670f81c8aae4d21c",
+  "codex_service_tier": "fast",
+  "condition": "C0",
+  "conversation_session_id": null,
+  "evaluation": {
+    "evaluator_calls": 1,
+    "evaluator_seconds": 383.42834487499204,
+    "failure_kind": "nonqualification",
+    "fitness": null,
+    "metrics": {
+      "accuracy": 0.45189999999999997,
+      "cases": 10010,
+      "correct": 4524,
+      "parameters": 1635,
+      "training_steps": 4999
+    },
+    "valid": false
+  },
+  "evaluator_calls_cumulative": 16,
+  "evaluator_calls_increment": 1,
+  "evaluator_seconds_cumulative": 4944.562021332909,
+  "evaluator_seconds_increment": 383.42834487499204,
+  "event": "proposal_completed",
+  "evicted_candidate_id": null,
+  "evidence": "The head-shared key-bias model achieved 99.92% with 1,636 parameters; unlike the failed all-at-once removal, this edit starts from the successful staged layout and preserves its registered Linear bias initialization while removing only the final functionally invariant scalar.",
+  "hypothesis": "Replacing the shared key-bias scalar with eight fixed zeros will reduce the model from 1,636 to 1,635 parameters while retaining at least 99% accuracy, because the scalar is initialized to zero and any position-independent key bias cancels under attention softmax.",
+  "incumbent_after": "8f245fbaa6556edf1adbdfac32b36a736b72d7bfa9a48717ee1bbf66d1f9912c",
+  "intended_edit": "Keep the combined QKV layer and its current initialization path, but store only the eight query and eight value bias coordinates and reconstruct the entire key-bias segment as fixed zeros.",
+  "mechanism": "Initialization-preserving elimination of the final invariant key-bias scalar",
+  "opportunity": 16,
+  "parent_ids": [
+    "8f245fbaa6556edf1adbdfac32b36a736b72d7bfa9a48717ee1bbf66d1f9912c"
+  ],
+  "portfolio_after": [
+    "8f245fbaa6556edf1adbdfac32b36a736b72d7bfa9a48717ee1bbf66d1f9912c"
+  ],
+  "prompt_hashes": {
+    "common_template_sha256": "3f2bea6418b6969c4bf2aa1df18dcda8a3a4ac075bf20c79068c754698b6be5e",
+    "prompt_sha256": "dd1e536a06e1da5ed89e7de6323d3ac015d63f7681fdd9748a050f6877971b94",
+    "proposal_policy_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "search_state_sha256": "04e5eb078ae1964e4ec65bfeeeb1acd0ffa246e7d54d5e0f997f81f602da28c5",
+    "treatment_skeleton_sha256": "b881f037a91f73bd37f082924202743c0272f0f06abf99f8174e61ada9c35744"
+  },
+  "proposal_type": "ordinary",
+  "proposals_cumulative": 16,
+  "remaining_budget": {
+    "evaluations": 184,
+    "evaluator_seconds": 355055.4379786671,
+    "proposals": 184,
+    "tokens": 99648610
+  },
+  "retained": false,
+  "retention_decision": "invalid",
+  "run_id": "controlled-openevolve-transformer-v2-1-source-only-ten-digit-addition-pair-transformer-openevolve-v2-1-mps-openevolve-b02-c0",
+  "schema_version": "1.0",
+  "selected_parent_ids": [
+    "8f245fbaa6556edf1adbdfac32b36a736b72d7bfa9a48717ee1bbf66d1f9912c"
+  ],
+  "timestamp": "2026-08-23T17:22:18.650315+00:00",
+  "usage_cumulative": {
+    "cached_input_tokens": 188416,
+    "input_tokens": 323057,
+    "output_tokens": 28333,
+    "reasoning_output_tokens": 22287,
+    "total_tokens": 351390
+  },
+  "usage_increment": {
+    "cached_input_tokens": 12032,
+    "input_tokens": 21382,
+    "output_tokens": 1685,
+    "reasoning_output_tokens": 1188,
+    "total_tokens": 23067
+  },
+  "visible_candidate_ids": [
+    "8f245fbaa6556edf1adbdfac32b36a736b72d7bfa9a48717ee1bbf66d1f9912c"
+  ]
+}

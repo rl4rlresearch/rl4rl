@@ -1,0 +1,82 @@
+{
+  "artifact_path": "candidates/ee8bdbcc81ba6f44818142a4583aded54fde6f0fe1adc463d16b3c90ced38e2c",
+  "candidate_id": "ee8bdbcc81ba6f44818142a4583aded54fde6f0fe1adc463d16b3c90ced38e2c",
+  "codex_service_tier": "fast",
+  "condition": "C1",
+  "conversation_session_id": null,
+  "evaluation": {
+    "evaluator_calls": 1,
+    "evaluator_seconds": 374.278576447,
+    "failure_kind": null,
+    "fitness": -0.999976,
+    "metrics": {
+      "depth": 8.0,
+      "mfu_percent": 38.64,
+      "num_params_M": 39.8,
+      "num_steps": 976.0,
+      "peak_vram_mb": 41364.2,
+      "total_tokens_M": 511.7,
+      "training_seconds": 300.0,
+      "val_bpb": 0.999976
+    },
+    "valid": true
+  },
+  "evaluator_calls_cumulative": 9,
+  "evaluator_calls_increment": 1,
+  "evaluator_seconds_cumulative": 3324.7155141369967,
+  "evaluator_seconds_increment": 374.278576447,
+  "event": "proposal_completed",
+  "evicted_candidate_id": null,
+  "evidence": "The four-head baseline achieved 0.995558 at 497M tokens, whereas eight smaller heads reduced throughput to 472.9M and regressed to 1.0038; grouped-query attention retains the successful four-query-head layout while targeting K/V-side compute and bandwidth instead.",
+  "hypothesis": "Sharing each key/value head across two of the four query heads will reduce projection, value-embedding, and optimizer-update costs enough to exceed the baseline\u2019s 497M tokens while preserving query-head geometry, lowering val_bpb below 0.995558.",
+  "incumbent_after": "2865e528e18dc51191e4037eaeb5824cb0ea83ede79061b59b8f3caac686da6b",
+  "intended_edit": "Set `n_kv_head` to half of `n_head`, producing four query heads and two key/value heads.",
+  "mechanism": "Two-to-one grouped-query attention",
+  "opportunity": 9,
+  "parent_ids": [
+    "2865e528e18dc51191e4037eaeb5824cb0ea83ede79061b59b8f3caac686da6b"
+  ],
+  "portfolio_after": [
+    "2865e528e18dc51191e4037eaeb5824cb0ea83ede79061b59b8f3caac686da6b"
+  ],
+  "prompt_hashes": {
+    "common_template_sha256": "ba85b39aa7288f4f48475376da6cff65661f39cfeb7ac7cde15b2a9a2e692fde",
+    "prompt_sha256": "06d89042e3aa49613ec31f50910e3587c1d7123521244494b895e56acd4d8f9a",
+    "proposal_policy_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "search_state_sha256": "04e5eb078ae1964e4ec65bfeeeb1acd0ffa246e7d54d5e0f997f81f602da28c5",
+    "treatment_skeleton_sha256": "c0133a0bbd3121d22b46c242d6698c41e980057f28e5a6a4122c6bdbe53a9f6e"
+  },
+  "proposal_type": "ordinary",
+  "proposals_cumulative": 9,
+  "remaining_budget": {
+    "evaluations": 191,
+    "evaluator_seconds": 716675.284485863,
+    "proposals": 191,
+    "tokens": 99759817
+  },
+  "retained": false,
+  "retention_decision": "not_strictly_better_than_incumbent",
+  "run_id": "nanogpt-openevolve-v2-1-h100-karpathy_nanogpt_source_only_h100-openevolve-b02-c1",
+  "schema_version": "1.0",
+  "selected_parent_ids": [
+    "2865e528e18dc51191e4037eaeb5824cb0ea83ede79061b59b8f3caac686da6b"
+  ],
+  "timestamp": "2026-08-23T20:50:19.390863+00:00",
+  "usage_cumulative": {
+    "cached_input_tokens": 91392,
+    "input_tokens": 207802,
+    "output_tokens": 32381,
+    "reasoning_output_tokens": 29980,
+    "total_tokens": 240183
+  },
+  "usage_increment": {
+    "cached_input_tokens": 12032,
+    "input_tokens": 23890,
+    "output_tokens": 3011,
+    "reasoning_output_tokens": 2786,
+    "total_tokens": 26901
+  },
+  "visible_candidate_ids": [
+    "2865e528e18dc51191e4037eaeb5824cb0ea83ede79061b59b8f3caac686da6b"
+  ]
+}

@@ -1,0 +1,88 @@
+{
+  "artifact_path": "candidates/8398f6a44da02110e69923d6ad536cb18c5d86e2a95bc65979fedb83351a4164",
+  "candidate_id": "8398f6a44da02110e69923d6ad536cb18c5d86e2a95bc65979fedb83351a4164",
+  "codex_service_tier": "fast",
+  "condition": "C2",
+  "conversation_session_id": null,
+  "evaluation": {
+    "evaluator_calls": 1,
+    "evaluator_seconds": 360.00929077300043,
+    "failure_kind": null,
+    "fitness": -0.99387,
+    "metrics": {
+      "depth": 8.0,
+      "mfu_percent": 36.41,
+      "num_params_M": 50.3,
+      "num_steps": 989.0,
+      "peak_vram_mb": 45060.2,
+      "total_tokens_M": 518.5,
+      "training_seconds": 300.2,
+      "val_bpb": 0.99387
+    },
+    "valid": true
+  },
+  "evaluator_calls_cumulative": 16,
+  "evaluator_calls_increment": 1,
+  "evaluator_seconds_cumulative": 6360.520626126998,
+  "evaluator_seconds_increment": 360.00929077300043,
+  "event": "proposal_completed",
+  "evicted_candidate_id": "3f86c29c7b170f9b5dd7ccebde668fea2f9f9bc32c149a3e774ae1f52f25cd9d",
+  "evidence": "Reference Design 3 achieved the best val_bpb, 0.994770, with quarter-context local layers and two full-context anchors; the all-full result fell to 403.7M tokens and 1.011302, showing that full-context layers are expensive, while stacked local layers can propagate information beyond their individual windows.",
+  "hypothesis": "Replacing the intermediate full-context layer with quarter-context attention will exceed 503.3M tokens, while seven stacked 512-token local layers provide a full-sequence receptive field before the final global anchor, lowering val_bpb below 0.994770.",
+  "incumbent_after": "8398f6a44da02110e69923d6ad536cb18c5d86e2a95bc65979fedb83351a4164",
+  "intended_edit": "Restore the proven ReLU-squared MLP, use 512-token local windows, and change the eight-layer layout from SSS L SSS L to SSS S SSS L.",
+  "mechanism": "Single final full-context anchor with stacked quarter-context local attention",
+  "opportunity": 16,
+  "parent_ids": [
+    "3f86c29c7b170f9b5dd7ccebde668fea2f9f9bc32c149a3e774ae1f52f25cd9d"
+  ],
+  "portfolio_after": [
+    "2865e528e18dc51191e4037eaeb5824cb0ea83ede79061b59b8f3caac686da6b",
+    "751f6421ee699b4c6ae86e4cb2e4fb251857399c2f9b5720235c590a65eaf50a",
+    "e851f3f277cd5f216a6438df48eb17a425d2354d52becdf00dc0225d90cbbb90",
+    "8398f6a44da02110e69923d6ad536cb18c5d86e2a95bc65979fedb83351a4164"
+  ],
+  "prompt_hashes": {
+    "common_template_sha256": "ba85b39aa7288f4f48475376da6cff65661f39cfeb7ac7cde15b2a9a2e692fde",
+    "prompt_sha256": "ac02591e0a741fa65f4404fbd82900305943b62bd61c407158a09a99e35149cc",
+    "proposal_policy_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "search_state_sha256": "c938ac007bf70fe8d27f64661175531e51fcb16b38318c328493c32ee292e27e",
+    "treatment_skeleton_sha256": "b6901a15c30c29295550e0df7adbb224b99d0139924639e0b4571a6b2468890a"
+  },
+  "proposal_type": "ordinary",
+  "proposals_cumulative": 16,
+  "remaining_budget": {
+    "evaluations": 184,
+    "evaluator_seconds": 713639.479373873,
+    "proposals": 184,
+    "tokens": 99249947
+  },
+  "retained": true,
+  "retention_decision": "replaced_selected_parent_on_strict_improvement",
+  "run_id": "nanogpt-openevolve-v2-1-h100-karpathy_nanogpt_source_only_h100-openevolve-b01-c2",
+  "schema_version": "1.0",
+  "selected_parent_ids": [
+    "3f86c29c7b170f9b5dd7ccebde668fea2f9f9bc32c149a3e774ae1f52f25cd9d"
+  ],
+  "timestamp": "2026-08-23T21:14:02.580807+00:00",
+  "usage_cumulative": {
+    "cached_input_tokens": 155136,
+    "input_tokens": 689720,
+    "output_tokens": 60333,
+    "reasoning_output_tokens": 54245,
+    "total_tokens": 750053
+  },
+  "usage_increment": {
+    "cached_input_tokens": 12032,
+    "input_tokens": 47205,
+    "output_tokens": 1373,
+    "reasoning_output_tokens": 862,
+    "total_tokens": 48578
+  },
+  "visible_candidate_ids": [
+    "2865e528e18dc51191e4037eaeb5824cb0ea83ede79061b59b8f3caac686da6b",
+    "751f6421ee699b4c6ae86e4cb2e4fb251857399c2f9b5720235c590a65eaf50a",
+    "e851f3f277cd5f216a6438df48eb17a425d2354d52becdf00dc0225d90cbbb90",
+    "3f86c29c7b170f9b5dd7ccebde668fea2f9f9bc32c149a3e774ae1f52f25cd9d"
+  ]
+}

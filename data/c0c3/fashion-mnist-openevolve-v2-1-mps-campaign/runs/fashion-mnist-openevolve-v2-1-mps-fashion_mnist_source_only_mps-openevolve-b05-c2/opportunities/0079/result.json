@@ -1,0 +1,91 @@
+{
+  "artifact_path": "candidates/4e0e699562ff2a22dfdc185d7debc7abcc63697a7bc0d270dc5ebf9961f841ab",
+  "candidate_id": "4e0e699562ff2a22dfdc185d7debc7abcc63697a7bc0d270dc5ebf9961f841ab",
+  "codex_service_tier": "default",
+  "condition": "C2",
+  "conversation_session_id": null,
+  "evaluation": {
+    "evaluator_calls": 1,
+    "evaluator_seconds": 75.45548208290711,
+    "failure_kind": null,
+    "fitness": 9192.409040001612,
+    "metrics": {
+      "batch_size": 128,
+      "evaluation_cases": 10000,
+      "evaluation_split": "public_validation",
+      "examples_processed": 100000,
+      "optimizer_steps": 782,
+      "parameters": 249260,
+      "training_seconds": 58.56899600010365,
+      "validation_accuracy": 0.9192,
+      "validation_correct": 9192,
+      "validation_cross_entropy": 0.2223743350982666,
+      "validation_score": 9192.409040001612
+    },
+    "valid": true
+  },
+  "evaluator_calls_cumulative": 74,
+  "evaluator_calls_increment": 1,
+  "evaluator_seconds_cumulative": 5428.339497295907,
+  "evaluator_seconds_increment": 75.45548208290711,
+  "event": "proposal_completed",
+  "evicted_candidate_id": "cb3bd68a0d0aabcc84bd66ab247170b813c8945e4246920c98fee2005d42fd79",
+  "evidence": "Reference Design 1 has the best observed cross-entropy using separate normalization and multiplication, while post-scale centering with separate operations was only slightly worse; eliminating the intermediate division rounding is the most informative untested equivalent path.",
+  "hypothesis": "Collapsing ensemble normalization and the best verified sharpening coefficient into one float32 multiplication will preserve all 9,192 predictions and reduce validation cross-entropy below 0.22237433319091796.",
+  "incumbent_after": "54918c5026b4168d0c1302f714f8151413a9850c48b63a5a03d22a99aaaf0d2f",
+  "intended_edit": "Apply one combined scale directly to the accumulated ensemble logits, then max-center the calibrated result.",
+  "mechanism": "Single-rounding fused ensemble calibration",
+  "opportunity": 79,
+  "parent_ids": [
+    "cb3bd68a0d0aabcc84bd66ab247170b813c8945e4246920c98fee2005d42fd79"
+  ],
+  "portfolio_after": [
+    "4e0e699562ff2a22dfdc185d7debc7abcc63697a7bc0d270dc5ebf9961f841ab",
+    "bde4570902464d5300a1841070c5c544de23e76f2a5c041079213edcff56de8e",
+    "8bd550af940f4500aee965633795573bb644c18a78d3d2c834315468fef09230",
+    "54918c5026b4168d0c1302f714f8151413a9850c48b63a5a03d22a99aaaf0d2f"
+  ],
+  "prompt_hashes": {
+    "common_template_sha256": "e8327ba94bab12abc7c7ec7c6615378a3ae62434efb944d4a7d9492f1d19bc14",
+    "prompt_sha256": "070946e59bc4a09097e1ca15f10aaf39fe25dc321954a25e6ff13fcfc86a48d3",
+    "proposal_policy_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "search_state_sha256": "c938ac007bf70fe8d27f64661175531e51fcb16b38318c328493c32ee292e27e",
+    "treatment_skeleton_sha256": "b7df9681133cfb0a39f24c3a7ba0535a9b56358afea8faea036877d050466240"
+  },
+  "proposal_type": "ordinary",
+  "proposals_cumulative": 79,
+  "remaining_budget": {
+    "evaluations": 126,
+    "evaluator_seconds": 18571.660502704093,
+    "proposals": 121,
+    "tokens": 98100532
+  },
+  "retained": true,
+  "retention_decision": "replaced_selected_parent_on_strict_improvement",
+  "run_id": "fashion-mnist-openevolve-v2-1-mps-fashion_mnist_source_only_mps-openevolve-b05-c2",
+  "schema_version": "1.0",
+  "selected_parent_ids": [
+    "cb3bd68a0d0aabcc84bd66ab247170b813c8945e4246920c98fee2005d42fd79"
+  ],
+  "timestamp": "2026-08-24T14:29:22.964336+00:00",
+  "usage_cumulative": {
+    "cached_input_tokens": 823552,
+    "input_tokens": 1778602,
+    "output_tokens": 120866,
+    "reasoning_output_tokens": 92182,
+    "total_tokens": 1899468
+  },
+  "usage_increment": {
+    "cached_input_tokens": 12032,
+    "input_tokens": 22960,
+    "output_tokens": 1562,
+    "reasoning_output_tokens": 1312,
+    "total_tokens": 24522
+  },
+  "visible_candidate_ids": [
+    "cb3bd68a0d0aabcc84bd66ab247170b813c8945e4246920c98fee2005d42fd79",
+    "bde4570902464d5300a1841070c5c544de23e76f2a5c041079213edcff56de8e",
+    "8bd550af940f4500aee965633795573bb644c18a78d3d2c834315468fef09230",
+    "54918c5026b4168d0c1302f714f8151413a9850c48b63a5a03d22a99aaaf0d2f"
+  ]
+}

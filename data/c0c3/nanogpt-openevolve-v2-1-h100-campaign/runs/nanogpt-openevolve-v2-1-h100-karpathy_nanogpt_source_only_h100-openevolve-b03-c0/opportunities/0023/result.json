@@ -1,0 +1,82 @@
+{
+  "artifact_path": "candidates/3a9f2ca842115b4a6fadaf207ea89cee018ddcf781e992cab26240b0e4e4b7e0",
+  "candidate_id": "3a9f2ca842115b4a6fadaf207ea89cee018ddcf781e992cab26240b0e4e4b7e0",
+  "codex_service_tier": "fast",
+  "condition": "C0",
+  "conversation_session_id": null,
+  "evaluation": {
+    "evaluator_calls": 1,
+    "evaluator_seconds": 558.2143643300005,
+    "failure_kind": null,
+    "fitness": -0.985642,
+    "metrics": {
+      "depth": 8.0,
+      "mfu_percent": 39.3,
+      "num_params_M": 50.3,
+      "num_steps": 2989.0,
+      "peak_vram_mb": 30816.8,
+      "total_tokens_M": 489.7,
+      "training_seconds": 300.1,
+      "val_bpb": 0.985642
+    },
+    "valid": true
+  },
+  "evaluator_calls_cumulative": 23,
+  "evaluator_calls_increment": 1,
+  "evaluator_seconds_cumulative": 14681.767936149923,
+  "evaluator_seconds_increment": 558.2143643300005,
+  "event": "proposal_completed",
+  "evicted_candidate_id": "caa9409e440a597e1bb32de15dcef5f3d97a660f4f050a1238bd3885d5e6c27d",
+  "evidence": "The prior unscaled 80-sequence run preserved nearly all token throughput but regressed to `0.986929`; because it performed 19% more updates at unchanged learning rates, it did not isolate batch-size effects from increased cumulative parameter movement.",
+  "hypothesis": "An 80-sequence batch with all learning rates scaled by 80/96 will achieve `val_bpb < 0.985780` by gaining lower-batch gradient noise without the 20% larger cumulative update budget that confounded the prior 80-sequence run.",
+  "incumbent_after": "3a9f2ca842115b4a6fadaf207ea89cee018ddcf781e992cab26240b0e4e4b7e0",
+  "intended_edit": "Reduce the one-microbatch batch size from 96 to 80 sequences and scale every optimizer learning rate by 5/6.",
+  "mechanism": "Batch-size-invariant learning-rate scaling",
+  "opportunity": 23,
+  "parent_ids": [
+    "caa9409e440a597e1bb32de15dcef5f3d97a660f4f050a1238bd3885d5e6c27d"
+  ],
+  "portfolio_after": [
+    "3a9f2ca842115b4a6fadaf207ea89cee018ddcf781e992cab26240b0e4e4b7e0"
+  ],
+  "prompt_hashes": {
+    "common_template_sha256": "ba85b39aa7288f4f48475376da6cff65661f39cfeb7ac7cde15b2a9a2e692fde",
+    "prompt_sha256": "b8779fabe1cbed883ae6c79c766346729ef7911c20367cd0b7a8e3a1c4905419",
+    "proposal_policy_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "search_state_sha256": "04e5eb078ae1964e4ec65bfeeeb1acd0ffa246e7d54d5e0f997f81f602da28c5",
+    "treatment_skeleton_sha256": "c0272108e009b7878f404e4a6f96ebe62effee21114f37a41e91f8fd9dc42638"
+  },
+  "proposal_type": "ordinary",
+  "proposals_cumulative": 23,
+  "remaining_budget": {
+    "evaluations": 177,
+    "evaluator_seconds": 705318.23206385,
+    "proposals": 177,
+    "tokens": 99396265
+  },
+  "retained": true,
+  "retention_decision": "strict_incumbent_improvement",
+  "run_id": "nanogpt-openevolve-v2-1-h100-karpathy_nanogpt_source_only_h100-openevolve-b03-c0",
+  "schema_version": "1.0",
+  "selected_parent_ids": [
+    "caa9409e440a597e1bb32de15dcef5f3d97a660f4f050a1238bd3885d5e6c27d"
+  ],
+  "timestamp": "2026-08-24T01:48:12.938211+00:00",
+  "usage_cumulative": {
+    "cached_input_tokens": 259584,
+    "input_tokens": 549734,
+    "output_tokens": 54001,
+    "reasoning_output_tokens": 48711,
+    "total_tokens": 603735
+  },
+  "usage_increment": {
+    "cached_input_tokens": 12032,
+    "input_tokens": 24728,
+    "output_tokens": 3638,
+    "reasoning_output_tokens": 3159,
+    "total_tokens": 28366
+  },
+  "visible_candidate_ids": [
+    "caa9409e440a597e1bb32de15dcef5f3d97a660f4f050a1238bd3885d5e6c27d"
+  ]
+}

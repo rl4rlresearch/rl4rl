@@ -1,0 +1,185 @@
+# Optimize a transformer for 10-digit addition
+
+You are an autonomous ML engineer improving the source code for an
+autoregressive transformer that adds two 10-digit numbers.
+
+## Goal
+
+Minimize the actual number of deduplicated learned model parameters while
+maintaining at least 99% accuracy under the fixed verification process. A
+smaller implementation is useful only when it meets that accuracy requirement.
+Every submitted implementation is trained from a fresh initialization.
+
+## Learned-model requirement
+
+Produce a smaller trained autoregressive transformer, not a hand-coded addition
+program. The submitted implementation must:
+
+- have nonzero trainable parameters;
+- contain and use at least one learned causal self-attention module;
+- map token inputs to token logits through the learned model;
+- train from a fresh initialization during verification;
+- write both `checkpoints/best.pt` and a positive-step `checkpoints/last.pt`;
+- keep source code unchanged while training; and
+- use the protected generic decoding interface exactly as supplied.
+
+Do not implement or embed decimal arithmetic, carry propagation, place-value
+rules, digit lookup tables, finite-state addition transitions, fixed answer
+rules, or input-dependent Python logic that directly computes the sum. Do not
+hide such a solver in model generation, token processing, training, or saved
+weights. Do not add dummy or zero-length parameters to disguise a fixed
+algorithm as a learned model.
+
+Do not modify protected files. Do not perform post-training state-dictionary
+surgery, substitute a different saved model, truncate weights after training,
+or report a parameter count that differs from the submitted model.
+
+## Work boundaries
+
+Minimize parameters. Required result: accuracy >= 0.99.
+Editable source files: src/model.py, src/train.py.
+Results reported after each verification: accuracy, parameters, training_steps.
+
+Propose changes through exact SEARCH/REPLACE blocks. The patching interface applies them to the supplied editable source.
+
+The editable source and any reference source are included below. Do not access
+parent directories, home directories, shared temporary directories, global
+session history, online sources, or any surrounding repository. Do not run
+training or verification yourself and do not generate hidden alternatives.
+Return one patch for one implementation; verification happens after you finish.
+
+## Available designs
+
+The current editable design is provided. No reference design is available.
+
+CURRENT DESIGN
+verified_results: {"accuracy": 1.0, "parameters": 1595, "training_steps": 20999}
+prior_hypothesis: Anchoring one `fc2` input column’s uniform-output coordinate will reduce the model from 1,596 to 1,595 parameters while retaining at least 99% accuracy after 21,000 steps, because adding a uniform vector to that column only creates positionwise residual shifts removed by subsequent LayerNorm.
+
+## Recent verification evidence
+
+RECENT RESULT
+hypothesis: Removing the last learned value-bias scalar will reduce the model from 1,603 to 1,602 parameters while retaining at least 99% accuracy after 14,000 steps, because its position-independent contribution can be absorbed by the learned output-projection bias.
+change: Store only the eight query-bias parameters, reconstruct the entire value bias as zero, and add 1,000 minimum-learning-rate refinement steps.
+mechanism: Absorb the final tied value-bias group into the attention output bias
+evidence_used: Removing the preceding tied value-bias group achieved 99.90% at 1,603 parameters after 13,000 steps, while earlier singleton removals also succeeded; the remaining scalar has the same redundant value-bias role.
+result: met the accuracy requirement and became an available design
+reported_values: {"accuracy": 1.0, "parameters": 1602, "training_steps": 13999}
+
+RECENT RESULT
+hypothesis: Anchoring the final input-weight coordinate of one query-projection neuron will reduce the model from 1,602 to 1,601 parameters while retaining at least 99% accuracy after 15,000 steps, because LayerNorm confines its input to a seven-dimensional affine hyperplane and the neuron retains an independent query bias.
+change: Store 191 of the 192 QKV weights, reconstruct coordinate 7 of the first query row as zero during forward passes, and add 1,000 low-rate refinement steps.
+mechanism: LayerNorm-hyperplane anchoring of one query-projection weight
+evidence_used: The analogous first-neuron `fc1` anchoring achieved 99.8% at 1,606 parameters, validating this LayerNorm-input redundancy; applying it to one query neuron tests the same mechanism in a different sublayer without repeating the failed second-`fc1` anchoring.
+result: did not meet the accuracy requirement
+reported_values: {"accuracy": 0.39520000000000005, "parameters": 1601, "training_steps": 14999}
+
+RECENT RESULT
+hypothesis: Anchoring one scalar of the tied token-embedding/output matrix, while sampling an equivalent full initialization and preserving implicit full-coordinate AdamW updates, will reduce the model from 1,602 to 1,601 parameters and retain at least 99% accuracy after 15,000 steps.
+change: Store 103 of the 104 tied embedding coordinates, reconstruct the final coordinate as zero for both input embedding and output logits, initialize the anchored representation from a full i.i.d. matrix, optimize it with GaugeAdamW, and add 1,000 low-rate refinement steps.
+mechanism: Initialization-preserving global token-embedding gauge
+evidence_used: Gauge-aware anchoring of the attention projection bias achieved 99.89% at 1,607 parameters, whereas positional-embedding anchoring reached only 56.28%; preserving both the full initialization distribution and implicit optimizer state tests whether initialization geometry caused that failure. A global scalar shift of the tied token matrix is an exact symmetry because it propagates as a uniform residual shift removed by LayerNorm and adds only a common offset to all logits.
+result: met the accuracy requirement and became an available design
+reported_values: {"accuracy": 0.9998999999999999, "parameters": 1601, "training_steps": 14999}
+
+RECENT RESULT
+hypothesis: Anchoring one uniform-output gauge coordinate in an attention-projection weight column, while preserving equivalent full initialization and implicit eight-coordinate AdamW updates, will reduce the model from 1,601 to 1,600 parameters and retain at least 99% accuracy after 16,000 steps.
+change: Split the final attention-projection input column into seven learned relative coordinates plus a zero anchor, initialize it from an eight-coordinate i.i.d. column, optimize it with GaugeAdamW, and add 1,000 low-rate refinement steps.
+mechanism: Initialization-preserving attention-output column gauge
+evidence_used: The earlier projection-column gauge reached only 40.05%, but the later initialization-preserving token-embedding gauge achieved 99.99% at 1,601 parameters; this tests whether transferring that validated full-initialization treatment rescues the exact uniform-output projection gauge.
+result: met the accuracy requirement and became an available design
+reported_values: {"accuracy": 0.9998, "parameters": 1600, "training_steps": 15999}
+
+RECENT RESULT
+hypothesis: Anchoring a second attention-projection input column with equivalent full eight-coordinate initialization and implicit AdamW updates will reduce the model from 1,600 to 1,599 parameters while retaining at least 99% accuracy after 17,000 steps.
+change: Split another projection column into seven learned relative coordinates plus a zero anchor, initialize both anchored columns from full i.i.d. columns, optimize each with GaugeAdamW, and add 1,000 low-rate refinement steps.
+mechanism: Incremental initialization-preserving attention-output column gauge
+evidence_used: Initialization-preserving anchoring rescued the first projection-column gauge from 40.05% to 99.98% accuracy at 1,600 parameters, directly validating the same exact symmetry and optimizer treatment used here.
+result: met the accuracy requirement and became an available design
+reported_values: {"accuracy": 0.9995999999999999, "parameters": 1599, "training_steps": 16999}
+
+RECENT RESULT
+hypothesis: Anchoring a third attention-projection input column with equivalent full eight-coordinate initialization and implicit AdamW updates will reduce the model from 1,599 to 1,598 parameters while retaining at least 99% accuracy after 18,000 steps.
+change: Split a third projection column into seven learned relative coordinates plus a zero anchor, initialize all three anchored columns from full i.i.d. columns, optimize each with GaugeAdamW, and add 1,000 low-rate refinement steps.
+mechanism: Incremental initialization-preserving attention-output column gauge
+evidence_used: Successive initialization-preserving projection-column anchoring achieved 99.98% at 1,600 parameters and 99.96% at 1,599 parameters, directly validating this exact symmetry and optimizer treatment for two columns.
+result: did not meet the accuracy requirement
+reported_values: {"accuracy": 0.0661, "parameters": 1598, "training_steps": 17999}
+
+RECENT RESULT
+hypothesis: Anchoring one positional-embedding row’s uniform-shift coordinate while preserving its full initialization and implicit eight-coordinate AdamW updates will reduce the model from 1,599 to 1,598 parameters and retain at least 99% accuracy after 18,000 steps.
+change: Store the final positional row as seven relative coordinates plus a zero anchor, reconstruct it during forward passes, optimize it with GaugeAdamW, and add 1,000 low-rate refinement steps.
+mechanism: Initialization-preserving positional-row shift gauge
+evidence_used: A naive positional-embedding anchor reached only 56.28%, but initialization-preserving gauge optimization rescued the attention-projection column mechanism from 40.05% to 99.98%; the same treatment directly tests whether the earlier positional failure was caused by initialization and optimizer geometry.
+result: met the accuracy requirement and became an available design
+reported_values: {"accuracy": 0.9994, "parameters": 1598, "training_steps": 17999}
+
+RECENT RESULT
+hypothesis: Anchoring a second positional-embedding row’s uniform-shift coordinate will reduce the model from 1,598 to 1,597 parameters while retaining at least 99% accuracy after 19,000 steps, because each positional row has the same exact shift symmetry and the first anchored row achieved 99.94%.
+change: Store the penultimate positional row as seven relative coordinates plus a zero anchor, preserve its full initialization and implicit eight-coordinate AdamW updates, and add 1,000 low-rate refinement steps.
+mechanism: Incremental initialization-preserving positional-row shift gauge
+evidence_used: Initialization-preserving anchoring of the final positional row achieved 99.94% at 1,598 parameters after 18,000 steps, directly validating this symmetry and optimizer treatment for one positional row.
+result: met the accuracy requirement and became an available design
+reported_values: {"accuracy": 0.9997, "parameters": 1597, "training_steps": 18999}
+
+RECENT RESULT
+hypothesis: Anchoring a third positional-embedding row’s uniform-shift coordinate will reduce the model from 1,597 to 1,596 parameters while retaining at least 99% accuracy after 20,000 steps, because the first two identically treated positional-row anchors achieved 99.94% and 99.97%.
+change: Store the antepenultimate positional row as seven learned relative coordinates plus a zero anchor, preserve its equivalent full initialization and implicit eight-coordinate AdamW updates, and add 1,000 low-rate refinement steps.
+mechanism: Incremental initialization-preserving positional-row shift gauge
+evidence_used: Initialization-preserving positional-row anchoring succeeded consecutively at 1,598 and 1,597 parameters, with the second anchor reaching 99.97% after 19,000 steps; this directly motivates testing the same exact symmetry on the adjacent row.
+result: did not meet the accuracy requirement
+reported_values: {"accuracy": 0.7494, "parameters": 1596, "training_steps": 19999}
+
+RECENT RESULT
+hypothesis: Anchoring the uniform-shift coordinate of the final MLP bias will reduce the model from 1,597 to 1,596 parameters while retaining at least 99% accuracy after 20,000 steps, because this shift is removed by the final LayerNorm.
+change: Store seven relative `fc2` bias coordinates, reconstruct an eighth zero anchor, train them with implicit eight-coordinate GaugeAdamW, and add 1,000 low-rate refinement steps.
+mechanism: Gauge-anchored MLP output bias
+evidence_used: Gauge-aware anchoring of the analogous attention-projection bias retained 99.89% accuracy, while the current 1,597-parameter design reached 99.97%; this tests the same validated uniform-output symmetry in the MLP instead of repeating the failed third positional-row anchor.
+result: met the accuracy requirement and became an available design
+reported_values: {"accuracy": 0.9995999999999999, "parameters": 1596, "training_steps": 19999}
+
+RECENT RESULT
+hypothesis: Anchoring one `fc2` input column’s uniform-output coordinate will reduce the model from 1,596 to 1,595 parameters while retaining at least 99% accuracy after 21,000 steps, because adding a uniform vector to that column only creates positionwise residual shifts removed by subsequent LayerNorm.
+change: Store the final `fc2` column as seven relative coordinates plus a zero anchor, initialize it from an equivalent full eight-coordinate column, optimize it with GaugeAdamW, and add 1,000 low-rate refinement steps.
+mechanism: Initialization-preserving MLP output-column gauge
+evidence_used: Initialization-preserving attention-output column gauges achieved 99.98% and 99.96%, while the current gauge-anchored MLP output bias achieved 99.96%; together these validate the same uniform-output symmetry and optimizer treatment in the MLP without repeating the failed third attention-column or positional-row anchor.
+result: met the accuracy requirement and became an available design
+reported_values: {"accuracy": 1.0, "parameters": 1595, "training_steps": 20999}
+
+RECENT RESULT
+hypothesis: Anchoring a second `fc2` input column with equivalent full eight-coordinate initialization and implicit AdamW updates will reduce the model from 1,595 to 1,594 parameters while retaining at least 99% accuracy after 22,000 steps.
+change: Represent the final two `fc2` columns with seven learned relative coordinates and zero anchors, initialize and optimize both through `GaugeAdamW`, and add 1,000 low-rate refinement steps.
+mechanism: Second initialization-preserving MLP output-column gauge
+evidence_used: The first identically treated `fc2` column anchor achieved 100% accuracy at 1,595 parameters, and the analogous second attention-projection column anchor achieved 99.96%, directly supporting one incremental application of the same exact uniform-output symmetry.
+result: did not meet the accuracy requirement
+reported_values: {"accuracy": 0.7406999999999999, "parameters": 1594, "training_steps": 21999}
+
+
+
+Use the available technical evidence to choose the most informative next
+change. Treat unsuccessful or malformed work as evidence when a useful
+subject-level reason is provided. Do not invent missing evidence.
+
+## Response
+
+Return these short metadata lines followed by one or more exact
+`SEARCH`/`REPLACE` blocks that together produce one implementation:
+
+`MECHANISM: <a concise free-form name for the computational idea>`
+
+`HYPOTHESIS: <a falsifiable claim grounded in the evidence above>`
+
+`INTENDED_EDIT: <what this patch changes>`
+
+`EVIDENCE: <the most relevant prior result and why it motivates this patch>`
+
+Start each block with `<<<<<<< SEARCH`, put the exact existing lines next, use a
+line containing `=======` as the divider, put the replacement lines after it,
+and finish the block with `>>>>>>> REPLACE`.
+
+Every `SEARCH` section must be nonempty and match exactly once after earlier
+blocks have been applied. All blocks must apply. They may edit either or both
+editable files, but together they must describe one implementation ready for
+verification. The mechanism name is descriptive, not chosen from a fixed list.
+Do not paste whole files, lengthy logs, or routine progress reports outside the
+patch.

@@ -1,0 +1,85 @@
+{
+  "artifact_path": "candidates/ae5953224fb2df3a1567fea1ccbccb48bac8f91a72cc8878d79e231618a3e043",
+  "candidate_id": "ae5953224fb2df3a1567fea1ccbccb48bac8f91a72cc8878d79e231618a3e043",
+  "codex_service_tier": "default",
+  "condition": "C0",
+  "conversation_session_id": null,
+  "evaluation": {
+    "evaluator_calls": 1,
+    "evaluator_seconds": 72.0291469169315,
+    "failure_kind": null,
+    "fitness": 9298.40938744527,
+    "metrics": {
+      "batch_size": 64,
+      "evaluation_cases": 10000,
+      "evaluation_split": "public_validation",
+      "examples_processed": 100000,
+      "optimizer_steps": 1564,
+      "parameters": 249934,
+      "training_seconds": 67.19492674991488,
+      "validation_accuracy": 0.9298,
+      "validation_correct": 9298,
+      "validation_cross_entropy": 0.22133691635131836,
+      "validation_score": 9298.40938744527
+    },
+    "valid": true
+  },
+  "evaluator_calls_cumulative": 20,
+  "evaluator_calls_increment": 1,
+  "evaluator_seconds_cumulative": 1278.6043417933397,
+  "evaluator_seconds_increment": 72.0291469169315,
+  "event": "proposal_completed",
+  "evicted_candidate_id": null,
+  "evidence": "The strongest configuration achieved 9,319 correct, while subsequent fine-grained dropout changes regressed. Its schedule specifies a 0.2\u00d7 starting multiplier, but the optimizer currently performs its first update at the full 2.0e-3 peak, making warmup consistency an untested optimization improvement.",
+  "hypothesis": "Initializing AdamW at the schedule\u2019s 20% warmup rate will exceed 9,319 correct predictions by preventing the first update from occurring at full peak learning rate before abruptly dropping.",
+  "incumbent_after": "756734ad1c1e8a93a15d12c8ec513df2d770d0ab343f7dac3a9b86f993fa7e63",
+  "intended_edit": "Change AdamW\u2019s initial learning rate from 2.0e-3 to 4.0e-4; retain the existing warmup, cosine schedule, architecture, and regularization.",
+  "mechanism": "Warmup-consistent optimizer initialization",
+  "opportunity": 20,
+  "parent_ids": [
+    "756734ad1c1e8a93a15d12c8ec513df2d770d0ab343f7dac3a9b86f993fa7e63"
+  ],
+  "portfolio_after": [
+    "756734ad1c1e8a93a15d12c8ec513df2d770d0ab343f7dac3a9b86f993fa7e63"
+  ],
+  "prompt_hashes": {
+    "common_template_sha256": "e8327ba94bab12abc7c7ec7c6615378a3ae62434efb944d4a7d9492f1d19bc14",
+    "prompt_sha256": "776bf7375861dedd597626e2f1760b1231c64780c38d20a77f7471c31a2796dd",
+    "proposal_policy_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "search_state_sha256": "04e5eb078ae1964e4ec65bfeeeb1acd0ffa246e7d54d5e0f997f81f602da28c5",
+    "treatment_skeleton_sha256": "fffd14272ad0fbb7594cb61d350123e6b5496f1931b58a8924d938b0ca4b11c5"
+  },
+  "proposal_type": "ordinary",
+  "proposals_cumulative": 20,
+  "remaining_budget": {
+    "evaluations": 180,
+    "evaluator_seconds": 22721.39565820666,
+    "proposals": 180,
+    "tokens": 99613819
+  },
+  "retained": false,
+  "retention_decision": "not_strictly_better_than_incumbent",
+  "run_id": "fashion-mnist-openevolve-v2-1-mps-fashion_mnist_source_only_mps-openevolve-b03-c0",
+  "schema_version": "1.0",
+  "selected_parent_ids": [
+    "756734ad1c1e8a93a15d12c8ec513df2d770d0ab343f7dac3a9b86f993fa7e63"
+  ],
+  "timestamp": "2026-08-24T02:00:17.075042+00:00",
+  "usage_cumulative": {
+    "cached_input_tokens": 217344,
+    "input_tokens": 347294,
+    "output_tokens": 38887,
+    "reasoning_output_tokens": 32553,
+    "total_tokens": 386181
+  },
+  "usage_increment": {
+    "cached_input_tokens": 9984,
+    "input_tokens": 18510,
+    "output_tokens": 3376,
+    "reasoning_output_tokens": 3106,
+    "total_tokens": 21886
+  },
+  "visible_candidate_ids": [
+    "756734ad1c1e8a93a15d12c8ec513df2d770d0ab343f7dac3a9b86f993fa7e63"
+  ]
+}

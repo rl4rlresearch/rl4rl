@@ -1,0 +1,163 @@
+# Improve fixed-exposure image classification
+
+You are an autonomous ML engineer improving a learned classifier for 28×28
+grayscale images in ten classes.
+
+## Goal
+
+Maximize `validation_score`. It ranks implementations first by the exact number
+of correct predictions on the fixed 10,000-image validation set, then—only when
+correct counts tie—by lower validation cross-entropy. Every verification starts
+from a fresh initialization and presents exactly 100,000 examples from the
+fixed 50,000-image training split.
+
+You may change the model architecture, optimizer, loss, augmentation, batch
+size, gradient handling, schedule, and other contents of `train.py`. The fixed
+data split, normalization, example accounting, validation calculation,
+250,000-learned-parameter ceiling, and device are not editable. The protected
+loop calls the functions already defined in `train.py`; keep that interface
+intact. The model must return one ten-class logit vector per image.
+
+## Work boundaries
+
+Maximize validation_score. No additional accuracy threshold.
+Editable source files: train.py.
+Results reported after each verification: validation_score, validation_correct, validation_accuracy, validation_cross_entropy, parameters, examples_processed, optimizer_steps, training_seconds, batch_size.
+
+Propose changes through exact SEARCH/REPLACE blocks. The patching interface applies them to the supplied editable source.
+
+The editable source and any reference source are included below. Do not access
+parent directories, home directories, shared temporary directories, global
+session history, online sources, external datasets, pretrained weights, or any
+surrounding repository. Do not run training or validation yourself and do not
+generate hidden alternatives. Return one patch for one implementation;
+verification happens after you finish.
+
+## Available designs
+
+The current editable design is provided. No reference design is available.
+
+CURRENT DESIGN
+verified_results: {"batch_size": 64, "examples_processed": 100000, "optimizer_steps": 1564, "parameters": 249934, "training_seconds": 68.0015388338361, "validation_accuracy": 0.9322, "validation_correct": 9322, "validation_cross_entropy": 0.1979913360595703, "validation_score": 9322.417365288838}
+prior_hypothesis: A 30.0333203125% translated-logit contribution will preserve all 9,322 correct predictions and lower validation cross-entropy below 0.19799134063720703.
+
+## Recent verification evidence
+
+RECENT RESULT
+hypothesis: A 30.035% translated-logit contribution remains below the argmax-gate discontinuity observed at 30.04%, preserves all 9,322 correct predictions, and lowers validation cross-entropy below 0.1979914150238037.
+change: Set the preserving blend to the midpoint between the best 30.03% setting and the degraded 30.04% setting, keeping complementary weights.
+mechanism: Preserving-blend boundary bisection
+evidence_used: Increasing the translated contribution through 30.03% consistently improved cross-entropy, while 30.04% abruptly worsened it despite the argmax-preserving gate; testing 30.035% bisects the narrow boundary.
+result: training did not finish within the verification time limit
+
+RECENT RESULT
+hypothesis: A 30.035% translated-logit contribution remains below the discontinuity observed at 30.04%, preserves all 9,322 correct predictions, and lowers validation cross-entropy below 0.1979914150238037.
+change: Increase only the preserving blend’s translated-logit weight from 0.3003 to 0.30035 while keeping complementary weights.
+mechanism: Preserving-blend boundary bisection retry
+evidence_used: Improvements continued through 30.03%, while 30.04% sharply worsened cross-entropy; the sole midpoint verification timed out and supplied no contrary validation evidence.
+result: training did not finish within the verification time limit
+
+RECENT RESULT
+hypothesis: A 30.0325% translated-logit contribution remains below the argmax-gate discontinuity observed at 30.04%, preserves all 9,322 correct predictions, and lowers cross-entropy below 0.1979914150238037.
+change: Increase only the preserving blend’s translated-logit weight from 0.3003 to 0.300325 while keeping the weights complementary.
+mechanism: Preserving-blend lower-quarter boundary probe
+evidence_used: Cross-entropy improved at every tested increment through 30.03% but degraded abruptly at 30.04%; two 30.035% midpoint attempts timed out without validation evidence, motivating a conservative probe halfway between 30.03% and that unresolved midpoint.
+result: training did not finish within the verification time limit
+reported_values: {"batch_size": 64, "examples_processed": 100000, "optimizer_steps": 1564, "parameters": 249934, "training_seconds": 78.51712683402002, "validation_accuracy": 0.9322, "validation_correct": 9322, "validation_cross_entropy": 0.19799136123657227, "validation_score": 9322.417365280067}
+
+RECENT RESULT
+hypothesis: A 30.03375% translated-logit contribution will preserve all 9,322 correct predictions and lower validation cross-entropy below 0.19799136123657227.
+change: Increase the preserving blend’s translated-logit weight from 0.3003 to 0.3003375 while keeping the weights complementary.
+mechanism: Preserving-blend upper-quarter boundary probe
+evidence_used: The 30.0325% probe improved cross-entropy to 0.19799136123657227, while 30.04% degraded sharply and 30.035% remains unresolved; 30.03375% probes halfway between the improved setting and unresolved midpoint.
+result: training did not finish within the verification time limit
+
+RECENT RESULT
+hypothesis: A 30.0325% translated-logit contribution will preserve all 9,322 correct predictions and reproduce validation cross-entropy below 0.1979914150238037.
+change: Increase the preserving blend’s translated-logit weight from 0.3003 to 0.300325 while keeping its weights complementary.
+mechanism: Preserving-blend lower-quarter retry
+evidence_used: The prior 30.0325% probe reported 9,322 correct and lower cross-entropy of 0.19799136123657227, but timed out; retrying it is the strongest evidence-backed opportunity for a strict improvement.
+result: improved the objective and became an available design
+reported_values: {"batch_size": 64, "examples_processed": 100000, "optimizer_steps": 1564, "parameters": 249934, "training_seconds": 77.01503616687842, "validation_accuracy": 0.9322, "validation_correct": 9322, "validation_cross_entropy": 0.19799136123657227, "validation_score": 9322.417365280067}
+
+RECENT RESULT
+hypothesis: A 30.033125% translated-logit contribution will preserve all 9,322 correct predictions and lower validation cross-entropy below 0.19799136123657227.
+change: Increase the preserving blend’s translated-logit weight from 0.300325 to 0.30033125 while keeping its weights complementary.
+mechanism: Preserving-blend boundary refinement
+evidence_used: The verified 30.0325% setting improved cross-entropy, while 30.04% degraded sharply and 30.03375% timed out without contrary validation evidence; bisecting the remaining interval is the most informative conservative probe.
+result: improved the objective and became an available design
+reported_values: {"batch_size": 64, "examples_processed": 100000, "optimizer_steps": 1564, "parameters": 249934, "training_seconds": 67.02667558402754, "validation_accuracy": 0.9322, "validation_correct": 9322, "validation_cross_entropy": 0.19799134407043456, "validation_score": 9322.417365286046}
+
+RECENT RESULT
+hypothesis: A 30.0334375% translated-logit contribution will preserve all 9,322 correct predictions and lower validation cross-entropy below 0.19799134407043456.
+change: Increase the preserving blend’s translated-logit weight from 0.30033125 to 0.300334375 while keeping the weights complementary.
+mechanism: Preserving-blend boundary bisection
+evidence_used: The verified 30.033125% setting is the current best, while the higher 30.03375% probe timed out without contrary validation evidence; bisecting that interval is the most conservative informative refinement.
+result: training did not finish within the verification time limit
+
+RECENT RESULT
+hypothesis: A 30.03328125% translated-logit contribution will preserve all 9,322 correct predictions and lower validation cross-entropy below 0.19799134407043456.
+change: Increase the preserving blend’s translated-logit weight from 0.30033125 to 0.3003328125 while keeping the weights complementary.
+mechanism: Preserving-blend lower-half boundary refinement
+evidence_used: The verified 30.033125% setting is the current best; the higher 30.0334375% attempt timed out without contrary validation evidence, so bisecting the lower half of that interval is the most conservative informative probe.
+result: improved the objective and became an available design
+reported_values: {"batch_size": 64, "examples_processed": 100000, "optimizer_steps": 1564, "parameters": 249934, "training_seconds": 75.65751470881514, "validation_accuracy": 0.9322, "validation_correct": 9322, "validation_cross_entropy": 0.19799134063720703, "validation_score": 9322.417365287243}
+
+RECENT RESULT
+hypothesis: A 30.033359375% translated-logit contribution will preserve all 9,322 correct predictions and lower validation cross-entropy below 0.19799134063720703.
+change: Increase the preserving blend’s translated-logit weight from 0.3003328125 to 0.30033359375 while keeping complementary weights.
+mechanism: Preserving-blend lower-half boundary refinement
+evidence_used: The verified 30.03328125% setting is the current best; the higher 30.0334375% attempt timed out without contrary validation evidence, so bisecting that remaining interval is the most conservative informative probe.
+result: training did not finish within the verification time limit
+
+RECENT RESULT
+hypothesis: A 30.0333203125% translated-logit contribution will preserve all 9,322 correct predictions and lower validation cross-entropy below 0.19799134063720703.
+change: Increase the preserving blend’s translated-logit weight from 0.3003328125 to 0.300333203125 while keeping the weights complementary.
+mechanism: Preserving-blend lower-half boundary refinement
+evidence_used: The verified 30.03328125% setting is the current best; the higher 30.033359375% attempt timed out without validation evidence, so bisecting that interval is the most conservative informative refinement.
+result: improved the objective and became an available design
+reported_values: {"batch_size": 64, "examples_processed": 100000, "optimizer_steps": 1564, "parameters": 249934, "training_seconds": 68.0015388338361, "validation_accuracy": 0.9322, "validation_correct": 9322, "validation_cross_entropy": 0.1979913360595703, "validation_score": 9322.417365288838}
+
+RECENT RESULT
+hypothesis: A 30.03333984375% translated-logit contribution will preserve all 9,322 correct predictions and lower validation cross-entropy below 0.1979913360595703.
+change: Increase the preserving blend’s translated-logit weight from 0.300333203125 to 0.3003333984375 while keeping complementary weights.
+mechanism: Preserving-blend boundary refinement
+evidence_used: The verified 30.0333203125% setting is the current best; the higher 30.033359375% attempt timed out without validation evidence, so bisecting that interval is the most informative conservative refinement.
+result: training did not finish within the verification time limit
+
+RECENT RESULT
+hypothesis: A 30.03333984375% translated-logit contribution will preserve all 9,322 correct predictions and lower validation cross-entropy below 0.1979913360595703.
+change: Increase the preserving blend’s translated-logit weight from 0.300333203125 to 0.3003333984375 while keeping complementary weights.
+mechanism: Preserving-blend boundary retry
+evidence_used: Every successfully verified refinement through 30.0333203125% reduced cross-entropy without changing correctness; the sole 30.03333984375% attempt timed out and provided no contrary validation evidence.
+result: was valid but was not a strict improvement
+reported_values: {"batch_size": 64, "examples_processed": 100000, "optimizer_steps": 1564, "parameters": 249934, "training_seconds": 73.1681206249632, "validation_accuracy": 0.9322, "validation_correct": 9322, "validation_cross_entropy": 0.1979913375854492, "validation_score": 9322.417365288307}
+
+
+
+Use the available technical evidence to choose the most informative next
+change. Treat unsuccessful or malformed work as evidence when a useful
+subject-level reason is provided. Do not invent missing evidence.
+
+## Response
+
+Return these short metadata lines followed by one or more exact
+`SEARCH`/`REPLACE` blocks that together produce one implementation:
+
+`MECHANISM: <a concise free-form name for the computational idea>`
+
+`HYPOTHESIS: <a falsifiable claim grounded in the evidence above>`
+
+`INTENDED_EDIT: <what this patch changes>`
+
+`EVIDENCE: <the most relevant prior result and why it motivates this patch>`
+
+Start each block with `<<<<<<< SEARCH`, put the exact existing lines next, use a
+line containing `=======` as the divider, put the replacement lines after it,
+and finish the block with `>>>>>>> REPLACE`.
+
+Every `SEARCH` section must be nonempty and match exactly once after earlier
+blocks have been applied. All blocks must apply. Together they must describe
+one implementation ready for verification. The mechanism name is descriptive,
+not chosen from a fixed list. Do not paste whole files, lengthy logs, or routine
+progress reports outside the patch.

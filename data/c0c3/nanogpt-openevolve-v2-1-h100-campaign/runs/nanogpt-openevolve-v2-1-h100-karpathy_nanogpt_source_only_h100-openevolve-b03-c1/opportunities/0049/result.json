@@ -1,0 +1,82 @@
+{
+  "artifact_path": "candidates/2108a9196c187d37086886e1e312892a182e0dddd25188627080748cae326481",
+  "candidate_id": "2108a9196c187d37086886e1e312892a182e0dddd25188627080748cae326481",
+  "codex_service_tier": "default",
+  "condition": "C1",
+  "conversation_session_id": null,
+  "evaluation": {
+    "evaluator_calls": 1,
+    "evaluator_seconds": 365.35479182199924,
+    "failure_kind": null,
+    "fitness": -0.9839,
+    "metrics": {
+      "depth": 8.0,
+      "mfu_percent": 38.59,
+      "num_params_M": 50.3,
+      "num_steps": 2156.0,
+      "peak_vram_mb": 39357.2,
+      "total_tokens_M": 494.5,
+      "training_seconds": 300.1,
+      "val_bpb": 0.9839
+    },
+    "valid": true
+  },
+  "evaluator_calls_cumulative": 49,
+  "evaluator_calls_increment": 1,
+  "evaluator_seconds_cumulative": 21865.656997510025,
+  "evaluator_seconds_increment": 365.35479182199924,
+  "event": "proposal_completed",
+  "evicted_candidate_id": "18ed6a7531d6d940d638c7b6eba005c730cd75745ad73931bb0a62f564b5ef83",
+  "evidence": "Narrowing the gate from 32 to 16 channels improved val_bpb from 0.984083 to 0.983916, while widening it to 64 or 512 channels regressed to 0.984472 and 0.984493; fixed gates regressed substantially to 0.986944, motivating another measured bottleneck reduction rather than removing learned routing.",
+  "hypothesis": "Reducing each learned value gate from 16 to 8 input channels will lower val_bpb below 0.983916 by further suppressing noisy routing features while retaining input-dependent value modulation.",
+  "incumbent_after": "2108a9196c187d37086886e1e312892a182e0dddd25188627080748cae326481",
+  "intended_edit": "Halve the contiguous hidden-state prefix used by each per-head value-embedding gate from 16 channels to 8, preserving all other architecture and optimization settings.",
+  "mechanism": "Eight-channel value-routing bottleneck",
+  "opportunity": 49,
+  "parent_ids": [
+    "18ed6a7531d6d940d638c7b6eba005c730cd75745ad73931bb0a62f564b5ef83"
+  ],
+  "portfolio_after": [
+    "2108a9196c187d37086886e1e312892a182e0dddd25188627080748cae326481"
+  ],
+  "prompt_hashes": {
+    "common_template_sha256": "ba85b39aa7288f4f48475376da6cff65661f39cfeb7ac7cde15b2a9a2e692fde",
+    "prompt_sha256": "fb8fcf24d02eca7d94861a1b59973c4fb357ff5b5d09072cc3e362f995ffe7eb",
+    "proposal_policy_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "search_state_sha256": "04e5eb078ae1964e4ec65bfeeeb1acd0ffa246e7d54d5e0f997f81f602da28c5",
+    "treatment_skeleton_sha256": "95291c8bd3563e6c818e05c5b0dafa22c921e12cb57f572ec5a44140662440a0"
+  },
+  "proposal_type": "ordinary",
+  "proposals_cumulative": 49,
+  "remaining_budget": {
+    "evaluations": 151,
+    "evaluator_seconds": 698134.34300249,
+    "proposals": 151,
+    "tokens": 98690081
+  },
+  "retained": true,
+  "retention_decision": "strict_incumbent_improvement",
+  "run_id": "nanogpt-openevolve-v2-1-h100-karpathy_nanogpt_source_only_h100-openevolve-b03-c1",
+  "schema_version": "1.0",
+  "selected_parent_ids": [
+    "18ed6a7531d6d940d638c7b6eba005c730cd75745ad73931bb0a62f564b5ef83"
+  ],
+  "timestamp": "2026-08-24T10:26:05.524044+00:00",
+  "usage_cumulative": {
+    "cached_input_tokens": 553984,
+    "input_tokens": 1197656,
+    "output_tokens": 112263,
+    "reasoning_output_tokens": 98787,
+    "total_tokens": 1309919
+  },
+  "usage_increment": {
+    "cached_input_tokens": 12032,
+    "input_tokens": 25017,
+    "output_tokens": 340,
+    "reasoning_output_tokens": 137,
+    "total_tokens": 25357
+  },
+  "visible_candidate_ids": [
+    "18ed6a7531d6d940d638c7b6eba005c730cd75745ad73931bb0a62f564b5ef83"
+  ]
+}

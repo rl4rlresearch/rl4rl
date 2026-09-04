@@ -1,0 +1,99 @@
+{
+  "artifact_path": "candidates/16b00f947620dcafebff76ad80b131fd7e5d968dd6d90c30b422d002e2a35752",
+  "candidate_id": "16b00f947620dcafebff76ad80b131fd7e5d968dd6d90c30b422d002e2a35752",
+  "codex_service_tier": "default",
+  "condition": "C1",
+  "conversation_session_id": null,
+  "evaluation": {
+    "evaluator_calls": 1,
+    "evaluator_seconds": 70.04193816706538,
+    "failure_kind": null,
+    "fitness": -3167627330318572356,
+    "metrics": {
+      "batch_size": 128,
+      "evaluation_cases": 815,
+      "evaluation_split": "public_speaker_disjoint_validation",
+      "examples_processed": 50000,
+      "inference_cost": 3167627330318572356,
+      "maximum_recurrent_steps": 28,
+      "mean_recurrent_steps": 28.0,
+      "median_recurrent_steps": 28,
+      "optimizer_steps": 397,
+      "p95_recurrent_steps": 28,
+      "parameters": 28736,
+      "peak_hidden_elements": 99840,
+      "recurrent_logit_effect": 0.1277378648519516,
+      "recurrent_macs": 606007920,
+      "recurrent_steps": 22820,
+      "state_dependence_effect": 0.31677478551864624,
+      "state_update_effect": 0.3147954046726227,
+      "total_inference_macs": 607272800,
+      "trained_recurrent_logit_effect": 0.44959568977355957,
+      "trained_state_dependence_effect": 0.3504323661327362,
+      "trained_state_update_effect": 0.343106746673584,
+      "training_seconds": 48.76711895898916,
+      "validation_accuracy": 0.8576687116564418,
+      "validation_correct": 699,
+      "validation_cross_entropy": 0.43410169917381614
+    },
+    "valid": true
+  },
+  "evaluator_calls_cumulative": 33,
+  "evaluator_calls_increment": 1,
+  "evaluator_seconds_cumulative": 3704.398941870779,
+  "evaluator_seconds_increment": 70.04193816706538,
+  "event": "proposal_completed",
+  "evicted_candidate_id": "e12d6b7944906f09fd0c582d7f06162d67f6a54c64673166c7dcd0c55aab931c",
+  "evidence": "The 49+48 hierarchy achieved 86.01% accuracy, while removing a spectral feature from the entire recurrent path failed; retaining all spectral information in the more load-bearing lower stage while pruning only its redundant direct copy is a narrower structural reduction.",
+  "hypothesis": "Removing only the folded highest-band feature from the upper GRU\u2019s raw acoustic skip will preserve at least 85% validation accuracy because the lower GRU still receives all 19 features, while reducing recurrent inference by exactly 3,286,080 MACs.",
+  "incumbent_after": "16b00f947620dcafebff76ad80b131fd7e5d968dd6d90c30b422d002e2a35752",
+  "intended_edit": "Reduce the upper GRU input from 68 to 67 features and pass it the first 18 normalized acoustic features plus the complete 49-unit lower recurrent output in both execution paths.",
+  "mechanism": "Redundant upper-stage spectral-skip pruning",
+  "opportunity": 36,
+  "parent_ids": [
+    "e12d6b7944906f09fd0c582d7f06162d67f6a54c64673166c7dcd0c55aab931c"
+  ],
+  "portfolio_after": [
+    "16b00f947620dcafebff76ad80b131fd7e5d968dd6d90c30b422d002e2a35752"
+  ],
+  "prompt_hashes": {
+    "common_template_sha256": "dee04faf4c430276c1036ba97f5705a339857dbdf19117dac88952a5a3a47e9d",
+    "prompt_sha256": "2b8092e1a8fff8449e308c04b67bf31225414eead31692d2285ad93e4b57813c",
+    "proposal_policy_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "search_state_sha256": "04e5eb078ae1964e4ec65bfeeeb1acd0ffa246e7d54d5e0f997f81f602da28c5",
+    "treatment_skeleton_sha256": "be9085bd8ed332b9b5c96bb580b12e8566519a3ee7c4b61d17ce2bbfb54c40ac"
+  },
+  "proposal_type": "ordinary",
+  "proposals_cumulative": 36,
+  "remaining_budget": {
+    "evaluations": 167,
+    "evaluator_seconds": 56295.60105812922,
+    "proposals": 164,
+    "tokens": 99243757
+  },
+  "retained": true,
+  "retention_decision": "strict_incumbent_improvement",
+  "run_id": "tiny-kws-rnn-openevolve-v2-1-cpu-tiny_kws_rnn_source_only_cpu-openevolve-b01-c1",
+  "schema_version": "1.0",
+  "selected_parent_ids": [
+    "e12d6b7944906f09fd0c582d7f06162d67f6a54c64673166c7dcd0c55aab931c"
+  ],
+  "timestamp": "2026-09-04T04:25:13.340787+00:00",
+  "usage_cumulative": {
+    "cached_input_tokens": 387072,
+    "input_tokens": 693552,
+    "output_tokens": 62691,
+    "reasoning_output_tokens": 47958,
+    "total_tokens": 756243
+  },
+  "usage_increment": {
+    "cached_input_tokens": 10752,
+    "input_tokens": 20593,
+    "output_tokens": 2225,
+    "reasoning_output_tokens": 1913,
+    "total_tokens": 22818
+  },
+  "visible_candidate_ids": [
+    "e12d6b7944906f09fd0c582d7f06162d67f6a54c64673166c7dcd0c55aab931c"
+  ]
+}

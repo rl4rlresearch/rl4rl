@@ -1,0 +1,79 @@
+{
+  "artifact_path": "candidates/6553805a2ef1751a346325975768dc70ff8daea57ac8b8622b4781282685f814",
+  "candidate_id": "6553805a2ef1751a346325975768dc70ff8daea57ac8b8622b4781282685f814",
+  "codex_service_tier": "fast",
+  "condition": "C0",
+  "conversation_session_id": null,
+  "evaluation": {
+    "evaluator_calls": 1,
+    "evaluator_seconds": 451.2415470001288,
+    "failure_kind": null,
+    "fitness": -1632.0,
+    "metrics": {
+      "accuracy": 0.9992,
+      "cases": 10010,
+      "correct": 10002,
+      "parameters": 1632,
+      "training_steps": 4999
+    },
+    "valid": true
+  },
+  "evaluator_calls_cumulative": 20,
+  "evaluator_calls_increment": 1,
+  "evaluator_seconds_cumulative": 6921.786690122099,
+  "evaluator_seconds_increment": 451.2415470001288,
+  "event": "proposal_completed",
+  "evicted_candidate_id": "129e9aa93501f4713a12f77856a102142fc7658b1b77d3fe132ca1400efb4590",
+  "evidence": "The 1633-parameter tied-embedding quotient achieved 99.72%, while positional and MLP-bias quotients failed despite optimizer corrections; this motivates testing a distinct exact redundancy located inside the key projection, whose removed direction is directly canceled by softmax.",
+  "hypothesis": "Removing one key-projection coordinate will reduce the model from 1633 to 1632 parameters while retaining at least 99% accuracy, because LayerNorm confines token variation to a mean-zero subspace, making one inverse-scale key direction position-constant and therefore exactly invisible to causal softmax; virtual full-coordinate AdamW preserves the omitted coordinate\u2019s optimizer dynamics.",
+  "incumbent_after": "6553805a2ef1751a346325975768dc70ff8daea57ac8b8622b4781282685f814",
+  "intended_edit": "Replace the QKV projection with a one-scalar gauge-fixed projection, preserve gauge-equivalent initialization and RNG ordering, and optimize its reconstructed full gradient with gauge-aware AdamW and clipping.",
+  "mechanism": "Quotient-aware LayerNorm key-projection gauge fixing",
+  "opportunity": 20,
+  "parent_ids": [
+    "129e9aa93501f4713a12f77856a102142fc7658b1b77d3fe132ca1400efb4590"
+  ],
+  "portfolio_after": [
+    "6553805a2ef1751a346325975768dc70ff8daea57ac8b8622b4781282685f814"
+  ],
+  "prompt_hashes": {
+    "common_template_sha256": "3f2bea6418b6969c4bf2aa1df18dcda8a3a4ac075bf20c79068c754698b6be5e",
+    "prompt_sha256": "e8b8a59058cc28abfad342108d0ddb1350a2403eb5eba45036df646d5d55145c",
+    "proposal_policy_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "search_state_sha256": "04e5eb078ae1964e4ec65bfeeeb1acd0ffa246e7d54d5e0f997f81f602da28c5",
+    "treatment_skeleton_sha256": "e09a970410e846f49e97126ae71e7e89149f2a21362059c7a0389ff9e269f3db"
+  },
+  "proposal_type": "ordinary",
+  "proposals_cumulative": 20,
+  "remaining_budget": {
+    "evaluations": 180,
+    "evaluator_seconds": 353078.2133098779,
+    "proposals": 180,
+    "tokens": 99499167
+  },
+  "retained": true,
+  "retention_decision": "strict_incumbent_improvement",
+  "run_id": "controlled-openevolve-transformer-v2-1-source-only-ten-digit-addition-pair-transformer-openevolve-v2-1-mps-openevolve-b05-c0",
+  "schema_version": "1.0",
+  "selected_parent_ids": [
+    "129e9aa93501f4713a12f77856a102142fc7658b1b77d3fe132ca1400efb4590"
+  ],
+  "timestamp": "2026-08-23T21:53:09.062119+00:00",
+  "usage_cumulative": {
+    "cached_input_tokens": 231424,
+    "input_tokens": 413438,
+    "output_tokens": 87395,
+    "reasoning_output_tokens": 71991,
+    "total_tokens": 500833
+  },
+  "usage_increment": {
+    "cached_input_tokens": 12032,
+    "input_tokens": 22594,
+    "output_tokens": 7175,
+    "reasoning_output_tokens": 4792,
+    "total_tokens": 29769
+  },
+  "visible_candidate_ids": [
+    "129e9aa93501f4713a12f77856a102142fc7658b1b77d3fe132ca1400efb4590"
+  ]
+}

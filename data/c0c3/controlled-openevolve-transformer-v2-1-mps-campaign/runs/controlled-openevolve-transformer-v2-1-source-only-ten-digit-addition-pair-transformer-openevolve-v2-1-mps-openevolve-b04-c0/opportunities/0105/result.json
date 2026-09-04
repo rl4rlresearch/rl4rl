@@ -1,0 +1,79 @@
+{
+  "artifact_path": "candidates/e6156e9e3115b409c941fe0258c4b1279e1d50b7fcb728a6475f58ddeb68f4f4",
+  "candidate_id": "e6156e9e3115b409c941fe0258c4b1279e1d50b7fcb728a6475f58ddeb68f4f4",
+  "codex_service_tier": "default",
+  "condition": "C0",
+  "conversation_session_id": null,
+  "evaluation": {
+    "evaluator_calls": 1,
+    "evaluator_seconds": 379.68977754190564,
+    "failure_kind": null,
+    "fitness": -1575.0,
+    "metrics": {
+      "accuracy": 0.9995999999999999,
+      "cases": 10010,
+      "correct": 10006,
+      "parameters": 1575,
+      "training_steps": 4999
+    },
+    "valid": true
+  },
+  "evaluator_calls_cumulative": 105,
+  "evaluator_calls_increment": 1,
+  "evaluator_seconds_cumulative": 43191.80255012249,
+  "evaluator_seconds_increment": 379.68977754190564,
+  "event": "proposal_completed",
+  "evicted_candidate_id": "a826bc62ce40df80dcd03546119c33e6a5438094fb102261a2301644aa415500",
+  "evidence": "Fixing attention LayerNorm gain coordinate 3 achieved 99.92% at 1576 parameters, but fixing MLP LayerNorm gain coordinate 1 collapsed to 15.25%. Sharing removes the independent redundant scalar while preserving learned gain adaptation, directly testing whether the failure was caused by freezing that gain.",
+  "hypothesis": "Sharing the remaining attention LayerNorm gain with MLP LayerNorm gain coordinate 1 will produce a 1575-parameter model with at least 99% accuracy, because both gains are downstream-absorbable gauge scalars while the gain remains learned rather than frozen.",
+  "incumbent_after": "e6156e9e3115b409c941fe0258c4b1279e1d50b7fcb728a6475f58ddeb68f4f4",
+  "intended_edit": "Rebind the attention LayerNorm gain parameter to the MLP LayerNorm\u2019s two-coordinate gain parameter; its first coordinate controls both norms, while the second remains exclusive to the MLP norm.",
+  "mechanism": "Cross-sublayer LayerNorm gain sharing",
+  "opportunity": 105,
+  "parent_ids": [
+    "a826bc62ce40df80dcd03546119c33e6a5438094fb102261a2301644aa415500"
+  ],
+  "portfolio_after": [
+    "e6156e9e3115b409c941fe0258c4b1279e1d50b7fcb728a6475f58ddeb68f4f4"
+  ],
+  "prompt_hashes": {
+    "common_template_sha256": "3f2bea6418b6969c4bf2aa1df18dcda8a3a4ac075bf20c79068c754698b6be5e",
+    "prompt_sha256": "7415e943e4436ed1a2a5057060c24531a6d29f38bedf3a40eab959672c69fb26",
+    "proposal_policy_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "search_state_sha256": "04e5eb078ae1964e4ec65bfeeeb1acd0ffa246e7d54d5e0f997f81f602da28c5",
+    "treatment_skeleton_sha256": "d5adfc484131a801808e5b8849bed53b8c4f4caf82721f3c3f380f8aaa21b056"
+  },
+  "proposal_type": "ordinary",
+  "proposals_cumulative": 105,
+  "remaining_budget": {
+    "evaluations": 95,
+    "evaluator_seconds": 316808.1974498775,
+    "proposals": 95,
+    "tokens": 97356146
+  },
+  "retained": true,
+  "retention_decision": "strict_incumbent_improvement",
+  "run_id": "controlled-openevolve-transformer-v2-1-source-only-ten-digit-addition-pair-transformer-openevolve-v2-1-mps-openevolve-b04-c0",
+  "schema_version": "1.0",
+  "selected_parent_ids": [
+    "a826bc62ce40df80dcd03546119c33e6a5438094fb102261a2301644aa415500"
+  ],
+  "timestamp": "2026-09-03T09:36:03.256360+00:00",
+  "usage_cumulative": {
+    "cached_input_tokens": 1051136,
+    "input_tokens": 2382523,
+    "output_tokens": 261331,
+    "reasoning_output_tokens": 199440,
+    "total_tokens": 2643854
+  },
+  "usage_increment": {
+    "cached_input_tokens": 10752,
+    "input_tokens": 24537,
+    "output_tokens": 7637,
+    "reasoning_output_tokens": 7250,
+    "total_tokens": 32174
+  },
+  "visible_candidate_ids": [
+    "a826bc62ce40df80dcd03546119c33e6a5438094fb102261a2301644aa415500"
+  ]
+}

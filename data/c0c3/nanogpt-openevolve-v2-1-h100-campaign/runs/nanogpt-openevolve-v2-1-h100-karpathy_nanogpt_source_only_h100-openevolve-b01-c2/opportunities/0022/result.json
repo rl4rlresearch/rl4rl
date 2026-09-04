@@ -1,0 +1,88 @@
+{
+  "artifact_path": "candidates/dacd086c63445c1798b319b5b83ff4a5fe9149916d5f7346fa856f4507cd8f05",
+  "candidate_id": "dacd086c63445c1798b319b5b83ff4a5fe9149916d5f7346fa856f4507cd8f05",
+  "codex_service_tier": "fast",
+  "condition": "C2",
+  "conversation_session_id": null,
+  "evaluation": {
+    "evaluator_calls": 1,
+    "evaluator_seconds": 360.7178948010005,
+    "failure_kind": null,
+    "fitness": -0.993246,
+    "metrics": {
+      "depth": 8.0,
+      "mfu_percent": 34.75,
+      "num_params_M": 50.3,
+      "num_steps": 1009.0,
+      "peak_vram_mb": 45060.2,
+      "total_tokens_M": 529.0,
+      "training_seconds": 300.1,
+      "val_bpb": 0.993246
+    },
+    "valid": true
+  },
+  "evaluator_calls_cumulative": 22,
+  "evaluator_calls_increment": 1,
+  "evaluator_seconds_cumulative": 8529.637472213997,
+  "evaluator_seconds_increment": 360.7178948010005,
+  "event": "proposal_completed",
+  "evicted_candidate_id": "1672d8d0ee8e902a0619c466ac0540fb8f43ea901642548fe1761c29190ab6cf",
+  "evidence": "Validation improved as local windows shrank from 512 to 384 to 256 tokens (0.993870 to 0.993518 to 0.992854), but regressed at 128 tokens to 0.995793; testing 192 tokens directly probes the bracketed optimum between 128 and 256.",
+  "hypothesis": "Seven 192-token local-attention layers followed by one full-context layer will preserve the throughput benefit of short windows while avoiding the quality loss observed at 128 tokens, lowering val_bpb below 0.992854.",
+  "incumbent_after": "59ab778813f4c2b498d1b067494630c0cefa7cfabb91c412f1a94a0d688c49f5",
+  "intended_edit": "Reduce the seven local-attention windows from 384 to 192 tokens while preserving the final full-context anchor and all other architecture, optimizer, batching, and schedule settings.",
+  "mechanism": "Bracketed local-attention window interpolation",
+  "opportunity": 22,
+  "parent_ids": [
+    "1672d8d0ee8e902a0619c466ac0540fb8f43ea901642548fe1761c29190ab6cf"
+  ],
+  "portfolio_after": [
+    "dacd086c63445c1798b319b5b83ff4a5fe9149916d5f7346fa856f4507cd8f05",
+    "59ab778813f4c2b498d1b067494630c0cefa7cfabb91c412f1a94a0d688c49f5",
+    "e851f3f277cd5f216a6438df48eb17a425d2354d52becdf00dc0225d90cbbb90",
+    "8398f6a44da02110e69923d6ad536cb18c5d86e2a95bc65979fedb83351a4164"
+  ],
+  "prompt_hashes": {
+    "common_template_sha256": "ba85b39aa7288f4f48475376da6cff65661f39cfeb7ac7cde15b2a9a2e692fde",
+    "prompt_sha256": "dfdcbd83cbc505574b113d42fc519ff90b10084d0adb170f6cc7b817262e828e",
+    "proposal_policy_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "search_state_sha256": "c938ac007bf70fe8d27f64661175531e51fcb16b38318c328493c32ee292e27e",
+    "treatment_skeleton_sha256": "591c66fcc26765a002a75bb3ac78421733c0286c0aff60b7935bc311bb3b5212"
+  },
+  "proposal_type": "ordinary",
+  "proposals_cumulative": 22,
+  "remaining_budget": {
+    "evaluations": 178,
+    "evaluator_seconds": 711470.362527786,
+    "proposals": 178,
+    "tokens": 98959791
+  },
+  "retained": true,
+  "retention_decision": "replaced_selected_parent_on_strict_improvement",
+  "run_id": "nanogpt-openevolve-v2-1-h100-karpathy_nanogpt_source_only_h100-openevolve-b01-c2",
+  "schema_version": "1.0",
+  "selected_parent_ids": [
+    "1672d8d0ee8e902a0619c466ac0540fb8f43ea901642548fe1761c29190ab6cf"
+  ],
+  "timestamp": "2026-08-23T23:26:18.606224+00:00",
+  "usage_cumulative": {
+    "cached_input_tokens": 225280,
+    "input_tokens": 972576,
+    "output_tokens": 67633,
+    "reasoning_output_tokens": 59757,
+    "total_tokens": 1040209
+  },
+  "usage_increment": {
+    "cached_input_tokens": 12032,
+    "input_tokens": 47129,
+    "output_tokens": 502,
+    "reasoning_output_tokens": 241,
+    "total_tokens": 47631
+  },
+  "visible_candidate_ids": [
+    "1672d8d0ee8e902a0619c466ac0540fb8f43ea901642548fe1761c29190ab6cf",
+    "59ab778813f4c2b498d1b067494630c0cefa7cfabb91c412f1a94a0d688c49f5",
+    "e851f3f277cd5f216a6438df48eb17a425d2354d52becdf00dc0225d90cbbb90",
+    "8398f6a44da02110e69923d6ad536cb18c5d86e2a95bc65979fedb83351a4164"
+  ]
+}

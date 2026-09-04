@@ -1,0 +1,29 @@
+Traceback (most recent call last):
+  File "/private/tmp/rl4rl-c0c3-openevolve-v2-1-fashion-mnist/experiments/c0c3_factorial/fashion_mnist.py", line 544, in <module>
+    raise SystemExit(main())
+                     ^^^^^^
+  File "/private/tmp/rl4rl-c0c3-openevolve-v2-1-fashion-mnist/experiments/c0c3_factorial/fashion_mnist.py", line 540, in main
+    return int(args.handler(args))
+               ^^^^^^^^^^^^^^^^^^
+  File "/private/tmp/rl4rl-c0c3-openevolve-v2-1-fashion-mnist/experiments/c0c3_factorial/fashion_mnist.py", line 431, in evaluate
+    loss = program.training_loss(
+           ^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/utshaho/Documents/GitHub/rl4rl/data/c0c3/fashion-mnist-openevolve-v2-1-mps-campaign/runs/fashion-mnist-openevolve-v2-1-mps-fashion_mnist_source_only_mps-openevolve-b01-c3/opportunities/0070/evaluation-workspace/train.py", line 227, in training_loss
+    return F.cross_entropy(model(images), labels, label_smoothing=0.02)
+                           ^^^^^^^^^^^^^
+  File "/Users/utshaho/Documents/GitHub/rl4rl/architecture_discovery/.venv/lib/python3.12/site-packages/torch/nn/modules/module.py", line 1751, in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/utshaho/Documents/GitHub/rl4rl/architecture_discovery/.venv/lib/python3.12/site-packages/torch/nn/modules/module.py", line 1762, in _call_impl
+    return forward_call(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/utshaho/Documents/GitHub/rl4rl/data/c0c3/fashion-mnist-openevolve-v2-1-mps-campaign/runs/fashion-mnist-openevolve-v2-1-mps-fashion_mnist_source_only_mps-openevolve-b01-c3/opportunities/0070/evaluation-workspace/train.py", line 135, in forward
+    return self._predict(images)
+           ^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/utshaho/Documents/GitHub/rl4rl/data/c0c3/fashion-mnist-openevolve-v2-1-mps-campaign/runs/fashion-mnist-openevolve-v2-1-mps-fashion_mnist_source_only_mps-openevolve-b01-c3/opportunities/0070/evaluation-workspace/train.py", line 127, in _predict
+    spatial_features = F.adaptive_avg_pool2d(features, (2, 2)).flatten(1)
+                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/utshaho/Documents/GitHub/rl4rl/architecture_discovery/.venv/lib/python3.12/site-packages/torch/nn/functional.py", line 1382, in adaptive_avg_pool2d
+    return torch._C._nn.adaptive_avg_pool2d(input, _output_size)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+RuntimeError: Adaptive pool MPS: input sizes must be divisible by output sizes. Non-divisible input sizes are not implemented on MPS device yet. For now, you can manually transfer tensor to cpu in this case. Please refer to [this issue](https://github.com/pytorch/pytorch/issues/96056)

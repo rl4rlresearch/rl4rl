@@ -1,0 +1,914 @@
+{
+  "active": {
+    "index": 106,
+    "selected_parent_id": "4f2c888111907114e780fa71c5867d98bd3d81eb95b42d5023e7e54a4cd82540",
+    "started_at": "2026-09-03T16:36:42.771781+00:00",
+    "transition_active": false,
+    "visible_ids": [
+      "4f2c888111907114e780fa71c5867d98bd3d81eb95b42d5023e7e54a4cd82540"
+    ]
+  },
+  "candidates": {
+    "003339ae7a3539643ff5a9e921a9485d95da93124a46a1267c28059d03178b6d": {
+      "artifact_path": "candidates/003339ae7a3539643ff5a9e921a9485d95da93124a46a1267c28059d03178b6d",
+      "candidate_id": "003339ae7a3539643ff5a9e921a9485d95da93124a46a1267c28059d03178b6d",
+      "created_opportunity": 21,
+      "fitness": -1464.0,
+      "hypothesis": "Reducing `d_ff` from 7 to 6 will lower the model from 1,480 to 1,464 parameters while retaining at least 99% accuracy when trained for 32,000 steps.",
+      "intended_edit": "Use a 6-unit feed-forward layer and extend the default training budget from 28,000 to 32,000 steps.",
+      "metrics": {
+        "accuracy": 1.0,
+        "cases": 10010,
+        "correct": 10010,
+        "parameters": 1464,
+        "training_steps": 31999
+      },
+      "parent_ids": [
+        "151210404a2410d831d14c815a3537752ac756e81ad3c22a986f8a2b1c46fc68"
+      ],
+      "retained_order": 21,
+      "selected_count": 1
+    },
+    "03dcb452e9518390741e9b4d46f7d81769a86f412b487fcf56fe58d82cb72e9c": {
+      "artifact_path": "candidates/03dcb452e9518390741e9b4d46f7d81769a86f412b487fcf56fe58d82cb72e9c",
+      "candidate_id": "03dcb452e9518390741e9b4d46f7d81769a86f412b487fcf56fe58d82cb72e9c",
+      "created_opportunity": 47,
+      "fitness": -1374.0,
+      "hypothesis": "Removing the LayerNorm-invisible common mode of the one-neuron MLP\u2019s output weight will reduce the model from 1,375 to 1,374 parameters while retaining at least 99% accuracy within 50,000 steps.",
+      "intended_edit": "Emit seven learned MLP output coordinates and append a fixed-zero eighth coordinate, while retaining the independently learned hidden bias as a scalar.",
+      "metrics": {
+        "accuracy": 1.0,
+        "cases": 10010,
+        "correct": 10010,
+        "parameters": 1374,
+        "training_steps": 49999
+      },
+      "parent_ids": [
+        "7f8530d81912b700a636861cdf54cb68661ad4f6c0a01e8ab78dce4b1a7072b6"
+      ],
+      "retained_order": 47,
+      "selected_count": 1
+    },
+    "09a0af432b0fdaa3099ec16bbd53c7ff4546a68419f6b1f2f3467d09011de4d9": {
+      "artifact_path": "candidates/09a0af432b0fdaa3099ec16bbd53c7ff4546a68419f6b1f2f3467d09011de4d9",
+      "candidate_id": "09a0af432b0fdaa3099ec16bbd53c7ff4546a68419f6b1f2f3467d09011de4d9",
+      "created_opportunity": 66,
+      "fitness": -1306.0,
+      "hypothesis": "Fixing a second final LayerNorm scale coordinate at its initialized value of one will reduce the model from 1,307 to 1,306 parameters while retaining at least 99% accuracy within 50,000 steps.",
+      "intended_edit": "Learn six final LayerNorm scale coordinates instead of seven, append two fixed-one coordinates, and preserve the essential one-coordinate learned bias.",
+      "metrics": {
+        "accuracy": 1.0,
+        "cases": 10010,
+        "correct": 10010,
+        "parameters": 1306,
+        "training_steps": 49999
+      },
+      "parent_ids": [
+        "e55e857b605a5198f4416ab1da87db8f7e8c499b0982d71c9f794f956eefeca6"
+      ],
+      "retained_order": 66,
+      "selected_count": 2
+    },
+    "0a3072e22bf4ba113df3e97faf5d08be10ee9c0455daca0f418b8541c45c9773": {
+      "artifact_path": "candidates/0a3072e22bf4ba113df3e97faf5d08be10ee9c0455daca0f418b8541c45c9773",
+      "candidate_id": "0a3072e22bf4ba113df3e97faf5d08be10ee9c0455daca0f418b8541c45c9773",
+      "created_opportunity": 3,
+      "fitness": -1612.0,
+      "hypothesis": "Removing two redundant LayerNorm biases and replacing the attention QKV bias with only a query bias will reduce parameters from 1,644 to 1,612 while retaining at least 99% accuracy.",
+      "intended_edit": "Keep `d_ff=12`, remove both block LayerNorm biases, and retain only the functionally relevant query component of the QKV bias; constant key offsets cancel in softmax and constant value offsets are representable by the attention output bias.",
+      "metrics": {
+        "accuracy": 0.9995999999999999,
+        "cases": 10010,
+        "correct": 10006,
+        "parameters": 1612,
+        "training_steps": 4999
+      },
+      "parent_ids": [
+        "2b9cea175ed60b009337ac54f6e8ad23bf2c014eb4080237777bfb70bfd9fd5b"
+      ],
+      "retained_order": 3,
+      "selected_count": 1
+    },
+    "151210404a2410d831d14c815a3537752ac756e81ad3c22a986f8a2b1c46fc68": {
+      "artifact_path": "candidates/151210404a2410d831d14c815a3537752ac756e81ad3c22a986f8a2b1c46fc68",
+      "candidate_id": "151210404a2410d831d14c815a3537752ac756e81ad3c22a986f8a2b1c46fc68",
+      "created_opportunity": 19,
+      "fitness": -1480.0,
+      "hypothesis": "Reducing `d_ff` from 8 to 7 will lower the model from 1,496 to 1,480 parameters while retaining at least 99% accuracy when trained for 28,000 steps.",
+      "intended_edit": "Use a 7-unit feed-forward layer and extend the default training budget from 24,000 to 28,000 steps.",
+      "metrics": {
+        "accuracy": 1.0,
+        "cases": 10010,
+        "correct": 10010,
+        "parameters": 1480,
+        "training_steps": 27999
+      },
+      "parent_ids": [
+        "e2754c4aebb7899ca9d7a12233843050cf9d78b3fd928513536df2c4f362e785"
+      ],
+      "retained_order": 19,
+      "selected_count": 2
+    },
+    "1d5773d6964b82dca622b6748baaa4c77718a50bd2edc128400425a4353b597b": {
+      "artifact_path": "candidates/1d5773d6964b82dca622b6748baaa4c77718a50bd2edc128400425a4353b597b",
+      "candidate_id": "1d5773d6964b82dca622b6748baaa4c77718a50bd2edc128400425a4353b597b",
+      "created_opportunity": 75,
+      "fitness": -1280.0,
+      "hypothesis": "Removing one redundant common-mode coordinate from every positional embedding will reduce the model from 1,303 to 1,280 parameters while retaining at least 99% accuracy, because all downstream LayerNorms are invariant to per-position shifts along the all-ones direction.",
+      "intended_edit": "Learn an independent seven-coordinate embedding for each position and append a fixed-zero eighth coordinate before adding it to the token embedding.",
+      "metrics": {
+        "accuracy": 1.0,
+        "cases": 10010,
+        "correct": 10010,
+        "parameters": 1280,
+        "training_steps": 49999
+      },
+      "parent_ids": [
+        "367cd7737eca791cd23d32c07e0fed6c6a6376f83ae7cba4f61ba84466ed78f4"
+      ],
+      "retained_order": 75,
+      "selected_count": 1
+    },
+    "207eb6327fb2cf4e9919ad9c6fa400e4e522f4bc8c3eafe6b8167b77c58c4fa3": {
+      "artifact_path": "candidates/207eb6327fb2cf4e9919ad9c6fa400e4e522f4bc8c3eafe6b8167b77c58c4fa3",
+      "candidate_id": "207eb6327fb2cf4e9919ad9c6fa400e4e522f4bc8c3eafe6b8167b77c58c4fa3",
+      "created_opportunity": 68,
+      "fitness": -1305.0,
+      "hypothesis": "Fixing scale coordinate 4 while restoring learned scale coordinate 5 will reduce the model from 1,306 to 1,305 parameters and retain at least 99% accuracy, because the failed trailing-coordinate reduction uniquely fixed coordinate 5, whose residual channel receives the attention-mean scalar reused by the MLP.",
+      "intended_edit": "Learn final LayerNorm scale coordinates 0\u20133 and 5, fix coordinate 4 and coordinates 6\u20137 at one, and preserve the essential learned bias.",
+      "metrics": {
+        "accuracy": 1.0,
+        "cases": 10010,
+        "correct": 10010,
+        "parameters": 1305,
+        "training_steps": 49999
+      },
+      "parent_ids": [
+        "09a0af432b0fdaa3099ec16bbd53c7ff4546a68419f6b1f2f3467d09011de4d9"
+      ],
+      "retained_order": 68,
+      "selected_count": 1
+    },
+    "244f8ac2263c2d85639f4fe632cdeadcf0b1e8a355fae6e61facfe6c4125dfc4": {
+      "artifact_path": "candidates/244f8ac2263c2d85639f4fe632cdeadcf0b1e8a355fae6e61facfe6c4125dfc4",
+      "candidate_id": "244f8ac2263c2d85639f4fe632cdeadcf0b1e8a355fae6e61facfe6c4125dfc4",
+      "created_opportunity": 22,
+      "fitness": -1448.0,
+      "hypothesis": "Reducing `d_ff` from 6 to 5 will lower the model from 1,464 to 1,448 parameters while retaining at least 99% accuracy when trained for 36,000 steps.",
+      "intended_edit": "Use a 5-unit feed-forward layer and extend the default training budget from 32,000 to 36,000 steps.",
+      "metrics": {
+        "accuracy": 0.9995999999999999,
+        "cases": 10010,
+        "correct": 10006,
+        "parameters": 1448,
+        "training_steps": 35999
+      },
+      "parent_ids": [
+        "003339ae7a3539643ff5a9e921a9485d95da93124a46a1267c28059d03178b6d"
+      ],
+      "retained_order": 22,
+      "selected_count": 1
+    },
+    "292cc9f55aefe7d5860af0be41abbbae342767579baaba4f30f47c38c28744a4": {
+      "artifact_path": "candidates/292cc9f55aefe7d5860af0be41abbbae342767579baaba4f30f47c38c28744a4",
+      "candidate_id": "292cc9f55aefe7d5860af0be41abbbae342767579baaba4f30f47c38c28744a4",
+      "created_opportunity": 41,
+      "fitness": -1378.0,
+      "hypothesis": "A per-head scalar query bias will reduce the model from 1,384 to 1,378 parameters while retaining at least 99% accuracy at 52,000 steps; eliminating basis multiplications, per-example hash checks, and intermediate validation will allow verification to finish.",
+      "intended_edit": "Represent mean-zero LayerNorm outputs by their first seven coordinates, constrain query bias to one scalar per head, accelerate exact holdout exclusion, and validate only at the final positive step.",
+      "metrics": {
+        "accuracy": 1.0,
+        "cases": 10010,
+        "correct": 10010,
+        "parameters": 1378,
+        "training_steps": 51999
+      },
+      "parent_ids": [
+        "3c392db70798c80cc38c042449de930c8b4f4a1135de7728797d019652d02a33"
+      ],
+      "retained_order": 41,
+      "selected_count": 2
+    },
+    "2b9cea175ed60b009337ac54f6e8ad23bf2c014eb4080237777bfb70bfd9fd5b": {
+      "artifact_path": "candidates/2b9cea175ed60b009337ac54f6e8ad23bf2c014eb4080237777bfb70bfd9fd5b",
+      "candidate_id": "2b9cea175ed60b009337ac54f6e8ad23bf2c014eb4080237777bfb70bfd9fd5b",
+      "created_opportunity": 0,
+      "fitness": -1644.0,
+      "hypothesis": "frozen seed baseline",
+      "intended_edit": "none",
+      "metrics": {
+        "accuracy": 0.9995999999999999,
+        "cases": 10010,
+        "correct": 10006,
+        "parameters": 1644,
+        "training_steps": 4999
+      },
+      "parent_ids": [],
+      "retained_order": 0,
+      "selected_count": 3
+    },
+    "2dcfa8464da3fbb5e8cbf5244637cc8e812a0284640385ef8a87fd16e913b29c": {
+      "artifact_path": "candidates/2dcfa8464da3fbb5e8cbf5244637cc8e812a0284640385ef8a87fd16e913b29c",
+      "candidate_id": "2dcfa8464da3fbb5e8cbf5244637cc8e812a0284640385ef8a87fd16e913b29c",
+      "created_opportunity": 43,
+      "fitness": -1377.0,
+      "hypothesis": "Sharing one learned query-offset scalar across both heads will reduce the model from 1,378 to 1,377 parameters while retaining at least 99% accuracy within 50,000 steps.",
+      "intended_edit": "Replace the two per-head query-bias parameters with one broadcast learned scalar initialized at zero, and shorten training by 2,000 steps for runtime margin.",
+      "metrics": {
+        "accuracy": 1.0,
+        "cases": 10010,
+        "correct": 10010,
+        "parameters": 1377,
+        "training_steps": 49999
+      },
+      "parent_ids": [
+        "292cc9f55aefe7d5860af0be41abbbae342767579baaba4f30f47c38c28744a4"
+      ],
+      "retained_order": 43,
+      "selected_count": 1
+    },
+    "3204b991305a89f3072b5533eeebf1b847b6a57677422889e25f57bdc7731e06": {
+      "artifact_path": "candidates/3204b991305a89f3072b5533eeebf1b847b6a57677422889e25f57bdc7731e06",
+      "candidate_id": "3204b991305a89f3072b5533eeebf1b847b6a57677422889e25f57bdc7731e06",
+      "created_opportunity": 61,
+      "fitness": -1309.0,
+      "hypothesis": "Learning two final LayerNorm bias coordinates and fixing the remaining six at zero will reduce the model from 1,310 to 1,309 parameters while retaining at least 99% accuracy within 50,000 steps.",
+      "intended_edit": "Reduce the final LayerNorm bias parameter by one coordinate and increase its fixed-zero padding from five coordinates to six.",
+      "metrics": {
+        "accuracy": 1.0,
+        "cases": 10010,
+        "correct": 10010,
+        "parameters": 1309,
+        "training_steps": 49999
+      },
+      "parent_ids": [
+        "5448f08c20e82dad69d1af781129c74b4a93a34bda53874f6d6f3447815a4892"
+      ],
+      "retained_order": 61,
+      "selected_count": 1
+    },
+    "367cd7737eca791cd23d32c07e0fed6c6a6376f83ae7cba4f61ba84466ed78f4": {
+      "artifact_path": "candidates/367cd7737eca791cd23d32c07e0fed6c6a6376f83ae7cba4f61ba84466ed78f4",
+      "candidate_id": "367cd7737eca791cd23d32c07e0fed6c6a6376f83ae7cba4f61ba84466ed78f4",
+      "created_opportunity": 72,
+      "fitness": -1303.0,
+      "hypothesis": "Fixing final LayerNorm scale coordinate 1 while restoring learned coordinate 2 will reduce the model from 1,304 to 1,303 parameters and retain at least 99% accuracy.",
+      "intended_edit": "Learn final LayerNorm scale coordinates 0, 2, and 5; fix coordinates 1, 3\u20134, and 6\u20137 at one; preserve the essential learned bias.",
+      "metrics": {
+        "accuracy": 1.0,
+        "cases": 10010,
+        "correct": 10010,
+        "parameters": 1303,
+        "training_steps": 49999
+      },
+      "parent_ids": [
+        "c025c815770623f34ff3632d38081db430c41755d3b1d3ad0d669bcf6612d101"
+      ],
+      "retained_order": 72,
+      "selected_count": 3
+    },
+    "389e1b16df4ada017d469d7ee3f517d90132b594fb53671f009547a1b019c9d8": {
+      "artifact_path": "candidates/389e1b16df4ada017d469d7ee3f517d90132b594fb53671f009547a1b019c9d8",
+      "candidate_id": "389e1b16df4ada017d469d7ee3f517d90132b594fb53671f009547a1b019c9d8",
+      "created_opportunity": 85,
+      "fitness": -1269.0,
+      "hypothesis": "Fixing a second centered query/key coefficient in the first head will reduce the model from 1,270 to 1,269 parameters while retaining at least 99% accuracy.",
+      "intended_edit": "Rotate the first head\u2019s remaining center-0/center-2 plane at initialization, omit center-2\u2019s first coefficient, and reconstruct it as zero during forward passes.",
+      "metrics": {
+        "accuracy": 1.0,
+        "cases": 10010,
+        "correct": 10010,
+        "parameters": 1269,
+        "training_steps": 49999
+      },
+      "parent_ids": [
+        "f68d48c8f4731aa727542bfce17013c3f842b65a2c3ebcfcbbae6b2f6ddd7d78"
+      ],
+      "retained_order": 85,
+      "selected_count": 8
+    },
+    "3c392db70798c80cc38c042449de930c8b4f4a1135de7728797d019652d02a33": {
+      "artifact_path": "candidates/3c392db70798c80cc38c042449de930c8b4f4a1135de7728797d019652d02a33",
+      "candidate_id": "3c392db70798c80cc38c042449de930c8b4f4a1135de7728797d019652d02a33",
+      "created_opportunity": 26,
+      "fitness": -1384.0,
+      "hypothesis": "Reducing `d_ff` from 2 to 1 will lower the model from 1,400 to 1,384 parameters while retaining at least 99% accuracy when trained for 52,000 steps.",
+      "intended_edit": "Use a one-unit feed-forward layer and extend the default training budget from 48,000 to 52,000 steps.",
+      "metrics": {
+        "accuracy": 0.9998999999999999,
+        "cases": 10010,
+        "correct": 10009,
+        "parameters": 1384,
+        "training_steps": 51999
+      },
+      "parent_ids": [
+        "e5b653e0476dbd4022bbdcafb85a6bd2fc9b647f1ec56b407afbf5329fdfa6ee"
+      ],
+      "retained_order": 26,
+      "selected_count": 15
+    },
+    "3dbbe28614f2346a06e830f01910347b430269b38dcfcf29adb16bd72f196210": {
+      "artifact_path": "candidates/3dbbe28614f2346a06e830f01910347b430269b38dcfcf29adb16bd72f196210",
+      "candidate_id": "3dbbe28614f2346a06e830f01910347b430269b38dcfcf29adb16bd72f196210",
+      "created_opportunity": 56,
+      "fitness": -1313.0,
+      "hypothesis": "Fixing a second zero-initialized final LayerNorm bias coordinate will reduce the verified model from 1,314 to 1,313 parameters while retaining at least 99% accuracy within 50,000 steps.",
+      "intended_edit": "Learn six final LayerNorm bias coordinates instead of seven and pad the remaining two coordinates with zeros, while preserving all eight learned scale parameters and every training setting.",
+      "metrics": {
+        "accuracy": 1.0,
+        "cases": 10010,
+        "correct": 10010,
+        "parameters": 1313,
+        "training_steps": 49999
+      },
+      "parent_ids": [
+        "b36de09a4532189abd2c551d65d643a61ed9d435873141aa0c89855da97b580b"
+      ],
+      "retained_order": 56,
+      "selected_count": 1
+    },
+    "42e3e1801efbe92bc6c914c819d263e09e95f2173ba1c29ca14cc7cbe5e909f9": {
+      "artifact_path": "candidates/42e3e1801efbe92bc6c914c819d263e09e95f2173ba1c29ca14cc7cbe5e909f9",
+      "candidate_id": "42e3e1801efbe92bc6c914c819d263e09e95f2173ba1c29ca14cc7cbe5e909f9",
+      "created_opportunity": 44,
+      "fitness": -1376.0,
+      "hypothesis": "Reusing the functionally redundant common-mode attention projection bias as the learned query offset will reduce the model from 1,377 to 1,376 parameters while retaining at least 99% accuracy within 50,000 steps.",
+      "intended_edit": "Remove the standalone query-offset parameter and derive its zero-initialized learned value from the mean attention projection bias.",
+      "metrics": {
+        "accuracy": 1.0,
+        "cases": 10010,
+        "correct": 10010,
+        "parameters": 1376,
+        "training_steps": 49999
+      },
+      "parent_ids": [
+        "2dcfa8464da3fbb5e8cbf5244637cc8e812a0284640385ef8a87fd16e913b29c"
+      ],
+      "retained_order": 44,
+      "selected_count": 2
+    },
+    "4ac6d46c0adef70f43b979733ba82ff24e8e7dd41f54aa2ab19bc00ba15de3ce": {
+      "artifact_path": "candidates/4ac6d46c0adef70f43b979733ba82ff24e8e7dd41f54aa2ab19bc00ba15de3ce",
+      "candidate_id": "4ac6d46c0adef70f43b979733ba82ff24e8e7dd41f54aa2ab19bc00ba15de3ce",
+      "created_opportunity": 23,
+      "fitness": -1432.0,
+      "hypothesis": "Reducing `d_ff` from 5 to 4 will lower the model from 1,448 to 1,432 parameters while retaining at least 99% accuracy when trained for 40,000 steps.",
+      "intended_edit": "Use a 4-unit feed-forward layer and extend the default training budget from 36,000 to 40,000 steps.",
+      "metrics": {
+        "accuracy": 0.9997,
+        "cases": 10010,
+        "correct": 10007,
+        "parameters": 1432,
+        "training_steps": 39999
+      },
+      "parent_ids": [
+        "244f8ac2263c2d85639f4fe632cdeadcf0b1e8a355fae6e61facfe6c4125dfc4"
+      ],
+      "retained_order": 23,
+      "selected_count": 1
+    },
+    "4f2c888111907114e780fa71c5867d98bd3d81eb95b42d5023e7e54a4cd82540": {
+      "artifact_path": "candidates/4f2c888111907114e780fa71c5867d98bd3d81eb95b42d5023e7e54a4cd82540",
+      "candidate_id": "4f2c888111907114e780fa71c5867d98bd3d81eb95b42d5023e7e54a4cd82540",
+      "created_opportunity": 93,
+      "fitness": -1268.0,
+      "hypothesis": "Reusing a LayerNorm-invisible row-common attention-output coefficient as the sixth final-LayerNorm scale will reduce the model from 1,269 to 1,268 parameters while retaining at least 99% accuracy, because the reparameterization preserves the full function class and fresh initialization function.",
+      "intended_edit": "Remove one dedicated final-LayerNorm scale and derive it from the mean of the final attention projection\u2019s first column, whose row-common component is otherwise erased by subsequent LayerNorms.",
+      "metrics": {
+        "accuracy": 1.0,
+        "cases": 10010,
+        "correct": 10010,
+        "parameters": 1268,
+        "training_steps": 49999
+      },
+      "parent_ids": [
+        "389e1b16df4ada017d469d7ee3f517d90132b594fb53671f009547a1b019c9d8"
+      ],
+      "retained_order": 93,
+      "selected_count": 13
+    },
+    "5448f08c20e82dad69d1af781129c74b4a93a34bda53874f6d6f3447815a4892": {
+      "artifact_path": "candidates/5448f08c20e82dad69d1af781129c74b4a93a34bda53874f6d6f3447815a4892",
+      "candidate_id": "5448f08c20e82dad69d1af781129c74b4a93a34bda53874f6d6f3447815a4892",
+      "created_opportunity": 59,
+      "fitness": -1310.0,
+      "hypothesis": "Learning three final LayerNorm bias coordinates and fixing the remaining five at zero will reduce the model from 1,311 to 1,310 parameters while retaining at least 99% accuracy within 50,000 steps.",
+      "intended_edit": "Reduce the final LayerNorm bias parameter by one coordinate and increase its fixed-zero padding from four coordinates to five.",
+      "metrics": {
+        "accuracy": 0.9998999999999999,
+        "cases": 10010,
+        "correct": 10009,
+        "parameters": 1310,
+        "training_steps": 49999
+      },
+      "parent_ids": [
+        "93213b4fd0a9c964dce834b72dae318d12d49ebbb8b17c60fda67c494ce70c6f"
+      ],
+      "retained_order": 59,
+      "selected_count": 2
+    },
+    "612141e9f8dc70435f06cfd2738fce94f10aa50f3b04a0c02a313003d1af34fb": {
+      "artifact_path": "candidates/612141e9f8dc70435f06cfd2738fce94f10aa50f3b04a0c02a313003d1af34fb",
+      "candidate_id": "612141e9f8dc70435f06cfd2738fce94f10aa50f3b04a0c02a313003d1af34fb",
+      "created_opportunity": 4,
+      "fitness": -1596.0,
+      "hypothesis": "Removing both block LayerNorm scale vectors will reduce parameters from 1,612 to 1,596 while retaining at least 99% accuracy, because each scale is immediately followed by a learned linear map that can absorb the same per-channel scaling.",
+      "intended_edit": "Make both block LayerNorms non-affine while preserving the successful `d_ff=12` architecture and training configuration.",
+      "metrics": {
+        "accuracy": 0.9998999999999999,
+        "cases": 10010,
+        "correct": 10009,
+        "parameters": 1596,
+        "training_steps": 4999
+      },
+      "parent_ids": [
+        "0a3072e22bf4ba113df3e97faf5d08be10ee9c0455daca0f418b8541c45c9773"
+      ],
+      "retained_order": 4,
+      "selected_count": 10
+    },
+    "6e615f107940f639368cf1b3d415c1fb8a22ace3f17e34970407cfc8d6b12097": {
+      "artifact_path": "candidates/6e615f107940f639368cf1b3d415c1fb8a22ace3f17e34970407cfc8d6b12097",
+      "candidate_id": "6e615f107940f639368cf1b3d415c1fb8a22ace3f17e34970407cfc8d6b12097",
+      "created_opportunity": 77,
+      "fitness": -1272.0,
+      "hypothesis": "Fixing one token-embedding entry to zero will reduce the model from 1,273 to 1,272 parameters while preserving at least 99% accuracy, because subtracting that entry uniformly from every token-embedding coordinate changes residual inputs only by a LayerNorm-invisible all-ones shift and changes every output logit by the same amount.",
+      "intended_edit": "Store the tied token-embedding matrix in a one-parameter-smaller chart whose first entry is fixed at zero, reconstruct it for both input lookup and output projection, and otherwise leave the model and training unchanged.",
+      "metrics": {
+        "accuracy": 1.0,
+        "cases": 10010,
+        "correct": 10010,
+        "parameters": 1272,
+        "training_steps": 49999
+      },
+      "parent_ids": [
+        "f1105ee7d22e142aab676eae6b62b90fcd6f84b9e85d38cbe276018679998253"
+      ],
+      "retained_order": 77,
+      "selected_count": 6
+    },
+    "7ee417c907e96aa0328b0b0f93a399d6d867fe692235b3af0116995645ec0676": {
+      "artifact_path": "candidates/7ee417c907e96aa0328b0b0f93a399d6d867fe692235b3af0116995645ec0676",
+      "candidate_id": "7ee417c907e96aa0328b0b0f93a399d6d867fe692235b3af0116995645ec0676",
+      "created_opportunity": 57,
+      "fitness": -1312.0,
+      "hypothesis": "Learning five final LayerNorm bias coordinates and fixing the remaining three at zero will reduce the model from 1,313 to 1,312 parameters while retaining at least 99% accuracy within 50,000 steps.",
+      "intended_edit": "Reduce the final LayerNorm bias parameter by one coordinate and increase fixed-zero padding from two coordinates to three.",
+      "metrics": {
+        "accuracy": 1.0,
+        "cases": 10010,
+        "correct": 10010,
+        "parameters": 1312,
+        "training_steps": 49999
+      },
+      "parent_ids": [
+        "3dbbe28614f2346a06e830f01910347b430269b38dcfcf29adb16bd72f196210"
+      ],
+      "retained_order": 57,
+      "selected_count": 1
+    },
+    "7f8530d81912b700a636861cdf54cb68661ad4f6c0a01e8ab78dce4b1a7072b6": {
+      "artifact_path": "candidates/7f8530d81912b700a636861cdf54cb68661ad4f6c0a01e8ab78dce4b1a7072b6",
+      "candidate_id": "7f8530d81912b700a636861cdf54cb68661ad4f6c0a01e8ab78dce4b1a7072b6",
+      "created_opportunity": 46,
+      "fitness": -1375.0,
+      "hypothesis": "Reusing the LayerNorm-invisible common mode of the MLP output bias as its hidden-unit bias will reduce the model from 1,376 to 1,375 parameters while retaining at least 99% accuracy within 50,000 steps.",
+      "intended_edit": "Remove the standalone `fc1` bias and derive its zero-initialized learned value from the mean of `fc2.bias`.",
+      "metrics": {
+        "accuracy": 0.9998999999999999,
+        "cases": 10010,
+        "correct": 10009,
+        "parameters": 1375,
+        "training_steps": 49999
+      },
+      "parent_ids": [
+        "42e3e1801efbe92bc6c914c819d263e09e95f2173ba1c29ca14cc7cbe5e909f9"
+      ],
+      "retained_order": 46,
+      "selected_count": 1
+    },
+    "8599d52937b6b051f247f3060a733292b1b3563221a41fb49bc1ae22759514fc": {
+      "artifact_path": "candidates/8599d52937b6b051f247f3060a733292b1b3563221a41fb49bc1ae22759514fc",
+      "candidate_id": "8599d52937b6b051f247f3060a733292b1b3563221a41fb49bc1ae22759514fc",
+      "created_opportunity": 16,
+      "fitness": -1528.0,
+      "hypothesis": "Reducing `d_ff` from 11 to 10 will lower the model from 1,544 to 1,528 parameters while retaining at least 99% accuracy when trained for 16,000 steps.",
+      "intended_edit": "Use a 10-unit feed-forward layer and extend the default training budget from 12,000 to 16,000 steps.",
+      "metrics": {
+        "accuracy": 0.9998,
+        "cases": 10010,
+        "correct": 10008,
+        "parameters": 1528,
+        "training_steps": 15999
+      },
+      "parent_ids": [
+        "ff201fd92214a6727fabffea88825f3eb26d0d1842a2cc8a3a0f835e177c96f2"
+      ],
+      "retained_order": 16,
+      "selected_count": 1
+    },
+    "914911755c5e794be481beced1f76d0e0cd921160de73c2435b36a11add0527a": {
+      "artifact_path": "candidates/914911755c5e794be481beced1f76d0e0cd921160de73c2435b36a11add0527a",
+      "candidate_id": "914911755c5e794be481beced1f76d0e0cd921160de73c2435b36a11add0527a",
+      "created_opportunity": 14,
+      "fitness": -1560.0,
+      "hypothesis": "The exact 36-parameter LayerNorm-nullspace compression will exceed 99% accuracy when trained for 8,000 steps, since it already reached 97.76% at 5,000 steps without narrowing the represented function class.",
+      "intended_edit": "Reparameterize QKV and `fc1` on the seven-dimensional mean-zero LayerNorm subspace, and increase the default training budget from 5,000 to 8,000 steps.",
+      "metrics": {
+        "accuracy": 0.9987,
+        "cases": 10010,
+        "correct": 9997,
+        "parameters": 1560,
+        "training_steps": 7999
+      },
+      "parent_ids": [
+        "612141e9f8dc70435f06cfd2738fce94f10aa50f3b04a0c02a313003d1af34fb"
+      ],
+      "retained_order": 14,
+      "selected_count": 1
+    },
+    "93213b4fd0a9c964dce834b72dae318d12d49ebbb8b17c60fda67c494ce70c6f": {
+      "artifact_path": "candidates/93213b4fd0a9c964dce834b72dae318d12d49ebbb8b17c60fda67c494ce70c6f",
+      "candidate_id": "93213b4fd0a9c964dce834b72dae318d12d49ebbb8b17c60fda67c494ce70c6f",
+      "created_opportunity": 58,
+      "fitness": -1311.0,
+      "hypothesis": "Learning four final LayerNorm bias coordinates and fixing the remaining four at zero will reduce the model from 1,312 to 1,311 parameters while retaining at least 99% accuracy within 50,000 steps.",
+      "intended_edit": "Reduce the final LayerNorm bias parameter by one coordinate and increase its fixed-zero padding from three coordinates to four.",
+      "metrics": {
+        "accuracy": 1.0,
+        "cases": 10010,
+        "correct": 10010,
+        "parameters": 1311,
+        "training_steps": 49999
+      },
+      "parent_ids": [
+        "7ee417c907e96aa0328b0b0f93a399d6d867fe692235b3af0116995645ec0676"
+      ],
+      "retained_order": 58,
+      "selected_count": 1
+    },
+    "a0e62b2b792909e7346d30a3c681fc5511a24a5fbbe6a2d54a6d70697de0bb95": {
+      "artifact_path": "candidates/a0e62b2b792909e7346d30a3c681fc5511a24a5fbbe6a2d54a6d70697de0bb95",
+      "candidate_id": "a0e62b2b792909e7346d30a3c681fc5511a24a5fbbe6a2d54a6d70697de0bb95",
+      "created_opportunity": 51,
+      "fitness": -1315.0,
+      "hypothesis": "Reusing a second attention projection-bias coordinate as one MLP output-bias coordinate will reduce the model from 1,316 to 1,315 parameters while retaining at least 99% accuracy within 50,000 steps.",
+      "intended_edit": "Replace one dedicated MLP output-bias parameter with `attn.proj.bias[0]`, while preserving the seven-coordinate MLP output bias, its derived hidden bias, zero initialization, and optimized linear computation.",
+      "metrics": {
+        "accuracy": 1.0,
+        "cases": 10010,
+        "correct": 10010,
+        "parameters": 1315,
+        "training_steps": 49999
+      },
+      "parent_ids": [
+        "a615566e89f3f7481adaa7a958cb27a1b66b61c6cc036543344982934e0ade5e"
+      ],
+      "retained_order": 51,
+      "selected_count": 4
+    },
+    "a615566e89f3f7481adaa7a958cb27a1b66b61c6cc036543344982934e0ade5e": {
+      "artifact_path": "candidates/a615566e89f3f7481adaa7a958cb27a1b66b61c6cc036543344982934e0ade5e",
+      "candidate_id": "a615566e89f3f7481adaa7a958cb27a1b66b61c6cc036543344982934e0ade5e",
+      "created_opportunity": 50,
+      "fitness": -1316.0,
+      "hypothesis": "Sharing each head\u2019s full-dimensional query and key representation will reduce the model from 1,372 to 1,316 parameters while retaining at least 99% accuracy within 50,000 steps, because the causal mask supplies direction while learned positional representations can encode the required symmetric routing affinities.",
+      "intended_edit": "Replace the independent query and key projections with one shared full-width projection, retain a separate value projection and the learned query offset, and continue using a single fused linear operation.",
+      "metrics": {
+        "accuracy": 1.0,
+        "cases": 10010,
+        "correct": 10010,
+        "parameters": 1316,
+        "training_steps": 49999
+      },
+      "parent_ids": [
+        "d933ebd57cf1b03fc1d2803cc2f7777995dce8f4bd52d6e42368dd257c66d788"
+      ],
+      "retained_order": 50,
+      "selected_count": 1
+    },
+    "b36de09a4532189abd2c551d65d643a61ed9d435873141aa0c89855da97b580b": {
+      "artifact_path": "candidates/b36de09a4532189abd2c551d65d643a61ed9d435873141aa0c89855da97b580b",
+      "candidate_id": "b36de09a4532189abd2c551d65d643a61ed9d435873141aa0c89855da97b580b",
+      "created_opportunity": 55,
+      "fitness": -1314.0,
+      "hypothesis": "Fixing one zero-initialized final LayerNorm bias coordinate will reduce the verified model from 1,315 to 1,314 parameters while retaining at least 99% accuracy within 50,000 steps.",
+      "intended_edit": "Replace the final LayerNorm with an equivalent-at-initialization implementation that learns seven bias coordinates and pads the eighth with zero, while retaining all eight scale parameters.",
+      "metrics": {
+        "accuracy": 1.0,
+        "cases": 10010,
+        "correct": 10010,
+        "parameters": 1314,
+        "training_steps": 49999
+      },
+      "parent_ids": [
+        "a0e62b2b792909e7346d30a3c681fc5511a24a5fbbe6a2d54a6d70697de0bb95"
+      ],
+      "retained_order": 55,
+      "selected_count": 1
+    },
+    "be565f86f575a4e1219c45a525d604aa382c49ddc1f9fc24c9e97107fd688b10": {
+      "artifact_path": "candidates/be565f86f575a4e1219c45a525d604aa382c49ddc1f9fc24c9e97107fd688b10",
+      "candidate_id": "be565f86f575a4e1219c45a525d604aa382c49ddc1f9fc24c9e97107fd688b10",
+      "created_opportunity": 17,
+      "fitness": -1512.0,
+      "hypothesis": "Reducing `d_ff` from 10 to 9 will lower the model from 1,528 to 1,512 parameters while retaining at least 99% accuracy when trained for 20,000 steps.",
+      "intended_edit": "Use a 9-unit feed-forward layer and extend the default training budget from 16,000 to 20,000 steps.",
+      "metrics": {
+        "accuracy": 1.0,
+        "cases": 10010,
+        "correct": 10010,
+        "parameters": 1512,
+        "training_steps": 19999
+      },
+      "parent_ids": [
+        "8599d52937b6b051f247f3060a733292b1b3563221a41fb49bc1ae22759514fc"
+      ],
+      "retained_order": 17,
+      "selected_count": 1
+    },
+    "c025c815770623f34ff3632d38081db430c41755d3b1d3ad0d669bcf6612d101": {
+      "artifact_path": "candidates/c025c815770623f34ff3632d38081db430c41755d3b1d3ad0d669bcf6612d101",
+      "candidate_id": "c025c815770623f34ff3632d38081db430c41755d3b1d3ad0d669bcf6612d101",
+      "created_opportunity": 69,
+      "fitness": -1304.0,
+      "hypothesis": "Fixing final LayerNorm scale coordinate 3 at one, while retaining learned coordinate 5, will reduce the model from 1,305 to 1,304 parameters and preserve at least 99% accuracy.",
+      "intended_edit": "Learn final LayerNorm scale coordinates 0\u20132 and 5, fix coordinates 3\u20134 and 6\u20137 at one, and preserve the essential learned bias.",
+      "metrics": {
+        "accuracy": 1.0,
+        "cases": 10010,
+        "correct": 10010,
+        "parameters": 1304,
+        "training_steps": 49999
+      },
+      "parent_ids": [
+        "207eb6327fb2cf4e9919ad9c6fa400e4e522f4bc8c3eafe6b8167b77c58c4fa3"
+      ],
+      "retained_order": 69,
+      "selected_count": 3
+    },
+    "c3a41fb73e2308c443afad1f8091b2848fc2466d1faeec80b346f57605b68a97": {
+      "artifact_path": "candidates/c3a41fb73e2308c443afad1f8091b2848fc2466d1faeec80b346f57605b68a97",
+      "candidate_id": "c3a41fb73e2308c443afad1f8091b2848fc2466d1faeec80b346f57605b68a97",
+      "created_opportunity": 48,
+      "fitness": -1373.0,
+      "hypothesis": "Reusing the mean of the seven-coordinate MLP output bias as the hidden-unit bias will reduce the model from 1,374 to 1,373 parameters while retaining at least 99% accuracy within 50,000 steps.",
+      "intended_edit": "Remove the standalone hidden-bias parameter and derive its zero-initialized value from `fc2.bias`.",
+      "metrics": {
+        "accuracy": 1.0,
+        "cases": 10010,
+        "correct": 10010,
+        "parameters": 1373,
+        "training_steps": 49999
+      },
+      "parent_ids": [
+        "03dcb452e9518390741e9b4d46f7d81769a86f412b487fcf56fe58d82cb72e9c"
+      ],
+      "retained_order": 48,
+      "selected_count": 1
+    },
+    "cf78196daf419bd9dc66f73e7f82432958a372963afe3474929bbc6e4cfcfb2f": {
+      "artifact_path": "candidates/cf78196daf419bd9dc66f73e7f82432958a372963afe3474929bbc6e4cfcfb2f",
+      "candidate_id": "cf78196daf419bd9dc66f73e7f82432958a372963afe3474929bbc6e4cfcfb2f",
+      "created_opportunity": 62,
+      "fitness": -1308.0,
+      "hypothesis": "Learning one final LayerNorm bias coordinate and fixing the remaining seven at zero will reduce the model from 1,309 to 1,308 parameters while retaining at least 99% accuracy within 50,000 steps.",
+      "intended_edit": "Reduce the final LayerNorm bias parameter from two coordinates to one and increase its fixed-zero padding from six coordinates to seven.",
+      "metrics": {
+        "accuracy": 1.0,
+        "cases": 10010,
+        "correct": 10010,
+        "parameters": 1308,
+        "training_steps": 49999
+      },
+      "parent_ids": [
+        "3204b991305a89f3072b5533eeebf1b847b6a57677422889e25f57bdc7731e06"
+      ],
+      "retained_order": 62,
+      "selected_count": 3
+    },
+    "d7604b16b1d8bd230849f033a4e91090d9d546f8f5ae4e8065a7a9c388963574": {
+      "artifact_path": "candidates/d7604b16b1d8bd230849f033a4e91090d9d546f8f5ae4e8065a7a9c388963574",
+      "candidate_id": "d7604b16b1d8bd230849f033a4e91090d9d546f8f5ae4e8065a7a9c388963574",
+      "created_opportunity": 83,
+      "fitness": -1271.0,
+      "hypothesis": "Removing one rotationally redundant query/key parameter will reduce the verified model from 1,272 to 1,271 parameters while retaining at least 99% accuracy, because the chart preserves the dense initialization\u2019s exact attention function and changes only one centered rotation instead of six simultaneously.",
+      "intended_edit": "Replace the tied query/key projection with a one-parameter-smaller chart for the first head, fixing one centered-basis coefficient while leaving the value projection and second head dense.",
+      "metrics": {
+        "accuracy": 1.0,
+        "cases": 10010,
+        "correct": 10010,
+        "parameters": 1271,
+        "training_steps": 49999
+      },
+      "parent_ids": [
+        "6e615f107940f639368cf1b3d415c1fb8a22ace3f17e34970407cfc8d6b12097"
+      ],
+      "retained_order": 83,
+      "selected_count": 1
+    },
+    "d933ebd57cf1b03fc1d2803cc2f7777995dce8f4bd52d6e42368dd257c66d788": {
+      "artifact_path": "candidates/d933ebd57cf1b03fc1d2803cc2f7777995dce8f4bd52d6e42368dd257c66d788",
+      "candidate_id": "d933ebd57cf1b03fc1d2803cc2f7777995dce8f4bd52d6e42368dd257c66d788",
+      "created_opportunity": 49,
+      "fitness": -1372.0,
+      "hypothesis": "Sharing one MLP output-bias coordinate with the learned attention query offset will reduce the model from 1,373 to 1,372 parameters while retaining at least 99% accuracy within 50,000 steps, because both successful 1,373- and 1,376-parameter designs already use bias coordinates for multiple roles without changing their zero initialization.",
+      "intended_edit": "Replace the seven-parameter `fc2` bias with six dedicated coordinates plus the attention projection-bias mean as the seventh coordinate, while preserving the same seven-coordinate MLP output, derived hidden bias, and optimized `F.linear` computation.",
+      "metrics": {
+        "accuracy": 1.0,
+        "cases": 10010,
+        "correct": 10010,
+        "parameters": 1372,
+        "training_steps": 49999
+      },
+      "parent_ids": [
+        "c3a41fb73e2308c443afad1f8091b2848fc2466d1faeec80b346f57605b68a97"
+      ],
+      "retained_order": 49,
+      "selected_count": 1
+    },
+    "e2754c4aebb7899ca9d7a12233843050cf9d78b3fd928513536df2c4f362e785": {
+      "artifact_path": "candidates/e2754c4aebb7899ca9d7a12233843050cf9d78b3fd928513536df2c4f362e785",
+      "candidate_id": "e2754c4aebb7899ca9d7a12233843050cf9d78b3fd928513536df2c4f362e785",
+      "created_opportunity": 18,
+      "fitness": -1496.0,
+      "hypothesis": "Reducing `d_ff` from 9 to 8 will lower the model from 1,512 to 1,496 parameters while retaining at least 99% accuracy when trained for 24,000 steps.",
+      "intended_edit": "Use an 8-unit feed-forward layer and extend the default training budget from 20,000 to 24,000 steps.",
+      "metrics": {
+        "accuracy": 0.9998999999999999,
+        "cases": 10010,
+        "correct": 10009,
+        "parameters": 1496,
+        "training_steps": 23999
+      },
+      "parent_ids": [
+        "be565f86f575a4e1219c45a525d604aa382c49ddc1f9fc24c9e97107fd688b10"
+      ],
+      "retained_order": 18,
+      "selected_count": 1
+    },
+    "e55e857b605a5198f4416ab1da87db8f7e8c499b0982d71c9f794f956eefeca6": {
+      "artifact_path": "candidates/e55e857b605a5198f4416ab1da87db8f7e8c499b0982d71c9f794f956eefeca6",
+      "candidate_id": "e55e857b605a5198f4416ab1da87db8f7e8c499b0982d71c9f794f956eefeca6",
+      "created_opportunity": 65,
+      "fitness": -1307.0,
+      "hypothesis": "Fixing one final LayerNorm scale coordinate at its initialized value of one while retaining the essential learned bias will reduce the model from 1,308 to 1,307 parameters and preserve at least 99% accuracy.",
+      "intended_edit": "Learn seven final LayerNorm scale coordinates, append a fixed-one eighth coordinate, and leave the successful one-coordinate learned bias unchanged.",
+      "metrics": {
+        "accuracy": 0.9998999999999999,
+        "cases": 10010,
+        "correct": 10009,
+        "parameters": 1307,
+        "training_steps": 49999
+      },
+      "parent_ids": [
+        "cf78196daf419bd9dc66f73e7f82432958a372963afe3474929bbc6e4cfcfb2f"
+      ],
+      "retained_order": 65,
+      "selected_count": 1
+    },
+    "e5b653e0476dbd4022bbdcafb85a6bd2fc9b647f1ec56b407afbf5329fdfa6ee": {
+      "artifact_path": "candidates/e5b653e0476dbd4022bbdcafb85a6bd2fc9b647f1ec56b407afbf5329fdfa6ee",
+      "candidate_id": "e5b653e0476dbd4022bbdcafb85a6bd2fc9b647f1ec56b407afbf5329fdfa6ee",
+      "created_opportunity": 25,
+      "fitness": -1400.0,
+      "hypothesis": "Reducing `d_ff` from 3 to 2 will lower the model from 1,416 to 1,400 parameters while retaining at least 99% accuracy when trained for 48,000 steps.",
+      "intended_edit": "Use a two-unit feed-forward layer and extend the default training budget from 44,000 to 48,000 steps.",
+      "metrics": {
+        "accuracy": 0.9983,
+        "cases": 10010,
+        "correct": 9993,
+        "parameters": 1400,
+        "training_steps": 47999
+      },
+      "parent_ids": [
+        "ef0ee7c8d1cd0396f06551f7e07c20ae32bb66312432833c7192ed87bde78954"
+      ],
+      "retained_order": 25,
+      "selected_count": 1
+    },
+    "ecbbf81e2f98d4f23c9706e0d714c957a93cbad681c7dab74d16f1e474353f72": {
+      "artifact_path": "candidates/ecbbf81e2f98d4f23c9706e0d714c957a93cbad681c7dab74d16f1e474353f72",
+      "candidate_id": "ecbbf81e2f98d4f23c9706e0d714c957a93cbad681c7dab74d16f1e474353f72",
+      "created_opportunity": 20,
+      "fitness": -1482.0,
+      "hypothesis": "Replacing independent eight-dimensional position vectors with arbitrary six-dimensional learned position codes and a shared learned projection will reduce parameters while retaining at least 99% accuracy after 40,000 steps.",
+      "intended_edit": "Replace the full positional table (`8L` parameters) with a rank-six factorization (`6L + 48` parameters), orthogonally initialized and variance-scaled, while preserving the successful attention and MLP widths.",
+      "metrics": {
+        "accuracy": 0.9998,
+        "cases": 10010,
+        "correct": 10008,
+        "parameters": 1482,
+        "training_steps": 39999
+      },
+      "parent_ids": [
+        "151210404a2410d831d14c815a3537752ac756e81ad3c22a986f8a2b1c46fc68"
+      ],
+      "retained_order": 20,
+      "selected_count": 0
+    },
+    "ef0ee7c8d1cd0396f06551f7e07c20ae32bb66312432833c7192ed87bde78954": {
+      "artifact_path": "candidates/ef0ee7c8d1cd0396f06551f7e07c20ae32bb66312432833c7192ed87bde78954",
+      "candidate_id": "ef0ee7c8d1cd0396f06551f7e07c20ae32bb66312432833c7192ed87bde78954",
+      "created_opportunity": 24,
+      "fitness": -1416.0,
+      "hypothesis": "Reducing `d_ff` from 4 to 3 will lower the model from 1,432 to 1,416 parameters while retaining at least 99% accuracy when trained for 44,000 steps.",
+      "intended_edit": "Use a 3-unit feed-forward layer and extend the default training budget from 40,000 to 44,000 steps.",
+      "metrics": {
+        "accuracy": 0.9998,
+        "cases": 10010,
+        "correct": 10008,
+        "parameters": 1416,
+        "training_steps": 43999
+      },
+      "parent_ids": [
+        "4ac6d46c0adef70f43b979733ba82ff24e8e7dd41f54aa2ab19bc00ba15de3ce"
+      ],
+      "retained_order": 24,
+      "selected_count": 1
+    },
+    "f1105ee7d22e142aab676eae6b62b90fcd6f84b9e85d38cbe276018679998253": {
+      "artifact_path": "candidates/f1105ee7d22e142aab676eae6b62b90fcd6f84b9e85d38cbe276018679998253",
+      "candidate_id": "f1105ee7d22e142aab676eae6b62b90fcd6f84b9e85d38cbe276018679998253",
+      "created_opportunity": 76,
+      "fitness": -1273.0,
+      "hypothesis": "Fixing position 0\u2019s seven positional coordinates to zero will reduce the model from 1,280 to 1,273 parameters while retaining at least 99% accuracy, because any removed position-origin vector can be absorbed uniformly into the tied token embeddings, preserving inputs while changing output logits only by a class-common offset.",
+      "intended_edit": "Store learned seven-coordinate embeddings only for positions 1 through `max_seq_len - 1` and prepend a fixed-zero embedding for position 0 during the forward pass.",
+      "metrics": {
+        "accuracy": 1.0,
+        "cases": 10010,
+        "correct": 10010,
+        "parameters": 1273,
+        "training_steps": 49999
+      },
+      "parent_ids": [
+        "1d5773d6964b82dca622b6748baaa4c77718a50bd2edc128400425a4353b597b"
+      ],
+      "retained_order": 76,
+      "selected_count": 1
+    },
+    "f68d48c8f4731aa727542bfce17013c3f842b65a2c3ebcfcbbae6b2f6ddd7d78": {
+      "artifact_path": "candidates/f68d48c8f4731aa727542bfce17013c3f842b65a2c3ebcfcbbae6b2f6ddd7d78",
+      "candidate_id": "f68d48c8f4731aa727542bfce17013c3f842b65a2c3ebcfcbbae6b2f6ddd7d78",
+      "created_opportunity": 84,
+      "fitness": -1270.0,
+      "hypothesis": "Applying the proven single-rotation query/key gauge independently to the second head will reduce the verified model from 1,271 to 1,270 parameters while retaining at least 99% accuracy.",
+      "intended_edit": "Replace the second head\u2019s dense tied query/key weights with the same one-parameter-smaller, function-preserving centered-rotation chart already used by the first head.",
+      "metrics": {
+        "accuracy": 0.9998999999999999,
+        "cases": 10010,
+        "correct": 10009,
+        "parameters": 1270,
+        "training_steps": 49999
+      },
+      "parent_ids": [
+        "d7604b16b1d8bd230849f033a4e91090d9d546f8f5ae4e8065a7a9c388963574"
+      ],
+      "retained_order": 84,
+      "selected_count": 1
+    },
+    "ff201fd92214a6727fabffea88825f3eb26d0d1842a2cc8a3a0f835e177c96f2": {
+      "artifact_path": "candidates/ff201fd92214a6727fabffea88825f3eb26d0d1842a2cc8a3a0f835e177c96f2",
+      "candidate_id": "ff201fd92214a6727fabffea88825f3eb26d0d1842a2cc8a3a0f835e177c96f2",
+      "created_opportunity": 15,
+      "fitness": -1544.0,
+      "hypothesis": "Reducing `d_ff` from 12 to 11 will lower the model from 1,560 to 1,544 parameters and still reach at least 99% accuracy when trained for 12,000 steps.",
+      "intended_edit": "Use an 11-unit feed-forward layer and extend the convergence budget from 8,000 to 12,000 steps.",
+      "metrics": {
+        "accuracy": 0.9993000000000001,
+        "cases": 10010,
+        "correct": 10003,
+        "parameters": 1544,
+        "training_steps": 11999
+      },
+      "parent_ids": [
+        "914911755c5e794be481beced1f76d0e0cd921160de73c2435b36a11add0527a"
+      ],
+      "retained_order": 15,
+      "selected_count": 1
+    }
+  },
+  "condition": "C1",
+  "conversation_session_id": null,
+  "evaluations_used": 97,
+  "evaluator_seconds_used": 108299.61289329536,
+  "incumbent_id": "4f2c888111907114e780fa71c5867d98bd3d81eb95b42d5023e7e54a4cd82540",
+  "next_opportunity": 106,
+  "no_search": false,
+  "portfolio_ids": [
+    "4f2c888111907114e780fa71c5867d98bd3d81eb95b42d5023e7e54a4cd82540"
+  ],
+  "proposals_used": 105,
+  "protocol_hash": "0247b4415c62d35b231e3347f31a3f63cd54eb4ec6bb2441bfc209e0ee2d3cc4",
+  "revision": 212,
+  "run_id": "controlled-openevolve-transformer-v2-1-source-only-ten-digit-addition-pair-transformer-openevolve-v2-1-mps-openevolve-b05-c1",
+  "schema_version": "1.0",
+  "status": "running",
+  "token_budget_continuation_notice_sent": false,
+  "usage": {
+    "cached_input_tokens": 1041408,
+    "input_tokens": 2074163,
+    "output_tokens": 338693,
+    "reasoning_output_tokens": 291293
+  }
+}

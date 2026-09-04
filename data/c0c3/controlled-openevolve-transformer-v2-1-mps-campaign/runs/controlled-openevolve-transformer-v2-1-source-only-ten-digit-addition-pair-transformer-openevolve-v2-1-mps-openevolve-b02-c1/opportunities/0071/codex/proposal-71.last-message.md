@@ -1,0 +1,13 @@
+MECHANISM: Rank-two content routing with rank-four value transport
+
+HYPOTHESIS: Reducing both heads’ query/key score rank from three to two will lower the model from 1,022 to 1,002 parameters while retaining at least 99% accuracy, because rank-three routing achieved 99.85% and the evidence identifies the independently learned relative-position biases—not high-rank content scores—as the load-bearing attention pathway.
+
+INTENDED_EDIT: Use two learned query/key factors per attention head while preserving four-dimensional values, relative-bias tables, score-factor gauge optimization, initialization behavior, and generic autoregressive decoding.
+
+EVIDENCE: The current rank-three content-routing model reached 99.85% at 1,022 parameters after reducing 16 parameters from rank four, while affine replacement of the relative-position tables failed at 0%; this motivates the next direct rank ablation without altering the demonstrated positional-routing mechanism.
+
+<<<<<<< SEARCH
+        self.score_dim = self.head_dim - 1
+=======
+        self.score_dim = self.head_dim - 2
+>>>>>>> REPLACE

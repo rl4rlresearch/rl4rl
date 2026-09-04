@@ -1,0 +1,35 @@
+MECHANISM: Token-horizon-preserving optimizer momentum
+
+HYPOTHESIS: Rescaling optimizer decay coefficients by approximately √β and doubling the Muon momentum ramp to 600 steps will beat `val_bpb` 0.987174 by reducing small-batch estimator noise while preserving the winning batch size and throughput.
+
+INTENDED_EDIT: Retune AdamW and Muon momentum/variance decay for the doubled update frequency of the 262K-token batch, without changing architecture, learning rates, or scheduling.
+
+EVIDENCE: Halving the batch from 524K to 262K nearly doubled updates and improved `val_bpb` from 0.995558 to 0.987174, but retained optimizer decay coefficients and a 300-step Muon ramp defined for the lower update frequency; subsequent learning-rate and schedule changes did not improve the result.
+
+<<<<<<< SEARCH
+            dict(kind='adamw', params=x0_params, lr=scalar_lr, betas=(0.96, 0.95), eps=1e-10, weight_decay=0.0),
+=======
+            dict(kind='adamw', params=x0_params, lr=scalar_lr, betas=(0.98, 0.975), eps=1e-10, weight_decay=0.0),
+>>>>>>> REPLACE
+
+<<<<<<< SEARCH
+                momentum=0.95, ns_steps=5, beta2=0.95, weight_decay=weight_decay,
+=======
+                momentum=0.975, ns_steps=5, beta2=0.975, weight_decay=weight_decay,
+>>>>>>> REPLACE
+
+<<<<<<< SEARCH
+ADAM_BETAS = (0.8, 0.95) # Adam beta1, beta2
+=======
+ADAM_BETAS = (0.9, 0.975) # preserve EMA horizon in tokens after halving the batch
+>>>>>>> REPLACE
+
+<<<<<<< SEARCH
+def get_muon_momentum(step):
+    frac = min(step / 300, 1)
+    return (1 - frac) * 0.85 + frac * 0.95
+=======
+def get_muon_momentum(step):
+    frac = min(step / 600, 1)
+    return (1 - frac) * 0.922 + frac * 0.975
+>>>>>>> REPLACE

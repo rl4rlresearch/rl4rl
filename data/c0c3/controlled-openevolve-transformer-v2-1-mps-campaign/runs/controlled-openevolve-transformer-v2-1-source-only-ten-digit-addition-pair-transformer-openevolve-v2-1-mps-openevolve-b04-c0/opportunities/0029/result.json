@@ -1,0 +1,79 @@
+{
+  "artifact_path": "candidates/ce77a8f3e6386cc4d95791a2ca8b41906b4c1cd834fe5752118a75cfb5e1acdb",
+  "candidate_id": "ce77a8f3e6386cc4d95791a2ca8b41906b4c1cd834fe5752118a75cfb5e1acdb",
+  "codex_service_tier": "fast",
+  "condition": "C0",
+  "conversation_session_id": null,
+  "evaluation": {
+    "evaluator_calls": 1,
+    "evaluator_seconds": 426.7833258328028,
+    "failure_kind": null,
+    "fitness": -1616.0,
+    "metrics": {
+      "accuracy": 0.9993000000000001,
+      "cases": 10010,
+      "correct": 10003,
+      "parameters": 1616,
+      "training_steps": 4999
+    },
+    "valid": true
+  },
+  "evaluator_calls_cumulative": 29,
+  "evaluator_calls_increment": 1,
+  "evaluator_seconds_cumulative": 9885.871358416858,
+  "evaluator_seconds_increment": 426.7833258328028,
+  "event": "proposal_completed",
+  "evicted_candidate_id": "f06ca3a3db753dfeae9ef7a5774f7d63e748fd557b8f7a047d69014b5babc4c8",
+  "evidence": "Fixing coordinates 0, 1, and 7 achieved 99.90% at 1617 parameters, while the distributed embedding anchor associated with coordinate 3 achieved 99.98%; unlike the failing coordinate 2, coordinate 3 uses a separate token-row endpoint.",
+  "hypothesis": "Fixing pre-MLP LayerNorm bias coordinate 3 in addition to coordinates 0, 1, and 7 will reduce the model from 1617 to 1616 parameters while retaining at least 99% accuracy, because its shift is exactly absorbable by `fc1.bias` and coordinate 3 previously supported the strongest distributed-anchor result.",
+  "incumbent_after": "ce77a8f3e6386cc4d95791a2ca8b41906b4c1cd834fe5752118a75cfb5e1acdb",
+  "intended_edit": "Remove LayerNorm bias coordinate 3 from the learned parameter vector and reconstruct it as zero during the forward pass.",
+  "mechanism": "Distributed-coordinate MLP bias gauge fixing",
+  "opportunity": 29,
+  "parent_ids": [
+    "f06ca3a3db753dfeae9ef7a5774f7d63e748fd557b8f7a047d69014b5babc4c8"
+  ],
+  "portfolio_after": [
+    "ce77a8f3e6386cc4d95791a2ca8b41906b4c1cd834fe5752118a75cfb5e1acdb"
+  ],
+  "prompt_hashes": {
+    "common_template_sha256": "3f2bea6418b6969c4bf2aa1df18dcda8a3a4ac075bf20c79068c754698b6be5e",
+    "prompt_sha256": "886c751d7a041cd299a32f8e99d6664f13133a621bb1e486e40f57884fc80a17",
+    "proposal_policy_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "search_state_sha256": "04e5eb078ae1964e4ec65bfeeeb1acd0ffa246e7d54d5e0f997f81f602da28c5",
+    "treatment_skeleton_sha256": "2377f7b9371a2eb459d066f6cc7392d7c5baef22db47fc83684ecf2f87c3a7c9"
+  },
+  "proposal_type": "ordinary",
+  "proposals_cumulative": 29,
+  "remaining_budget": {
+    "evaluations": 171,
+    "evaluator_seconds": 350114.12864158314,
+    "proposals": 171,
+    "tokens": 99308179
+  },
+  "retained": true,
+  "retention_decision": "strict_incumbent_improvement",
+  "run_id": "controlled-openevolve-transformer-v2-1-source-only-ten-digit-addition-pair-transformer-openevolve-v2-1-mps-openevolve-b04-c0",
+  "schema_version": "1.0",
+  "selected_parent_ids": [
+    "f06ca3a3db753dfeae9ef7a5774f7d63e748fd557b8f7a047d69014b5babc4c8"
+  ],
+  "timestamp": "2026-08-23T23:19:53.739160+00:00",
+  "usage_cumulative": {
+    "cached_input_tokens": 306176,
+    "input_tokens": 610704,
+    "output_tokens": 81117,
+    "reasoning_output_tokens": 60761,
+    "total_tokens": 691821
+  },
+  "usage_increment": {
+    "cached_input_tokens": 12032,
+    "input_tokens": 22740,
+    "output_tokens": 998,
+    "reasoning_output_tokens": 464,
+    "total_tokens": 23738
+  },
+  "visible_candidate_ids": [
+    "f06ca3a3db753dfeae9ef7a5774f7d63e748fd557b8f7a047d69014b5babc4c8"
+  ]
+}

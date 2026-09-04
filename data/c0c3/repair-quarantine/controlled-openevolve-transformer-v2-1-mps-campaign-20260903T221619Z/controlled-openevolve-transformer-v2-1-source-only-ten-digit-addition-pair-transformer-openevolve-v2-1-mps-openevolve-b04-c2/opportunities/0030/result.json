@@ -1,0 +1,85 @@
+{
+  "artifact_path": "candidates/01b06e2e7da4115cb07a1ec81b0c4e39f21b1f88a5bd1cc576b4c27864cde32b",
+  "candidate_id": "01b06e2e7da4115cb07a1ec81b0c4e39f21b1f88a5bd1cc576b4c27864cde32b",
+  "codex_service_tier": "fast",
+  "condition": "C2",
+  "conversation_session_id": null,
+  "evaluation": {
+    "evaluator_calls": 1,
+    "evaluator_seconds": 471.98445733310655,
+    "failure_kind": "nonqualification",
+    "fitness": null,
+    "metrics": {
+      "accuracy": 0.38539999999999996,
+      "cases": 10010,
+      "correct": 3858,
+      "parameters": 1608,
+      "training_steps": 4999
+    },
+    "valid": false
+  },
+  "evaluator_calls_cumulative": 29,
+  "evaluator_calls_increment": 1,
+  "evaluator_seconds_cumulative": 9915.367784708273,
+  "evaluator_seconds_increment": 471.98445733310655,
+  "event": "proposal_completed",
+  "evicted_candidate_id": null,
+  "evidence": "The current 1,620-parameter design achieved 99.95%, and its successful `fc2.bias` quotient removes the same function-null output direction. The previous columnwise attempt could not be verified rather than failing accuracy, motivating an isolated implementation on the robust current design.",
+  "hypothesis": "Constraining every `fc2.weight` column to the seven-dimensional zero-sum output subspace will reduce the verified 1,620-parameter model to 1,608 parameters while retaining at least 99% accuracy, because the removed component contributes only a token-local uniform residual shift erased by the final LayerNorm.",
+  "incumbent_after": "e4644b9101a9b7cbce15fcee5967405445f6b1239b10eea0a4a54b705f306bc6",
+  "intended_edit": "Preserve full baseline initialization, project `fc2.weight` into compact zero-sum coordinates, reconstruct its eight output rows in the forward pass, and extend virtual full-coordinate AdamW updates to the compact matrix.",
+  "mechanism": "Columnwise MLP residual common-mode quotient",
+  "opportunity": 30,
+  "parent_ids": [
+    "890a19bbe9a94887bdbcae743283aee20edfbca411b0c01daba22179c6e70ae8"
+  ],
+  "portfolio_after": [
+    "2b9cea175ed60b009337ac54f6e8ad23bf2c014eb4080237777bfb70bfd9fd5b",
+    "e4644b9101a9b7cbce15fcee5967405445f6b1239b10eea0a4a54b705f306bc6",
+    "573d640a61ce934e66a88d23b0ddc6a368ed694aa32ce154d8692343c1bcd057",
+    "890a19bbe9a94887bdbcae743283aee20edfbca411b0c01daba22179c6e70ae8"
+  ],
+  "prompt_hashes": {
+    "common_template_sha256": "3f2bea6418b6969c4bf2aa1df18dcda8a3a4ac075bf20c79068c754698b6be5e",
+    "prompt_sha256": "3651d37c6d9c17b57c7da3e1d8759a122f62edbe58e11190a9cb3be437cc38f8",
+    "proposal_policy_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "search_state_sha256": "c938ac007bf70fe8d27f64661175531e51fcb16b38318c328493c32ee292e27e",
+    "treatment_skeleton_sha256": "5ca31910328e3b23630440a06808b321ba7e42ed7d6279e44de493888f4526b3"
+  },
+  "proposal_type": "ordinary",
+  "proposals_cumulative": 30,
+  "remaining_budget": {
+    "evaluations": 171,
+    "evaluator_seconds": 350084.6322152917,
+    "proposals": 170,
+    "tokens": 98935143
+  },
+  "retained": false,
+  "retention_decision": "invalid",
+  "run_id": "controlled-openevolve-transformer-v2-1-source-only-ten-digit-addition-pair-transformer-openevolve-v2-1-mps-openevolve-b04-c2",
+  "schema_version": "1.0",
+  "selected_parent_ids": [
+    "890a19bbe9a94887bdbcae743283aee20edfbca411b0c01daba22179c6e70ae8"
+  ],
+  "timestamp": "2026-08-23T22:15:44.046992+00:00",
+  "usage_cumulative": {
+    "cached_input_tokens": 320256,
+    "input_tokens": 950080,
+    "output_tokens": 114777,
+    "reasoning_output_tokens": 82828,
+    "total_tokens": 1064857
+  },
+  "usage_increment": {
+    "cached_input_tokens": 6912,
+    "input_tokens": 39078,
+    "output_tokens": 4196,
+    "reasoning_output_tokens": 3106,
+    "total_tokens": 43274
+  },
+  "visible_candidate_ids": [
+    "2b9cea175ed60b009337ac54f6e8ad23bf2c014eb4080237777bfb70bfd9fd5b",
+    "e4644b9101a9b7cbce15fcee5967405445f6b1239b10eea0a4a54b705f306bc6",
+    "573d640a61ce934e66a88d23b0ddc6a368ed694aa32ce154d8692343c1bcd057",
+    "890a19bbe9a94887bdbcae743283aee20edfbca411b0c01daba22179c6e70ae8"
+  ]
+}

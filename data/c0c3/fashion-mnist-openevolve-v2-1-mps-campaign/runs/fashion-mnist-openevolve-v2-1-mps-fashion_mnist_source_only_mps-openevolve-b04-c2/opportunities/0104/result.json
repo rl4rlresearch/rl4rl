@@ -1,0 +1,91 @@
+{
+  "artifact_path": "candidates/59b15d6b52b3e3d93240ad9987b6ebc811b88aaf1730f413d1b2ccfee4ec8f74",
+  "candidate_id": "59b15d6b52b3e3d93240ad9987b6ebc811b88aaf1730f413d1b2ccfee4ec8f74",
+  "codex_service_tier": "default",
+  "condition": "C2",
+  "conversation_session_id": null,
+  "evaluation": {
+    "evaluator_calls": 1,
+    "evaluator_seconds": 61.40695900004357,
+    "failure_kind": null,
+    "fitness": 9281.415824081623,
+    "metrics": {
+      "batch_size": 64,
+      "evaluation_cases": 10000,
+      "evaluation_split": "public_validation",
+      "examples_processed": 100000,
+      "optimizer_steps": 1564,
+      "parameters": 248682,
+      "training_seconds": 54.898539332905784,
+      "validation_accuracy": 0.9281,
+      "validation_correct": 9281,
+      "validation_cross_entropy": 0.20243156204223633,
+      "validation_score": 9281.415824081623
+    },
+    "valid": true
+  },
+  "evaluator_calls_cumulative": 97,
+  "evaluator_calls_increment": 1,
+  "evaluator_seconds_cumulative": 6261.425994707504,
+  "evaluator_seconds_increment": 61.40695900004357,
+  "event": "proposal_completed",
+  "evicted_candidate_id": "f92391fcbfa57e9ac82d8df41dc1a8cfdfd48b6801906d5831b817b1ca5b598c",
+  "evidence": "Dense BatchNorm with momentum 0.1 achieved the best result at 9,288 correct, while changing only its running-statistics momentum to 0.00623359375 produced 9,284 correct; this directly motivates evaluating with current-batch statistics instead of another moving-average rate.",
+  "hypothesis": "BatchNorm1d using live validation-batch statistics will exceed 9,288 correct predictions by preserving the successful training-time normalization while eliminating the evaluation-statistics sensitivity demonstrated by momentum 0.1 versus 0.00623359375.",
+  "incumbent_after": "bd50f2f87fabff909ec496d201064058252bbf2c4a407c7ea5412fb647be0c9f",
+  "intended_edit": "Add BatchNorm1d after the first classifier linear layer with running statistics disabled, and restore the best-verified evaluation logit scale of 1.20514.",
+  "mechanism": "Validation-batch dense-feature normalization",
+  "opportunity": 104,
+  "parent_ids": [
+    "f92391fcbfa57e9ac82d8df41dc1a8cfdfd48b6801906d5831b817b1ca5b598c"
+  ],
+  "portfolio_after": [
+    "59b15d6b52b3e3d93240ad9987b6ebc811b88aaf1730f413d1b2ccfee4ec8f74",
+    "bd50f2f87fabff909ec496d201064058252bbf2c4a407c7ea5412fb647be0c9f",
+    "5d7e9497ef4381d24617f66e41a5be0ca6d86499e4f1430f498ee242a3826013",
+    "733ff2bd03948edac1e2745f175b3a9245df113ca4d91ffc1e6fada3e9b1fdaf"
+  ],
+  "prompt_hashes": {
+    "common_template_sha256": "e8327ba94bab12abc7c7ec7c6615378a3ae62434efb944d4a7d9492f1d19bc14",
+    "prompt_sha256": "44971a837e1274cc174fa060c1ddd5d245520c554ac8d5b13a0d17a011aa7995",
+    "proposal_policy_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "search_state_sha256": "c938ac007bf70fe8d27f64661175531e51fcb16b38318c328493c32ee292e27e",
+    "treatment_skeleton_sha256": "758c981146b70ab10e9112b15866acf5503e1c6eea84fe4bd7f3de934f339dab"
+  },
+  "proposal_type": "ordinary",
+  "proposals_cumulative": 104,
+  "remaining_budget": {
+    "evaluations": 103,
+    "evaluator_seconds": 17738.574005292496,
+    "proposals": 96,
+    "tokens": 97583715
+  },
+  "retained": true,
+  "retention_decision": "replaced_selected_parent_on_strict_improvement",
+  "run_id": "fashion-mnist-openevolve-v2-1-mps-fashion_mnist_source_only_mps-openevolve-b04-c2",
+  "schema_version": "1.0",
+  "selected_parent_ids": [
+    "f92391fcbfa57e9ac82d8df41dc1a8cfdfd48b6801906d5831b817b1ca5b598c"
+  ],
+  "timestamp": "2026-08-24T22:56:47.755194+00:00",
+  "usage_cumulative": {
+    "cached_input_tokens": 1092096,
+    "input_tokens": 2226567,
+    "output_tokens": 189718,
+    "reasoning_output_tokens": 144628,
+    "total_tokens": 2416285
+  },
+  "usage_increment": {
+    "cached_input_tokens": 12032,
+    "input_tokens": 21582,
+    "output_tokens": 1943,
+    "reasoning_output_tokens": 1552,
+    "total_tokens": 23525
+  },
+  "visible_candidate_ids": [
+    "f92391fcbfa57e9ac82d8df41dc1a8cfdfd48b6801906d5831b817b1ca5b598c",
+    "bd50f2f87fabff909ec496d201064058252bbf2c4a407c7ea5412fb647be0c9f",
+    "5d7e9497ef4381d24617f66e41a5be0ca6d86499e4f1430f498ee242a3826013",
+    "733ff2bd03948edac1e2745f175b3a9245df113ca4d91ffc1e6fada3e9b1fdaf"
+  ]
+}

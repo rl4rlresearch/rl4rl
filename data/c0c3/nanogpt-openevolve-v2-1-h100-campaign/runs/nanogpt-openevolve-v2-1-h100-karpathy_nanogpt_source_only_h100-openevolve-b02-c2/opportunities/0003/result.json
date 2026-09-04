@@ -1,0 +1,87 @@
+{
+  "artifact_path": "candidates/8f89c706baa430d0251c4944cdb0202c21478db30fa3dcb407aaeca3bfe23b7d",
+  "candidate_id": "8f89c706baa430d0251c4944cdb0202c21478db30fa3dcb407aaeca3bfe23b7d",
+  "codex_service_tier": "fast",
+  "condition": "C2",
+  "conversation_session_id": null,
+  "evaluation": {
+    "evaluator_calls": 1,
+    "evaluator_seconds": 330.258021226,
+    "failure_kind": null,
+    "fitness": -0.987182,
+    "metrics": {
+      "depth": 8.0,
+      "mfu_percent": 39.21,
+      "num_params_M": 50.3,
+      "num_steps": 1868.0,
+      "peak_vram_mb": 44908.2,
+      "total_tokens_M": 489.7,
+      "training_seconds": 300.1,
+      "val_bpb": 0.987182
+    },
+    "valid": true
+  },
+  "evaluator_calls_cumulative": 3,
+  "evaluator_calls_increment": 1,
+  "evaluator_seconds_cumulative": 1058.4570964530003,
+  "evaluator_seconds_increment": 330.258021226,
+  "event": "proposal_completed",
+  "evicted_candidate_id": null,
+  "evidence": "The 497.0M-token baseline achieved 0.995558 in only 948 updates, while both attention execution changes reduced token throughput and worsened validation; this tests update frequency while preserving the successful attention implementation.",
+  "hypothesis": "Halving the global batch to 262K tokens will lower val_bpb below 0.995558 by nearly doubling parameter-update opportunities while retaining the baseline architecture, attention windows, and efficient device batch.",
+  "incumbent_after": "8f89c706baa430d0251c4944cdb0202c21478db30fa3dcb407aaeca3bfe23b7d",
+  "intended_edit": "Set the total batch equal to one 128\u00d72048-token device batch, eliminating gradient accumulation without changing per-forward execution.",
+  "mechanism": "Single-microbatch optimizer cadence",
+  "opportunity": 3,
+  "parent_ids": [
+    "2865e528e18dc51191e4037eaeb5824cb0ea83ede79061b59b8f3caac686da6b"
+  ],
+  "portfolio_after": [
+    "2865e528e18dc51191e4037eaeb5824cb0ea83ede79061b59b8f3caac686da6b",
+    "ee1f1cf686a479f175a9b2178602df52386a3561e80b0612b88ccd725e447c2e",
+    "d0ec96492b2bd25858ba4c893141ba9416341caf95a78956aaa11e6b213713bb",
+    "8f89c706baa430d0251c4944cdb0202c21478db30fa3dcb407aaeca3bfe23b7d"
+  ],
+  "prompt_hashes": {
+    "common_template_sha256": "ba85b39aa7288f4f48475376da6cff65661f39cfeb7ac7cde15b2a9a2e692fde",
+    "prompt_sha256": "0ea0e36f4be28db6376f0eb6e45d48fb29f6fc939f5eb29138a58422a4632172",
+    "proposal_policy_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "search_state_sha256": "c938ac007bf70fe8d27f64661175531e51fcb16b38318c328493c32ee292e27e",
+    "treatment_skeleton_sha256": "393669eead1fb92af897469973573bc81d97da1fb072cbd9baf3c0e3ed4105bb"
+  },
+  "proposal_type": "ordinary",
+  "proposals_cumulative": 3,
+  "remaining_budget": {
+    "evaluations": 197,
+    "evaluator_seconds": 718941.542903547,
+    "proposals": 197,
+    "tokens": 99894722
+  },
+  "retained": true,
+  "retention_decision": "filled_open_portfolio_slot",
+  "run_id": "nanogpt-openevolve-v2-1-h100-karpathy_nanogpt_source_only_h100-openevolve-b02-c2",
+  "schema_version": "1.0",
+  "selected_parent_ids": [
+    "2865e528e18dc51191e4037eaeb5824cb0ea83ede79061b59b8f3caac686da6b"
+  ],
+  "timestamp": "2026-08-23T15:31:31.829037+00:00",
+  "usage_cumulative": {
+    "cached_input_tokens": 24064,
+    "input_tokens": 88492,
+    "output_tokens": 16786,
+    "reasoning_output_tokens": 14833,
+    "total_tokens": 105278
+  },
+  "usage_increment": {
+    "cached_input_tokens": 12032,
+    "input_tokens": 37229,
+    "output_tokens": 3640,
+    "reasoning_output_tokens": 3455,
+    "total_tokens": 40869
+  },
+  "visible_candidate_ids": [
+    "2865e528e18dc51191e4037eaeb5824cb0ea83ede79061b59b8f3caac686da6b",
+    "ee1f1cf686a479f175a9b2178602df52386a3561e80b0612b88ccd725e447c2e",
+    "d0ec96492b2bd25858ba4c893141ba9416341caf95a78956aaa11e6b213713bb"
+  ]
+}

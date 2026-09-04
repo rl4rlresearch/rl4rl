@@ -1,0 +1,88 @@
+{
+  "artifact_path": "candidates/b167b4ea24017770dfa20861b6aad33546af93659696e9bb410ab4c7d9e459e7",
+  "candidate_id": "b167b4ea24017770dfa20861b6aad33546af93659696e9bb410ab4c7d9e459e7",
+  "codex_service_tier": "fast",
+  "condition": "C2",
+  "conversation_session_id": null,
+  "evaluation": {
+    "evaluator_calls": 1,
+    "evaluator_seconds": 333.2834941729998,
+    "failure_kind": null,
+    "fitness": -0.985746,
+    "metrics": {
+      "depth": 8.0,
+      "mfu_percent": 39.34,
+      "num_params_M": 50.3,
+      "num_steps": 1874.0,
+      "peak_vram_mb": 44908.2,
+      "total_tokens_M": 491.3,
+      "training_seconds": 300.1,
+      "val_bpb": 0.985746
+    },
+    "valid": true
+  },
+  "evaluator_calls_cumulative": 9,
+  "evaluator_calls_increment": 1,
+  "evaluator_seconds_cumulative": 3217.413120258002,
+  "evaluator_seconds_increment": 333.2834941729998,
+  "event": "proposal_completed",
+  "evicted_candidate_id": "f737cb07b1d48d33f44dc3a9a4040391eca02fe6d81ebc33d757bb9b9da814d6",
+  "evidence": "The 262K-token design achieved the best val_bpb, 0.987182, with 1,868 updates versus 948 for the 524K baseline; momentum-ramp and beta2 changes both worsened it, motivating retention of its optimizer statistics while isolating accumulated per-step decay.",
+  "hypothesis": "Restoring the efficient 262K-token batch while halving Muon weight decay will lower val_bpb below 0.987182 by correcting the doubled per-token decay caused by twice as many optimizer steps.",
+  "incumbent_after": "b167b4ea24017770dfa20861b6aad33546af93659696e9bb410ab4c7d9e459e7",
+  "intended_edit": "Restore the proven 128-sequence single microbatch and reduce cautious Muon weight decay from 0.2 to 0.1 without changing momentum or variance averaging.",
+  "mechanism": "Update-count-normalized cautious decay",
+  "opportunity": 9,
+  "parent_ids": [
+    "f737cb07b1d48d33f44dc3a9a4040391eca02fe6d81ebc33d757bb9b9da814d6"
+  ],
+  "portfolio_after": [
+    "2865e528e18dc51191e4037eaeb5824cb0ea83ede79061b59b8f3caac686da6b",
+    "bf77539e964d900c01f64ffc2c23258c0d3e3e943a95a5bdd9fee7ebf0faefd7",
+    "b167b4ea24017770dfa20861b6aad33546af93659696e9bb410ab4c7d9e459e7",
+    "8f89c706baa430d0251c4944cdb0202c21478db30fa3dcb407aaeca3bfe23b7d"
+  ],
+  "prompt_hashes": {
+    "common_template_sha256": "ba85b39aa7288f4f48475376da6cff65661f39cfeb7ac7cde15b2a9a2e692fde",
+    "prompt_sha256": "dec4c7d2c0a018a4d29fde4f42350245688a70bfabbf5a0cc70390d40f69147e",
+    "proposal_policy_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "search_state_sha256": "c938ac007bf70fe8d27f64661175531e51fcb16b38318c328493c32ee292e27e",
+    "treatment_skeleton_sha256": "ecfc5720e71e29a71a742308e1af998d22ca8282804f401d9895cad3f48a9ada"
+  },
+  "proposal_type": "ordinary",
+  "proposals_cumulative": 9,
+  "remaining_budget": {
+    "evaluations": 191,
+    "evaluator_seconds": 716782.586879742,
+    "proposals": 191,
+    "tokens": 99607647
+  },
+  "retained": true,
+  "retention_decision": "replaced_selected_parent_on_strict_improvement",
+  "run_id": "nanogpt-openevolve-v2-1-h100-karpathy_nanogpt_source_only_h100-openevolve-b02-c2",
+  "schema_version": "1.0",
+  "selected_parent_ids": [
+    "f737cb07b1d48d33f44dc3a9a4040391eca02fe6d81ebc33d757bb9b9da814d6"
+  ],
+  "timestamp": "2026-08-23T21:48:42.678931+00:00",
+  "usage_cumulative": {
+    "cached_input_tokens": 91136,
+    "input_tokens": 360484,
+    "output_tokens": 31869,
+    "reasoning_output_tokens": 27157,
+    "total_tokens": 392353
+  },
+  "usage_increment": {
+    "cached_input_tokens": 12032,
+    "input_tokens": 45937,
+    "output_tokens": 4404,
+    "reasoning_output_tokens": 4089,
+    "total_tokens": 50341
+  },
+  "visible_candidate_ids": [
+    "2865e528e18dc51191e4037eaeb5824cb0ea83ede79061b59b8f3caac686da6b",
+    "bf77539e964d900c01f64ffc2c23258c0d3e3e943a95a5bdd9fee7ebf0faefd7",
+    "f737cb07b1d48d33f44dc3a9a4040391eca02fe6d81ebc33d757bb9b9da814d6",
+    "8f89c706baa430d0251c4944cdb0202c21478db30fa3dcb407aaeca3bfe23b7d"
+  ]
+}

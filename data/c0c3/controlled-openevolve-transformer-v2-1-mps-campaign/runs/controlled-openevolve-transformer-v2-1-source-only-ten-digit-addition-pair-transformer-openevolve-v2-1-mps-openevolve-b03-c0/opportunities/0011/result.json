@@ -1,0 +1,79 @@
+{
+  "artifact_path": "candidates/e9b6408c51fe6a2db393e4089dbdcfd01b573af1d836a5ca1eac938b23835e29",
+  "candidate_id": "e9b6408c51fe6a2db393e4089dbdcfd01b573af1d836a5ca1eac938b23835e29",
+  "codex_service_tier": "fast",
+  "condition": "C0",
+  "conversation_session_id": null,
+  "evaluation": {
+    "evaluator_calls": 1,
+    "evaluator_seconds": 331.94997304095887,
+    "failure_kind": "nonqualification",
+    "fitness": null,
+    "metrics": {
+      "accuracy": 0.9599,
+      "cases": 10010,
+      "correct": 9609,
+      "parameters": 1612,
+      "training_steps": 4999
+    },
+    "valid": false
+  },
+  "evaluator_calls_cumulative": 11,
+  "evaluator_calls_increment": 1,
+  "evaluator_seconds_cumulative": 2875.2291480421554,
+  "evaluator_seconds_increment": 331.94997304095887,
+  "event": "proposal_completed",
+  "evicted_candidate_id": null,
+  "evidence": "The current model reaches 99.40% accuracy, while the earlier key-bias removal unexpectedly failed despite key bias being canceled row-wise by softmax. Preserving the original biased-layer construction isolates that mathematical reduction from initialization changes.",
+  "hypothesis": "Eliminating all eight key-bias parameters while preserving the original `nn.Linear` construction RNG trajectory will reduce parameters from 1,620 to 1,612 and retain at least 99% accuracy.",
+  "incumbent_after": "cb09b6c2cab34a4b2bf3505fae7ac309525b96cd7cb935313b006993b946a0c2",
+  "intended_edit": "Retain the combined QKV layer\u2019s original construction, replace its stored bias with query/value biases only, and reconstruct a zero key bias during the learned attention computation.",
+  "mechanism": "Initialization-preserving removal of softmax-invariant key bias",
+  "opportunity": 11,
+  "parent_ids": [
+    "cb09b6c2cab34a4b2bf3505fae7ac309525b96cd7cb935313b006993b946a0c2"
+  ],
+  "portfolio_after": [
+    "cb09b6c2cab34a4b2bf3505fae7ac309525b96cd7cb935313b006993b946a0c2"
+  ],
+  "prompt_hashes": {
+    "common_template_sha256": "3f2bea6418b6969c4bf2aa1df18dcda8a3a4ac075bf20c79068c754698b6be5e",
+    "prompt_sha256": "827bb49db4b64c79f9c99ff43689aadf4dbae7a8cedae09a60caae8540f0ca57",
+    "proposal_policy_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "search_state_sha256": "04e5eb078ae1964e4ec65bfeeeb1acd0ffa246e7d54d5e0f997f81f602da28c5",
+    "treatment_skeleton_sha256": "dede405e91bdf9d33037403ab06097ca33b21a78809cc33bae6fa863c8956c64"
+  },
+  "proposal_type": "ordinary",
+  "proposals_cumulative": 11,
+  "remaining_budget": {
+    "evaluations": 189,
+    "evaluator_seconds": 357124.77085195784,
+    "proposals": 189,
+    "tokens": 99766551
+  },
+  "retained": false,
+  "retention_decision": "invalid",
+  "run_id": "controlled-openevolve-transformer-v2-1-source-only-ten-digit-addition-pair-transformer-openevolve-v2-1-mps-openevolve-b03-c0",
+  "schema_version": "1.0",
+  "selected_parent_ids": [
+    "cb09b6c2cab34a4b2bf3505fae7ac309525b96cd7cb935313b006993b946a0c2"
+  ],
+  "timestamp": "2026-08-23T12:52:55.850966+00:00",
+  "usage_cumulative": {
+    "cached_input_tokens": 118016,
+    "input_tokens": 214817,
+    "output_tokens": 18632,
+    "reasoning_output_tokens": 15797,
+    "total_tokens": 233449
+  },
+  "usage_increment": {
+    "cached_input_tokens": 12032,
+    "input_tokens": 20411,
+    "output_tokens": 3902,
+    "reasoning_output_tokens": 3530,
+    "total_tokens": 24313
+  },
+  "visible_candidate_ids": [
+    "cb09b6c2cab34a4b2bf3505fae7ac309525b96cd7cb935313b006993b946a0c2"
+  ]
+}

@@ -1,0 +1,99 @@
+{
+  "artifact_path": "candidates/8c3e1e191332056ef539d4654dd7d20d1ed9fe8df9d201632c20757f3558a37f",
+  "candidate_id": "8c3e1e191332056ef539d4654dd7d20d1ed9fe8df9d201632c20757f3558a37f",
+  "codex_service_tier": "default",
+  "condition": "C1",
+  "conversation_session_id": null,
+  "evaluation": {
+    "evaluator_calls": 1,
+    "evaluator_seconds": 74.430487500038,
+    "failure_kind": "nonqualification",
+    "fitness": null,
+    "metrics": {
+      "batch_size": 128,
+      "evaluation_cases": 815,
+      "evaluation_split": "public_speaker_disjoint_validation",
+      "examples_processed": 50000,
+      "inference_cost": 1648771452391748084,
+      "maximum_recurrent_steps": 28,
+      "mean_recurrent_steps": 28.0,
+      "median_recurrent_steps": 28,
+      "optimizer_steps": 397,
+      "p95_recurrent_steps": 28,
+      "parameters": 99664,
+      "peak_hidden_elements": 459264,
+      "recurrent_logit_effect": 0.1888725757598877,
+      "recurrent_macs": 245360640,
+      "recurrent_steps": 22820,
+      "state_dependence_effect": 0.3376307785511017,
+      "state_update_effect": 0.34087684750556946,
+      "total_inference_macs": 316089600,
+      "trained_recurrent_logit_effect": 0.9653408527374268,
+      "trained_state_dependence_effect": 0.3357805013656616,
+      "trained_state_update_effect": 0.3369773328304291,
+      "training_seconds": 45.82743033301085,
+      "validation_accuracy": 0.8147239263803681,
+      "validation_correct": 664,
+      "validation_cross_entropy": 0.5251271347326735
+    },
+    "valid": false
+  },
+  "evaluator_calls_cumulative": 17,
+  "evaluator_calls_increment": 1,
+  "evaluator_seconds_cumulative": 2325.001199872,
+  "evaluator_seconds_increment": 74.430487500038,
+  "event": "proposal_completed",
+  "evicted_candidate_id": null,
+  "evidence": "The 92-unit GRU remained accurate through 28 steps but failed only when a fifth leading frame was removed, suggesting that preserving temporal coverage matters more than repeatedly applying three dense recurrent gates; the new design keeps the verified 28-frame schedule while challenging that gate-heavy assumption.",
+  "hypothesis": "Seven causal four-frame memory segments with learned frame embeddings and sum/max statistics will retain at least 85% accuracy while reducing total inference MACs by roughly 55% versus the 28-step GRU.",
+  "incumbent_after": "1a6e44493390321cc4bf7652c5fe08a5c4bf7eaa2d1df6355d0839a1b261a3b3",
+  "intended_edit": "Replace dense hidden-to-hidden GRU updates with a two-layer per-frame encoder that recurrently accumulates coarse temporal sum and maximum memories, then predicts from all ordered segments with a small nonlinear head.",
+  "mechanism": "Nonlinear segmented recurrent memory pooling",
+  "opportunity": 20,
+  "parent_ids": [
+    "1a6e44493390321cc4bf7652c5fe08a5c4bf7eaa2d1df6355d0839a1b261a3b3"
+  ],
+  "portfolio_after": [
+    "1a6e44493390321cc4bf7652c5fe08a5c4bf7eaa2d1df6355d0839a1b261a3b3"
+  ],
+  "prompt_hashes": {
+    "common_template_sha256": "dee04faf4c430276c1036ba97f5705a339857dbdf19117dac88952a5a3a47e9d",
+    "prompt_sha256": "9e034091664db82c9f3981e0609b81b1b4ba01e4daf472381410e0dde85e5eb9",
+    "proposal_policy_sha256": "f3e935f1a3cb6334e7f39b20b1b6b601cd727de9c5f0c3630206a91f08e358c9",
+    "search_state_sha256": "04e5eb078ae1964e4ec65bfeeeb1acd0ffa246e7d54d5e0f997f81f602da28c5",
+    "treatment_skeleton_sha256": "4c7d96002445905e4db6ebeccb2cbc57822bbad4c52a42254fd2efd8a85b8b28"
+  },
+  "proposal_type": "assumption_changing",
+  "proposals_cumulative": 20,
+  "remaining_budget": {
+    "evaluations": 183,
+    "evaluator_seconds": 57674.998800128,
+    "proposals": 180,
+    "tokens": 99591263
+  },
+  "retained": false,
+  "retention_decision": "invalid",
+  "run_id": "tiny-kws-rnn-openevolve-v2-1-cpu-tiny_kws_rnn_source_only_cpu-openevolve-b01-c1",
+  "schema_version": "1.0",
+  "selected_parent_ids": [
+    "1a6e44493390321cc4bf7652c5fe08a5c4bf7eaa2d1df6355d0839a1b261a3b3"
+  ],
+  "timestamp": "2026-09-04T03:38:58.126700+00:00",
+  "usage_cumulative": {
+    "cached_input_tokens": 215040,
+    "input_tokens": 371619,
+    "output_tokens": 37118,
+    "reasoning_output_tokens": 29231,
+    "total_tokens": 408737
+  },
+  "usage_increment": {
+    "cached_input_tokens": 10752,
+    "input_tokens": 19432,
+    "output_tokens": 9148,
+    "reasoning_output_tokens": 7752,
+    "total_tokens": 28580
+  },
+  "visible_candidate_ids": [
+    "1a6e44493390321cc4bf7652c5fe08a5c4bf7eaa2d1df6355d0839a1b261a3b3"
+  ]
+}

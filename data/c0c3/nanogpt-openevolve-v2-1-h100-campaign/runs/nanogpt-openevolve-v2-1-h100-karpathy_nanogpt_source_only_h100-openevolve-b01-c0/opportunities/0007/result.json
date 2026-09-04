@@ -1,0 +1,76 @@
+{
+  "artifact_path": "candidates/51a1513afc5e6d7df4b3dfb51ea598436c6b242cc17dd804fc1cf0e9e2b6ac35",
+  "candidate_id": "51a1513afc5e6d7df4b3dfb51ea598436c6b242cc17dd804fc1cf0e9e2b6ac35",
+  "codex_service_tier": "fast",
+  "condition": "C0",
+  "conversation_session_id": null,
+  "evaluation": {
+    "evaluator_calls": 1,
+    "evaluator_seconds": 1041.7733367079636,
+    "failure_kind": "remote_infrastructure",
+    "fitness": null,
+    "metrics": {
+      "remote_call_id": "27a754b0a678460e9e7e2921ecbba95e",
+      "remote_error": "RemoteError: Function call was cancelled by user or a failure."
+    },
+    "valid": false
+  },
+  "evaluator_calls_cumulative": 7,
+  "evaluator_calls_increment": 1,
+  "evaluator_seconds_cumulative": 3371.2230910079625,
+  "evaluator_seconds_increment": 1041.7733367079636,
+  "event": "proposal_completed",
+  "evicted_candidate_id": null,
+  "evidence": "The best 512-token SSSL design uses two accumulated 262,144-token microbatches, reaches only 981 updates, and peaks at 45,060 MB VRAM, leaving enough H100 memory to test a larger single microbatch without changing the successful model or attention layout.",
+  "hypothesis": "A 393,216-token batch processed as one 192-sequence microbatch will beat 0.993324 val_bpb by eliminating gradient accumulation and producing roughly 30% more optimizer updates while preserving most token throughput.",
+  "incumbent_after": "ee1f1cf686a479f175a9b2178602df52386a3561e80b0612b88ccd725e447c2e",
+  "intended_edit": "Increase the device batch from 128 to 192 and reduce the total batch to exactly one device microbatch.",
+  "mechanism": "Single-microbatch training with increased device occupancy",
+  "opportunity": 7,
+  "parent_ids": [
+    "ee1f1cf686a479f175a9b2178602df52386a3561e80b0612b88ccd725e447c2e"
+  ],
+  "portfolio_after": [
+    "ee1f1cf686a479f175a9b2178602df52386a3561e80b0612b88ccd725e447c2e"
+  ],
+  "prompt_hashes": {
+    "common_template_sha256": "ba85b39aa7288f4f48475376da6cff65661f39cfeb7ac7cde15b2a9a2e692fde",
+    "prompt_sha256": "7945549f8e9cc8df99cc6ed15741edbf0e3717f8b94df7ac7a4985b53720d9e5",
+    "proposal_policy_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "search_state_sha256": "04e5eb078ae1964e4ec65bfeeeb1acd0ffa246e7d54d5e0f997f81f602da28c5",
+    "treatment_skeleton_sha256": "055a2b01049063a74f5a3daf2e1b74b13275c9c474849f40d10b54148092efff"
+  },
+  "proposal_type": "ordinary",
+  "proposals_cumulative": 7,
+  "remaining_budget": {
+    "evaluations": 193,
+    "evaluator_seconds": 716628.7769089921,
+    "proposals": 193,
+    "tokens": 99821838
+  },
+  "retained": false,
+  "retention_decision": "invalid",
+  "run_id": "nanogpt-openevolve-v2-1-h100-karpathy_nanogpt_source_only_h100-openevolve-b01-c0",
+  "schema_version": "1.0",
+  "selected_parent_ids": [
+    "ee1f1cf686a479f175a9b2178602df52386a3561e80b0612b88ccd725e447c2e"
+  ],
+  "timestamp": "2026-08-23T19:48:52.609849+00:00",
+  "usage_cumulative": {
+    "cached_input_tokens": 84224,
+    "input_tokens": 158278,
+    "output_tokens": 19884,
+    "reasoning_output_tokens": 18371,
+    "total_tokens": 178162
+  },
+  "usage_increment": {
+    "cached_input_tokens": 12032,
+    "input_tokens": 23288,
+    "output_tokens": 3146,
+    "reasoning_output_tokens": 2892,
+    "total_tokens": 26434
+  },
+  "visible_candidate_ids": [
+    "ee1f1cf686a479f175a9b2178602df52386a3561e80b0612b88ccd725e447c2e"
+  ]
+}

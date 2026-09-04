@@ -1,0 +1,73 @@
+{
+  "artifact_path": "candidates/23b20d293110a9106d8a7f5896dc8ec99fd258257a9f253ffc0081d399c58c2c",
+  "candidate_id": "23b20d293110a9106d8a7f5896dc8ec99fd258257a9f253ffc0081d399c58c2c",
+  "codex_service_tier": "default",
+  "condition": "C1",
+  "conversation_session_id": null,
+  "evaluation": {
+    "evaluator_calls": 1,
+    "evaluator_seconds": 1800.0474590831436,
+    "failure_kind": "timeout",
+    "fitness": null,
+    "metrics": {},
+    "valid": false
+  },
+  "evaluator_calls_cumulative": 138,
+  "evaluator_calls_increment": 1,
+  "evaluator_seconds_cumulative": 65956.54012195347,
+  "evaluator_seconds_increment": 1800.0474590831436,
+  "event": "proposal_completed",
+  "evicted_candidate_id": null,
+  "evidence": "The verified 1,520-parameter design already uses twelve analogous LayerNorm-input weight quotients in the MLP while reaching 99.83%; this tests that successful mechanism in one attention query row instead of extending the value-bias reduction whose third coordinate fell to 94.05%.",
+  "hypothesis": "Fixing one query projection input coefficient at zero will reduce the model from 1,520 to 1,519 parameters while retaining at least 99% accuracy, because causal attention receives mean-zero normalized activations and the removed coefficient can be absorbed into the other coefficients of that query row.",
+  "incumbent_after": "91b386efef11d45a3d9291899f1d34e03f687908cdcc3088d1213e4d0e22796c",
+  "intended_edit": "Replace the QKV projection with a specialized linear layer that omits the final input coefficient of its first query row, reconstructs it as zero, and canonicalizes initialization by subtracting the omitted coefficient from the retained row entries.",
+  "mechanism": "LayerNorm-null query-weight quotient",
+  "opportunity": 139,
+  "parent_ids": [
+    "91b386efef11d45a3d9291899f1d34e03f687908cdcc3088d1213e4d0e22796c"
+  ],
+  "portfolio_after": [
+    "91b386efef11d45a3d9291899f1d34e03f687908cdcc3088d1213e4d0e22796c"
+  ],
+  "prompt_hashes": {
+    "common_template_sha256": "3f2bea6418b6969c4bf2aa1df18dcda8a3a4ac075bf20c79068c754698b6be5e",
+    "prompt_sha256": "1c00f67d22cfff86c0a90d6f2d813e98b9f016989aabf35b4a1640e8d74f3cd8",
+    "proposal_policy_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "search_state_sha256": "04e5eb078ae1964e4ec65bfeeeb1acd0ffa246e7d54d5e0f997f81f602da28c5",
+    "treatment_skeleton_sha256": "b4af295534ff113c5106d8f9f53c03e20f8380e301ff8887ce3cd72d68755f35"
+  },
+  "proposal_type": "ordinary",
+  "proposals_cumulative": 139,
+  "remaining_budget": {
+    "evaluations": 62,
+    "evaluator_seconds": 294043.45987804653,
+    "proposals": 61,
+    "tokens": 96203239
+  },
+  "retained": false,
+  "retention_decision": "invalid",
+  "run_id": "controlled-openevolve-transformer-v2-1-source-only-ten-digit-addition-pair-transformer-openevolve-v2-1-mps-openevolve-b01-c1",
+  "schema_version": "1.0",
+  "selected_parent_ids": [
+    "91b386efef11d45a3d9291899f1d34e03f687908cdcc3088d1213e4d0e22796c"
+  ],
+  "timestamp": "2026-09-04T02:51:27.673803+00:00",
+  "usage_cumulative": {
+    "cached_input_tokens": 1472640,
+    "input_tokens": 3267978,
+    "output_tokens": 528783,
+    "reasoning_output_tokens": 423625,
+    "total_tokens": 3796761
+  },
+  "usage_increment": {
+    "cached_input_tokens": 10752,
+    "input_tokens": 25185,
+    "output_tokens": 4242,
+    "reasoning_output_tokens": 3624,
+    "total_tokens": 29427
+  },
+  "visible_candidate_ids": [
+    "91b386efef11d45a3d9291899f1d34e03f687908cdcc3088d1213e4d0e22796c"
+  ]
+}

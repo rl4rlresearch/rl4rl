@@ -1,0 +1,99 @@
+{
+  "artifact_path": "candidates/8f173dc46e9acf1c7c65f9d663c86b4f97cddcad4833d204c1d5e970cc8420be",
+  "candidate_id": "8f173dc46e9acf1c7c65f9d663c86b4f97cddcad4833d204c1d5e970cc8420be",
+  "codex_service_tier": "default",
+  "condition": "C1",
+  "conversation_session_id": null,
+  "evaluation": {
+    "evaluator_calls": 1,
+    "evaluator_seconds": 60.43273470806889,
+    "failure_kind": "nonqualification",
+    "fitness": null,
+    "metrics": {
+      "batch_size": 128,
+      "evaluation_cases": 815,
+      "evaluation_split": "public_speaker_disjoint_validation",
+      "examples_processed": 50000,
+      "inference_cost": 1429845007897611051,
+      "maximum_recurrent_steps": 25,
+      "mean_recurrent_steps": 25.0,
+      "median_recurrent_steps": 25,
+      "optimizer_steps": 397,
+      "p95_recurrent_steps": 25,
+      "parameters": 15146,
+      "peak_hidden_elements": 89600,
+      "recurrent_logit_effect": 0.09239218384027481,
+      "recurrent_macs": 272984250,
+      "recurrent_steps": 20375,
+      "state_dependence_effect": 0.3285849094390869,
+      "state_update_effect": 0.3510246276855469,
+      "total_inference_macs": 274118730,
+      "trained_recurrent_logit_effect": 0.6257025003433228,
+      "trained_state_dependence_effect": 0.3619685471057892,
+      "trained_state_update_effect": 0.39977768063545227,
+      "training_seconds": 44.831994000123814,
+      "validation_accuracy": 0.849079754601227,
+      "validation_correct": 692,
+      "validation_cross_entropy": 0.4811973618583445
+    },
+    "valid": false
+  },
+  "evaluator_calls_cumulative": 37,
+  "evaluator_calls_increment": 1,
+  "evaluator_seconds_cumulative": 3805.2388283743057,
+  "evaluator_seconds_increment": 60.43273470806889,
+  "event": "proposal_completed",
+  "evicted_candidate_id": null,
+  "evidence": "Directly fusing two high-frequency bands at the same 19-input GRU width reached only 84.54%, indicating that its information loss was harmful; this patch achieves the same recurrent MAC reduction without discarding spectral information.",
+  "hypothesis": "Representing each non-affine layer-normalized frame with its first 19 coordinates will retain at least 85% accuracy while reducing total inference MACs by approximately 3.55M, because the omitted coordinate is determined by the normalization\u2019s zero-sum constraint.",
+  "incumbent_after": "c13838e1b09878795b254ed269f0a0aa4930905a5ad695f315c3d7a5cc30b07a",
+  "intended_edit": "Disable redundant LayerNorm affine parameters, reduce the GRU input width from 20 to 19, and slice one normalized coordinate in both recurrent execution paths.",
+  "mechanism": "Lossless zero-mean mel coordinate elimination",
+  "opportunity": 37,
+  "parent_ids": [
+    "c13838e1b09878795b254ed269f0a0aa4930905a5ad695f315c3d7a5cc30b07a"
+  ],
+  "portfolio_after": [
+    "c13838e1b09878795b254ed269f0a0aa4930905a5ad695f315c3d7a5cc30b07a"
+  ],
+  "prompt_hashes": {
+    "common_template_sha256": "dee04faf4c430276c1036ba97f5705a339857dbdf19117dac88952a5a3a47e9d",
+    "prompt_sha256": "a7944da57e945d86cc431855329c6ee577508a4b61fc5fbb7e931fa6ef888800",
+    "proposal_policy_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "search_state_sha256": "04e5eb078ae1964e4ec65bfeeeb1acd0ffa246e7d54d5e0f997f81f602da28c5",
+    "treatment_skeleton_sha256": "372753d0d7fb9d68e29384626701e108c12b66d60a69ead8764bc4c7c49cda69"
+  },
+  "proposal_type": "ordinary",
+  "proposals_cumulative": 37,
+  "remaining_budget": {
+    "evaluations": 163,
+    "evaluator_seconds": 56194.761171625694,
+    "proposals": 163,
+    "tokens": 99214538
+  },
+  "retained": false,
+  "retention_decision": "invalid",
+  "run_id": "tiny-kws-rnn-openevolve-v2-1-cpu-tiny_kws_rnn_source_only_cpu-openevolve-b04-c1",
+  "schema_version": "1.0",
+  "selected_parent_ids": [
+    "c13838e1b09878795b254ed269f0a0aa4930905a5ad695f315c3d7a5cc30b07a"
+  ],
+  "timestamp": "2026-09-04T04:21:12.174046+00:00",
+  "usage_cumulative": {
+    "cached_input_tokens": 397824,
+    "input_tokens": 727828,
+    "output_tokens": 57634,
+    "reasoning_output_tokens": 41830,
+    "total_tokens": 785462
+  },
+  "usage_increment": {
+    "cached_input_tokens": 10752,
+    "input_tokens": 20231,
+    "output_tokens": 4904,
+    "reasoning_output_tokens": 4553,
+    "total_tokens": 25135
+  },
+  "visible_candidate_ids": [
+    "c13838e1b09878795b254ed269f0a0aa4930905a5ad695f315c3d7a5cc30b07a"
+  ]
+}

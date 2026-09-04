@@ -1,0 +1,197 @@
+# Optimize a transformer for 10-digit addition
+
+You are an autonomous ML engineer improving the source code for an
+autoregressive transformer that adds two 10-digit numbers.
+
+## Goal
+
+Minimize the actual number of deduplicated learned model parameters while
+maintaining at least 99% accuracy under the fixed verification process. A
+smaller implementation is useful only when it meets that accuracy requirement.
+Every submitted implementation is trained from a fresh initialization.
+
+## Learned-model requirement
+
+Produce a smaller trained autoregressive transformer, not a hand-coded addition
+program. The submitted implementation must:
+
+- have nonzero trainable parameters;
+- contain and use at least one learned causal self-attention module;
+- map token inputs to token logits through the learned model;
+- train from a fresh initialization during verification;
+- write both `checkpoints/best.pt` and a positive-step `checkpoints/last.pt`;
+- keep source code unchanged while training; and
+- use the protected generic decoding interface exactly as supplied.
+
+Do not implement or embed decimal arithmetic, carry propagation, place-value
+rules, digit lookup tables, finite-state addition transitions, fixed answer
+rules, or input-dependent Python logic that directly computes the sum. Do not
+hide such a solver in model generation, token processing, training, or saved
+weights. Do not add dummy or zero-length parameters to disguise a fixed
+algorithm as a learned model.
+
+Do not modify protected files. Do not perform post-training state-dictionary
+surgery, substitute a different saved model, truncate weights after training,
+or report a parameter count that differs from the submitted model.
+
+## Work boundaries
+
+Minimize parameters. Required result: accuracy >= 0.99.
+Editable source files: src/model.py, src/train.py.
+Results reported after each verification: accuracy, parameters, training_steps.
+
+Propose changes through exact SEARCH/REPLACE blocks. The patching interface applies them to the supplied editable source.
+
+The editable source and any reference source are included below. Do not access
+parent directories, home directories, shared temporary directories, global
+session history, online sources, or any surrounding repository. Do not run
+training or verification yourself and do not generate hidden alternatives.
+Return one patch for one implementation; verification happens after you finish.
+
+## Available designs
+
+The current editable design and the qualified reference designs below are available as technical evidence. Edit only the current workspace.
+
+CURRENT DESIGN
+verified_results: {"accuracy": 0.998, "parameters": 1527, "training_steps": 4999}
+prior_hypothesis: Tying the two scalar query biases will reduce the verified 1,528-parameter design to 1,527 parameters while retaining at least 99% accuracy, because each head’s unrestricted query and key projections permit reciprocal rescaling that normalizes nonzero bias amplitudes to one shared learned value without changing attention logits.
+
+REFERENCE DESIGN 1
+verified_results: {"accuracy": 0.9995999999999999, "parameters": 1413, "training_steps": 4999}
+prior_hypothesis: Fixing the shared query-bias amplitude at 0.02 will produce a 1,413-parameter model with at least 99% accuracy, because any nonzero amplitude retains the query/key rescaling-equivalent function class while matching the projection initialization scale and avoiding the disruptive unit-amplitude initialization.
+
+REFERENCE DESIGN 2
+verified_results: {"accuracy": 0.9934000000000001, "parameters": 1419, "training_steps": 4999}
+prior_hypothesis: Constraining tied token embeddings to the feature-mean-zero subspace will reduce the current 1,532-parameter model to 1,520 parameters while retaining at least 99% accuracy, because affine-free LayerNorm makes each token-dependent all-ones feature component invisible throughout the residual stack and terminal normalization, while terminal hidden states are mean-zero and therefore cannot use that component in output logits.
+
+REFERENCE DESIGN 3
+verified_results: {"accuracy": 0.9986, "parameters": 1528, "training_steps": 4999}
+prior_hypothesis: Reducing each head’s query bias from four coordinates to one scalar, while applying the verified anchored terminal scale, will produce a 1,528-parameter model with at least 99% accuracy because unrestricted query/key projections can rotate any nonzero headwise bias onto a single coordinate without changing attention logits.
+
+## Recent verification evidence
+
+RECENT RESULT
+hypothesis: Sharing the verified learned query-bias scalar and fixing one redundant QKV input coefficient will produce a 1,526-parameter model with at least 99% accuracy, because affine-free LayerNorm makes the QKV input mean-zero, so a row’s common input-weight component is functionally invisible.
+change: Tie the two query-bias scalars while replacing QKV with a bias-free projection whose first output row fixes one input coefficient to zero; all other projection weights and capacities remain unchanged.
+mechanism: Single-coordinate QKV input gauge fixing
+evidence_used: The shared-bias 1,527-parameter design reached 99.8%, while fixing its bias amplitude collapsed to 39.69%; this retains the successful learned amplitude and removes a different, exact null direction instead.
+result: did not meet the accuracy requirement
+reported_values: {"accuracy": 0.2957, "parameters": 1526, "training_steps": 4999}
+
+RECENT RESULT
+hypothesis: Replacing seven-dimensional positional embeddings with learned four-dimensional codes will reduce the model from 1,532 to 1,463 parameters while retaining at least 99% accuracy, because position primarily controls attention routing and the evidence identifies four—not seven—as the load-bearing routing width.
+change: Constrain all learned positional representations to a shared fixed four-dimensional mean-zero residual subspace while preserving full-width values, `d_ff=12`, two attention heads, and all verified gauge reductions.
+mechanism: Four-dimensional positional routing codes
+evidence_used: The full model reached 99.94%, while reducing each head’s query/key width from four to three reached 98.18%; this motivates preserving four routing coordinates but challenges the shared assumption that positional representations require all seven LayerNorm-visible residual dimensions.
+result: did not meet the accuracy requirement
+reported_values: {"accuracy": 0.9227, "parameters": 1463, "training_steps": 4999}
+
+RECENT RESULT
+hypothesis: Projecting the affine-free `ln2` output onto an orthonormal seven-dimensional mean-zero basis before the MLP will reduce the verified 1,527-parameter model to 1,515 parameters while retaining at least 99% accuracy, because LayerNorm removes the all-ones input component and the projection preserves every function available to `fc1`.
+change: Replace the MLP’s 8-to-12 first projection with a 7-to-12 projection applied to orthonormal coordinates of its mean-zero LayerNorm input, removing one exact null weight direction from each of 12 neurons.
+mechanism: Orthonormal LayerNorm input gauge fixing
+evidence_used: The 1,527-parameter current design achieved 99.8% accuracy. The failed single-coordinate QKV gauge used an asymmetric coordinate anchor; this tests the same exact LayerNorm null-space principle in the MLP with an orthonormal, well-conditioned parameterization whose Gaussian effective-weight initialization matches the original projection onto the usable subspace.
+result: did not meet the accuracy requirement
+reported_values: {"accuracy": 0.011399999999999999, "parameters": 1515, "training_steps": 4999}
+
+RECENT RESULT
+hypothesis: Reusing one QKV row’s LayerNorm-null common component as the shared query-bias scalar will produce a 1,526-parameter model with at least 99% accuracy while preserving the function class of the verified 1,527-parameter design.
+change: Remove the standalone query-bias parameters, derive the shared bias from a normalized sum of one QKV row, and center that row after initialization so the bias retains its verified zero initialization.
+mechanism: QKV null-coordinate recycling
+evidence_used: The shared learned query bias reached 99.8% with 1,527 parameters, whereas deleting a QKV null coordinate collapsed to 29.57%; recycling that coordinate keeps it trainable and preserves the dense QKV parameterization instead of asymmetrically removing it.
+result: did not meet the accuracy requirement
+reported_values: {"accuracy": 0.5333, "parameters": 1526, "training_steps": 4999}
+
+RECENT RESULT
+hypothesis: Constraining tied token embeddings to the feature-mean-zero subspace will reduce the current 1,532-parameter model to 1,520 parameters while retaining at least 99% accuracy, because affine-free LayerNorm makes each token-dependent all-ones feature component invisible throughout the residual stack and terminal normalization, while terminal hidden states are mean-zero and therefore cannot use that component in output logits.
+change: Parameterize the tied embedding matrix with orthonormal bases across both vocabulary and feature dimensions, removing one functionally null feature coordinate for each of the twelve vocabulary-basis rows while preserving the current successful six-parameter query-bias design.
+mechanism: Two-sided orthonormal centering of tied token embeddings
+evidence_used: The 1,532-parameter current design achieved 99.94% accuracy with mean-zero positional embeddings and residual projections plus affine-free internal normalization. Unlike the failed asymmetric QKV and MLP reductions, this uses orthonormal coordinates on both sides and gives the same initialization distribution as projecting the existing embedding matrix onto its usable feature subspace.
+result: met the accuracy requirement and became an available design
+reported_values: {"accuracy": 0.9934000000000001, "parameters": 1419, "training_steps": 4999}
+
+RECENT RESULT
+hypothesis: Combining the verified two-sided embedding constraint with the verified shared scalar query bias will produce a 1,414-parameter model with at least 99% accuracy, because each reduction preserved accuracy independently and leaves attention projection widths, positional capacity, MLP width, and terminal relative scales unchanged.
+change: Apply vocabulary- and feature-centered tied token embeddings, mean-zero positional embeddings and residual projections, affine-free internal normalization, anchored terminal scaling, and one learned query-bias scalar shared across both attention heads.
+mechanism: Two-sided centered tied embeddings with shared scalar query-bias gauge
+evidence_used: The two-sided centered embedding design achieved 99.34% with 1,419 parameters using six query-bias parameters, while sharing a scalar query bias achieved 99.8% in the one-sided embedding design; replacing those six parameters with the verified shared scalar is the smallest supported combination.
+result: met the accuracy requirement and became an available design
+reported_values: {"accuracy": 0.9904000000000001, "parameters": 1414, "training_steps": 4999}
+
+RECENT RESULT
+hypothesis: Fixing the shared query-bias amplitude at 0.02 will produce a 1,413-parameter model with at least 99% accuracy, because any nonzero amplitude retains the query/key rescaling-equivalent function class while matching the projection initialization scale and avoiding the disruptive unit-amplitude initialization.
+change: Replace the learned shared query-bias scalar with a fixed, nonpersistent 0.02 buffer while preserving both attention heads, full query/key widths, and all other verified components.
+mechanism: Initialization-scale query-bias anchoring
+evidence_used: The learned shared scalar reached 99.04% in the current 1,414-parameter design, while fixing it at one previously collapsed to 39.69%; testing a small nonzero anchor isolates whether that failure came from initialization scale rather than loss of model capacity.
+result: met the accuracy requirement and became an available design
+reported_values: {"accuracy": 0.9995999999999999, "parameters": 1413, "training_steps": 4999}
+
+RECENT RESULT
+hypothesis: Fixing the query-bias amplitude at 0.02 and reducing `d_ff` from 12 to 11 will produce a 1,397-parameter model with at least 99% accuracy, because the verified fixed-bias model achieved 99.96% accuracy and the edit preserves all demonstrated routing dimensions while removing only one MLP neuron.
+change: Apply the verified nonlearned 0.02 shared query bias and reduce the default feed-forward width by one.
+mechanism: Fixed-scale attention with single-neuron MLP width ablation
+evidence_used: The 1,413-parameter fixed-bias design achieved 99.96% accuracy. Unlike failed reductions to positional or query/key routing capacity, this patch preserves those components and uses that accuracy margin for a conservative 16-parameter MLP ablation.
+result: did not meet the accuracy requirement
+reported_values: {"accuracy": 0.982, "parameters": 1397, "training_steps": 4999}
+
+RECENT RESULT
+hypothesis: Constraining positional embeddings from seven to six learned mean-zero coordinates will produce a 1,390-parameter model with at least 99% accuracy, because the verified 1,413-parameter design has 99.96% accuracy and this preserves substantially more routing capacity than the unsuccessful four-dimensional design.
+change: Apply the verified two-sided centered token embeddings and fixed 0.02 query bias, then remove one learned coordinate from every positional embedding.
+mechanism: Six-dimensional learned positional routing subspace
+evidence_used: The fixed-bias, two-sided embedding design achieved 99.96% with 1,413 parameters, while four-dimensional positional codes achieved only 92.27%; a one-coordinate positional ablation is the conservative next test between those results.
+result: did not meet the accuracy requirement
+reported_values: {"accuracy": 0.6962999999999999, "parameters": 1390, "training_steps": 4999}
+
+RECENT RESULT
+hypothesis: Combining the verified 1,413-parameter design with one tied pair of terminal LayerNorm scales will produce a 1,412-parameter model with at least 99% accuracy, because it removes only one relative-scale degree of freedom while preserving both scales’ trainability and all routing and MLP capacity.
+change: Apply two-sided centered tied embeddings and the fixed 0.02 query bias, then share the last two learned terminal normalization scales.
+mechanism: Tied terminal feature scales
+evidence_used: The 1,413-parameter fixed-bias design achieved 99.96% accuracy, while larger MLP and positional reductions failed; a single terminal-scale tie is the smallest conservative ablation supported by that accuracy margin.
+result: did not meet the accuracy requirement
+reported_values: {"accuracy": 0.8337, "parameters": 1412, "training_steps": 4999}
+
+RECENT RESULT
+hypothesis: Fixing one of twelve MLP hidden-unit biases at zero will reduce the model to 1,412 parameters while retaining at least 99% accuracy, because it preserves every hidden neuron and all learned weights while removing only one scalar threshold from a permutation-symmetric hidden layer.
+change: Replace the MLP’s first projection with an otherwise identical linear layer whose final output bias is fixed at zero and whose other eleven biases remain independently learned.
+mechanism: Zero-anchored MLP hidden bias
+evidence_used: The 1,413-parameter design achieved 99.96% accuracy, whereas removing an entire MLP neuron and sixteen parameters still reached 98.2%; retaining that neuron’s fifteen weights while removing only its initially zero bias is a substantially more conservative capacity reduction. Unlike the failed terminal-scale tie, MLP hidden units have no feature-coordinate identity.
+result: did not meet the accuracy requirement
+reported_values: {"accuracy": 0.3967, "parameters": 1412, "training_steps": 4999}
+
+RECENT RESULT
+hypothesis: Sharing one learned value projection across both attention heads will reduce the verified fixed-bias design from 1,413 to 1,381 parameters while retaining at least 99% accuracy, because addition’s two operands use the same digit representation while independent query/key projections preserve each head’s load-bearing ability to route to different source positions.
+change: Replace per-head value projections with one learned four-dimensional value map shared by both heads, retain full-width independent query/key maps, and apply the verified fixed 0.02 shared query bias.
+mechanism: Shared value alphabet with independent attention routing
+evidence_used: The 1,413-parameter fixed-bias design reached 99.96%, whereas reducing query/key routing width or positional capacity hurt accuracy. This suggests routing capacity is load-bearing, but does not establish that the two routed operands need separate value coordinate systems; a shared learned value alphabet directly tests that assumption while leaving routing intact.
+result: did not meet the accuracy requirement
+reported_values: {"accuracy": 0.6009, "parameters": 1381, "training_steps": 4999}
+
+
+
+Use the available technical evidence to choose the most informative next
+change. Treat unsuccessful or malformed work as evidence when a useful
+subject-level reason is provided. Do not invent missing evidence.
+
+## Response
+
+Return these short metadata lines followed by one or more exact
+`SEARCH`/`REPLACE` blocks that together produce one implementation:
+
+`MECHANISM: <a concise free-form name for the computational idea>`
+
+`HYPOTHESIS: <a falsifiable claim grounded in the evidence above>`
+
+`INTENDED_EDIT: <what this patch changes>`
+
+`EVIDENCE: <the most relevant prior result and why it motivates this patch>`
+
+Start each block with `<<<<<<< SEARCH`, put the exact existing lines next, use a
+line containing `=======` as the divider, put the replacement lines after it,
+and finish the block with `>>>>>>> REPLACE`.
+
+Every `SEARCH` section must be nonempty and match exactly once after earlier
+blocks have been applied. All blocks must apply. They may edit either or both
+editable files, but together they must describe one implementation ready for
+verification. The mechanism name is descriptive, not chosen from a fixed list.
+Do not paste whole files, lengthy logs, or routine progress reports outside the
+patch.

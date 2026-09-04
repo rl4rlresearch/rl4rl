@@ -1,0 +1,79 @@
+{
+  "artifact_path": "candidates/fba9f9b3593425209154f11123f375d19530f0ca9617640d9a6e44a26d3ee332",
+  "candidate_id": "fba9f9b3593425209154f11123f375d19530f0ca9617640d9a6e44a26d3ee332",
+  "codex_service_tier": "default",
+  "condition": "C0",
+  "conversation_session_id": null,
+  "evaluation": {
+    "evaluator_calls": 1,
+    "evaluator_seconds": 302.1393613340333,
+    "failure_kind": "nonqualification",
+    "fitness": null,
+    "metrics": {
+      "accuracy": 0.7454000000000001,
+      "cases": 10010,
+      "correct": 7461,
+      "parameters": 1599,
+      "training_steps": 4999
+    },
+    "valid": false
+  },
+  "evaluator_calls_cumulative": 82,
+  "evaluator_calls_increment": 1,
+  "evaluator_seconds_cumulative": 43686.06913309044,
+  "evaluator_seconds_increment": 302.1393613340333,
+  "event": "proposal_completed",
+  "evicted_candidate_id": null,
+  "evidence": "The verified 1600-parameter model reaches 99.93% while centering the first two `fc2` columns; extending that established parameterization is more informative than further key-row anchoring, which failed on rows three through five.",
+  "hypothesis": "Centering the third `fc2` output column will reduce the model to 1599 parameters while retaining at least 99% accuracy, because its eliminated all-feature component is canceled by downstream LayerNorm just like the first two already-centered columns.",
+  "incumbent_after": "a24ea0b26d2ca06ef3e68e1ac7514486dc43a0d7b93cfaaa01df24e959479dd4",
+  "intended_edit": "Store seven coordinates for each of the first three `fc2` columns, reconstruct every column with zero feature mean, and preserve initialization modulo the exact downstream LayerNorm invariance.",
+  "mechanism": "Third MLP output-column common-mode gauge removal",
+  "opportunity": 82,
+  "parent_ids": [
+    "a24ea0b26d2ca06ef3e68e1ac7514486dc43a0d7b93cfaaa01df24e959479dd4"
+  ],
+  "portfolio_after": [
+    "a24ea0b26d2ca06ef3e68e1ac7514486dc43a0d7b93cfaaa01df24e959479dd4"
+  ],
+  "prompt_hashes": {
+    "common_template_sha256": "3f2bea6418b6969c4bf2aa1df18dcda8a3a4ac075bf20c79068c754698b6be5e",
+    "prompt_sha256": "ec8161b305b2041a5261ecafdd0298e6af7e642d3be64c30c4b8fd5d8064fcf4",
+    "proposal_policy_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "search_state_sha256": "04e5eb078ae1964e4ec65bfeeeb1acd0ffa246e7d54d5e0f997f81f602da28c5",
+    "treatment_skeleton_sha256": "117e60bf6dbfe0452f3287e5cd92d8bc8f7c6581ee2dae1da960680ddc89b9e5"
+  },
+  "proposal_type": "ordinary",
+  "proposals_cumulative": 82,
+  "remaining_budget": {
+    "evaluations": 118,
+    "evaluator_seconds": 316313.93086690956,
+    "proposals": 118,
+    "tokens": 97899960
+  },
+  "retained": false,
+  "retention_decision": "invalid",
+  "run_id": "controlled-openevolve-transformer-v2-1-source-only-ten-digit-addition-pair-transformer-openevolve-v2-1-mps-openevolve-b01-c0",
+  "schema_version": "1.0",
+  "selected_parent_ids": [
+    "a24ea0b26d2ca06ef3e68e1ac7514486dc43a0d7b93cfaaa01df24e959479dd4"
+  ],
+  "timestamp": "2026-08-25T23:34:41.055591+00:00",
+  "usage_cumulative": {
+    "cached_input_tokens": 835584,
+    "input_tokens": 1875364,
+    "output_tokens": 224676,
+    "reasoning_output_tokens": 178247,
+    "total_tokens": 2100040
+  },
+  "usage_increment": {
+    "cached_input_tokens": 2816,
+    "input_tokens": 24418,
+    "output_tokens": 2811,
+    "reasoning_output_tokens": 2119,
+    "total_tokens": 27229
+  },
+  "visible_candidate_ids": [
+    "a24ea0b26d2ca06ef3e68e1ac7514486dc43a0d7b93cfaaa01df24e959479dd4"
+  ]
+}

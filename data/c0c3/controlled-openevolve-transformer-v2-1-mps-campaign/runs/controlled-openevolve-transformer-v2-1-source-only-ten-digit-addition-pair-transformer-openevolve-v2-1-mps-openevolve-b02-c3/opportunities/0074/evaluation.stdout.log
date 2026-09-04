@@ -1,0 +1,74 @@
+Run: repro_l1_d8_ff12
+Params: 822
+Device: mps
+step=     0 loss=4.7346 val_exact=0.00000 val_tok=0.00000 lr=3.00e-05 t=7.7s
+step=   300 loss=2.1140 val_exact=0.00000 val_tok=0.13782 lr=2.99e-03 t=16.8s
+step=   600 loss=1.5595 val_exact=0.00000 val_tok=0.25814 lr=2.93e-03 t=25.5s
+step=   900 loss=1.1135 val_exact=0.00000 val_tok=0.39991 lr=2.83e-03 t=34.7s
+step=  1200 loss=0.5862 val_exact=0.02900 val_tok=0.69523 lr=2.68e-03 t=45.3s
+step=  1500 loss=0.4865 val_exact=0.05350 val_tok=0.73950 lr=2.49e-03 t=55.1s
+step=  1800 loss=0.4657 val_exact=0.05450 val_tok=0.73873 lr=2.27e-03 t=65.3s
+step=  2100 loss=0.4486 val_exact=0.05500 val_tok=0.74109 lr=2.03e-03 t=75.1s
+step=  2400 loss=0.4481 val_exact=0.05650 val_tok=0.74327 lr=1.78e-03 t=83.7s
+step=  2700 loss=0.4465 val_exact=0.05950 val_tok=0.74264 lr=1.52e-03 t=93.6s
+step=  3000 loss=0.4308 val_exact=0.06050 val_tok=0.74759 lr=1.27e-03 t=102.0s
+step=  3300 loss=0.4356 val_exact=0.05700 val_tok=0.74605 lr=1.03e-03 t=110.5s
+step=  3600 loss=0.4179 val_exact=0.07650 val_tok=0.76595 lr=8.08e-04 t=118.8s
+step=  3900 loss=0.3062 val_exact=0.19800 val_tok=0.84823 lr=6.22e-04 t=127.0s
+step=  4200 loss=0.1527 val_exact=0.69200 val_tok=0.96500 lr=4.74e-04 t=135.6s
+step=  4500 loss=0.0786 val_exact=0.88350 val_tok=0.98741 lr=3.69e-04 t=145.0s
+step=  4800 loss=0.0554 val_exact=0.95000 val_tok=0.99482 lr=3.11e-04 t=154.3s
+step=  4999 loss=0.0437 val_exact=0.97450 val_tok=0.99736 lr=3.00e-04 t=162.2s
+{
+  "run_name": "repro_l1_d8_ff12",
+  "params": 822,
+  "best_val_exact": 0.9745,
+  "best_step": 4999,
+  "train_steps": 5000,
+  "elapsed_sec": 162.24219703674316,
+  "metrics_csv": "results/runs/repro_l1_d8_ff12/metrics.csv",
+  "best_ckpt": "checkpoints/best.pt",
+  "last_ckpt": "checkpoints/last.pt"
+}
+Model: 10-digit addition transformer
+Author: autonomous optimization run
+Parameters (unique): 822
+Architecture: trained autoregressive transformer with pair-column input tokens d=6, h=2, L=1, ff=7
+Tricks: generic greedy decoding, freshly trained checkpoint
+
+  Progress: 1000/10010 (973/1000 correct) [57.0s]
+  Progress: 2000/10010 (1943/2000 correct) [102.7s]
+  Progress: 3000/10010 (2919/3000 correct) [164.5s]
+  Progress: 4000/10010 (3902/4000 correct) [207.6s]
+  Progress: 5000/10010 (4878/5000 correct) [238.8s]
+  Progress: 6000/10010 (5854/6000 correct) [281.0s]
+  Progress: 7000/10010 (6834/7000 correct) [325.5s]
+  Progress: 8000/10010 (7816/8000 correct) [366.1s]
+  Progress: 9000/10010 (8798/9000 correct) [415.9s]
+  Progress: 10000/10010 (9778/10000 correct) [483.6s]
+
+Results: 9787/10010 correct (97.77%)
+Time: 484.1s (21 additions/sec)
+Status: NOT QUALIFIED (threshold: 99%)
+
+First 20 failures (of 223):
+  0 + 0 = 0, got 99999999999
+  0 + 1 = 1, got 1010100001
+  5000000000 + 5000000000 = 10000000000, got 10010100000
+  2966494253 + 598073131 = 3564567384, got 3464567384
+  1120340031 + 7427393734 = 8547733765, got 98547733765
+  5332038130 + 5429697801 = 10761735931, got 10761735981
+  8740276759 + 2340823233 = 11081099992, got 99992
+  4492771140 + 3448252020 = 7941023160, got 7941008160
+  6198100021 + 4922017534 = 11120117555, got 17555
+  4051300631 + 4780251947 = 8831552578, got 8881552578
+  1811399979 + 9606908494 = 11418308473, got 11518308473
+  6670932112 + 1536621056 = 8207553168, got 8207558168
+  5391846651 + 8560135764 = 13951982415, got 13961982415
+  4129700159 + 7455509297 = 11585209456, got 11585309456
+  4000055073 + 9434097012 = 13434152085, got 13434153085
+  9989885130 + 1305758330 = 11295643460, got 11294643460
+  7800085540 + 4608897850 = 12408983390, got 12508983390
+  7006283134 + 2075731875 = 9082015009, got 10082015009
+  7100372025 + 1460241005 = 8560613030, got 8569613030
+  6696905433 + 8959148462 = 15656053895, got 14656053895

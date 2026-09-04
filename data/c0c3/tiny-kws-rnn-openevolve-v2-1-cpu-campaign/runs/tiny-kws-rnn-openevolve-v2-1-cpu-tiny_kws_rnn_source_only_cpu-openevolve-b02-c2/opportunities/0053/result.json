@@ -1,0 +1,105 @@
+{
+  "artifact_path": "candidates/0f9127d5fe8795e70145ea33f795bca149e180214fe1641dfe127d560bc09ff0",
+  "candidate_id": "0f9127d5fe8795e70145ea33f795bca149e180214fe1641dfe127d560bc09ff0",
+  "codex_service_tier": "default",
+  "condition": "C2",
+  "conversation_session_id": null,
+  "evaluation": {
+    "evaluator_calls": 1,
+    "evaluator_seconds": 56.73535416694358,
+    "failure_kind": "nonqualification",
+    "fitness": null,
+    "metrics": {
+      "batch_size": 128,
+      "evaluation_cases": 815,
+      "evaluation_split": "public_speaker_disjoint_validation",
+      "examples_processed": 50000,
+      "inference_cost": 2684265730834911553,
+      "maximum_recurrent_steps": 25,
+      "mean_recurrent_steps": 25.0,
+      "median_recurrent_steps": 25,
+      "optimizer_steps": 397,
+      "p95_recurrent_steps": 25,
+      "parameters": 27093,
+      "peak_hidden_elements": 86528,
+      "recurrent_logit_effect": 0.07227566838264465,
+      "recurrent_macs": 513511125,
+      "recurrent_steps": 20375,
+      "state_dependence_effect": 0.38011524081230164,
+      "state_update_effect": 0.3794231116771698,
+      "total_inference_macs": 514606485,
+      "trained_recurrent_logit_effect": 0.3406110405921936,
+      "trained_state_dependence_effect": 0.43217530846595764,
+      "trained_state_update_effect": 0.4298858642578125,
+      "training_seconds": 38.39540429087356,
+      "validation_accuracy": 0.8343558282208589,
+      "validation_correct": 680,
+      "validation_cross_entropy": 0.5098944073074434
+    },
+    "valid": false
+  },
+  "evaluator_calls_cumulative": 52,
+  "evaluator_calls_increment": 1,
+  "evaluator_seconds_cumulative": 5202.4934578312095,
+  "evaluator_seconds_increment": 56.73535416694358,
+  "event": "proposal_completed",
+  "evicted_candidate_id": null,
+  "evidence": "Fixed 16-feature fusion narrowly missed at 84.54%, while discarding a spectral endpoint performed worse; a learned projection can preserve information from every qualified band while structurally reducing recurrent input cost.",
+  "hypothesis": "Projecting all 17 qualified mel bands into 15 learned recurrent features will retain at least 85% validation accuracy while reducing total inference MACs from 519,679,860 to approximately 514,606,485.",
+  "incumbent_after": "99ef7dee6968dec230a65502338e9d7e37e10408a3385c0da334118bdac74894",
+  "intended_edit": "Add a bias-free 17-to-15 linear spectral projection before the GRU in both recurrent paths and reduce the GRU input width accordingly, preserving the qualified 25-step schedule, 84-unit state, and dual-view classifier.",
+  "mechanism": "Learned low-rank spectral projection",
+  "opportunity": 53,
+  "parent_ids": [
+    "99ef7dee6968dec230a65502338e9d7e37e10408a3385c0da334118bdac74894"
+  ],
+  "portfolio_after": [
+    "69ea5785c128bb48a687935ee997a8df2c1bf497b273cc63d76f16ea0a33350c",
+    "99ef7dee6968dec230a65502338e9d7e37e10408a3385c0da334118bdac74894",
+    "be6ea46042173a763ca654235c527f7d5a6f6e48f6a0399f1349f58b516e2be6",
+    "16e54c9e634bc8ca37befc9ef94a131a991fba3072c1a0dbca5ee60d992488a2"
+  ],
+  "prompt_hashes": {
+    "common_template_sha256": "dee04faf4c430276c1036ba97f5705a339857dbdf19117dac88952a5a3a47e9d",
+    "prompt_sha256": "1e5e5a771d988e0adb2cbb285b5e577a9c42576e824e4ec193f191cd6db528e2",
+    "proposal_policy_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "search_state_sha256": "c938ac007bf70fe8d27f64661175531e51fcb16b38318c328493c32ee292e27e",
+    "treatment_skeleton_sha256": "a3907423ac44d6cd275b874b9e46d78e57eee614a395f567d61036c09a3b7732"
+  },
+  "proposal_type": "ordinary",
+  "proposals_cumulative": 53,
+  "remaining_budget": {
+    "evaluations": 148,
+    "evaluator_seconds": 54797.50654216879,
+    "proposals": 147,
+    "tokens": 98592519
+  },
+  "retained": false,
+  "retention_decision": "invalid",
+  "run_id": "tiny-kws-rnn-openevolve-v2-1-cpu-tiny_kws_rnn_source_only_cpu-openevolve-b02-c2",
+  "schema_version": "1.0",
+  "selected_parent_ids": [
+    "99ef7dee6968dec230a65502338e9d7e37e10408a3385c0da334118bdac74894"
+  ],
+  "timestamp": "2026-09-04T05:12:55.471590+00:00",
+  "usage_cumulative": {
+    "cached_input_tokens": 663424,
+    "input_tokens": 1314228,
+    "output_tokens": 93253,
+    "reasoning_output_tokens": 73649,
+    "total_tokens": 1407481
+  },
+  "usage_increment": {
+    "cached_input_tokens": 10752,
+    "input_tokens": 23944,
+    "output_tokens": 3055,
+    "reasoning_output_tokens": 2588,
+    "total_tokens": 26999
+  },
+  "visible_candidate_ids": [
+    "69ea5785c128bb48a687935ee997a8df2c1bf497b273cc63d76f16ea0a33350c",
+    "99ef7dee6968dec230a65502338e9d7e37e10408a3385c0da334118bdac74894",
+    "be6ea46042173a763ca654235c527f7d5a6f6e48f6a0399f1349f58b516e2be6",
+    "16e54c9e634bc8ca37befc9ef94a131a991fba3072c1a0dbca5ee60d992488a2"
+  ]
+}

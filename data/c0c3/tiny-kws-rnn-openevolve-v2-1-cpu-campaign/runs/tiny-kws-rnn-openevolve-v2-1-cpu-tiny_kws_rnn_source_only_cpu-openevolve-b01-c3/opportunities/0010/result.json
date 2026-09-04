@@ -1,0 +1,79 @@
+{
+  "artifact_path": "candidates/35f8d3999d88039a40d15bf0366d7e50794bb3d72edb5a586f8720bc5292a2a2",
+  "candidate_id": "35f8d3999d88039a40d15bf0366d7e50794bb3d72edb5a586f8720bc5292a2a2",
+  "codex_service_tier": "default",
+  "condition": "C3",
+  "conversation_session_id": null,
+  "evaluation": {
+    "evaluator_calls": 1,
+    "evaluator_seconds": 240.06335116596892,
+    "failure_kind": "timeout",
+    "fitness": null,
+    "metrics": {},
+    "valid": false
+  },
+  "evaluator_calls_cumulative": 10,
+  "evaluator_calls_increment": 1,
+  "evaluator_seconds_cumulative": 1113.8441365398467,
+  "evaluator_seconds_increment": 240.06335116596892,
+  "event": "proposal_completed",
+  "evicted_candidate_id": null,
+  "evidence": "Reducing temporal coverage from 16 to 15 frames collapsed accuracy to 80.25%, while the current 16-frame model reaches 86.01%; this suggests preserving all observations but challenges the unsupported assumption that all 16 require an expensive 110-unit transition. The proposed hierarchy keeps complete coverage and is expected to reduce recurrent MACs from 559,416,000 to about 403,092,480.",
+  "hypothesis": "A 64-unit fast GRU encoding all 16 scheduled frames into four local chunks, followed by a 112-unit slow GRU operating only at chunk boundaries, will retain at least 85% validation accuracy while reducing recurrent MACs by approximately 28% versus the qualified 110-unit monolithic GRU.",
+  "incumbent_after": "bc111f55dd8e1ed365d8adb19c8d880de23a2b5f58689a03874a0252ed95d406",
+  "intended_edit": "Replace the assumption that every frame needs the same full-width recurrent update with a two-timescale hierarchy: a resettable fast GRU processes each four-frame chunk, a slow GRU models the resulting four-chunk command sequence, and prediction combines the slow state with the mean fast representation.",
+  "mechanism": "Four-frame hierarchical dual-rate GRU",
+  "opportunity": 10,
+  "parent_ids": [
+    "bc111f55dd8e1ed365d8adb19c8d880de23a2b5f58689a03874a0252ed95d406"
+  ],
+  "portfolio_after": [
+    "016d906da09d1fe9115b3d48dd009dea2faccbbb35792057b39773f1cdb8582b",
+    "bc111f55dd8e1ed365d8adb19c8d880de23a2b5f58689a03874a0252ed95d406",
+    "8cec21a99e30fa9c376df81fb7d65992f514fb54ed01caa8381a65da36075336",
+    "910d16ff6547b0e5ab31d466d815fcdd19a9fb47677de11d813e46387120f5b1"
+  ],
+  "prompt_hashes": {
+    "common_template_sha256": "dee04faf4c430276c1036ba97f5705a339857dbdf19117dac88952a5a3a47e9d",
+    "prompt_sha256": "cf1086b96fc10cd3ddf59497c135b40477891dbf2fdf2089b0caa10f29bf4fbc",
+    "proposal_policy_sha256": "f3e935f1a3cb6334e7f39b20b1b6b601cd727de9c5f0c3630206a91f08e358c9",
+    "search_state_sha256": "c938ac007bf70fe8d27f64661175531e51fcb16b38318c328493c32ee292e27e",
+    "treatment_skeleton_sha256": "daa03dd31813d8f44bfc53a1294e886ad7b7f479ee010632caa6849b4e248e0d"
+  },
+  "proposal_type": "assumption_changing",
+  "proposals_cumulative": 10,
+  "remaining_budget": {
+    "evaluations": 190,
+    "evaluator_seconds": 58886.15586346015,
+    "proposals": 190,
+    "tokens": 99774534
+  },
+  "retained": false,
+  "retention_decision": "invalid",
+  "run_id": "tiny-kws-rnn-openevolve-v2-1-cpu-tiny_kws_rnn_source_only_cpu-openevolve-b01-c3",
+  "schema_version": "1.0",
+  "selected_parent_ids": [
+    "bc111f55dd8e1ed365d8adb19c8d880de23a2b5f58689a03874a0252ed95d406"
+  ],
+  "timestamp": "2026-09-04T03:04:02.477423+00:00",
+  "usage_cumulative": {
+    "cached_input_tokens": 107520,
+    "input_tokens": 197463,
+    "output_tokens": 28003,
+    "reasoning_output_tokens": 23668,
+    "total_tokens": 225466
+  },
+  "usage_increment": {
+    "cached_input_tokens": 10752,
+    "input_tokens": 22795,
+    "output_tokens": 10462,
+    "reasoning_output_tokens": 9268,
+    "total_tokens": 33257
+  },
+  "visible_candidate_ids": [
+    "016d906da09d1fe9115b3d48dd009dea2faccbbb35792057b39773f1cdb8582b",
+    "bc111f55dd8e1ed365d8adb19c8d880de23a2b5f58689a03874a0252ed95d406",
+    "8cec21a99e30fa9c376df81fb7d65992f514fb54ed01caa8381a65da36075336",
+    "910d16ff6547b0e5ab31d466d815fcdd19a9fb47677de11d813e46387120f5b1"
+  ]
+}

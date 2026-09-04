@@ -1,0 +1,686 @@
+{
+  "active": null,
+  "candidates": {
+    "0c5739da9f29148e1e6269ddc9aed365a62c24fd7d53dc756ee0ead7226bed9b": {
+      "artifact_path": "candidates/0c5739da9f29148e1e6269ddc9aed365a62c24fd7d53dc756ee0ead7226bed9b",
+      "candidate_id": "0c5739da9f29148e1e6269ddc9aed365a62c24fd7d53dc756ee0ead7226bed9b",
+      "created_opportunity": 3,
+      "fitness": -1636.0,
+      "hypothesis": "Removing only the 8 key-projection bias parameters will reduce the model from 1644 to 1636 parameters while retaining at least 99% accuracy, because a position-independent key bias adds the same attention-logit offset for every attended key and cancels exactly under softmax.",
+      "intended_edit": "Replace the packed QKV bias with separate learned query and value biases, leaving the key projection bias-free while preserving all other architecture and training settings.",
+      "metrics": {
+        "accuracy": 0.9984000000000001,
+        "cases": 10010,
+        "correct": 9994,
+        "parameters": 1636,
+        "training_steps": 4999
+      },
+      "parent_ids": [
+        "2b9cea175ed60b009337ac54f6e8ad23bf2c014eb4080237777bfb70bfd9fd5b"
+      ],
+      "retained_order": 3,
+      "selected_count": 6
+    },
+    "0cd65620be7991dd87e1b577a765fa9d5d649855adf722abc631bd7e509dc5d2": {
+      "artifact_path": "candidates/0cd65620be7991dd87e1b577a765fa9d5d649855adf722abc631bd7e509dc5d2",
+      "candidate_id": "0cd65620be7991dd87e1b577a765fa9d5d649855adf722abc631bd7e509dc5d2",
+      "created_opportunity": 13,
+      "fitness": -1634.0,
+      "hypothesis": "Removing the LayerNorm-invariant common-shift coordinate from the attention output bias will produce a 1634-parameter model with at least 99% accuracy when virtual eight-coordinate AdamW preserves the successful optimizer dynamics.",
+      "intended_edit": "Store seven output-bias coordinates with the eighth fixed at zero, and optimize them using virtual eight-dimensional AdamW moments and gauge-aware gradient clipping.",
+      "metrics": {
+        "accuracy": 0.9984999999999999,
+        "cases": 10010,
+        "correct": 9995,
+        "parameters": 1634,
+        "training_steps": 4999
+      },
+      "parent_ids": [
+        "d3c419514a5255ebb45f6e250a6fd4ee08e24680b0b562ac2554fd0401b3df0e"
+      ],
+      "retained_order": 13,
+      "selected_count": 3
+    },
+    "129e9aa93501f4713a12f77856a102142fc7658b1b77d3fe132ca1400efb4590": {
+      "artifact_path": "candidates/129e9aa93501f4713a12f77856a102142fc7658b1b77d3fe132ca1400efb4590",
+      "candidate_id": "129e9aa93501f4713a12f77856a102142fc7658b1b77d3fe132ca1400efb4590",
+      "created_opportunity": 16,
+      "fitness": -1633.0,
+      "hypothesis": "Removing the global common-shift degree of freedom from the tied token embedding will reduce the model from 1634 to 1633 parameters while retaining at least 99% accuracy, because the shift is canceled at transformer inputs by LayerNorm and adds only a vocabulary-wide constant to output logits, while virtual full-coordinate AdamW preserves the successful optimization dynamics.",
+      "intended_edit": "Store all but one coordinate of the tied token embedding, reconstruct its final coordinate as zero, preserve gauge-equivalent initialization and RNG ordering, and optimize it alongside the attention output bias with virtual full-coordinate moments and clipping.",
+      "metrics": {
+        "accuracy": 0.9972,
+        "cases": 10010,
+        "correct": 9982,
+        "parameters": 1633,
+        "training_steps": 4999
+      },
+      "parent_ids": [
+        "0cd65620be7991dd87e1b577a765fa9d5d649855adf722abc631bd7e509dc5d2"
+      ],
+      "retained_order": 16,
+      "selected_count": 4
+    },
+    "1ea77a07f7e27d469d0ca97337ce0c3918755e7f0e51ba90d184b881ce015d1a": {
+      "artifact_path": "candidates/1ea77a07f7e27d469d0ca97337ce0c3918755e7f0e51ba90d184b881ce015d1a",
+      "candidate_id": "1ea77a07f7e27d469d0ca97337ce0c3918755e7f0e51ba90d184b881ce015d1a",
+      "created_opportunity": 82,
+      "fitness": -1609.0,
+      "hypothesis": "Removing the sole learned value-bias coordinate while preserving its virtual gradient, AdamW moments, gauge-aware clipping, and equivalent attention-projection bias updates will reduce the model from 1610 to 1609 parameters while maintaining at least 99% accuracy.",
+      "intended_edit": "Eliminate `v_bias[5]`, reconstruct a zero value bias, and train its omitted coordinate virtually by absorbing each update into the gauge-fixed attention projection bias.",
+      "metrics": {
+        "accuracy": 0.9997,
+        "cases": 10010,
+        "correct": 10007,
+        "parameters": 1609,
+        "training_steps": 4999
+      },
+      "parent_ids": [
+        "8f73c75e2762b7efb7727530e1f4dc8201813bacfac1d6f7590ba288bcf89d4b"
+      ],
+      "retained_order": 82,
+      "selected_count": 1
+    },
+    "2b9cea175ed60b009337ac54f6e8ad23bf2c014eb4080237777bfb70bfd9fd5b": {
+      "artifact_path": "candidates/2b9cea175ed60b009337ac54f6e8ad23bf2c014eb4080237777bfb70bfd9fd5b",
+      "candidate_id": "2b9cea175ed60b009337ac54f6e8ad23bf2c014eb4080237777bfb70bfd9fd5b",
+      "created_opportunity": 0,
+      "fitness": -1644.0,
+      "hypothesis": "frozen seed baseline",
+      "intended_edit": "none",
+      "metrics": {
+        "accuracy": 0.9995999999999999,
+        "cases": 10010,
+        "correct": 10006,
+        "parameters": 1644,
+        "training_steps": 4999
+      },
+      "parent_ids": [],
+      "retained_order": 0,
+      "selected_count": 3
+    },
+    "2d4c159f63e2e0e201a89e31ecc841c90f9ccb137e8982a327484430ab480adb": {
+      "artifact_path": "candidates/2d4c159f63e2e0e201a89e31ecc841c90f9ccb137e8982a327484430ab480adb",
+      "candidate_id": "2d4c159f63e2e0e201a89e31ecc841c90f9ccb137e8982a327484430ab480adb",
+      "created_opportunity": 107,
+      "fitness": -1606.0,
+      "hypothesis": "Fixing the remaining key row `d_model + 3` will reduce the model from 1607 to 1606 learned parameters while preserving at least 99% accuracy, because it has the same softmax-invisible LayerNorm-null direction as the seven already-fixed key rows.",
+      "intended_edit": "Remove one additional QKV parameter by extending the existing virtual-optimizer gauge to the sole unfixed key row.",
+      "metrics": {
+        "accuracy": 1.0,
+        "cases": 10010,
+        "correct": 10010,
+        "parameters": 1606,
+        "training_steps": 4999
+      },
+      "parent_ids": [
+        "f32aaca27b8dd993b5e7fa1c51132bbda41dee3c83365c761f0fee772267fcbf"
+      ],
+      "retained_order": 107,
+      "selected_count": 2
+    },
+    "3515b151e59c3899ca24098938c60d4a7e2fd5a2c3d2fa24a348fb47df72c750": {
+      "artifact_path": "candidates/3515b151e59c3899ca24098938c60d4a7e2fd5a2c3d2fa24a348fb47df72c750",
+      "candidate_id": "3515b151e59c3899ca24098938c60d4a7e2fd5a2c3d2fa24a348fb47df72c750",
+      "created_opportunity": 73,
+      "fitness": -1614.0,
+      "hypothesis": "Fixing second-LayerNorm bias coordinate 3 will reduce the verified model from 1615 to 1614 parameters while retaining at least 99% accuracy, because its contribution remains absorbable by `fc1.bias`.",
+      "intended_edit": "Remove LayerNorm-2 bias coordinate 3 alongside coordinates 0 and 4, reconstructing all three as zeros during forward passes.",
+      "metrics": {
+        "accuracy": 0.9986,
+        "cases": 10010,
+        "correct": 9996,
+        "parameters": 1614,
+        "training_steps": 4999
+      },
+      "parent_ids": [
+        "fae9c4385eb386c6a76adebbf57a5785ba74531312ce65b8b36bb6f433b835e7"
+      ],
+      "retained_order": 73,
+      "selected_count": 1
+    },
+    "48fbabe07b02db667730f8ce971e7f1f94f1b3792cb11c8a1f4bf6263ed77558": {
+      "artifact_path": "candidates/48fbabe07b02db667730f8ce971e7f1f94f1b3792cb11c8a1f4bf6263ed77558",
+      "candidate_id": "48fbabe07b02db667730f8ce971e7f1f94f1b3792cb11c8a1f4bf6263ed77558",
+      "created_opportunity": 59,
+      "fitness": -1616.0,
+      "hypothesis": "Fixing feature-4 of the final token row and transferring its offset into every positional row will reduce the model from 1617 to 1616 parameters while retaining at least 99% accuracy, because token-plus-position inputs and output probabilities are unchanged, and the virtual AdamW path reproduces the omitted gradients and updates.",
+      "intended_edit": "Extend the token-embedding quotient by one coordinate, transfer that coordinate into positional embeddings at initialization, and jointly optimize token and positional parameters with both omitted coordinates restored virtually.",
+      "metrics": {
+        "accuracy": 0.9993000000000001,
+        "cases": 10010,
+        "correct": 10003,
+        "parameters": 1616,
+        "training_steps": 4999
+      },
+      "parent_ids": [
+        "b10d293f53ddbc25f68e676e387662daea147e0e822cfcb986d92da8b53d492f"
+      ],
+      "retained_order": 59,
+      "selected_count": 13
+    },
+    "6553805a2ef1751a346325975768dc70ff8daea57ac8b8622b4781282685f814": {
+      "artifact_path": "candidates/6553805a2ef1751a346325975768dc70ff8daea57ac8b8622b4781282685f814",
+      "candidate_id": "6553805a2ef1751a346325975768dc70ff8daea57ac8b8622b4781282685f814",
+      "created_opportunity": 20,
+      "fitness": -1632.0,
+      "hypothesis": "Removing one key-projection coordinate will reduce the model from 1633 to 1632 parameters while retaining at least 99% accuracy, because LayerNorm confines token variation to a mean-zero subspace, making one inverse-scale key direction position-constant and therefore exactly invisible to causal softmax; virtual full-coordinate AdamW preserves the omitted coordinate\u2019s optimizer dynamics.",
+      "intended_edit": "Replace the QKV projection with a one-scalar gauge-fixed projection, preserve gauge-equivalent initialization and RNG ordering, and optimize its reconstructed full gradient with gauge-aware AdamW and clipping.",
+      "metrics": {
+        "accuracy": 0.9992,
+        "cases": 10010,
+        "correct": 10002,
+        "parameters": 1632,
+        "training_steps": 4999
+      },
+      "parent_ids": [
+        "129e9aa93501f4713a12f77856a102142fc7658b1b77d3fe132ca1400efb4590"
+      ],
+      "retained_order": 20,
+      "selected_count": 2
+    },
+    "72ba2d804905496482a2f1666352e94f7a3fd79b4ae58d94eceb80da5ffdd63b": {
+      "artifact_path": "candidates/72ba2d804905496482a2f1666352e94f7a3fd79b4ae58d94eceb80da5ffdd63b",
+      "candidate_id": "72ba2d804905496482a2f1666352e94f7a3fd79b4ae58d94eceb80da5ffdd63b",
+      "created_opportunity": 24,
+      "fitness": -1629.0,
+      "hypothesis": "Removing the softmax-invisible coordinate from the third key row of the second head will reduce the model from 1630 to 1629 parameters while retaining at least 99% accuracy, because two removals in that head succeeded whereas the second removal in the first head failed.",
+      "intended_edit": "Add the third key row of the second attention head to `GaugeFixedQKV.fixed_rows`; the existing generalized virtual AdamW and gradient-clipping logic will handle the fourth omitted coordinate.",
+      "metrics": {
+        "accuracy": 0.9911,
+        "cases": 10010,
+        "correct": 9921,
+        "parameters": 1629,
+        "training_steps": 4999
+      },
+      "parent_ids": [
+        "73ce29eeec02ca869668e4e105a72ffebcd4860b6223abbc0da00d4ec3ef5216"
+      ],
+      "retained_order": 24,
+      "selected_count": 1
+    },
+    "73ce29eeec02ca869668e4e105a72ffebcd4860b6223abbc0da00d4ec3ef5216": {
+      "artifact_path": "candidates/73ce29eeec02ca869668e4e105a72ffebcd4860b6223abbc0da00d4ec3ef5216",
+      "candidate_id": "73ce29eeec02ca869668e4e105a72ffebcd4860b6223abbc0da00d4ec3ef5216",
+      "created_opportunity": 23,
+      "fitness": -1630.0,
+      "hypothesis": "Removing the softmax-invisible coordinate from the second key row of the second head will reduce the model from 1631 to 1630 parameters while retaining at least 99% accuracy; unlike the failed two-row first-head configuration, this tests whether within-head gauge sensitivity is head-specific while preserving the successful cross-head gauges.",
+      "intended_edit": "Add the second key row of the second head to `GaugeFixedQKV.fixed_rows` and generalize virtual AdamW state allocation to the number of omitted coordinates.",
+      "metrics": {
+        "accuracy": 0.9991,
+        "cases": 10010,
+        "correct": 10001,
+        "parameters": 1630,
+        "training_steps": 4999
+      },
+      "parent_ids": [
+        "dbd82c9f17353bf3ca926cbaa38786fbd398a42166074021030519325d1c7b3b"
+      ],
+      "retained_order": 23,
+      "selected_count": 1
+    },
+    "74963a1e50e07865018f203029f7796ca20220de6c0353e5245c959458d1a61e": {
+      "artifact_path": "candidates/74963a1e50e07865018f203029f7796ca20220de6c0353e5245c959458d1a61e",
+      "candidate_id": "74963a1e50e07865018f203029f7796ca20220de6c0353e5245c959458d1a61e",
+      "created_opportunity": 76,
+      "fitness": -1612.0,
+      "hypothesis": "Fixing LayerNorm-2 bias coordinate 6 while preserving its omitted gradient, AdamW moments, and downstream `fc1.bias` compensation will reduce the model from 1613 to 1612 parameters while retaining at least 99% accuracy.",
+      "intended_edit": "Remove LayerNorm-2 bias coordinate 6, reconstruct it as zero, and optimize its virtual coordinate through the exact downstream-affine gauge.",
+      "metrics": {
+        "accuracy": 0.9986,
+        "cases": 10010,
+        "correct": 9996,
+        "parameters": 1612,
+        "training_steps": 4999
+      },
+      "parent_ids": [
+        "debab8c19269a100dde6eb9d2a100c4ffbc71520eac3bcaa962211d924665b24"
+      ],
+      "retained_order": 76,
+      "selected_count": 1
+    },
+    "75cec2165a2f485eb3870c80b963663507a487f4f85791dfcd1dc7425fbfc0d0": {
+      "artifact_path": "candidates/75cec2165a2f485eb3870c80b963663507a487f4f85791dfcd1dc7425fbfc0d0",
+      "candidate_id": "75cec2165a2f485eb3870c80b963663507a487f4f85791dfcd1dc7425fbfc0d0",
+      "created_opportunity": 25,
+      "fitness": -1628.0,
+      "hypothesis": "Removing the remaining softmax-invisible coordinate from the fourth key row of the second head will reduce the model from 1629 to 1628 parameters while retaining at least 99% accuracy, because three successive removals in that head met the threshold and the existing virtual-coordinate AdamW preserves each omitted coordinate\u2019s full-space dynamics.",
+      "intended_edit": "Add the fourth key row of the second attention head to `GaugeFixedQKV.fixed_rows`; the generalized optimizer and gradient-clipping logic already supports the fifth omitted coordinate.",
+      "metrics": {
+        "accuracy": 0.9940000000000001,
+        "cases": 10010,
+        "correct": 9950,
+        "parameters": 1628,
+        "training_steps": 4999
+      },
+      "parent_ids": [
+        "72ba2d804905496482a2f1666352e94f7a3fd79b4ae58d94eceb80da5ffdd63b"
+      ],
+      "retained_order": 25,
+      "selected_count": 3
+    },
+    "874fed889fbfb1c4ce09701edda4c55dfc36fdf4ca4e9edf5070250e4a490359": {
+      "artifact_path": "candidates/874fed889fbfb1c4ce09701edda4c55dfc36fdf4ca4e9edf5070250e4a490359",
+      "candidate_id": "874fed889fbfb1c4ce09701edda4c55dfc36fdf4ca4e9edf5070250e4a490359",
+      "created_opportunity": 48,
+      "fitness": -1620.0,
+      "hypothesis": "Fixing second-LayerNorm scale coordinate 4 at one will reduce the model from 1621 to 1620 parameters while retaining at least 99% accuracy, because the following full `fc1` weight and bias can exactly absorb that scale degree of freedom.",
+      "intended_edit": "Replace the second LayerNorm with an initialization-preserving variant that learns seven scale coordinates, reconstructs coordinate 4 as one, and retains the full bias.",
+      "metrics": {
+        "accuracy": 0.9991,
+        "cases": 10010,
+        "correct": 10001,
+        "parameters": 1620,
+        "training_steps": 4999
+      },
+      "parent_ids": [
+        "9d9ba3b0fc0f276ffb4358c9b396221f3b291deaf09e77da50c986a15c68bc44"
+      ],
+      "retained_order": 48,
+      "selected_count": 1
+    },
+    "8f73c75e2762b7efb7727530e1f4dc8201813bacfac1d6f7590ba288bcf89d4b": {
+      "artifact_path": "candidates/8f73c75e2762b7efb7727530e1f4dc8201813bacfac1d6f7590ba288bcf89d4b",
+      "candidate_id": "8f73c75e2762b7efb7727530e1f4dc8201813bacfac1d6f7590ba288bcf89d4b",
+      "created_opportunity": 79,
+      "fitness": -1610.0,
+      "hypothesis": "Removing `fc2.weight[4, 11]` while retaining its virtual gradient and AdamW moments will reduce the model from 1611 to 1610 parameters and preserve at least 99% accuracy, because shifting that entire input column equally across output features is invisible to the final LayerNorm.",
+      "intended_edit": "Gauge-fix one MLP output-weight coordinate, reconstruct the full projection during inference, and train the quotient with full-coordinate AdamW dynamics and gauge-aware clipping.",
+      "metrics": {
+        "accuracy": 0.9995999999999999,
+        "cases": 10010,
+        "correct": 10006,
+        "parameters": 1610,
+        "training_steps": 4999
+      },
+      "parent_ids": [
+        "c123aab118fd6367a5bfd4685e914d4a0f3f2e3f56fbdad287f6be06ccb83f87"
+      ],
+      "retained_order": 79,
+      "selected_count": 3
+    },
+    "90bb2c7e9dbedd06ee0360f7e80882029751cbd226cfbec942b005b5c2ef527a": {
+      "artifact_path": "candidates/90bb2c7e9dbedd06ee0360f7e80882029751cbd226cfbec942b005b5c2ef527a",
+      "candidate_id": "90bb2c7e9dbedd06ee0360f7e80882029751cbd226cfbec942b005b5c2ef527a",
+      "created_opportunity": 33,
+      "fitness": -1626.0,
+      "hypothesis": "Fixing value-bias index 1 while retaining fixed indices 6\u20137 will reduce the model from 1627 to 1626 parameters and maintain at least 99% accuracy, testing the remaining coordinate nearest index 0, whose 96.92% result was the strongest unsuccessful third-bias removal.",
+      "intended_edit": "Store five value-bias coordinates and reconstruct the eight-dimensional bias with zeros at indices 1, 6, and 7.",
+      "metrics": {
+        "accuracy": 0.9998,
+        "cases": 10010,
+        "correct": 10008,
+        "parameters": 1626,
+        "training_steps": 4999
+      },
+      "parent_ids": [
+        "a755601dfed77ca572eea5903f048592e47c030f7afcb45d1590c23bde42152a"
+      ],
+      "retained_order": 33,
+      "selected_count": 1
+    },
+    "9723a6a40a7dc59b42466fc4e4cfe1d708ff02143cddd98cfd9e5b081848395b": {
+      "artifact_path": "candidates/9723a6a40a7dc59b42466fc4e4cfe1d708ff02143cddd98cfd9e5b081848395b",
+      "candidate_id": "9723a6a40a7dc59b42466fc4e4cfe1d708ff02143cddd98cfd9e5b081848395b",
+      "created_opportunity": 37,
+      "fitness": -1622.0,
+      "hypothesis": "Fixing value-bias index 3 in addition to indices 0, 1, 2, 4, 6, and 7 will reduce the model from 1623 to 1622 parameters while maintaining at least 99% accuracy.",
+      "intended_edit": "Store only value-bias coordinate 5 and reconstruct the eight-dimensional bias with zeros at every other index.",
+      "metrics": {
+        "accuracy": 0.9992,
+        "cases": 10010,
+        "correct": 10002,
+        "parameters": 1622,
+        "training_steps": 4999
+      },
+      "parent_ids": [
+        "c29eaabb4f52c1d45684f1bda133447b68a07ec57da2719e86613a1ff8077e39"
+      ],
+      "retained_order": 37,
+      "selected_count": 9
+    },
+    "9d9ba3b0fc0f276ffb4358c9b396221f3b291deaf09e77da50c986a15c68bc44": {
+      "artifact_path": "candidates/9d9ba3b0fc0f276ffb4358c9b396221f3b291deaf09e77da50c986a15c68bc44",
+      "candidate_id": "9d9ba3b0fc0f276ffb4358c9b396221f3b291deaf09e77da50c986a15c68bc44",
+      "created_opportunity": 46,
+      "fitness": -1621.0,
+      "hypothesis": "Fixing MLP output-bias index 4 will reduce the model from 1622 to 1621 parameters while retaining at least 99% accuracy.",
+      "intended_edit": "Replace the MLP output projection with an initialization-preserving projection whose eight-dimensional bias is reconstructed with coordinate 4 fixed to zero, and optimize its seven learned coordinates through the existing virtual-coordinate AdamW path.",
+      "metrics": {
+        "accuracy": 0.9993000000000001,
+        "cases": 10010,
+        "correct": 10003,
+        "parameters": 1621,
+        "training_steps": 4999
+      },
+      "parent_ids": [
+        "9723a6a40a7dc59b42466fc4e4cfe1d708ff02143cddd98cfd9e5b081848395b"
+      ],
+      "retained_order": 46,
+      "selected_count": 2
+    },
+    "a755601dfed77ca572eea5903f048592e47c030f7afcb45d1590c23bde42152a": {
+      "artifact_path": "candidates/a755601dfed77ca572eea5903f048592e47c030f7afcb45d1590c23bde42152a",
+      "candidate_id": "a755601dfed77ca572eea5903f048592e47c030f7afcb45d1590c23bde42152a",
+      "created_opportunity": 28,
+      "fitness": -1627.0,
+      "hypothesis": "Fixing a second value-bias coordinate to zero will reduce the model from 1628 to 1627 parameters while retaining at least 99% accuracy, because value bias is functionally absorbable into the attention output bias and the successful current model already fixes one such coordinate.",
+      "intended_edit": "Store six rather than seven value-bias coordinates and reconstruct the final two coordinates as zero.",
+      "metrics": {
+        "accuracy": 0.9992,
+        "cases": 10010,
+        "correct": 10002,
+        "parameters": 1627,
+        "training_steps": 4999
+      },
+      "parent_ids": [
+        "75cec2165a2f485eb3870c80b963663507a487f4f85791dfcd1dc7425fbfc0d0"
+      ],
+      "retained_order": 28,
+      "selected_count": 5
+    },
+    "afb94cba668b810c9bdc9a7be098f92a71435ebc6776e7d7e14b1c94746348c5": {
+      "artifact_path": "candidates/afb94cba668b810c9bdc9a7be098f92a71435ebc6776e7d7e14b1c94746348c5",
+      "candidate_id": "afb94cba668b810c9bdc9a7be098f92a71435ebc6776e7d7e14b1c94746348c5",
+      "created_opportunity": 49,
+      "fitness": -1619.0,
+      "hypothesis": "Fixing second-LayerNorm bias coordinate 4 at zero will reduce the model from 1620 to 1619 parameters while retaining at least 99% accuracy, because the full `fc1` bias can exactly absorb that coordinate.",
+      "intended_edit": "Store seven second-LayerNorm bias coordinates and reconstruct coordinate 4 as zero, alongside the already-fixed scale coordinate 4.",
+      "metrics": {
+        "accuracy": 0.9984000000000001,
+        "cases": 10010,
+        "correct": 9994,
+        "parameters": 1619,
+        "training_steps": 4999
+      },
+      "parent_ids": [
+        "874fed889fbfb1c4ce09701edda4c55dfc36fdf4ca4e9edf5070250e4a490359"
+      ],
+      "retained_order": 49,
+      "selected_count": 2
+    },
+    "b10d293f53ddbc25f68e676e387662daea147e0e822cfcb986d92da8b53d492f": {
+      "artifact_path": "candidates/b10d293f53ddbc25f68e676e387662daea147e0e822cfcb986d92da8b53d492f",
+      "candidate_id": "b10d293f53ddbc25f68e676e387662daea147e0e822cfcb986d92da8b53d492f",
+      "created_opportunity": 53,
+      "fitness": -1617.0,
+      "hypothesis": "Fixing second-LayerNorm scale coordinate 0 at one, alongside coordinates 1 and 4, will reduce the model from 1618 to 1617 parameters while retaining at least 99% accuracy because the full `fc1` weight can absorb all three scale degrees of freedom.",
+      "intended_edit": "Store five second-LayerNorm scale coordinates and reconstruct coordinates 0, 1, and 4 as one, retaining the successful coordinate-4 bias and MLP-output gauges.",
+      "metrics": {
+        "accuracy": 0.9983,
+        "cases": 10010,
+        "correct": 9993,
+        "parameters": 1617,
+        "training_steps": 4999
+      },
+      "parent_ids": [
+        "b85da75dad7a06b44714642f03fac003318d4a1416b565d694d08502f5f8a3de"
+      ],
+      "retained_order": 53,
+      "selected_count": 6
+    },
+    "b85da75dad7a06b44714642f03fac003318d4a1416b565d694d08502f5f8a3de": {
+      "artifact_path": "candidates/b85da75dad7a06b44714642f03fac003318d4a1416b565d694d08502f5f8a3de",
+      "candidate_id": "b85da75dad7a06b44714642f03fac003318d4a1416b565d694d08502f5f8a3de",
+      "created_opportunity": 51,
+      "fitness": -1618.0,
+      "hypothesis": "Fixing second-LayerNorm scale coordinate 1 at one, alongside coordinate 4, will reduce the model from 1619 to 1618 parameters while retaining at least 99% accuracy because the full `fc1` weight can absorb both scale degrees of freedom.",
+      "intended_edit": "Store six second-LayerNorm scale coordinates and reconstruct coordinates 1 and 4 as one, while retaining the successful coordinate-4 bias gauge.",
+      "metrics": {
+        "accuracy": 0.9981,
+        "cases": 10010,
+        "correct": 9991,
+        "parameters": 1618,
+        "training_steps": 4999
+      },
+      "parent_ids": [
+        "afb94cba668b810c9bdc9a7be098f92a71435ebc6776e7d7e14b1c94746348c5"
+      ],
+      "retained_order": 51,
+      "selected_count": 2
+    },
+    "bf609e41062caf7cf8f3de1422e28730cbf6b732ea76bea79c1f0e6d5b29fd35": {
+      "artifact_path": "candidates/bf609e41062caf7cf8f3de1422e28730cbf6b732ea76bea79c1f0e6d5b29fd35",
+      "candidate_id": "bf609e41062caf7cf8f3de1422e28730cbf6b732ea76bea79c1f0e6d5b29fd35",
+      "created_opportunity": 109,
+      "fitness": -1605.0,
+      "hypothesis": "Fixing a second featurewise token-position transfer coordinate will reduce the model from 1606 to 1605 learned parameters while retaining at least 99% accuracy, because it is symmetry-equivalent to the already-verified transfer gauge and the generalized virtual optimizer preserves full-parameter AdamW dynamics.",
+      "intended_edit": "Extend the embedding quotient from feature 4 to features 4 and 5, and generalize initialization, virtual AdamW, and gradient clipping to recover both omitted transfer coordinates.",
+      "metrics": {
+        "accuracy": 0.9991,
+        "cases": 10010,
+        "correct": 10001,
+        "parameters": 1605,
+        "training_steps": 4999
+      },
+      "parent_ids": [
+        "2d4c159f63e2e0e201a89e31ecc841c90f9ccb137e8982a327484430ab480adb"
+      ],
+      "retained_order": 109,
+      "selected_count": 3
+    },
+    "c123aab118fd6367a5bfd4685e914d4a0f3f2e3f56fbdad287f6be06ccb83f87": {
+      "artifact_path": "candidates/c123aab118fd6367a5bfd4685e914d4a0f3f2e3f56fbdad287f6be06ccb83f87",
+      "candidate_id": "c123aab118fd6367a5bfd4685e914d4a0f3f2e3f56fbdad287f6be06ccb83f87",
+      "created_opportunity": 77,
+      "fitness": -1611.0,
+      "hypothesis": "Virtually optimizing omitted LayerNorm-2 bias coordinates 1 and 6 will reduce the model from 1612 to 1611 parameters while retaining at least 99% accuracy, because their learned updates remain represented through independent AdamW moments and compensation in `fc1.bias`.",
+      "intended_edit": "Remove LayerNorm-2 bias coordinate 1, generalize the existing affine-gauge optimizer and gradient clipping to two omitted coordinates, and transfer both virtual updates through the downstream affine bias.",
+      "metrics": {
+        "accuracy": 0.9998,
+        "cases": 10010,
+        "correct": 10008,
+        "parameters": 1611,
+        "training_steps": 4999
+      },
+      "parent_ids": [
+        "74963a1e50e07865018f203029f7796ca20220de6c0353e5245c959458d1a61e"
+      ],
+      "retained_order": 77,
+      "selected_count": 2
+    },
+    "c29eaabb4f52c1d45684f1bda133447b68a07ec57da2719e86613a1ff8077e39": {
+      "artifact_path": "candidates/c29eaabb4f52c1d45684f1bda133447b68a07ec57da2719e86613a1ff8077e39",
+      "candidate_id": "c29eaabb4f52c1d45684f1bda133447b68a07ec57da2719e86613a1ff8077e39",
+      "created_opportunity": 36,
+      "fitness": -1623.0,
+      "hypothesis": "Fixing value-bias index 4 in addition to indices 0, 1, 2, 6, and 7 will reduce the model from 1624 to 1623 parameters while maintaining at least 99% accuracy.",
+      "intended_edit": "Store only value-bias coordinates 3 and 5, reconstructing the eight-dimensional bias with zeros at indices 0, 1, 2, 4, 6, and 7.",
+      "metrics": {
+        "accuracy": 1.0,
+        "cases": 10010,
+        "correct": 10010,
+        "parameters": 1623,
+        "training_steps": 4999
+      },
+      "parent_ids": [
+        "e179177a6935b4c37ddb6d8bbd908e4c1b375bb109fca15d8b3603bf036439a8"
+      ],
+      "retained_order": 36,
+      "selected_count": 1
+    },
+    "d3c419514a5255ebb45f6e250a6fd4ee08e24680b0b562ac2554fd0401b3df0e": {
+      "artifact_path": "candidates/d3c419514a5255ebb45f6e250a6fd4ee08e24680b0b562ac2554fd0401b3df0e",
+      "candidate_id": "d3c419514a5255ebb45f6e250a6fd4ee08e24680b0b562ac2554fd0401b3df0e",
+      "created_opportunity": 9,
+      "fitness": -1635.0,
+      "hypothesis": "Fixing one value-bias coordinate at zero will reduce the model from 1636 to 1635 parameters while retaining at least 99% accuracy, because the full output-projection bias preserves additive output freedom and seven value-bias coordinates retain nearly all of the optimization benefit lost when the entire value bias was removed.",
+      "intended_edit": "Store seven learned value-bias coordinates and append one fixed zero before applying the bias, leaving initialization and every other architectural and training setting unchanged.",
+      "metrics": {
+        "accuracy": 0.9932,
+        "cases": 10010,
+        "correct": 9942,
+        "parameters": 1635,
+        "training_steps": 4999
+      },
+      "parent_ids": [
+        "0c5739da9f29148e1e6269ddc9aed365a62c24fd7d53dc756ee0ead7226bed9b"
+      ],
+      "retained_order": 9,
+      "selected_count": 4
+    },
+    "dbd82c9f17353bf3ca926cbaa38786fbd398a42166074021030519325d1c7b3b": {
+      "artifact_path": "candidates/dbd82c9f17353bf3ca926cbaa38786fbd398a42166074021030519325d1c7b3b",
+      "candidate_id": "dbd82c9f17353bf3ca926cbaa38786fbd398a42166074021030519325d1c7b3b",
+      "created_opportunity": 22,
+      "fitness": -1631.0,
+      "hypothesis": "Removing the softmax-invisible coordinate from the first key row of the second attention head will reduce the model from 1632 to 1631 parameters while retaining at least 99% accuracy, because it distributes the two exact key gauges across heads while preserving both omitted coordinates\u2019 full-space AdamW dynamics.",
+      "intended_edit": "Extend `GaugeFixedQKV` to omit the final input coordinate from the first key row of each head, and generalize virtual-gradient reconstruction, AdamW updates, and clipping to both coordinates.",
+      "metrics": {
+        "accuracy": 0.9993000000000001,
+        "cases": 10010,
+        "correct": 10003,
+        "parameters": 1631,
+        "training_steps": 4999
+      },
+      "parent_ids": [
+        "6553805a2ef1751a346325975768dc70ff8daea57ac8b8622b4781282685f814"
+      ],
+      "retained_order": 22,
+      "selected_count": 1
+    },
+    "debab8c19269a100dde6eb9d2a100c4ffbc71520eac3bcaa962211d924665b24": {
+      "artifact_path": "candidates/debab8c19269a100dde6eb9d2a100c4ffbc71520eac3bcaa962211d924665b24",
+      "candidate_id": "debab8c19269a100dde6eb9d2a100c4ffbc71520eac3bcaa962211d924665b24",
+      "created_opportunity": 74,
+      "fitness": -1613.0,
+      "hypothesis": "Fixing second-LayerNorm bias coordinate 2 will reduce the model from 1614 to 1613 parameters while retaining at least 99% accuracy, because its constant downstream contribution can be absorbed by `fc1.bias`.",
+      "intended_edit": "Remove LayerNorm-2 bias coordinate 2 alongside coordinates 0, 3, and 4, reconstructing all four as zeros during forward passes.",
+      "metrics": {
+        "accuracy": 0.9995999999999999,
+        "cases": 10010,
+        "correct": 10006,
+        "parameters": 1613,
+        "training_steps": 4999
+      },
+      "parent_ids": [
+        "3515b151e59c3899ca24098938c60d4a7e2fd5a2c3d2fa24a348fb47df72c750"
+      ],
+      "retained_order": 74,
+      "selected_count": 2
+    },
+    "df62609fd805723a82bc5baabe4d1337c4330f6af7fc6a6534fd906b0428e316": {
+      "artifact_path": "candidates/df62609fd805723a82bc5baabe4d1337c4330f6af7fc6a6534fd906b0428e316",
+      "candidate_id": "df62609fd805723a82bc5baabe4d1337c4330f6af7fc6a6534fd906b0428e316",
+      "created_opportunity": 83,
+      "fitness": -1608.0,
+      "hypothesis": "Gauge-fixing key row `d_model + 1` will reduce the verified model from 1609 to 1608 parameters while retaining at least 99% accuracy, because it uses the same exact LayerNorm-null key-weight gauge and virtual optimizer already applied successfully to five other key rows.",
+      "intended_edit": "Add the second row of the first attention head to `GaugeFixedQKV.fixed_rows`; the existing generalized reconstruction, virtual-gradient recovery, AdamW moments, and gauge-aware clipping automatically cover it.",
+      "metrics": {
+        "accuracy": 0.9995,
+        "cases": 10010,
+        "correct": 10005,
+        "parameters": 1608,
+        "training_steps": 4999
+      },
+      "parent_ids": [
+        "1ea77a07f7e27d469d0ca97337ce0c3918755e7f0e51ba90d184b881ce015d1a"
+      ],
+      "retained_order": 83,
+      "selected_count": 1
+    },
+    "e179177a6935b4c37ddb6d8bbd908e4c1b375bb109fca15d8b3603bf036439a8": {
+      "artifact_path": "candidates/e179177a6935b4c37ddb6d8bbd908e4c1b375bb109fca15d8b3603bf036439a8",
+      "candidate_id": "e179177a6935b4c37ddb6d8bbd908e4c1b375bb109fca15d8b3603bf036439a8",
+      "created_opportunity": 35,
+      "fitness": -1624.0,
+      "hypothesis": "Fixing value-bias index 0 in addition to indices 1, 2, 6, and 7 will reduce the model from 1625 to 1624 parameters while maintaining at least 99% accuracy.",
+      "intended_edit": "Store three value-bias coordinates and reconstruct the eight-dimensional bias with zeros at indices 0, 1, 2, 6, and 7.",
+      "metrics": {
+        "accuracy": 0.9994,
+        "cases": 10010,
+        "correct": 10004,
+        "parameters": 1624,
+        "training_steps": 4999
+      },
+      "parent_ids": [
+        "f78c26d587c93b64723cf9d1231cf5bbe1d0d9e81596f47b4e29cd540589f2f1"
+      ],
+      "retained_order": 35,
+      "selected_count": 1
+    },
+    "f32aaca27b8dd993b5e7fa1c51132bbda41dee3c83365c761f0fee772267fcbf": {
+      "artifact_path": "candidates/f32aaca27b8dd993b5e7fa1c51132bbda41dee3c83365c761f0fee772267fcbf",
+      "candidate_id": "f32aaca27b8dd993b5e7fa1c51132bbda41dee3c83365c761f0fee772267fcbf",
+      "created_opportunity": 84,
+      "fitness": -1607.0,
+      "hypothesis": "Gauge-fixing key row `d_model + 2` will reduce the verified model from 1608 to 1607 parameters while retaining at least 99% accuracy, because the identical virtual-optimizer gauge already succeeds across six key rows.",
+      "intended_edit": "Add the third row of the first attention head to `GaugeFixedQKV.fixed_rows`; existing reconstruction, virtual-gradient recovery, AdamW moments, and gauge-aware clipping automatically generalize to it.",
+      "metrics": {
+        "accuracy": 0.9997,
+        "cases": 10010,
+        "correct": 10007,
+        "parameters": 1607,
+        "training_steps": 4999
+      },
+      "parent_ids": [
+        "df62609fd805723a82bc5baabe4d1337c4330f6af7fc6a6534fd906b0428e316"
+      ],
+      "retained_order": 84,
+      "selected_count": 23
+    },
+    "f78c26d587c93b64723cf9d1231cf5bbe1d0d9e81596f47b4e29cd540589f2f1": {
+      "artifact_path": "candidates/f78c26d587c93b64723cf9d1231cf5bbe1d0d9e81596f47b4e29cd540589f2f1",
+      "candidate_id": "f78c26d587c93b64723cf9d1231cf5bbe1d0d9e81596f47b4e29cd540589f2f1",
+      "created_opportunity": 34,
+      "fitness": -1625.0,
+      "hypothesis": "Fixing value-bias index 2 in addition to the successful fixed indices 1, 6, and 7 will reduce the model from 1626 to 1625 parameters while maintaining at least 99% accuracy.",
+      "intended_edit": "Store four value-bias coordinates and reconstruct the eight-dimensional bias with zeros at indices 1, 2, 6, and 7.",
+      "metrics": {
+        "accuracy": 0.9994,
+        "cases": 10010,
+        "correct": 10004,
+        "parameters": 1625,
+        "training_steps": 4999
+      },
+      "parent_ids": [
+        "90bb2c7e9dbedd06ee0360f7e80882029751cbd226cfbec942b005b5c2ef527a"
+      ],
+      "retained_order": 34,
+      "selected_count": 1
+    },
+    "fae9c4385eb386c6a76adebbf57a5785ba74531312ce65b8b36bb6f433b835e7": {
+      "artifact_path": "candidates/fae9c4385eb386c6a76adebbf57a5785ba74531312ce65b8b36bb6f433b835e7",
+      "candidate_id": "fae9c4385eb386c6a76adebbf57a5785ba74531312ce65b8b36bb6f433b835e7",
+      "created_opportunity": 72,
+      "fitness": -1615.0,
+      "hypothesis": "Fixing second-LayerNorm bias coordinate 0 will reduce the model to 1615 parameters while retaining at least 99% accuracy, because its contribution is absorbable by `fc1.bias` and coordinate 0 previously tolerated two related reductions above the accuracy threshold.",
+      "intended_edit": "Remove LayerNorm-2 bias coordinate 0 alongside the existing fixed coordinate 4 and reconstruct both as zeros during forward passes.",
+      "metrics": {
+        "accuracy": 0.9915,
+        "cases": 10010,
+        "correct": 9925,
+        "parameters": 1615,
+        "training_steps": 4999
+      },
+      "parent_ids": [
+        "48fbabe07b02db667730f8ce971e7f1f94f1b3792cb11c8a1f4bf6263ed77558"
+      ],
+      "retained_order": 72,
+      "selected_count": 1
+    }
+  },
+  "condition": "C0",
+  "conversation_session_id": null,
+  "evaluations_used": 98,
+  "evaluator_seconds_used": 57257.88351703773,
+  "incumbent_id": "bf609e41062caf7cf8f3de1422e28730cbf6b732ea76bea79c1f0e6d5b29fd35",
+  "next_opportunity": 113,
+  "no_search": false,
+  "portfolio_ids": [
+    "bf609e41062caf7cf8f3de1422e28730cbf6b732ea76bea79c1f0e6d5b29fd35"
+  ],
+  "proposals_used": 112,
+  "protocol_hash": "0247b4415c62d35b231e3347f31a3f63cd54eb4ec6bb2441bfc209e0ee2d3cc4",
+  "revision": 225,
+  "run_id": "controlled-openevolve-transformer-v2-1-source-only-ten-digit-addition-pair-transformer-openevolve-v2-1-mps-openevolve-b05-c0",
+  "schema_version": "1.0",
+  "status": "running",
+  "token_budget_continuation_notice_sent": false,
+  "usage": {
+    "cached_input_tokens": 1069312,
+    "input_tokens": 2521174,
+    "output_tokens": 473785,
+    "reasoning_output_tokens": 362538
+  }
+}

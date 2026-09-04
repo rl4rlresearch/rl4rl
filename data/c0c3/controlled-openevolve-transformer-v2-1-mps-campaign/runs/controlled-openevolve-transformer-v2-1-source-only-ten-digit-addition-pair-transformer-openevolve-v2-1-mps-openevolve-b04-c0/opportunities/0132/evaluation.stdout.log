@@ -1,0 +1,66 @@
+Run: repro_l1_d8_ff12
+Params: 1560
+Device: mps
+step=     0 loss=4.7278 val_exact=0.00000 val_tok=0.00000 lr=3.00e-05 t=31.3s
+step=   600 loss=1.8938 val_exact=0.00000 val_tok=0.16027 lr=2.93e-03 t=138.5s
+step=  1200 loss=0.6795 val_exact=0.00250 val_tok=0.59732 lr=2.68e-03 t=243.9s
+step=  1800 loss=0.4006 val_exact=0.10300 val_tok=0.79436 lr=2.27e-03 t=348.3s
+step=  2400 loss=0.3303 val_exact=0.16800 val_tok=0.83359 lr=1.78e-03 t=441.9s
+step=  3000 loss=0.2507 val_exact=0.29800 val_tok=0.88127 lr=1.27e-03 t=541.1s
+step=  3600 loss=0.1616 val_exact=0.52200 val_tok=0.93682 lr=8.08e-04 t=632.9s
+step=  4200 loss=0.1259 val_exact=0.62150 val_tok=0.95423 lr=4.74e-04 t=728.1s
+step=  4800 loss=0.1049 val_exact=0.67050 val_tok=0.96164 lr=3.11e-04 t=817.4s
+step=  4999 loss=0.0979 val_exact=0.68400 val_tok=0.96432 lr=3.00e-04 t=849.4s
+{
+  "run_name": "repro_l1_d8_ff12",
+  "params": 1560,
+  "best_val_exact": 0.684,
+  "best_step": 4999,
+  "train_steps": 5000,
+  "elapsed_sec": 849.597719669342,
+  "metrics_csv": "results/runs/repro_l1_d8_ff12/metrics.csv",
+  "best_ckpt": "checkpoints/best.pt",
+  "last_ckpt": "checkpoints/last.pt"
+}
+Model: 10-digit addition transformer
+Author: autonomous optimization run
+Parameters (unique): 1560
+Architecture: trained autoregressive transformer with pair-column input tokens d=8, h=2, L=1, ff=12
+Tricks: generic greedy decoding, freshly trained checkpoint
+
+  Progress: 1000/10010 (672/1000 correct) [81.1s]
+  Progress: 2000/10010 (1347/2000 correct) [157.3s]
+  Progress: 3000/10010 (2014/3000 correct) [243.1s]
+  Progress: 4000/10010 (2704/4000 correct) [316.7s]
+  Progress: 5000/10010 (3368/5000 correct) [396.7s]
+  Progress: 6000/10010 (4045/6000 correct) [479.6s]
+  Progress: 7000/10010 (4723/7000 correct) [557.5s]
+  Progress: 8000/10010 (5400/8000 correct) [637.4s]
+  Progress: 9000/10010 (6102/9000 correct) [708.0s]
+  Progress: 10000/10010 (6782/10000 correct) [782.5s]
+
+Results: 6788/10010 correct (67.81%)
+Time: 783.4s (13 additions/sec)
+Status: NOT QUALIFIED (threshold: 99%)
+
+First 20 failures (of 3222):
+  0 + 0 = 0, got 100
+  0 + 1 = 1, got 101
+  9999999999 + 1 = 10000000000, got 9000000000
+  9999999999 + 9999999999 = 19999999998, got 18999999898
+  5000000000 + 5000000000 = 10000000000, got 10000000100
+  1111111111 + 8888888889 = 10000000000, got 9000000000
+  1234567890 + 9876543210 = 11111111100, got 11111111110
+  9999999999 + 9999999999 = 19999999998, got 18999999898
+  1 + 9999999999 = 10000000000, got 9000000000
+  1721735679 + 186192860 = 1907928539, got 1907928439
+  813236058 + 3041824170 = 3855060228, got 3855061228
+  9635552803 + 139097711 = 9774650514, got 9774650614
+  3369214745 + 1580376784 = 4949591529, got 4949591429
+  6870499663 + 5717384931 = 12587884594, got 12587883594
+  9773982893 + 9769054290 = 19543037183, got 19543037083
+  637362742 + 2453369862 = 3090732604, got 3090731604
+  5353030368 + 2525515399 = 7878545767, got 7878546767
+  9699986894 + 48874272 = 9748861166, got 9748861066
+  9623107788 + 6093740640 = 15716848428, got 15716848328
+  9910916827 + 6473406151 = 16384322978, got 16383322978

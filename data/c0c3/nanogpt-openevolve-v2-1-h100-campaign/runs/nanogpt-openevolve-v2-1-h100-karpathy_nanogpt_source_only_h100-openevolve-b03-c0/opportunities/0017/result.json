@@ -1,0 +1,82 @@
+{
+  "artifact_path": "candidates/82bc3474d33c2ca0d9d335d19b96c0046c3d76a5239e192a055207c4a8c6a1ed",
+  "candidate_id": "82bc3474d33c2ca0d9d335d19b96c0046c3d76a5239e192a055207c4a8c6a1ed",
+  "codex_service_tier": "fast",
+  "condition": "C0",
+  "conversation_session_id": null,
+  "evaluation": {
+    "evaluator_calls": 1,
+    "evaluator_seconds": 599.41358908,
+    "failure_kind": null,
+    "fitness": -0.992933,
+    "metrics": {
+      "depth": 8.0,
+      "mfu_percent": 38.46,
+      "num_params_M": 39.8,
+      "num_steps": 2574.0,
+      "peak_vram_mb": 34180.5,
+      "total_tokens_M": 506.1,
+      "training_seconds": 300.0,
+      "val_bpb": 0.992933
+    },
+    "valid": true
+  },
+  "evaluator_calls_cumulative": 17,
+  "evaluator_calls_increment": 1,
+  "evaluator_seconds_cumulative": 11626.83678605492,
+  "evaluator_seconds_increment": 599.41358908,
+  "event": "proposal_completed",
+  "evicted_candidate_id": null,
+  "evidence": "Max-autotuning reached `val_bpb 0.986491` at 492.1M tokens but only 39.46% MFU; depth and MLP contraction hurt quality, so this targets redundant KV-side computation while retaining the validated depth, MLP capacity, query width, batching, and schedule.",
+  "hypothesis": "Halving the KV-head count from four to two will reduce K/V projection, value-embedding, and optimizer costs enough to exceed 492.1M tokens while preserving all eight blocks and four query heads, achieving `val_bpb < 0.986491`.",
+  "incumbent_after": "8487b15715a3701cef057416b948b6a53a0a80a532f23cc0549abe415132da04",
+  "intended_edit": "Configure two KV heads for the current four-query-head model, enabling grouped-query attention and proportionally smaller value embeddings.",
+  "mechanism": "Two-to-one grouped-query attention",
+  "opportunity": 17,
+  "parent_ids": [
+    "8487b15715a3701cef057416b948b6a53a0a80a532f23cc0549abe415132da04"
+  ],
+  "portfolio_after": [
+    "8487b15715a3701cef057416b948b6a53a0a80a532f23cc0549abe415132da04"
+  ],
+  "prompt_hashes": {
+    "common_template_sha256": "ba85b39aa7288f4f48475376da6cff65661f39cfeb7ac7cde15b2a9a2e692fde",
+    "prompt_sha256": "e40a220bc9663f0e37c4c706dbbd1472f9fc2ae95314743fae6e094b9218cd01",
+    "proposal_policy_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "search_state_sha256": "04e5eb078ae1964e4ec65bfeeeb1acd0ffa246e7d54d5e0f997f81f602da28c5",
+    "treatment_skeleton_sha256": "ab22441b987e59a0b4d6cddbc8a7fd9adab7df715a12821ed59188f64331bd05"
+  },
+  "proposal_type": "ordinary",
+  "proposals_cumulative": 17,
+  "remaining_budget": {
+    "evaluations": 183,
+    "evaluator_seconds": 708373.1632139451,
+    "proposals": 183,
+    "tokens": 99556319
+  },
+  "retained": false,
+  "retention_decision": "not_strictly_better_than_incumbent",
+  "run_id": "nanogpt-openevolve-v2-1-h100-karpathy_nanogpt_source_only_h100-openevolve-b03-c0",
+  "schema_version": "1.0",
+  "selected_parent_ids": [
+    "8487b15715a3701cef057416b948b6a53a0a80a532f23cc0549abe415132da04"
+  ],
+  "timestamp": "2026-08-23T23:29:01.526863+00:00",
+  "usage_cumulative": {
+    "cached_input_tokens": 187392,
+    "input_tokens": 401772,
+    "output_tokens": 41909,
+    "reasoning_output_tokens": 38139,
+    "total_tokens": 443681
+  },
+  "usage_increment": {
+    "cached_input_tokens": 0,
+    "input_tokens": 24685,
+    "output_tokens": 3858,
+    "reasoning_output_tokens": 3624,
+    "total_tokens": 28543
+  },
+  "visible_candidate_ids": [
+    "8487b15715a3701cef057416b948b6a53a0a80a532f23cc0549abe415132da04"
+  ]
+}

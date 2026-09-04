@@ -1,0 +1,99 @@
+{
+  "artifact_path": "candidates/9d7c93c1f5592b7bc549aa138384ca036e110b6c2077e87e2005a715f2202fe5",
+  "candidate_id": "9d7c93c1f5592b7bc549aa138384ca036e110b6c2077e87e2005a715f2202fe5",
+  "codex_service_tier": "default",
+  "condition": "C0",
+  "conversation_session_id": null,
+  "evaluation": {
+    "evaluator_calls": 1,
+    "evaluator_seconds": 130.25623137503862,
+    "failure_kind": "nonqualification",
+    "fitness": null,
+    "metrics": {
+      "batch_size": 128,
+      "evaluation_cases": 815,
+      "evaluation_split": "public_speaker_disjoint_validation",
+      "examples_processed": 50000,
+      "inference_cost": 6670977582648793233,
+      "maximum_recurrent_steps": 28,
+      "mean_recurrent_steps": 28.0,
+      "median_recurrent_steps": 28,
+      "optimizer_steps": 397,
+      "p95_recurrent_steps": 28,
+      "parameters": 57833,
+      "peak_hidden_elements": 130560,
+      "recurrent_logit_effect": 0.08403122425079346,
+      "recurrent_macs": 1278079740,
+      "recurrent_steps": 22820,
+      "state_dependence_effect": 0.39955902099609375,
+      "state_update_effect": 0.3997952938079834,
+      "total_inference_macs": 1278907780,
+      "trained_recurrent_logit_effect": 0.7348999977111816,
+      "trained_state_dependence_effect": 0.465742826461792,
+      "trained_state_update_effect": 0.4477165639400482,
+      "training_seconds": 112.90339691587724,
+      "validation_accuracy": 0.8466257668711656,
+      "validation_correct": 690,
+      "validation_cross_entropy": 0.4357971753079467
+    },
+    "valid": false
+  },
+  "evaluator_calls_cumulative": 6,
+  "evaluator_calls_increment": 1,
+  "evaluator_seconds_cumulative": 773.0576016667765,
+  "evaluator_seconds_increment": 130.25623137503862,
+  "event": "proposal_completed",
+  "evicted_candidate_id": null,
+  "evidence": "The 128-unit model passed at 85.276%, while 125 units narrowly missed at 84.908%; despite the noisy 126-unit result, 127 is the most conservative untested structural reduction and isolates the remaining width boundary.",
+  "hypothesis": "A 127-unit GRU using the verified 28-frame schedule will retain at least 85% validation accuracy while reducing exact dense inference MACs by approximately 1.45% versus the passing 128-unit model.",
+  "incumbent_after": "7d7b8df59e6fe90763576d4bed85a49aa5a0d4575626c7343b041ee2c8fc3692",
+  "intended_edit": "Reduce the GRU hidden state, temporal summary, and classifier input width from 128 to 127 while preserving the successful schedule and training procedure.",
+  "mechanism": "One-channel recurrent-width boundary trim",
+  "opportunity": 6,
+  "parent_ids": [
+    "7d7b8df59e6fe90763576d4bed85a49aa5a0d4575626c7343b041ee2c8fc3692"
+  ],
+  "portfolio_after": [
+    "7d7b8df59e6fe90763576d4bed85a49aa5a0d4575626c7343b041ee2c8fc3692"
+  ],
+  "prompt_hashes": {
+    "common_template_sha256": "dee04faf4c430276c1036ba97f5705a339857dbdf19117dac88952a5a3a47e9d",
+    "prompt_sha256": "f8c4e2bea56f2ef4aed26d806c3f5d32cd5bac873710f1a7cc630b37d77246db",
+    "proposal_policy_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "search_state_sha256": "04e5eb078ae1964e4ec65bfeeeb1acd0ffa246e7d54d5e0f997f81f602da28c5",
+    "treatment_skeleton_sha256": "d7ca5008898b817300df8d4d420afaf7e9b5c7f75b5acc971b9bee21cebe5b00"
+  },
+  "proposal_type": "ordinary",
+  "proposals_cumulative": 6,
+  "remaining_budget": {
+    "evaluations": 194,
+    "evaluator_seconds": 59226.94239833322,
+    "proposals": 194,
+    "tokens": 99846325
+  },
+  "retained": false,
+  "retention_decision": "invalid",
+  "run_id": "tiny-kws-rnn-openevolve-v2-1-cpu-tiny_kws_rnn_source_only_cpu-openevolve-b01-c0",
+  "schema_version": "1.0",
+  "selected_parent_ids": [
+    "7d7b8df59e6fe90763576d4bed85a49aa5a0d4575626c7343b041ee2c8fc3692"
+  ],
+  "timestamp": "2026-09-04T02:43:28.360638+00:00",
+  "usage_cumulative": {
+    "cached_input_tokens": 99200,
+    "input_tokens": 140180,
+    "output_tokens": 13495,
+    "reasoning_output_tokens": 11560,
+    "total_tokens": 153675
+  },
+  "usage_increment": {
+    "cached_input_tokens": 28416,
+    "input_tokens": 36207,
+    "output_tokens": 4625,
+    "reasoning_output_tokens": 4074,
+    "total_tokens": 40832
+  },
+  "visible_candidate_ids": [
+    "7d7b8df59e6fe90763576d4bed85a49aa5a0d4575626c7343b041ee2c8fc3692"
+  ]
+}

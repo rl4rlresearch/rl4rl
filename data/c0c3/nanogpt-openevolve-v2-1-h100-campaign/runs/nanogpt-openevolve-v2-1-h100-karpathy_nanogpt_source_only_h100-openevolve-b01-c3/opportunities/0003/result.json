@@ -1,0 +1,87 @@
+{
+  "artifact_path": "candidates/4b4b8eda44d73f74c14a1179ff73edf4e434066ed7ceb8d4d058a3b6d07e3236",
+  "candidate_id": "4b4b8eda44d73f74c14a1179ff73edf4e434066ed7ceb8d4d058a3b6d07e3236",
+  "codex_service_tier": "fast",
+  "condition": "C3",
+  "conversation_session_id": null,
+  "evaluation": {
+    "evaluator_calls": 1,
+    "evaluator_seconds": 348.7327662099997,
+    "failure_kind": null,
+    "fitness": -0.997009,
+    "metrics": {
+      "depth": 8.0,
+      "mfu_percent": 38.51,
+      "num_params_M": 50.3,
+      "num_steps": 947.0,
+      "peak_vram_mb": 45060.2,
+      "total_tokens_M": 496.5,
+      "training_seconds": 300.1,
+      "val_bpb": 0.997009
+    },
+    "valid": true
+  },
+  "evaluator_calls_cumulative": 3,
+  "evaluator_calls_increment": 1,
+  "evaluator_seconds_cumulative": 1162.7643666409995,
+  "evaluator_seconds_increment": 348.7327662099997,
+  "event": "proposal_completed",
+  "evicted_candidate_id": null,
+  "evidence": "The 262K-token batch processed only 393.2M tokens and worsened val_bpb to 0.998629 versus 497.0M tokens and 0.995558 for the current design, motivating a low-risk reduction in attention compute without increasing optimizer frequency.",
+  "hypothesis": "Using half-context attention in the intermediate fourth layer while retaining full attention in the final layer will increase token throughput and reduce val_bpb below 0.995558.",
+  "incumbent_after": "2865e528e18dc51191e4037eaeb5824cb0ea83ede79061b59b8f3caac686da6b",
+  "intended_edit": "Change the repeating attention pattern from SSSL to SSSS; the existing forced-full final layer still guarantees one full-context layer.",
+  "mechanism": "Sparse full-context attention allocation",
+  "opportunity": 3,
+  "parent_ids": [
+    "2865e528e18dc51191e4037eaeb5824cb0ea83ede79061b59b8f3caac686da6b"
+  ],
+  "portfolio_after": [
+    "2865e528e18dc51191e4037eaeb5824cb0ea83ede79061b59b8f3caac686da6b",
+    "005b27c638e8ced7b681518a1df47186e926fc1a87b4dda0797371df3c14496a",
+    "1dfdda4e155579415df2f0419942e6ec1d5989a12399f914d7984eed7a57ffdf",
+    "4b4b8eda44d73f74c14a1179ff73edf4e434066ed7ceb8d4d058a3b6d07e3236"
+  ],
+  "prompt_hashes": {
+    "common_template_sha256": "ba85b39aa7288f4f48475376da6cff65661f39cfeb7ac7cde15b2a9a2e692fde",
+    "prompt_sha256": "d59609a8f57edf185f9062b9e8d9290ffbba5f79b2e8a27498c373aa5abb5b75",
+    "proposal_policy_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "search_state_sha256": "c938ac007bf70fe8d27f64661175531e51fcb16b38318c328493c32ee292e27e",
+    "treatment_skeleton_sha256": "cf915bce0285b16276b483b5bfec6451d127cf6461f14e4d22b660576957f7f3"
+  },
+  "proposal_type": "ordinary",
+  "proposals_cumulative": 3,
+  "remaining_budget": {
+    "evaluations": 197,
+    "evaluator_seconds": 718837.235633359,
+    "proposals": 197,
+    "tokens": 99902176
+  },
+  "retained": true,
+  "retention_decision": "filled_open_portfolio_slot",
+  "run_id": "nanogpt-openevolve-v2-1-h100-karpathy_nanogpt_source_only_h100-openevolve-b01-c3",
+  "schema_version": "1.0",
+  "selected_parent_ids": [
+    "2865e528e18dc51191e4037eaeb5824cb0ea83ede79061b59b8f3caac686da6b"
+  ],
+  "timestamp": "2026-08-23T12:17:00.863819+00:00",
+  "usage_cumulative": {
+    "cached_input_tokens": 36096,
+    "input_tokens": 88355,
+    "output_tokens": 9469,
+    "reasoning_output_tokens": 8903,
+    "total_tokens": 97824
+  },
+  "usage_increment": {
+    "cached_input_tokens": 12032,
+    "input_tokens": 37107,
+    "output_tokens": 4854,
+    "reasoning_output_tokens": 4660,
+    "total_tokens": 41961
+  },
+  "visible_candidate_ids": [
+    "2865e528e18dc51191e4037eaeb5824cb0ea83ede79061b59b8f3caac686da6b",
+    "005b27c638e8ced7b681518a1df47186e926fc1a87b4dda0797371df3c14496a",
+    "1dfdda4e155579415df2f0419942e6ec1d5989a12399f914d7984eed7a57ffdf"
+  ]
+}

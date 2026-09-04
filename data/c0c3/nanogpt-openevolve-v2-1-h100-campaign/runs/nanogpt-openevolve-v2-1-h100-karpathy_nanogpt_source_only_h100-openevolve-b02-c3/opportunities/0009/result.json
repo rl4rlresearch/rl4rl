@@ -1,0 +1,88 @@
+{
+  "artifact_path": "candidates/8739f3a112cc296b7e52346edda0d7c193dbfb73b3aec6a3e9ed03bb18a2b8f5",
+  "candidate_id": "8739f3a112cc296b7e52346edda0d7c193dbfb73b3aec6a3e9ed03bb18a2b8f5",
+  "codex_service_tier": "fast",
+  "condition": "C3",
+  "conversation_session_id": null,
+  "evaluation": {
+    "evaluator_calls": 1,
+    "evaluator_seconds": 332.12817070200254,
+    "failure_kind": null,
+    "fitness": -0.993714,
+    "metrics": {
+      "depth": 8.0,
+      "mfu_percent": 37.52,
+      "num_params_M": 50.3,
+      "num_steps": 975.0,
+      "peak_vram_mb": 45060.2,
+      "total_tokens_M": 511.2,
+      "training_seconds": 300.1,
+      "val_bpb": 0.993714
+    },
+    "valid": true
+  },
+  "evaluator_calls_cumulative": 9,
+  "evaluator_calls_increment": 1,
+  "evaluator_seconds_cumulative": 3428.8589206960046,
+  "evaluator_seconds_increment": 332.12817070200254,
+  "event": "proposal_completed",
+  "evicted_candidate_id": "5ae3bd5c7c6dc0757bebb1f88154325403885bc7173631cfa650f827e99ea00a",
+  "evidence": "Full KV heads with 50% warmdown achieved the best result, 0.993287 at 513.3M tokens; shortening warmdown to 40% slightly regressed to 0.993995 at similar throughput, motivating a test in the opposite direction.",
+  "hypothesis": "Restoring full KV heads and beginning warmdown at 40% of the training window will preserve roughly 513M-token throughput while improving late-stage convergence below 0.993287 val_bpb.",
+  "incumbent_after": "ee1f1cf686a479f175a9b2178602df52386a3561e80b0612b88ccd725e447c2e",
+  "intended_edit": "Restore the proven full multi-head 512-token SSSL architecture and increase LR warmdown from 50% to 60%.",
+  "mechanism": "Extended linear learning-rate annealing",
+  "opportunity": 9,
+  "parent_ids": [
+    "5ae3bd5c7c6dc0757bebb1f88154325403885bc7173631cfa650f827e99ea00a"
+  ],
+  "portfolio_after": [
+    "2865e528e18dc51191e4037eaeb5824cb0ea83ede79061b59b8f3caac686da6b",
+    "ee1f1cf686a479f175a9b2178602df52386a3561e80b0612b88ccd725e447c2e",
+    "8739f3a112cc296b7e52346edda0d7c193dbfb73b3aec6a3e9ed03bb18a2b8f5",
+    "2d771edf47265f31291fbb34e32f91548e44b43045421f48f01ac9a7b05d9d0f"
+  ],
+  "prompt_hashes": {
+    "common_template_sha256": "ba85b39aa7288f4f48475376da6cff65661f39cfeb7ac7cde15b2a9a2e692fde",
+    "prompt_sha256": "a9c6053462f026b737d7a7c5722e8f924570f6f87eba183476e0358df10904c0",
+    "proposal_policy_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "search_state_sha256": "c938ac007bf70fe8d27f64661175531e51fcb16b38318c328493c32ee292e27e",
+    "treatment_skeleton_sha256": "e47e8bb64446f3768f3d1a166a3e1743112eb6bfbaab59e92e39be3f8d27fd58"
+  },
+  "proposal_type": "ordinary",
+  "proposals_cumulative": 9,
+  "remaining_budget": {
+    "evaluations": 191,
+    "evaluator_seconds": 716571.141079304,
+    "proposals": 191,
+    "tokens": 99620555
+  },
+  "retained": true,
+  "retention_decision": "replaced_selected_parent_on_strict_improvement",
+  "run_id": "nanogpt-openevolve-v2-1-h100-karpathy_nanogpt_source_only_h100-openevolve-b02-c3",
+  "schema_version": "1.0",
+  "selected_parent_ids": [
+    "5ae3bd5c7c6dc0757bebb1f88154325403885bc7173631cfa650f827e99ea00a"
+  ],
+  "timestamp": "2026-08-23T17:42:24.691888+00:00",
+  "usage_cumulative": {
+    "cached_input_tokens": 108288,
+    "input_tokens": 360408,
+    "output_tokens": 19037,
+    "reasoning_output_tokens": 16574,
+    "total_tokens": 379445
+  },
+  "usage_increment": {
+    "cached_input_tokens": 12032,
+    "input_tokens": 46023,
+    "output_tokens": 711,
+    "reasoning_output_tokens": 451,
+    "total_tokens": 46734
+  },
+  "visible_candidate_ids": [
+    "2865e528e18dc51191e4037eaeb5824cb0ea83ede79061b59b8f3caac686da6b",
+    "ee1f1cf686a479f175a9b2178602df52386a3561e80b0612b88ccd725e447c2e",
+    "5ae3bd5c7c6dc0757bebb1f88154325403885bc7173631cfa650f827e99ea00a",
+    "2d771edf47265f31291fbb34e32f91548e44b43045421f48f01ac9a7b05d9d0f"
+  ]
+}

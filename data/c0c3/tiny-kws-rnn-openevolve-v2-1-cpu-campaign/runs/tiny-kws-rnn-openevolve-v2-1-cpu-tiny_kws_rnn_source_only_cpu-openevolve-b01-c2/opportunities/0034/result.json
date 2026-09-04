@@ -1,0 +1,105 @@
+{
+  "artifact_path": "candidates/41fc1c76f4dcd3361aebd61f2e8cddfbb68058632088841a83fb2865be6caf24",
+  "candidate_id": "41fc1c76f4dcd3361aebd61f2e8cddfbb68058632088841a83fb2865be6caf24",
+  "codex_service_tier": "default",
+  "condition": "C2",
+  "conversation_session_id": null,
+  "evaluation": {
+    "evaluator_calls": 1,
+    "evaluator_seconds": 82.91403766698204,
+    "failure_kind": "nonqualification",
+    "fitness": null,
+    "metrics": {
+      "batch_size": 128,
+      "evaluation_cases": 815,
+      "evaluation_split": "public_speaker_disjoint_validation",
+      "examples_processed": 50000,
+      "inference_cost": 1529398766712244735,
+      "maximum_recurrent_steps": 25,
+      "mean_recurrent_steps": 25.0,
+      "median_recurrent_steps": 25,
+      "optimizer_steps": 397,
+      "p95_recurrent_steps": 25,
+      "parameters": 15960,
+      "peak_hidden_elements": 92672,
+      "recurrent_logit_effect": 0.08668974786996841,
+      "recurrent_macs": 292177500,
+      "recurrent_steps": 20375,
+      "state_dependence_effect": 0.33667176961898804,
+      "state_update_effect": 0.5599193572998047,
+      "total_inference_macs": 293204400,
+      "trained_recurrent_logit_effect": 0.5122377276420593,
+      "trained_state_dependence_effect": 0.40552854537963867,
+      "trained_state_update_effect": 0.5856069922447205,
+      "training_seconds": 64.02440058393404,
+      "validation_accuracy": 0.8306748466257668,
+      "validation_correct": 677,
+      "validation_cross_entropy": 0.483909878408982
+    },
+    "valid": false
+  },
+  "evaluator_calls_cumulative": 33,
+  "evaluator_calls_increment": 1,
+  "evaluator_seconds_cumulative": 3091.90683858539,
+  "evaluator_seconds_increment": 82.91403766698204,
+  "event": "proposal_completed",
+  "evicted_candidate_id": null,
+  "evidence": "Removing the lowest band from every GRU gate narrowly missed at 84.42%; retaining that band in the update and candidate paths tests a substantially smaller structural reduction, while the bias-free head already qualified at 85.52%.",
+  "hypothesis": "Removing the lowest mel band only from the GRU reset-gate input will retain at least 85% accuracy while reducing total inference MACs from 294,426,900 to approximately 293,204,400.",
+  "incumbent_after": "445b78080dea6c7652c1f07ba34bcb3f0842216ae2d6596fe4b25e7538f4dd53",
+  "intended_edit": "Replace the fused GRU with an equivalent Linear-based GRU whose update and candidate gates retain all 20 bands while its reset gate uses 19; also adopt the qualified bias-free seven-logit head.",
+  "mechanism": "Gate-selective spectral pruning",
+  "opportunity": 34,
+  "parent_ids": [
+    "3c5edd494270bed3d9e054a6c812d052a9608cc31de01b84366cdd2a00582b85"
+  ],
+  "portfolio_after": [
+    "e75a8f47dcdb9bafbd1add5a66723fc8f1ef898a762fcb6dda4c26d81d7f9a69",
+    "3c5edd494270bed3d9e054a6c812d052a9608cc31de01b84366cdd2a00582b85",
+    "445b78080dea6c7652c1f07ba34bcb3f0842216ae2d6596fe4b25e7538f4dd53",
+    "5d7fe142ec7134d76a09f3c46d165b7784074f4e250430c14ad60379af9bf48e"
+  ],
+  "prompt_hashes": {
+    "common_template_sha256": "dee04faf4c430276c1036ba97f5705a339857dbdf19117dac88952a5a3a47e9d",
+    "prompt_sha256": "0c5b532f223585be48810c1c5ce794d83557c812fba71a2dbc64b101e7e47264",
+    "proposal_policy_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "search_state_sha256": "c938ac007bf70fe8d27f64661175531e51fcb16b38318c328493c32ee292e27e",
+    "treatment_skeleton_sha256": "11fef0c49a6ff7900e33b30cfe0965b6197608f853aa76858a2d7fad6953af32"
+  },
+  "proposal_type": "ordinary",
+  "proposals_cumulative": 34,
+  "remaining_budget": {
+    "evaluations": 167,
+    "evaluator_seconds": 56908.09316141461,
+    "proposals": 166,
+    "tokens": 99142137
+  },
+  "retained": false,
+  "retention_decision": "invalid",
+  "run_id": "tiny-kws-rnn-openevolve-v2-1-cpu-tiny_kws_rnn_source_only_cpu-openevolve-b01-c2",
+  "schema_version": "1.0",
+  "selected_parent_ids": [
+    "3c5edd494270bed3d9e054a6c812d052a9608cc31de01b84366cdd2a00582b85"
+  ],
+  "timestamp": "2026-09-04T04:22:08.905265+00:00",
+  "usage_cumulative": {
+    "cached_input_tokens": 365568,
+    "input_tokens": 779468,
+    "output_tokens": 78395,
+    "reasoning_output_tokens": 64267,
+    "total_tokens": 857863
+  },
+  "usage_increment": {
+    "cached_input_tokens": 10752,
+    "input_tokens": 24521,
+    "output_tokens": 7463,
+    "reasoning_output_tokens": 6706,
+    "total_tokens": 31984
+  },
+  "visible_candidate_ids": [
+    "e75a8f47dcdb9bafbd1add5a66723fc8f1ef898a762fcb6dda4c26d81d7f9a69",
+    "3c5edd494270bed3d9e054a6c812d052a9608cc31de01b84366cdd2a00582b85",
+    "445b78080dea6c7652c1f07ba34bcb3f0842216ae2d6596fe4b25e7538f4dd53",
+    "5d7fe142ec7134d76a09f3c46d165b7784074f4e250430c14ad60379af9bf48e"
+  ]
+}

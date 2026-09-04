@@ -1,0 +1,88 @@
+{
+  "artifact_path": "candidates/3a8b899ab9ffca60343e2b7d50702d55a85165b94d6015c0f9442fad1970f8b0",
+  "candidate_id": "3a8b899ab9ffca60343e2b7d50702d55a85165b94d6015c0f9442fad1970f8b0",
+  "codex_service_tier": "default",
+  "condition": "C2",
+  "conversation_session_id": null,
+  "evaluation": {
+    "evaluator_calls": 1,
+    "evaluator_seconds": 364.45640096400166,
+    "failure_kind": null,
+    "fitness": -0.98548,
+    "metrics": {
+      "depth": 8.0,
+      "mfu_percent": 34.78,
+      "num_params_M": 50.3,
+      "num_steps": 2014.0,
+      "peak_vram_mb": 44214.8,
+      "total_tokens_M": 519.7,
+      "training_seconds": 300.1,
+      "val_bpb": 0.98548
+    },
+    "valid": true
+  },
+  "evaluator_calls_cumulative": 48,
+  "evaluator_calls_increment": 1,
+  "evaluator_seconds_cumulative": 17671.056761045016,
+  "evaluator_seconds_increment": 364.45640096400166,
+  "event": "proposal_completed",
+  "evicted_candidate_id": "fd2a77ab47fb4647b7fe8e23b4c15c77efe4c867a6ef2ef5774be41de08300a7",
+  "evidence": "The `MATRIX_LR=0.040` design achieved the best `val_bpb` of 0.985181. Equal-area cosine warmdown regressed to 0.988030 while shifting LR exposure from the latter half of decay toward the earlier half, motivating a direct test of preserving more late-stage learning rate with the successful linear shape.",
+  "hypothesis": "Restoring `MATRIX_LR=0.040` and ending the proven linear warmdown at 5% of peak LR will retain roughly 520M tokens while lowering `val_bpb` below 0.985181.",
+  "incumbent_after": "4b1fc38a2c8142eaae8496a413c73cdcc6ef7736f5e9e9f0a1725d065918a484",
+  "intended_edit": "Restore the best Muon learning rate and add a modest 5% final LR floor, preserving the architecture, 258,048-token batch, and 60% linear warmdown.",
+  "mechanism": "Nonzero linear-decay learning-rate tail",
+  "opportunity": 48,
+  "parent_ids": [
+    "fd2a77ab47fb4647b7fe8e23b4c15c77efe4c867a6ef2ef5774be41de08300a7"
+  ],
+  "portfolio_after": [
+    "28065293cce8f9ca5f80cde31e82a620be69e78554b360670ef04c21f58a4a83",
+    "3a8b899ab9ffca60343e2b7d50702d55a85165b94d6015c0f9442fad1970f8b0",
+    "6826a6c2a754fbe9ee98df0ce5a4edf17695e9ebac632ca1cd0d33bf92fae84d",
+    "4b1fc38a2c8142eaae8496a413c73cdcc6ef7736f5e9e9f0a1725d065918a484"
+  ],
+  "prompt_hashes": {
+    "common_template_sha256": "ba85b39aa7288f4f48475376da6cff65661f39cfeb7ac7cde15b2a9a2e692fde",
+    "prompt_sha256": "62f5bac9cdd0333f0587bfb40131ec29c30f83d1aafde6428f6a7a38e84354ee",
+    "proposal_policy_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "search_state_sha256": "c938ac007bf70fe8d27f64661175531e51fcb16b38318c328493c32ee292e27e",
+    "treatment_skeleton_sha256": "2ec81ee3212622c64b13fefc2b43717d514677ce4f386b569621eb2b4c9f5dbd"
+  },
+  "proposal_type": "ordinary",
+  "proposals_cumulative": 48,
+  "remaining_budget": {
+    "evaluations": 152,
+    "evaluator_seconds": 702328.943238955,
+    "proposals": 152,
+    "tokens": 97694240
+  },
+  "retained": true,
+  "retention_decision": "replaced_selected_parent_on_strict_improvement",
+  "run_id": "nanogpt-openevolve-v2-1-h100-karpathy_nanogpt_source_only_h100-openevolve-b01-c2",
+  "schema_version": "1.0",
+  "selected_parent_ids": [
+    "fd2a77ab47fb4647b7fe8e23b4c15c77efe4c867a6ef2ef5774be41de08300a7"
+  ],
+  "timestamp": "2026-08-24T11:29:57.292338+00:00",
+  "usage_cumulative": {
+    "cached_input_tokens": 500224,
+    "input_tokens": 2192401,
+    "output_tokens": 113359,
+    "reasoning_output_tokens": 95980,
+    "total_tokens": 2305760
+  },
+  "usage_increment": {
+    "cached_input_tokens": 12032,
+    "input_tokens": 46915,
+    "output_tokens": 2048,
+    "reasoning_output_tokens": 1552,
+    "total_tokens": 48963
+  },
+  "visible_candidate_ids": [
+    "28065293cce8f9ca5f80cde31e82a620be69e78554b360670ef04c21f58a4a83",
+    "fd2a77ab47fb4647b7fe8e23b4c15c77efe4c867a6ef2ef5774be41de08300a7",
+    "6826a6c2a754fbe9ee98df0ce5a4edf17695e9ebac632ca1cd0d33bf92fae84d",
+    "4b1fc38a2c8142eaae8496a413c73cdcc6ef7736f5e9e9f0a1725d065918a484"
+  ]
+}

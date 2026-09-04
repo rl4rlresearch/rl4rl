@@ -1,0 +1,88 @@
+{
+  "artifact_path": "candidates/77aabda58b8fa3b07a446e139c7360fbf09c4bdadfa26ca2e1e2b35119f011a1",
+  "candidate_id": "77aabda58b8fa3b07a446e139c7360fbf09c4bdadfa26ca2e1e2b35119f011a1",
+  "codex_service_tier": "default",
+  "condition": "C2",
+  "conversation_session_id": null,
+  "evaluation": {
+    "evaluator_calls": 1,
+    "evaluator_seconds": 338.58129405000363,
+    "failure_kind": null,
+    "fitness": -0.98803,
+    "metrics": {
+      "depth": 8.0,
+      "mfu_percent": 34.81,
+      "num_params_M": 50.3,
+      "num_steps": 2015.0,
+      "peak_vram_mb": 44214.7,
+      "total_tokens_M": 520.0,
+      "training_seconds": 300.1,
+      "val_bpb": 0.98803
+    },
+    "valid": true
+  },
+  "evaluator_calls_cumulative": 47,
+  "evaluator_calls_increment": 1,
+  "evaluator_seconds_cumulative": 17306.600360081015,
+  "evaluator_seconds_increment": 338.58129405000363,
+  "event": "proposal_completed",
+  "evicted_candidate_id": null,
+  "evidence": "The 258,048-token, `MATRIX_LR=0.040` design achieved the best `val_bpb` of 0.985181, while nearby batch sizes and matrix learning rates regressed; cosine warmdown tests annealing curvature without changing the proven peak LR, endpoints, or total LR exposure.",
+  "hypothesis": "Using cosine rather than linear warmdown with the proven 258,048-token batch and `MATRIX_LR=0.040` will retain roughly 520M training tokens while lowering `val_bpb` below 0.985181.",
+  "incumbent_after": "4b1fc38a2c8142eaae8496a413c73cdcc6ef7736f5e9e9f0a1725d065918a484",
+  "intended_edit": "Restore the best 126-sequence microbatch and replace the 60% linear warmdown with an equal-duration, equal-area cosine warmdown.",
+  "mechanism": "Equal-area cosine warmdown at the best batch operating point",
+  "opportunity": 47,
+  "parent_ids": [
+    "6826a6c2a754fbe9ee98df0ce5a4edf17695e9ebac632ca1cd0d33bf92fae84d"
+  ],
+  "portfolio_after": [
+    "28065293cce8f9ca5f80cde31e82a620be69e78554b360670ef04c21f58a4a83",
+    "fd2a77ab47fb4647b7fe8e23b4c15c77efe4c867a6ef2ef5774be41de08300a7",
+    "6826a6c2a754fbe9ee98df0ce5a4edf17695e9ebac632ca1cd0d33bf92fae84d",
+    "4b1fc38a2c8142eaae8496a413c73cdcc6ef7736f5e9e9f0a1725d065918a484"
+  ],
+  "prompt_hashes": {
+    "common_template_sha256": "ba85b39aa7288f4f48475376da6cff65661f39cfeb7ac7cde15b2a9a2e692fde",
+    "prompt_sha256": "f6f7f2e3f13634579c96e6d7c952ceebf95cb1bd5a878dbcc2fe420b20e3e65a",
+    "proposal_policy_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "search_state_sha256": "c938ac007bf70fe8d27f64661175531e51fcb16b38318c328493c32ee292e27e",
+    "treatment_skeleton_sha256": "19708c714309709f06a1b28011eec2ee889349f2c2a13798ec756490867b20f5"
+  },
+  "proposal_type": "ordinary",
+  "proposals_cumulative": 47,
+  "remaining_budget": {
+    "evaluations": 153,
+    "evaluator_seconds": 702693.3996399189,
+    "proposals": 153,
+    "tokens": 97743203
+  },
+  "retained": false,
+  "retention_decision": "not_strictly_better_than_selected_parent",
+  "run_id": "nanogpt-openevolve-v2-1-h100-karpathy_nanogpt_source_only_h100-openevolve-b01-c2",
+  "schema_version": "1.0",
+  "selected_parent_ids": [
+    "6826a6c2a754fbe9ee98df0ce5a4edf17695e9ebac632ca1cd0d33bf92fae84d"
+  ],
+  "timestamp": "2026-08-24T11:12:48.054153+00:00",
+  "usage_cumulative": {
+    "cached_input_tokens": 488192,
+    "input_tokens": 2145486,
+    "output_tokens": 111311,
+    "reasoning_output_tokens": 94428,
+    "total_tokens": 2256797
+  },
+  "usage_increment": {
+    "cached_input_tokens": 12032,
+    "input_tokens": 46925,
+    "output_tokens": 2484,
+    "reasoning_output_tokens": 2070,
+    "total_tokens": 49409
+  },
+  "visible_candidate_ids": [
+    "28065293cce8f9ca5f80cde31e82a620be69e78554b360670ef04c21f58a4a83",
+    "fd2a77ab47fb4647b7fe8e23b4c15c77efe4c867a6ef2ef5774be41de08300a7",
+    "6826a6c2a754fbe9ee98df0ce5a4edf17695e9ebac632ca1cd0d33bf92fae84d",
+    "4b1fc38a2c8142eaae8496a413c73cdcc6ef7736f5e9e9f0a1725d065918a484"
+  ]
+}

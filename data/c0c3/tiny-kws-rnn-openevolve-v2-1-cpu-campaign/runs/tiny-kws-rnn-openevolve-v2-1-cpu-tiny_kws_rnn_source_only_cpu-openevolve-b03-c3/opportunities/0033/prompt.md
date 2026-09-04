@@ -1,0 +1,214 @@
+# Improve a recurrent keyword spotter
+
+You are an autonomous ML engineer improving a learned causal recurrent model
+that classifies one-second speech recordings into eight spoken commands.
+
+## Goal
+
+Produce a model with at least 85% accuracy on the fixed speaker-disjoint public
+validation split, then minimize exact dense inference MACs. Among equal-MAC
+models, fewer executed recurrent steps wins; among exact MAC-and-step ties,
+fewer learned parameters wins. Every verification starts from fresh random
+initialization and presents exactly 50,000 training clips drawn from a protected
+training-speaker split.
+
+The protected frontend supplies batches shaped `[batch, 32, 20]`: 32 causal
+time frames with 20 normalized log-mel bands. `train.py` owns the model,
+optimizer, loss, temporal augmentation, batch size, gradient handling, and
+schedule. Keep its five top-level function interfaces intact.
+
+The model interface is deliberately recurrent and evaluator-driven:
+
+- `initial_state(batch_size, device, dtype)` returns batch-first tensor state,
+  or a tuple/list of batch-first tensor states;
+- `recurrent_step(frame, state)` updates that state from one `[batch, 20]`
+  frame;
+- `classify(state)` returns `[batch, 8]` logits;
+- optional `recurrent_sequence(frames, state)` may run a standard causal
+  sequence module efficiently, but must be numerically equivalent to repeated
+  `recurrent_step` calls;
+- optional `frame_schedule(available_frames)` returns 2–64 unique increasing
+  input-frame indices, allowing causal striding;
+- optional `exit_mask(state, logits, step, total_steps)` returns one boolean per
+  active example after the mandatory first two recurrent steps.
+
+All learned matrix operations must use `nn.Linear`, the standard
+`nn.RNN`/`nn.GRU`/`nn.LSTM` modules, or their corresponding cell modules. Their
+exact executed MACs are counted with protected runtime hooks over the complete
+validation set. Bidirectional recurrence is rejected. Direct matmul, functional linear,
+convolutions, and manually created Parameters are rejected because they could
+bypass that counter. Dense matrices receive no credit for zero weights; only
+structural reductions reduce cost. Elementwise gates, nonlinearities,
+normalization, and recurrence logic remain flexible.
+
+The verifier requires a state updated across at least two causal steps, material
+dependence of the next state on the prior state, logits that materially depend
+on recurrent output, learned recurrent-path weight changes, no complete-input
+classifier bypass, and complete accounting of every executed recurrent step.
+Layer C uses recordings from speakers absent from both search training and
+public validation.
+
+Public feedback includes accuracy, cross-entropy, the exact lexicographic
+`inference_cost`, total and recurrent MACs, recurrent-step summaries, parameters,
+peak hidden elements, training exposure, and training time.
+
+## Work boundaries
+
+Minimize inference_cost. Required result: validation_accuracy >= 0.85.
+Editable source files: train.py.
+Results reported after each verification: validation_accuracy, validation_cross_entropy, inference_cost, total_inference_macs, recurrent_macs, recurrent_steps, mean_recurrent_steps, median_recurrent_steps, p95_recurrent_steps, maximum_recurrent_steps, parameters, peak_hidden_elements, examples_processed, optimizer_steps, training_seconds, batch_size.
+
+Propose changes through exact SEARCH/REPLACE blocks. The patching interface applies them to the supplied editable source.
+
+The editable source and any reference source are included below. Do not access
+parent directories, home directories, shared temporary directories, global
+session history, online sources, external datasets, pretrained weights, or any
+surrounding repository. Do not run training or validation yourself and do not
+generate hidden alternatives. Return one patch for one implementation;
+verification happens after you finish.
+
+## Available designs
+
+The current editable design and the qualified reference designs below are available as technical evidence. Edit only the current workspace.
+
+CURRENT DESIGN
+verified_results: {"batch_size": 128, "examples_processed": 50000, "inference_cost": 3550155570620230421, "maximum_recurrent_steps": 31, "mean_recurrent_steps": 31.0, "median_recurrent_steps": 31, "optimizer_steps": 397, "p95_recurrent_steps": 31, "parameters": 36226, "peak_hidden_elements": 631296, "recurrent_macs": 673514370, "recurrent_steps": 25265, "total_inference_macs": 680608130, "training_seconds": 111.24788216594607, "validation_accuracy": 0.8674846625766871, "validation_cross_entropy": 0.3902458986621693}
+prior_hypothesis: The qualified 45/45/46 GRU model can omit the first input frame while retaining at least 85% validation accuracy, reducing execution to 31 recurrent steps and approximately 680,608,130 total MACs.
+
+REFERENCE DESIGN 1
+verified_results: {"batch_size": 128, "examples_processed": 50000, "inference_cost": 3754628057313151112, "maximum_recurrent_steps": 32, "mean_recurrent_steps": 32.0, "median_recurrent_steps": 32, "optimizer_steps": 397, "p95_recurrent_steps": 32, "parameters": 37032, "peak_hidden_elements": 640512, "recurrent_macs": 712609920, "recurrent_steps": 26080, "total_inference_macs": 719808000, "training_seconds": 83.53243420901708, "validation_accuracy": 0.8601226993865031, "validation_cross_entropy": 0.41623826290200827}
+prior_hypothesis: Three 46-unit GRUs with eight ordered temporal bins will retain at least 85% validation accuracy while reducing total inference MACs from 728,701,280 to approximately 719,808,000.
+
+REFERENCE DESIGN 2
+verified_results: {"batch_size": 128, "examples_processed": 50000, "inference_cost": 3617910622712475503, "maximum_recurrent_steps": 32, "mean_recurrent_steps": 32.0, "median_recurrent_steps": 32, "optimizer_steps": 397, "p95_recurrent_steps": 32, "parameters": 35823, "peak_hidden_elements": 626688, "recurrent_macs": 686556000, "recurrent_steps": 26080, "total_inference_macs": 693597600, "training_seconds": 112.85352124995552, "validation_accuracy": 0.8588957055214724, "validation_cross_entropy": 0.4059344426254553}
+prior_hypothesis: Three 45-unit GRUs will retain at least 85% validation accuracy while reducing total inference MACs from 702,334,400 to approximately 693,597,600.
+
+REFERENCE DESIGN 3
+verified_results: {"batch_size": 128, "examples_processed": 50000, "inference_cost": 3663483100912700706, "maximum_recurrent_steps": 32, "mean_recurrent_steps": 32.0, "median_recurrent_steps": 32, "optimizer_steps": 397, "p95_recurrent_steps": 32, "parameters": 36226, "peak_hidden_elements": 631296, "recurrent_macs": 695240640, "recurrent_steps": 26080, "total_inference_macs": 702334400, "training_seconds": 99.96725729084574, "validation_accuracy": 0.8760736196319019, "validation_cross_entropy": 0.38481914309636217}
+prior_hypothesis: A 45/45/46-unit eight-bin model will retain at least 85% validation accuracy while reducing total inference MACs from 711,071,200 to approximately 702,334,400.
+
+## Recent verification evidence
+
+RECENT RESULT
+hypothesis: Reducing one GRU branch from 48 to 47 units will retain at least 85% validation accuracy because the four-bin temporal readout qualified with a 1.38-point margin, while lowering total inference MACs to approximately 760,857,920.
+change: Change the three recurrent branch widths from 48/48/48 to 47/48/48 and resize the temporal-bin state and classifier from 144 to 143 features.
+mechanism: Asymmetric temporal-pyramid block-diagonal recurrence
+evidence_used: The current 48/48/48 temporal-pyramid model achieved 86.38% accuracy at 769,881,600 MACs, substantially above the same-width global-summary model’s 84.91%; removing one unit from only one branch is the smallest structural capacity probe that preserves the successful ordered readout.
+result: met the accuracy requirement and became an available design
+reported_values: {"batch_size": 128, "examples_processed": 50000, "inference_cost": 3968750686230025713, "maximum_recurrent_steps": 32, "mean_recurrent_steps": 32.0, "median_recurrent_steps": 32, "optimizer_steps": 397, "p95_recurrent_steps": 32, "parameters": 34513, "peak_hidden_elements": 368640, "recurrent_macs": 757128480, "recurrent_steps": 26080, "total_inference_macs": 760857920, "training_seconds": 118.50576454098336, "validation_accuracy": 0.8662576687116564, "validation_cross_entropy": 0.398963029545509}
+
+RECENT RESULT
+hypothesis: A 47/47/48-unit four-bin model will retain at least 85% validation accuracy while reducing total inference MACs from 760,857,920 to approximately 751,834,240.
+change: Replace the global mean with four ordered eight-frame summaries and reduce two recurrent branches to 47 units, yielding a balanced 142-unit aggregate state.
+mechanism: Balanced three-way block-diagonal GRU with temporal-pyramid readout
+evidence_used: The 47/48/48 temporal-pyramid design achieved 86.63% accuracy at 760,857,920 MACs; its 1.63-point margin motivates the smallest further width reduction, while balanced branch sizes minimize recurrent MACs for the resulting aggregate width.
+result: did not meet the accuracy requirement
+reported_values: {"batch_size": 128, "examples_processed": 50000, "inference_cost": 3921681798297852850, "maximum_recurrent_steps": 32, "mean_recurrent_steps": 32.0, "median_recurrent_steps": 32, "optimizer_steps": 397, "p95_recurrent_steps": 32, "parameters": 34130, "peak_hidden_elements": 366080, "recurrent_macs": 748130880, "recurrent_steps": 26080, "total_inference_macs": 751834240, "training_seconds": 117.96163354208693, "validation_accuracy": 0.849079754601227, "validation_cross_entropy": 0.4149572922408215}
+
+RECENT RESULT
+hypothesis: Increasing temporal resolution from four to eight ordered bins will recover the 47/47/48 model’s one-example accuracy shortfall, reaching at least 85% accuracy at approximately 755,537,600 total MACs.
+change: Use 47/47/48-unit parallel GRUs and classify eight four-frame temporal summaries instead of a global mean.
+mechanism: Eight-bin causal temporal-pyramid readout
+evidence_used: The four-bin 48/48/48 model improved accuracy from 84.91% with global pooling to 86.38%; the four-bin 47/47/48 model then missed qualification by only one example, so finer temporal structure is a targeted capacity increase that remains cheaper than the qualified 47/48/48 design.
+result: met the accuracy requirement and became an available design
+reported_values: {"batch_size": 128, "examples_processed": 50000, "inference_cost": 3940999087564818354, "maximum_recurrent_steps": 32, "mean_recurrent_steps": 32.0, "median_recurrent_steps": 32, "optimizer_steps": 397, "p95_recurrent_steps": 32, "parameters": 38674, "peak_hidden_elements": 658944, "recurrent_macs": 748130880, "recurrent_steps": 26080, "total_inference_macs": 755537600, "training_seconds": 108.0177561249584, "validation_accuracy": 0.8613496932515338, "validation_cross_entropy": 0.40489840829299273}
+
+RECENT RESULT
+hypothesis: Three 47-unit GRUs with eight ordered temporal bins will retain at least 85% validation accuracy while reducing total inference MACs from 755,537,600 to approximately 746,487,840.
+change: Replace the 128-unit GRU with three parallel 47-unit GRUs and classify eight four-frame temporal summaries.
+mechanism: Balanced three-way block-diagonal GRU with eight-bin causal temporal readout
+evidence_used: The 47/47/48 eight-bin design achieved 86.13% accuracy, ten correct examples above the otherwise identical four-bin design and nine above qualification; removing one unit from its largest branch is the smallest recurrent-cost reduction and produces balanced branches.
+result: met the accuracy requirement and became an available design
+reported_values: {"batch_size": 128, "examples_processed": 50000, "inference_cost": 3893794162384286579, "maximum_recurrent_steps": 32, "mean_recurrent_steps": 32.0, "median_recurrent_steps": 32, "optimizer_steps": 397, "p95_recurrent_steps": 32, "parameters": 38259, "peak_hidden_elements": 654336, "recurrent_macs": 739133280, "recurrent_steps": 26080, "total_inference_macs": 746487840, "training_seconds": 96.58226724993438, "validation_accuracy": 0.8576687116564418, "validation_cross_entropy": 0.3978621219564801}
+
+RECENT RESULT
+hypothesis: Reducing one recurrent branch from 47 to 46 units will retain at least 85% validation accuracy while lowering total inference MACs from 746,487,840 to approximately 737,594,560.
+change: Change the three recurrent widths from 47/47/47 to 46/47/47 and resize the temporal-bin state and classifier from 141 to 140 features.
+mechanism: Asymmetric three-way block-diagonal GRU with eight-bin temporal readout
+evidence_used: The 47/47/48 eight-bin design achieved 86.13% accuracy, and the current 47/47/47 design still achieved 85.77%; removing one unit from only one branch is the smallest structural capacity probe and should save about 8.9 million MACs.
+result: met the accuracy requirement and became an available design
+reported_values: {"batch_size": 128, "examples_processed": 50000, "inference_cost": 3847405460693908090, "maximum_recurrent_steps": 32, "mean_recurrent_steps": 32.0, "median_recurrent_steps": 32, "optimizer_steps": 397, "p95_recurrent_steps": 32, "parameters": 37850, "peak_hidden_elements": 649728, "recurrent_macs": 730292160, "recurrent_steps": 26080, "total_inference_macs": 737594560, "training_seconds": 95.79231091705151, "validation_accuracy": 0.8613496932515338, "validation_cross_entropy": 0.4192780477137653}
+
+RECENT RESULT
+hypothesis: A 46/46/47-unit eight-bin model will retain at least 85% validation accuracy while reducing total inference MACs from 737,594,560 to approximately 728,701,280.
+change: Reduce the qualified 46/47/47 architecture by one unit in a 47-unit branch, balancing widths at 46/46/47 and resizing the temporal state and classifier to 139 features.
+mechanism: Balanced one-unit recurrent-width reduction
+evidence_used: The 46/47/47 eight-bin design achieved 86.13% accuracy at 737,594,560 MACs; its 1.13-point margin supports the smallest further capacity probe, and balancing the three branches minimizes quadratic recurrent cost at the new aggregate width.
+result: met the accuracy requirement and became an available design
+reported_values: {"batch_size": 128, "examples_processed": 50000, "inference_cost": 3801016759003529601, "maximum_recurrent_steps": 32, "mean_recurrent_steps": 32.0, "median_recurrent_steps": 32, "optimizer_steps": 397, "p95_recurrent_steps": 32, "parameters": 37441, "peak_hidden_elements": 645120, "recurrent_macs": 721451040, "recurrent_steps": 26080, "total_inference_macs": 728701280, "training_seconds": 91.7218647908885, "validation_accuracy": 0.8638036809815951, "validation_cross_entropy": 0.3926870240755608}
+
+RECENT RESULT
+hypothesis: Three 46-unit GRUs with eight ordered temporal bins will retain at least 85% validation accuracy while reducing total inference MACs from 728,701,280 to approximately 719,808,000.
+change: Reduce the remaining 47-unit branch in the qualified 46/46/47 design to 46 units and resize its eight-bin state and classifier to 138 features.
+mechanism: Balanced three-way block-diagonal GRU with eight-bin temporal readout
+evidence_used: The 46/46/47 eight-bin model achieved 86.38% accuracy, improving upon 46/47/47 despite its lower recurrent capacity; the 1.38-point margin supports the smallest balanced width reduction.
+result: met the accuracy requirement and became an available design
+reported_values: {"batch_size": 128, "examples_processed": 50000, "inference_cost": 3754628057313151112, "maximum_recurrent_steps": 32, "mean_recurrent_steps": 32.0, "median_recurrent_steps": 32, "optimizer_steps": 397, "p95_recurrent_steps": 32, "parameters": 37032, "peak_hidden_elements": 640512, "recurrent_macs": 712609920, "recurrent_steps": 26080, "total_inference_macs": 719808000, "training_seconds": 83.53243420901708, "validation_accuracy": 0.8601226993865031, "validation_cross_entropy": 0.41623826290200827}
+
+RECENT RESULT
+hypothesis: A 45/46/46-unit eight-bin model will retain at least 85% validation accuracy while reducing total inference MACs from 719,808,000 to approximately 711,071,200.
+change: Install the qualified eight-bin causal readout and reduce one branch of the 46/46/46 design to 45 units, resizing aggregate state and classifier features to 137.
+mechanism: Balanced three-way block-diagonal GRU with eight-bin temporal readout
+evidence_used: The balanced 46/46/46 eight-bin model achieved 86.01% accuracy at 719,808,000 MACs, and each preceding one-unit branch reduction remained qualified; reducing one branch is the smallest structural cost probe.
+result: met the accuracy requirement and became an available design
+reported_values: {"batch_size": 128, "examples_processed": 50000, "inference_cost": 3709055579112925909, "maximum_recurrent_steps": 32, "mean_recurrent_steps": 32.0, "median_recurrent_steps": 32, "optimizer_steps": 397, "p95_recurrent_steps": 32, "parameters": 36629, "peak_hidden_elements": 635904, "recurrent_macs": 703925280, "recurrent_steps": 26080, "total_inference_macs": 711071200, "training_seconds": 93.60752349998802, "validation_accuracy": 0.8625766871165644, "validation_cross_entropy": 0.40177793912361004}
+
+RECENT RESULT
+hypothesis: A 45/45/46-unit eight-bin model will retain at least 85% validation accuracy while reducing total inference MACs from 711,071,200 to approximately 702,334,400.
+change: Reduce one 46-unit GRU branch to 45 units and resize the aggregate temporal state and classifier from 137 to 136 features.
+mechanism: Balanced one-unit recurrent-width reduction
+evidence_used: The qualified 45/46/46 model achieved 86.26% accuracy, a 1.26-point margin, and every preceding one-unit branch reduction from 46/47/47 through 45/46/46 remained qualified; this is the smallest further structural cost probe.
+result: met the accuracy requirement and became an available design
+reported_values: {"batch_size": 128, "examples_processed": 50000, "inference_cost": 3663483100912700706, "maximum_recurrent_steps": 32, "mean_recurrent_steps": 32.0, "median_recurrent_steps": 32, "optimizer_steps": 397, "p95_recurrent_steps": 32, "parameters": 36226, "peak_hidden_elements": 631296, "recurrent_macs": 695240640, "recurrent_steps": 26080, "total_inference_macs": 702334400, "training_seconds": 99.96725729084574, "validation_accuracy": 0.8760736196319019, "validation_cross_entropy": 0.38481914309636217}
+
+RECENT RESULT
+hypothesis: A 40-unit fast GRU feeding a 72-unit GRU every fourth frame will retain at least 85% accuracy while reducing expected total inference MACs from 702,334,400 to approximately 351,349,760.
+change: Replace three independent every-frame GRUs with one fast acoustic GRU and a causally coupled slow semantic GRU; classify eight boundary readouts containing both timescales.
+mechanism: Two-timescale hierarchical GRU with quarter-rate semantic updates
+evidence_used: The 45/45/46 model reached 87.61% accuracy, but its three same-rate branches spend 695,240,640 recurrent MACs processing redundant inputs. The failed four-branch repartition showed that parallel width alone is insufficient, motivating learned cross-timescale composition instead.
+result: the implementation could not be verified
+
+RECENT RESULT
+hypothesis: Three 45-unit GRUs will retain at least 85% validation accuracy while reducing total inference MACs from 702,334,400 to approximately 693,597,600.
+change: Reduce all recurrent branches to 45 units and resize the aggregate temporal state and classifier to 135 features.
+mechanism: Balanced three-way block-diagonal GRU with eight-bin temporal readout
+evidence_used: The qualified 45/45/46 model achieved 87.61% accuracy at 702,334,400 MACs, the strongest observed margin; reducing its remaining 46-unit branch is the smallest further structural cost probe.
+result: met the accuracy requirement and became an available design
+reported_values: {"batch_size": 128, "examples_processed": 50000, "inference_cost": 3617910622712475503, "maximum_recurrent_steps": 32, "mean_recurrent_steps": 32.0, "median_recurrent_steps": 32, "optimizer_steps": 397, "p95_recurrent_steps": 32, "parameters": 35823, "peak_hidden_elements": 626688, "recurrent_macs": 686556000, "recurrent_steps": 26080, "total_inference_macs": 693597600, "training_seconds": 112.85352124995552, "validation_accuracy": 0.8588957055214724, "validation_cross_entropy": 0.4059344426254553}
+
+RECENT RESULT
+hypothesis: The qualified 45/45/46 GRU model can omit the first input frame while retaining at least 85% validation accuracy, reducing execution to 31 recurrent steps and approximately 680,608,130 total MACs.
+change: Restore the high-margin 45/45/46 eight-bin model and causally process frames 1–31 instead of all 32 frames.
+mechanism: Boundary-frame pruning with a high-margin recurrent backbone
+evidence_used: The 45/45/46 design achieved 87.61% accuracy at 702,334,400 MACs—the strongest observed margin—so removing one boundary frame is a conservative step-reduction probe with more accuracy headroom than the 85.89% three-45-unit model.
+result: met the accuracy requirement and became an available design
+reported_values: {"batch_size": 128, "examples_processed": 50000, "inference_cost": 3550155570620230421, "maximum_recurrent_steps": 31, "mean_recurrent_steps": 31.0, "median_recurrent_steps": 31, "optimizer_steps": 397, "p95_recurrent_steps": 31, "parameters": 36226, "peak_hidden_elements": 631296, "recurrent_macs": 673514370, "recurrent_steps": 25265, "total_inference_macs": 680608130, "training_seconds": 111.24788216594607, "validation_accuracy": 0.8674846625766871, "validation_cross_entropy": 0.3902458986621693}
+
+
+
+Use the available technical evidence to choose the most informative next
+change. Treat unsuccessful or malformed work as evidence when a useful
+subject-level reason is provided. Do not invent missing evidence.
+
+## Response
+
+Return these short metadata lines followed by one or more exact
+`SEARCH`/`REPLACE` blocks that together produce one implementation:
+
+`MECHANISM: <a concise free-form name for the computational idea>`
+
+`HYPOTHESIS: <a falsifiable claim grounded in the evidence above>`
+
+`INTENDED_EDIT: <what this patch changes>`
+
+`EVIDENCE: <the most relevant prior result and why it motivates this patch>`
+
+Start each block with `<<<<<<< SEARCH`, put the exact existing lines next, use a
+line containing `=======` as the divider, put the replacement lines after it,
+and finish the block with `>>>>>>> REPLACE`.
+
+Every `SEARCH` section must be nonempty and match exactly once after earlier
+blocks have been applied. All blocks must apply. Together they must describe
+one implementation ready for verification. The mechanism name is descriptive,
+not chosen from a fixed list. Do not paste whole files, lengthy logs, or routine
+progress reports outside the patch.

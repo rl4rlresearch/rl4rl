@@ -1,0 +1,79 @@
+{
+  "artifact_path": "candidates/289aa3c75fc6e696fff563a7e396ddff42b4e917fc3a2ef9829be17db237b9f8",
+  "candidate_id": "289aa3c75fc6e696fff563a7e396ddff42b4e917fc3a2ef9829be17db237b9f8",
+  "codex_service_tier": "fast",
+  "condition": "C1",
+  "conversation_session_id": null,
+  "evaluation": {
+    "evaluator_calls": 1,
+    "evaluator_seconds": 467.05247333296575,
+    "failure_kind": null,
+    "fitness": -1284.0,
+    "metrics": {
+      "accuracy": 1.0,
+      "cases": 10010,
+      "correct": 10010,
+      "parameters": 1284,
+      "training_steps": 4999
+    },
+    "valid": true
+  },
+  "evaluator_calls_cumulative": 30,
+  "evaluator_calls_increment": 1,
+  "evaluator_seconds_cumulative": 9766.929351496277,
+  "evaluator_seconds_increment": 467.05247333296575,
+  "event": "proposal_completed",
+  "evicted_candidate_id": "a58c3f080d8c6136f97be4239fa23cb9809b1f0827f1f762f672194e30bd5efa",
+  "evidence": "The 1,397-parameter model reached 99.93%, while optimizer-preserving quotients repeatedly retained high accuracy. Unlike removing load-bearing LayerNorm scales, this keeps the final affine LayerNorm and instead challenges the assumption that token-specific embedding common modes are needed by making the classifier operate entirely on learned residual contrasts.",
+  "hypothesis": "Centering the final hidden state before the tied output projection makes each token embedding\u2019s scalar row offset exactly unobservable, allowing 113 embedding parameters to be removed while the remaining seven-dimensional learned contrasts retain at least 99% accuracy; the resulting model has 1,284 parameters.",
+  "incumbent_after": "289aa3c75fc6e696fff563a7e396ddff42b4e917fc3a2ef9829be17db237b9f8",
+  "intended_edit": "Store seven within-row embedding differences per token instead of one globally gauge-fixed flattened table, center the learned final representation before computing logits, and preserve full-width AdamW geometry with one virtual reference coordinate per token.",
+  "mechanism": "Row-centered tied-embedding contrast classifier",
+  "opportunity": 30,
+  "parent_ids": [
+    "a58c3f080d8c6136f97be4239fa23cb9809b1f0827f1f762f672194e30bd5efa"
+  ],
+  "portfolio_after": [
+    "289aa3c75fc6e696fff563a7e396ddff42b4e917fc3a2ef9829be17db237b9f8"
+  ],
+  "prompt_hashes": {
+    "common_template_sha256": "3f2bea6418b6969c4bf2aa1df18dcda8a3a4ac075bf20c79068c754698b6be5e",
+    "prompt_sha256": "e681f38be2a8e144c8cf7ccfb0a742232e66a6a8d9b6ba6783280080b6bb338b",
+    "proposal_policy_sha256": "4a27c08e098e719db007f4d6b37fabe2967b41836bb9070e2513a8a24ff7ce90",
+    "search_state_sha256": "04e5eb078ae1964e4ec65bfeeeb1acd0ffa246e7d54d5e0f997f81f602da28c5",
+    "treatment_skeleton_sha256": "1fafbebe2096b6b002d87613a269c39e13b0f7c4fd9bd7db8594894525d634d1"
+  },
+  "proposal_type": "assumption_changing",
+  "proposals_cumulative": 30,
+  "remaining_budget": {
+    "evaluations": 170,
+    "evaluator_seconds": 350233.0706485037,
+    "proposals": 170,
+    "tokens": 99172859
+  },
+  "retained": true,
+  "retention_decision": "strict_incumbent_improvement",
+  "run_id": "controlled-openevolve-transformer-v2-1-source-only-ten-digit-addition-pair-transformer-openevolve-v2-1-mps-openevolve-b02-c1",
+  "schema_version": "1.0",
+  "selected_parent_ids": [
+    "a58c3f080d8c6136f97be4239fa23cb9809b1f0827f1f762f672194e30bd5efa"
+  ],
+  "timestamp": "2026-08-23T22:24:00.266083+00:00",
+  "usage_cumulative": {
+    "cached_input_tokens": 281856,
+    "input_tokens": 658345,
+    "output_tokens": 168796,
+    "reasoning_output_tokens": 139434,
+    "total_tokens": 827141
+  },
+  "usage_increment": {
+    "cached_input_tokens": 12032,
+    "input_tokens": 25929,
+    "output_tokens": 6343,
+    "reasoning_output_tokens": 5696,
+    "total_tokens": 32272
+  },
+  "visible_candidate_ids": [
+    "a58c3f080d8c6136f97be4239fa23cb9809b1f0827f1f762f672194e30bd5efa"
+  ]
+}

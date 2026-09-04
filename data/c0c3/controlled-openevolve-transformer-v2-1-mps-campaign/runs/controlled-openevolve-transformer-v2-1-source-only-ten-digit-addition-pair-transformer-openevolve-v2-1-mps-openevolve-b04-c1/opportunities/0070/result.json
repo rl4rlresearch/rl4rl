@@ -1,0 +1,79 @@
+{
+  "artifact_path": "candidates/867d10cd27ec465d7b5d33f987cbf172b50e22bc5d46ffdb46dada9b3c727713",
+  "candidate_id": "867d10cd27ec465d7b5d33f987cbf172b50e22bc5d46ffdb46dada9b3c727713",
+  "codex_service_tier": "default",
+  "condition": "C1",
+  "conversation_session_id": null,
+  "evaluation": {
+    "evaluator_calls": 1,
+    "evaluator_seconds": 471.9468052079901,
+    "failure_kind": null,
+    "fitness": -1199.0,
+    "metrics": {
+      "accuracy": 0.9998999999999999,
+      "cases": 10010,
+      "correct": 10009,
+      "parameters": 1199,
+      "training_steps": 4999
+    },
+    "valid": true
+  },
+  "evaluator_calls_cumulative": 70,
+  "evaluator_calls_increment": 1,
+  "evaluator_seconds_cumulative": 37770.58562096383,
+  "evaluator_seconds_increment": 471.9468052079901,
+  "event": "proposal_completed",
+  "evicted_candidate_id": "85d76a49d2f084d24905b24c63d6b1fea70ec9579ddb946924ee7708f9d2e4ae",
+  "evidence": "The learned relative-lag design reached 99.96% after removing the 184-parameter position table, and the current model reaches 99.93%; this challenges the shared assumption that all eight residual channels must be independently learned for every token while leaving the successful eight-dimensional attention and MLP computation intact.",
+  "hypothesis": "Restricting the tied token embeddings to six learned channels while retaining the eight-channel transformer will reduce the model from 1426 to 1199 parameters and retain at least 99% accuracy, because learned relative-lag attention already supplies positional structure separately and addition-token identity should not require every residual channel.",
+  "incumbent_after": "867d10cd27ec465d7b5d33f987cbf172b50e22bc5d46ffdb46dada9b3c727713",
+  "intended_edit": "Replace each full-width token vector with a learned six-dimensional vector padded into the eight-dimensional residual stream, use the same compact vectors for logits, and preserve the verified initialization random stream by reconstructing and truncating the former conceptual initialization.",
+  "mechanism": "Six-dimensional learned token bottleneck with eight-dimensional internal computation",
+  "opportunity": 70,
+  "parent_ids": [
+    "85d76a49d2f084d24905b24c63d6b1fea70ec9579ddb946924ee7708f9d2e4ae"
+  ],
+  "portfolio_after": [
+    "867d10cd27ec465d7b5d33f987cbf172b50e22bc5d46ffdb46dada9b3c727713"
+  ],
+  "prompt_hashes": {
+    "common_template_sha256": "3f2bea6418b6969c4bf2aa1df18dcda8a3a4ac075bf20c79068c754698b6be5e",
+    "prompt_sha256": "c54e0f2178ac453712dcfe99cbd7c2a6e971142d9aff4c2ee68eb6fba8b94da8",
+    "proposal_policy_sha256": "4a27c08e098e719db007f4d6b37fabe2967b41836bb9070e2513a8a24ff7ce90",
+    "search_state_sha256": "04e5eb078ae1964e4ec65bfeeeb1acd0ffa246e7d54d5e0f997f81f602da28c5",
+    "treatment_skeleton_sha256": "5d5b5e12babf4bded6b6ab961f7f165ee4389ba78a53d668913934cf776224ed"
+  },
+  "proposal_type": "assumption_changing",
+  "proposals_cumulative": 70,
+  "remaining_budget": {
+    "evaluations": 130,
+    "evaluator_seconds": 322229.41437903617,
+    "proposals": 130,
+    "tokens": 98249582
+  },
+  "retained": true,
+  "retention_decision": "strict_incumbent_improvement",
+  "run_id": "controlled-openevolve-transformer-v2-1-source-only-ten-digit-addition-pair-transformer-openevolve-v2-1-mps-openevolve-b04-c1",
+  "schema_version": "1.0",
+  "selected_parent_ids": [
+    "85d76a49d2f084d24905b24c63d6b1fea70ec9579ddb946924ee7708f9d2e4ae"
+  ],
+  "timestamp": "2026-08-25T18:44:58.239770+00:00",
+  "usage_cumulative": {
+    "cached_input_tokens": 749056,
+    "input_tokens": 1562989,
+    "output_tokens": 187429,
+    "reasoning_output_tokens": 150185,
+    "total_tokens": 1750418
+  },
+  "usage_increment": {
+    "cached_input_tokens": 25344,
+    "input_tokens": 26598,
+    "output_tokens": 6134,
+    "reasoning_output_tokens": 5178,
+    "total_tokens": 32732
+  },
+  "visible_candidate_ids": [
+    "85d76a49d2f084d24905b24c63d6b1fea70ec9579ddb946924ee7708f9d2e4ae"
+  ]
+}

@@ -1,0 +1,88 @@
+{
+  "artifact_path": "candidates/f3f9807a60a70b724b0b025f5150d4a1f49c4fbcae5d1c065b13e84e1ad4478b",
+  "candidate_id": "f3f9807a60a70b724b0b025f5150d4a1f49c4fbcae5d1c065b13e84e1ad4478b",
+  "codex_service_tier": "default",
+  "condition": "C3",
+  "conversation_session_id": null,
+  "evaluation": {
+    "evaluator_calls": 1,
+    "evaluator_seconds": 366.21390394899936,
+    "failure_kind": null,
+    "fitness": -0.997007,
+    "metrics": {
+      "depth": 8.0,
+      "mfu_percent": 36.04,
+      "num_params_M": 50.1,
+      "num_steps": 870.0,
+      "peak_vram_mb": 46093.5,
+      "total_tokens_M": 456.1,
+      "training_seconds": 300.3,
+      "val_bpb": 0.997007
+    },
+    "valid": true
+  },
+  "evaluator_calls_cumulative": 50,
+  "evaluator_calls_increment": 1,
+  "evaluator_seconds_cumulative": 18304.74960569699,
+  "evaluator_seconds_increment": 366.21390394899936,
+  "event": "proposal_completed",
+  "evicted_candidate_id": null,
+  "evidence": "Window-allocation and output-gate learning-rate refinements plateaued around the 0.991177 best result, while input-dependent multiplicative output gating was the clearest successful architectural lever. This challenges the shared assumption that an ungated ReLU\u00b2 feature expansion is sufficient, without increasing the attention budget; the 1344-wide hidden dimension is within 1.6% of iso-parameter SwiGLU sizing and remains tensor-core aligned.",
+  "hypothesis": "Replacing the single-branch ReLU\u00b2 MLPs with 64-aligned, nearly parameter-neutral SwiGLU blocks will lower val_bpb below 0.991177 while retaining at least 470M trained tokens.",
+  "incumbent_after": "0a6bacd34756636ca41cdd0973f5c21d309d5f764ac99212b352903a65b40cea",
+  "intended_edit": "Keep the proven 704/1024/1344 attention backbone and 0.0115 output-gate AdamW rate, but factor every MLP expansion into learned gate and value streams whose multiplicative interaction controls features at each token.",
+  "mechanism": "Parameter-neutral SwiGLU feature-selective prediction blocks",
+  "opportunity": 50,
+  "parent_ids": [
+    "981b844585e17d25d1a50d2ac2673b3a7f76519c3b170ad8030a328a91cba2cf"
+  ],
+  "portfolio_after": [
+    "69a781d3c501ec298e2ac042b4908eea0334d1eefe548cab394e7d3affbd52bd",
+    "0a6bacd34756636ca41cdd0973f5c21d309d5f764ac99212b352903a65b40cea",
+    "ff987b2a05efb35a90626e7dbe0f50c617bba791c9f324ea76d5597bc38297c1",
+    "981b844585e17d25d1a50d2ac2673b3a7f76519c3b170ad8030a328a91cba2cf"
+  ],
+  "prompt_hashes": {
+    "common_template_sha256": "ba85b39aa7288f4f48475376da6cff65661f39cfeb7ac7cde15b2a9a2e692fde",
+    "prompt_sha256": "1d71d8aa688cd773ffa90a2e0faba5f925f72142e92b046b0cc8ffa77270e63b",
+    "proposal_policy_sha256": "cd7b9ba20a1cd1edd0663b5e3652baa9cd3c81925074103fe47e66c021d61a4a",
+    "search_state_sha256": "c938ac007bf70fe8d27f64661175531e51fcb16b38318c328493c32ee292e27e",
+    "treatment_skeleton_sha256": "1ca6a719901bbd567c0f66b96ade6fe2cf15f86a954fa73d90b2ed9b21476872"
+  },
+  "proposal_type": "assumption_changing",
+  "proposals_cumulative": 50,
+  "remaining_budget": {
+    "evaluations": 150,
+    "evaluator_seconds": 701695.250394303,
+    "proposals": 150,
+    "tokens": 97500951
+  },
+  "retained": false,
+  "retention_decision": "not_strictly_better_than_selected_parent",
+  "run_id": "nanogpt-openevolve-v2-1-h100-karpathy_nanogpt_source_only_h100-openevolve-b03-c3",
+  "schema_version": "1.0",
+  "selected_parent_ids": [
+    "981b844585e17d25d1a50d2ac2673b3a7f76519c3b170ad8030a328a91cba2cf"
+  ],
+  "timestamp": "2026-08-24T11:18:16.707327+00:00",
+  "usage_cumulative": {
+    "cached_input_tokens": 582656,
+    "input_tokens": 2345749,
+    "output_tokens": 153300,
+    "reasoning_output_tokens": 122980,
+    "total_tokens": 2499049
+  },
+  "usage_increment": {
+    "cached_input_tokens": 12032,
+    "input_tokens": 49522,
+    "output_tokens": 9308,
+    "reasoning_output_tokens": 8804,
+    "total_tokens": 58830
+  },
+  "visible_candidate_ids": [
+    "69a781d3c501ec298e2ac042b4908eea0334d1eefe548cab394e7d3affbd52bd",
+    "0a6bacd34756636ca41cdd0973f5c21d309d5f764ac99212b352903a65b40cea",
+    "ff987b2a05efb35a90626e7dbe0f50c617bba791c9f324ea76d5597bc38297c1",
+    "981b844585e17d25d1a50d2ac2673b3a7f76519c3b170ad8030a328a91cba2cf"
+  ]
+}

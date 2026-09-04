@@ -1,0 +1,79 @@
+{
+  "artifact_path": "candidates/7e263ac80fd8617a2fff5b58a606e29c345e9046f7566f510dcc16bc3b2b23e4",
+  "candidate_id": "7e263ac80fd8617a2fff5b58a606e29c345e9046f7566f510dcc16bc3b2b23e4",
+  "codex_service_tier": "default",
+  "condition": "C1",
+  "conversation_session_id": null,
+  "evaluation": {
+    "evaluator_calls": 1,
+    "evaluator_seconds": 391.75552916596644,
+    "failure_kind": "nonqualification",
+    "fitness": null,
+    "metrics": {
+      "accuracy": 0.0858,
+      "cases": 10010,
+      "correct": 859,
+      "parameters": 598,
+      "training_steps": 4999
+    },
+    "valid": false
+  },
+  "evaluator_calls_cumulative": 120,
+  "evaluator_calls_increment": 1,
+  "evaluator_seconds_cumulative": 39325.97724470298,
+  "evaluator_seconds_increment": 391.75552916596644,
+  "event": "proposal_completed",
+  "evicted_candidate_id": null,
+  "evidence": "The 606-parameter model achieved 99.89% accuracy with both internal LayerNorms already non-affine. The failed 595-parameter experiment shows the MLP decoder directions are load-bearing, so this cleanly tests a different assumption: whether a separate learned coordinate-wise metric is needed after the transformer when the rank-four lexical projection already supplies learned readout directions.",
+  "hypothesis": "Replacing the final learned eight-coordinate LayerNorm gain with non-affine normalization will reduce the model from 606 to 598 parameters while retaining at least 99% accuracy, because it preserves the initialized function exactly and the learned rank-four token projection can define the decoder geometry.",
+  "incumbent_after": "bd3de48f5525dcfff6bd60d317420799f884f2ebdb491cb5078d6dbf650b991c",
+  "intended_edit": "Make the final LayerNorm non-affine while retaining its four-dimensional learned lexical bias.",
+  "mechanism": "Fixed spherical lexical readout",
+  "opportunity": 120,
+  "parent_ids": [
+    "bd3de48f5525dcfff6bd60d317420799f884f2ebdb491cb5078d6dbf650b991c"
+  ],
+  "portfolio_after": [
+    "bd3de48f5525dcfff6bd60d317420799f884f2ebdb491cb5078d6dbf650b991c"
+  ],
+  "prompt_hashes": {
+    "common_template_sha256": "3f2bea6418b6969c4bf2aa1df18dcda8a3a4ac075bf20c79068c754698b6be5e",
+    "prompt_sha256": "4aa0cd6964fab19469ad2eb5ec9357a18c4fdd7519fd4a33e3eef79b8cb3e41c",
+    "proposal_policy_sha256": "4a27c08e098e719db007f4d6b37fabe2967b41836bb9070e2513a8a24ff7ce90",
+    "search_state_sha256": "04e5eb078ae1964e4ec65bfeeeb1acd0ffa246e7d54d5e0f997f81f602da28c5",
+    "treatment_skeleton_sha256": "3bd53a6b343ed62bff43302c95bdb28e855f7fa7ca9be3ae6c0499753b2b5c5f"
+  },
+  "proposal_type": "assumption_changing",
+  "proposals_cumulative": 120,
+  "remaining_budget": {
+    "evaluations": 80,
+    "evaluator_seconds": 320674.022755297,
+    "proposals": 80,
+    "tokens": 96775258
+  },
+  "retained": false,
+  "retention_decision": "invalid",
+  "run_id": "controlled-openevolve-transformer-v2-1-source-only-ten-digit-addition-pair-transformer-openevolve-v2-1-mps-openevolve-b03-c1",
+  "schema_version": "1.0",
+  "selected_parent_ids": [
+    "bd3de48f5525dcfff6bd60d317420799f884f2ebdb491cb5078d6dbf650b991c"
+  ],
+  "timestamp": "2026-09-03T10:18:32.916496+00:00",
+  "usage_cumulative": {
+    "cached_input_tokens": 1244160,
+    "input_tokens": 2882692,
+    "output_tokens": 342050,
+    "reasoning_output_tokens": 271624,
+    "total_tokens": 3224742
+  },
+  "usage_increment": {
+    "cached_input_tokens": 10752,
+    "input_tokens": 26220,
+    "output_tokens": 5431,
+    "reasoning_output_tokens": 5011,
+    "total_tokens": 31651
+  },
+  "visible_candidate_ids": [
+    "bd3de48f5525dcfff6bd60d317420799f884f2ebdb491cb5078d6dbf650b991c"
+  ]
+}

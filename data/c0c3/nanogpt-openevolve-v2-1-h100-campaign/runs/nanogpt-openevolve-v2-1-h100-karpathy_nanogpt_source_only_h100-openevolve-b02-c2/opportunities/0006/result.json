@@ -1,0 +1,88 @@
+{
+  "artifact_path": "candidates/abfc01eb449c555c8f2152edb66d289da6ead6d7988f12d3aeb0084b1af88f1f",
+  "candidate_id": "abfc01eb449c555c8f2152edb66d289da6ead6d7988f12d3aeb0084b1af88f1f",
+  "codex_service_tier": "fast",
+  "condition": "C2",
+  "conversation_session_id": null,
+  "evaluation": {
+    "evaluator_calls": 1,
+    "evaluator_seconds": 335.47534881,
+    "failure_kind": null,
+    "fitness": -0.988827,
+    "metrics": {
+      "depth": 8.0,
+      "mfu_percent": 38.59,
+      "num_params_M": 50.3,
+      "num_steps": 1838.0,
+      "peak_vram_mb": 44908.2,
+      "total_tokens_M": 481.8,
+      "training_seconds": 300.1,
+      "val_bpb": 0.988827
+    },
+    "valid": true
+  },
+  "evaluator_calls_cumulative": 6,
+  "evaluator_calls_increment": 1,
+  "evaluator_seconds_cumulative": 2190.2752096980016,
+  "evaluator_seconds_increment": 335.47534881,
+  "event": "proposal_completed",
+  "evicted_candidate_id": "ee1f1cf686a479f175a9b2178602df52386a3561e80b0612b88ccd725e447c2e",
+  "evidence": "The 262K-token design achieved the best val_bpb of 0.987182 at nearly unchanged throughput, whereas 512-token windows and smaller device batches worsened results; its halved batch doubles updates per token while the existing momentum schedule remains step-based.",
+  "hypothesis": "Restoring the proven 1024-token local windows and 262K-token batch while extending Muon\u2019s momentum ramp from 300 to 600 updates will lower val_bpb below 0.987182 by preserving the original 524K-batch momentum trajectory per token.",
+  "incumbent_after": "8f89c706baa430d0251c4944cdb0202c21478db30fa3dcb407aaeca3bfe23b7d",
+  "intended_edit": "Restore the best-performing half-context attention and single 128-sequence microbatch, then double the momentum-ramp steps to account for the doubled optimizer-update cadence.",
+  "mechanism": "Token-horizon-preserving Muon momentum ramp",
+  "opportunity": 6,
+  "parent_ids": [
+    "ee1f1cf686a479f175a9b2178602df52386a3561e80b0612b88ccd725e447c2e"
+  ],
+  "portfolio_after": [
+    "2865e528e18dc51191e4037eaeb5824cb0ea83ede79061b59b8f3caac686da6b",
+    "abfc01eb449c555c8f2152edb66d289da6ead6d7988f12d3aeb0084b1af88f1f",
+    "f737cb07b1d48d33f44dc3a9a4040391eca02fe6d81ebc33d757bb9b9da814d6",
+    "8f89c706baa430d0251c4944cdb0202c21478db30fa3dcb407aaeca3bfe23b7d"
+  ],
+  "prompt_hashes": {
+    "common_template_sha256": "ba85b39aa7288f4f48475376da6cff65661f39cfeb7ac7cde15b2a9a2e692fde",
+    "prompt_sha256": "f896cfd0531d22c280d981b191c987f8821eadc8fdaeb6a2063785a6b711980e",
+    "proposal_policy_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "search_state_sha256": "c938ac007bf70fe8d27f64661175531e51fcb16b38318c328493c32ee292e27e",
+    "treatment_skeleton_sha256": "62f3ad7ce3636fcc4d18783b320a24cbdddfef6ac94ac5c3a7f67d5b4eb82a7e"
+  },
+  "proposal_type": "ordinary",
+  "proposals_cumulative": 6,
+  "remaining_budget": {
+    "evaluations": 194,
+    "evaluator_seconds": 717809.724790302,
+    "proposals": 194,
+    "tokens": 99753489
+  },
+  "retained": true,
+  "retention_decision": "replaced_selected_parent_on_strict_improvement",
+  "run_id": "nanogpt-openevolve-v2-1-h100-karpathy_nanogpt_source_only_h100-openevolve-b02-c2",
+  "schema_version": "1.0",
+  "selected_parent_ids": [
+    "ee1f1cf686a479f175a9b2178602df52386a3561e80b0612b88ccd725e447c2e"
+  ],
+  "timestamp": "2026-08-23T20:23:46.666362+00:00",
+  "usage_cumulative": {
+    "cached_input_tokens": 55040,
+    "input_tokens": 223418,
+    "output_tokens": 23093,
+    "reasoning_output_tokens": 19286,
+    "total_tokens": 246511
+  },
+  "usage_increment": {
+    "cached_input_tokens": 12032,
+    "input_tokens": 45269,
+    "output_tokens": 1757,
+    "reasoning_output_tokens": 1404,
+    "total_tokens": 47026
+  },
+  "visible_candidate_ids": [
+    "2865e528e18dc51191e4037eaeb5824cb0ea83ede79061b59b8f3caac686da6b",
+    "ee1f1cf686a479f175a9b2178602df52386a3561e80b0612b88ccd725e447c2e",
+    "f737cb07b1d48d33f44dc3a9a4040391eca02fe6d81ebc33d757bb9b9da814d6",
+    "8f89c706baa430d0251c4944cdb0202c21478db30fa3dcb407aaeca3bfe23b7d"
+  ]
+}

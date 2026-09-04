@@ -1,0 +1,85 @@
+{
+  "artifact_path": "candidates/f9b65738557b31b6f947f097b1af1df0a9d63cf8fa19616b8ed4fffbc1f3267b",
+  "candidate_id": "f9b65738557b31b6f947f097b1af1df0a9d63cf8fa19616b8ed4fffbc1f3267b",
+  "codex_service_tier": "default",
+  "condition": "C3",
+  "conversation_session_id": null,
+  "evaluation": {
+    "evaluator_calls": 1,
+    "evaluator_seconds": 659.6717211659998,
+    "failure_kind": null,
+    "fitness": -1288.0,
+    "metrics": {
+      "accuracy": 1.0,
+      "cases": 10010,
+      "correct": 10010,
+      "parameters": 1288,
+      "training_steps": 4999
+    },
+    "valid": true
+  },
+  "evaluator_calls_cumulative": 50,
+  "evaluator_calls_increment": 1,
+  "evaluator_seconds_cumulative": 20295.873424247373,
+  "evaluator_seconds_increment": 659.6717211659998,
+  "event": "proposal_completed",
+  "evicted_candidate_id": "11a6b94d1903fb16cc673162f80db76baed1280f7d8a8b314f86bd607763e049",
+  "evidence": "The 1,403-parameter attention-output-bias design achieved 99.98%, whereas sharing query/key projections fell to 93.49%; this preserves all content projections and instead challenges the load-bearing assumption that every absolute position requires a full learned residual-stream vector.",
+  "hypothesis": "Replacing independent seven-dimensional absolute position vectors with two learned causal distance-bias tables will retain at least 99% accuracy while reducing the verified 1,403-parameter design by `5 * INPUT_LEN` parameters, because each attention head can learn its own relative routing profile without compressing the independent query, key, or value maps.",
+  "incumbent_after": "f9b65738557b31b6f947f097b1af1df0a9d63cf8fa19616b8ed4fffbc1f3267b",
+  "intended_edit": "Adopt the verified three-quartet MLP and single attention-output bias tie, remove absolute position embeddings, and inject learned head-specific relative-distance biases directly into causal attention logits.",
+  "mechanism": "Head-specific learned relative-distance attention",
+  "opportunity": 50,
+  "parent_ids": [
+    "11a6b94d1903fb16cc673162f80db76baed1280f7d8a8b314f86bd607763e049"
+  ],
+  "portfolio_after": [
+    "f9b65738557b31b6f947f097b1af1df0a9d63cf8fa19616b8ed4fffbc1f3267b",
+    "2d817a55b0125c1ad46768fc0b977a5564a189b293ffb08f4fa8bf1fd1acde7b",
+    "4804d9240eabf2869a4e10bf4ed8bc99074fdbb273fdcf4d14ecadec7ddb08b4",
+    "a88b46c7e55613c2dcf07f3e6e7020aa2f72d971747ac983c6b6517ee71198b2"
+  ],
+  "prompt_hashes": {
+    "common_template_sha256": "3f2bea6418b6969c4bf2aa1df18dcda8a3a4ac075bf20c79068c754698b6be5e",
+    "prompt_sha256": "29990539d1a0794ee1de2f907936a07f902f73150e9eac952b660bc9da7af85e",
+    "proposal_policy_sha256": "4a27c08e098e719db007f4d6b37fabe2967b41836bb9070e2513a8a24ff7ce90",
+    "search_state_sha256": "c938ac007bf70fe8d27f64661175531e51fcb16b38318c328493c32ee292e27e",
+    "treatment_skeleton_sha256": "15ddccd06ac5de03f99e05aa6515d70c8e4829530bf97d1a732b4ae9a9abfb49"
+  },
+  "proposal_type": "assumption_changing",
+  "proposals_cumulative": 50,
+  "remaining_budget": {
+    "evaluations": 150,
+    "evaluator_seconds": 339704.1265757526,
+    "proposals": 150,
+    "tokens": 98135069
+  },
+  "retained": true,
+  "retention_decision": "replaced_selected_parent_on_strict_improvement",
+  "run_id": "controlled-openevolve-transformer-v2-1-source-only-ten-digit-addition-pair-transformer-openevolve-v2-1-mps-openevolve-b01-c3",
+  "schema_version": "1.0",
+  "selected_parent_ids": [
+    "11a6b94d1903fb16cc673162f80db76baed1280f7d8a8b314f86bd607763e049"
+  ],
+  "timestamp": "2026-08-24T15:18:19.435029+00:00",
+  "usage_cumulative": {
+    "cached_input_tokens": 569600,
+    "input_tokens": 1688272,
+    "output_tokens": 176659,
+    "reasoning_output_tokens": 144027,
+    "total_tokens": 1864931
+  },
+  "usage_increment": {
+    "cached_input_tokens": 35584,
+    "input_tokens": 38962,
+    "output_tokens": 4454,
+    "reasoning_output_tokens": 3106,
+    "total_tokens": 43416
+  },
+  "visible_candidate_ids": [
+    "11a6b94d1903fb16cc673162f80db76baed1280f7d8a8b314f86bd607763e049",
+    "2d817a55b0125c1ad46768fc0b977a5564a189b293ffb08f4fa8bf1fd1acde7b",
+    "4804d9240eabf2869a4e10bf4ed8bc99074fdbb273fdcf4d14ecadec7ddb08b4",
+    "a88b46c7e55613c2dcf07f3e6e7020aa2f72d971747ac983c6b6517ee71198b2"
+  ]
+}

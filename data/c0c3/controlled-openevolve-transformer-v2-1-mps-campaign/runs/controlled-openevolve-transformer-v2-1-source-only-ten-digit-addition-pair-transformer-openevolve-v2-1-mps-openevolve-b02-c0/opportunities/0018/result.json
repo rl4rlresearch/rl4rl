@@ -1,0 +1,79 @@
+{
+  "artifact_path": "candidates/7bb3a4019a90694b55ec79a040bce756c0eef13a4d6ad4c3e369843065040959",
+  "candidate_id": "7bb3a4019a90694b55ec79a040bce756c0eef13a4d6ad4c3e369843065040959",
+  "codex_service_tier": "fast",
+  "condition": "C0",
+  "conversation_session_id": null,
+  "evaluation": {
+    "evaluator_calls": 1,
+    "evaluator_seconds": 349.1658669169992,
+    "failure_kind": "nonqualification",
+    "fitness": null,
+    "metrics": {
+      "accuracy": 0.2597,
+      "cases": 10010,
+      "correct": 2600,
+      "parameters": 1634,
+      "training_steps": 4999
+    },
+    "valid": false
+  },
+  "evaluator_calls_cumulative": 18,
+  "evaluator_calls_increment": 1,
+  "evaluator_seconds_cumulative": 5656.660509999958,
+  "evaluator_seconds_increment": 349.1658669169992,
+  "event": "proposal_completed",
+  "evicted_candidate_id": null,
+  "evidence": "Anchoring one coordinate of the final MLP output bias achieved 99.95% accuracy at 1,635 parameters, demonstrating that removing a common-mode residual-stream bias degree of freedom before final normalization preserves performance; the attention projection has the same gauge because its common offset survives only in the residual stream while normalized downstream computations remain unchanged.",
+  "hypothesis": "Fixing one coordinate of the attention output-projection bias at zero will reduce the model from 1,635 to 1,634 parameters while retaining at least 99% accuracy, because the omitted common-mode offset is removed by both the downstream pre-MLP LayerNorm and final LayerNorm.",
+  "incumbent_after": "43cb4fd33f3606c2b7e1f7630bb7908a42026ce707687cc6a18778cc6ff79bfd",
+  "intended_edit": "Reuse the initialization-preserving `OutputAnchoredLinear` for the attention output projection, learning seven bias coordinates and appending one fixed-zero coordinate.",
+  "mechanism": "Residual-stream common-mode bias anchoring",
+  "opportunity": 18,
+  "parent_ids": [
+    "43cb4fd33f3606c2b7e1f7630bb7908a42026ce707687cc6a18778cc6ff79bfd"
+  ],
+  "portfolio_after": [
+    "43cb4fd33f3606c2b7e1f7630bb7908a42026ce707687cc6a18778cc6ff79bfd"
+  ],
+  "prompt_hashes": {
+    "common_template_sha256": "3f2bea6418b6969c4bf2aa1df18dcda8a3a4ac075bf20c79068c754698b6be5e",
+    "prompt_sha256": "84743c9943e0b7c8ac6a82121e3cdd8c43b677bc5860109b903093325ce47d95",
+    "proposal_policy_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "search_state_sha256": "04e5eb078ae1964e4ec65bfeeeb1acd0ffa246e7d54d5e0f997f81f602da28c5",
+    "treatment_skeleton_sha256": "50ffe0f260faae15b386603a22e58b1fc3b28361984b26c43e4c1bfa4bb9b02d"
+  },
+  "proposal_type": "ordinary",
+  "proposals_cumulative": 18,
+  "remaining_budget": {
+    "evaluations": 182,
+    "evaluator_seconds": 354343.33949000004,
+    "proposals": 182,
+    "tokens": 99602965
+  },
+  "retained": false,
+  "retention_decision": "invalid",
+  "run_id": "controlled-openevolve-transformer-v2-1-source-only-ten-digit-addition-pair-transformer-openevolve-v2-1-mps-openevolve-b02-c0",
+  "schema_version": "1.0",
+  "selected_parent_ids": [
+    "43cb4fd33f3606c2b7e1f7630bb7908a42026ce707687cc6a18778cc6ff79bfd"
+  ],
+  "timestamp": "2026-08-23T18:00:07.277017+00:00",
+  "usage_cumulative": {
+    "cached_input_tokens": 210432,
+    "input_tokens": 366002,
+    "output_tokens": 31033,
+    "reasoning_output_tokens": 24355,
+    "total_tokens": 397035
+  },
+  "usage_increment": {
+    "cached_input_tokens": 12032,
+    "input_tokens": 21529,
+    "output_tokens": 1258,
+    "reasoning_output_tokens": 1034,
+    "total_tokens": 22787
+  },
+  "visible_candidate_ids": [
+    "43cb4fd33f3606c2b7e1f7630bb7908a42026ce707687cc6a18778cc6ff79bfd"
+  ]
+}

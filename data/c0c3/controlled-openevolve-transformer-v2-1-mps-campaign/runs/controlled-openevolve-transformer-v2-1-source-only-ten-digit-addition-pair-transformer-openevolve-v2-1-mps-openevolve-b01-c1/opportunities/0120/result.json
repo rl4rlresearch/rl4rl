@@ -1,0 +1,79 @@
+{
+  "artifact_path": "candidates/37e50f690f71379197ff9a4fc255653c3eb25f746c612b7e4ce9dae60bdce5cf",
+  "candidate_id": "37e50f690f71379197ff9a4fc255653c3eb25f746c612b7e4ce9dae60bdce5cf",
+  "codex_service_tier": "default",
+  "condition": "C1",
+  "conversation_session_id": null,
+  "evaluation": {
+    "evaluator_calls": 1,
+    "evaluator_seconds": 345.3091155830771,
+    "failure_kind": "nonqualification",
+    "fitness": null,
+    "metrics": {
+      "accuracy": 0.6756,
+      "cases": 10010,
+      "correct": 6763,
+      "parameters": 1520,
+      "training_steps": 4999
+    },
+    "valid": false
+  },
+  "evaluator_calls_cumulative": 119,
+  "evaluator_calls_increment": 1,
+  "evaluator_seconds_cumulative": 50353.62361907889,
+  "evaluator_seconds_increment": 345.3091155830771,
+  "event": "proposal_completed",
+  "evicted_candidate_id": null,
+  "evidence": "The 1,528-parameter design achieved 100% accuracy, whereas sharing key weights collapsed accuracy to 21.68%, indicating that head-specific addressing is load-bearing. This patch leaves that addressing untouched and removes an exact redundancy: with zero attention dropout, every attention row sums to one, so the value bias always contributes only through the existing mean-free projection bias.",
+  "hypothesis": "Removing all eight learned value-bias coordinates will reduce the model from 1,528 to 1,520 parameters while retaining at least 99% accuracy, because softmax-normalized attention turns value bias into a position-independent offset that the trainable output-projection bias can represent directly.",
+  "incumbent_after": "dd1dfd05847d6a5558b62cff33eb255ba0fc1b528b380c00d284b172a991e314",
+  "intended_edit": "Challenge the assumption that each attention head needs a learned value offset: retain all head-specific query, key, and value weights and the query bias, but fix value bias to zero and represent learned constant attention offsets only after head mixing.",
+  "mechanism": "Post-mixing attention offset quotient",
+  "opportunity": 120,
+  "parent_ids": [
+    "dd1dfd05847d6a5558b62cff33eb255ba0fc1b528b380c00d284b172a991e314"
+  ],
+  "portfolio_after": [
+    "dd1dfd05847d6a5558b62cff33eb255ba0fc1b528b380c00d284b172a991e314"
+  ],
+  "prompt_hashes": {
+    "common_template_sha256": "3f2bea6418b6969c4bf2aa1df18dcda8a3a4ac075bf20c79068c754698b6be5e",
+    "prompt_sha256": "2147fa4bb61e5bd88a54695a84124aca7b726320dac4fca56a2f996c433a054d",
+    "proposal_policy_sha256": "4a27c08e098e719db007f4d6b37fabe2967b41836bb9070e2513a8a24ff7ce90",
+    "search_state_sha256": "04e5eb078ae1964e4ec65bfeeeb1acd0ffa246e7d54d5e0f997f81f602da28c5",
+    "treatment_skeleton_sha256": "7350496d0634ff54ed73fa5095b3ca99373f3c64e81095176c0e60a1cfa990e8"
+  },
+  "proposal_type": "assumption_changing",
+  "proposals_cumulative": 120,
+  "remaining_budget": {
+    "evaluations": 81,
+    "evaluator_seconds": 309646.3763809211,
+    "proposals": 80,
+    "tokens": 96741414
+  },
+  "retained": false,
+  "retention_decision": "invalid",
+  "run_id": "controlled-openevolve-transformer-v2-1-source-only-ten-digit-addition-pair-transformer-openevolve-v2-1-mps-openevolve-b01-c1",
+  "schema_version": "1.0",
+  "selected_parent_ids": [
+    "dd1dfd05847d6a5558b62cff33eb255ba0fc1b528b380c00d284b172a991e314"
+  ],
+  "timestamp": "2026-09-03T10:45:16.134567+00:00",
+  "usage_cumulative": {
+    "cached_input_tokens": 1251584,
+    "input_tokens": 2787362,
+    "output_tokens": 471224,
+    "reasoning_output_tokens": 378177,
+    "total_tokens": 3258586
+  },
+  "usage_increment": {
+    "cached_input_tokens": 10752,
+    "input_tokens": 25141,
+    "output_tokens": 3093,
+    "reasoning_output_tokens": 2588,
+    "total_tokens": 28234
+  },
+  "visible_candidate_ids": [
+    "dd1dfd05847d6a5558b62cff33eb255ba0fc1b528b380c00d284b172a991e314"
+  ]
+}

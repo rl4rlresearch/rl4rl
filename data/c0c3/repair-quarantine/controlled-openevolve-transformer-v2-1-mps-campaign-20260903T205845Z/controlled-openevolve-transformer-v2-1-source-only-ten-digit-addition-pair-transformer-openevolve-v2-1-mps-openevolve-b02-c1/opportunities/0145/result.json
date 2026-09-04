@@ -1,0 +1,73 @@
+{
+  "artifact_path": "candidates/38868a0803e00fc90258aad331491bc188cfb86c1f40fb2f2e01217c19acc4bc",
+  "candidate_id": "38868a0803e00fc90258aad331491bc188cfb86c1f40fb2f2e01217c19acc4bc",
+  "codex_service_tier": "default",
+  "condition": "C1",
+  "conversation_session_id": null,
+  "evaluation": {
+    "evaluator_calls": 1,
+    "evaluator_seconds": 1800.0530890000518,
+    "failure_kind": "timeout",
+    "fitness": null,
+    "metrics": {},
+    "valid": false
+  },
+  "evaluator_calls_cumulative": 111,
+  "evaluator_calls_increment": 1,
+  "evaluator_seconds_cumulative": 67803.31556653464,
+  "evaluator_seconds_increment": 1800.0530890000518,
+  "event": "proposal_completed",
+  "evicted_candidate_id": null,
+  "evidence": "The verified 984-parameter model reached 99.75% after successfully sharing final-LayerNorm scales for coordinates 2\u20133. In contrast, sharing coordinate 6\u2019s MLP input coefficient reduced accuracy to 98.24%, motivating an output-side constraint on the already aligned 2\u20133 coordinate pair that leaves MLP gating unchanged.",
+  "hypothesis": "Sharing MLP residual-output coefficients for coordinates 2 and 3 will reduce the model from 984 to 983 parameters while retaining at least 99% accuracy, because these coordinates already share both their MLP input coefficient and final-LayerNorm scale, while the failed 983-parameter MLP experiment altered the more sensitive hidden activation.",
+  "incumbent_after": "fc33fce5fac10d9ceafc9dca7dc0cd90b09bb82fec34df10d9e0b52641483663",
+  "intended_edit": "Store one shared fc2 coefficient for residual coordinates 2\u20133, reconstruct both outputs from it, and initialize it by projecting the original full-width initialization onto that equality constraint.",
+  "mechanism": "Symmetry-aligned MLP output sharing",
+  "opportunity": 145,
+  "parent_ids": [
+    "fc33fce5fac10d9ceafc9dca7dc0cd90b09bb82fec34df10d9e0b52641483663"
+  ],
+  "portfolio_after": [
+    "fc33fce5fac10d9ceafc9dca7dc0cd90b09bb82fec34df10d9e0b52641483663"
+  ],
+  "prompt_hashes": {
+    "common_template_sha256": "3f2bea6418b6969c4bf2aa1df18dcda8a3a4ac075bf20c79068c754698b6be5e",
+    "prompt_sha256": "5542c92795c8fb9c9b912eacbb2af122dbe9c4f30c15af82e12d3e3ad4777590",
+    "proposal_policy_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "search_state_sha256": "04e5eb078ae1964e4ec65bfeeeb1acd0ffa246e7d54d5e0f997f81f602da28c5",
+    "treatment_skeleton_sha256": "d3c44fc76906205884f5009af4604da8832c1172296b7f006322ab4de7515d69"
+  },
+  "proposal_type": "ordinary",
+  "proposals_cumulative": 145,
+  "remaining_budget": {
+    "evaluations": 89,
+    "evaluator_seconds": 292196.68443346536,
+    "proposals": 55,
+    "tokens": 96556006
+  },
+  "retained": false,
+  "retention_decision": "invalid",
+  "run_id": "controlled-openevolve-transformer-v2-1-source-only-ten-digit-addition-pair-transformer-openevolve-v2-1-mps-openevolve-b02-c1",
+  "schema_version": "1.0",
+  "selected_parent_ids": [
+    "fc33fce5fac10d9ceafc9dca7dc0cd90b09bb82fec34df10d9e0b52641483663"
+  ],
+  "timestamp": "2026-09-03T19:40:27.188904+00:00",
+  "usage_cumulative": {
+    "cached_input_tokens": 1064064,
+    "input_tokens": 2981414,
+    "output_tokens": 462580,
+    "reasoning_output_tokens": 376459,
+    "total_tokens": 3443994
+  },
+  "usage_increment": {
+    "cached_input_tokens": 10752,
+    "input_tokens": 29930,
+    "output_tokens": 5400,
+    "reasoning_output_tokens": 4572,
+    "total_tokens": 35330
+  },
+  "visible_candidate_ids": [
+    "fc33fce5fac10d9ceafc9dca7dc0cd90b09bb82fec34df10d9e0b52641483663"
+  ]
+}

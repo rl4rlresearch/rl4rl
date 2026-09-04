@@ -1,0 +1,88 @@
+{
+  "artifact_path": "candidates/adbcaf376f067b374df266afee3cd44b703d9549b00595d1bcf57d210f51b5e7",
+  "candidate_id": "adbcaf376f067b374df266afee3cd44b703d9549b00595d1bcf57d210f51b5e7",
+  "codex_service_tier": "fast",
+  "condition": "C3",
+  "conversation_session_id": null,
+  "evaluation": {
+    "evaluator_calls": 1,
+    "evaluator_seconds": 366.5819209219999,
+    "failure_kind": null,
+    "fitness": -0.993865,
+    "metrics": {
+      "depth": 8.0,
+      "mfu_percent": 38.71,
+      "num_params_M": 50.3,
+      "num_steps": 927.0,
+      "peak_vram_mb": 45576.2,
+      "total_tokens_M": 486.0,
+      "training_seconds": 300.1,
+      "val_bpb": 0.993865
+    },
+    "valid": true
+  },
+  "evaluator_calls_cumulative": 18,
+  "evaluator_calls_increment": 1,
+  "evaluator_seconds_cumulative": 6701.481963438999,
+  "evaluator_seconds_increment": 366.5819209219999,
+  "event": "proposal_completed",
+  "evicted_candidate_id": "af099c1e5833ed09c2eef778dbc8248d8162ae106aa291d1a9b5b78c0fb16662",
+  "evidence": "Per-head attention-output gating achieved the best val_bpb, 0.993637, but reduced volume from 497.0M to 482.3M tokens; alternative gate conditioning and added MLP gating regressed, motivating preservation of the proven gate only where contextual selection is most consequential.",
+  "hypothesis": "Restricting neutral per-head output gates to the two full-context layers will lower val_bpb below 0.993637 while restoring training volume toward 490M tokens.",
+  "incumbent_after": "dc725a877809c8c9b98a82241aae181de0c7f1b656d987c1c5f1a6364c0eeb4a",
+  "intended_edit": "Remove the unsuccessful MLP gates and apply the proven first-32-channel attention-output gate only on layers whose effective attention window is full context.",
+  "mechanism": "Long-context-selective attention-head gating",
+  "opportunity": 18,
+  "parent_ids": [
+    "af099c1e5833ed09c2eef778dbc8248d8162ae106aa291d1a9b5b78c0fb16662"
+  ],
+  "portfolio_after": [
+    "2865e528e18dc51191e4037eaeb5824cb0ea83ede79061b59b8f3caac686da6b",
+    "eae6d6f6e71f7c40476d436f13b811436a914f2aadd4ccb896baad1149666905",
+    "adbcaf376f067b374df266afee3cd44b703d9549b00595d1bcf57d210f51b5e7",
+    "dc725a877809c8c9b98a82241aae181de0c7f1b656d987c1c5f1a6364c0eeb4a"
+  ],
+  "prompt_hashes": {
+    "common_template_sha256": "ba85b39aa7288f4f48475376da6cff65661f39cfeb7ac7cde15b2a9a2e692fde",
+    "prompt_sha256": "acca7bda0a37368ef2b021f795785792c750c95d81a8503303ac61d5c41c2987",
+    "proposal_policy_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "search_state_sha256": "c938ac007bf70fe8d27f64661175531e51fcb16b38318c328493c32ee292e27e",
+    "treatment_skeleton_sha256": "5b52823e70dc0d0dad8d2e705b2ee1379ef3f30ef68c051c3e3f8c6defb0bb79"
+  },
+  "proposal_type": "ordinary",
+  "proposals_cumulative": 18,
+  "remaining_budget": {
+    "evaluations": 182,
+    "evaluator_seconds": 713298.518036561,
+    "proposals": 182,
+    "tokens": 99164959
+  },
+  "retained": true,
+  "retention_decision": "replaced_selected_parent_on_strict_improvement",
+  "run_id": "nanogpt-openevolve-v2-1-h100-karpathy_nanogpt_source_only_h100-openevolve-b03-c3",
+  "schema_version": "1.0",
+  "selected_parent_ids": [
+    "af099c1e5833ed09c2eef778dbc8248d8162ae106aa291d1a9b5b78c0fb16662"
+  ],
+  "timestamp": "2026-08-23T23:20:16.992046+00:00",
+  "usage_cumulative": {
+    "cached_input_tokens": 244224,
+    "input_tokens": 787817,
+    "output_tokens": 47224,
+    "reasoning_output_tokens": 39643,
+    "total_tokens": 835041
+  },
+  "usage_increment": {
+    "cached_input_tokens": 12032,
+    "input_tokens": 47284,
+    "output_tokens": 1917,
+    "reasoning_output_tokens": 1034,
+    "total_tokens": 49201
+  },
+  "visible_candidate_ids": [
+    "2865e528e18dc51191e4037eaeb5824cb0ea83ede79061b59b8f3caac686da6b",
+    "eae6d6f6e71f7c40476d436f13b811436a914f2aadd4ccb896baad1149666905",
+    "af099c1e5833ed09c2eef778dbc8248d8162ae106aa291d1a9b5b78c0fb16662",
+    "dc725a877809c8c9b98a82241aae181de0c7f1b656d987c1c5f1a6364c0eeb4a"
+  ]
+}

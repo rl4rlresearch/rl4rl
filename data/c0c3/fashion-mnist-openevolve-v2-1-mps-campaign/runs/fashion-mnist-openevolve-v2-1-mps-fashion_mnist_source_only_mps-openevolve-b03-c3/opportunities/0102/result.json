@@ -1,0 +1,91 @@
+{
+  "artifact_path": "candidates/93007b72fd4d240ade82eba0b4a1e2f4bdbd2b19dc4eac020c8cbd2abb982c95",
+  "candidate_id": "93007b72fd4d240ade82eba0b4a1e2f4bdbd2b19dc4eac020c8cbd2abb982c95",
+  "codex_service_tier": "default",
+  "condition": "C3",
+  "conversation_session_id": null,
+  "evaluation": {
+    "evaluator_calls": 1,
+    "evaluator_seconds": 62.51621741591953,
+    "failure_kind": null,
+    "fitness": 9257.412064924994,
+    "metrics": {
+      "batch_size": 192,
+      "evaluation_cases": 10000,
+      "evaluation_split": "public_validation",
+      "examples_processed": 100000,
+      "optimizer_steps": 522,
+      "parameters": 245150,
+      "training_seconds": 45.657704167068005,
+      "validation_accuracy": 0.9257,
+      "validation_correct": 9257,
+      "validation_cross_entropy": 0.21340101928710936,
+      "validation_score": 9257.412064924994
+    },
+    "valid": true
+  },
+  "evaluator_calls_cumulative": 96,
+  "evaluator_calls_increment": 1,
+  "evaluator_seconds_cumulative": 5449.550355998799,
+  "evaluator_seconds_increment": 62.51621741591953,
+  "event": "proposal_completed",
+  "evicted_candidate_id": null,
+  "evidence": "Reference Design 3 preserved 9,268 correct with the best cross-entropy, while architecture, pooling, gating, and augmentation changes regressed; this motivates preserving its representation and improving the final solution through low-risk trajectory averaging.",
+  "hypothesis": "Averaging the final 32 low-learning-rate parameter states while retaining the best vertical-biased TTA will exceed Reference Design 3\u2019s validation_score by reducing boundary instability without changing model capacity.",
+  "incumbent_after": "8a310471037d06beab5799abb41d8f34f09900291b2bca552abdb4ff3ea00c82",
+  "intended_edit": "Add a tail-averaging AdamW optimizer that installs the mean of the final 32 parameter states before validation, and restore the verified 0.10 vertical/0.08 horizontal TTA weights.",
+  "mechanism": "Late-trajectory parameter averaging",
+  "opportunity": 102,
+  "parent_ids": [
+    "d939c15d9cc5d1c481f2eb81d50a644dd0f1c09c52b5221b0d431d350307bf75"
+  ],
+  "portfolio_after": [
+    "795c316823f918d675f3001ab4cd122d993e21acb982fbdf0f8f8eb99ad24737",
+    "d939c15d9cc5d1c481f2eb81d50a644dd0f1c09c52b5221b0d431d350307bf75",
+    "7cdd182bf35de76050529ba8d85735d35b8c73d48234f6efae9d59ef01a11c68",
+    "8a310471037d06beab5799abb41d8f34f09900291b2bca552abdb4ff3ea00c82"
+  ],
+  "prompt_hashes": {
+    "common_template_sha256": "e8327ba94bab12abc7c7ec7c6615378a3ae62434efb944d4a7d9492f1d19bc14",
+    "prompt_sha256": "9b4f6275d1677f237b3292c2faa33fed765bda4a1630d1f4e12bade4acc220f9",
+    "proposal_policy_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "search_state_sha256": "c938ac007bf70fe8d27f64661175531e51fcb16b38318c328493c32ee292e27e",
+    "treatment_skeleton_sha256": "56c4736aa1b35e8f67b72e18c7b5d19579eb7f64bc1b40dcb10193cab8a3d0d2"
+  },
+  "proposal_type": "ordinary",
+  "proposals_cumulative": 102,
+  "remaining_budget": {
+    "evaluations": 104,
+    "evaluator_seconds": 18550.4496440012,
+    "proposals": 98,
+    "tokens": 97125800
+  },
+  "retained": false,
+  "retention_decision": "not_strictly_better_than_selected_parent",
+  "run_id": "fashion-mnist-openevolve-v2-1-mps-fashion_mnist_source_only_mps-openevolve-b03-c3",
+  "schema_version": "1.0",
+  "selected_parent_ids": [
+    "d939c15d9cc5d1c481f2eb81d50a644dd0f1c09c52b5221b0d431d350307bf75"
+  ],
+  "timestamp": "2026-08-24T16:23:08.389342+00:00",
+  "usage_cumulative": {
+    "cached_input_tokens": 1140224,
+    "input_tokens": 2579269,
+    "output_tokens": 294931,
+    "reasoning_output_tokens": 238762,
+    "total_tokens": 2874200
+  },
+  "usage_increment": {
+    "cached_input_tokens": 26368,
+    "input_tokens": 28012,
+    "output_tokens": 3851,
+    "reasoning_output_tokens": 2841,
+    "total_tokens": 31863
+  },
+  "visible_candidate_ids": [
+    "795c316823f918d675f3001ab4cd122d993e21acb982fbdf0f8f8eb99ad24737",
+    "d939c15d9cc5d1c481f2eb81d50a644dd0f1c09c52b5221b0d431d350307bf75",
+    "7cdd182bf35de76050529ba8d85735d35b8c73d48234f6efae9d59ef01a11c68",
+    "8a310471037d06beab5799abb41d8f34f09900291b2bca552abdb4ff3ea00c82"
+  ]
+}

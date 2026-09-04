@@ -1,0 +1,79 @@
+{
+  "artifact_path": "candidates/8bdfa72a50a1bc8dc77c2f0670e13fefb3c0db1dbc598221bbf6ef3092103afc",
+  "candidate_id": "8bdfa72a50a1bc8dc77c2f0670e13fefb3c0db1dbc598221bbf6ef3092103afc",
+  "codex_service_tier": "default",
+  "condition": "C0",
+  "conversation_session_id": null,
+  "evaluation": {
+    "evaluator_calls": 1,
+    "evaluator_seconds": 343.80102820903994,
+    "failure_kind": null,
+    "fitness": -1574.0,
+    "metrics": {
+      "accuracy": 0.9995,
+      "cases": 10010,
+      "correct": 10005,
+      "parameters": 1574,
+      "training_steps": 4999
+    },
+    "valid": true
+  },
+  "evaluator_calls_cumulative": 106,
+  "evaluator_calls_increment": 1,
+  "evaluator_seconds_cumulative": 43535.60357833153,
+  "evaluator_seconds_increment": 343.80102820903994,
+  "event": "proposal_completed",
+  "evicted_candidate_id": "e6156e9e3115b409c941fe0258c4b1279e1d50b7fcb728a6475f58ddeb68f4f4",
+  "evidence": "Fixing coordinate 1 while leaving coordinate 2 learned collapsed to 15.25%, whereas keeping coordinate 1 learned through cross-sublayer sharing achieved 99.96% at 1575 parameters; this directly motivates preserving coordinate 1 and testing the unanchored coordinate 2.",
+  "hypothesis": "Fixing MLP LayerNorm gain coordinate 2 at one will produce a 1574-parameter model with at least 99% accuracy, because coordinate 1 remains learned and shared with attention while coordinate 2 is zero-shift and absorbable into its downstream `fc1.weight` column.",
+  "incumbent_after": "8bdfa72a50a1bc8dc77c2f0670e13fefb3c0db1dbc598221bbf6ef3092103afc",
+  "intended_edit": "Store one MLP LayerNorm gain instead of two, reconstruct coordinate 2 as one, and retain the verified cross-sublayer sharing through coordinate 1.",
+  "mechanism": "Fix the untested second MLP LayerNorm gain",
+  "opportunity": 106,
+  "parent_ids": [
+    "e6156e9e3115b409c941fe0258c4b1279e1d50b7fcb728a6475f58ddeb68f4f4"
+  ],
+  "portfolio_after": [
+    "8bdfa72a50a1bc8dc77c2f0670e13fefb3c0db1dbc598221bbf6ef3092103afc"
+  ],
+  "prompt_hashes": {
+    "common_template_sha256": "3f2bea6418b6969c4bf2aa1df18dcda8a3a4ac075bf20c79068c754698b6be5e",
+    "prompt_sha256": "2c35f49bc67ee46cba4a679ad4a4e01c392932447b9d10cf65a9de8ef9111e1a",
+    "proposal_policy_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "search_state_sha256": "04e5eb078ae1964e4ec65bfeeeb1acd0ffa246e7d54d5e0f997f81f602da28c5",
+    "treatment_skeleton_sha256": "6b0ab83b06e787c97a95c43878ecda70f80c969802fd2c84d5a646a5b58057bb"
+  },
+  "proposal_type": "ordinary",
+  "proposals_cumulative": 106,
+  "remaining_budget": {
+    "evaluations": 94,
+    "evaluator_seconds": 316464.39642166847,
+    "proposals": 94,
+    "tokens": 97330271
+  },
+  "retained": true,
+  "retention_decision": "strict_incumbent_improvement",
+  "run_id": "controlled-openevolve-transformer-v2-1-source-only-ten-digit-addition-pair-transformer-openevolve-v2-1-mps-openevolve-b04-c0",
+  "schema_version": "1.0",
+  "selected_parent_ids": [
+    "e6156e9e3115b409c941fe0258c4b1279e1d50b7fcb728a6475f58ddeb68f4f4"
+  ],
+  "timestamp": "2026-09-03T09:50:35.416346+00:00",
+  "usage_cumulative": {
+    "cached_input_tokens": 1061888,
+    "input_tokens": 2406882,
+    "output_tokens": 262847,
+    "reasoning_output_tokens": 200451,
+    "total_tokens": 2669729
+  },
+  "usage_increment": {
+    "cached_input_tokens": 10752,
+    "input_tokens": 24359,
+    "output_tokens": 1516,
+    "reasoning_output_tokens": 1011,
+    "total_tokens": 25875
+  },
+  "visible_candidate_ids": [
+    "e6156e9e3115b409c941fe0258c4b1279e1d50b7fcb728a6475f58ddeb68f4f4"
+  ]
+}

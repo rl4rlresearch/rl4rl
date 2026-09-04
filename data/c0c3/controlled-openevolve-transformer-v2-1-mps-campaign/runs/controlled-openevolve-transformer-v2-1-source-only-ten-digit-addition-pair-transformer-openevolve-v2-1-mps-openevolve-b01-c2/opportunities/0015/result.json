@@ -1,0 +1,85 @@
+{
+  "artifact_path": "candidates/d8e514d5493da866b884317b94b5b126e459025454bb57f30749e8b7bed842d2",
+  "candidate_id": "d8e514d5493da866b884317b94b5b126e459025454bb57f30749e8b7bed842d2",
+  "codex_service_tier": "fast",
+  "condition": "C2",
+  "conversation_session_id": null,
+  "evaluation": {
+    "evaluator_calls": 1,
+    "evaluator_seconds": 362.0084177090321,
+    "failure_kind": "nonqualification",
+    "fitness": null,
+    "metrics": {
+      "accuracy": 0.6988,
+      "cases": 10010,
+      "correct": 6995,
+      "parameters": 1609,
+      "training_steps": 4999
+    },
+    "valid": false
+  },
+  "evaluator_calls_cumulative": 15,
+  "evaluator_calls_increment": 1,
+  "evaluator_seconds_cumulative": 4622.485352665186,
+  "evaluator_seconds_increment": 362.0084177090321,
+  "event": "proposal_completed",
+  "evicted_candidate_id": null,
+  "evidence": "The distributed LayerNorm anchoring design achieved 99.97% accuracy with 1,610 parameters, while removing a second normalization scale caused a large failure; this motivates removing one exact additive gauge from the final residual branch instead of further reducing normalization capacity. The earlier attention-output bias anchor reached 97.77%, so targeting the later MLP output bias avoids perturbing activations consumed by another learned sublayer.",
+  "hypothesis": "Fixing one coordinate of the MLP output bias at zero will reduce the verified 1,610-parameter model to 1,609 parameters while retaining at least 99% accuracy, because any uniform component of that bias is erased by the final LayerNorm and the remaining seven coordinates still span all functionally relevant bias differences.",
+  "incumbent_after": "be84cd77b2b0cf38685e6ff2e32f2f50f76df6076da200f85a75791e9b039dfb",
+  "intended_edit": "Retain seven learned `fc2` bias coordinates, synthesize one fixed zero coordinate, and preserve the existing linear weight shape and initialization path.",
+  "mechanism": "Final-residual common-mode bias gauge fixing",
+  "opportunity": 15,
+  "parent_ids": [
+    "be84cd77b2b0cf38685e6ff2e32f2f50f76df6076da200f85a75791e9b039dfb"
+  ],
+  "portfolio_after": [
+    "2b9cea175ed60b009337ac54f6e8ad23bf2c014eb4080237777bfb70bfd9fd5b",
+    "a224b654c3699b400b1466b0c55800c8bea3a40fcf541016f1e303623507be3c",
+    "be84cd77b2b0cf38685e6ff2e32f2f50f76df6076da200f85a75791e9b039dfb",
+    "580a5574f2b9daf4dac13dbb4d00adf565e2c04f2221a3efdfb49e9aaffde9ac"
+  ],
+  "prompt_hashes": {
+    "common_template_sha256": "3f2bea6418b6969c4bf2aa1df18dcda8a3a4ac075bf20c79068c754698b6be5e",
+    "prompt_sha256": "f6d77a9a9841f0b3dc30154bcaf84e605b9be017cf6039a257036b926ea4fb6c",
+    "proposal_policy_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "search_state_sha256": "c938ac007bf70fe8d27f64661175531e51fcb16b38318c328493c32ee292e27e",
+    "treatment_skeleton_sha256": "cdde0570b78562f9bc76964f55a31c96ed3668369ad46cb197584e5e7fa63672"
+  },
+  "proposal_type": "ordinary",
+  "proposals_cumulative": 15,
+  "remaining_budget": {
+    "evaluations": 185,
+    "evaluator_seconds": 355377.5146473348,
+    "proposals": 185,
+    "tokens": 99567094
+  },
+  "retained": false,
+  "retention_decision": "invalid",
+  "run_id": "controlled-openevolve-transformer-v2-1-source-only-ten-digit-addition-pair-transformer-openevolve-v2-1-mps-openevolve-b01-c2",
+  "schema_version": "1.0",
+  "selected_parent_ids": [
+    "be84cd77b2b0cf38685e6ff2e32f2f50f76df6076da200f85a75791e9b039dfb"
+  ],
+  "timestamp": "2026-08-23T15:40:49.151391+00:00",
+  "usage_cumulative": {
+    "cached_input_tokens": 164096,
+    "input_tokens": 397917,
+    "output_tokens": 34989,
+    "reasoning_output_tokens": 28813,
+    "total_tokens": 432906
+  },
+  "usage_increment": {
+    "cached_input_tokens": 9984,
+    "input_tokens": 33644,
+    "output_tokens": 2027,
+    "reasoning_output_tokens": 1552,
+    "total_tokens": 35671
+  },
+  "visible_candidate_ids": [
+    "2b9cea175ed60b009337ac54f6e8ad23bf2c014eb4080237777bfb70bfd9fd5b",
+    "a224b654c3699b400b1466b0c55800c8bea3a40fcf541016f1e303623507be3c",
+    "be84cd77b2b0cf38685e6ff2e32f2f50f76df6076da200f85a75791e9b039dfb",
+    "580a5574f2b9daf4dac13dbb4d00adf565e2c04f2221a3efdfb49e9aaffde9ac"
+  ]
+}

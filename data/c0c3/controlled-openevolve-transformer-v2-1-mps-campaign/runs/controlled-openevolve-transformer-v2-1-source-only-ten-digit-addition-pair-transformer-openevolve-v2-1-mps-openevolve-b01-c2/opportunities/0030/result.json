@@ -1,0 +1,85 @@
+{
+  "artifact_path": "candidates/9954cd3f202cac4b749466b07f83553b28f247c3bcd913910f5d70072297400d",
+  "candidate_id": "9954cd3f202cac4b749466b07f83553b28f247c3bcd913910f5d70072297400d",
+  "codex_service_tier": "fast",
+  "condition": "C2",
+  "conversation_session_id": null,
+  "evaluation": {
+    "evaluator_calls": 1,
+    "evaluator_seconds": 373.5392163749784,
+    "failure_kind": null,
+    "fitness": -1591.0,
+    "metrics": {
+      "accuracy": 0.9995999999999999,
+      "cases": 10010,
+      "correct": 10006,
+      "parameters": 1591,
+      "training_steps": 4999
+    },
+    "valid": true
+  },
+  "evaluator_calls_cumulative": 30,
+  "evaluator_calls_increment": 1,
+  "evaluator_seconds_cumulative": 10444.95163549995,
+  "evaluator_seconds_increment": 373.5392163749784,
+  "event": "proposal_completed",
+  "evicted_candidate_id": "88eed2813fea9a63660a5f876c7c03ba7d9d4037474cefbfd6bbc1bcf944fb64",
+  "evidence": "The 1,600-parameter model achieved 99.91%, but separately gauging row 11 fell to 98.40% and earlier gauging row 3 fell to 97.77%; these failures suggest interaction with the learned `ln2` scale, which prevents the current row-wise gauge from remaining an exact null direction after initialization.",
+  "hypothesis": "Removing the redundant learned `ln2` scale and gauge-fixing every `fc1` row will produce a 1,591-parameter model with at least 99% accuracy.",
+  "incumbent_after": "9954cd3f202cac4b749466b07f83553b28f247c3bcd913910f5d70072297400d",
+  "intended_edit": "Make the MLP\u2019s pre-normalization parameter-free and extend `fc1` gauge fixing to all 12 rows, preserving the initial function while making the common-coefficient null direction exact throughout training.",
+  "mechanism": "Affine-free MLP normalization with exact all-row nullspace gauge",
+  "opportunity": 30,
+  "parent_ids": [
+    "88eed2813fea9a63660a5f876c7c03ba7d9d4037474cefbfd6bbc1bcf944fb64"
+  ],
+  "portfolio_after": [
+    "2b9cea175ed60b009337ac54f6e8ad23bf2c014eb4080237777bfb70bfd9fd5b",
+    "286b41bac4fc740300e8b222942edbbbb78bb447d09c40761716f92673e433ea",
+    "05c672a77047e2ff62d293956c61ba9083408562c6ebecce30305d5547203e29",
+    "9954cd3f202cac4b749466b07f83553b28f247c3bcd913910f5d70072297400d"
+  ],
+  "prompt_hashes": {
+    "common_template_sha256": "3f2bea6418b6969c4bf2aa1df18dcda8a3a4ac075bf20c79068c754698b6be5e",
+    "prompt_sha256": "47c0e65dedaa56b36dbe395b9c7a3ff1e7db8d77bea4e639a0ec0083f017b989",
+    "proposal_policy_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "search_state_sha256": "c938ac007bf70fe8d27f64661175531e51fcb16b38318c328493c32ee292e27e",
+    "treatment_skeleton_sha256": "1c4045280b3a779b5664d78efb1b7a9643d3bdd061403b08088c979e08fd327b"
+  },
+  "proposal_type": "ordinary",
+  "proposals_cumulative": 30,
+  "remaining_budget": {
+    "evaluations": 170,
+    "evaluator_seconds": 349555.04836450005,
+    "proposals": 170,
+    "tokens": 99007178
+  },
+  "retained": true,
+  "retention_decision": "replaced_selected_parent_on_strict_improvement",
+  "run_id": "controlled-openevolve-transformer-v2-1-source-only-ten-digit-addition-pair-transformer-openevolve-v2-1-mps-openevolve-b01-c2",
+  "schema_version": "1.0",
+  "selected_parent_ids": [
+    "88eed2813fea9a63660a5f876c7c03ba7d9d4037474cefbfd6bbc1bcf944fb64"
+  ],
+  "timestamp": "2026-08-24T00:37:43.687429+00:00",
+  "usage_cumulative": {
+    "cached_input_tokens": 333312,
+    "input_tokens": 920059,
+    "output_tokens": 72763,
+    "reasoning_output_tokens": 56644,
+    "total_tokens": 992822
+  },
+  "usage_increment": {
+    "cached_input_tokens": 12032,
+    "input_tokens": 35539,
+    "output_tokens": 2385,
+    "reasoning_output_tokens": 2070,
+    "total_tokens": 37924
+  },
+  "visible_candidate_ids": [
+    "2b9cea175ed60b009337ac54f6e8ad23bf2c014eb4080237777bfb70bfd9fd5b",
+    "286b41bac4fc740300e8b222942edbbbb78bb447d09c40761716f92673e433ea",
+    "05c672a77047e2ff62d293956c61ba9083408562c6ebecce30305d5547203e29",
+    "88eed2813fea9a63660a5f876c7c03ba7d9d4037474cefbfd6bbc1bcf944fb64"
+  ]
+}

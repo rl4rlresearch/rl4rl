@@ -1,0 +1,99 @@
+{
+  "artifact_path": "candidates/398665db2651ee8afd7d538470c00ad1be00ae36ed8233299126b23655ee07a0",
+  "candidate_id": "398665db2651ee8afd7d538470c00ad1be00ae36ed8233299126b23655ee07a0",
+  "codex_service_tier": "default",
+  "condition": "C1",
+  "conversation_session_id": null,
+  "evaluation": {
+    "evaluator_calls": 1,
+    "evaluator_seconds": 69.78151720901951,
+    "failure_kind": null,
+    "fitness": -2762916516369401253,
+    "metrics": {
+      "batch_size": 128,
+      "evaluation_cases": 815,
+      "evaluation_split": "public_speaker_disjoint_validation",
+      "examples_processed": 50000,
+      "inference_cost": 2762916516369401253,
+      "maximum_recurrent_steps": 27,
+      "mean_recurrent_steps": 27.0,
+      "median_recurrent_steps": 27,
+      "optimizer_steps": 397,
+      "p95_recurrent_steps": 27,
+      "parameters": 26448,
+      "peak_hidden_elements": 123392,
+      "recurrent_logit_effect": 0.05817805975675583,
+      "recurrent_macs": 528120000,
+      "recurrent_steps": 22005,
+      "state_dependence_effect": 0.3112793266773224,
+      "state_update_effect": 0.31810086965560913,
+      "total_inference_macs": 529684800,
+      "trained_recurrent_logit_effect": 0.4209211766719818,
+      "trained_state_dependence_effect": 0.346833199262619,
+      "trained_state_update_effect": 0.3517872393131256,
+      "training_seconds": 38.68669312517159,
+      "validation_accuracy": 0.8760736196319019,
+      "validation_correct": 714,
+      "validation_cross_entropy": 0.40201921521520323
+    },
+    "valid": true
+  },
+  "evaluator_calls_cumulative": 26,
+  "evaluator_calls_increment": 1,
+  "evaluator_seconds_cumulative": 2938.6040220819414,
+  "evaluator_seconds_increment": 69.78151720901951,
+  "event": "proposal_completed",
+  "evicted_candidate_id": "c64e8e8f2220816fce2ec7b99e5b183037e0b96e7de273a8a4d7c380ef56a8e1",
+  "evidence": "Frames 2\u201329 achieved 85.28% at 28 steps, while removing leading frame 2 previously caused failure; preserving the early boundary and trimming the terminal boundary is therefore the strongest 27-step candidate, with max pooling adding complementary trajectory evidence at only a small classifier cost.",
+  "hypothesis": "Processing frames 2\u201328 while augmenting the endpoint-and-mean classifier with an online temporal maximum will retain at least 85% validation accuracy and reduce total inference MACs below the verified 28-step model.",
+  "incumbent_after": "398665db2651ee8afd7d538470c00ad1be00ae36ed8233299126b23655ee07a0",
+  "intended_edit": "Remove one additional terminal frame, track the elementwise maximum recurrent output, and classify from the final state, temporal mean, and temporal maximum.",
+  "mechanism": "Terminal trimming with online temporal-max readout",
+  "opportunity": 26,
+  "parent_ids": [
+    "c64e8e8f2220816fce2ec7b99e5b183037e0b96e7de273a8a4d7c380ef56a8e1"
+  ],
+  "portfolio_after": [
+    "398665db2651ee8afd7d538470c00ad1be00ae36ed8233299126b23655ee07a0"
+  ],
+  "prompt_hashes": {
+    "common_template_sha256": "dee04faf4c430276c1036ba97f5705a339857dbdf19117dac88952a5a3a47e9d",
+    "prompt_sha256": "0fbb54488241eee12bc2f5748c8a9326c145700a879da6eb130569b8880784f8",
+    "proposal_policy_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "search_state_sha256": "04e5eb078ae1964e4ec65bfeeeb1acd0ffa246e7d54d5e0f997f81f602da28c5",
+    "treatment_skeleton_sha256": "6dd3b1e25471b5ac00bf9f46c9fb2d42719afeea6473cdc6ffd2cdadefe3666f"
+  },
+  "proposal_type": "ordinary",
+  "proposals_cumulative": 26,
+  "remaining_budget": {
+    "evaluations": 174,
+    "evaluator_seconds": 57061.39597791806,
+    "proposals": 174,
+    "tokens": 99442224
+  },
+  "retained": true,
+  "retention_decision": "strict_incumbent_improvement",
+  "run_id": "tiny-kws-rnn-openevolve-v2-1-cpu-tiny_kws_rnn_source_only_cpu-openevolve-b03-c1",
+  "schema_version": "1.0",
+  "selected_parent_ids": [
+    "c64e8e8f2220816fce2ec7b99e5b183037e0b96e7de273a8a4d7c380ef56a8e1"
+  ],
+  "timestamp": "2026-09-04T04:13:35.316782+00:00",
+  "usage_cumulative": {
+    "cached_input_tokens": 279552,
+    "input_tokens": 496277,
+    "output_tokens": 61499,
+    "reasoning_output_tokens": 49484,
+    "total_tokens": 557776
+  },
+  "usage_increment": {
+    "cached_input_tokens": 10752,
+    "input_tokens": 20187,
+    "output_tokens": 2994,
+    "reasoning_output_tokens": 1936,
+    "total_tokens": 23181
+  },
+  "visible_candidate_ids": [
+    "c64e8e8f2220816fce2ec7b99e5b183037e0b96e7de273a8a4d7c380ef56a8e1"
+  ]
+}

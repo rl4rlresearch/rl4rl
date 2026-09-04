@@ -1,0 +1,21 @@
+Traceback (most recent call last):
+  File "<frozen runpy>", line 198, in _run_module_as_main
+  File "<frozen runpy>", line 88, in _run_code
+  File "/Users/utshaho/Documents/GitHub/rl4rl/data/c0c3/controlled-openevolve-transformer-v2-1-mps-campaign/runs/controlled-openevolve-transformer-v2-1-source-only-ten-digit-addition-pair-transformer-openevolve-v2-1-mps-openevolve-b03-c1/opportunities/0116/evaluation-workspace/src/train.py", line 350, in <module>
+    main()
+  File "/Users/utshaho/Documents/GitHub/rl4rl/data/c0c3/controlled-openevolve-transformer-v2-1-mps-campaign/runs/controlled-openevolve-transformer-v2-1-source-only-ten-digit-addition-pair-transformer-openevolve-v2-1-mps-openevolve-b03-c1/opportunities/0116/evaluation-workspace/src/train.py", line 345, in main
+    summary = train(model_cfg, train_cfg)
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/utshaho/Documents/GitHub/rl4rl/data/c0c3/controlled-openevolve-transformer-v2-1-mps-campaign/runs/controlled-openevolve-transformer-v2-1-source-only-ten-digit-addition-pair-transformer-openevolve-v2-1-mps-openevolve-b03-c1/opportunities/0116/evaluation-workspace/src/train.py", line 135, in train
+    model = TinyDecoderLM(model_cfg).to(device)
+            ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/utshaho/Documents/GitHub/rl4rl/data/c0c3/controlled-openevolve-transformer-v2-1-mps-campaign/runs/controlled-openevolve-transformer-v2-1-source-only-ten-digit-addition-pair-transformer-openevolve-v2-1-mps-openevolve-b03-c1/opportunities/0116/evaluation-workspace/src/model.py", line 457, in __init__
+    self.blocks = nn.ModuleList([Block(cfg) for _ in range(cfg.n_layer)])
+                                 ^^^^^^^^^^
+  File "/Users/utshaho/Documents/GitHub/rl4rl/data/c0c3/controlled-openevolve-transformer-v2-1-mps-campaign/runs/controlled-openevolve-transformer-v2-1-source-only-ten-digit-addition-pair-transformer-openevolve-v2-1-mps-openevolve-b03-c1/opportunities/0116/evaluation-workspace/src/model.py", line 440, in __init__
+    self.attn = CausalSelfAttention(cfg.d_model, cfg.n_head, cfg.dropout, cfg.max_seq_len)
+                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/utshaho/Documents/GitHub/rl4rl/data/c0c3/controlled-openevolve-transformer-v2-1-mps-campaign/runs/controlled-openevolve-transformer-v2-1-source-only-ten-digit-addition-pair-transformer-openevolve-v2-1-mps-openevolve-b03-c1/opportunities/0116/evaluation-workspace/src/model.py", line 54, in __init__
+    self.relative_bias = nn.Parameter(torch.zeros(n_head, max_seq_len - 24))
+                                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+RuntimeError: Trying to create tensor with negative dimension -1: [2, -1]

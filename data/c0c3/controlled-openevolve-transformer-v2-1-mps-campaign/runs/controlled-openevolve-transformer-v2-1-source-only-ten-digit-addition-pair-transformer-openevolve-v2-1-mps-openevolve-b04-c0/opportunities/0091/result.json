@@ -1,0 +1,79 @@
+{
+  "artifact_path": "candidates/0cd0e7c2f0668eb689fbe16e00240ee6dcdeb5eb30639e94bac7f611e00b41ef",
+  "candidate_id": "0cd0e7c2f0668eb689fbe16e00240ee6dcdeb5eb30639e94bac7f611e00b41ef",
+  "codex_service_tier": "default",
+  "condition": "C0",
+  "conversation_session_id": null,
+  "evaluation": {
+    "evaluator_calls": 1,
+    "evaluator_seconds": 229.22028412506916,
+    "failure_kind": null,
+    "fitness": -1582.0,
+    "metrics": {
+      "accuracy": 0.9993000000000001,
+      "cases": 10010,
+      "correct": 10003,
+      "parameters": 1582,
+      "training_steps": 4999
+    },
+    "valid": true
+  },
+  "evaluator_calls_cumulative": 91,
+  "evaluator_calls_increment": 1,
+  "evaluator_seconds_cumulative": 38597.876806621556,
+  "evaluator_seconds_increment": 229.22028412506916,
+  "event": "proposal_completed",
+  "evicted_candidate_id": "917487b069e4291da9c1684f0ed472d198a441de04c2ecc4604c4c964f8d1aec",
+  "evidence": "The nonzero scale anchor at `qkv.weight[0,4]` achieved 99.79% at 1583 parameters, whereas making that coefficient zero achieved 41.31%; similarly, zeroing `qkv.weight[1,0]` reached only 97.17%, motivating a function-preserving nonzero anchor instead.",
+  "hypothesis": "Fixing `qkv.weight[1,0]` at 0.02 with reciprocal scaling of head-0 key row 1 will reduce the model to 1582 parameters while retaining at least 99% accuracy, because it preserves initial attention scores without eliminating the query direction that the prior zero anchor removed.",
+  "incumbent_after": "0cd0e7c2f0668eb689fbe16e00240ee6dcdeb5eb30639e94bac7f611e00b41ef",
+  "intended_edit": "Store 188 learned QKV weights, reconstruct weights 0 and 2 as zero and weights 4 and 8 as 0.02, then initialize query/key row 1 with reciprocal scaling.",
+  "mechanism": "Second nonzero query\u2013key scale-gauge anchor",
+  "opportunity": 91,
+  "parent_ids": [
+    "917487b069e4291da9c1684f0ed472d198a441de04c2ecc4604c4c964f8d1aec"
+  ],
+  "portfolio_after": [
+    "0cd0e7c2f0668eb689fbe16e00240ee6dcdeb5eb30639e94bac7f611e00b41ef"
+  ],
+  "prompt_hashes": {
+    "common_template_sha256": "3f2bea6418b6969c4bf2aa1df18dcda8a3a4ac075bf20c79068c754698b6be5e",
+    "prompt_sha256": "76eed69e940cadd9e0fa74620fc1114f6b0bf4200e6fd60235d5c16f1f02fe32",
+    "proposal_policy_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "search_state_sha256": "04e5eb078ae1964e4ec65bfeeeb1acd0ffa246e7d54d5e0f997f81f602da28c5",
+    "treatment_skeleton_sha256": "4785154ba2caa051628ed7be63eb9f38482cfe85c42ce2faf76242d3088e3443"
+  },
+  "proposal_type": "ordinary",
+  "proposals_cumulative": 91,
+  "remaining_budget": {
+    "evaluations": 109,
+    "evaluator_seconds": 321402.12319337844,
+    "proposals": 109,
+    "tokens": 97746695
+  },
+  "retained": true,
+  "retention_decision": "strict_incumbent_improvement",
+  "run_id": "controlled-openevolve-transformer-v2-1-source-only-ten-digit-addition-pair-transformer-openevolve-v2-1-mps-openevolve-b04-c0",
+  "schema_version": "1.0",
+  "selected_parent_ids": [
+    "917487b069e4291da9c1684f0ed472d198a441de04c2ecc4604c4c964f8d1aec"
+  ],
+  "timestamp": "2026-08-26T02:52:56.912530+00:00",
+  "usage_cumulative": {
+    "cached_input_tokens": 925696,
+    "input_tokens": 2042782,
+    "output_tokens": 210523,
+    "reasoning_output_tokens": 157672,
+    "total_tokens": 2253305
+  },
+  "usage_increment": {
+    "cached_input_tokens": 12032,
+    "input_tokens": 23927,
+    "output_tokens": 3958,
+    "reasoning_output_tokens": 3106,
+    "total_tokens": 27885
+  },
+  "visible_candidate_ids": [
+    "917487b069e4291da9c1684f0ed472d198a441de04c2ecc4604c4c964f8d1aec"
+  ]
+}

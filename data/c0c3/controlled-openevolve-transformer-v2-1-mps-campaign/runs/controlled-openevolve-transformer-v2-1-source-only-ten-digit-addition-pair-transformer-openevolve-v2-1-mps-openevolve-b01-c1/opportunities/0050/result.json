@@ -1,0 +1,73 @@
+{
+  "artifact_path": "candidates/f1f4878b2716c5a0b82504c8ef448d7ac1ca000534f41cfe033331b3a410a637",
+  "candidate_id": "f1f4878b2716c5a0b82504c8ef448d7ac1ca000534f41cfe033331b3a410a637",
+  "codex_service_tier": "default",
+  "condition": "C1",
+  "conversation_session_id": null,
+  "evaluation": {
+    "evaluator_calls": 1,
+    "evaluator_seconds": 2.685760041931644,
+    "failure_kind": "execution",
+    "fitness": null,
+    "metrics": {},
+    "valid": false
+  },
+  "evaluator_calls_cumulative": 50,
+  "evaluator_calls_increment": 1,
+  "evaluator_seconds_cumulative": 24502.662795874057,
+  "evaluator_seconds_increment": 2.685760041931644,
+  "event": "proposal_completed",
+  "evicted_candidate_id": null,
+  "evidence": "The current two-head model reaches 99.92%, showing its attention and MLP have sufficient computational capacity, while three different one-scalar affine quotients fell to 84.48%, 86.89%, and 79.24%. This motivates seeking larger savings through a different representation: directly learned relative addressing, rather than another fragile affine-coordinate removal.",
+  "hypothesis": "Replacing seven learned coordinates per absolute position with two learned causal-distance logits\u2014one per attention head\u2014will reduce the 1,578-parameter model by `5 * INPUT_LEN` parameters while retaining at least 99% accuracy, because fixed-width addition repeatedly addresses operand digits through relative offsets rather than requiring independent absolute-position vectors.",
+  "incumbent_after": "0db570d96b3a92065765061257b3c3114441631ae43ba3a976488072b3a09a3c",
+  "intended_edit": "Challenge the assumption that absolute position embeddings must represent both place and attention addressing. Remove them from the residual stream and let each attention head directly learn a bias for every causal relative distance, while preserving the successful initialization stream and all other model, optimizer, and decoding behavior.",
+  "mechanism": "Learned relative-offset attention without absolute position embeddings",
+  "opportunity": 50,
+  "parent_ids": [
+    "0db570d96b3a92065765061257b3c3114441631ae43ba3a976488072b3a09a3c"
+  ],
+  "portfolio_after": [
+    "0db570d96b3a92065765061257b3c3114441631ae43ba3a976488072b3a09a3c"
+  ],
+  "prompt_hashes": {
+    "common_template_sha256": "3f2bea6418b6969c4bf2aa1df18dcda8a3a4ac075bf20c79068c754698b6be5e",
+    "prompt_sha256": "8fe452eb768e96bfa4237ecae748deb5467b8043cbb24e730be292edc454e6d4",
+    "proposal_policy_sha256": "4a27c08e098e719db007f4d6b37fabe2967b41836bb9070e2513a8a24ff7ce90",
+    "search_state_sha256": "04e5eb078ae1964e4ec65bfeeeb1acd0ffa246e7d54d5e0f997f81f602da28c5",
+    "treatment_skeleton_sha256": "5fbaced21ea4539896003178fd6971e12fdfa925b86a26b33107237d39231bf4"
+  },
+  "proposal_type": "assumption_changing",
+  "proposals_cumulative": 50,
+  "remaining_budget": {
+    "evaluations": 150,
+    "evaluator_seconds": 335497.33720412594,
+    "proposals": 150,
+    "tokens": 98700119
+  },
+  "retained": false,
+  "retention_decision": "invalid",
+  "run_id": "controlled-openevolve-transformer-v2-1-source-only-ten-digit-addition-pair-transformer-openevolve-v2-1-mps-openevolve-b01-c1",
+  "schema_version": "1.0",
+  "selected_parent_ids": [
+    "0db570d96b3a92065765061257b3c3114441631ae43ba3a976488072b3a09a3c"
+  ],
+  "timestamp": "2026-08-24T17:26:45.416630+00:00",
+  "usage_cumulative": {
+    "cached_input_tokens": 526336,
+    "input_tokens": 1101135,
+    "output_tokens": 198746,
+    "reasoning_output_tokens": 166252,
+    "total_tokens": 1299881
+  },
+  "usage_increment": {
+    "cached_input_tokens": 9984,
+    "input_tokens": 23772,
+    "output_tokens": 8392,
+    "reasoning_output_tokens": 7199,
+    "total_tokens": 32164
+  },
+  "visible_candidate_ids": [
+    "0db570d96b3a92065765061257b3c3114441631ae43ba3a976488072b3a09a3c"
+  ]
+}

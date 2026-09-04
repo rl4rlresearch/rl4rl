@@ -1,0 +1,82 @@
+{
+  "artifact_path": "candidates/0f4addfb4d25d8c14308a8fa6ae9a12f23eb4f22b679664e67aa9c445f76efd1",
+  "candidate_id": "0f4addfb4d25d8c14308a8fa6ae9a12f23eb4f22b679664e67aa9c445f76efd1",
+  "codex_service_tier": "fast",
+  "condition": "C1",
+  "conversation_session_id": null,
+  "evaluation": {
+    "evaluator_calls": 1,
+    "evaluator_seconds": 359.1777164010018,
+    "failure_kind": null,
+    "fitness": -0.99655,
+    "metrics": {
+      "depth": 8.0,
+      "mfu_percent": 34.18,
+      "num_params_M": 39.8,
+      "num_steps": 1044.0,
+      "peak_vram_mb": 41364.2,
+      "total_tokens_M": 547.4,
+      "training_seconds": 300.0,
+      "val_bpb": 0.99655
+    },
+    "valid": true
+  },
+  "evaluator_calls_cumulative": 7,
+  "evaluator_calls_increment": 1,
+  "evaluator_seconds_cumulative": 2586.1504929220014,
+  "evaluator_seconds_increment": 359.1777164010018,
+  "event": "proposal_completed",
+  "evicted_candidate_id": null,
+  "evidence": "Removing one full-context layer increased training from 522.2M to 530.6M tokens and improved val_bpb from 0.993215 to 0.992286, while removing the final global layer sharply regressed; this motivates reducing attention cost without sacrificing global integration.",
+  "hypothesis": "Halving KV heads while retaining four query heads and the final full-context layer will reduce parameter-update and projection cost enough to process more tokens and lower val_bpb below 0.992286.",
+  "incumbent_after": "a1a9234027b48bc7b7b3915b2e809e849b6afedfe79a9a211f23947b1f8adec9",
+  "intended_edit": "Configure two KV heads for the four-head model, preserving every attention window and query head.",
+  "mechanism": "Two-to-one grouped-query attention",
+  "opportunity": 7,
+  "parent_ids": [
+    "a1a9234027b48bc7b7b3915b2e809e849b6afedfe79a9a211f23947b1f8adec9"
+  ],
+  "portfolio_after": [
+    "a1a9234027b48bc7b7b3915b2e809e849b6afedfe79a9a211f23947b1f8adec9"
+  ],
+  "prompt_hashes": {
+    "common_template_sha256": "ba85b39aa7288f4f48475376da6cff65661f39cfeb7ac7cde15b2a9a2e692fde",
+    "prompt_sha256": "ecdd4e96244a53cb73a53a04f7cde37c285795cc7ce33350e8b3b9237568859a",
+    "proposal_policy_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "search_state_sha256": "04e5eb078ae1964e4ec65bfeeeb1acd0ffa246e7d54d5e0f997f81f602da28c5",
+    "treatment_skeleton_sha256": "ea3604012abf4eda190314aaaa482987912a0d322a0d2fd76a139b79e92bd609"
+  },
+  "proposal_type": "ordinary",
+  "proposals_cumulative": 7,
+  "remaining_budget": {
+    "evaluations": 193,
+    "evaluator_seconds": 717413.849507078,
+    "proposals": 193,
+    "tokens": 99832720
+  },
+  "retained": false,
+  "retention_decision": "not_strictly_better_than_incumbent",
+  "run_id": "nanogpt-openevolve-v2-1-h100-karpathy_nanogpt_source_only_h100-openevolve-b01-c1",
+  "schema_version": "1.0",
+  "selected_parent_ids": [
+    "a1a9234027b48bc7b7b3915b2e809e849b6afedfe79a9a211f23947b1f8adec9"
+  ],
+  "timestamp": "2026-08-23T17:14:30.950178+00:00",
+  "usage_cumulative": {
+    "cached_input_tokens": 77056,
+    "input_tokens": 157962,
+    "output_tokens": 9318,
+    "reasoning_output_tokens": 8022,
+    "total_tokens": 167280
+  },
+  "usage_increment": {
+    "cached_input_tokens": 6912,
+    "input_tokens": 23210,
+    "output_tokens": 2862,
+    "reasoning_output_tokens": 2588,
+    "total_tokens": 26072
+  },
+  "visible_candidate_ids": [
+    "a1a9234027b48bc7b7b3915b2e809e849b6afedfe79a9a211f23947b1f8adec9"
+  ]
+}
