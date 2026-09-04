@@ -1062,7 +1062,11 @@ def write_csv(path: Path, rows: Sequence[dict[str, Any]]) -> None:
     if not rows:
         raise ValueError(f"Cannot write empty table {path}")
     with path.open("w", encoding="utf-8", newline="") as stream:
-        writer = csv.DictWriter(stream, fieldnames=list(rows[0]))
+        writer = csv.DictWriter(
+            stream,
+            fieldnames=list(rows[0]),
+            lineterminator="\n",
+        )
         writer.writeheader()
         writer.writerows(rows)
 

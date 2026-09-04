@@ -126,7 +126,7 @@ class NeuripsDoc(BaseDocTemplate):
             rightMargin=1.0 * inch,
             topMargin=0.72 * inch,
             bottomMargin=0.72 * inch,
-            title="Can a Prompt Defixate an AI Researcher?",
+            title="Can a Prompt Defixate an Autonomous Compression Agent?",
             author="Anonymous Authors",
             subject="AISciK Workshop (NeurIPS 2026) submission",
         )
@@ -314,8 +314,8 @@ def pagebreak(story: list[Flowable]) -> None:
 def ruled_title(story: list[Flowable]) -> None:
     story.append(HRFlowable(width="100%", thickness=4, color=colors.black, spaceAfter=10))
     story.append(P(
-        "Can a Prompt Defixate an AI Researcher?<br/>"
-        "<font size='13'>State-Matched Forks in Autonomous Model Compression</font>",
+        "Can a Prompt Defixate an Autonomous Compression Agent?<br/>"
+        "<font size='13'>State-Matched Forks in Model Search</font>",
         TITLE,
     ))
     story.append(HRFlowable(width="100%", thickness=1, color=colors.black, spaceBefore=2, spaceAfter=9))
@@ -364,17 +364,17 @@ def build_story() -> list[Flowable]:
     ruled_title(story)
     story.append(P("Abstract", ABSTRACT_HEAD))
     story.append(P(
-        "Autonomous research agents often reuse a productive line of attack until local search stalls. Can a short instruction redirect "
-        "the same agent from the same scientific state toward a different, workable mechanism? We study 64 model-compression trajectories "
-        "whose control/treatment pairs are byte-matched through nine proposals, then fork at proposal 10. Treated agents receive an explicit "
+        "Autonomous coding agents often reuse a productive line of attack until local search stalls. Can a short instruction redirect "
+        "the same compression agent from the same recorded search state toward a structurally different, workable edit? We study 64 model-compression trajectories "
+        "whose control/treatment pairs are event- and provenance-matched through nine proposals, then fork at proposal 10. Treated agents receive an explicit "
         "instruction to identify and challenge load-bearing assumptions; controls receive the ordinary task direction. Across 32 exact forks, "
-        "the instruction increases normalized source novelty by 0.0309 [0.0216, 0.0428], changed lines by 13.1 [11.6, 14.7], and the chance of "
-        "introducing a new mechanism family by 53.1 percentage points [34.4, 71.9]. It lowers qualification by 9.4 points [-28.1, 9.4] but raises "
+        "the instruction is associated with 0.0309 more normalized source novelty [0.0216, 0.0428], 13.1 more changed lines [11.6, 14.7], and "
+        "a 53.1 percentage-point increase [34.4, 71.9] in a post hoc mechanism-family tag. It lowers qualification by 9.4 points [-28.1, 9.4] but raises "
         "unconditional one-step parameter reduction by 537 [209, 941]. Successful treated edits remove a median 1,765 parameters versus 81 for "
         "controls. Before a second intervention, treated trajectories end 786 parameters smaller [-1,271, -345]; through a common 70-proposal "
-        "horizon they end 1,652 smaller [-2,301, -1,083] in 28/32 pairs. Reading all 4,480 recorded proposal messages and source edits reveals "
-        "punctuated defixation: the prompt initiates mechanism-level jumps, then ordinary follow-ups exploit them. Yet 17/32 treated forks converge "
-        "on token-interface factorization, and a complete Fashion-MNIST replication shows a larger novelty-feasibility penalty without clear "
+        "horizon, a seven-intervention adaptive regime, they end 1,652 smaller [-2,301, -1,083] in 28/32 pairs. An exploratory, condition-aware trace audit "
+        "suggests punctuated defixation: the prompt initiates architectural jumps, then ordinary follow-ups exploit them. Yet 17/32 treated forks converge "
+        "on token-interface factorization, and a descriptive Fashion-MNIST portability check shows a larger novelty-feasibility penalty without clear "
         "endpoint gain. Semantic interventions can improve search by changing which failures are attempted, but novelty, feasibility, and cost "
         "must be reported jointly.",
         ABSTRACT,
@@ -389,9 +389,9 @@ def build_story() -> list[Flowable]:
         "benefits from the deviation.",
     ))
     story.append(P(
-        "We ask: <b>In autonomous neural-architecture search, does adding an explicit assumption-challenge instruction to an otherwise identical "
-        "research state increase feasible mechanistic novelty, and what does it cost or gain in qualification, search efficiency, and downstream "
-        "model compression?</b> This question makes the AI research process - not merely its best model - the object of study.",
+        "We ask: <b>In an autonomous transformer-compression loop, does an assumption-challenge instruction, from a matched search state, shift the next "
+        "proposal away from local pruning; and how do source-level novelty, qualification, compression progress, and cost change immediately and under a "
+        "repeated-intervention regime?</b> This question makes the AI research process - not merely its best model - the object of study.",
     ))
     pagebreak(story)
 
@@ -403,21 +403,22 @@ def build_story() -> list[Flowable]:
     ))
     story.append(bullet(
         "<b>Triangulated process measurement.</b> We connect all 4,480 recorded final proposal messages to normalized source diffs, AST changes, "
-        "evaluator outcomes, retention, token increments, and incumbent parameter counts. We read and inductively code all 64 fork messages."
+        "evaluator outcomes, retention, token increments, and incumbent parameter counts. A condition-aware analyst also coded the 64 fork messages; "
+        "that taxonomy is explicitly exploratory, not an independently validated outcome."
     ))
     story.append(bullet(
-        "<b>Immediate, propagated, and repeated effects.</b> We separate proposal 10, the one-intervention phase 10-19, and a common 70-proposal "
-        "repeated-treatment horizon. A complete 4,000-proposal Fashion-MNIST corpus is used only as descriptive cross-task replication."
+        "<b>Immediate, propagated, and repeated regimes.</b> We separate proposal 10, the one-intervention phase 10-19, and a common 70-proposal "
+        "seven-intervention adaptive regime. A complete 4,000-proposal Fashion-MNIST corpus is used only as a descriptive portability check."
     ))
     story.append(bullet(
-        "<b>Negative result within the positive result.</b> The instruction changes local pruning into alternative computations and improves compression, "
+        "<b>Negative result within the positive result.</b> The instruction is followed by a shift from local pruning toward alternative computations and greater compression, "
         "but reduces qualification, increases output and evaluator cost, and concentrates more than half of treated forks on one alternative."
     ))
     story.append(P(
         "We use <i>defixation</i> behaviorally: departure from a trajectory's current mechanism family. We do not infer private reasoning or a human-like "
-        "creative faculty. <i>Novel</i> means new relative to recorded trajectory history or structurally different from the selected parent, not globally "
-        "unprecedented. <i>Feasible</i> means at least 99% exact-answer accuracy under the fixed evaluator. The design sharply controls history at the "
-        "first fork but does not randomize labels; bootstrap ranges are descriptive sensitivity intervals, not p-values.",
+        "creative faculty. <i>Novel</i> means source-level departure from the selected parent or recorded trajectory history, not globally unprecedented. "
+        "<i>Feasible</i> means at least 99% exact-answer accuracy under the fixed evaluator. The design sharply controls observed history at the first fork "
+        "but does not randomize labels; all bootstrap ranges are descriptive cluster sensitivity ranges, not confidence intervals or p-values [16-18].",
         SMALL,
     ))
     story.append(h1("2  Related work"))
@@ -427,7 +428,9 @@ def build_story() -> list[Flowable]:
         "study later reports fixation, premature abandonment, and needless complexity, recommending explicit alternatives and feedback loops [8]. "
         "Creativity measurement distinguishes divergent novelty from convergent appropriateness: MacGyver exposes imaginative but physically infeasible "
         "solutions [4], NEOGAUGE combines divergent and convergent code behavior [5], and CDAT shows that novelty alone can reward contextual noise [7]. "
-        "This motivates our joint novelty-by-qualification analysis rather than a novelty leaderboard."
+        "Prompted divergence can also trade creativity against response stability [14], while automated scores remain measurement proxies requiring cross-task construct validation "
+        "[15]. Construct-validity work warns that benchmark labels can outpace the measurements that support them [17,18]. This motivates source, execution, "
+        "qualification, and cost measures together; our post hoc family taxonomy does not carry the primary claim."
     ))
     story.append(h2("Semantic steering of agents"))
     story.append(P(
@@ -439,8 +442,10 @@ def build_story() -> list[Flowable]:
     story.append(h2("Autonomous ML research"))
     story.append(P(
         "MLAgentBench operationalizes experiment design, execution, and iteration [9]. Toledo et al. formalize research agents as search policies plus "
-        "operators and show their interaction is critical [10]. AlphaEvolve and OpenEvolve couple LLM code mutation to evolutionary selection [11,12], "
-        "while AI Scientist systems automate broader scientific workflows [13]. Our intervention is an operator-level change inside such a loop."
+        "operators and show their interaction is critical [10]. AlphaEvolve, OpenEvolve, and CodeEvolve couple LLM code mutation to evolutionary selection "
+        "[11,12,21]; ADAS searches over agent architectures [20], while the AI Scientist systems automate broader scientific workflows [13,19]. Our "
+        "contribution is narrower: a state-matched prompt contrast inside a code-search loop, with executable edits and downstream trajectories. LoongFlow "
+        "and EvoScientist use structured planning or persistent memory to fight long-horizon stagnation [22,23]; we isolate one lightweight semantic operator."
     ))
     pagebreak(story)
 
@@ -448,10 +453,11 @@ def build_story() -> list[Flowable]:
     story.append(h1("3  Experimental design"))
     story.append(h2("Task and research systems"))
     story.append(P(
-        "Tiny AdderBoard asks a learned transformer to add two four-digit numbers exactly. A candidate qualifies at at least 99% exact-answer accuracy; "
+        "Tiny AdderBoard asks a learned transformer to add two four-digit numbers exactly. A candidate qualifies with at least 99% exact-answer accuracy; "
         "among qualified candidates, fewer deduplicated learned parameters is better. The common baseline has 21,952 parameters. The evaluator owns "
         "deterministic data generation, training checkpoints, source-integrity checks, and an attention-dependence check. All arms use GPT-5.6 Sol with "
-        "xhigh reasoning, the same task and prompt bundle, and the same 100-proposal budget. We stratify by controller architecture: greedy OpenEvolve "
+        "xhigh reasoning and default service tier, the same task and prompt bundle, and the same advertised 100-proposal budget. The Codex interface recorded "
+        "model, reasoning effort, and service tier but exposed no separate temperature or sampling-seed setting. We stratify by controller architecture: greedy OpenEvolve "
         "retains a controller-selected incumbent/portfolio, whereas native OpenEvolve also samples an island/MAP-Elites population."
     ))
     story.append(h2("Conditions and exact fork"))
@@ -468,6 +474,12 @@ def build_story() -> list[Flowable]:
         CAPTION,
     ))
     story.append(P(
+        "Condition labels were fixed, but their launch positions were permuted across the 16 architecture-block schedules rather than always ordered alike. "
+        "Treated arms launched after their matched controls in 9/16 single-memory schedules and 6/16 portfolio schedules; the remaining pairs reversed that "
+        "order. This counters a simple universal launch-order explanation but is not random assignment.",
+        SMALL,
+    ))
+    story.append(P(
         "The inserted direction asks the agent to step back, identify load-bearing assumptions in its current line and available designs, challenge them "
         "with a genuinely different learned computational mechanism, avoid unsupported retries, preserve evidence-backed components, state the old "
         "assumption and alternative, and implement a clean feasible test. Controls receive the same task state, candidate sources, evidence, output "
@@ -475,31 +487,36 @@ def build_story() -> list[Flowable]:
     ))
     story.append(h2("Analysis windows and integrity"))
     story.append(P(
-        "Proposal 10 estimates the immediate state-matched effect. Proposals 10-19 estimate propagation after one intervention and before the next. "
-        "Proposal 70 is the largest horizon completed by all 64 trajectories; it estimates the repeated-intervention regime after seven scheduled "
-        "directions. The analysis asserts 288 identical paired-prefix events, 288 matching source or provenance records, 32 matching fork parents, and "
-        "32 insertion-only prompt diffs. All 4,480 horizon events have a recorded final message."
+        "Proposal 10 supplies the immediate state-matched contrast. Proposals 10-19 describe propagation after one intervention and before the next. "
+        "The 100-proposal budget was an upper bound, not the analysis horizon. At the frozen analysis snapshot, trajectories had unequal later completion; "
+        "proposal 70 was selected mechanically as the minimum completed horizon across all 64 runs, without inspecting outcomes. It estimates an adaptive "
+        "regime containing seven scheduled directions, not the effect of one prompt. The analysis asserts 288 identical paired-prefix events, 288 matching "
+        "source or provenance records, 32 matching fork parents, and "
+        "32 insertion-only prompt diffs. All 4,480 horizon events have a recorded final message. Because condition labels were fixed rather than "
+        "randomized, we treat matching as design evidence for the fork contrast, not as a substitute for random assignment [16]."
     ))
     story.append(h2("Measures and uncertainty"))
     story.append(P(
         "Source novelty is one minus Jaccard similarity between parent/candidate Python token 3-grams after abstracting identifiers and literals. AST "
         "distance compares node-type multisets. Declared novelty is the minimum word-set distance to earlier proposal summaries in the same trajectory. "
-        "A fixed lexical rule detects first-use mechanism families and explicit assumption/alternative language. Qualification, retention, tokens, "
+        "A fixed lexical rule detects first-use family labels and explicit assumption/alternative language; the latter is partly a direct manipulation check. "
+        "Qualification, retention, tokens, "
         "evaluator seconds, and incumbent parameters come directly from events. We report paired means and 10,000 fixed-seed cluster-bootstrap resamples "
-        "of architecture x block clusters, retaining both memory pairs per cluster. Full definitions and missingness rules appear in Appendix B."
+        "of architecture x block clusters, retaining both memory pairs per cluster. These are descriptive sensitivity ranges. Full definitions, missingness "
+        "rules, and condition-aware coding limits appear in Appendices B and D."
     ))
     pagebreak(story)
 
     # Main page 4: immediate effect.
-    story.append(h1("4  The prompt changes the next executable proposal"))
+    story.append(h1("4  The next executable proposal differs at the matched fork"))
     story.extend(figure(
         DERIVED / "fig1_fork_effects.png",
         5.35 * inch,
-        "Figure 1: Paired treatment-minus-control effects at the exact proposal-10 fork, stratified by controller architecture and memory. Bars are "
-        "architecture-block cluster-bootstrap 95% intervals. Output-token effects are counts; qualification and retention are proportions.",
+        "Figure 1: Paired treatment-minus-control contrasts at the exact proposal-10 fork, stratified by controller architecture and memory. Error bars are "
+        "descriptive 95% architecture-block cluster-bootstrap sensitivity ranges. Output-token contrasts are counts; qualification and retention are proportions.",
     ))
     immediate_data = [
-        ["Outcome", "Ordinary", "Challenge", "Paired difference [95%]"],
+        ["Outcome", "Ordinary", "Challenge", "Paired difference [95% range]"],
         ["Source novelty", "0.0035", "0.0342", "+0.0309 [0.0216, 0.0428]"],
         ["AST distance", "0.0067", "0.0412", "+0.0342 [0.0248, 0.0444]"],
         ["Changed lines", "4.34", "17.47", "+13.13 [11.63, 14.69]"],
@@ -517,25 +534,41 @@ def build_story() -> list[Flowable]:
     story.append(P(
         "The prompt produces larger source and semantic moves, but not free success. Sixteen ordinary and 13 treated proposals improve the incumbent. "
         "Conditional on improvement, treated proposals remove a mean 1,487 (median 1,765) parameters versus 134 (median 81) for controls. Because this "
-        "conditional contrast selects on post-treatment success, Table 2's unconditional +537 paired effect is primary. Qualified structural edits rise "
+        "conditional contrast selects on post-treatment success, Table 2's unconditional +537 paired difference is primary. Qualified structural edits rise "
         "from 28.1% to 40.6% (+12.5 points [-3.1, 28.1]): the instruction trades many tiny safe edits for fewer, substantially larger workable jumps."
+    ))
+    story.append(h2("What the matched contrast supports"))
+    story.append(P(
+        "The intervention's operative sentence is concrete: <i>'identify the load-bearing assumptions ... [and] test genuinely different learned "
+        "computational mechanisms.'</i> It also requests the old assumption, alternative, evidence, and falsifier. Exact sequence diffs verify that this "
+        "paragraph is the only prompt insertion at the fork; the task state, selected parent source, evidence capsule, evaluator contract, and output schema "
+        "are otherwise matched. The immediate contrast therefore attributes the observed source/evaluation difference to the inserted direction under the "
+        "assumption that no unrecorded arm-specific process differed. Fixed labels and nondeterministic generation prevent a randomized causal claim."
+    ))
+    story.append(P(
+        "Three distinctions matter. First, assumption language rises from 0/32 to 28/32, but this is a manipulation check because the prompt requests such "
+        "language. Second, output grows by 2,451 tokens, partly because the direction asks for more justification; length is a cost, not independent evidence "
+        "of conceptual change. Third, deterministic source novelty, AST distance, and changed lines cannot by themselves identify a useful mechanism. Their "
+        "combination with qualification and unconditional parameter reduction is the primary evidence: edits are larger, success is somewhat rarer, and "
+        "successful jumps are much larger. The family taxonomy on the next page illustrates what those edits look like but is not needed for this conclusion."
     ))
     pagebreak(story)
 
     # Main page 5: message mechanisms and cases.
-    story.append(h1("5  What changed in the agents' proposals?"))
+    story.append(h1("5  Exploratory trace taxonomy and matched cases"))
     story.extend(figure(
         DERIVED / "fig5_mechanism_taxonomy.png",
         5.35 * inch,
-        "Figure 2: Mutually exclusive mechanism families from reading all 64 fork messages, implemented as a transparent classifier over the declared "
-        "mechanism label. Counts sum to 32 per arm. The prompt redirects local pruning, but 17 treated forks independently converge on token-interface factorization.",
+        "Figure 2: Exploratory, mutually exclusive mechanism-family tags from all 64 fork messages, implemented as a transparent classifier over the declared "
+        "mechanism label. Counts sum to 32 per arm. The taxonomy was designed by one condition-aware analyst after seeing the corpus and was not independently coded.",
     ))
     story.append(P(
         "Ordinary agents mostly interpolate a known boundary: 18/32 narrow the feedforward path and 13/32 remove or tie normalization/bias parameters. "
         "Treated agents instead separate token rank from residual width (17), reparameterize attention routing (9), exchange width for iterative/shared "
         "depth (4), reuse projections across sublayers (1), or replace absolute positions with relative-offset attention (1). Manual review finds a "
-        "mechanism-level alternative in every treated fork; a conservative assumption-language regex detects 28/32, so its reported 87.5% is an "
-        "under-count rather than proof of noncompliance."
+        "structural alternative in every treated fork. Because this manual read was condition-aware and post hoc, it is qualitative context rather than a "
+        "validated outcome. A conservative assumption-language regex detects 28/32, but that phrase is requested by the prompt and therefore verifies uptake, "
+        "not independent defixation. The prereproducible evidence is the source/AST departure, qualification, retention, and parameter change in Table 2."
     ))
     story.append(h2("Matched examples expose the exploration policy"))
     story.append(P(
@@ -561,32 +594,33 @@ def build_story() -> list[Flowable]:
     story.extend(figure(
         DERIVED / "fig2_parameter_trajectories.png",
         5.25 * inch,
-        "Figure 3: Median incumbent parameters with interquartile bands. Paired arms are identical through proposal 9; lower is better. Vertical lines are "
-        "scheduled intervention opportunities. All 64 runs are observed through 70.",
+        "Figure 3: Arm-wise median incumbent parameters with interquartile bands (visual summary, not a paired estimator). Paired arms are identical through "
+        "proposal 9; lower is better. Vertical lines are scheduled intervention opportunities. Text and tables report paired mean differences. All 64 runs are observed through 70.",
     ))
     story.append(P(
         "Before any second treatment, proposals 10-19 leave treated incumbents 786 parameters smaller [-1,271, -345]: 4,557 versus 5,344. The reduction "
         "fraction rises from 7.72% to 16.03% (+8.31 points [4.37, 12.68]) while qualification differs by only -3.13 points [-9.69, 3.13]. Mean source "
-        "novelty across all ten proposals differs by +0.0031 [-0.0027, 0.0089], much less than the immediate +0.0309. Thus a single semantic intervention "
-        "changes the architecture from which ordinary local search proceeds; it does not keep every later edit novel."
+        "novelty across all ten proposals differs by +0.0031 [-0.0027, 0.0089], much less than the immediate +0.0309. Thus the single intervention is followed "
+        "by a different architectural state from which ordinary local search proceeds; it does not keep every later edit novel."
     ))
     story.extend(figure(
         DERIVED / "fig4_horizon_effect.png",
         4.25 * inch,
-        "Figure 4: Mean paired treatment-minus-control incumbent parameters as the common horizon expands. Shading is the cluster-bootstrap 95% interval; "
+        "Figure 4: Mean paired treatment-minus-control incumbent parameters as the common horizon expands. Shading is the descriptive cluster-bootstrap 95% range; "
         "negative favors treatment. Points at 10, 20, ..., 70 include a new intervention at their endpoint; intervening points show ordinary exploitation.",
     ))
     story.append(P(
-        "By proposal 70, repeated treatment yields 3,015 mean parameters versus 4,667, a paired difference of -1,652 [-2,301, -1,083]. Treatment is lower "
+        "By proposal 70, the seven-intervention adaptive regime yields 3,015 mean parameters versus 4,667, a paired difference of -1,652 [-2,301, -1,083]. "
+        "This contrast combines repeated prompts, altered parents, and path-dependent retention; it is not a sevenfold estimate of the proposal-10 insertion. Treatment is lower "
         "in 28/32 pairs. Qualification falls by 9.84 points [-16.50, -2.87], but total accounted tokens are nearly unchanged (+5,045 on a 1.68M control "
         "mean, interval crossing zero); evaluator time rises by 1,378 seconds [367, 2,371]."
     ))
     pagebreak(story)
 
     # Main page 7: moderation and replication.
-    story.append(h1("6.1  Search architecture and memory moderate the effect"))
+    story.append(h1("6.1  Search architecture and memory stratify the contrast"))
     moderation_data = [
-        ["Stratum", "Pairs", "Control final P", "Challenge final P", "Paired difference [95%]", "Challenge lower"],
+        ["Stratum", "Pairs", "Control final P", "Challenge final P", "Paired difference [95% range]", "Challenge lower"],
         ["Greedy", "16", "3,554", "2,711", "-843 [-1,427, -407]", "14/16"],
         ["Native", "16", "5,780", "3,319", "-2,461 [-3,611, -1,437]", "14/16"],
         ["Single memory", "16", "5,160", "2,983", "-2,177 [-3,489, -1,148]", "16/16"],
@@ -599,13 +633,13 @@ def build_story() -> list[Flowable]:
         CAPTION,
     ))
     story.append(P(
-        "The direction is stable across both research systems and both memory regimes. The larger native effect is consistent with population search "
+        "The direction is stable across both research systems and both memory regimes. The larger native contrast is consistent with population search "
         "preserving and recombining a high-impact fork, but framework-specific parents and selection histories prevent isolating that mechanism. Portfolio "
         "controls already end 987 parameters smaller than single-memory controls on average, leaving less marginal room for the prompt. This supports an "
-        "institutional interpretation: semantic defixation and population memory are partially substitutable exploration operators. Paper 3 should test "
-        "that interaction directly; here it remains a measured hypothesis, not a causal conclusion."
+        "institutional interpretation: semantic defixation and population memory may be partially substitutable exploration operators. A future randomized "
+        "factorial study should test that interaction directly; here it remains a measured hypothesis, not a causal conclusion."
     ))
-    story.append(h1("7  Cross-task replication: novelty without endpoint gain"))
+    story.append(h1("7  Descriptive portability check: Fashion-MNIST"))
     story.append(P(
         "We reanalyze a complete Fashion-MNIST campaign: five blocks x four conditions x 200 proposals = 4,000 events. It uses the same every-tenth "
         "intervention concept but a different task, score, source program, and evaluator. Same-block arms had already diverged before each checkpoint, so "
@@ -623,14 +657,28 @@ def build_story() -> list[Flowable]:
     ]
     story.append(data_table(fashion_data, [127, 77, 85, 89], font_size=7.0))
     story.append(P(
-        "Table 4: 200 matched intervention checkpoints. Proposal-level dependence precludes treating these as 200 independent replications.",
+        "Table 4: 200 same-block intervention checkpoints on already-diverged paths. Proposal-level dependence precludes treating these as independent replications.",
         CAPTION,
     ))
     story.append(P(
         "Relative to each trajectory's preceding opportunity, the treated-control change is +0.0383 for source novelty (169 source-observed pairs), -31.5 "
-        "points for qualification, -29.5 for retention, and +2,765 output tokens. Fashion-MNIST therefore replicates behavioral redirection and its cost "
-        "but not the Tiny AdderBoard compression benefit. The result cautions against interpreting more novel code as better research independent of the "
+        "points for qualification, -29.5 for retention, and +2,765 output tokens. Fashion-MNIST shows a directionally similar descriptive redirection/cost "
+        "pattern but does not causally replicate the Tiny AdderBoard contrast or its compression benefit. The result cautions against interpreting more novel code as better research independent of the "
         "task's feasibility landscape and selection rule."
+    ))
+    story.append(h2("Why the task boundary matters"))
+    story.append(P(
+        "Tiny AdderBoard has a hard qualification cliff and many algebraic or architectural redundancies: a rare feasible change can remove thousands of "
+        "parameters and then become a productive parent. Fashion-MNIST uses a different score and source program; checkpoint proposals on treated paths are "
+        "more structurally distant but are retained only 5.0% of the time versus 36.5% for controls. This is consistent with an exploration operator whose "
+        "value depends on the density of high-reward alternatives, not a task-general novelty premium. Because the Fashion paths were not state-matched, that "
+        "explanation is a hypothesis, not an identified moderator."
+    ))
+    story.append(P(
+        "The original three Fashion blocks and the two-block extension show the same directional source-novelty and qualification pattern (Appendix E), "
+        "which reduces concern that the aggregate is created by one extension block. It does not repair the missing exact fork. A proper portability test "
+        "would mirror the first nine events and parent source on the new task, predeclare source and feasibility outcomes, and use enough blocks to estimate "
+        "task-by-intervention heterogeneity."
     ))
     pagebreak(story)
 
@@ -638,8 +686,8 @@ def build_story() -> list[Flowable]:
     story.append(h1("8  Discussion"))
     story.append(h2("A prompt is an exploration operator, not a creativity guarantee"))
     story.append(P(
-        "The matched fork identifies a behavioral mechanism: an inserted direction changes the next proposed computation from local parameter pruning to "
-        "architectural alternatives. The first alternative often fails, but successful jumps are an order of magnitude larger and create new basins for "
+        "The matched fork shows a behavioral contrast: an inserted direction is followed by larger source departures and more architectural alternatives than "
+        "the control direction. The first alternative often fails, but successful jumps are an order of magnitude larger and create new basins for "
         "ordinary exploitation. This resembles a high-variance mutation operator, not a universally better policy. Research-agent evaluations should "
         "therefore report at least four coupled outcomes: departure from prior mechanisms, evaluator qualification, improvement magnitude, and resource "
         "cost. A novelty-only score would reward many Fashion-MNIST failures; an endpoint-only score would hide how the Tiny AdderBoard gains arose [7]."
@@ -656,23 +704,33 @@ def build_story() -> list[Flowable]:
         "<b>One model and compact tasks.</b> The primary evidence uses one subject-model configuration and one synthetic transformer-compression task; "
         "Fashion-MNIST changes several factors at once. <b>Fixed labels.</b> Exact shared prefixes remove observed pre-fork history differences, but condition "
         "labels were not randomized and subject generation may not be deterministic. <b>Proxy validity.</b> Token/AST distance and lexical families are "
-        "transparent but incomplete measures of mechanistic novelty. We mitigate this by reading every fork message and triangulating source, evaluator, "
-        "and retention records. <b>Adaptive selection.</b> Horizon-70 effects combine repeated prompts with path-dependent selection; only proposal 10 and "
+        "transparent but incomplete measures of mechanistic novelty. The family taxonomy was constructed post hoc by one condition-aware analyst and has no "
+        "independent-coder reliability; it is exploratory. Primary claims instead triangulate deterministic source/AST differences with evaluator and retention "
+        "records [17,18]. <b>Demand characteristics.</b> Assumption language and some output-length increase are direct consequences of the requested response; "
+        "neither is independent evidence of search quality. <b>Adaptive selection.</b> Horizon-70 contrasts combine repeated prompts with path-dependent selection; only proposal 10 and "
         "phase 10-19 isolate the first insertion. <b>Evaluator scope.</b> Qualification is fixed-task accuracy, not external scientific validity, robustness, "
         "or human usefulness. <b>Finite clusters.</b> Sixteen architecture-block clusters limit uncertainty calibration; ranges are descriptive."
-    ))
+        , SMALL))
     story.append(h2("Reproducibility and ethical scope"))
     story.append(P(
-        "The anonymized supplement contains protocol and prompt snapshots, events, all analyzed final messages, candidate sources/provenance, deterministic "
+        "The 52 MB anonymized supplement contains protocol and prompt snapshots, events, all analyzed final messages, candidate sources/provenance, deterministic "
         "analysis code, derived tables, figures, environment receipts, an MIT license, and file hashes. It excludes credentials, machine locks, provider "
         "streams, and private chain-of-thought. No human-subject data are used. We avoid attributing intention or understanding to the agent; 'challenged' "
         "describes an instruction and observable proposal change."
-    ))
+        , SMALL))
+    story.append(h2("Implications for AI-for-science evaluation"))
+    story.append(P(
+        "Endpoint leaderboards alone cannot distinguish a genuinely different search move from prolonged local pruning, while novelty-only scores can reward "
+        "unexecutable churn. For agentic science, a minimum process report should pair (i) source- or action-level departure, (ii) domain qualification, "
+        "(iii) retained improvement magnitude, and (iv) token and evaluator cost. State matching at an intervention boundary makes these quantities more "
+        "interpretable, but construct labels should remain proportional to their validation evidence [17,18]."
+        , SMALL))
     story.append(h1("9  Conclusion"))
     story.append(P(
-        "From identical research states, one semantic direction reliably changes which executable mechanisms an autonomous agent tests. On Tiny AdderBoard, "
-        "that higher-risk exploration produces substantially smaller qualified models after one phase and across 70 proposals; on Fashion-MNIST, it mostly "
-        "produces costlier failure. The appropriate conclusion is neither that prompts create creativity nor that novelty is waste. Assumption challenges "
+        "From event- and provenance-matched search states, one semantic direction is followed by substantially larger executable source changes than the "
+        "ordinary direction. On Tiny AdderBoard, that higher-risk exploration is also associated with smaller qualified models after one phase and under a "
+        "seven-intervention adaptive regime; on Fashion-MNIST, the corresponding descriptive pattern mostly "
+        "consists of costlier failure. The appropriate conclusion is neither that prompts create creativity nor that novelty is waste. Assumption challenges "
         "are measurable search operators whose value depends on qualification, selection, memory, and task landscape. State-matched process traces make "
         "those dependencies visible."
     ))
@@ -688,15 +746,22 @@ def build_story() -> list[Flowable]:
         "Lu, Y., Wang, D., Li, T., et al. (2025). Benchmarking language model creativity: A case study on code generation. <i>NAACL</i>, Long Paper 141.",
         "Li, K., Zhao, T., Zhou, W., and Hu, S. (2025). DORA: Dynamic optimization prompt for continuous reflection of LLM-based agent. <i>COLING</i>, 7546-7557.",
         "Nakajima, K., Zuiderveld, J., and Pezzelle, S. (2026). Beyond divergent creativity: A human-based evaluation of creativity in large language models. <i>Findings of EACL</i>, 2639-2660. doi:10.18653/v1/2026.findings-eacl.138.",
-        "Ege, D. N., Ovrebo, H. H., Stubberud, V., et al. (2024). ChatGPT as an inventor: Eliciting strengths and weaknesses against humans in engineering design. arXiv:2404.18479.",
+        "Ege, D. N., Ovrebo, H. H., Stubberud, V., Berg, M. F., Elverum, C., Steinert, M., and Vestad, H. (2025). ChatGPT as an inventor: Eliciting strengths and weaknesses against humans in engineering design. <i>Artificial Intelligence for Engineering Design, Analysis and Manufacturing</i>, 39:e6, 1-15. doi:10.1017/S0890060425000010.",
         "Huang, Q., Vora, J., Liang, P., and Leskovec, J. (2024). MLAgentBench: Evaluating language agents on machine learning experimentation. <i>ICML, PMLR 235</i>:20271-20309.",
         "Toledo, E., Hambardzumyan, K., Josifoski, M., et al. (2025). AI research agents for machine learning: Search, exploration, and generalization in MLE-bench. arXiv:2507.02554.",
         "Novikov, A., Vu, N., Eisenberger, M., et al. (2025). AlphaEvolve: A coding agent for scientific and algorithmic discovery. arXiv:2506.13131.",
         "Sharma, A. (2025). OpenEvolve: An open-source evolutionary coding agent. Software repository: github.com/algorithmicsuperintelligence/openevolve.",
         "Lu, C., Lu, C., Lange, R. T., Foerster, J., Clune, J., and Ha, D. (2024). The AI Scientist: Towards fully automated open-ended scientific discovery. arXiv:2408.06292.",
         "Chen, H. and Ding, N. (2023). Probing the creativity of large language models: Can models produce divergent semantic association? <i>Findings of EMNLP</i>, 12881-12888. doi:10.18653/v1/2023.findings-emnlp.858.",
-        "Sen, I., Goswami, S., Pal, S., and Chatterjee, N. (2026). Automated creativity evaluation of language models across open-ended tasks. <i>ACL</i>, Long Paper 1061.",
+        "Sen, T. M., Chun, Z. C. K., Alsagoff, S. A. R., Wangsajaya, N. Y., Mohor, B., Saikia, S. B., and Chan, A. (2026). Automated creativity evaluation of language models across open-ended tasks. <i>ACL</i>, 23139-23173. doi:10.18653/v1/2026.acl-long.1061.",
         "Imbens, G. W. and Rubin, D. B. (2015). <i>Causal Inference for Statistics, Social, and Biomedical Sciences</i>. Cambridge University Press.",
+        "Bean, A. M., et al. (2025). Measuring what matters: Construct validity in large language model benchmarks. <i>NeurIPS 38, Datasets and Benchmarks</i>. doi:10.52202/085713-0590.",
+        "Reuel, A., Hardy, A., Smith, C., Lamparth, M., Hardy, M., and Kochenderfer, M. J. (2024). BetterBench: Assessing AI benchmarks, uncovering issues, and establishing best practices. <i>NeurIPS 37, Datasets and Benchmarks</i>. doi:10.52202/079017-0685.",
+        "Yamada, Y., Lange, R. T., Lu, C., Hu, S., Lu, C., Foerster, J., Clune, J., and Ha, D. (2025). The AI Scientist-v2: Workshop-level automated scientific discovery via agentic tree search. arXiv:2504.08066.",
+        "Hu, S., Lu, C., and Clune, J. (2025). Automated design of agentic systems. <i>ICLR</i>.",
+        "Assumpcao, H., Ferreira, D., Campos, L., and Murai, F. (2025). CodeEvolve: An open source evolutionary coding agent for algorithm discovery and optimization. arXiv:2510.14150.",
+        "Wan, C., Dai, X., Wang, Z., Li, M., Wang, Y., Mao, Y., Lan, Y., and Xiao, Z. (2025). LoongFlow: Directed evolutionary search via a cognitive plan-execute-summarize paradigm. arXiv:2512.24077.",
+        "Lyu, Y., Zhang, X., Yi, X., et al. (2026). EvoScientist: Towards multi-agent evolving AI scientists for end-to-end scientific discovery. arXiv:2603.08127.",
     ]
     for index, reference in enumerate(references, 1):
         story.append(P(f"[{index}] {reference}", REF))
@@ -720,8 +785,8 @@ def build_story() -> list[Flowable]:
         QUOTE,
     ))
     story.append(P(
-        "This appendix paraphrases only line wrapping and joins adjacent protocol sentences. The artifact contains every exact `prompt.md`, the subject-facing "
-        "prompt snapshot, and the prompt manifest. The analysis uses a line-level sequence diff and rejects any pair with deletion or replacement; all 32 "
+        "This appendix paraphrases only line wrapping and joins adjacent protocol sentences. The artifact contains the exact opportunity-10 `prompt.md` for "
+        "every arm, the subject-facing prompt snapshot, and the prompt manifest. The analysis uses a line-level sequence diff and rejects any pair with deletion or replacement; all 32 "
         "forks pass and contain at least one inserted line mentioning assumptions.",
         SMALL,
     ))
@@ -740,10 +805,12 @@ def build_story() -> list[Flowable]:
     story.append(data_table(integrity_data, [190, 90, 116], font_size=7.2))
     story.append(h2("A.3  Condition assignment and identification"))
     story.append(P(
-        "Conditions were protocol-fixed rather than randomly permuted. Literal prefix mirroring produces equal observed histories and selected parents at the "
+        "Conditions were protocol-fixed rather than randomly assigned. Their ordinal launch positions were permuted across blocks: across 16 architecture-block "
+        "schedules, C0/C1 appeared in each of positions 1-4 a combined 8, 5, 9, and 10 times; C2/C3 appeared 8, 11, 7, and 6 times. Literal prefix mirroring "
+        "produces equal observed histories and selected parents at the "
         "fork, supporting a controlled state-matched contrast under the assumption that no unrecorded arm-specific process affects proposal generation. "
         "It does not justify randomization-based p-values. Exact matching is strongest for opportunity 10. During opportunities 11-19, paths differ because "
-        "proposal 10 may change the incumbent; this is the propagated effect of the first intervention. At 20 and later, contrasts include repeated treatment "
+        "proposal 10 may change the incumbent; this is the propagated contrast following the first intervention. At 20 and later, contrasts include repeated treatment "
         "and adaptive selection."
     ))
     pagebreak(story)
@@ -786,7 +853,7 @@ def build_story() -> list[Flowable]:
         "output_tokens": "Output tokens",
         "evaluator_seconds": "Evaluator seconds",
     }
-    full_effect_data = [["Outcome", "Control", "Treatment", "Difference", "95% interval"]]
+    full_effect_data = [["Outcome", "Control", "Treatment", "Difference", "95% range"]]
     for row in fork_rows:
         metric = row["metric"]
         if metric not in metric_labels:
@@ -806,14 +873,14 @@ def build_story() -> list[Flowable]:
         ])
     story.append(data_table(full_effect_data, [115, 57, 60, 69, 95], font_size=6.35))
     story.append(P(
-        "Table B1: All exact-fork outcomes. Rates are displayed as percentages but differences are percentage points. Intervals resample architecture-block "
+        "Table B1: All exact-fork outcomes. Rates are displayed as percentages but differences are percentage points. Descriptive ranges resample architecture-block "
         "clusters and include both memory pairs within a selected cluster.",
         CAPTION,
     ))
     pagebreak(story)
 
     # Appendix C: taxonomy and downstream results.
-    story.append(h1("C  Mechanism taxonomy and downstream effects"))
+    story.append(h1("C  Exploratory taxonomy and downstream contrasts"))
     mechanism_data = [["Arm", "Mechanism family", "n", "Qualified", "Mean reduction", "Median reduction if success"]]
     labels = {
         "attention_routing_reparameterization": "Attention routing",
@@ -836,11 +903,11 @@ def build_story() -> list[Flowable]:
         ])
     story.append(data_table(mechanism_data, [56, 115, 25, 55, 73, 72], font_size=6.35))
     story.append(P(
-        "Table C1: Inductively constructed mutually exclusive taxonomy of all fork messages. Means include failures as zero; conditional medians are descriptive.",
+        "Table C1: Post hoc, condition-aware mutually exclusive taxonomy of all fork messages. Means include failures as zero; conditional medians are descriptive.",
         CAPTION,
     ))
     story.append(h2("C.1  One-intervention phase and repeated regime"))
-    downstream_data = [["Outcome", "Window", "Control", "Treatment", "Paired difference [95%]"]]
+    downstream_data = [["Outcome", "Window", "Control", "Treatment", "Paired difference [95% range]"]]
     for label, table, metrics in [
         ("O10-19", PHASE1_EFFECTS, ["final_parameters", "parameter_reduction_fraction", "qualified_rate", "structural_novelty_mean", "evaluator_seconds"]),
         ("O10-70", TRAJECTORY_EFFECTS, ["final_parameters", "parameter_reduction_fraction", "qualified_rate", "structural_novelty_mean", "tokens", "evaluator_seconds"]),
@@ -870,7 +937,7 @@ def build_story() -> list[Flowable]:
         CAPTION,
     ))
     story.append(h2("C.2  Horizon emergence"))
-    horizon_data = [["Horizon", "Interventions", "Control P", "Treatment P", "Difference [95%]", "Treatment lower"]]
+    horizon_data = [["Horizon", "Interventions", "Control P", "Treatment P", "Difference [95% range]", "Treatment lower"]]
     for row in HORIZONS:
         if int(row["horizon"]) not in {10, 19, 20, 30, 40, 50, 60, 70}:
             continue
@@ -887,7 +954,7 @@ def build_story() -> list[Flowable]:
     # Appendix D: trace anchors.
     story.append(h1("D  Trace-level qualitative audit"))
     story.append(P(
-        "We read all 64 opportunity-10 final messages before defining the exclusive taxonomy. The following cases were selected to cover success/failure, "
+        "One condition-aware analyst read all 64 opportunity-10 final messages before defining the exclusive taxonomy. The following cases were selected to cover success/failure, "
         "greedy/native controllers, single/portfolio memory, and distinct mechanism families. Each claim was cross-checked against the candidate source, "
         "evaluation, retention event, and incumbent parameter sequence.",
         SMALL,
@@ -929,15 +996,16 @@ def build_story() -> list[Flowable]:
     ))
     story.append(h2("D.2  Coding limits"))
     story.append(P(
-        "The taxonomy was induced and checked by one analyst, not independent coders; category counts should be treated as auditable description rather than "
-        "a validated ontology. The deterministic classifier uses only the declared mechanism label because evidence and intended-edit fields frequently mention "
-        "preserved components and prior failures. All raw messages and classifier rules are included for recoding.",
+        "The taxonomy was induced after the analyst saw condition labels and outcomes, and it was not checked by independent coders. Category counts should be "
+        "treated as auditable hypothesis generation rather than a validated ontology or confirmatory endpoint. The deterministic classifier uses only the declared "
+        "mechanism label because evidence and intended-edit fields frequently mention preserved components and prior failures. All final messages and classifier rules "
+        "are included for blinded recoding in future work.",
         SMALL,
     ))
     pagebreak(story)
 
     # Appendix E: Fashion replication and scope.
-    story.append(h1("E  Fashion-MNIST replication and scope sensitivity"))
+    story.append(h1("E  Fashion-MNIST portability check and scope sensitivity"))
     story.append(h2("E.1  Matched checkpoint contrasts"))
     fashion_metrics = [
         ("structural_novelty", "Source novelty", 1, 4),
@@ -1017,12 +1085,12 @@ def build_story() -> list[Flowable]:
     ))
     story.append(h2("F.2  Included evidence"))
     story.append(bullet("Campaign, protocol, task, framework, schedule, validation, prompt-bundle, amendment, and environment-receipt records."))
-    story.append(bullet("Per-run manifests, state files, completed-event streams, horizon prompts, prompt manifests, candidate provenance, evaluations, results, and all analyzed final messages."))
+    story.append(bullet("Per-run manifests, state files, completed-event streams, exact fork prompts, prompt manifests, per-opportunity candidate provenance, and all analyzed final messages."))
     story.append(bullet("All candidate and selected-parent `train.py` snapshots needed for normalized-token, AST, and line-diff measures."))
     story.append(bullet("Deterministic analysis source, fixed dependencies, derived tables/figures, artifact guide, MIT license, and per-file SHA-256 hashes."))
     story.append(h2("F.3  Exclusions and privacy"))
     story.append(P(
-        "The compact archive excludes redundant evaluator workspaces, native population checkpoints not read by the analysis, provider JSONL streams, "
+        "The compact archive excludes redundant per-opportunity prompt transcripts outside the exact fork, evaluator workspaces, native population checkpoints not read by the analysis, provider JSONL streams, "
         "machine-local locks, caches, credentials, absolute host paths, repository remotes, and private chain-of-thought. Recorded subject final messages "
         "are included because they are the declared scientific proposals analyzed in the paper. Text files are anonymized during packaging; candidate source "
         "and event semantics are preserved."

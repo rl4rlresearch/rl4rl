@@ -598,3 +598,483 @@ executable mechanisms, feasibility, search cost, and downstream progress inside
 an autonomous research loop. The exact shared-prefix forks and source/evaluator
 triangulation provide that evidence while the Fashion-MNIST corpus bounds its
 generality.
+
+### Paper 2 final revision and reproducibility audit (2026-09-01)
+
+The final title is *Can a Prompt Defixate an Autonomous Compression Agent?
+State-Matched Forks in Model Search*. The research question is deliberately
+narrow: whether the inserted direction shifts the next proposal away from
+local pruning, and how source novelty, qualification, compression progress,
+and cost differ at the exact fork, during the one-intervention phase, and under
+the repeated adaptive regime.
+
+Independent review exposed two initial submission blockers and several claim
+scope problems. The final revision:
+
+- corrects reference 15 to Tan Min Sen et al., ACL 2026, pages 23139--23173,
+  DOI 10.18653/v1/2026.acl-long.1061;
+- updates the Ege et al. citation to the final 2025 AI EDAM article;
+- adds primary related work on construct validity (Measuring What Matters and
+  BetterBench), agent architecture/search (ADAS, AI Scientist-v2, CodeEvolve),
+  and long-horizon evolutionary research systems (LoongFlow, EvoScientist);
+- replaces causal/confidence-interval language with state-matched paired
+  contrasts and descriptive cluster-bootstrap sensitivity ranges;
+- separates the opportunity-10 insertion, opportunities 10--19 propagated
+  phase, and opportunity-70 seven-intervention adaptive regime;
+- explains that 70 was selected mechanically as the minimum completed horizon
+  across all 64 trajectories at the frozen snapshot, without outcome
+  inspection, although 100 was the advertised upper budget;
+- records model name, xhigh reasoning, default service tier, the absence of an
+  exposed temperature/sampling-seed knob, and the permuted-but-not-randomized
+  launch order;
+- treats the assumption-language signal as a direct manipulation check and
+  output length as a cost partly induced by the response request;
+- demotes the mechanism taxonomy to post hoc, condition-aware, single-analyst
+  hypothesis generation with no independent-coder reliability; primary claims
+  rest on reproducible source/AST, evaluator, retention, and parameter traces;
+- relabels Fashion-MNIST as a descriptive portability check on already-diverged
+  paths rather than a causal replication; and
+- removes internal paper-series language and narrows the title/external claim.
+
+The final PDF has 15 pages: exactly eight main-text pages, references beginning
+on page 9, and appendices A--F. Every page was rendered and visually inspected;
+no clipping, overlap, placeholder, private identifier, or non-ASCII character
+was found. The PDF metadata identify only Anonymous Authors and the AISciK
+workshop.
+
+The compact reproducibility archive is 52 MB (below OpenReview's 100 MB file
+limit), contains 21,157 payload files plus its checksum manifest, and excludes
+redundant prompt transcripts and workspaces not read by the analysis. Every
+SHA-256 entry verifies. A privacy scan found no user name, absolute host path,
+repository remote, API-key pattern, or Modal credential. Running `analysis.py`
+from a freshly unpacked archive reproduced all integrity assertions and all 16
+CSV/JSON outputs byte-for-byte with the repository results.
+
+After these changes, a context-free independent AISciK reviewer assigned an
+85% acceptance probability and reported no remaining submission blocker. Its
+last optional concern - causal wording in the Section 4 heading - was also
+removed by changing the heading to “The next executable proposal differs at
+the matched fork.”
+
+## Paper 3: population memory as an epistemic institution
+
+### Direction and research question
+
+The final title is *Pluralism Without a Free Lunch: A Lineage Audit of
+Population Memory in Autonomous ML Research*. The paper asks a single narrow
+descriptive question: under the observed one-incumbent and four-lineage
+controller policies, how do selected branch allocation, parent use and the
+lexical attribution record, recorded task progress, and resource cost differ
+across tasks; and what factor-validity failure appears when the controller is
+composed with a native population adapter?
+
+This direction is distinct from Paper 1's construct-validity audit and Paper
+2's state-matched assumption-challenge analysis. It treats controller memory as
+an institution that governs which executable research programs remain
+reachable. The central conclusion is deliberately non-monotonic: the observed
+population policies implement procedural lineage diversity under the paper's
+operationalization, but do not guarantee
+objective yield and are not free in tokens.
+
+### Frozen analysis corpus
+
+- 64 unified-v3 Tiny AdderBoard trajectories: 32 deterministic greedy and 32
+  native OpenEvolve, all right-censored at the mechanically available common
+  horizon of 70 proposals (4,480 proposal completions).
+- 20 complete greedy Fashion-MNIST v2.1 trajectories at 200 proposals each
+  (4,000 proposal completions).
+- 84 trajectories and 8,480 total analyzed proposals.
+- Tiny's learned four-digit addition baseline is 21,952 parameters; yield is
+  the qualified fraction of parameters eliminated at at least 99% exact public
+  validation accuracy. Fashion yield is score gain divided by baseline score.
+- Ordinary and assumption-challenge prompt policies are always stratified;
+  they are not pooled into the memory estimate.
+
+The greedy controller supplies the interpretable K=1/K=4 contrast. K=1 exposes
+one incumbent. K=4 maintains four qualified parent-descendant lineages and
+selects the least-used lineage with deterministic tie breaks. This is a
+whole-system portfolio estimand: it includes longer K=4 prompts. The vendored
+native OpenEvolve ProgramDatabase uses a population of up to 1,000, archive of
+100, five islands, MAP-Elites features, inspirations, and migration. Because
+that adapter supplies the actual candidates shown to the subject, native
+conditions are analyzed as a separate population institution rather than as a
+nominal K contrast.
+
+### Quantitative findings
+
+In the controlled greedy system:
+
+- K=1 has exactly 1.00 effective top-level lineage. K=4 has 3.97--3.99 across
+  tasks and prompt policies.
+- K=4 selects a parent other than the global incumbent on 72.9% of Tiny
+  proposals and 74.2--74.5% of Fashion proposals.
+- On Tiny ordinary runs, K=4-minus-K=1 endpoint normalized reduction is
+  +0.0441 with a block-bootstrap 95% sensitivity range [-0.0334, 0.1305]; six
+  of eight blocks favor K=4. Under challenges it is +0.0105
+  [-0.0280, 0.0552], with four of eight blocks favoring K=4.
+- On Fashion, the corresponding endpoint contrasts are -0.00184
+  [-0.00739, 0.00444] ordinary and -0.00146 [-0.01017, 0.00656] challenge.
+  All endpoint and AUC sensitivity ranges cross zero.
+- K=4 adds 8,119--8,479 subject-agent tokens per Tiny proposal (36--38%) and
+  4,880--5,848 per Fashion proposal (25--28%).
+
+Native populations show deeper branch reuse rather than simply four balanced
+slots. At opportunity 70, ordinary and challenge runs contain means of 29.0
+and 26.9 valid programs; mean occupied-island counts are 4.82 and 5.00. Native
+selection uses non-incumbent parents on 95.8% and 94.6% of proposals and
+revisits exact parents after a gap of at least ten opportunities 17.8 and 20.4
+times per run. Respectively 91.0% and 89.1% of strict global improvements
+descend from a non-incumbent parent. Native endpoint reduction, however, is
+0.737 ordinary and 0.849 challenge, below the corresponding greedy K=4 means
+of 0.860 and 0.882. This is a descriptive framework contrast, not a randomized
+comparison.
+
+### Agent-message and source audit
+
+Every proposal-completed event records the agent-authored mechanism,
+hypothesis, intended edit, and evidence summary. A strict literal rule matching
+`reference design`, `alternative design`, or `available design` rises from 0.0%
+to 7.5% on ordinary Tiny and from 0.2% to 17.3% on ordinary Fashion under K=4.
+Challenge portfolio rates are 8.2% Tiny and 26.2% Fashion. A broader
+`reference` sensitivity rule yields 16.8%/13.2% for ordinary/challenge Tiny and
+17.9%/27.1% for Fashion. These are prompt-conditioned lexical records, not
+validated cognitive uptake. Most K=4 messages still do not name a reference,
+so the parent/source graph is authoritative. Mean pairwise Jaccard distance
+among normalized baseline-to-branch source-delta sets is 0.41/0.39 for
+ordinary/challenge Tiny and 0.38/0.28 for Fashion: the roots are distinct
+executable edits, not necessarily independent scientific programs.
+
+The exhaustive table contains 1,032 strict global improvements descending from
+a non-incumbent parent after warm-up; 40 follow a top-level branch gap of at
+least ten proposals. Three post hoc source-verified structural-reachability
+examples include:
+
+- native B5 C0 opportunity 16: returns to a lineage after a 15-proposal gap,
+  bottlenecks attention while preserving residual width, and removes 1,288
+  qualified parameters;
+- native B4 C1 opportunity 28: selects a 25-opportunity-old parent, removes a
+  2,304-parameter value projection from query-free positional attention, and
+  becomes the global incumbent; and
+- native B6 C1 opportunity 60: replaces dense content query/key projections
+  with learned causal routing maps and removes 1,787 parameters.
+
+The archive retains parent/candidate source, source hashes, changed-line
+counts, hypotheses, messages, and evaluator records for these cases. They show
+that preserved parents remained selectable and later recorded strict
+improvements, not that the average causal effect of preservation is positive.
+
+### Compositional factor failure
+
+The final subject-visible native prompts invalidate the nominal generic memory
+labels. Nominal C0 and C1 expose multiple designs in 81.6% and 80.0% of
+opportunities, with means of 3.25 and 3.14 visible designs. A recorded native
+B1 C0 opportunity-10 prompt says no reference is available and then includes
+`REFERENCE DESIGN 1`. C2/C3 likewise see variable native populations rather
+than the generic deterministic K=4 set. The paper therefore excludes native
+condition labels from K=1/K=4 claims and uses the failure to motivate a
+final-composed-prompt and parent-source audit.
+
+### Related-work frame
+
+Paper 3 connects Kitcher's division of cognitive labor, Zollman's transient
+diversity, March and Lazer/Friedman's exploration/exploitation accounts,
+novelty search, MAP-Elites, and quality-diversity to current autonomous research
+systems: AlphaEvolve, OpenEvolve, LoongFlow, EvoScientist, The AI Scientist and
+AI Scientist-v2, MLAgentBench, and research-agent evaluations. Cronbach and
+Meehl plus BetterBench motivate checking that labels match the observable
+system. The gap is a trace-level linkage of availability, parent selection,
+the lexical record, recorded consequence, and token cost across whole research
+trajectories rather than best-score curves or archive size alone.
+
+### Reproducibility and presentation audit
+
+`papers/aiscik2026/paper3/analysis.py` reconstructs every parent graph,
+top-level lineage, selection entropy, reactivation, message proxy, task yield,
+token total, native population state, and source example under fixed seed
+20260901. It writes four CSVs, two JSON records, and four figures. A visual QA
+pass caught and fixed a figure-only lookup collision in which Fashion rows
+could overwrite Tiny rows sharing architecture/block/condition keys; the final
+lineage raster is task-keyed and ends at Tiny opportunity 70. No reported
+statistic was affected.
+
+The final PDF has 12 pages: exactly eight main-text pages, references beginning
+on page 9, and appendices A--C. Every page was rendered and visually inspected.
+The PDF is anonymized, unencrypted, letter-sized, and embeds the Times New
+Roman text fonts.
+
+The reproducibility archive is 50 MB and contains 21,205 payload files plus a
+checksum manifest. Every checksum verifies. A clean extraction reruns the full
+analysis without network, model, evaluator, or training calls and reproduces
+all four CSVs, aggregate JSON, and four figures byte-for-byte. A privacy scan
+finds no user name, absolute host path, repository remote, API-key pattern, or
+credential. The artifact deliberately excludes private chain-of-thought and
+machine-local control state.
+
+### Independent review and final release fixes
+
+A context-free independent reviewer first assigned a 76% substantive,
+conditional AISciK acceptance probability (accept/weak-to-moderate accept,
+medium-high confidence) after independently checking the official workshop
+scope, track, format, and AI-use policy. A separate context-free revision
+review assigned 82% (accept, medium-high confidence). Both probabilities are
+conditional on real human authors later performing the substantial authorship
+and complete manual verification required by AISciK; the current AI-generated
+decision artifact is explicitly not submission-eligible and will not be
+submitted.
+
+The first final reviewer found that release-time text sanitization had made 25
+of 284 packaged raw-input hashes stale even though all numerical outputs still
+reproduced. The release builder now regenerates every derived output from the
+final sanitized payload before writing `PAPER3_SHA256SUMS`. The analysis has a
+`--verify-input-hashes` gate that compares all 284 frozen hashes before writing
+any output. A fresh extraction passed that gate and reproduced the complete
+derived directory byte-for-byte, including both JSON files, all four CSVs, and
+all four PNG figures. All 21,205 payload checksums pass, and the final privacy
+scan is empty. Table captions were moved above tables, recorded-outcome wording
+was tightened, and the MIT license now explicitly covers the complete artifact
+payload.
+
+Final SHA-256 digests:
+
+- PDF: `f58584f3ec0f7778871d171e3457d2a8573ba95e3de9c6411aaf05db86d0938e`
+- artifact: `55e8c6263966a7766fe8a63b096854282873ed67fb2e7ac48bd884ae5b4916fe`
+
+## Paper 4: history refresh without restarting
+
+### Direction and research question
+
+The final title is *Forgetting Without Restarting: Periodic History Refresh in
+Autonomous ML Research Agents*. The paper asks whether clearing
+subject-visible research history every five proposals, while keeping the best
+verified incumbent model and evaluator fixed, changes autonomous ML-research
+behavior. It is distinct from Paper 2 because the intervention is not an
+assumption-changing prompt. It is distinct from Paper 3 because it removes
+visible path history rather than preserving multiple parents or lineages.
+
+Working research question:
+
+> Holding the incumbent model and evaluator fixed, how does clearing
+> subject-visible research history every five proposals affect objective
+> progress, edit novelty, agent summaries, resource use, and stagnation?
+
+### Frozen analysis corpus
+
+The analysis uses only already-recorded paused semantic-interventions-v4
+campaigns:
+
+- Fashion-MNIST greedy controller: horizon 43.
+- Fashion-MNIST native OpenEvolve controller: horizon 13.
+- Tiny Addition greedy controller: horizon 92.
+- Tiny Addition native OpenEvolve controller: horizon 50.
+
+For each stratum there are three matched `passive_control` trajectories and
+three matched `periodic_full_refresh` trajectories. In each matched pair,
+proposals 1-5 are byte-mirrored before the fork. Both arms reset provider
+conversation every five proposals. Only the refresh arm clears the visible
+result archive, candidate/developmental archive, and parent history before
+continuing from the current incumbent. The corpus contains 24 focal
+trajectories, 12 matched pairs, 1,188 logical proposal records, and 1,068
+postfork proposal records. No missing 200-proposal suffix is imputed.
+
+A secondary non-causal context table uses all 23 semantic-condition labels in
+the same four campaigns at the refresh-common horizons: 276 trajectories and
+13,662 proposal records. Periodic full refresh ranks in the top third for
+endpoint progress in three of four strata and in the lowest-token half in all
+four. This context supports distinctiveness of the refresh arm but does not
+replace the paired focal estimate.
+
+### Quantitative findings
+
+Pooled contrasts are `periodic_full_refresh - passive_control`, first paired
+within replicate and then equal-weighted across the four task-by-controller
+strata. Intervals are 20,000-sample stratified bootstrap sensitivity ranges
+with seed 20260901.
+
+- Endpoint progress: passive 0.223, refresh 0.345, difference +0.122
+  [0.059, 0.185]; refresh higher in 11 of 12 pairs.
+- Trajectory AUC: passive 0.206, refresh 0.292, difference +0.086
+  [0.028, 0.145]; refresh higher in 9 of 12 pairs.
+- Retention rate: passive 49.3%, refresh 42.4%, difference -0.070
+  [-0.162, 0.022].
+- Phase-start retention: passive 59.7%, refresh 26.0%, difference -0.337
+  [-0.420, -0.241]; passive higher in 9 pairs and refresh higher in none.
+- Within-phase retention: passive 46.6%, refresh 47.0%, difference +0.004
+  [-0.116, 0.123].
+- Maximum nonretention drought rises from 6.8 to 12.2 proposals; difference
+  +5.4 [1.25, 9.42].
+- Largest progress jump rises from 0.081 to 0.146; difference +0.065
+  [0.043, 0.086].
+- Progress per postfork retention rises from 0.012 to 0.024; difference
+  +0.0116 [0.0059, 0.0172].
+- Mean mechanism lexical novelty rises from 0.580 to 0.753; difference +0.173
+  [0.111, 0.233]. New coarse mechanism-family rate rises by +0.053
+  [0.040, 0.073].
+- Direct prior-history language falls from 14.8% to 5.1%; difference -0.097
+  [-0.136, -0.061]. Numeric-evidence language falls slightly by -0.036
+  [-0.060, -0.012].
+- Mean candidate-parent source novelty changes little: +0.003
+  [-0.058, 0.044]. Mean novelty to any prior source is lower under refresh,
+  consistent with each refresh collapsing the visible world back to the
+  incumbent rather than forcing distant syntactic changes.
+- Accounted subject-agent tokens fall from 5.08M to 3.40M per postfork
+  trajectory, a difference of -1.68M [-2.32M, -1.28M]; passive used more
+  tokens in all 12 pairs. Evaluator time moves the other way: refresh adds
+  749 evaluator-seconds [23, 1486].
+
+### Qualitative trace interpretation
+
+The largest helped pair is Tiny Addition/native replicate 2. The passive arm
+continues a projection-tied rank-8 token-interface thread and ends at 8,308
+parameters, while the refresh arm later accepts a width-reduced
+attention-and-MLP bottleneck and ends at 4,650 parameters. The largest hurt
+pair is Fashion/native replicate 3. The passive arm retains useful
+optimizer/batch evidence and modestly improves; the refresh arm spends its
+short common horizon on augmentation variants and makes no endpoint progress.
+
+The conclusion is not that forgetting is always good. Periodic full refresh
+appears to act as a search-policy bottleneck: it removes enough visible path
+dependence to produce more novel summaries, fewer history references, lower
+prompt cost, and occasional larger jumps, but it also worsens the first move
+after each refresh and can erase useful negative evidence.
+
+### Reproducibility and presentation audit
+
+`papers/aiscik2026/paper4/analysis.py` validates the shared prefix, refresh
+ledger, absence of passive refresh events, contiguous horizons, source/message
+availability, and frozen input hashes. It writes trajectory, event, phase,
+paired contrast, qualitative-example, and aggregate summary outputs under
+`papers/aiscik2026/paper4/derived/`.
+
+The final PDF has 10 pages: exactly eight main-text pages, references on page
+9, and appendix A/B on page 10. Every page was rendered to PNG and visually
+inspected. Text extraction found no non-ASCII characters, placeholders, local
+host paths, or API-key-shaped strings.
+
+The reproducibility archive is 23.9 MB and contains 9,562 packaged files. It
+reproduces the complete analysis from a staged sanitized copy, verifies frozen
+input hashes, passes an internal SHA-256 manifest check, and scans cleanly for
+local/private identifiers.
+
+After reviewer-driven revision, the artifact README verifies
+`PAPER4_SHA256SUMS` before regenerating figures/derived outputs; the expanded
+archive is 38 MB and contains 10,321 manifest entries. A clean extraction
+passed the full checksum manifest and reran `analysis.py --verify-input-hashes`
+with the 276-trajectory context present.
+
+Final SHA-256 digests:
+
+- PDF: `857bd777faab6ebeb6b4130f7239d83a73808b688da118e70af6fa2fbfec22b6`
+- artifact: `9190d4c2e5628f98e5d56abbbafde721377d76d0da88a73587e9ce45a22bd518`
+
+## Paper 5 evidence lock (2026-09-02)
+
+Final title: **The Interface Is the Instrument: How Autonomous-Research
+Scaffolds Change Scientific Traces.**
+
+Primary research question:
+
+> When autonomous ML-research traces are collected under different scaffolds,
+> which apparent scientific behaviors are stable endpoint outcomes and which
+> are artifacts of the interface used to elicit, constrain, and record
+> proposals?
+
+The paper treats the research interface itself as the measurement instrument.
+It compares continuous Autoresearch sessions, bounded greedy OpenEvolve-style
+patch calls, and native-population OpenEvolve-style calls. It does not claim to
+observe hidden chain-of-thought, and it does not treat interface-composed
+contrasts as randomized estimates of a latent model capability.
+
+### Paper 5 analyzed strata
+
+Reproducible analysis source: `papers/aiscik2026/paper5/analysis.py`.
+
+The analysis parses 6,008 proposal-completed records from 120 trajectories and
+freezes a 34,995-file input ledger, including campaign input-configuration
+files. Primary strata:
+
+- Fashion-MNIST main same-task contrast: 16 continuous Autoresearch
+  trajectories versus 16 bounded greedy OpenEvolve trajectories, blocks 1--4,
+  C0--C3, common horizon 44.
+- nanoGPT early-horizon check: 12 continuous Autoresearch trajectories versus
+  12 bounded greedy OpenEvolve trajectories, blocks 1--3, common horizon 5.
+- Tiny Addition OpenEvolve-family check: 32 bounded greedy trajectories versus
+  32 native-population trajectories, blocks 1--8, common horizon 70.
+
+### Paper 5 quantitative findings
+
+Fashion-MNIST at the 44-proposal common horizon:
+
+- Endpoint validation-correct gains have no clear interface separation:
+  bounded greedy minus continuous Autoresearch is +5.94 correct examples,
+  bootstrap interval [-22.1, +34.0], with bounded ahead in 8 pairs and
+  continuous ahead in 8.
+- Token accounting differs by orders of magnitude: continuous Autoresearch
+  averages 6.86M accounted tokens per proposal versus 22.8k for bounded
+  greedy; every matched pair has higher continuous token accounting.
+- Structured mechanism/evidence/hypothesis/intended-edit field completeness is
+  0% for continuous Autoresearch and 100% for bounded greedy by interface
+  design.
+- Continuous Autoresearch validates more often (77.1% versus 62.1%) and times
+  out less often (21.0% versus 31.2%).
+- Bounded greedy edits are more structurally novel: source novelty difference
+  +0.0236 [0.0091, 0.0470], and mean changed-line difference +9.98
+  [4.52, 13.51].
+- Continuous Autoresearch messages contain host-path markers at a mean rate of
+  29.1%; bounded greedy is zero under the same detector. This is treated as an
+  operational-context trace artifact, not sealed-data leakage.
+
+nanoGPT first five proposals:
+
+- Endpoint improvement is small and overlapping: bounded minus continuous
+  validation-bpb gain +0.00036 [-0.00084, +0.00181].
+- The token/schema contrast persists: continuous averages 481.6k
+  tokens/proposal versus 31.7k; complete structured fields remain 0% versus
+  100%; local-path marker rate is 66.7% versus 0%.
+
+Tiny Addition at 70 proposals:
+
+- Native-population OpenEvolve exposes richer population context, with
+  non-incumbent parent rate higher by +0.588 and source novelty higher by
+  +0.0320 [0.0187, 0.0459].
+- Native does not dominate endpoint progress: native minus bounded greedy
+  qualified parameter reduction is -1,418 parameters [-2,202, -624].
+- Native prompt composition includes a controller-level contradiction in 40.4%
+  of prompt files: a no-reference sentence appears while reference candidates
+  are also shown. This motivates prompt-composition audits.
+
+### Paper 5 reproducibility and presentation audit
+
+The final PDF has 10 pages: exactly eight main-text pages, references on page
+9, and appendix A on page 10. Every page was rendered to PNG and visually
+inspected after final formatting fixes. The final artifact is an anonymized
+static supplement with MIT license terms; it contains the deterministic
+analysis code, all selected inputs, derived tables/figures, and
+`PAPER5_SHA256SUMS`.
+
+The final appendix and artifact README surface requested subject-model
+configuration from the frozen `inputs/protocol.json` files. All six analyzed
+campaigns request `gpt-5.6-sol` at `xhigh` reasoning effort; Fashion-MNIST and
+nanoGPT use service tier `fast`, while Tiny Addition uses `default`.
+
+Local verification completed:
+
+- `analysis.py --verify-input-hashes` passed on the live repository inputs.
+- A clean extraction of the artifact passed `shasum -a 256 -c
+  PAPER5_SHA256SUMS`.
+- The artifact-root analysis reran with `--data-root . --verify-input-hashes`
+  and reproduced the 120-trajectory / 6,008-event summary without calling
+  model providers or evaluators.
+
+Final independent review gate: a fresh context-free reviewer independently
+checked AISciK scope and requirements, rendered the final PDF, verified the
+artifact checksum ledger, reran the analysis from an extraction, and initially
+estimated 76% AISciK acceptance probability. After citation metadata,
+model/config visibility, and determinism-polish fixes, the same reviewer
+sanity-checked the rebuilt PDF/artifact, found no new blockers, confirmed the
+clean extraction reproduction and byte-identical regenerated core files, and
+raised the acceptance estimate to 82%.
+
+Final SHA-256 digests:
+
+- PDF: `4011e7628cca464ab96e0e1fbfbad5d50f3abc1a9df1fbb73f313deb3f0ab69d`
+- artifact: `8c9b9a82ba019256596119d0e2f5b4ff586157d621545b1218d77b9cdd53ce5c`
