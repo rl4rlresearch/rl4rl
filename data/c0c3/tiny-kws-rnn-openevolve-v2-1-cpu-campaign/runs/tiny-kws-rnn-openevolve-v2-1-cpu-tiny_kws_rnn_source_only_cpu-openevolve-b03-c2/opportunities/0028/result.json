@@ -1,0 +1,105 @@
+{
+  "artifact_path": "candidates/a2d7784b528a0983b151dce964cf212dd41bc578fcd08fb8b1a51ff8c779477a",
+  "candidate_id": "a2d7784b528a0983b151dce964cf212dd41bc578fcd08fb8b1a51ff8c779477a",
+  "codex_service_tier": "default",
+  "condition": "C2",
+  "conversation_session_id": null,
+  "evaluation": {
+    "evaluator_calls": 1,
+    "evaluator_seconds": 93.2515277909115,
+    "failure_kind": "nonqualification",
+    "fitness": null,
+    "metrics": {
+      "batch_size": 128,
+      "evaluation_cases": 815,
+      "evaluation_split": "public_speaker_disjoint_validation",
+      "examples_processed": 50000,
+      "inference_cost": 4019696634925428930,
+      "maximum_recurrent_steps": 22,
+      "mean_recurrent_steps": 22.0,
+      "median_recurrent_steps": 22,
+      "optimizer_steps": 397,
+      "p95_recurrent_steps": 22,
+      "parameters": 45320,
+      "peak_hidden_elements": 113152,
+      "recurrent_logit_effect": 0.0648888349533081,
+      "recurrent_macs": 769197000,
+      "recurrent_steps": 17930,
+      "state_dependence_effect": 0.39348304271698,
+      "state_update_effect": 0.39457225799560547,
+      "total_inference_macs": 770624880,
+      "trained_recurrent_logit_effect": 0.42534318566322327,
+      "trained_state_dependence_effect": 0.42698898911476135,
+      "trained_state_update_effect": 0.42275938391685486,
+      "training_seconds": 74.7782356669195,
+      "validation_accuracy": 0.849079754601227,
+      "validation_correct": 692,
+      "validation_cross_entropy": 0.46733713910623564
+    },
+    "valid": false
+  },
+  "evaluator_calls_cumulative": 28,
+  "evaluator_calls_increment": 1,
+  "evaluator_seconds_cumulative": 3625.028697332833,
+  "evaluator_seconds_increment": 93.2515277909115,
+  "event": "proposal_completed",
+  "evicted_candidate_id": null,
+  "evidence": "Reference Design 2 achieved 85.15% accuracy at 770,624,880 MACs after one final-state coordinate was pruned; the failed second-coordinate pruning motivates preserving that qualified recurrent path and readout while reducing only functionally redundant normalization parameters.",
+  "hypothesis": "The qualified 110-unit, 22-step model will retain at least 85% validation accuracy when LayerNorm\u2019s 40 affine parameters are removed, because the following GRU input weights and biases can represent the same scaling and offset, while inference MACs and recurrent steps remain unchanged and learned parameters decrease from 45,360 to 45,320.",
+  "incumbent_after": "d214f32bf84d3eaf9706419cb5bbdc58b85578d8899f652803de9d79850b9093",
+  "intended_edit": "Restore the qualified 22-step, 110-unit, 219-coordinate dual-readout design and make its input LayerNorm non-affine.",
+  "mechanism": "Affine-free input normalization with GRU absorption",
+  "opportunity": 28,
+  "parent_ids": [
+    "016d906da09d1fe9115b3d48dd009dea2faccbbb35792057b39773f1cdb8582b"
+  ],
+  "portfolio_after": [
+    "016d906da09d1fe9115b3d48dd009dea2faccbbb35792057b39773f1cdb8582b",
+    "2d917d6501994953fca14cde78c3eafa50deca3e663ff25c3a7eae7e160f6c3d",
+    "d214f32bf84d3eaf9706419cb5bbdc58b85578d8899f652803de9d79850b9093",
+    "5e29add9664d4654e7f73885978d4310ee0719d942a620f95304493f134c19f9"
+  ],
+  "prompt_hashes": {
+    "common_template_sha256": "dee04faf4c430276c1036ba97f5705a339857dbdf19117dac88952a5a3a47e9d",
+    "prompt_sha256": "8b538f3324c3b33f2b77b2522e068b96133d7ad415cb3ad21e28174fc7441cd6",
+    "proposal_policy_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "search_state_sha256": "c938ac007bf70fe8d27f64661175531e51fcb16b38318c328493c32ee292e27e",
+    "treatment_skeleton_sha256": "ba8af0ff9db1ee814ef20d730ad1f9bd35708abe39649eea3d72686f1d7dafc3"
+  },
+  "proposal_type": "ordinary",
+  "proposals_cumulative": 28,
+  "remaining_budget": {
+    "evaluations": 172,
+    "evaluator_seconds": 56374.97130266717,
+    "proposals": 172,
+    "tokens": 99230654
+  },
+  "retained": false,
+  "retention_decision": "invalid",
+  "run_id": "tiny-kws-rnn-openevolve-v2-1-cpu-tiny_kws_rnn_source_only_cpu-openevolve-b03-c2",
+  "schema_version": "1.0",
+  "selected_parent_ids": [
+    "016d906da09d1fe9115b3d48dd009dea2faccbbb35792057b39773f1cdb8582b"
+  ],
+  "timestamp": "2026-09-04T04:21:19.428935+00:00",
+  "usage_cumulative": {
+    "cached_input_tokens": 362624,
+    "input_tokens": 697609,
+    "output_tokens": 71737,
+    "reasoning_output_tokens": 60252,
+    "total_tokens": 769346
+  },
+  "usage_increment": {
+    "cached_input_tokens": 10752,
+    "input_tokens": 23984,
+    "output_tokens": 3206,
+    "reasoning_output_tokens": 2588,
+    "total_tokens": 27190
+  },
+  "visible_candidate_ids": [
+    "016d906da09d1fe9115b3d48dd009dea2faccbbb35792057b39773f1cdb8582b",
+    "2d917d6501994953fca14cde78c3eafa50deca3e663ff25c3a7eae7e160f6c3d",
+    "d214f32bf84d3eaf9706419cb5bbdc58b85578d8899f652803de9d79850b9093",
+    "5e29add9664d4654e7f73885978d4310ee0719d942a620f95304493f134c19f9"
+  ]
+}

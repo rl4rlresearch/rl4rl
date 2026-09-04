@@ -1,0 +1,79 @@
+{
+  "artifact_path": "candidates/21eb81fb93c0b98ac5ea05625aa2cafc74101c4555915aaf44bd35aaa46a47f4",
+  "candidate_id": "21eb81fb93c0b98ac5ea05625aa2cafc74101c4555915aaf44bd35aaa46a47f4",
+  "codex_service_tier": "default",
+  "condition": "C1",
+  "conversation_session_id": null,
+  "evaluation": {
+    "evaluator_calls": 1,
+    "evaluator_seconds": 1162.8416737089865,
+    "failure_kind": "nonqualification",
+    "fitness": null,
+    "metrics": {
+      "accuracy": 0.0524,
+      "cases": 10010,
+      "correct": 525,
+      "parameters": 616,
+      "training_steps": 4999
+    },
+    "valid": false
+  },
+  "evaluator_calls_cumulative": 139,
+  "evaluator_calls_increment": 1,
+  "evaluator_seconds_cumulative": 42040.89130491379,
+  "evaluator_seconds_increment": 1162.8416737089865,
+  "event": "proposal_completed",
+  "evicted_candidate_id": null,
+  "evidence": "The 606-parameter model reached 0.9989 accuracy with extensive sharing and fixed endpoints in its relative-bias table, indicating that unconstrained per-distance biases are not all essential. The 603-parameter fixed-spectrum positional experiment fell to 0.565, so this patch leaves all four independently learned absolute-position amplitudes and the lexical path unchanged and instead tests a different, fully learned spectral routing mechanism.",
+  "hypothesis": "Replacing the 30-parameter partially shared distance lookup with 20 learned head-specific DCT coefficients will reduce the model from 606 to 596 parameters while retaining at least 99% accuracy, because ten smooth modes per head preserve flexible causal routing without constraining the fragile lexical or absolute-position representations.",
+  "incumbent_after": "bd3de48f5525dcfff6bd60d317420799f884f2ebdb491cb5078d6dbf650b991c",
+  "intended_edit": "Parameterize each attention head\u2019s gauge-fixed relative bias as a learned ten-mode cosine expansion over the currently active distance range, while retaining the eleven fixed-zero long-distance endpoints.",
+  "mechanism": "Spectral relative-distance routing",
+  "opportunity": 170,
+  "parent_ids": [
+    "bd3de48f5525dcfff6bd60d317420799f884f2ebdb491cb5078d6dbf650b991c"
+  ],
+  "portfolio_after": [
+    "bd3de48f5525dcfff6bd60d317420799f884f2ebdb491cb5078d6dbf650b991c"
+  ],
+  "prompt_hashes": {
+    "common_template_sha256": "3f2bea6418b6969c4bf2aa1df18dcda8a3a4ac075bf20c79068c754698b6be5e",
+    "prompt_sha256": "00507a711663c1604bcb72be2b9445652591216c92e334c3f2666e34db612118",
+    "proposal_policy_sha256": "4a27c08e098e719db007f4d6b37fabe2967b41836bb9070e2513a8a24ff7ce90",
+    "search_state_sha256": "04e5eb078ae1964e4ec65bfeeeb1acd0ffa246e7d54d5e0f997f81f602da28c5",
+    "treatment_skeleton_sha256": "00c720eeb53410e9751b999203effd0ddaa7b9c9efa85178c2f6d2d102b1742b"
+  },
+  "proposal_type": "assumption_changing",
+  "proposals_cumulative": 170,
+  "remaining_budget": {
+    "evaluations": 61,
+    "evaluator_seconds": 317959.1086950862,
+    "proposals": 30,
+    "tokens": 96220923
+  },
+  "retained": false,
+  "retention_decision": "invalid",
+  "run_id": "controlled-openevolve-transformer-v2-1-source-only-ten-digit-addition-pair-transformer-openevolve-v2-1-mps-openevolve-b03-c1",
+  "schema_version": "1.0",
+  "selected_parent_ids": [
+    "bd3de48f5525dcfff6bd60d317420799f884f2ebdb491cb5078d6dbf650b991c"
+  ],
+  "timestamp": "2026-09-03T19:24:59.329016+00:00",
+  "usage_cumulative": {
+    "cached_input_tokens": 1462784,
+    "input_tokens": 3377092,
+    "output_tokens": 401985,
+    "reasoning_output_tokens": 321571,
+    "total_tokens": 3779077
+  },
+  "usage_increment": {
+    "cached_input_tokens": 25088,
+    "input_tokens": 32511,
+    "output_tokens": 2681,
+    "reasoning_output_tokens": 1471,
+    "total_tokens": 35192
+  },
+  "visible_candidate_ids": [
+    "bd3de48f5525dcfff6bd60d317420799f884f2ebdb491cb5078d6dbf650b991c"
+  ]
+}

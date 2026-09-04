@@ -1,0 +1,85 @@
+{
+  "artifact_path": "candidates/ab5b466fe7bc1bfedbecb51a7e3df6a7f508053f2b556cba9ce843042e3616a9",
+  "candidate_id": "ab5b466fe7bc1bfedbecb51a7e3df6a7f508053f2b556cba9ce843042e3616a9",
+  "codex_service_tier": "fast",
+  "condition": "C2",
+  "conversation_session_id": null,
+  "evaluation": {
+    "evaluator_calls": 1,
+    "evaluator_seconds": 464.9153892080067,
+    "failure_kind": null,
+    "fitness": -1563.0,
+    "metrics": {
+      "accuracy": 0.9994,
+      "cases": 10010,
+      "correct": 10004,
+      "parameters": 1563,
+      "training_steps": 4999
+    },
+    "valid": true
+  },
+  "evaluator_calls_cumulative": 25,
+  "evaluator_calls_increment": 1,
+  "evaluator_seconds_cumulative": 8842.728164748987,
+  "evaluator_seconds_increment": 464.9153892080067,
+  "event": "proposal_completed",
+  "evicted_candidate_id": "ac5eb22b2645a59b6b9ca6c8d831e580551313fdef0af9b3f60b28a509acb6b9",
+  "evidence": "The current 1571-parameter model achieved 99.95%, and attention value/output-bias folding achieved 99.98%; the qualified designs also successfully use a bias-free `ln2`, supporting removal of an affine bias whose effects remain representable downstream.",
+  "hypothesis": "Removing the eight-parameter `ln1` bias will produce a 1563-parameter model with at least 99% accuracy because its query shift is representable by `q_bias`, its key shift cancels in softmax, and its value shift folds into the learned projection bias.",
+  "incumbent_after": "ab5b466fe7bc1bfedbecb51a7e3df6a7f508053f2b556cba9ce843042e3616a9",
+  "intended_edit": "Make the pre-attention LayerNorm bias-free while retaining the full query and mean-zero attention projection biases.",
+  "mechanism": "Pre-attention LayerNorm bias folding",
+  "opportunity": 25,
+  "parent_ids": [
+    "ac5eb22b2645a59b6b9ca6c8d831e580551313fdef0af9b3f60b28a509acb6b9"
+  ],
+  "portfolio_after": [
+    "ab5b466fe7bc1bfedbecb51a7e3df6a7f508053f2b556cba9ce843042e3616a9",
+    "809c2b0cea7b44944012a473197732ad4b5e460e7aa91cebab1cfbc2d3c15a7e",
+    "349ca395bcc6512a4be1e5c08f151576be20227d64e932f1774df6a0a4ee83aa",
+    "5e001540cf235394715a067f6c00b36653873358e401685925ce2e052c4e8ed9"
+  ],
+  "prompt_hashes": {
+    "common_template_sha256": "3f2bea6418b6969c4bf2aa1df18dcda8a3a4ac075bf20c79068c754698b6be5e",
+    "prompt_sha256": "6766e4ee2dca618828ecf6f0328002b9d470731aef49893cad49b46cf029cabb",
+    "proposal_policy_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "search_state_sha256": "c938ac007bf70fe8d27f64661175531e51fcb16b38318c328493c32ee292e27e",
+    "treatment_skeleton_sha256": "75e34cdffa668a8e0b3cbcce24b4acc7644a0deed61346a479733637fd5aa4cb"
+  },
+  "proposal_type": "ordinary",
+  "proposals_cumulative": 25,
+  "remaining_budget": {
+    "evaluations": 175,
+    "evaluator_seconds": 351157.271835251,
+    "proposals": 175,
+    "tokens": 99048629
+  },
+  "retained": true,
+  "retention_decision": "replaced_selected_parent_on_strict_improvement",
+  "run_id": "controlled-openevolve-transformer-v2-1-source-only-ten-digit-addition-pair-transformer-openevolve-v2-1-mps-openevolve-b05-c2",
+  "schema_version": "1.0",
+  "selected_parent_ids": [
+    "ac5eb22b2645a59b6b9ca6c8d831e580551313fdef0af9b3f60b28a509acb6b9"
+  ],
+  "timestamp": "2026-08-23T20:17:58.335659+00:00",
+  "usage_cumulative": {
+    "cached_input_tokens": 277248,
+    "input_tokens": 828840,
+    "output_tokens": 122531,
+    "reasoning_output_tokens": 99799,
+    "total_tokens": 951371
+  },
+  "usage_increment": {
+    "cached_input_tokens": 12032,
+    "input_tokens": 38600,
+    "output_tokens": 1768,
+    "reasoning_output_tokens": 1487,
+    "total_tokens": 40368
+  },
+  "visible_candidate_ids": [
+    "ac5eb22b2645a59b6b9ca6c8d831e580551313fdef0af9b3f60b28a509acb6b9",
+    "809c2b0cea7b44944012a473197732ad4b5e460e7aa91cebab1cfbc2d3c15a7e",
+    "349ca395bcc6512a4be1e5c08f151576be20227d64e932f1774df6a0a4ee83aa",
+    "5e001540cf235394715a067f6c00b36653873358e401685925ce2e052c4e8ed9"
+  ]
+}

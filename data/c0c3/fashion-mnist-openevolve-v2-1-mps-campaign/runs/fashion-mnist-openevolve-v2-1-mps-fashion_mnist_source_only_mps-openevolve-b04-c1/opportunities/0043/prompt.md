@@ -1,0 +1,164 @@
+# Improve fixed-exposure image classification
+
+You are an autonomous ML engineer improving a learned classifier for 28×28
+grayscale images in ten classes.
+
+## Goal
+
+Maximize `validation_score`. It ranks implementations first by the exact number
+of correct predictions on the fixed 10,000-image validation set, then—only when
+correct counts tie—by lower validation cross-entropy. Every verification starts
+from a fresh initialization and presents exactly 100,000 examples from the
+fixed 50,000-image training split.
+
+You may change the model architecture, optimizer, loss, augmentation, batch
+size, gradient handling, schedule, and other contents of `train.py`. The fixed
+data split, normalization, example accounting, validation calculation,
+250,000-learned-parameter ceiling, and device are not editable. The protected
+loop calls the functions already defined in `train.py`; keep that interface
+intact. The model must return one ten-class logit vector per image.
+
+## Work boundaries
+
+Maximize validation_score. No additional accuracy threshold.
+Editable source files: train.py.
+Results reported after each verification: validation_score, validation_correct, validation_accuracy, validation_cross_entropy, parameters, examples_processed, optimizer_steps, training_seconds, batch_size.
+
+Propose changes through exact SEARCH/REPLACE blocks. The patching interface applies them to the supplied editable source.
+
+The editable source and any reference source are included below. Do not access
+parent directories, home directories, shared temporary directories, global
+session history, online sources, external datasets, pretrained weights, or any
+surrounding repository. Do not run training or validation yourself and do not
+generate hidden alternatives. Return one patch for one implementation;
+verification happens after you finish.
+
+## Available designs
+
+The current editable design is provided. No reference design is available.
+
+CURRENT DESIGN
+verified_results: {"batch_size": 64, "examples_processed": 100000, "optimizer_steps": 1564, "parameters": 224442, "training_seconds": 78.43049825006165, "validation_accuracy": 0.9316, "validation_correct": 9316, "validation_cross_entropy": 0.1928421325683594, "validation_score": 9316.419166951224}
+prior_hypothesis: Jointly classifying the mirrored feature mean and absolute feature disagreement will exceed 9,286 correct predictions by learning when the two views corroborate or conflict, which independent-logit averaging cannot represent.
+
+## Recent verification evidence
+
+RECENT RESULT
+hypothesis: Scaling mirrored-view evaluation logits from 1.20 to 1.23 will preserve exactly 9,286 correct predictions while reducing validation cross-entropy below 0.202476.
+change: Increase only the evaluation-logit scale to 1.23; training and predicted classes remain unchanged.
+mechanism: Fine-grained validation temperature calibration
+evidence_used: Successive scales through 1.20 preserved all 9,286 correct predictions and monotonically reduced cross-entropy, but the latest gain narrowed to 0.000513, motivating a smaller calibration step toward the apparent optimum.
+result: was valid but was not a strict improvement
+reported_values: {"batch_size": 64, "examples_processed": 100000, "optimizer_steps": 1564, "parameters": 216250, "training_seconds": 80.45215649995953, "validation_accuracy": 0.9286, "validation_correct": 9286, "validation_cross_entropy": 0.20250473403930663, "validation_score": 9286.415798778871}
+
+RECENT RESULT
+hypothesis: Scaling mirrored-view evaluation logits from 1.20 to 1.21 will preserve all 9,286 correct predictions while reducing validation cross-entropy below 0.202476.
+change: Increase only the evaluation-logit scale to 1.21; training and predicted classes remain unchanged.
+mechanism: Fine-grained validation temperature calibration
+evidence_used: Scaling to 1.20 improved cross-entropy, while 1.23 slightly regressed; these results bracket the apparent optimum near 1.21.
+result: improved the objective and became an available design
+reported_values: {"batch_size": 64, "examples_processed": 100000, "optimizer_steps": 1564, "parameters": 216250, "training_seconds": 76.08828595792875, "validation_accuracy": 0.9286, "validation_correct": 9286, "validation_cross_entropy": 0.20245992736816407, "validation_score": 9286.415814272576}
+
+RECENT RESULT
+hypothesis: Scaling evaluation logits from 1.21 to 1.212 will preserve all 9,286 predictions while reducing validation cross-entropy below 0.202459927.
+change: Increase only the mirrored-view evaluation-logit scale to 1.212; training and predicted classes remain unchanged.
+mechanism: Quadratically interpolated validation temperature calibration
+evidence_used: Cross-entropy improved through scale 1.21 but regressed at 1.23; quadratic interpolation of the measured 1.20, 1.21, and 1.23 results places the minimum near 1.2113.
+result: improved the objective and became an available design
+reported_values: {"batch_size": 64, "examples_processed": 100000, "optimizer_steps": 1564, "parameters": 216250, "training_seconds": 72.65439270902425, "validation_accuracy": 0.9286, "validation_correct": 9286, "validation_cross_entropy": 0.20245982513427735, "validation_score": 9286.415814307928}
+
+RECENT RESULT
+hypothesis: Scaling evaluation logits from 1.212 to 1.2112 will preserve all 9,286 predictions while reducing validation cross-entropy below 0.202459825.
+change: Change only the mirrored-view evaluation-logit scale from 1.212 to 1.2112.
+mechanism: Quadratically refined validation temperature calibration
+evidence_used: Cross-entropy improved at scales 1.20, 1.21, and 1.212 but regressed at 1.23; quadratic interpolation of these measurements places the minimum near 1.2112.
+result: improved the objective and became an available design
+reported_values: {"batch_size": 64, "examples_processed": 100000, "optimizer_steps": 1564, "parameters": 216250, "training_seconds": 77.20528920809738, "validation_accuracy": 0.9286, "validation_correct": 9286, "validation_cross_entropy": 0.20245974044799805, "validation_score": 9286.415814337213}
+
+RECENT RESULT
+hypothesis: Reducing the EMA interpolation rate from 0.02 to 0.015 will exceed 9,286 correct predictions by averaging roughly 67 rather than 50 terminal optimizer states, reducing late-training parameter noise without changing model capacity or runtime materially.
+change: Slow the existing final-half EMA update while preserving the architecture, objective, schedule, augmentation, and calibrated evaluation scale.
+mechanism: Longer-horizon exponential weight averaging
+evidence_used: Classifier widening reduced validation correct to 9,254 and translation augmentation reduced it to 9,244, while temperature calibration has converged near 1.2112 without changing the 9,286 predictions; tuning the otherwise-unchanged EMA horizon is a focused next test for improving the primary accuracy criterion.
+result: training did not finish within the verification time limit
+
+RECENT RESULT
+hypothesis: Averaging normalized class probabilities instead of raw logits will exceed 9,286 correct predictions by preventing an overconfident erroneous view from dominating the mirrored ensemble.
+change: Change only evaluation-time fusion to the log of the arithmetic mean of both views’ probabilities, retaining training, architecture, runtime, and calibrated logit scale.
+mechanism: Probability-space mirrored-view ensembling
+evidence_used: Mirrored-view ensembling raised validation correct from 9,237 to 9,282, while temperature calibration cannot change the current 9,286 predictions; testing a more robust fusion rule directly targets further accuracy gains without additional forward passes.
+result: training did not finish within the verification time limit
+
+RECENT RESULT
+hypothesis: Adding a stable grouped 3×3 residual block at 7×7 resolution will exceed 9,286 correct predictions by refining spatial relationships before the classifier, while remaining below the parameter ceiling.
+change: Add an 18,560-parameter, identity-initialized grouped-convolution residual block after the second pooling stage; retain the proven optimizer, loss, augmentation, EMA, and evaluation calibration.
+mechanism: Identity-initialized grouped spatial refinement
+evidence_used: Widening the classifier reduced correct predictions to 9,254, while temperature calibration has saturated without changing predictions; this tests additional spatial feature processing instead of more classifier capacity.
+result: training did not finish within the verification time limit
+
+RECENT RESULT
+hypothesis: Mixing 10% individual-view cross-entropy into the mirrored-average objective will exceed 9,286 correct predictions by making both constituent views independently discriminative while retaining direct optimization of their ensemble.
+change: Replace the ensemble-only loss with a scale-preserving blend of 90% mirrored-average loss and 10% mean per-view loss; architecture, augmentation, EMA, schedule, and evaluation calibration remain unchanged.
+mechanism: Per-view auxiliary supervision for mirrored ensemble
+evidence_used: Mirrored-view ensembling previously improved validation correct from 9,237 to 9,282, while temperature calibration has now saturated at 9,286; auxiliary supervision directly tests whether stronger constituent predictions can improve the proven ensemble without additional forward passes or parameters.
+result: was valid but was not a strict improvement
+reported_values: {"batch_size": 64, "examples_processed": 100000, "optimizer_steps": 1564, "parameters": 216250, "training_seconds": 70.92210020800121, "validation_accuracy": 0.927, "validation_correct": 9270, "validation_cross_entropy": 0.20264423446655275, "validation_score": 9270.415750548393}
+
+RECENT RESULT
+hypothesis: Averaging normalized class probabilities instead of raw logits will exceed 9,286 correct predictions by limiting domination from an overconfident erroneous view.
+change: Replace evaluation-time logit averaging with the log of the arithmetic mean of both views’ probabilities, retaining the calibrated output scale.
+mechanism: Probability-space mirrored-view ensembling
+evidence_used: Mirrored-view ensembling previously improved accuracy substantially; the earlier probability-fusion verification timed out, so its effect on prediction quality remains unmeasured despite adding only negligible evaluation computation.
+result: training did not finish within the verification time limit
+
+RECENT RESULT
+hypothesis: Jointly classifying the mirrored feature mean and absolute feature disagreement will exceed 9,286 correct predictions by learning when the two views corroborate or conflict, which independent-logit averaging cannot represent.
+change: Replace the assumption that mirrored views should be classified independently with an identity-initialized learned fusion of their invariant and disagreement features before the nonlinear classifier.
+mechanism: Joint invariant–disagreement view fusion
+evidence_used: Mirrored ensembling raised accuracy substantially, while adding individual-view supervision regressed to 9,270 correct; this supports learning a genuinely joint representation rather than strengthening separate view predictions. The fusion adds only a 1×1 projection and reuses the existing two-view convolutional computation.
+result: improved the objective and became an available design
+reported_values: {"batch_size": 64, "examples_processed": 100000, "optimizer_steps": 1564, "parameters": 224442, "training_seconds": 78.43049825006165, "validation_accuracy": 0.9316, "validation_correct": 9316, "validation_cross_entropy": 0.1928421325683594, "validation_score": 9316.419166951224}
+
+RECENT RESULT
+hypothesis: A nonlinear residual fusion of invariant and disagreement features will exceed 9,316 correct predictions by modeling interactions that the current single linear projection cannot represent.
+change: Replace the linear 128-to-64 fusion with a 96-channel GELU bottleneck whose zero-initialized output learns corrections to the invariant features, remaining under the parameter ceiling.
+mechanism: Identity-initialized nonlinear view-fusion correction
+evidence_used: Joint invariant–disagreement fusion improved validation correct from 9,286 to 9,316, while widening the general classifier regressed; this motivates adding capacity specifically to the successful fusion mechanism.
+result: training did not finish within the verification time limit
+
+RECENT RESULT
+hypothesis: Adding elementwise mirrored-feature products will exceed 9,316 correct predictions by distinguishing strong bilateral corroboration from feature disagreement patterns that the current linear mean-and-absolute-difference fusion cannot separate.
+change: Add a zero-initialized 64-channel coactivation descriptor to the existing identity-initialized fusion, increasing parameters from 224,442 to 228,538 with negligible additional computation.
+mechanism: Second-order mirrored coactivation fusion
+evidence_used: Mean-and-disagreement fusion improved validation correct from 9,286 to 9,316, establishing view fusion as valuable; the nonlinear bottleneck timed out, motivating an explicit second-order interaction that preserves the successful initialization and avoids a costly hidden fusion layer.
+result: training did not finish within the verification time limit
+reported_values: {"batch_size": 64, "examples_processed": 100000, "optimizer_steps": 1564, "parameters": 228538, "training_seconds": 82.81290491600521, "validation_accuracy": 0.9298, "validation_correct": 9298, "validation_cross_entropy": 0.1967527145385742, "validation_score": 9298.417797255795}
+
+
+
+Use the available technical evidence to choose the most informative next
+change. Treat unsuccessful or malformed work as evidence when a useful
+subject-level reason is provided. Do not invent missing evidence.
+
+## Response
+
+Return these short metadata lines followed by one or more exact
+`SEARCH`/`REPLACE` blocks that together produce one implementation:
+
+`MECHANISM: <a concise free-form name for the computational idea>`
+
+`HYPOTHESIS: <a falsifiable claim grounded in the evidence above>`
+
+`INTENDED_EDIT: <what this patch changes>`
+
+`EVIDENCE: <the most relevant prior result and why it motivates this patch>`
+
+Start each block with `<<<<<<< SEARCH`, put the exact existing lines next, use a
+line containing `=======` as the divider, put the replacement lines after it,
+and finish the block with `>>>>>>> REPLACE`.
+
+Every `SEARCH` section must be nonempty and match exactly once after earlier
+blocks have been applied. All blocks must apply. Together they must describe
+one implementation ready for verification. The mechanism name is descriptive,
+not chosen from a fixed list. Do not paste whole files, lengthy logs, or routine
+progress reports outside the patch.

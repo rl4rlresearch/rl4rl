@@ -1,0 +1,99 @@
+{
+  "artifact_path": "candidates/52f3325d2dce1bcd4cb0ae7914d2242c52a62ea4ef981f40d884c72398b29242",
+  "candidate_id": "52f3325d2dce1bcd4cb0ae7914d2242c52a62ea4ef981f40d884c72398b29242",
+  "codex_service_tier": "default",
+  "condition": "C0",
+  "conversation_session_id": null,
+  "evaluation": {
+    "evaluator_calls": 1,
+    "evaluator_seconds": 134.45705754193477,
+    "failure_kind": null,
+    "fitness": -3273056198122705328,
+    "metrics": {
+      "batch_size": 128,
+      "evaluation_cases": 815,
+      "evaluation_split": "public_speaker_disjoint_validation",
+      "examples_processed": 50000,
+      "inference_cost": 3273056198122705328,
+      "maximum_recurrent_steps": 32,
+      "mean_recurrent_steps": 32.0,
+      "median_recurrent_steps": 32,
+      "optimizer_steps": 397,
+      "p95_recurrent_steps": 32,
+      "parameters": 26448,
+      "peak_hidden_elements": 123392,
+      "recurrent_logit_effect": 0.08401529490947723,
+      "recurrent_macs": 625920000,
+      "recurrent_steps": 26080,
+      "state_dependence_effect": 0.3235164284706116,
+      "state_update_effect": 0.5551118850708008,
+      "total_inference_macs": 627484800,
+      "trained_recurrent_logit_effect": 0.6257933378219604,
+      "trained_state_dependence_effect": 0.39026689529418945,
+      "trained_state_update_effect": 0.5719125270843506,
+      "training_seconds": 109.0368723331485,
+      "validation_accuracy": 0.8564417177914111,
+      "validation_correct": 698,
+      "validation_cross_entropy": 0.4118331160282065
+    },
+    "valid": true
+  },
+  "evaluator_calls_cumulative": 14,
+  "evaluator_calls_increment": 1,
+  "evaluator_seconds_cumulative": 2007.4190836257767,
+  "evaluator_seconds_increment": 134.45705754193477,
+  "event": "proposal_completed",
+  "evicted_candidate_id": "59bf34281d3d7b8a22fe034cc8c28f5c8313096e6e0a91772b41444f0908168c",
+  "evidence": "The 82-unit model reached 86.75% accuracy despite exceeding the training-time limit, while the verified 84-unit model reached 87.12%; this indicates the triple readout retains sufficient accuracy at smaller widths and motivates testing the aligned 80-unit width.",
+  "hypothesis": "An 80-unit GRU with mean, final-state, and running-maximum readout will retain at least 85% validation accuracy while reducing exact dense inference MACs by about 8.4% versus the verified 84-unit model.",
+  "incumbent_after": "52f3325d2dce1bcd4cb0ae7914d2242c52a62ea4ef981f40d884c72398b29242",
+  "intended_edit": "Reduce the GRU and recurrent summaries from 84 to 80 units and the classifier input from 252 to 240 features, preserving all 32 causal frames and the established training procedure.",
+  "mechanism": "Hardware-friendly temporal-max-assisted width reduction",
+  "opportunity": 14,
+  "parent_ids": [
+    "59bf34281d3d7b8a22fe034cc8c28f5c8313096e6e0a91772b41444f0908168c"
+  ],
+  "portfolio_after": [
+    "52f3325d2dce1bcd4cb0ae7914d2242c52a62ea4ef981f40d884c72398b29242"
+  ],
+  "prompt_hashes": {
+    "common_template_sha256": "dee04faf4c430276c1036ba97f5705a339857dbdf19117dac88952a5a3a47e9d",
+    "prompt_sha256": "fc37ec7bb799304c6f6ce5d712e7517a94ec644bc840b3a76be2697c555556f4",
+    "proposal_policy_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "search_state_sha256": "04e5eb078ae1964e4ec65bfeeeb1acd0ffa246e7d54d5e0f997f81f602da28c5",
+    "treatment_skeleton_sha256": "5c75a5d7785bd42e111f39c83d893eb3bdee7ef24642811165348f2f7697fcef"
+  },
+  "proposal_type": "ordinary",
+  "proposals_cumulative": 14,
+  "remaining_budget": {
+    "evaluations": 186,
+    "evaluator_seconds": 57992.58091637422,
+    "proposals": 186,
+    "tokens": 99719712
+  },
+  "retained": true,
+  "retention_decision": "strict_incumbent_improvement",
+  "run_id": "tiny-kws-rnn-openevolve-v2-1-cpu-tiny_kws_rnn_source_only_cpu-openevolve-b04-c0",
+  "schema_version": "1.0",
+  "selected_parent_ids": [
+    "59bf34281d3d7b8a22fe034cc8c28f5c8313096e6e0a91772b41444f0908168c"
+  ],
+  "timestamp": "2026-09-04T03:20:25.034870+00:00",
+  "usage_cumulative": {
+    "cached_input_tokens": 139776,
+    "input_tokens": 255538,
+    "output_tokens": 24750,
+    "reasoning_output_tokens": 18983,
+    "total_tokens": 280288
+  },
+  "usage_increment": {
+    "cached_input_tokens": 10752,
+    "input_tokens": 20195,
+    "output_tokens": 1429,
+    "reasoning_output_tokens": 1034,
+    "total_tokens": 21624
+  },
+  "visible_candidate_ids": [
+    "59bf34281d3d7b8a22fe034cc8c28f5c8313096e6e0a91772b41444f0908168c"
+  ]
+}

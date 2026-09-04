@@ -1,0 +1,79 @@
+{
+  "artifact_path": "candidates/e65cb2f7d8ca2c801253eea43c01b7ac44610ecfc8407de7c102b8cc5d1b0790",
+  "candidate_id": "e65cb2f7d8ca2c801253eea43c01b7ac44610ecfc8407de7c102b8cc5d1b0790",
+  "codex_service_tier": "fast",
+  "condition": "C1",
+  "conversation_session_id": null,
+  "evaluation": {
+    "evaluator_calls": 1,
+    "evaluator_seconds": 375.50775841705035,
+    "failure_kind": null,
+    "fitness": -1438.0,
+    "metrics": {
+      "accuracy": 0.9993000000000001,
+      "cases": 10010,
+      "correct": 10003,
+      "parameters": 1438,
+      "training_steps": 4999
+    },
+    "valid": true
+  },
+  "evaluator_calls_cumulative": 23,
+  "evaluator_calls_increment": 1,
+  "evaluator_seconds_cumulative": 7048.931603707257,
+  "evaluator_seconds_increment": 375.50775841705035,
+  "event": "proposal_completed",
+  "evicted_candidate_id": "98030ee87028d53dc4f9f909ee6e6ce3cd48ad9e5797d5f561456a90db1bebf6",
+  "evidence": "Quotient-aware optimization let the seven-row MLP projection reach 99.75% after direct reparameterizations failed at 93.33% and 12.75%; the earlier combined attention/MLP reduction lacked this optimizer-preserving treatment, while the current 1,446-parameter model provides 99.93% accuracy headroom.",
+  "hypothesis": "Removing the eight LayerNorm-invisible common-mode weights from the attention output projection will reduce the model from 1,446 to 1,438 parameters while retaining at least 99% accuracy when full-width initialization and virtual AdamW moments are preserved.",
+  "incumbent_after": "e65cb2f7d8ca2c801253eea43c01b7ac44610ecfc8407de7c102b8cc5d1b0790",
+  "intended_edit": "Store seven output rows for the attention projection, reconstruct an eighth zero row, retain its full-width shared value/output bias, and train the omitted row through the existing quotient-aware optimizer.",
+  "mechanism": "Optimizer-preserving attention residual gauge quotient",
+  "opportunity": 23,
+  "parent_ids": [
+    "98030ee87028d53dc4f9f909ee6e6ce3cd48ad9e5797d5f561456a90db1bebf6"
+  ],
+  "portfolio_after": [
+    "e65cb2f7d8ca2c801253eea43c01b7ac44610ecfc8407de7c102b8cc5d1b0790"
+  ],
+  "prompt_hashes": {
+    "common_template_sha256": "3f2bea6418b6969c4bf2aa1df18dcda8a3a4ac075bf20c79068c754698b6be5e",
+    "prompt_sha256": "00c506e30e293bcc71f05a46606d3450670a3f9ab59d68c42e9123d99d8f699d",
+    "proposal_policy_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "search_state_sha256": "04e5eb078ae1964e4ec65bfeeeb1acd0ffa246e7d54d5e0f997f81f602da28c5",
+    "treatment_skeleton_sha256": "cc47e6b66f0c7eba8840b04dbdf8d1004beeb6d18d628f2f258bca5274c53df5"
+  },
+  "proposal_type": "ordinary",
+  "proposals_cumulative": 23,
+  "remaining_budget": {
+    "evaluations": 177,
+    "evaluator_seconds": 352951.06839629274,
+    "proposals": 177,
+    "tokens": 99419197
+  },
+  "retained": true,
+  "retention_decision": "strict_incumbent_improvement",
+  "run_id": "controlled-openevolve-transformer-v2-1-source-only-ten-digit-addition-pair-transformer-openevolve-v2-1-mps-openevolve-b02-c1",
+  "schema_version": "1.0",
+  "selected_parent_ids": [
+    "98030ee87028d53dc4f9f909ee6e6ce3cd48ad9e5797d5f561456a90db1bebf6"
+  ],
+  "timestamp": "2026-08-23T18:00:59.363696+00:00",
+  "usage_cumulative": {
+    "cached_input_tokens": 197632,
+    "input_tokens": 485030,
+    "output_tokens": 95773,
+    "reasoning_output_tokens": 82764,
+    "total_tokens": 580803
+  },
+  "usage_increment": {
+    "cached_input_tokens": 2816,
+    "input_tokens": 22921,
+    "output_tokens": 5782,
+    "reasoning_output_tokens": 4977,
+    "total_tokens": 28703
+  },
+  "visible_candidate_ids": [
+    "98030ee87028d53dc4f9f909ee6e6ce3cd48ad9e5797d5f561456a90db1bebf6"
+  ]
+}

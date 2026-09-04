@@ -1,0 +1,85 @@
+{
+  "artifact_path": "candidates/26ea7c0c4e453c5e2a516927c95f521472083ab20b8f95e95def3b746f6eef8e",
+  "candidate_id": "26ea7c0c4e453c5e2a516927c95f521472083ab20b8f95e95def3b746f6eef8e",
+  "codex_service_tier": "default",
+  "condition": "C3",
+  "conversation_session_id": null,
+  "evaluation": {
+    "evaluator_calls": 1,
+    "evaluator_seconds": 1391.9937855408061,
+    "failure_kind": null,
+    "fitness": -1478.0,
+    "metrics": {
+      "accuracy": 0.9987999999999999,
+      "cases": 10010,
+      "correct": 9998,
+      "parameters": 1478,
+      "training_steps": 4999
+    },
+    "valid": true
+  },
+  "evaluator_calls_cumulative": 31,
+  "evaluator_calls_increment": 1,
+  "evaluator_seconds_cumulative": 14642.04065841576,
+  "evaluator_seconds_increment": 1391.9937855408061,
+  "event": "proposal_completed",
+  "evicted_candidate_id": "0c5739da9f29148e1e6269ddc9aed365a62c24fd7d53dc756ee0ead7226bed9b",
+  "evidence": "The 1,486-parameter relative-lag gauge design achieved 99.90% accuracy. Its `ln2` is already bias-free, so each remaining scale is exactly multiplicatively redundant with the corresponding `fc1` weight column; ambient-coordinate optimization follows the successful optimizer-preserving gauge strategy used by that design.",
+  "hypothesis": "Folding the bias-free second LayerNorm\u2019s eight learned scales into the first MLP weight matrix will reduce the qualified 1,486-parameter model to 1,478 parameters while retaining at least 99% accuracy, because the fold is functionally exact and full-space AdamW dynamics are reproduced during training.",
+  "incumbent_after": "26ea7c0c4e453c5e2a516927c95f521472083ab20b8f95e95def3b746f6eef8e",
+  "intended_edit": "Port the qualified gauge-fixed relative-position design, remove `ln2`\u2019s affine parameters, and manually optimize virtual LayerNorm scales and MLP weights before folding their product into the stored learned weight after every step.",
+  "mechanism": "Ambient-Adam LayerNorm-to-MLP scale folding",
+  "opportunity": 32,
+  "parent_ids": [
+    "0c5739da9f29148e1e6269ddc9aed365a62c24fd7d53dc756ee0ead7226bed9b"
+  ],
+  "portfolio_after": [
+    "2b9cea175ed60b009337ac54f6e8ad23bf2c014eb4080237777bfb70bfd9fd5b",
+    "26ea7c0c4e453c5e2a516927c95f521472083ab20b8f95e95def3b746f6eef8e",
+    "20d6cbc76e4a1ff00448f8f6e262e922d9d62e73401f39de3690b1ffefa2cfd1",
+    "f030e0bb25d46e312a9e22e64187b710f2aa00bf2a598332246ac4a1ee775965"
+  ],
+  "prompt_hashes": {
+    "common_template_sha256": "3f2bea6418b6969c4bf2aa1df18dcda8a3a4ac075bf20c79068c754698b6be5e",
+    "prompt_sha256": "8e221b5e223f95342861c6194cf13250d1560efec83cb5f1aaf1a27e74539db2",
+    "proposal_policy_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "search_state_sha256": "c938ac007bf70fe8d27f64661175531e51fcb16b38318c328493c32ee292e27e",
+    "treatment_skeleton_sha256": "822843e4e0b3d6d3de714c5ac2f591fe5c544bad157001fa91591e4a08ae1763"
+  },
+  "proposal_type": "ordinary",
+  "proposals_cumulative": 32,
+  "remaining_budget": {
+    "evaluations": 169,
+    "evaluator_seconds": 345357.95934158424,
+    "proposals": 168,
+    "tokens": 98830302
+  },
+  "retained": true,
+  "retention_decision": "replaced_selected_parent_on_strict_improvement",
+  "run_id": "controlled-openevolve-transformer-v2-1-source-only-ten-digit-addition-pair-transformer-openevolve-v2-1-mps-openevolve-b03-c3",
+  "schema_version": "1.0",
+  "selected_parent_ids": [
+    "0c5739da9f29148e1e6269ddc9aed365a62c24fd7d53dc756ee0ead7226bed9b"
+  ],
+  "timestamp": "2026-09-04T02:18:28.335440+00:00",
+  "usage_cumulative": {
+    "cached_input_tokens": 368896,
+    "input_tokens": 991562,
+    "output_tokens": 178136,
+    "reasoning_output_tokens": 134666,
+    "total_tokens": 1169698
+  },
+  "usage_increment": {
+    "cached_input_tokens": 10752,
+    "input_tokens": 37653,
+    "output_tokens": 9279,
+    "reasoning_output_tokens": 4698,
+    "total_tokens": 46932
+  },
+  "visible_candidate_ids": [
+    "2b9cea175ed60b009337ac54f6e8ad23bf2c014eb4080237777bfb70bfd9fd5b",
+    "0c5739da9f29148e1e6269ddc9aed365a62c24fd7d53dc756ee0ead7226bed9b",
+    "20d6cbc76e4a1ff00448f8f6e262e922d9d62e73401f39de3690b1ffefa2cfd1",
+    "f030e0bb25d46e312a9e22e64187b710f2aa00bf2a598332246ac4a1ee775965"
+  ]
+}

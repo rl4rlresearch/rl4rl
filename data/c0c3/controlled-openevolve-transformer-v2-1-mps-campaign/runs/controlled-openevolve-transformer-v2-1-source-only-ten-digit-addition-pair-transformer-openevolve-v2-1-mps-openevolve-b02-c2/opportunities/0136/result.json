@@ -1,0 +1,79 @@
+{
+  "artifact_path": "candidates/1f0cf946b1ef7079354b5e4c856e9c6b7f1801128a6676f9415c375e32ac4beb",
+  "candidate_id": "1f0cf946b1ef7079354b5e4c856e9c6b7f1801128a6676f9415c375e32ac4beb",
+  "codex_service_tier": "default",
+  "condition": "C2",
+  "conversation_session_id": null,
+  "evaluation": {
+    "evaluator_calls": 1,
+    "evaluator_seconds": 1800.1064057089388,
+    "failure_kind": "timeout",
+    "fitness": null,
+    "metrics": {},
+    "valid": false
+  },
+  "evaluator_calls_cumulative": 135,
+  "evaluator_calls_increment": 1,
+  "evaluator_seconds_cumulative": 63761.40952592029,
+  "evaluator_seconds_increment": 1800.1064057089388,
+  "event": "proposal_completed",
+  "evicted_candidate_id": null,
+  "evidence": "Reference Design 1 achieved 99.81% accuracy at 1,577 parameters with positional rows 1\u20136 centered; supplied evidence also reports that separated LayerNorm anchors succeeded where adjacent extensions failed, motivating a nonadjacent middle scale anchor instead of retrying the repeatedly timed-out full-bias removal.",
+  "hypothesis": "Centering positional rows 1\u20136 and fixing a separated middle `ln2` scale coordinate will produce a 1,576-parameter model with at least 99% accuracy, because the verified positional reduction retained 99.81% accuracy and the downstream learned `fc1` weights absorb the removed LayerNorm scale.",
+  "incumbent_after": "3bda21e7c9bd47019e68a13270d992060cf40f516504bb659a7c6c9c6cfec466",
+  "intended_edit": "Reproduce the verified sixth positional-row centering, then anchor `ln2` scale coordinates 0, 4, and 7 while reconstructing the full scale for the compact `fc1` row.",
+  "mechanism": "Nonadjacent pre-MLP LayerNorm scale absorption",
+  "opportunity": 136,
+  "parent_ids": [
+    "cdf25a02a9fac10114cbd556841c7818e47cae3dc7f53063049f6f53c6af7471"
+  ],
+  "portfolio_after": [
+    "3bda21e7c9bd47019e68a13270d992060cf40f516504bb659a7c6c9c6cfec466",
+    "f69ba496a549d05fe5c2f62811c60935de784101a43792a789e3802046ce13d4",
+    "cdf25a02a9fac10114cbd556841c7818e47cae3dc7f53063049f6f53c6af7471",
+    "d4aa6a29e3043349c527065ebaf0df3167a19aee2c1c6f05eda7e31244a8c88e"
+  ],
+  "prompt_hashes": {
+    "common_template_sha256": "3f2bea6418b6969c4bf2aa1df18dcda8a3a4ac075bf20c79068c754698b6be5e",
+    "prompt_sha256": "2b9866dace9ac9337920cdfddf3953b7b3da9a78fa0ce6e00965727b32dc333e",
+    "proposal_policy_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "search_state_sha256": "c938ac007bf70fe8d27f64661175531e51fcb16b38318c328493c32ee292e27e",
+    "treatment_skeleton_sha256": "b98cc5cf2b575aacc23ccdfca4da4d68ede11f39b8482300ee0ed0cd72345ce1"
+  },
+  "proposal_type": "ordinary",
+  "proposals_cumulative": 136,
+  "remaining_budget": {
+    "evaluations": 65,
+    "evaluator_seconds": 296238.5904740797,
+    "proposals": 64,
+    "tokens": 94230190
+  },
+  "retained": false,
+  "retention_decision": "invalid",
+  "run_id": "controlled-openevolve-transformer-v2-1-source-only-ten-digit-addition-pair-transformer-openevolve-v2-1-mps-openevolve-b02-c2",
+  "schema_version": "1.0",
+  "selected_parent_ids": [
+    "cdf25a02a9fac10114cbd556841c7818e47cae3dc7f53063049f6f53c6af7471"
+  ],
+  "timestamp": "2026-09-04T04:46:42.008009+00:00",
+  "usage_cumulative": {
+    "cached_input_tokens": 1468672,
+    "input_tokens": 5245924,
+    "output_tokens": 523886,
+    "reasoning_output_tokens": 378194,
+    "total_tokens": 5769810
+  },
+  "usage_increment": {
+    "cached_input_tokens": 10752,
+    "input_tokens": 46373,
+    "output_tokens": 6633,
+    "reasoning_output_tokens": 5254,
+    "total_tokens": 53006
+  },
+  "visible_candidate_ids": [
+    "3bda21e7c9bd47019e68a13270d992060cf40f516504bb659a7c6c9c6cfec466",
+    "f69ba496a549d05fe5c2f62811c60935de784101a43792a789e3802046ce13d4",
+    "cdf25a02a9fac10114cbd556841c7818e47cae3dc7f53063049f6f53c6af7471",
+    "d4aa6a29e3043349c527065ebaf0df3167a19aee2c1c6f05eda7e31244a8c88e"
+  ]
+}

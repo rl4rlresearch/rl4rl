@@ -1,0 +1,99 @@
+{
+  "artifact_path": "candidates/150bd517ca67457e7592664d77df315a1ab30f3891ef178de7087a2b2feecf66",
+  "candidate_id": "150bd517ca67457e7592664d77df315a1ab30f3891ef178de7087a2b2feecf66",
+  "codex_service_tier": "default",
+  "condition": "C0",
+  "conversation_session_id": null,
+  "evaluation": {
+    "evaluator_calls": 1,
+    "evaluator_seconds": 164.24565229099244,
+    "failure_kind": null,
+    "fitness": -4308117546380092537,
+    "metrics": {
+      "batch_size": 128,
+      "evaluation_cases": 815,
+      "evaluation_split": "public_speaker_disjoint_validation",
+      "examples_processed": 50000,
+      "inference_cost": 4308117546380092537,
+      "maximum_recurrent_steps": 30,
+      "mean_recurrent_steps": 29.137423312883435,
+      "median_recurrent_steps": 29,
+      "optimizer_steps": 397,
+      "p95_recurrent_steps": 30,
+      "parameters": 36183,
+      "peak_hidden_elements": 101888,
+      "recurrent_logit_effect": 0.13981157541275024,
+      "recurrent_macs": 825184503,
+      "recurrent_steps": 23747,
+      "state_dependence_effect": 0.3961789309978485,
+      "state_update_effect": 0.3958938419818878,
+      "total_inference_macs": 825918687,
+      "trained_recurrent_logit_effect": 0.23931902647018433,
+      "trained_state_dependence_effect": 0.46104979515075684,
+      "trained_state_update_effect": 0.4494940936565399,
+      "training_seconds": 149.85506487521343,
+      "validation_accuracy": 0.852760736196319,
+      "validation_correct": 695,
+      "validation_cross_entropy": 0.4649688159029908
+    },
+    "valid": true
+  },
+  "evaluator_calls_cumulative": 24,
+  "evaluator_calls_increment": 1,
+  "evaluator_seconds_cumulative": 3581.695153786801,
+  "evaluator_seconds_increment": 164.24565229099244,
+  "event": "proposal_completed",
+  "evicted_candidate_id": "f8a488cf404b6ce86c924977fc21024ea0f6fa41be7b39d756eb6a2ab6c41049",
+  "evidence": "The 30-step model meets the target at 85.03%, while fixed 29-step schedules narrowly fail; the prior certified-exit attempt timed out without accuracy evidence, motivating this cheaper single-check variant that retains the final step only for uncertified examples.",
+  "hypothesis": "A classifier-weight bound at step 29 will preserve every exited example\u2019s final predicted class, maintaining at least 85% accuracy while reducing mean recurrent steps and exact MACs.",
+  "incumbent_after": "150bd517ca67457e7592664d77df315a1ab30f3891ef178de7087a2b2feecf66",
+  "intended_edit": "Defer the learned readout until the penultimate step, then exit examples whose class cannot change under any possible final bounded GRU output.",
+  "mechanism": "Penultimate-step certified early exit",
+  "opportunity": 24,
+  "parent_ids": [
+    "f8a488cf404b6ce86c924977fc21024ea0f6fa41be7b39d756eb6a2ab6c41049"
+  ],
+  "portfolio_after": [
+    "150bd517ca67457e7592664d77df315a1ab30f3891ef178de7087a2b2feecf66"
+  ],
+  "prompt_hashes": {
+    "common_template_sha256": "dee04faf4c430276c1036ba97f5705a339857dbdf19117dac88952a5a3a47e9d",
+    "prompt_sha256": "72e08e3061f0626d62de3264083788588b3735d6951c242b702a8532d035c905",
+    "proposal_policy_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "search_state_sha256": "04e5eb078ae1964e4ec65bfeeeb1acd0ffa246e7d54d5e0f997f81f602da28c5",
+    "treatment_skeleton_sha256": "4b1cb2b44cce63ad45196ec31f718278857e69dd49a4e28605016215a0c6f928"
+  },
+  "proposal_type": "ordinary",
+  "proposals_cumulative": 24,
+  "remaining_budget": {
+    "evaluations": 176,
+    "evaluator_seconds": 56418.3048462132,
+    "proposals": 176,
+    "tokens": 99488455
+  },
+  "retained": true,
+  "retention_decision": "strict_incumbent_improvement",
+  "run_id": "tiny-kws-rnn-openevolve-v2-1-cpu-tiny_kws_rnn_source_only_cpu-openevolve-b02-c0",
+  "schema_version": "1.0",
+  "selected_parent_ids": [
+    "f8a488cf404b6ce86c924977fc21024ea0f6fa41be7b39d756eb6a2ab6c41049"
+  ],
+  "timestamp": "2026-09-04T04:13:37.684704+00:00",
+  "usage_cumulative": {
+    "cached_input_tokens": 254464,
+    "input_tokens": 457085,
+    "output_tokens": 54460,
+    "reasoning_output_tokens": 46827,
+    "total_tokens": 511545
+  },
+  "usage_increment": {
+    "cached_input_tokens": 10752,
+    "input_tokens": 19896,
+    "output_tokens": 6822,
+    "reasoning_output_tokens": 6214,
+    "total_tokens": 26718
+  },
+  "visible_candidate_ids": [
+    "f8a488cf404b6ce86c924977fc21024ea0f6fa41be7b39d756eb6a2ab6c41049"
+  ]
+}

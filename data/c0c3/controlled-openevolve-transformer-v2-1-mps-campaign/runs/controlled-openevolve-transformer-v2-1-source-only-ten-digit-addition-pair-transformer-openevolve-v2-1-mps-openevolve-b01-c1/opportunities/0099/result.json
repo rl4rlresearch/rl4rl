@@ -1,0 +1,79 @@
+{
+  "artifact_path": "candidates/7d217a2b0387666ee2f4141ee71578763a6298baa50580cf57445b897fe8c1a9",
+  "candidate_id": "7d217a2b0387666ee2f4141ee71578763a6298baa50580cf57445b897fe8c1a9",
+  "codex_service_tier": "default",
+  "condition": "C1",
+  "conversation_session_id": null,
+  "evaluation": {
+    "evaluator_calls": 1,
+    "evaluator_seconds": 285.35549045796506,
+    "failure_kind": "nonqualification",
+    "fitness": null,
+    "metrics": {
+      "accuracy": 0.7392,
+      "cases": 10010,
+      "correct": 7399,
+      "parameters": 1534,
+      "training_steps": 4999
+    },
+    "valid": false
+  },
+  "evaluator_calls_cumulative": 99,
+  "evaluator_calls_increment": 1,
+  "evaluator_seconds_cumulative": 43365.71945866314,
+  "evaluator_seconds_increment": 285.35549045796506,
+  "event": "proposal_completed",
+  "evicted_candidate_id": null,
+  "evidence": "The 1,535-parameter design reached 99.87%, whereas removing all 32 query/key basis-gauge parameters at once collapsed to 23.28% despite preserving score functions. Fixing only one gauge coordinate is the smallest test of whether that failure resulted from aggressive simultaneous reparameterization.",
+  "hypothesis": "Fixing one query-weight coordinate through a score-preserving orthogonal query/key rotation will reduce the model from 1,535 to 1,534 parameters while retaining at least 99% accuracy, avoiding the optimization shock caused by fixing all 32 attention-basis gauges simultaneously.",
+  "incumbent_after": "955acebaeb7771c3e532e1f9f1b2ab4ac446fa5d74f37db4e6fd31878936dc85",
+  "intended_edit": "Replace the QKV projection with a one-parameter-smaller projection whose first query coordinate is fixed at zero, and orthogonally canonicalize the corresponding query/key rows during fresh initialization while preserving initial attention scores.",
+  "mechanism": "Single-coordinate orthogonal query/key gauge fixing",
+  "opportunity": 99,
+  "parent_ids": [
+    "955acebaeb7771c3e532e1f9f1b2ab4ac446fa5d74f37db4e6fd31878936dc85"
+  ],
+  "portfolio_after": [
+    "955acebaeb7771c3e532e1f9f1b2ab4ac446fa5d74f37db4e6fd31878936dc85"
+  ],
+  "prompt_hashes": {
+    "common_template_sha256": "3f2bea6418b6969c4bf2aa1df18dcda8a3a4ac075bf20c79068c754698b6be5e",
+    "prompt_sha256": "06ebca6e54b1be0cbfd702f06501fa1ac05039f653f02bc178598dcce3a02c36",
+    "proposal_policy_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "search_state_sha256": "04e5eb078ae1964e4ec65bfeeeb1acd0ffa246e7d54d5e0f997f81f602da28c5",
+    "treatment_skeleton_sha256": "706c8d06544874adb0b7e5a13b67bf40003a19c763275fd4f01f26b189ce85c7"
+  },
+  "proposal_type": "ordinary",
+  "proposals_cumulative": 99,
+  "remaining_budget": {
+    "evaluations": 101,
+    "evaluator_seconds": 316634.28054133686,
+    "proposals": 101,
+    "tokens": 97343803
+  },
+  "retained": false,
+  "retention_decision": "invalid",
+  "run_id": "controlled-openevolve-transformer-v2-1-source-only-ten-digit-addition-pair-transformer-openevolve-v2-1-mps-openevolve-b01-c1",
+  "schema_version": "1.0",
+  "selected_parent_ids": [
+    "955acebaeb7771c3e532e1f9f1b2ab4ac446fa5d74f37db4e6fd31878936dc85"
+  ],
+  "timestamp": "2026-08-26T02:42:36.951100+00:00",
+  "usage_cumulative": {
+    "cached_input_tokens": 1019392,
+    "input_tokens": 2267693,
+    "output_tokens": 388504,
+    "reasoning_output_tokens": 314381,
+    "total_tokens": 2656197
+  },
+  "usage_increment": {
+    "cached_input_tokens": 9984,
+    "input_tokens": 24463,
+    "output_tokens": 6733,
+    "reasoning_output_tokens": 5857,
+    "total_tokens": 31196
+  },
+  "visible_candidate_ids": [
+    "955acebaeb7771c3e532e1f9f1b2ab4ac446fa5d74f37db4e6fd31878936dc85"
+  ]
+}

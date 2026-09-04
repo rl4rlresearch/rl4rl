@@ -1,0 +1,99 @@
+{
+  "artifact_path": "candidates/20e6fc95ff175384082c079c7aa0c22e783e6ef2648f9efccba81c3f858dc4b1",
+  "candidate_id": "20e6fc95ff175384082c079c7aa0c22e783e6ef2648f9efccba81c3f858dc4b1",
+  "codex_service_tier": "default",
+  "condition": "C1",
+  "conversation_session_id": null,
+  "evaluation": {
+    "evaluator_calls": 1,
+    "evaluator_seconds": 83.24622212490067,
+    "failure_kind": "nonqualification",
+    "fitness": null,
+    "metrics": {
+      "batch_size": 128,
+      "evaluation_cases": 815,
+      "evaluation_split": "public_speaker_disjoint_validation",
+      "examples_processed": 50000,
+      "inference_cost": 2383916742849082288,
+      "maximum_recurrent_steps": 32,
+      "mean_recurrent_steps": 32.0,
+      "median_recurrent_steps": 32,
+      "optimizer_steps": 397,
+      "p95_recurrent_steps": 32,
+      "parameters": 43088,
+      "peak_hidden_elements": 132096,
+      "recurrent_logit_effect": 0.05374215543270111,
+      "recurrent_macs": 455669760,
+      "recurrent_steps": 26080,
+      "state_dependence_effect": 0.21707658469676971,
+      "state_update_effect": 0.21756713092327118,
+      "total_inference_macs": 457025920,
+      "trained_recurrent_logit_effect": 0.06758464127779007,
+      "trained_state_dependence_effect": 0.20896266400814056,
+      "trained_state_update_effect": 0.20562756061553955,
+      "training_seconds": 61.60338733298704,
+      "validation_accuracy": 0.8441717791411043,
+      "validation_correct": 688,
+      "validation_cross_entropy": 0.41811969967707535
+    },
+    "valid": false
+  },
+  "evaluator_calls_cumulative": 20,
+  "evaluator_calls_increment": 1,
+  "evaluator_seconds_cumulative": 2578.3555617490783,
+  "evaluator_seconds_increment": 83.24622212490067,
+  "event": "proposal_completed",
+  "evicted_candidate_id": null,
+  "evidence": "Full-rate gated models consistently exceeded 85%, whereas discarding frames and replacing GRU gating with a 160-unit Elman RNN failed. This challenges the shared assumption that one state must model both local acoustics and the full utterance at every frame: all 32 frames remain encoded, but long-timescale recurrence runs only eight times.",
+  "hypothesis": "A 48-unit GRU encoding every four-frame chunk into an 80-unit slower GRU will retain at least 85% accuracy while reducing recurrent MACs by approximately 27%, because it preserves every input frame and gated recurrence while replacing redundant full-rate long-timescale updates with eight learned chunk updates.",
+  "incumbent_after": "b313b37be8dc104f2f0da6e833bbce9e1c1eb6a918dec69e327687759bcaf226",
+  "intended_edit": "Reset a fast local GRU after each four-frame chunk, feed its endpoint into a slower command-level GRU, and classify from the local temporal mean plus the slow endpoint and trajectory mean.",
+  "mechanism": "Hierarchical chunk-to-command gated recurrence",
+  "opportunity": 20,
+  "parent_ids": [
+    "b313b37be8dc104f2f0da6e833bbce9e1c1eb6a918dec69e327687759bcaf226"
+  ],
+  "portfolio_after": [
+    "b313b37be8dc104f2f0da6e833bbce9e1c1eb6a918dec69e327687759bcaf226"
+  ],
+  "prompt_hashes": {
+    "common_template_sha256": "dee04faf4c430276c1036ba97f5705a339857dbdf19117dac88952a5a3a47e9d",
+    "prompt_sha256": "e40e42a4e379362c113d7f52f6c806b09e2fe89d6905e5065d6b0e670975df65",
+    "proposal_policy_sha256": "f3e935f1a3cb6334e7f39b20b1b6b601cd727de9c5f0c3630206a91f08e358c9",
+    "search_state_sha256": "04e5eb078ae1964e4ec65bfeeeb1acd0ffa246e7d54d5e0f997f81f602da28c5",
+    "treatment_skeleton_sha256": "4c44dd8645c202da33ddfff716d731e5f4db7e1d4b92f5e08fe0ebe9146b7b12"
+  },
+  "proposal_type": "assumption_changing",
+  "proposals_cumulative": 20,
+  "remaining_budget": {
+    "evaluations": 180,
+    "evaluator_seconds": 57421.64443825092,
+    "proposals": 180,
+    "tokens": 99573551
+  },
+  "retained": false,
+  "retention_decision": "invalid",
+  "run_id": "tiny-kws-rnn-openevolve-v2-1-cpu-tiny_kws_rnn_source_only_cpu-openevolve-b03-c1",
+  "schema_version": "1.0",
+  "selected_parent_ids": [
+    "b313b37be8dc104f2f0da6e833bbce9e1c1eb6a918dec69e327687759bcaf226"
+  ],
+  "timestamp": "2026-09-04T04:00:32.515303+00:00",
+  "usage_cumulative": {
+    "cached_input_tokens": 215040,
+    "input_tokens": 375721,
+    "output_tokens": 50728,
+    "reasoning_output_tokens": 40782,
+    "total_tokens": 426449
+  },
+  "usage_increment": {
+    "cached_input_tokens": 10752,
+    "input_tokens": 20145,
+    "output_tokens": 9971,
+    "reasoning_output_tokens": 7984,
+    "total_tokens": 30116
+  },
+  "visible_candidate_ids": [
+    "b313b37be8dc104f2f0da6e833bbce9e1c1eb6a918dec69e327687759bcaf226"
+  ]
+}

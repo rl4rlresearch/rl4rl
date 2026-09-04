@@ -1,0 +1,82 @@
+{
+  "artifact_path": "candidates/a1a9234027b48bc7b7b3915b2e809e849b6afedfe79a9a211f23947b1f8adec9",
+  "candidate_id": "a1a9234027b48bc7b7b3915b2e809e849b6afedfe79a9a211f23947b1f8adec9",
+  "codex_service_tier": "fast",
+  "condition": "C1",
+  "conversation_session_id": null,
+  "evaluation": {
+    "evaluator_calls": 1,
+    "evaluator_seconds": 348.54985312200006,
+    "failure_kind": null,
+    "fitness": -0.992286,
+    "metrics": {
+      "depth": 8.0,
+      "mfu_percent": 35.34,
+      "num_params_M": 50.3,
+      "num_steps": 1012.0,
+      "peak_vram_mb": 45060.2,
+      "total_tokens_M": 530.6,
+      "training_seconds": 300.1,
+      "val_bpb": 0.992286
+    },
+    "valid": true
+  },
+  "evaluator_calls_cumulative": 5,
+  "evaluator_calls_increment": 1,
+  "evaluator_seconds_cumulative": 1878.5942547809996,
+  "evaluator_seconds_increment": 348.54985312200006,
+  "event": "proposal_completed",
+  "evicted_candidate_id": "d2d100c0ac886e3a17c320a1967d9acb5eb5ae80fc5feccdb4cea4c0f322bd64",
+  "evidence": "Reducing six local windows from 512 to 256 tokens increased training from 514.9M to 522.2M tokens without degrading val_bpb, indicating that the model can trade additional attention compute for throughput at this context scale.",
+  "hypothesis": "Replacing the earlier full-context layer with a 256-token local layer will increase token throughput while the mandatory final full-context layer preserves global integration, lowering val_bpb below 0.993215.",
+  "incumbent_after": "a1a9234027b48bc7b7b3915b2e809e849b6afedfe79a9a211f23947b1f8adec9",
+  "intended_edit": "Use local attention in every layer except the final layer, which remains full-context through the existing override.",
+  "mechanism": "Single global-attention consolidation layer",
+  "opportunity": 5,
+  "parent_ids": [
+    "d2d100c0ac886e3a17c320a1967d9acb5eb5ae80fc5feccdb4cea4c0f322bd64"
+  ],
+  "portfolio_after": [
+    "a1a9234027b48bc7b7b3915b2e809e849b6afedfe79a9a211f23947b1f8adec9"
+  ],
+  "prompt_hashes": {
+    "common_template_sha256": "ba85b39aa7288f4f48475376da6cff65661f39cfeb7ac7cde15b2a9a2e692fde",
+    "prompt_sha256": "33f16364dd41e70a3b6765debb68b7bf2dbd6a59d9463c2ec52ba2225ca38232",
+    "proposal_policy_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "search_state_sha256": "04e5eb078ae1964e4ec65bfeeeb1acd0ffa246e7d54d5e0f997f81f602da28c5",
+    "treatment_skeleton_sha256": "17b9785e1ce2d644e9a979736e337473102ff27d16d1d5ba31ba463788f1e438"
+  },
+  "proposal_type": "ordinary",
+  "proposals_cumulative": 5,
+  "remaining_budget": {
+    "evaluations": 195,
+    "evaluator_seconds": 718121.405745219,
+    "proposals": 195,
+    "tokens": 99882540
+  },
+  "retained": true,
+  "retention_decision": "strict_incumbent_improvement",
+  "run_id": "nanogpt-openevolve-v2-1-h100-karpathy_nanogpt_source_only_h100-openevolve-b01-c1",
+  "schema_version": "1.0",
+  "selected_parent_ids": [
+    "d2d100c0ac886e3a17c320a1967d9acb5eb5ae80fc5feccdb4cea4c0f322bd64"
+  ],
+  "timestamp": "2026-08-23T15:20:30.421570+00:00",
+  "usage_cumulative": {
+    "cached_input_tokens": 58112,
+    "input_tokens": 111777,
+    "output_tokens": 5683,
+    "reasoning_output_tokens": 4840,
+    "total_tokens": 117460
+  },
+  "usage_increment": {
+    "cached_input_tokens": 12032,
+    "input_tokens": 22749,
+    "output_tokens": 989,
+    "reasoning_output_tokens": 802,
+    "total_tokens": 23738
+  },
+  "visible_candidate_ids": [
+    "d2d100c0ac886e3a17c320a1967d9acb5eb5ae80fc5feccdb4cea4c0f322bd64"
+  ]
+}

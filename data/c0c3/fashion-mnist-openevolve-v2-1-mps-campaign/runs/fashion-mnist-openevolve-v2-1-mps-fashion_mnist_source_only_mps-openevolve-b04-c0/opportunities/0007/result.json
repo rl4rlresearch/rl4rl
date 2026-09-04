@@ -1,0 +1,85 @@
+{
+  "artifact_path": "candidates/e4ddd10be457826566ffa3afce478f5cea9b072fb2a499a5512b56aec6a966f5",
+  "candidate_id": "e4ddd10be457826566ffa3afce478f5cea9b072fb2a499a5512b56aec6a966f5",
+  "codex_service_tier": "default",
+  "condition": "C0",
+  "conversation_session_id": null,
+  "evaluation": {
+    "evaluator_calls": 1,
+    "evaluator_seconds": 63.6737984160427,
+    "failure_kind": null,
+    "fitness": 9323.419283199799,
+    "metrics": {
+      "batch_size": 128,
+      "evaluation_cases": 10000,
+      "evaluation_split": "public_validation",
+      "examples_processed": 100000,
+      "optimizer_steps": 782,
+      "parameters": 237818,
+      "training_seconds": 58.442112624878064,
+      "validation_accuracy": 0.9323,
+      "validation_correct": 9323,
+      "validation_cross_entropy": 0.19251141052246093,
+      "validation_score": 9323.419283199799
+    },
+    "valid": true
+  },
+  "evaluator_calls_cumulative": 7,
+  "evaluator_calls_increment": 1,
+  "evaluator_seconds_cumulative": 398.93994054012,
+  "evaluator_seconds_increment": 63.6737984160427,
+  "event": "proposal_completed",
+  "evicted_candidate_id": "db2238995c5cd8761203d0086403edb199d3e82fc7c6c2106d6569ff59640000",
+  "evidence": "Paired-flip training raised validation_correct from 9,302 to 9,322 and lowered cross-entropy, while batch 64\u2019s extra updates regressed accuracy; this motivates preserving the successful regime and stabilizing its final solution.",
+  "hypothesis": "Replacing the final weights with a 0.99-decay EMA accumulated over the second half of training will exceed 9,322 correct predictions by reducing late-optimization variance without changing exposure, architecture, or predictions.",
+  "incumbent_after": "e4ddd10be457826566ffa3afce478f5cea9b072fb2a499a5512b56aec6a966f5",
+  "intended_edit": "Add an optimizer post-step hook that tracks a parameter EMA after halfway and installs it exactly after the final optimizer step.",
+  "mechanism": "Second-half exponential weight averaging",
+  "opportunity": 7,
+  "parent_ids": [
+    "db2238995c5cd8761203d0086403edb199d3e82fc7c6c2106d6569ff59640000"
+  ],
+  "portfolio_after": [
+    "e4ddd10be457826566ffa3afce478f5cea9b072fb2a499a5512b56aec6a966f5"
+  ],
+  "prompt_hashes": {
+    "common_template_sha256": "e8327ba94bab12abc7c7ec7c6615378a3ae62434efb944d4a7d9492f1d19bc14",
+    "prompt_sha256": "2f50fe83818a16a80de92176edba5a139536d6047f146b8b68a8ab1df1a55d33",
+    "proposal_policy_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "search_state_sha256": "04e5eb078ae1964e4ec65bfeeeb1acd0ffa246e7d54d5e0f997f81f602da28c5",
+    "treatment_skeleton_sha256": "b1bd250ee3900297debfdbf30c7542c31b8853de929f648bf34d77085f974036"
+  },
+  "proposal_type": "ordinary",
+  "proposals_cumulative": 7,
+  "remaining_budget": {
+    "evaluations": 193,
+    "evaluator_seconds": 23601.06005945988,
+    "proposals": 193,
+    "tokens": 99867127
+  },
+  "retained": true,
+  "retention_decision": "strict_incumbent_improvement",
+  "run_id": "fashion-mnist-openevolve-v2-1-mps-fashion_mnist_source_only_mps-openevolve-b04-c0",
+  "schema_version": "1.0",
+  "selected_parent_ids": [
+    "db2238995c5cd8761203d0086403edb199d3e82fc7c6c2106d6569ff59640000"
+  ],
+  "timestamp": "2026-08-24T03:06:51.952609+00:00",
+  "usage_cumulative": {
+    "cached_input_tokens": 84224,
+    "input_tokens": 113445,
+    "output_tokens": 19428,
+    "reasoning_output_tokens": 15809,
+    "total_tokens": 132873
+  },
+  "usage_increment": {
+    "cached_input_tokens": 12032,
+    "input_tokens": 17028,
+    "output_tokens": 4210,
+    "reasoning_output_tokens": 3719,
+    "total_tokens": 21238
+  },
+  "visible_candidate_ids": [
+    "db2238995c5cd8761203d0086403edb199d3e82fc7c6c2106d6569ff59640000"
+  ]
+}

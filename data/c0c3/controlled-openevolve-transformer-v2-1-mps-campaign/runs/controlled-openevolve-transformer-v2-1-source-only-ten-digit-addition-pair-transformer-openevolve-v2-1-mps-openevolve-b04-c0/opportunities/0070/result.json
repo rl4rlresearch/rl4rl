@@ -1,0 +1,79 @@
+{
+  "artifact_path": "candidates/378d31d22e1a0032acc8f03f98673daf22edfef81420c703f3b946561efcbdee",
+  "candidate_id": "378d31d22e1a0032acc8f03f98673daf22edfef81420c703f3b946561efcbdee",
+  "codex_service_tier": "default",
+  "condition": "C0",
+  "conversation_session_id": null,
+  "evaluation": {
+    "evaluator_calls": 1,
+    "evaluator_seconds": 241.33892683312297,
+    "failure_kind": "nonqualification",
+    "fitness": null,
+    "metrics": {
+      "accuracy": 0.0279,
+      "cases": 10010,
+      "correct": 279,
+      "parameters": 1592,
+      "training_steps": 4999
+    },
+    "valid": false
+  },
+  "evaluator_calls_cumulative": 70,
+  "evaluator_calls_increment": 1,
+  "evaluator_seconds_cumulative": 33567.94123295334,
+  "evaluator_seconds_increment": 241.33892683312297,
+  "event": "proposal_completed",
+  "evicted_candidate_id": null,
+  "evidence": "The 1593-parameter design achieved 99.90%, while every attempted fourth query-bias removal failed; this motivates testing an untouched exact gauge in the final MLP residual rather than further reducing query capacity.",
+  "hypothesis": "Fixing `fc2.bias[0]` at zero will reduce the model from 1593 to 1592 parameters while retaining at least 99% accuracy, because any removed value can be subtracted uniformly from all eight bias coordinates without changing the following final LayerNorm output.",
+  "incumbent_after": "d848e7ae2b9533654360b5ea86a3be954b3b955a72a01bcecfe6cba123668bb2",
+  "intended_edit": "Replace the eight-parameter `fc2` bias with seven learned coordinates, reconstruct coordinate 0 as zero, and preserve ordinary `nn.Linear` initialization RNG consumption.",
+  "mechanism": "Final-residual bias gauge anchoring",
+  "opportunity": 70,
+  "parent_ids": [
+    "d848e7ae2b9533654360b5ea86a3be954b3b955a72a01bcecfe6cba123668bb2"
+  ],
+  "portfolio_after": [
+    "d848e7ae2b9533654360b5ea86a3be954b3b955a72a01bcecfe6cba123668bb2"
+  ],
+  "prompt_hashes": {
+    "common_template_sha256": "3f2bea6418b6969c4bf2aa1df18dcda8a3a4ac075bf20c79068c754698b6be5e",
+    "prompt_sha256": "96f7d11fae063b38cfad7e7c9ac9a7275eb2af13ebb5a2ed6230081dded646e5",
+    "proposal_policy_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "search_state_sha256": "04e5eb078ae1964e4ec65bfeeeb1acd0ffa246e7d54d5e0f997f81f602da28c5",
+    "treatment_skeleton_sha256": "ac523e326ea890600345c03bffd30a556dd8cce5a8e51209d6f2848e9acfb62a"
+  },
+  "proposal_type": "ordinary",
+  "proposals_cumulative": 70,
+  "remaining_budget": {
+    "evaluations": 130,
+    "evaluator_seconds": 326432.05876704666,
+    "proposals": 130,
+    "tokens": 98294406
+  },
+  "retained": false,
+  "retention_decision": "invalid",
+  "run_id": "controlled-openevolve-transformer-v2-1-source-only-ten-digit-addition-pair-transformer-openevolve-v2-1-mps-openevolve-b04-c0",
+  "schema_version": "1.0",
+  "selected_parent_ids": [
+    "d848e7ae2b9533654360b5ea86a3be954b3b955a72a01bcecfe6cba123668bb2"
+  ],
+  "timestamp": "2026-08-25T14:34:59.454211+00:00",
+  "usage_cumulative": {
+    "cached_input_tokens": 736512,
+    "input_tokens": 1549999,
+    "output_tokens": 155595,
+    "reasoning_output_tokens": 115296,
+    "total_tokens": 1705594
+  },
+  "usage_increment": {
+    "cached_input_tokens": 12032,
+    "input_tokens": 23006,
+    "output_tokens": 6150,
+    "reasoning_output_tokens": 5768,
+    "total_tokens": 29156
+  },
+  "visible_candidate_ids": [
+    "d848e7ae2b9533654360b5ea86a3be954b3b955a72a01bcecfe6cba123668bb2"
+  ]
+}

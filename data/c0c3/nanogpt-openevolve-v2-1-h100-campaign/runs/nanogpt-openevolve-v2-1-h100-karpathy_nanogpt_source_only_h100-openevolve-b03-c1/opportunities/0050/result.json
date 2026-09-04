@@ -1,0 +1,82 @@
+{
+  "artifact_path": "candidates/7b2e64bf3f453e83ff94bad5734cc829eade32f0f2fcae0267255ec26d2a27ac",
+  "candidate_id": "7b2e64bf3f453e83ff94bad5734cc829eade32f0f2fcae0267255ec26d2a27ac",
+  "codex_service_tier": "default",
+  "condition": "C1",
+  "conversation_session_id": null,
+  "evaluation": {
+    "evaluator_calls": 1,
+    "evaluator_seconds": 373.37388902300154,
+    "failure_kind": null,
+    "fitness": -0.983164,
+    "metrics": {
+      "depth": 8.0,
+      "mfu_percent": 37.58,
+      "num_params_M": 50.3,
+      "num_steps": 2100.0,
+      "peak_vram_mb": 41162.2,
+      "total_tokens_M": 481.7,
+      "training_seconds": 300.1,
+      "val_bpb": 0.983164
+    },
+    "valid": true
+  },
+  "evaluator_calls_cumulative": 50,
+  "evaluator_calls_increment": 1,
+  "evaluator_seconds_cumulative": 22239.030886533026,
+  "evaluator_seconds_increment": 373.37388902300154,
+  "event": "proposal_completed",
+  "evicted_candidate_id": "2108a9196c187d37086886e1e312892a182e0dddd25188627080748cae326481",
+  "evidence": "Attention-window refinements yielded only marginal gains, while learned per-head value routing was useful and improved further with an eight-channel bottleneck; this motivates applying the proven compact routing mechanism to the entire retrieved context, where standard softmax attention otherwise lacks a token-dependent no-write option.",
+  "hypothesis": "Allowing each token to suppress or amplify each attention head\u2019s retrieved context will reduce val_bpb below 0.983900 without materially reducing throughput.",
+  "incumbent_after": "7b2e64bf3f453e83ff94bad5734cc829eade32f0f2fcae0267255ec26d2a27ac",
+  "intended_edit": "Replace the assumption that every softmax-attention head must write a value at every token with a zero-initialized, eight-channel per-head gate applied after attention and before output projection.",
+  "mechanism": "Token-conditional attention-head write gates",
+  "opportunity": 50,
+  "parent_ids": [
+    "2108a9196c187d37086886e1e312892a182e0dddd25188627080748cae326481"
+  ],
+  "portfolio_after": [
+    "7b2e64bf3f453e83ff94bad5734cc829eade32f0f2fcae0267255ec26d2a27ac"
+  ],
+  "prompt_hashes": {
+    "common_template_sha256": "ba85b39aa7288f4f48475376da6cff65661f39cfeb7ac7cde15b2a9a2e692fde",
+    "prompt_sha256": "ae2e09670138eff0b1468ec3cc7c4d55c96245c127bb35d860dfcdb49e08520a",
+    "proposal_policy_sha256": "cd7b9ba20a1cd1edd0663b5e3652baa9cd3c81925074103fe47e66c021d61a4a",
+    "search_state_sha256": "04e5eb078ae1964e4ec65bfeeeb1acd0ffa246e7d54d5e0f997f81f602da28c5",
+    "treatment_skeleton_sha256": "34233ed93b8c0fcc9d191955c1f7f61b6639f77efad5e7008a464c97424a7268"
+  },
+  "proposal_type": "assumption_changing",
+  "proposals_cumulative": 50,
+  "remaining_budget": {
+    "evaluations": 150,
+    "evaluator_seconds": 697760.969113467,
+    "proposals": 150,
+    "tokens": 98661176
+  },
+  "retained": true,
+  "retention_decision": "strict_incumbent_improvement",
+  "run_id": "nanogpt-openevolve-v2-1-h100-karpathy_nanogpt_source_only_h100-openevolve-b03-c1",
+  "schema_version": "1.0",
+  "selected_parent_ids": [
+    "2108a9196c187d37086886e1e312892a182e0dddd25188627080748cae326481"
+  ],
+  "timestamp": "2026-08-24T10:43:58.408303+00:00",
+  "usage_cumulative": {
+    "cached_input_tokens": 560896,
+    "input_tokens": 1222862,
+    "output_tokens": 115962,
+    "reasoning_output_tokens": 101893,
+    "total_tokens": 1338824
+  },
+  "usage_increment": {
+    "cached_input_tokens": 6912,
+    "input_tokens": 25206,
+    "output_tokens": 3699,
+    "reasoning_output_tokens": 3106,
+    "total_tokens": 28905
+  },
+  "visible_candidate_ids": [
+    "2108a9196c187d37086886e1e312892a182e0dddd25188627080748cae326481"
+  ]
+}

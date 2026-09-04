@@ -1,0 +1,82 @@
+{
+  "artifact_path": "candidates/07b7a22029f4f86d19d5564bada3fc0a1f1aa39b93678916207791af79f0ec05",
+  "candidate_id": "07b7a22029f4f86d19d5564bada3fc0a1f1aa39b93678916207791af79f0ec05",
+  "codex_service_tier": "default",
+  "condition": "C1",
+  "conversation_session_id": null,
+  "evaluation": {
+    "evaluator_calls": 1,
+    "evaluator_seconds": 362.6702766069975,
+    "failure_kind": null,
+    "fitness": -0.988167,
+    "metrics": {
+      "depth": 8.0,
+      "mfu_percent": 38.13,
+      "num_params_M": 50.3,
+      "num_steps": 2900.0,
+      "peak_vram_mb": 28255.6,
+      "total_tokens_M": 475.1,
+      "training_seconds": 300.0,
+      "val_bpb": 0.988167
+    },
+    "valid": true
+  },
+  "evaluator_calls_cumulative": 22,
+  "evaluator_calls_increment": 1,
+  "evaluator_seconds_cumulative": 8126.084091573995,
+  "evaluator_seconds_increment": 362.6702766069975,
+  "event": "proposal_completed",
+  "evicted_candidate_id": null,
+  "evidence": "Successive single-microbatch reductions from 393,216 to 327,680 to 262,144 to 196,608 tokens consistently improved val_bpb from 0.990146 to 0.988487 to 0.987386 to 0.986971, while throughput declined only modestly; a smaller incremental reduction tests whether the update-frequency benefit continues near the apparent optimum.",
+  "hypothesis": "Reducing the update batch from 196,608 to 163,840 tokens will provide 20% more whole-model updates per token while retaining adequate H100 occupancy, lowering val_bpb below 0.986971.",
+  "incumbent_after": "4b4c36a3f6058ec6de8820566fbe68a49ea0653776055140bbc749f8de65c221",
+  "intended_edit": "Set both total and device batch sizes to 80 sequences, preserving one microbatch per optimizer step and all proven architecture, optimizer, and schedule settings.",
+  "mechanism": "Single-microbatch 160K-token updates",
+  "opportunity": 22,
+  "parent_ids": [
+    "4b4c36a3f6058ec6de8820566fbe68a49ea0653776055140bbc749f8de65c221"
+  ],
+  "portfolio_after": [
+    "4b4c36a3f6058ec6de8820566fbe68a49ea0653776055140bbc749f8de65c221"
+  ],
+  "prompt_hashes": {
+    "common_template_sha256": "ba85b39aa7288f4f48475376da6cff65661f39cfeb7ac7cde15b2a9a2e692fde",
+    "prompt_sha256": "3575315da3acdf5e39be1ba299bf212d763cdb1afdab11146e59254f66e4fa86",
+    "proposal_policy_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "search_state_sha256": "04e5eb078ae1964e4ec65bfeeeb1acd0ffa246e7d54d5e0f997f81f602da28c5",
+    "treatment_skeleton_sha256": "77bca9877c3fa11b091da5820433b307289461d23310828b9d601706a4dfbf82"
+  },
+  "proposal_type": "ordinary",
+  "proposals_cumulative": 22,
+  "remaining_budget": {
+    "evaluations": 178,
+    "evaluator_seconds": 711873.915908426,
+    "proposals": 178,
+    "tokens": 99399478
+  },
+  "retained": false,
+  "retention_decision": "not_strictly_better_than_incumbent",
+  "run_id": "nanogpt-openevolve-v2-1-h100-karpathy_nanogpt_source_only_h100-openevolve-b02-c1",
+  "schema_version": "1.0",
+  "selected_parent_ids": [
+    "4b4c36a3f6058ec6de8820566fbe68a49ea0653776055140bbc749f8de65c221"
+  ],
+  "timestamp": "2026-08-24T02:55:01.948167+00:00",
+  "usage_cumulative": {
+    "cached_input_tokens": 247808,
+    "input_tokens": 530528,
+    "output_tokens": 69994,
+    "reasoning_output_tokens": 60375,
+    "total_tokens": 600522
+  },
+  "usage_increment": {
+    "cached_input_tokens": 12032,
+    "input_tokens": 24945,
+    "output_tokens": 568,
+    "reasoning_output_tokens": 294,
+    "total_tokens": 25513
+  },
+  "visible_candidate_ids": [
+    "4b4c36a3f6058ec6de8820566fbe68a49ea0653776055140bbc749f8de65c221"
+  ]
+}

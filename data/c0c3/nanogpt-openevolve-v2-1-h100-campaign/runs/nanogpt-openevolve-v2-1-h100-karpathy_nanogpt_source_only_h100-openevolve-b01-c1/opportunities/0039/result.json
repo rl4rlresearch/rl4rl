@@ -1,0 +1,82 @@
+{
+  "artifact_path": "candidates/ea091d7026468a2144d00947802359c24ef69dac80e6dd41776d85f2c8827ddc",
+  "candidate_id": "ea091d7026468a2144d00947802359c24ef69dac80e6dd41776d85f2c8827ddc",
+  "codex_service_tier": "default",
+  "condition": "C1",
+  "conversation_session_id": null,
+  "evaluation": {
+    "evaluator_calls": 1,
+    "evaluator_seconds": 357.9617948599989,
+    "failure_kind": null,
+    "fitness": -0.984337,
+    "metrics": {
+      "depth": 8.0,
+      "mfu_percent": 36.42,
+      "num_params_M": 50.3,
+      "num_steps": 1939.0,
+      "peak_vram_mb": 44908.2,
+      "total_tokens_M": 508.3,
+      "training_seconds": 300.1,
+      "val_bpb": 0.984337
+    },
+    "valid": true
+  },
+  "evaluator_calls_cumulative": 39,
+  "evaluator_calls_increment": 1,
+  "evaluator_seconds_cumulative": 17642.53529064208,
+  "evaluator_seconds_increment": 357.9617948599989,
+  "event": "proposal_completed",
+  "evicted_candidate_id": null,
+  "evidence": "Widening layer 3 alone improved val_bpb from 0.984467 to 0.983718, whereas also widening layer 2 improved it by only 0.000029; concentrating the same added attention budget in the demonstrably valuable pre-consolidation layer directly tests whether proximity to global mixing matters more than distributed widening.",
+  "hypothesis": "Reallocating layer 2\u2019s marginal 256-token window increase to layer 3 will lower val_bpb below 0.983689 by providing 768-token context immediately before the first full-context consolidation layer without changing attention compute or throughput.",
+  "incumbent_after": "674df27b25c58f2cbccc71b14b2a3da3c64efa60f586b6091ad91222de323123",
+  "intended_edit": "Change the first-stage windows from 256/512/512/2048 to 256/256/768/2048 while retaining 256-token local windows and full-context layers elsewhere.",
+  "mechanism": "Pre-consolidation context-budget concentration",
+  "opportunity": 39,
+  "parent_ids": [
+    "674df27b25c58f2cbccc71b14b2a3da3c64efa60f586b6091ad91222de323123"
+  ],
+  "portfolio_after": [
+    "674df27b25c58f2cbccc71b14b2a3da3c64efa60f586b6091ad91222de323123"
+  ],
+  "prompt_hashes": {
+    "common_template_sha256": "ba85b39aa7288f4f48475376da6cff65661f39cfeb7ac7cde15b2a9a2e692fde",
+    "prompt_sha256": "78dc82b5b8b9465ba12444b152ee2588fb72e1398dbf930a712a2eca3a80bf8c",
+    "proposal_policy_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "search_state_sha256": "04e5eb078ae1964e4ec65bfeeeb1acd0ffa246e7d54d5e0f997f81f602da28c5",
+    "treatment_skeleton_sha256": "d744cb6a459499ae98a7f33e04980703bdb997092fed6440485015075d2fc9e0"
+  },
+  "proposal_type": "ordinary",
+  "proposals_cumulative": 39,
+  "remaining_budget": {
+    "evaluations": 161,
+    "evaluator_seconds": 702357.4647093579,
+    "proposals": 161,
+    "tokens": 98962295
+  },
+  "retained": false,
+  "retention_decision": "not_strictly_better_than_incumbent",
+  "run_id": "nanogpt-openevolve-v2-1-h100-karpathy_nanogpt_source_only_h100-openevolve-b01-c1",
+  "schema_version": "1.0",
+  "selected_parent_ids": [
+    "674df27b25c58f2cbccc71b14b2a3da3c64efa60f586b6091ad91222de323123"
+  ],
+  "timestamp": "2026-08-24T09:50:44.181333+00:00",
+  "usage_cumulative": {
+    "cached_input_tokens": 397824,
+    "input_tokens": 947008,
+    "output_tokens": 90697,
+    "reasoning_output_tokens": 79428,
+    "total_tokens": 1037705
+  },
+  "usage_increment": {
+    "cached_input_tokens": 0,
+    "input_tokens": 24890,
+    "output_tokens": 1444,
+    "reasoning_output_tokens": 1012,
+    "total_tokens": 26334
+  },
+  "visible_candidate_ids": [
+    "674df27b25c58f2cbccc71b14b2a3da3c64efa60f586b6091ad91222de323123"
+  ]
+}

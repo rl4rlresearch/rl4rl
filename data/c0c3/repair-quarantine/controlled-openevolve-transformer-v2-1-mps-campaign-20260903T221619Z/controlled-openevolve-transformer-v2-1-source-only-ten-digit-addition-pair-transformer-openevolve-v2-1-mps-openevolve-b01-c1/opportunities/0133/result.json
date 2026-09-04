@@ -1,0 +1,79 @@
+{
+  "artifact_path": "candidates/fabfa6bf163ecc0e2986bc69bcc3b2dd4cae52be2a05f200978390e9e82815c3",
+  "candidate_id": "fabfa6bf163ecc0e2986bc69bcc3b2dd4cae52be2a05f200978390e9e82815c3",
+  "codex_service_tier": "default",
+  "condition": "C1",
+  "conversation_session_id": null,
+  "evaluation": {
+    "evaluator_calls": 1,
+    "evaluator_seconds": 476.3759507499635,
+    "failure_kind": null,
+    "fitness": -1522.0,
+    "metrics": {
+      "accuracy": 0.9995,
+      "cases": 10010,
+      "correct": 10005,
+      "parameters": 1522,
+      "training_steps": 4999
+    },
+    "valid": true
+  },
+  "evaluator_calls_cumulative": 132,
+  "evaluator_calls_increment": 1,
+  "evaluator_seconds_cumulative": 56144.18447841052,
+  "evaluator_seconds_increment": 476.3759507499635,
+  "event": "proposal_completed",
+  "evicted_candidate_id": "b31037591ae53bede1013d2e759802fa65797d866e9c26ec0e6ae47c56af69e7",
+  "evidence": "The verified model already removes one input coefficient from each of twelve `fc1` rows using the LayerNorm constraint, while its complete removal of key bias confirms that position-common key offsets do not affect attention.",
+  "hypothesis": "Removing one input coefficient from the first key-projection row will reduce the model from 1,523 to 1,522 parameters while retaining at least 99% accuracy, because LayerNorm outputs have one affine constraint and the resulting position-common key offset is softmax-null.",
+  "incumbent_after": "fabfa6bf163ecc0e2986bc69bcc3b2dd4cae52be2a05f200978390e9e82815c3",
+  "intended_edit": "Represent the first key row with seven coefficients, reconstruct its final coefficient as zero, and canonicalize initialization by subtracting the removed coefficient from the retained coefficients.",
+  "mechanism": "LayerNorm-constrained key-row weight quotient",
+  "opportunity": 133,
+  "parent_ids": [
+    "b31037591ae53bede1013d2e759802fa65797d866e9c26ec0e6ae47c56af69e7"
+  ],
+  "portfolio_after": [
+    "fabfa6bf163ecc0e2986bc69bcc3b2dd4cae52be2a05f200978390e9e82815c3"
+  ],
+  "prompt_hashes": {
+    "common_template_sha256": "3f2bea6418b6969c4bf2aa1df18dcda8a3a4ac075bf20c79068c754698b6be5e",
+    "prompt_sha256": "0af0063667b7f5a12fb2bf7fe71b0096f865e3d64daf6cee6ef15afc9bdd33e3",
+    "proposal_policy_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "search_state_sha256": "04e5eb078ae1964e4ec65bfeeeb1acd0ffa246e7d54d5e0f997f81f602da28c5",
+    "treatment_skeleton_sha256": "f60a186eabd816f0ffbbf69d3f8c4f6c4124eda116c195b5f3fe327653114a9f"
+  },
+  "proposal_type": "ordinary",
+  "proposals_cumulative": 133,
+  "remaining_budget": {
+    "evaluations": 68,
+    "evaluator_seconds": 303855.8155215895,
+    "proposals": 67,
+    "tokens": 96372101
+  },
+  "retained": true,
+  "retention_decision": "strict_incumbent_improvement",
+  "run_id": "controlled-openevolve-transformer-v2-1-source-only-ten-digit-addition-pair-transformer-openevolve-v2-1-mps-openevolve-b01-c1",
+  "schema_version": "1.0",
+  "selected_parent_ids": [
+    "b31037591ae53bede1013d2e759802fa65797d866e9c26ec0e6ae47c56af69e7"
+  ],
+  "timestamp": "2026-09-03T21:52:17.314635+00:00",
+  "usage_cumulative": {
+    "cached_input_tokens": 1408128,
+    "input_tokens": 3116694,
+    "output_tokens": 511205,
+    "reasoning_output_tokens": 408848,
+    "total_tokens": 3627899
+  },
+  "usage_increment": {
+    "cached_input_tokens": 10752,
+    "input_tokens": 25236,
+    "output_tokens": 4884,
+    "reasoning_output_tokens": 4142,
+    "total_tokens": 30120
+  },
+  "visible_candidate_ids": [
+    "b31037591ae53bede1013d2e759802fa65797d866e9c26ec0e6ae47c56af69e7"
+  ]
+}

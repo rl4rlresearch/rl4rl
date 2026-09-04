@@ -1,0 +1,88 @@
+{
+  "artifact_path": "candidates/82180b25ae9cb15f76430fa0ea5935ca5982d083aaf63f23e63c9464ee462611",
+  "candidate_id": "82180b25ae9cb15f76430fa0ea5935ca5982d083aaf63f23e63c9464ee462611",
+  "codex_service_tier": "fast",
+  "condition": "C3",
+  "conversation_session_id": null,
+  "evaluation": {
+    "evaluator_calls": 1,
+    "evaluator_seconds": 445.46132031199977,
+    "failure_kind": null,
+    "fitness": -1.014831,
+    "metrics": {
+      "depth": 8.0,
+      "mfu_percent": 26.58,
+      "num_params_M": 50.3,
+      "num_steps": 725.0,
+      "peak_vram_mb": 45060.2,
+      "total_tokens_M": 380.1,
+      "training_seconds": 300.4,
+      "val_bpb": 1.014831
+    },
+    "valid": true
+  },
+  "evaluator_calls_cumulative": 4,
+  "evaluator_calls_increment": 1,
+  "evaluator_seconds_cumulative": 1653.1329174989992,
+  "evaluator_seconds_increment": 445.46132031199977,
+  "event": "proposal_completed",
+  "evicted_candidate_id": null,
+  "evidence": "The 512-token design achieved the best result, 0.993287 val_bpb at 513.3M tokens; three consecutive 512-token layers already span much of the 2048-token sequence, so removing the intermediate global layer tests whether its compute is better spent on additional training tokens.",
+  "hypothesis": "Using 512-token attention in seven layers and full-context attention only in the final layer will process more than 513.3M tokens while preserving sequence-wide integration, reducing val_bpb below 0.993287.",
+  "incumbent_after": "ee1f1cf686a479f175a9b2178602df52386a3561e80b0612b88ccd725e447c2e",
+  "intended_edit": "Change the depth-8 window pattern from SSSLSSSL to SSSSSSSL, retaining the proven 512-token short window and forced full-context final layer.",
+  "mechanism": "Receptive-field-stacked local attention with a single final global layer",
+  "opportunity": 4,
+  "parent_ids": [
+    "ee1f1cf686a479f175a9b2178602df52386a3561e80b0612b88ccd725e447c2e"
+  ],
+  "portfolio_after": [
+    "2865e528e18dc51191e4037eaeb5824cb0ea83ede79061b59b8f3caac686da6b",
+    "ee1f1cf686a479f175a9b2178602df52386a3561e80b0612b88ccd725e447c2e",
+    "38071317c547d0865db0c9d38559210cc7949239ddf9c59b9adb640566c1dec0",
+    "9d8fc41e98bf3e33d97926e0a412115e51c960dd64e12451a24d07e0474e70f1"
+  ],
+  "prompt_hashes": {
+    "common_template_sha256": "ba85b39aa7288f4f48475376da6cff65661f39cfeb7ac7cde15b2a9a2e692fde",
+    "prompt_sha256": "2f2524865095b5b8172e0c52e3bf5fa5ce88a8e6eb23d903bef8f532fd5c1879",
+    "proposal_policy_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "search_state_sha256": "c938ac007bf70fe8d27f64661175531e51fcb16b38318c328493c32ee292e27e",
+    "treatment_skeleton_sha256": "b9bcd2b640c64ac52ea5b7f8b2082724ad190edc727f2f1a6504369b4464fb13"
+  },
+  "proposal_type": "ordinary",
+  "proposals_cumulative": 4,
+  "remaining_budget": {
+    "evaluations": 196,
+    "evaluator_seconds": 718346.867082501,
+    "proposals": 196,
+    "tokens": 99860696
+  },
+  "retained": false,
+  "retention_decision": "not_strictly_better_than_selected_parent",
+  "run_id": "nanogpt-openevolve-v2-1-h100-karpathy_nanogpt_source_only_h100-openevolve-b02-c3",
+  "schema_version": "1.0",
+  "selected_parent_ids": [
+    "ee1f1cf686a479f175a9b2178602df52386a3561e80b0612b88ccd725e447c2e"
+  ],
+  "timestamp": "2026-08-23T13:19:45.978766+00:00",
+  "usage_cumulative": {
+    "cached_input_tokens": 48128,
+    "input_tokens": 133077,
+    "output_tokens": 6227,
+    "reasoning_output_tokens": 5376,
+    "total_tokens": 139304
+  },
+  "usage_increment": {
+    "cached_input_tokens": 12032,
+    "input_tokens": 44632,
+    "output_tokens": 583,
+    "reasoning_output_tokens": 358,
+    "total_tokens": 45215
+  },
+  "visible_candidate_ids": [
+    "2865e528e18dc51191e4037eaeb5824cb0ea83ede79061b59b8f3caac686da6b",
+    "ee1f1cf686a479f175a9b2178602df52386a3561e80b0612b88ccd725e447c2e",
+    "38071317c547d0865db0c9d38559210cc7949239ddf9c59b9adb640566c1dec0",
+    "9d8fc41e98bf3e33d97926e0a412115e51c960dd64e12451a24d07e0474e70f1"
+  ]
+}

@@ -1,0 +1,178 @@
+# Improve fixed-time language-model pretraining
+
+You are an autonomous ML engineer improving the source code for single-GPU
+language-model pretraining.
+
+## Goal
+
+Minimize validation bits per byte (`val_bpb`) after a fixed five-minute training
+window on the supplied H100 worker. Lower is better. Startup, compilation, and
+final validation are outside the measured training window, and every submitted
+version starts from a fresh initialization.
+
+You may change the architecture, optimizer, schedules, batching, numerical
+implementation, or other contents of `train.py`. The fixed data preparation,
+tokenizer, validation procedure, hardware class, and time accounting are not
+editable. A useful change must produce a complete trainable implementation and
+finish with the required summary metrics.
+
+## Work boundaries
+
+Minimize val_bpb. No additional accuracy threshold.
+Editable source files: train.py.
+Results reported after each verification: val_bpb, training_seconds, peak_vram_mb, mfu_percent, total_tokens_M, num_steps, num_params_M, depth.
+
+Propose changes through exact SEARCH/REPLACE blocks. The patching interface applies them to the supplied editable source.
+
+The editable source and any reference source are included below. Do not access
+parent directories, home directories, shared temporary directories, global
+session history, online sources, or any surrounding repository. Do not run
+training or validation yourself and do not generate hidden alternatives.
+Return one patch for one implementation; verification happens after you finish.
+
+## Available designs
+
+The current editable design and the qualified reference designs below are available as technical evidence. Edit only the current workspace.
+
+CURRENT DESIGN
+verified_results: {"depth": 8.0, "mfu_percent": 37.74, "num_params_M": 50.3, "num_steps": 904.0, "peak_vram_mb": 46349.5, "total_tokens_M": 474.0, "training_seconds": 300.1, "val_bpb": 0.99236}
+prior_hypothesis: Restoring the best two-lag receptive field and dynamically scaling each lag from the current token will lower val_bpb below 0.992110 while retaining at least 470M trained tokens.
+
+REFERENCE DESIGN 1
+verified_results: {"depth": 8.0, "mfu_percent": 38.24, "num_params_M": 50.3, "num_steps": 916.0, "peak_vram_mb": 46348.5, "total_tokens_M": 480.2, "training_seconds": 300.2, "val_bpb": 0.991835}
+prior_hypothesis: Reallocating the uniform short-layer attention budget from 1024/1024/1024 to 768/1024/1280 tokens before each full-context layer will lower val_bpb below 0.992110 while retaining at least 470M training tokens.
+
+REFERENCE DESIGN 2
+verified_results: {"depth": 8.0, "mfu_percent": 38.0, "num_params_M": 50.3, "num_steps": 910.0, "peak_vram_mb": 46348.5, "total_tokens_M": 477.1, "training_seconds": 300.0, "val_bpb": 0.99211}
+prior_hypothesis: Combining the learned two-lag embedding convolution with output gates on each full-context layer and its immediately preceding short-context layer will lower val_bpb below 0.992628 while processing more than 467.1M tokens.
+
+REFERENCE DESIGN 3
+verified_results: {"depth": 8.0, "mfu_percent": 38.19, "num_params_M": 50.3, "num_steps": 915.0, "peak_vram_mb": 46348.5, "total_tokens_M": 479.7, "training_seconds": 300.2, "val_bpb": 0.991994}
+prior_hypothesis: A 640/1024/1408-token progression will lower val_bpb below 0.991835 while retaining at least 475M training tokens.
+
+## Recent verification evidence
+
+RECENT RESULT
+hypothesis: Extending the best two-lag embedding FIR to three learned lags will lower val_bpb below 0.992110 while preserving at least 470M trained tokens.
+change: Restore the best four-layer handoff-gated design, add a neutral-initialized third causal embedding lag, and optimize all three channel-wise coefficients with AdamW.
+mechanism: Three-lag causal embedding mixing with pre-long-context attention gating
+evidence_used: Two-lag embedding mixing with gates on full-context layers and their immediate predecessors achieved the best result, 0.992110 on 477.1M tokens; the convolution alone also improved to 0.993485, motivating a minimal receptive-field extension without adding per-layer computation.
+result: improved the objective and became an available design
+reported_values: {"depth": 8.0, "mfu_percent": 37.94, "num_params_M": 50.3, "num_steps": 909.0, "peak_vram_mb": 46348.6, "total_tokens_M": 476.6, "training_seconds": 300.2, "val_bpb": 0.992455}
+
+RECENT RESULT
+hypothesis: Restricting output gates to the two short-context layers immediately preceding full-context layers will lower val_bpb below 0.992110 while processing more than 477.1M tokens.
+change: Remove output gates from the full-context layers while retaining the proven two-lag embedding FIR and predecessor-layer gates.
+mechanism: Pre-long short-context attention gating
+evidence_used: Adding predecessor gates to the long-only design improved val_bpb from 0.992949 to 0.992110, whereas expanding to all layers reached only 0.992628; the missing predecessor-only ablation tests whether full-context gates are redundant with their existing value gates.
+result: was valid but was not a strict improvement
+reported_values: {"depth": 8.0, "mfu_percent": 38.08, "num_params_M": 50.3, "num_steps": 912.0, "peak_vram_mb": 45832.5, "total_tokens_M": 478.2, "training_seconds": 300.0, "val_bpb": 0.993768}
+
+RECENT RESULT
+hypothesis: Restoring the best two-lag receptive field and dynamically scaling each lag from the current token will lower val_bpb below 0.992110 while retaining at least 470M trained tokens.
+change: Remove the regressive third lag and add a neutral-initialized, first-32-channel gate that independently modulates the two channel-wise causal embedding paths.
+mechanism: Token-conditioned two-lag embedding mixing
+evidence_used: Two-lag mixing with four handoff-layer attention gates achieved the best val_bpb, 0.992110 on 477.1M tokens, while adding a third lag regressed to 0.992455; successful first-32-channel attention gating suggests token-dependent selection is more promising than extending the fixed receptive field.
+result: improved the objective and became an available design
+reported_values: {"depth": 8.0, "mfu_percent": 37.74, "num_params_M": 50.3, "num_steps": 904.0, "peak_vram_mb": 46349.5, "total_tokens_M": 474.0, "training_seconds": 300.1, "val_bpb": 0.99236}
+
+RECENT RESULT
+hypothesis: Retaining output gates only on the final short-context predecessor and full-context layer will preserve the complementary S-L gating benefit while processing more than 477.1M tokens, lowering val_bpb below 0.992110.
+change: Restore selective gating around only the final S-L handoff, removing gates and their computation from the first six layers while preserving the fixed two-lag embedding FIR.
+mechanism: Final short-to-long attention handoff gating
+evidence_used: Four handoff-layer gates achieved the best val_bpb of 0.992110, while predecessor-only gating regressed to 0.993768 and long-only gating reached 0.992949; this motivates preserving a complete predecessor-plus-long pair and testing whether the final pair supplies the useful synergy more efficiently.
+result: was valid but was not a strict improvement
+reported_values: {"depth": 8.0, "mfu_percent": 38.18, "num_params_M": 50.3, "num_steps": 915.0, "peak_vram_mb": 45832.5, "total_tokens_M": 479.7, "training_seconds": 300.3, "val_bpb": 0.993029}
+
+RECENT RESULT
+hypothesis: Adding the first short-context predecessor gate to both full-context gates will lower val_bpb below 0.992110 while retaining more than 477M training tokens.
+change: Gate layers 2, 3, and 7: both full-context layers plus only the short-context layer preceding the first full-context transition.
+mechanism: First-handoff predecessor gating
+evidence_used: Four handoff gates achieved 0.992110, versus 0.992949 for long-only gating; the final handoff pair alone regressed to 0.993029, indicating the first predecessor is the more informative missing gate to restore.
+result: was valid but was not a strict improvement
+reported_values: {"depth": 8.0, "mfu_percent": 37.79, "num_params_M": 50.3, "num_steps": 906.0, "peak_vram_mb": 46090.5, "total_tokens_M": 475.0, "training_seconds": 300.3, "val_bpb": 0.993023}
+
+RECENT RESULT
+hypothesis: Initializing the proven two-lag FIR with small decaying coefficients will lower val_bpb below 0.992110 while retaining at least 470M tokens by exposing useful local context immediately instead of learning both lag paths from zero.
+change: Preserve the best four handoff gates and two-lag architecture, but initialize the one-token and two-token embedding coefficients to 0.10 and 0.05 respectively.
+mechanism: Decayed causal-context warm start
+evidence_used: Fixed two-lag mixing contributed to the best 0.992110 result, whereas a third lag regressed to 0.992455 and token-conditioned scaling reached only 0.992360; this motivates accelerating the established fixed two-lag path without adding computation or parameters.
+result: was valid but was not a strict improvement
+reported_values: {"depth": 8.0, "mfu_percent": 38.2, "num_params_M": 50.3, "num_steps": 915.0, "peak_vram_mb": 46348.5, "total_tokens_M": 479.7, "training_seconds": 300.1, "val_bpb": 0.992459}
+
+RECENT RESULT
+hypothesis: Replacing token-conditioned lag scaling with a learned 32-dimensional summary of all preceding embeddings, while restoring the best fixed two-lag FIR and four handoff gates, will lower val_bpb below 0.992110 while retaining at least 465M trained tokens.
+change: Restore fixed two-lag embedding mixing and add a neutral-initialized low-rank nonlinear projection of the causal running-mean embedding history before the transformer.
+mechanism: Low-rank causal prefix memory
+evidence_used: Fixed two-lag mixing with four handoff gates achieved 0.992110, while a third lag and token-conditioned lag gates regressed to 0.992455 and 0.992360. This challenges the shared assumption that additional cheap context must be another local lag: the quarter-context regression shows broader history matters, so a compressed global prefix memory tests a distinct recurrent-style context path.
+result: was valid but was not a strict improvement
+reported_values: {"depth": 8.0, "mfu_percent": 37.36, "num_params_M": 50.4, "num_steps": 895.0, "peak_vram_mb": 47406.0, "total_tokens_M": 469.2, "training_seconds": 300.3, "val_bpb": 0.994246}
+
+RECENT RESULT
+hypothesis: Reallocating the uniform short-layer attention budget from 1024/1024/1024 to 768/1024/1280 tokens before each full-context layer will lower val_bpb below 0.992110 while retaining at least 470M training tokens.
+change: Restore the best four handoff-layer output gates and progressively expand short-context windows toward each full-context transition without changing total attention-window FLOPs.
+mechanism: Compute-neutral staged short-context receptive fields
+evidence_used: Four handoff gates achieved the best 0.992110 on 477.1M tokens, and their gain over long-only gating shows predecessor layers matter; the severe regression from uniformly quartering context motivates reallocating rather than reducing the total context budget.
+result: improved the objective and became an available design
+reported_values: {"depth": 8.0, "mfu_percent": 38.24, "num_params_M": 50.3, "num_steps": 916.0, "peak_vram_mb": 46348.5, "total_tokens_M": 480.2, "training_seconds": 300.2, "val_bpb": 0.991835}
+
+RECENT RESULT
+hypothesis: Using 512/1024/1536-token short windows before each full-context layer, together with the proven four handoff gates, will lower val_bpb below 0.991835 while retaining at least 480M training tokens.
+change: Restore output gating on full-context layers and their immediate predecessors, then redistribute each three-layer short-attention budget from 1024/1024/1024 to 512/1024/1536 tokens.
+mechanism: Steeper compute-neutral staged short-context attention
+evidence_used: The milder 768/1024/1280 progression with four handoff gates achieved the best result, 0.991835 on 480.2M tokens, improving over uniform windows at 0.992110; a steeper progression tests whether concentrating still more context at the handoff extends that gain without reducing total window budget.
+result: improved the objective and became an available design
+reported_values: {"depth": 8.0, "mfu_percent": 38.05, "num_params_M": 50.3, "num_steps": 912.0, "peak_vram_mb": 46348.5, "total_tokens_M": 478.2, "training_seconds": 300.3, "val_bpb": 0.992198}
+
+RECENT RESULT
+hypothesis: Redistributing the middle short layer’s context to the immediate pre-long layer, while preserving the successful 768-token first window, will lower val_bpb below 0.991835 while retaining at least 475M training tokens.
+change: Change each compute-neutral short-window schedule from 768/1024/1280 to 768/896/1408 tokens.
+mechanism: Asymmetric predecessor-focused context allocation
+evidence_used: The 768/1024/1280 schedule achieved the best val_bpb of 0.991835, while 512/1024/1536 regressed to 0.992198; holding the first window at 768 isolates whether additional pre-long context helps when the earliest layer is not starved.
+result: was valid but was not a strict improvement
+reported_values: {"depth": 8.0, "mfu_percent": 37.73, "num_params_M": 50.3, "num_steps": 904.0, "peak_vram_mb": 46348.5, "total_tokens_M": 474.0, "training_seconds": 300.2, "val_bpb": 0.992861}
+
+RECENT RESULT
+hypothesis: A 832/1024/1216-token progression will lower val_bpb below 0.991835 while retaining at least 475M training tokens.
+change: Redistribute each three-layer short-attention budget from uniform 1024-token windows to a milder staged progression without changing total attention-window FLOPs.
+mechanism: Refined compute-neutral staged short-context attention
+evidence_used: The 768/1024/1280 schedule achieved the best val_bpb, 0.991835, while uniform windows reached 0.992110 and the steeper 512/1024/1536 schedule regressed to 0.992198; refining the successful slope tests the apparent optimum between uniform and overly steep staging.
+result: was valid but was not a strict improvement
+reported_values: {"depth": 8.0, "mfu_percent": 37.91, "num_params_M": 50.3, "num_steps": 908.0, "peak_vram_mb": 46348.5, "total_tokens_M": 476.1, "training_seconds": 300.1, "val_bpb": 0.992309}
+
+RECENT RESULT
+hypothesis: A 640/1024/1408-token progression will lower val_bpb below 0.991835 while retaining at least 475M training tokens.
+change: Replace the overly steep 512/1024/1536 schedule with the midpoint between it and the best 768/1024/1280 schedule, preserving total short-attention FLOPs.
+mechanism: Mid-slope compute-neutral staged attention
+evidence_used: The 768/1024/1280 progression achieved the best val_bpb of 0.991835, while 512/1024/1536 regressed to 0.992198; their untested midpoint isolates whether the optimum lies between those slopes while keeping the successful 1024-token middle window.
+result: improved the objective and became an available design
+reported_values: {"depth": 8.0, "mfu_percent": 38.19, "num_params_M": 50.3, "num_steps": 915.0, "peak_vram_mb": 46348.5, "total_tokens_M": 479.7, "training_seconds": 300.2, "val_bpb": 0.991994}
+
+
+
+Use the available technical evidence to choose the most informative next
+change. Treat unsuccessful or malformed work as evidence when a useful
+subject-level reason is provided. Do not invent missing evidence.
+
+## Response
+
+Return these short metadata lines followed by one or more exact
+`SEARCH`/`REPLACE` blocks that together produce one implementation:
+
+`MECHANISM: <a concise free-form name for the computational idea>`
+
+`HYPOTHESIS: <a falsifiable claim grounded in the evidence above>`
+
+`INTENDED_EDIT: <what this patch changes>`
+
+`EVIDENCE: <the most relevant prior result and why it motivates this patch>`
+
+Start each block with `<<<<<<< SEARCH`, put the exact existing lines next, use a
+line containing `=======` as the divider, put the replacement lines after it,
+and finish the block with `>>>>>>> REPLACE`.
+
+Every `SEARCH` section must be nonempty and match exactly once after earlier
+blocks have been applied. All blocks must apply. Together they must describe
+one implementation ready for verification. The mechanism name is descriptive,
+not chosen from a fixed list. Do not paste whole files, lengthy logs, or routine
+progress reports outside the patch.

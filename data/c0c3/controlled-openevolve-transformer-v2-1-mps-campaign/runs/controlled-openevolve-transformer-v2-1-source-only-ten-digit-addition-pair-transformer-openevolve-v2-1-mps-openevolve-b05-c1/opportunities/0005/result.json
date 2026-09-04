@@ -1,0 +1,79 @@
+{
+  "artifact_path": "candidates/eef92e36463d1bda016807cc38aa557c62b8c7948660e3ff13831f8c96fe200a",
+  "candidate_id": "eef92e36463d1bda016807cc38aa557c62b8c7948660e3ff13831f8c96fe200a",
+  "codex_service_tier": "fast",
+  "condition": "C1",
+  "conversation_session_id": null,
+  "evaluation": {
+    "evaluator_calls": 1,
+    "evaluator_seconds": 236.91230099997483,
+    "failure_kind": "nonqualification",
+    "fitness": null,
+    "metrics": {
+      "accuracy": 0.9776,
+      "cases": 10010,
+      "correct": 9786,
+      "parameters": 1560,
+      "training_steps": 4999
+    },
+    "valid": false
+  },
+  "evaluator_calls_cumulative": 5,
+  "evaluator_calls_increment": 1,
+  "evaluator_seconds_cumulative": 1130.6454451661557,
+  "evaluator_seconds_increment": 236.91230099997483,
+  "event": "proposal_completed",
+  "evicted_candidate_id": null,
+  "evidence": "The 1,596-parameter design reached 99.99% accuracy after making both preceding LayerNorms non-affine; their outputs have zero channel mean, so 24 QKV and 12 `fc1` weight directions are functionally inactive and can be removed without narrowing either learned output space.",
+  "hypothesis": "Reparameterizing the QKV and MLP-input linear maps on the seven-dimensional mean-zero subspace produced by non-affine LayerNorm will reduce parameters from 1,596 to 1,560 while retaining at least 99% accuracy.",
+  "incumbent_after": "612141e9f8dc70435f06cfd2738fce94f10aa50f3b04a0c02a313003d1af34fb",
+  "intended_edit": "Add a linear layer whose fixed orthonormal basis removes the unobservable all-ones input-weight direction, then use it for QKV and `fc1`.",
+  "mechanism": "LayerNorm nullspace parameterization",
+  "opportunity": 5,
+  "parent_ids": [
+    "612141e9f8dc70435f06cfd2738fce94f10aa50f3b04a0c02a313003d1af34fb"
+  ],
+  "portfolio_after": [
+    "612141e9f8dc70435f06cfd2738fce94f10aa50f3b04a0c02a313003d1af34fb"
+  ],
+  "prompt_hashes": {
+    "common_template_sha256": "3f2bea6418b6969c4bf2aa1df18dcda8a3a4ac075bf20c79068c754698b6be5e",
+    "prompt_sha256": "a45ff64dbf9066ac0690654829924d1f2987788c734801a3f2a5952894e185a9",
+    "proposal_policy_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "search_state_sha256": "04e5eb078ae1964e4ec65bfeeeb1acd0ffa246e7d54d5e0f997f81f602da28c5",
+    "treatment_skeleton_sha256": "1d9208346cc173a9e6601fc8382a535c1ac6504ec83f46728e785c56dd24a833"
+  },
+  "proposal_type": "ordinary",
+  "proposals_cumulative": 5,
+  "remaining_budget": {
+    "evaluations": 195,
+    "evaluator_seconds": 358869.35455483384,
+    "proposals": 195,
+    "tokens": 99894623
+  },
+  "retained": false,
+  "retention_decision": "invalid",
+  "run_id": "controlled-openevolve-transformer-v2-1-source-only-ten-digit-addition-pair-transformer-openevolve-v2-1-mps-openevolve-b05-c1",
+  "schema_version": "1.0",
+  "selected_parent_ids": [
+    "612141e9f8dc70435f06cfd2738fce94f10aa50f3b04a0c02a313003d1af34fb"
+  ],
+  "timestamp": "2026-08-23T10:43:34.769932+00:00",
+  "usage_cumulative": {
+    "cached_input_tokens": 55040,
+    "input_tokens": 95087,
+    "output_tokens": 10290,
+    "reasoning_output_tokens": 8698,
+    "total_tokens": 105377
+  },
+  "usage_increment": {
+    "cached_input_tokens": 12032,
+    "input_tokens": 19411,
+    "output_tokens": 3801,
+    "reasoning_output_tokens": 3325,
+    "total_tokens": 23212
+  },
+  "visible_candidate_ids": [
+    "612141e9f8dc70435f06cfd2738fce94f10aa50f3b04a0c02a313003d1af34fb"
+  ]
+}

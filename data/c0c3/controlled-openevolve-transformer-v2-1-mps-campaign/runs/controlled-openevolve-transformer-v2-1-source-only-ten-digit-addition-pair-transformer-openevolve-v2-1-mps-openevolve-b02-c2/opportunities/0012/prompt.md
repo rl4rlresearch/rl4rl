@@ -1,0 +1,189 @@
+# Optimize a transformer for 10-digit addition
+
+You are an autonomous ML engineer improving the source code for an
+autoregressive transformer that adds two 10-digit numbers.
+
+## Goal
+
+Minimize the actual number of deduplicated learned model parameters while
+maintaining at least 99% accuracy under the fixed verification process. A
+smaller implementation is useful only when it meets that accuracy requirement.
+Every submitted implementation is trained from a fresh initialization.
+
+## Learned-model requirement
+
+Produce a smaller trained autoregressive transformer, not a hand-coded addition
+program. The submitted implementation must:
+
+- have nonzero trainable parameters;
+- contain and use at least one learned causal self-attention module;
+- map token inputs to token logits through the learned model;
+- train from a fresh initialization during verification;
+- write both `checkpoints/best.pt` and a positive-step `checkpoints/last.pt`;
+- keep source code unchanged while training; and
+- use the protected generic decoding interface exactly as supplied.
+
+Do not implement or embed decimal arithmetic, carry propagation, place-value
+rules, digit lookup tables, finite-state addition transitions, fixed answer
+rules, or input-dependent Python logic that directly computes the sum. Do not
+hide such a solver in model generation, token processing, training, or saved
+weights. Do not add dummy or zero-length parameters to disguise a fixed
+algorithm as a learned model.
+
+Do not modify protected files. Do not perform post-training state-dictionary
+surgery, substitute a different saved model, truncate weights after training,
+or report a parameter count that differs from the submitted model.
+
+## Work boundaries
+
+Minimize parameters. Required result: accuracy >= 0.99.
+Editable source files: src/model.py, src/train.py.
+Results reported after each verification: accuracy, parameters, training_steps.
+
+Propose changes through exact SEARCH/REPLACE blocks. The patching interface applies them to the supplied editable source.
+
+The editable source and any reference source are included below. Do not access
+parent directories, home directories, shared temporary directories, global
+session history, online sources, or any surrounding repository. Do not run
+training or verification yourself and do not generate hidden alternatives.
+Return one patch for one implementation; verification happens after you finish.
+
+## Available designs
+
+The current editable design and the qualified reference designs below are available as technical evidence. Edit only the current workspace.
+
+CURRENT DESIGN
+verified_results: {"accuracy": 0.9998, "parameters": 1642, "training_steps": 4999}
+prior_hypothesis: Omitting two key-bias coordinates after preserving the baseline initialization sequence will reduce the model to 1,642 parameters while retaining at least 99% accuracy.
+
+REFERENCE DESIGN 1
+verified_results: {"accuracy": 0.9995999999999999, "parameters": 1644, "training_steps": 4999}
+prior_hypothesis: starting design
+
+REFERENCE DESIGN 2
+verified_results: {"accuracy": 0.9995999999999999, "parameters": 1643, "training_steps": 4999}
+prior_hypothesis: Removing one key-bias coordinate only after the complete 1,644-parameter model has consumed its original construction and initialization RNG sequence will produce a 1,643-parameter model with at least 99% accuracy.
+
+REFERENCE DESIGN 3
+verified_results: {"accuracy": 0.9971, "parameters": 1640, "training_steps": 4999}
+prior_hypothesis: Omitting four redundant key-bias coordinates evenly distributed 2:2 across the two attention heads will produce a 1,640-parameter model with at least 99% accuracy.
+
+## Recent verification evidence
+
+RECENT RESULT
+hypothesis: Reducing `d_ff` from 12 to 10 will lower the model from 1,644 to 1,610 learned parameters while retaining at least 99% accuracy after fresh training.
+change: Reduce the default MLP hidden width by two units without changing attention, embeddings, decoding, or training.
+mechanism: Narrower feed-forward bottleneck
+evidence_used: The current 1,644-parameter model achieved 99.96% accuracy, providing accuracy headroom for a conservative 34-parameter MLP reduction.
+result: did not meet the accuracy requirement
+reported_values: {"accuracy": 0.0907, "parameters": 1610, "training_steps": 4999}
+
+RECENT RESULT
+hypothesis: Removing only the functionally redundant key bias will reduce the model from 1,644 to 1,636 parameters while retaining at least 99% accuracy.
+change: Replace the combined QKV bias with learned query and value biases, leaving keys unbiased.
+mechanism: Softmax-invariant attention key-bias removal
+evidence_used: The 1,644-parameter design reached 99.96%, while narrowing `d_ff` to 10 collapsed to 9.07%; this motivates preserving representational width and removing a key bias whose contribution cancels exactly inside attention softmax.
+result: did not meet the accuracy requirement
+reported_values: {"accuracy": 0.8889, "parameters": 1636, "training_steps": 4999}
+
+RECENT RESULT
+hypothesis: Fixing one functionally redundant component of the MLP output bias will reduce the model from 1,644 to 1,643 parameters while retaining at least 99% accuracy.
+change: Preserve the MLP width, weights, initialization draw sequence, and seven learned output-bias components while fixing the final bias component to zero during the functional linear operation.
+mechanism: Gauge-fixed MLP output bias
+evidence_used: The 1,644-parameter model achieved 99.96% accuracy, whereas larger reductions to 1,610 and 1,636 parameters failed; this motivates a one-parameter reduction along a uniform-shift gauge direction that the downstream LayerNorm removes.
+result: did not meet the accuracy requirement
+reported_values: {"accuracy": 0.7997, "parameters": 1643, "training_steps": 4999}
+
+RECENT RESULT
+hypothesis: Removing one key-bias coordinate will reduce the model from 1,644 to 1,643 learned parameters while retaining at least 99% accuracy because that coordinate contributes the same additive attention-logit shift at every attended position and therefore cancels exactly under softmax.
+change: Replace the QKV projection with a compatible linear subclass whose bias omits one key coordinate and reconstructs it as zero during the forward pass, while preserving parameter ordering, weight initialization, and all other architecture and training settings.
+mechanism: Single-coordinate redundant key-bias removal
+evidence_used: The original 1,644-parameter model reached 99.96%, while removing all eight redundant key-bias coordinates reached 88.89%; testing only one coordinate is the smallest possible perturbation and isolates whether the larger simultaneous reparameterization caused the optimization failure.
+result: did not meet the accuracy requirement
+reported_values: {"accuracy": 0.3345, "parameters": 1643, "training_steps": 4999}
+
+RECENT RESULT
+hypothesis: Reducing `d_ff` from 12 to 11 will lower the model from 1,644 to 1,627 learned parameters while retaining at least 99% accuracy.
+change: Remove one feed-forward hidden unit while preserving attention, embeddings, initialization, decoding, and training settings.
+mechanism: Single-neuron MLP bottleneck reduction
+evidence_used: The 1,644-parameter `d_ff=12` model achieved 99.96%, while `d_ff=10` collapsed to 9.07%; testing the intermediate width isolates the minimum viable MLP capacity.
+result: did not meet the accuracy requirement
+reported_values: {"accuracy": 0.7442, "parameters": 1627, "training_steps": 4999}
+
+RECENT RESULT
+hypothesis: Removing one key-bias coordinate only after the complete 1,644-parameter model has consumed its original construction and initialization RNG sequence will produce a 1,643-parameter model with at least 99% accuracy.
+change: Preserve the successful model’s full initialization sequence, then replace each QKV projection with an equivalent projection that reconstructs one omitted key-bias coordinate as zero.
+mechanism: Post-initialization redundant key-bias gauge fixing
+evidence_used: The baseline reached 99.96%, while prior mathematically redundant bias reductions failed despite preserving selected weights; this isolates whether perturbing the full initialization RNG trajectory caused those optimization failures.
+result: met the accuracy requirement and became an available design
+reported_values: {"accuracy": 0.9995999999999999, "parameters": 1643, "training_steps": 4999}
+
+RECENT RESULT
+hypothesis: Compacting all eight key-bias coordinates only after baseline initialization will produce a 1,636-parameter model with at least 99% accuracy.
+change: Preserve the successful model’s complete initialization sequence, then replace each QKV projection with one retaining learned query/value biases while reconstructing the redundant key bias as zeros.
+mechanism: Post-initialization removal of the complete softmax-invariant key bias
+evidence_used: Post-initialization removal of one key-bias coordinate achieved 99.96% at 1,643 parameters, while the earlier 1,636-parameter attempt changed construction before initialization; this motivates testing the full exact invariance with the now-qualified RNG-preserving method.
+result: did not meet the accuracy requirement
+reported_values: {"accuracy": 0.3016, "parameters": 1636, "training_steps": 4999}
+
+RECENT RESULT
+hypothesis: Omitting two key-bias coordinates after preserving the baseline initialization sequence will reduce the model to 1,642 parameters while retaining at least 99% accuracy.
+change: Replace each initialized QKV projection with an equivalent module that retains 22 learned bias values and reconstructs the first two softmax-invariant key-bias coordinates as zeros.
+mechanism: Incremental post-initialization key-bias gauge fixing
+evidence_used: Post-initialization omission of one key-bias coordinate achieved 99.96% at 1,643 parameters, while omitting all eight collapsed to 30.16%; removing exactly one additional coordinate is the smallest informative capacity reduction.
+result: met the accuracy requirement and became an available design
+reported_values: {"accuracy": 0.9998, "parameters": 1642, "training_steps": 4999}
+
+RECENT RESULT
+hypothesis: Omitting three key-bias coordinates after preserving the baseline initialization sequence will reduce the model from 1,644 to 1,641 parameters while retaining at least 99% accuracy.
+change: Add a compact QKV projection that reconstructs three omitted key-bias coordinates as zeros, installed only after full baseline initialization.
+mechanism: Incremental post-initialization key-bias gauge fixing
+evidence_used: Post-initialization omission of two key-bias coordinates achieved 99.98% accuracy at 1,642 parameters, while omission of all eight failed; removing one additional coordinate is the smallest informative next reduction.
+result: did not meet the accuracy requirement
+reported_values: {"accuracy": 0.7112999999999999, "parameters": 1641, "training_steps": 4999}
+
+RECENT RESULT
+hypothesis: Omitting three redundant key-bias coordinates distributed 2:1 across the two attention heads will produce a 1,641-parameter model with at least 99% accuracy.
+change: Preserve the baseline initialization sequence, then replace QKV with a compact projection omitting the first two key-bias coordinates of head 0 and the first key-bias coordinate of head 1.
+mechanism: Head-balanced post-initialization key-bias gauge fixing
+evidence_used: Omitting two key-bias coordinates achieved 99.98% at 1,642 parameters, while omitting three consecutive coordinates failed at 71.13%; distributing the third omission across heads tests whether the failure arose from concentrating all three omissions in one head.
+result: met the accuracy requirement and became an available design
+reported_values: {"accuracy": 0.9993000000000001, "parameters": 1641, "training_steps": 4999}
+
+RECENT RESULT
+hypothesis: Omitting four redundant key-bias coordinates evenly distributed 2:2 across the two attention heads will produce a 1,640-parameter model with at least 99% accuracy.
+change: Extend the successful head-balanced compact QKV projection by omitting a second key-bias coordinate from head 1 while preserving the complete baseline initialization sequence.
+mechanism: Symmetric per-head key-bias gauge fixing
+evidence_used: The 2:1 head-balanced omission achieved 99.93% at 1,641 parameters, whereas three consecutive omissions achieved only 71.13%; this motivates testing the smallest further reduction while maintaining equal omissions across heads.
+result: met the accuracy requirement and became an available design
+reported_values: {"accuracy": 0.9971, "parameters": 1640, "training_steps": 4999}
+
+
+
+Use the available technical evidence to choose the most informative next
+change. Treat unsuccessful or malformed work as evidence when a useful
+subject-level reason is provided. Do not invent missing evidence.
+
+## Response
+
+Return these short metadata lines followed by one or more exact
+`SEARCH`/`REPLACE` blocks that together produce one implementation:
+
+`MECHANISM: <a concise free-form name for the computational idea>`
+
+`HYPOTHESIS: <a falsifiable claim grounded in the evidence above>`
+
+`INTENDED_EDIT: <what this patch changes>`
+
+`EVIDENCE: <the most relevant prior result and why it motivates this patch>`
+
+Start each block with `<<<<<<< SEARCH`, put the exact existing lines next, use a
+line containing `=======` as the divider, put the replacement lines after it,
+and finish the block with `>>>>>>> REPLACE`.
+
+Every `SEARCH` section must be nonempty and match exactly once after earlier
+blocks have been applied. All blocks must apply. They may edit either or both
+editable files, but together they must describe one implementation ready for
+verification. The mechanism name is descriptive, not chosen from a fixed list.
+Do not paste whole files, lengthy logs, or routine progress reports outside the
+patch.

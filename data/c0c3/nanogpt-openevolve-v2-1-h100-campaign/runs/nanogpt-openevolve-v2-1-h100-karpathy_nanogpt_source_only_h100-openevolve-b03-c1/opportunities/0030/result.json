@@ -1,0 +1,82 @@
+{
+  "artifact_path": "candidates/986183cabf24febe226a1c8e8c468af0bc1b037ac058020b6d43beb9e8fa0ffa",
+  "candidate_id": "986183cabf24febe226a1c8e8c468af0bc1b037ac058020b6d43beb9e8fa0ffa",
+  "codex_service_tier": "default",
+  "condition": "C1",
+  "conversation_session_id": null,
+  "evaluation": {
+    "evaluator_calls": 1,
+    "evaluator_seconds": 368.6731935930002,
+    "failure_kind": null,
+    "fitness": -0.989071,
+    "metrics": {
+      "depth": 8.0,
+      "mfu_percent": 36.27,
+      "num_params_M": 50.1,
+      "num_steps": 2069.0,
+      "peak_vram_mb": 39133.1,
+      "total_tokens_M": 474.6,
+      "training_seconds": 300.1,
+      "val_bpb": 0.989071
+    },
+    "valid": true
+  },
+  "evaluator_calls_cumulative": 30,
+  "evaluator_calls_increment": 1,
+  "evaluator_seconds_cumulative": 14927.152911057023,
+  "evaluator_seconds_increment": 368.6731935930002,
+  "event": "proposal_completed",
+  "evicted_candidate_id": null,
+  "evidence": "The added attention-head gate processed only 480.5M tokens and did not improve quality, while the third global layer improved val_bpb by just 0.000085; this motivates changing the token representation mechanism using a compute-matched replacement rather than adding another attention-side branch.",
+  "hypothesis": "Replacing the homogeneous squared-ReLU feature bank with an approximately parameter-matched multiplicative SwiGLU bank will reduce val_bpb below 0.984227 by learning context-dependent feature interactions without materially reducing token throughput.",
+  "incumbent_after": "fec1ef429620b33ffdd89eedd4dc590b06e3b24777b48f242296b09bba44638b",
+  "intended_edit": "Challenge the assumption that each MLP should independently activate polynomial features: split its expansion into learned gate and value streams, combine them multiplicatively, and preserve activation scale with a factor of two.",
+  "mechanism": "Variance-matched SwiGLU feature synthesis",
+  "opportunity": 30,
+  "parent_ids": [
+    "fec1ef429620b33ffdd89eedd4dc590b06e3b24777b48f242296b09bba44638b"
+  ],
+  "portfolio_after": [
+    "fec1ef429620b33ffdd89eedd4dc590b06e3b24777b48f242296b09bba44638b"
+  ],
+  "prompt_hashes": {
+    "common_template_sha256": "ba85b39aa7288f4f48475376da6cff65661f39cfeb7ac7cde15b2a9a2e692fde",
+    "prompt_sha256": "c7a7459797bc409688b5cd5dc75cf294e5f36ddcf3135ea151d321607bda62ac",
+    "proposal_policy_sha256": "cd7b9ba20a1cd1edd0663b5e3652baa9cd3c81925074103fe47e66c021d61a4a",
+    "search_state_sha256": "04e5eb078ae1964e4ec65bfeeeb1acd0ffa246e7d54d5e0f997f81f602da28c5",
+    "treatment_skeleton_sha256": "be5b9bb8ddcd2a61f4390c90e091fc35d1452a08d3e32a047b274ca712528b5c"
+  },
+  "proposal_type": "assumption_changing",
+  "proposals_cumulative": 30,
+  "remaining_budget": {
+    "evaluations": 170,
+    "evaluator_seconds": 705072.847088943,
+    "proposals": 170,
+    "tokens": 99215516
+  },
+  "retained": false,
+  "retention_decision": "not_strictly_better_than_incumbent",
+  "run_id": "nanogpt-openevolve-v2-1-h100-karpathy_nanogpt_source_only_h100-openevolve-b03-c1",
+  "schema_version": "1.0",
+  "selected_parent_ids": [
+    "fec1ef429620b33ffdd89eedd4dc590b06e3b24777b48f242296b09bba44638b"
+  ],
+  "timestamp": "2026-08-24T03:17:53.560681+00:00",
+  "usage_cumulative": {
+    "cached_input_tokens": 353024,
+    "input_tokens": 724219,
+    "output_tokens": 60265,
+    "reasoning_output_tokens": 52140,
+    "total_tokens": 784484
+  },
+  "usage_increment": {
+    "cached_input_tokens": 12032,
+    "input_tokens": 24997,
+    "output_tokens": 6405,
+    "reasoning_output_tokens": 5948,
+    "total_tokens": 31402
+  },
+  "visible_candidate_ids": [
+    "fec1ef429620b33ffdd89eedd4dc590b06e3b24777b48f242296b09bba44638b"
+  ]
+}

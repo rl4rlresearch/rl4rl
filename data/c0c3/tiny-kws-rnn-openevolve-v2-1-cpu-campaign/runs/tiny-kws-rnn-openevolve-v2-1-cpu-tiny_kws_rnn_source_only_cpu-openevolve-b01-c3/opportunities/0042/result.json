@@ -1,0 +1,105 @@
+{
+  "artifact_path": "candidates/2019e648507d511ffe6623c08d89dcea60a7df40d52ad265829d0091e18648cd",
+  "candidate_id": "2019e648507d511ffe6623c08d89dcea60a7df40d52ad265829d0091e18648cd",
+  "codex_service_tier": "default",
+  "condition": "C3",
+  "conversation_session_id": null,
+  "evaluation": {
+    "evaluator_calls": 1,
+    "evaluator_seconds": 128.55111120804213,
+    "failure_kind": null,
+    "fitness": -1689786681793868740,
+    "metrics": {
+      "batch_size": 64,
+      "evaluation_cases": 815,
+      "evaluation_split": "public_speaker_disjoint_validation",
+      "examples_processed": 50000,
+      "inference_cost": 1689786681793868740,
+      "maximum_recurrent_steps": 16,
+      "mean_recurrent_steps": 16.0,
+      "median_recurrent_steps": 16,
+      "optimizer_steps": 786,
+      "p95_recurrent_steps": 16,
+      "parameters": 27780,
+      "peak_hidden_elements": 151040,
+      "recurrent_logit_effect": 0.10958839952945709,
+      "recurrent_macs": 322035840,
+      "recurrent_steps": 13040,
+      "state_dependence_effect": 0.38375425338745117,
+      "state_update_effect": 0.6073355078697205,
+      "total_inference_macs": 323952720,
+      "trained_recurrent_logit_effect": 0.7808328866958618,
+      "trained_state_dependence_effect": 0.40402400493621826,
+      "trained_state_update_effect": 0.589256763458252,
+      "training_seconds": 113.36673708399758,
+      "validation_accuracy": 0.8687116564417178,
+      "validation_correct": 708,
+      "validation_cross_entropy": 0.4024184899827454
+    },
+    "valid": true
+  },
+  "evaluator_calls_cumulative": 41,
+  "evaluator_calls_increment": 1,
+  "evaluator_seconds_cumulative": 4780.430056205252,
+  "evaluator_seconds_increment": 128.55111120804213,
+  "event": "proposal_completed",
+  "evicted_candidate_id": "e08e2c7b5e2f34253ee42165cb71e81d456e89ca63ba71360bab7e4282f85b7c",
+  "evidence": "The 99-unit 31/32/33 model qualified at 85.399% and 326,612,880 MACs, while the adjacent 98-unit mean/final model fell to 83.681%. This tests whether preserving transient keyword evidence in the readout can recover that boundary loss for only 638,960 MACs above the failed 98-unit design.",
+  "hypothesis": "A 98-unit 31/32/33 gated state with explicit temporal maximum pooling will recover at least 85% validation accuracy while reducing total inference MACs below the qualified 99-unit model, to approximately 323,952,720.",
+  "incumbent_after": "2019e648507d511ffe6623c08d89dcea60a7df40d52ad265829d0091e18648cd",
+  "intended_edit": "Reduce the recurrent state to 98 units and augment its mean/final-state classifier with a learned readout from the elementwise maximum recurrent activation across all 16 steps.",
+  "mechanism": "Mean-max-endpoint recurrent readout",
+  "opportunity": 42,
+  "parent_ids": [
+    "e08e2c7b5e2f34253ee42165cb71e81d456e89ca63ba71360bab7e4282f85b7c"
+  ],
+  "portfolio_after": [
+    "2019e648507d511ffe6623c08d89dcea60a7df40d52ad265829d0091e18648cd",
+    "95506b5e1d03963bb01db61c34b2014a9f90a758d02c7e812464d828d27978f0",
+    "29cd0ee453282d6dd86c9ca6664de232f6f472ae0ab407be248b802b4bcc7dc7",
+    "228c148ebeab3fef0d336d86f35399e07fcc366c76c31f47813472e28b8ee717"
+  ],
+  "prompt_hashes": {
+    "common_template_sha256": "dee04faf4c430276c1036ba97f5705a339857dbdf19117dac88952a5a3a47e9d",
+    "prompt_sha256": "ac40e422c3a2718d7ab9a2f0033d2e81a720dda4ad5f391cf62f01c4a4e6f1a8",
+    "proposal_policy_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "search_state_sha256": "c938ac007bf70fe8d27f64661175531e51fcb16b38318c328493c32ee292e27e",
+    "treatment_skeleton_sha256": "c5b331a1f068456546eb6e8df0e8926f5a11daa478e97f682f1044c9d02a9552"
+  },
+  "proposal_type": "ordinary",
+  "proposals_cumulative": 42,
+  "remaining_budget": {
+    "evaluations": 159,
+    "evaluator_seconds": 55219.56994379475,
+    "proposals": 158,
+    "tokens": 98943185
+  },
+  "retained": true,
+  "retention_decision": "replaced_selected_parent_on_strict_improvement",
+  "run_id": "tiny-kws-rnn-openevolve-v2-1-cpu-tiny_kws_rnn_source_only_cpu-openevolve-b01-c3",
+  "schema_version": "1.0",
+  "selected_parent_ids": [
+    "e08e2c7b5e2f34253ee42165cb71e81d456e89ca63ba71360bab7e4282f85b7c"
+  ],
+  "timestamp": "2026-09-04T05:06:18.583273+00:00",
+  "usage_cumulative": {
+    "cached_input_tokens": 451584,
+    "input_tokens": 954957,
+    "output_tokens": 101858,
+    "reasoning_output_tokens": 78410,
+    "total_tokens": 1056815
+  },
+  "usage_increment": {
+    "cached_input_tokens": 10752,
+    "input_tokens": 24498,
+    "output_tokens": 4901,
+    "reasoning_output_tokens": 3821,
+    "total_tokens": 29399
+  },
+  "visible_candidate_ids": [
+    "e08e2c7b5e2f34253ee42165cb71e81d456e89ca63ba71360bab7e4282f85b7c",
+    "95506b5e1d03963bb01db61c34b2014a9f90a758d02c7e812464d828d27978f0",
+    "29cd0ee453282d6dd86c9ca6664de232f6f472ae0ab407be248b802b4bcc7dc7",
+    "228c148ebeab3fef0d336d86f35399e07fcc366c76c31f47813472e28b8ee717"
+  ]
+}

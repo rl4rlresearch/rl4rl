@@ -1,0 +1,82 @@
+{
+  "artifact_path": "candidates/c710872c3e22e32d2032ee0c55f3966debd4e18c27f4c4a7ccf80bf8c522ee4d",
+  "candidate_id": "c710872c3e22e32d2032ee0c55f3966debd4e18c27f4c4a7ccf80bf8c522ee4d",
+  "codex_service_tier": "default",
+  "condition": "C0",
+  "conversation_session_id": null,
+  "evaluation": {
+    "evaluator_calls": 1,
+    "evaluator_seconds": 359.4816979120005,
+    "failure_kind": null,
+    "fitness": -0.984684,
+    "metrics": {
+      "depth": 8.0,
+      "mfu_percent": 37.15,
+      "num_params_M": 50.3,
+      "num_steps": 1900.0,
+      "peak_vram_mb": 44908.2,
+      "total_tokens_M": 498.1,
+      "training_seconds": 300.0,
+      "val_bpb": 0.984684
+    },
+    "valid": true
+  },
+  "evaluator_calls_cumulative": 48,
+  "evaluator_calls_increment": 1,
+  "evaluator_seconds_cumulative": 17632.429914355973,
+  "evaluator_seconds_increment": 359.4816979120005,
+  "event": "proposal_completed",
+  "evicted_candidate_id": null,
+  "evidence": "Layer-4 performance improved monotonically from 0.985141 at 1024 tokens to 0.984551 at 1536 and 0.984287 at 1792, approaching the 0.984059 full-attention result; 1920 is the untested midpoint between 1792 and 2048 that determines whether the optimum lies just below the endpoint.",
+  "hypothesis": "A 1920-token layer-4 window will beat 0.984059 val_bpb by preserving nearly all useful global context while slightly reducing attention compute.",
+  "incumbent_after": "c537d035fb2713f584eb26b5a1a1da3b8e5a8a6d04e1ed3ff940d703b1a5b1db",
+  "intended_edit": "Add a 1920-token near-long attention window and apply it only at layer 4; layer 6 remains at 1024 tokens, layer 8 remains full-attention, and all other layers remain at 512 tokens.",
+  "mechanism": "Near-full layer-4 context interpolation",
+  "opportunity": 48,
+  "parent_ids": [
+    "c537d035fb2713f584eb26b5a1a1da3b8e5a8a6d04e1ed3ff940d703b1a5b1db"
+  ],
+  "portfolio_after": [
+    "c537d035fb2713f584eb26b5a1a1da3b8e5a8a6d04e1ed3ff940d703b1a5b1db"
+  ],
+  "prompt_hashes": {
+    "common_template_sha256": "ba85b39aa7288f4f48475376da6cff65661f39cfeb7ac7cde15b2a9a2e692fde",
+    "prompt_sha256": "2d9f3a075d37fa1608a059bdd840f48e86f73bfd71d3d600207f9f5067866b94",
+    "proposal_policy_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "search_state_sha256": "04e5eb078ae1964e4ec65bfeeeb1acd0ffa246e7d54d5e0f997f81f602da28c5",
+    "treatment_skeleton_sha256": "e79d6ce63b602938b5e009665b118fa2918b84056c2da1c6a02ab0305e9eac1a"
+  },
+  "proposal_type": "ordinary",
+  "proposals_cumulative": 48,
+  "remaining_budget": {
+    "evaluations": 152,
+    "evaluator_seconds": 702367.570085644,
+    "proposals": 152,
+    "tokens": 98742225
+  },
+  "retained": false,
+  "retention_decision": "not_strictly_better_than_incumbent",
+  "run_id": "nanogpt-openevolve-v2-1-h100-karpathy_nanogpt_source_only_h100-openevolve-b01-c0",
+  "schema_version": "1.0",
+  "selected_parent_ids": [
+    "c537d035fb2713f584eb26b5a1a1da3b8e5a8a6d04e1ed3ff940d703b1a5b1db"
+  ],
+  "timestamp": "2026-08-24T11:35:57.440723+00:00",
+  "usage_cumulative": {
+    "cached_input_tokens": 546816,
+    "input_tokens": 1170103,
+    "output_tokens": 87672,
+    "reasoning_output_tokens": 75954,
+    "total_tokens": 1257775
+  },
+  "usage_increment": {
+    "cached_input_tokens": 12032,
+    "input_tokens": 24970,
+    "output_tokens": 3216,
+    "reasoning_output_tokens": 2755,
+    "total_tokens": 28186
+  },
+  "visible_candidate_ids": [
+    "c537d035fb2713f584eb26b5a1a1da3b8e5a8a6d04e1ed3ff940d703b1a5b1db"
+  ]
+}

@@ -1,0 +1,85 @@
+{
+  "artifact_path": "candidates/dcb8542d7afae7da0473c0c79d4f21af24d8d58b188dc81deab45e8cdafa4da6",
+  "candidate_id": "dcb8542d7afae7da0473c0c79d4f21af24d8d58b188dc81deab45e8cdafa4da6",
+  "codex_service_tier": "default",
+  "condition": "C2",
+  "conversation_session_id": null,
+  "evaluation": {
+    "evaluator_calls": 1,
+    "evaluator_seconds": 728.6966592089739,
+    "failure_kind": null,
+    "fitness": -1579.0,
+    "metrics": {
+      "accuracy": 0.9975,
+      "cases": 10010,
+      "correct": 9985,
+      "parameters": 1579,
+      "training_steps": 4999
+    },
+    "valid": true
+  },
+  "evaluator_calls_cumulative": 34,
+  "evaluator_calls_increment": 1,
+  "evaluator_seconds_cumulative": 12669.433574000024,
+  "evaluator_seconds_increment": 728.6966592089739,
+  "event": "proposal_completed",
+  "evicted_candidate_id": "bc533e3afec75f79c64ed0e13937059eaa65d519332a1b8d3f7129026a07ad2e",
+  "evidence": "Complete value-bias absorption achieved 99.94% at 1587 parameters. Fixing one `ln2` scale without preserving its optimization trajectory collapsed to 28.96%, motivating an exact folded-factor update instead of a fixed-scale optimization change.",
+  "hypothesis": "Starting from the qualified 1587-parameter complete value-bias quotient, folding all eight `ln2` scales into `fc1.weight` while reproducing their full AdamW and clipping dynamics will yield a 1579-parameter model with at least 99% accuracy.",
+  "incumbent_after": "dcb8542d7afae7da0473c0c79d4f21af24d8d58b188dc81deab45e8cdafa4da6",
+  "intended_edit": "Remove the complete attention value bias and all `ln2` affine parameters, then train the effective `fc1.weight` through optimizer-maintained weight/scale factors whose product is stored in the model.",
+  "mechanism": "Trajectory-preserving LayerNorm-scale folding into the MLP input projection",
+  "opportunity": 34,
+  "parent_ids": [
+    "bc533e3afec75f79c64ed0e13937059eaa65d519332a1b8d3f7129026a07ad2e"
+  ],
+  "portfolio_after": [
+    "2b9cea175ed60b009337ac54f6e8ad23bf2c014eb4080237777bfb70bfd9fd5b",
+    "dcb8542d7afae7da0473c0c79d4f21af24d8d58b188dc81deab45e8cdafa4da6",
+    "8ee486ff56b7d48c60896324daa549cd96bce1293507adb191294105c249a9c1",
+    "0f9739ff7e3d82e2427899d045f380fd4d3f32d7d62b79f54ee5e4bd5afd7ab5"
+  ],
+  "prompt_hashes": {
+    "common_template_sha256": "3f2bea6418b6969c4bf2aa1df18dcda8a3a4ac075bf20c79068c754698b6be5e",
+    "prompt_sha256": "e91e8ab0d6304fae566381d39589e71e043791143d5f651b5c4b56b3d0ba60e8",
+    "proposal_policy_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "search_state_sha256": "c938ac007bf70fe8d27f64661175531e51fcb16b38318c328493c32ee292e27e",
+    "treatment_skeleton_sha256": "bf657a224a3d101fa24a26cba284c6646daac9f9a83726773500ec5f10f12d34"
+  },
+  "proposal_type": "ordinary",
+  "proposals_cumulative": 34,
+  "remaining_budget": {
+    "evaluations": 166,
+    "evaluator_seconds": 347330.566426,
+    "proposals": 166,
+    "tokens": 98772968
+  },
+  "retained": true,
+  "retention_decision": "replaced_selected_parent_on_strict_improvement",
+  "run_id": "controlled-openevolve-transformer-v2-1-source-only-ten-digit-addition-pair-transformer-openevolve-v2-1-mps-openevolve-b03-c2",
+  "schema_version": "1.0",
+  "selected_parent_ids": [
+    "bc533e3afec75f79c64ed0e13937059eaa65d519332a1b8d3f7129026a07ad2e"
+  ],
+  "timestamp": "2026-08-24T03:39:43.894350+00:00",
+  "usage_cumulative": {
+    "cached_input_tokens": 392704,
+    "input_tokens": 1084068,
+    "output_tokens": 142964,
+    "reasoning_output_tokens": 114962,
+    "total_tokens": 1227032
+  },
+  "usage_increment": {
+    "cached_input_tokens": 12032,
+    "input_tokens": 39143,
+    "output_tokens": 12648,
+    "reasoning_output_tokens": 10484,
+    "total_tokens": 51791
+  },
+  "visible_candidate_ids": [
+    "2b9cea175ed60b009337ac54f6e8ad23bf2c014eb4080237777bfb70bfd9fd5b",
+    "bc533e3afec75f79c64ed0e13937059eaa65d519332a1b8d3f7129026a07ad2e",
+    "8ee486ff56b7d48c60896324daa549cd96bce1293507adb191294105c249a9c1",
+    "0f9739ff7e3d82e2427899d045f380fd4d3f32d7d62b79f54ee5e4bd5afd7ab5"
+  ]
+}

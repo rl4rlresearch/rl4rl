@@ -1,0 +1,79 @@
+{
+  "artifact_path": "candidates/bff1b6dec439e135b94899efbcc49e5cfb7ca81826ed9c01989d2692cc691d82",
+  "candidate_id": "bff1b6dec439e135b94899efbcc49e5cfb7ca81826ed9c01989d2692cc691d82",
+  "codex_service_tier": "default",
+  "condition": "C1",
+  "conversation_session_id": null,
+  "evaluation": {
+    "evaluator_calls": 1,
+    "evaluator_seconds": 580.084757334087,
+    "failure_kind": null,
+    "fitness": -1553.0,
+    "metrics": {
+      "accuracy": 0.9991,
+      "cases": 10010,
+      "correct": 10001,
+      "parameters": 1553,
+      "training_steps": 4999
+    },
+    "valid": true
+  },
+  "evaluator_calls_cumulative": 63,
+  "evaluator_calls_increment": 1,
+  "evaluator_seconds_cumulative": 32520.153508621734,
+  "evaluator_seconds_increment": 580.084757334087,
+  "event": "proposal_completed",
+  "evicted_candidate_id": "11bfb9fdba996255746ceb9fc36d59da8adfb44c137b754174eac37cf2381f1f",
+  "evidence": "The verified 1,554-parameter model already succeeds with two bias coordinates removed from `ln1`; unlike the failed `ln1` scale removal, another bias removal follows the same downstream-affine redundancy already tolerated by the successful design.",
+  "hypothesis": "Removing a third `ln1` bias coordinate will reduce the model from 1,554 to 1,553 parameters while retaining at least 99% accuracy, because downstream query and value biases absorb its constant affine effects while the corresponding key shift is softmax-invariant.",
+  "incumbent_after": "bff1b6dec439e135b94899efbcc49e5cfb7ca81826ed9c01989d2692cc691d82",
+  "intended_edit": "Reuse the unused LayerNorm variant as a three-coordinate-pruned LayerNorm and apply it only before attention, leaving `ln2` and all training settings unchanged.",
+  "mechanism": "Third pre-attention LayerNorm bias quotient",
+  "opportunity": 63,
+  "parent_ids": [
+    "11bfb9fdba996255746ceb9fc36d59da8adfb44c137b754174eac37cf2381f1f"
+  ],
+  "portfolio_after": [
+    "bff1b6dec439e135b94899efbcc49e5cfb7ca81826ed9c01989d2692cc691d82"
+  ],
+  "prompt_hashes": {
+    "common_template_sha256": "3f2bea6418b6969c4bf2aa1df18dcda8a3a4ac075bf20c79068c754698b6be5e",
+    "prompt_sha256": "73dd643f39e6348f83f789e66ab9e17537a4facf3fb15b7e5b9299c4fd4561b9",
+    "proposal_policy_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "search_state_sha256": "04e5eb078ae1964e4ec65bfeeeb1acd0ffa246e7d54d5e0f997f81f602da28c5",
+    "treatment_skeleton_sha256": "116a82cd120661cac43266e25ad962964366e81c66e2baf26aff86b95bebc042"
+  },
+  "proposal_type": "ordinary",
+  "proposals_cumulative": 63,
+  "remaining_budget": {
+    "evaluations": 137,
+    "evaluator_seconds": 327479.84649137827,
+    "proposals": 137,
+    "tokens": 98328807
+  },
+  "retained": true,
+  "retention_decision": "strict_incumbent_improvement",
+  "run_id": "controlled-openevolve-transformer-v2-1-source-only-ten-digit-addition-pair-transformer-openevolve-v2-1-mps-openevolve-b01-c1",
+  "schema_version": "1.0",
+  "selected_parent_ids": [
+    "11bfb9fdba996255746ceb9fc36d59da8adfb44c137b754174eac37cf2381f1f"
+  ],
+  "timestamp": "2026-08-25T06:59:21.946324+00:00",
+  "usage_cumulative": {
+    "cached_input_tokens": 680704,
+    "input_tokens": 1408069,
+    "output_tokens": 263124,
+    "reasoning_output_tokens": 218660,
+    "total_tokens": 1671193
+  },
+  "usage_increment": {
+    "cached_input_tokens": 12032,
+    "input_tokens": 23610,
+    "output_tokens": 4956,
+    "reasoning_output_tokens": 4430,
+    "total_tokens": 28566
+  },
+  "visible_candidate_ids": [
+    "11bfb9fdba996255746ceb9fc36d59da8adfb44c137b754174eac37cf2381f1f"
+  ]
+}

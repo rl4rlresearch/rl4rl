@@ -1,0 +1,91 @@
+{
+  "artifact_path": "candidates/0fc23e12b813a0bbaea6b9f0070812b4c129747efc207b1f3072dfc841290898",
+  "candidate_id": "0fc23e12b813a0bbaea6b9f0070812b4c129747efc207b1f3072dfc841290898",
+  "codex_service_tier": "default",
+  "condition": "C3",
+  "conversation_session_id": null,
+  "evaluation": {
+    "evaluator_calls": 1,
+    "evaluator_seconds": 62.49341233284213,
+    "failure_kind": null,
+    "fitness": 9264.415051030162,
+    "metrics": {
+      "batch_size": 128,
+      "evaluation_cases": 10000,
+      "evaluation_split": "public_validation",
+      "examples_processed": 100000,
+      "optimizer_steps": 782,
+      "parameters": 245152,
+      "training_seconds": 44.35637570801191,
+      "validation_accuracy": 0.9264,
+      "validation_correct": 9264,
+      "validation_cross_entropy": 0.2046711456298828,
+      "validation_score": 9264.415051030162
+    },
+    "valid": true
+  },
+  "evaluator_calls_cumulative": 177,
+  "evaluator_calls_increment": 1,
+  "evaluator_seconds_cumulative": 10817.624501911923,
+  "evaluator_seconds_increment": 62.49341233284213,
+  "event": "proposal_completed",
+  "evicted_candidate_id": null,
+  "evidence": "Calibration is saturated at 9,284 correct, while channel attention, aligned translation sampling, probability-space TTA, and late EMA all reduced accuracy; batch granularity remains an untested way to improve convergence without altering the established classifier computation.",
+  "hypothesis": "Reducing the batch size to 128 will exceed 9,284 correct predictions by increasing optimizer updates from 522 to approximately 782 within the fixed 100,000-example budget, while the paired-image loss still gives BatchNorm an effective 256-image batch.",
+  "incumbent_after": "6d1e325c6bf3ed86c2f2453ff1d86b65725a4b86620d32321c6e0ff71998bca7",
+  "intended_edit": "Change only the training batch size from 192 to 128, preserving the validated architecture, loss, augmentation, TTA, and calibration.",
+  "mechanism": "Increased finite-exposure optimization granularity",
+  "opportunity": 189,
+  "parent_ids": [
+    "6d1e325c6bf3ed86c2f2453ff1d86b65725a4b86620d32321c6e0ff71998bca7"
+  ],
+  "portfolio_after": [
+    "5902f103a073dd581f340eb727bfed4870acfcac1b00ed095a31b946c4ca73f5",
+    "6d1e325c6bf3ed86c2f2453ff1d86b65725a4b86620d32321c6e0ff71998bca7",
+    "1707815d5aa4d7b2b05ac248da030d41574bf61352222b6d6518226507895416",
+    "c9721619a4a697569c6da4d56c88f1caea3435a1dc0f5234a6eb8fa6ecc1f4fd"
+  ],
+  "prompt_hashes": {
+    "common_template_sha256": "e8327ba94bab12abc7c7ec7c6615378a3ae62434efb944d4a7d9492f1d19bc14",
+    "prompt_sha256": "377cc296c284e82784d050fd4588c02de006b54f96748b8a5539814a8ffd022e",
+    "proposal_policy_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "search_state_sha256": "c938ac007bf70fe8d27f64661175531e51fcb16b38318c328493c32ee292e27e",
+    "treatment_skeleton_sha256": "005f50cbe43d60f0b7e02656406799c7dfb30beb86a1d7080389f496f6a06119"
+  },
+  "proposal_type": "ordinary",
+  "proposals_cumulative": 189,
+  "remaining_budget": {
+    "evaluations": 23,
+    "evaluator_seconds": 13182.375498088077,
+    "proposals": 11,
+    "tokens": 94716756
+  },
+  "retained": false,
+  "retention_decision": "not_strictly_better_than_selected_parent",
+  "run_id": "fashion-mnist-openevolve-v2-1-mps-fashion_mnist_source_only_mps-openevolve-b03-c3",
+  "schema_version": "1.0",
+  "selected_parent_ids": [
+    "6d1e325c6bf3ed86c2f2453ff1d86b65725a4b86620d32321c6e0ff71998bca7"
+  ],
+  "timestamp": "2026-08-25T07:22:56.779744+00:00",
+  "usage_cumulative": {
+    "cached_input_tokens": 1955328,
+    "input_tokens": 4807080,
+    "output_tokens": 476164,
+    "reasoning_output_tokens": 386721,
+    "total_tokens": 5283244
+  },
+  "usage_increment": {
+    "cached_input_tokens": 12032,
+    "input_tokens": 27182,
+    "output_tokens": 4106,
+    "reasoning_output_tokens": 3925,
+    "total_tokens": 31288
+  },
+  "visible_candidate_ids": [
+    "5902f103a073dd581f340eb727bfed4870acfcac1b00ed095a31b946c4ca73f5",
+    "6d1e325c6bf3ed86c2f2453ff1d86b65725a4b86620d32321c6e0ff71998bca7",
+    "1707815d5aa4d7b2b05ac248da030d41574bf61352222b6d6518226507895416",
+    "c9721619a4a697569c6da4d56c88f1caea3435a1dc0f5234a6eb8fa6ecc1f4fd"
+  ]
+}

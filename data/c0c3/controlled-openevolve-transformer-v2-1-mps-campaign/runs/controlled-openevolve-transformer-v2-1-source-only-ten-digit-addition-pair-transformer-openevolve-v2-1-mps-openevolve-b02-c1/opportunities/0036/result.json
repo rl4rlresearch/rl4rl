@@ -1,0 +1,79 @@
+{
+  "artifact_path": "candidates/3d1e4d5afc9c700ac70c893b68190e54239482a794e83d8b5fbf11eb3799b422",
+  "candidate_id": "3d1e4d5afc9c700ac70c893b68190e54239482a794e83d8b5fbf11eb3799b422",
+  "codex_service_tier": "default",
+  "condition": "C1",
+  "conversation_session_id": null,
+  "evaluation": {
+    "evaluator_calls": 1,
+    "evaluator_seconds": 870.4202368750703,
+    "failure_kind": null,
+    "fitness": -1218.0,
+    "metrics": {
+      "accuracy": 0.9998999999999999,
+      "cases": 10010,
+      "correct": 10009,
+      "parameters": 1218,
+      "training_steps": 4999
+    },
+    "valid": true
+  },
+  "evaluator_calls_cumulative": 36,
+  "evaluator_calls_increment": 1,
+  "evaluator_seconds_cumulative": 13390.035300620599,
+  "evaluator_seconds_increment": 870.4202368750703,
+  "event": "proposal_completed",
+  "evicted_candidate_id": "6030db8e3a652ff7c6db68224a8ab5611b919fc60c01ab73219fa6e5cce1631a",
+  "evidence": "The current 1,219-parameter model achieved 99.97%, and the centered tied-embedding design previously preserved 100% accuracy after removing exact final-classifier gauges. This change removes another exact representational gauge rather than constraining attention, MLP, or embedding contrasts.",
+  "hypothesis": "Fixing the final LayerNorm\u2019s eighth scale coordinate to one will reduce the model from 1,219 to 1,218 parameters while retaining at least 99% accuracy, because any positive value of that coordinate can be absorbed by globally scaling the tied embedding and residual-branch outputs while inversely scaling the final LayerNorm affine output.",
+  "incumbent_after": "3d1e4d5afc9c700ac70c893b68190e54239482a794e83d8b5fbf11eb3799b422",
+  "intended_edit": "Store seven learned final-LayerNorm scale coordinates and reconstruct the eighth as the constant one; leave the protected decoding path and all other learned modules unchanged.",
+  "mechanism": "Global residual-stream scale gauge fixing",
+  "opportunity": 36,
+  "parent_ids": [
+    "6030db8e3a652ff7c6db68224a8ab5611b919fc60c01ab73219fa6e5cce1631a"
+  ],
+  "portfolio_after": [
+    "3d1e4d5afc9c700ac70c893b68190e54239482a794e83d8b5fbf11eb3799b422"
+  ],
+  "prompt_hashes": {
+    "common_template_sha256": "3f2bea6418b6969c4bf2aa1df18dcda8a3a4ac075bf20c79068c754698b6be5e",
+    "prompt_sha256": "74804909659fa5c88753ca389d256fe9b5aa2281a52041ea45b22a45c09a0e54",
+    "proposal_policy_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "search_state_sha256": "04e5eb078ae1964e4ec65bfeeeb1acd0ffa246e7d54d5e0f997f81f602da28c5",
+    "treatment_skeleton_sha256": "9eac968c1eef8ec39204fe88fcf8b4622265312e482e6bf9dee2fc5bf3154ce9"
+  },
+  "proposal_type": "ordinary",
+  "proposals_cumulative": 36,
+  "remaining_budget": {
+    "evaluations": 164,
+    "evaluator_seconds": 346609.9646993794,
+    "proposals": 164,
+    "tokens": 98953454
+  },
+  "retained": true,
+  "retention_decision": "strict_incumbent_improvement",
+  "run_id": "controlled-openevolve-transformer-v2-1-source-only-ten-digit-addition-pair-transformer-openevolve-v2-1-mps-openevolve-b02-c1",
+  "schema_version": "1.0",
+  "selected_parent_ids": [
+    "6030db8e3a652ff7c6db68224a8ab5611b919fc60c01ab73219fa6e5cce1631a"
+  ],
+  "timestamp": "2026-08-24T02:37:18.849007+00:00",
+  "usage_cumulative": {
+    "cached_input_tokens": 342016,
+    "input_tokens": 821026,
+    "output_tokens": 225520,
+    "reasoning_output_tokens": 179744,
+    "total_tokens": 1046546
+  },
+  "usage_increment": {
+    "cached_input_tokens": 12032,
+    "input_tokens": 28570,
+    "output_tokens": 5928,
+    "reasoning_output_tokens": 5428,
+    "total_tokens": 34498
+  },
+  "visible_candidate_ids": [
+    "6030db8e3a652ff7c6db68224a8ab5611b919fc60c01ab73219fa6e5cce1631a"
+  ]
+}

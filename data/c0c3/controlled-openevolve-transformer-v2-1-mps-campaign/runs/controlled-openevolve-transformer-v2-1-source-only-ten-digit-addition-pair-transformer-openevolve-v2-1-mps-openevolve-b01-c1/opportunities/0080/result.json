@@ -1,0 +1,79 @@
+{
+  "artifact_path": "candidates/19af6205e1539e95391a6e1995baea11d1e4ee6cb6d1f9e032e14565019752e6",
+  "candidate_id": "19af6205e1539e95391a6e1995baea11d1e4ee6cb6d1f9e032e14565019752e6",
+  "codex_service_tier": "default",
+  "condition": "C1",
+  "conversation_session_id": null,
+  "evaluation": {
+    "evaluator_calls": 1,
+    "evaluator_seconds": 212.51912679104134,
+    "failure_kind": "nonqualification",
+    "fitness": null,
+    "metrics": {
+      "accuracy": 0.0001,
+      "cases": 10010,
+      "correct": 1,
+      "parameters": 1512,
+      "training_steps": 4999
+    },
+    "valid": false
+  },
+  "evaluator_calls_cumulative": 80,
+  "evaluator_calls_increment": 1,
+  "evaluator_seconds_cumulative": 38376.35225724825,
+  "evaluator_seconds_increment": 212.51912679104134,
+  "event": "proposal_completed",
+  "evicted_candidate_id": null,
+  "evidence": "Multi-query attention fell to 6.64% when both keys and values were shared, showing that the combined shared-memory assumption was unsafe but providing no evidence that independent query feature extraction is required. The 1,544-parameter model reaches 99.90%; this patch cleanly tests the opposite decomposition while restoring every head-specific memory pathway implicated by that failure.",
+  "hypothesis": "Broadcasting one learned four-dimensional query projection to both attention heads, while retaining head-specific query biases and fully independent key/value projections, will reduce the model from 1,544 to 1,512 parameters while maintaining at least 99% accuracy because both heads can formulate retrievals from a common decoder-state representation yet specialize through their separate learned memories.",
+  "incumbent_after": "29eec0b5f88c53d6828aef2cf7a9db13e21e030299b3febce257e966d165e637",
+  "intended_edit": "Replace the two independent query-weight maps with one shared learned query map, preserving separate key/value weights, all query and value biases, causal masking, value bandwidth, initialization variance, and the original RNG sequence.",
+  "mechanism": "Shared-query attention with head-specific memories",
+  "opportunity": 80,
+  "parent_ids": [
+    "29eec0b5f88c53d6828aef2cf7a9db13e21e030299b3febce257e966d165e637"
+  ],
+  "portfolio_after": [
+    "29eec0b5f88c53d6828aef2cf7a9db13e21e030299b3febce257e966d165e637"
+  ],
+  "prompt_hashes": {
+    "common_template_sha256": "3f2bea6418b6969c4bf2aa1df18dcda8a3a4ac075bf20c79068c754698b6be5e",
+    "prompt_sha256": "9543cca9b8d29ad6cd887aef7702d1e68a4e8c30eb6031f38e9a898647f75673",
+    "proposal_policy_sha256": "4a27c08e098e719db007f4d6b37fabe2967b41836bb9070e2513a8a24ff7ce90",
+    "search_state_sha256": "04e5eb078ae1964e4ec65bfeeeb1acd0ffa246e7d54d5e0f997f81f602da28c5",
+    "treatment_skeleton_sha256": "f6bc020113d80d09fcc431cf78fbcc1d5692457ea063a17a771650af69f18a61"
+  },
+  "proposal_type": "assumption_changing",
+  "proposals_cumulative": 80,
+  "remaining_budget": {
+    "evaluations": 120,
+    "evaluator_seconds": 321623.64774275175,
+    "proposals": 120,
+    "tokens": 97861794
+  },
+  "retained": false,
+  "retention_decision": "invalid",
+  "run_id": "controlled-openevolve-transformer-v2-1-source-only-ten-digit-addition-pair-transformer-openevolve-v2-1-mps-openevolve-b01-c1",
+  "schema_version": "1.0",
+  "selected_parent_ids": [
+    "29eec0b5f88c53d6828aef2cf7a9db13e21e030299b3febce257e966d165e637"
+  ],
+  "timestamp": "2026-08-25T18:08:07.358133+00:00",
+  "usage_cumulative": {
+    "cached_input_tokens": 852480,
+    "input_tokens": 1810857,
+    "output_tokens": 327349,
+    "reasoning_output_tokens": 272094,
+    "total_tokens": 2138206
+  },
+  "usage_increment": {
+    "cached_input_tokens": 12032,
+    "input_tokens": 23841,
+    "output_tokens": 11525,
+    "reasoning_output_tokens": 10358,
+    "total_tokens": 35366
+  },
+  "visible_candidate_ids": [
+    "29eec0b5f88c53d6828aef2cf7a9db13e21e030299b3febce257e966d165e637"
+  ]
+}

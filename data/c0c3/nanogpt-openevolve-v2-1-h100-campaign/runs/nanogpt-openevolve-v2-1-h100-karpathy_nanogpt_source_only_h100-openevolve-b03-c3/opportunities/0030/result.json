@@ -1,0 +1,88 @@
+{
+  "artifact_path": "candidates/88b03e92cf37c14fc539f9cabbf96c9717ba36fb6b2677b6953a83f85ebc02bb",
+  "candidate_id": "88b03e92cf37c14fc539f9cabbf96c9717ba36fb6b2677b6953a83f85ebc02bb",
+  "codex_service_tier": "default",
+  "condition": "C3",
+  "conversation_session_id": null,
+  "evaluation": {
+    "evaluator_calls": 1,
+    "evaluator_seconds": 378.0194300000003,
+    "failure_kind": null,
+    "fitness": -0.994246,
+    "metrics": {
+      "depth": 8.0,
+      "mfu_percent": 37.36,
+      "num_params_M": 50.4,
+      "num_steps": 895.0,
+      "peak_vram_mb": 47406.0,
+      "total_tokens_M": 469.2,
+      "training_seconds": 300.3,
+      "val_bpb": 0.994246
+    },
+    "valid": true
+  },
+  "evaluator_calls_cumulative": 30,
+  "evaluator_calls_increment": 1,
+  "evaluator_seconds_cumulative": 11122.347187121995,
+  "evaluator_seconds_increment": 378.0194300000003,
+  "event": "proposal_completed",
+  "evicted_candidate_id": null,
+  "evidence": "Fixed two-lag mixing with four handoff gates achieved 0.992110, while a third lag and token-conditioned lag gates regressed to 0.992455 and 0.992360. This challenges the shared assumption that additional cheap context must be another local lag: the quarter-context regression shows broader history matters, so a compressed global prefix memory tests a distinct recurrent-style context path.",
+  "hypothesis": "Replacing token-conditioned lag scaling with a learned 32-dimensional summary of all preceding embeddings, while restoring the best fixed two-lag FIR and four handoff gates, will lower val_bpb below 0.992110 while retaining at least 465M trained tokens.",
+  "incumbent_after": "528755766b20deef30a32a5dd29aae232775b7555dc993f76a9a5bd80f1a972d",
+  "intended_edit": "Restore fixed two-lag embedding mixing and add a neutral-initialized low-rank nonlinear projection of the causal running-mean embedding history before the transformer.",
+  "mechanism": "Low-rank causal prefix memory",
+  "opportunity": 30,
+  "parent_ids": [
+    "021833cad0c0546a7f0b572151648095ee7bb0de7c565cf4face4171caa2b92e"
+  ],
+  "portfolio_after": [
+    "9931424bd937324c0b9cc3301f65f06033626b33e060d110d5f4424b73c546cd",
+    "021833cad0c0546a7f0b572151648095ee7bb0de7c565cf4face4171caa2b92e",
+    "528755766b20deef30a32a5dd29aae232775b7555dc993f76a9a5bd80f1a972d",
+    "073c0c20ffce9f9c7373a4c08fde16f87d5b194ad21c03d8a86866625dafc42b"
+  ],
+  "prompt_hashes": {
+    "common_template_sha256": "ba85b39aa7288f4f48475376da6cff65661f39cfeb7ac7cde15b2a9a2e692fde",
+    "prompt_sha256": "5a7d3ffcb11ef7e7e0133cd80f1da7271b2c2785a42dd823f726310a522e8be9",
+    "proposal_policy_sha256": "cd7b9ba20a1cd1edd0663b5e3652baa9cd3c81925074103fe47e66c021d61a4a",
+    "search_state_sha256": "c938ac007bf70fe8d27f64661175531e51fcb16b38318c328493c32ee292e27e",
+    "treatment_skeleton_sha256": "2522c75e9ea8d7de41b086b0ee7cb7b9df1972867504c752893128e20e456e51"
+  },
+  "proposal_type": "assumption_changing",
+  "proposals_cumulative": 30,
+  "remaining_budget": {
+    "evaluations": 170,
+    "evaluator_seconds": 708877.652812878,
+    "proposals": 170,
+    "tokens": 98536306
+  },
+  "retained": false,
+  "retention_decision": "not_strictly_better_than_selected_parent",
+  "run_id": "nanogpt-openevolve-v2-1-h100-karpathy_nanogpt_source_only_h100-openevolve-b03-c3",
+  "schema_version": "1.0",
+  "selected_parent_ids": [
+    "021833cad0c0546a7f0b572151648095ee7bb0de7c565cf4face4171caa2b92e"
+  ],
+  "timestamp": "2026-08-24T03:24:11.783303+00:00",
+  "usage_cumulative": {
+    "cached_input_tokens": 383488,
+    "input_tokens": 1365422,
+    "output_tokens": 98272,
+    "reasoning_output_tokens": 79161,
+    "total_tokens": 1463694
+  },
+  "usage_increment": {
+    "cached_input_tokens": 12032,
+    "input_tokens": 48736,
+    "output_tokens": 7692,
+    "reasoning_output_tokens": 6732,
+    "total_tokens": 56428
+  },
+  "visible_candidate_ids": [
+    "9931424bd937324c0b9cc3301f65f06033626b33e060d110d5f4424b73c546cd",
+    "021833cad0c0546a7f0b572151648095ee7bb0de7c565cf4face4171caa2b92e",
+    "528755766b20deef30a32a5dd29aae232775b7555dc993f76a9a5bd80f1a972d",
+    "073c0c20ffce9f9c7373a4c08fde16f87d5b194ad21c03d8a86866625dafc42b"
+  ]
+}

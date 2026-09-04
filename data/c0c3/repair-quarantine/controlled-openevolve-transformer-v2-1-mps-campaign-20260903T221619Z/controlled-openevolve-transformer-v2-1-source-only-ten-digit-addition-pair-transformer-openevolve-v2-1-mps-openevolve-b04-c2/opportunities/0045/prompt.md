@@ -1,0 +1,197 @@
+# Optimize a transformer for 10-digit addition
+
+You are an autonomous ML engineer improving the source code for an
+autoregressive transformer that adds two 10-digit numbers.
+
+## Goal
+
+Minimize the actual number of deduplicated learned model parameters while
+maintaining at least 99% accuracy under the fixed verification process. A
+smaller implementation is useful only when it meets that accuracy requirement.
+Every submitted implementation is trained from a fresh initialization.
+
+## Learned-model requirement
+
+Produce a smaller trained autoregressive transformer, not a hand-coded addition
+program. The submitted implementation must:
+
+- have nonzero trainable parameters;
+- contain and use at least one learned causal self-attention module;
+- map token inputs to token logits through the learned model;
+- train from a fresh initialization during verification;
+- write both `checkpoints/best.pt` and a positive-step `checkpoints/last.pt`;
+- keep source code unchanged while training; and
+- use the protected generic decoding interface exactly as supplied.
+
+Do not implement or embed decimal arithmetic, carry propagation, place-value
+rules, digit lookup tables, finite-state addition transitions, fixed answer
+rules, or input-dependent Python logic that directly computes the sum. Do not
+hide such a solver in model generation, token processing, training, or saved
+weights. Do not add dummy or zero-length parameters to disguise a fixed
+algorithm as a learned model.
+
+Do not modify protected files. Do not perform post-training state-dictionary
+surgery, substitute a different saved model, truncate weights after training,
+or report a parameter count that differs from the submitted model.
+
+## Work boundaries
+
+Minimize parameters. Required result: accuracy >= 0.99.
+Editable source files: src/model.py, src/train.py.
+Results reported after each verification: accuracy, parameters, training_steps.
+
+Propose changes through exact SEARCH/REPLACE blocks. The patching interface applies them to the supplied editable source.
+
+The editable source and any reference source are included below. Do not access
+parent directories, home directories, shared temporary directories, global
+session history, online sources, or any surrounding repository. Do not run
+training or verification yourself and do not generate hidden alternatives.
+Return one patch for one implementation; verification happens after you finish.
+
+## Available designs
+
+The current editable design and the qualified reference designs below are available as technical evidence. Edit only the current workspace.
+
+CURRENT DESIGN
+verified_results: {"accuracy": 0.9998999999999999, "parameters": 1616, "training_steps": 4999}
+prior_hypothesis: Fixing one value-projection coefficient through an exactly compensated orthogonal rotation will reduce the verified model from 1,617 to 1,616 parameters while retaining at least 99% accuracy.
+
+REFERENCE DESIGN 1
+verified_results: {"accuracy": 0.9995999999999999, "parameters": 1644, "training_steps": 4999}
+prior_hypothesis: starting design
+
+REFERENCE DESIGN 2
+verified_results: {"accuracy": 0.9998, "parameters": 1612, "training_steps": 4999}
+prior_hypothesis: Extending the qualified 1,613-parameter design by rotating the two remaining nonzero first-column value coordinates in the first head will yield 1,612 parameters while retaining at least 99% accuracy.
+
+REFERENCE DESIGN 3
+verified_results: {"accuracy": 0.9984999999999999, "parameters": 1613, "training_steps": 4999}
+prior_hypothesis: Gauge-fixing the remaining disjoint value-channel pair in the second attention head will reduce the verified 1,614-parameter model to 1,613 parameters while retaining at least 99% accuracy.
+
+## Recent verification evidence
+
+RECENT RESULT
+hypothesis: Removing only the uniform direction of `ln1.bias` will reduce the current model from 1,620 to 1,619 parameters while retaining at least 99% accuracy, because the retained query and unrestricted projection biases can absorb its effects without the optimization interaction introduced by simultaneously quotienting `attn.proj.bias`.
+change: Represent `ln1.bias` in a seven-dimensional zero-sum basis, reconstruct it in the forward pass, and train it using the existing full-coordinate AdamW quotient updates.
+mechanism: Isolated pre-attention LayerNorm common-mode quotient
+evidence_used: The current 1,620-parameter design achieved 99.95%, and the qualified design containing this quotient achieved 99.94% at 1,618 parameters. The later combined 1,618-parameter rerun fell to 73.14%, motivating an isolated test that preserves the full attention-projection bias.
+result: met the accuracy requirement and became an available design
+reported_values: {"accuracy": 0.9989, "parameters": 1619, "training_steps": 4999}
+
+RECENT RESULT
+hypothesis: Quotienting the uniform residual-channel direction of one additional late positional row will reduce the verified model from 1,618 to 1,617 parameters while retaining at least 99% accuracy, because the change is function-null and applies only one more optimization constraint.
+change: Extend positional compaction from the first two and final four rows to the first two and final five rows, preserving initialization and full-coordinate AdamW moments.
+mechanism: Incremental positional common-mode quotient
+evidence_used: The current six-row positional quotient achieved 99.94% at 1,618 parameters; the reported 96.93% failure from further positional compression motivates testing the smallest possible one-row extension rather than compressing many additional rows simultaneously.
+result: met the accuracy requirement and became an available design
+reported_values: {"accuracy": 1.0, "parameters": 1617, "training_steps": 4999}
+
+RECENT RESULT
+hypothesis: Extending the qualified 1,617-parameter design by quotienting one additional late positional row will produce 1,616 parameters and retain at least 99% accuracy, because the seven-row design achieved 100% and this adds only one function-null optimization constraint.
+change: Add the qualified `ln1.bias` quotient and extend positional compaction from the first two plus final five rows to the first two plus final six rows, preserving full-coordinate AdamW moments.
+mechanism: Incremental late-position common-mode quotient
+evidence_used: Reference Design 2 achieved 100% accuracy at 1,617 parameters with the `ln1.bias` quotient and seven compact positional rows; the immediately preceding one-row positional extension improved accuracy from 99.94% to 100%, motivating another single-row extension rather than a larger compression jump.
+result: did not meet the accuracy requirement
+reported_values: {"accuracy": 0.8894, "parameters": 1616, "training_steps": 4999}
+
+RECENT RESULT
+hypothesis: Adding the exact two quotients from qualified Reference Design 2 will reduce the current model from 1,619 to 1,617 parameters while retaining at least 99% accuracy.
+change: Store the attention projection bias in a seven-dimensional zero-sum basis and extend positional compaction from the first two plus final four rows to the first two plus final five rows, preserving full-coordinate AdamW moments.
+mechanism: Dual common-mode quotient for attention output bias and one late positional row
+evidence_used: Reference Design 2 used this exact 1,617-parameter structure and achieved 100% accuracy; the subsequent 1,616-parameter failure indicates this qualified boundary is safer than compacting another positional row.
+result: did not meet the accuracy requirement
+reported_values: {"accuracy": 0.7411, "parameters": 1617, "training_steps": 4999}
+
+RECENT RESULT
+hypothesis: Compacting the sixth-from-last positional row with native compact-coordinate AdamW while preserving the verified seven rows’ full-coordinate updates will produce 1,616 parameters and at least 99% accuracy.
+change: Store the additional late positional row as a separate seven-parameter zero-sum vector, optimize it normally, and retain the qualified optimizer behavior for all existing compact rows.
+mechanism: Split-coordinate positional common-mode quotient
+evidence_used: The seven-row quotient achieved 100% at 1,617 parameters, while adding this same eighth row with reconstructed full-coordinate AdamW fell to 88.94%; isolating the new row under compact-coordinate AdamW directly tests whether optimizer geometry caused that failure.
+result: did not meet the accuracy requirement
+reported_values: {"accuracy": 0.7289, "parameters": 1616, "training_steps": 4999}
+
+RECENT RESULT
+hypothesis: Reproducing the qualified Reference Design 2 structure will reduce the model from 1,619 to 1,617 parameters while retaining at least 99% accuracy.
+change: Represent `ln1.bias` in a seven-dimensional zero-sum basis and compact one additional late positional row, preserving full-coordinate AdamW updates.
+mechanism: Qualified pre-attention and positional common-mode quotient
+evidence_used: Reference Design 2 used this exact structure and achieved 100% accuracy at 1,617 parameters; it remains the smallest qualified design, while all tested 1,616-parameter extensions failed.
+result: did not meet the accuracy requirement
+reported_values: {"accuracy": 0.9792000000000001, "parameters": 1617, "training_steps": 4999}
+
+RECENT RESULT
+hypothesis: Replacing the absorbable `ln1.bias` quotient with an eighth exactly function-null positional common-mode quotient will produce a 1,617-parameter model with at least 99% accuracy, because restoring the native pre-attention bias removes the optimization interaction present in failed compact-`ln1` reruns.
+change: Restore the full `ln1.bias`, compact the attention projection bias, extend positional compaction to the first two and final six rows, and update the quotient optimizer accordingly.
+mechanism: One-for-one exact-gauge substitution
+evidence_used: Reference Design 3 achieved 99.85% with native `ln1.bias`, compact projection bias, and six compact positional rows; the first positional extension reached 100%, while the failed eighth-row tests retained compact `ln1.bias`, motivating this equal-parameter substitution.
+result: did not meet the accuracy requirement
+reported_values: {"accuracy": 0.0383, "parameters": 1617, "training_steps": 4999}
+
+RECENT RESULT
+hypothesis: Fixing one value-projection coefficient through an exactly compensated orthogonal rotation will reduce the verified model from 1,617 to 1,616 parameters while retaining at least 99% accuracy.
+change: Rotate two value channels and their corresponding output-projection columns after initialization, omit the resulting zero coefficient, and reconstruct it during every forward pass.
+mechanism: Intra-head value-basis gauge fixing
+evidence_used: The current 1,617-parameter design achieved 100%, whereas three attempts to reach 1,616 by compacting another positional row scored 88.94%, 72.89%, and 74.11%; this tests an independent exact symmetry without adding another sensitive positional constraint.
+result: met the accuracy requirement and became an available design
+reported_values: {"accuracy": 0.9998999999999999, "parameters": 1616, "training_steps": 4999}
+
+RECENT RESULT
+hypothesis: Reproducing the qualified 1,616-parameter design while applying the same compensated value-channel rotation independently to the second attention head will yield 1,615 parameters and at least 99% accuracy.
+change: Add the qualified `ln1.bias` and seventh positional quotients, then rotate and omit one value-projection coefficient per attention head while exactly counter-rotating the corresponding output-projection columns.
+mechanism: Per-head value-basis gauge fixing
+evidence_used: Reference Design 2 achieved 99.99% accuracy at 1,616 parameters with one value-basis gauge fix; that reduction succeeded where repeated additional positional quotients failed, motivating one independent application of the same exact symmetry in the other head.
+result: met the accuracy requirement and became an available design
+reported_values: {"accuracy": 0.9989, "parameters": 1615, "training_steps": 4999}
+
+RECENT RESULT
+hypothesis: Reproducing the qualified 1,615-parameter design and gauge-fixing a second disjoint value-channel pair in the first head will yield 1,614 parameters while retaining at least 99% accuracy.
+change: Add the qualified projection-bias and seventh positional quotients, compact one value coefficient per head, and remove one additional coefficient through an independently compensated rotation of the first head’s remaining value-channel pair.
+mechanism: Additional disjoint intra-head value-basis gauge fixing
+evidence_used: Reference Design 3 achieved 99.89% at 1,615 parameters after independent value-basis gauge fixes in both heads; this motivates extending the same exact symmetry to a disjoint channel pair instead of repeating positional or MLP quotients that failed sharply.
+result: met the accuracy requirement and became an available design
+reported_values: {"accuracy": 1.0, "parameters": 1614, "training_steps": 4999}
+
+RECENT RESULT
+hypothesis: Gauge-fixing the remaining disjoint value-channel pair in the second attention head will reduce the verified 1,614-parameter model to 1,613 parameters while retaining at least 99% accuracy.
+change: Apply the compensated value-channel rotation to both disjoint channel pairs in every four-dimensional attention head, removing one additional learned QKV coefficient.
+mechanism: Complete per-head disjoint value-basis gauge fixing
+evidence_used: The current design achieved 100% accuracy after adding the second disjoint pair in the first head; applying the same exact intra-head symmetry to the untouched pair in the second head is the smallest direct extension.
+result: met the accuracy requirement and became an available design
+reported_values: {"accuracy": 0.9984999999999999, "parameters": 1613, "training_steps": 4999}
+
+RECENT RESULT
+hypothesis: Extending the qualified 1,613-parameter design by rotating the two remaining nonzero first-column value coordinates in the first head will yield 1,612 parameters while retaining at least 99% accuracy.
+change: Reproduce both disjoint value-pair fixes in every head, then apply one compensated cross-pair rotation in the first head and omit the additional coefficient made exactly zero.
+mechanism: Cross-pair intra-head value-basis gauge fixing
+evidence_used: Complete disjoint value-basis gauge fixing achieved 99.85% at 1,613 parameters; the added rotation uses the same successful exact symmetry while preserving the previously fixed zeros.
+result: met the accuracy requirement and became an available design
+reported_values: {"accuracy": 0.9998, "parameters": 1612, "training_steps": 4999}
+
+
+
+Use the available technical evidence to choose the most informative next
+change. Treat unsuccessful or malformed work as evidence when a useful
+subject-level reason is provided. Do not invent missing evidence.
+
+## Response
+
+Return these short metadata lines followed by one or more exact
+`SEARCH`/`REPLACE` blocks that together produce one implementation:
+
+`MECHANISM: <a concise free-form name for the computational idea>`
+
+`HYPOTHESIS: <a falsifiable claim grounded in the evidence above>`
+
+`INTENDED_EDIT: <what this patch changes>`
+
+`EVIDENCE: <the most relevant prior result and why it motivates this patch>`
+
+Start each block with `<<<<<<< SEARCH`, put the exact existing lines next, use a
+line containing `=======` as the divider, put the replacement lines after it,
+and finish the block with `>>>>>>> REPLACE`.
+
+Every `SEARCH` section must be nonempty and match exactly once after earlier
+blocks have been applied. All blocks must apply. They may edit either or both
+editable files, but together they must describe one implementation ready for
+verification. The mechanism name is descriptive, not chosen from a fixed list.
+Do not paste whole files, lengthy logs, or routine progress reports outside the
+patch.

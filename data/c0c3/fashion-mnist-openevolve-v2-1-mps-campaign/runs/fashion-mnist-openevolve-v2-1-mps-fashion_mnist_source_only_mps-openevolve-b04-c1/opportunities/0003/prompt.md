@@ -1,0 +1,89 @@
+# Improve fixed-exposure image classification
+
+You are an autonomous ML engineer improving a learned classifier for 28×28
+grayscale images in ten classes.
+
+## Goal
+
+Maximize `validation_score`. It ranks implementations first by the exact number
+of correct predictions on the fixed 10,000-image validation set, then—only when
+correct counts tie—by lower validation cross-entropy. Every verification starts
+from a fresh initialization and presents exactly 100,000 examples from the
+fixed 50,000-image training split.
+
+You may change the model architecture, optimizer, loss, augmentation, batch
+size, gradient handling, schedule, and other contents of `train.py`. The fixed
+data split, normalization, example accounting, validation calculation,
+250,000-learned-parameter ceiling, and device are not editable. The protected
+loop calls the functions already defined in `train.py`; keep that interface
+intact. The model must return one ten-class logit vector per image.
+
+## Work boundaries
+
+Maximize validation_score. No additional accuracy threshold.
+Editable source files: train.py.
+Results reported after each verification: validation_score, validation_correct, validation_accuracy, validation_cross_entropy, parameters, examples_processed, optimizer_steps, training_seconds, batch_size.
+
+Propose changes through exact SEARCH/REPLACE blocks. The patching interface applies them to the supplied editable source.
+
+The editable source and any reference source are included below. Do not access
+parent directories, home directories, shared temporary directories, global
+session history, online sources, external datasets, pretrained weights, or any
+surrounding repository. Do not run training or validation yourself and do not
+generate hidden alternatives. Return one patch for one implementation;
+verification happens after you finish.
+
+## Available designs
+
+The current editable design is provided. No reference design is available.
+
+CURRENT DESIGN
+verified_results: {"batch_size": 128, "examples_processed": 100000, "optimizer_steps": 782, "parameters": 216250, "training_seconds": 29.31515641696751, "validation_accuracy": 0.9212, "validation_correct": 9212, "validation_cross_entropy": 0.22716464080810547, "validation_score": 9212.407443291122}
+prior_hypothesis: Averaging predictions for each validation image and its horizontal mirror will exceed 9,194 correct predictions because training already exposes the model to both orientations.
+
+## Recent verification evidence
+
+RECENT RESULT
+hypothesis: A 216,250-parameter residual CNN trained with batch size 128, horizontal-flip augmentation, and a high-floor cosine schedule will exceed the baseline’s 8,928 correct predictions.
+change: Replace the shallow CNN with two residual convolutional stages, halve batch size, add per-image horizontal flips, reduce label smoothing, and use a longer high-learning-rate phase.
+mechanism: Wider batch-normalized residual CNN with more frequent updates
+evidence_used: The current 105,866-parameter model reaches 8,928/10,000 after only 392 optimizer steps, motivating greater feature capacity and twice as many updates within the same 100,000-example budget.
+result: improved the objective and became an available design
+reported_values: {"batch_size": 128, "examples_processed": 100000, "optimizer_steps": 782, "parameters": 216250, "training_seconds": 32.89338720915839, "validation_accuracy": 0.9194, "validation_correct": 9194, "validation_cross_entropy": 0.23204684257507324, "validation_score": 9194.4058287256}
+
+RECENT RESULT
+hypothesis: Averaging predictions for each validation image and its horizontal mirror will exceed 9,194 correct predictions because training already exposes the model to both orientations.
+change: Refactor the single-view forward pass and ensemble original and flipped views only during evaluation, without changing training or parameter count.
+mechanism: Evaluation-time horizontal-flip logit ensemble
+evidence_used: The current flip-augmented residual CNN achieves 9,194/10,000; its learned flip invariance makes a matched two-view ensemble a low-risk way to reduce prediction variance.
+result: improved the objective and became an available design
+reported_values: {"batch_size": 128, "examples_processed": 100000, "optimizer_steps": 782, "parameters": 216250, "training_seconds": 29.31515641696751, "validation_accuracy": 0.9212, "validation_correct": 9212, "validation_cross_entropy": 0.22716464080810547, "validation_score": 9212.407443291122}
+
+
+
+Use the available technical evidence to choose the most informative next
+change. Treat unsuccessful or malformed work as evidence when a useful
+subject-level reason is provided. Do not invent missing evidence.
+
+## Response
+
+Return these short metadata lines followed by one or more exact
+`SEARCH`/`REPLACE` blocks that together produce one implementation:
+
+`MECHANISM: <a concise free-form name for the computational idea>`
+
+`HYPOTHESIS: <a falsifiable claim grounded in the evidence above>`
+
+`INTENDED_EDIT: <what this patch changes>`
+
+`EVIDENCE: <the most relevant prior result and why it motivates this patch>`
+
+Start each block with `<<<<<<< SEARCH`, put the exact existing lines next, use a
+line containing `=======` as the divider, put the replacement lines after it,
+and finish the block with `>>>>>>> REPLACE`.
+
+Every `SEARCH` section must be nonempty and match exactly once after earlier
+blocks have been applied. All blocks must apply. Together they must describe
+one implementation ready for verification. The mechanism name is descriptive,
+not chosen from a fixed list. Do not paste whole files, lengthy logs, or routine
+progress reports outside the patch.

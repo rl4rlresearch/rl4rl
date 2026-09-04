@@ -1,0 +1,88 @@
+{
+  "artifact_path": "candidates/2962f04a95a347cfa1f8b08f266d4c5baf1c6a33b33f133313f0b11ae4bd6fca",
+  "candidate_id": "2962f04a95a347cfa1f8b08f266d4c5baf1c6a33b33f133313f0b11ae4bd6fca",
+  "codex_service_tier": "fast",
+  "condition": "C3",
+  "conversation_session_id": null,
+  "evaluation": {
+    "evaluator_calls": 1,
+    "evaluator_seconds": 355.84308126199903,
+    "failure_kind": null,
+    "fitness": -1.002803,
+    "metrics": {
+      "depth": 8.0,
+      "mfu_percent": 38.16,
+      "num_params_M": 50.3,
+      "num_steps": 914.0,
+      "peak_vram_mb": 45160.7,
+      "total_tokens_M": 479.2,
+      "training_seconds": 300.1,
+      "val_bpb": 1.002803
+    },
+    "valid": true
+  },
+  "evaluator_calls_cumulative": 10,
+  "evaluator_calls_increment": 1,
+  "evaluator_seconds_cumulative": 3823.3459427769985,
+  "evaluator_seconds_increment": 355.84308126199903,
+  "event": "proposal_completed",
+  "evicted_candidate_id": null,
+  "evidence": "SSSS provided essentially no throughput gain and worsened val_bpb from 0.995558 to 0.997009, while reducing independent KV heads produced 1.018396. This challenges the load-bearing assumption that a few wide attention maps are sufficient and tests greater attention-pattern diversity without the GQA design\u2019s loss of total K/V width or parameters.",
+  "hypothesis": "Replacing four 128-dimensional attention heads with eight 64-dimensional heads, while restoring SSSL, will preserve projection parameters and approximate attention FLOPs but learn more distinct context-selection patterns, reducing val_bpb below 0.995558.",
+  "incumbent_after": "2865e528e18dc51191e4037eaeb5824cb0ea83ede79061b59b8f3caac686da6b",
+  "intended_edit": "Restore the proven SSSL context allocation and halve head width so the 512-dimensional model uses eight full Q/K/V heads instead of four.",
+  "mechanism": "Fine-grained multi-head context factorization",
+  "opportunity": 10,
+  "parent_ids": [
+    "4b4b8eda44d73f74c14a1179ff73edf4e434066ed7ceb8d4d058a3b6d07e3236"
+  ],
+  "portfolio_after": [
+    "2865e528e18dc51191e4037eaeb5824cb0ea83ede79061b59b8f3caac686da6b",
+    "005b27c638e8ced7b681518a1df47186e926fc1a87b4dda0797371df3c14496a",
+    "1dfdda4e155579415df2f0419942e6ec1d5989a12399f914d7984eed7a57ffdf",
+    "4b4b8eda44d73f74c14a1179ff73edf4e434066ed7ceb8d4d058a3b6d07e3236"
+  ],
+  "prompt_hashes": {
+    "common_template_sha256": "ba85b39aa7288f4f48475376da6cff65661f39cfeb7ac7cde15b2a9a2e692fde",
+    "prompt_sha256": "d1dfe0abb10ba90aaa4edbec0e8eef497bb3d7f96bfd062888b06df9c83778c0",
+    "proposal_policy_sha256": "cd7b9ba20a1cd1edd0663b5e3652baa9cd3c81925074103fe47e66c021d61a4a",
+    "search_state_sha256": "c938ac007bf70fe8d27f64661175531e51fcb16b38318c328493c32ee292e27e",
+    "treatment_skeleton_sha256": "b2edff27fdd198198b4eac904e561e4b4409fd750e61c2905818b483da368700"
+  },
+  "proposal_type": "assumption_changing",
+  "proposals_cumulative": 10,
+  "remaining_budget": {
+    "evaluations": 190,
+    "evaluator_seconds": 716176.654057223,
+    "proposals": 190,
+    "tokens": 99563260
+  },
+  "retained": false,
+  "retention_decision": "not_strictly_better_than_selected_parent",
+  "run_id": "nanogpt-openevolve-v2-1-h100-karpathy_nanogpt_source_only_h100-openevolve-b01-c3",
+  "schema_version": "1.0",
+  "selected_parent_ids": [
+    "4b4b8eda44d73f74c14a1179ff73edf4e434066ed7ceb8d4d058a3b6d07e3236"
+  ],
+  "timestamp": "2026-08-23T18:05:38.774965+00:00",
+  "usage_cumulative": {
+    "cached_input_tokens": 120320,
+    "input_tokens": 406284,
+    "output_tokens": 30456,
+    "reasoning_output_tokens": 27379,
+    "total_tokens": 436740
+  },
+  "usage_increment": {
+    "cached_input_tokens": 12032,
+    "input_tokens": 46283,
+    "output_tokens": 4651,
+    "reasoning_output_tokens": 4357,
+    "total_tokens": 50934
+  },
+  "visible_candidate_ids": [
+    "2865e528e18dc51191e4037eaeb5824cb0ea83ede79061b59b8f3caac686da6b",
+    "005b27c638e8ced7b681518a1df47186e926fc1a87b4dda0797371df3c14496a",
+    "1dfdda4e155579415df2f0419942e6ec1d5989a12399f914d7984eed7a57ffdf",
+    "4b4b8eda44d73f74c14a1179ff73edf4e434066ed7ceb8d4d058a3b6d07e3236"
+  ]
+}

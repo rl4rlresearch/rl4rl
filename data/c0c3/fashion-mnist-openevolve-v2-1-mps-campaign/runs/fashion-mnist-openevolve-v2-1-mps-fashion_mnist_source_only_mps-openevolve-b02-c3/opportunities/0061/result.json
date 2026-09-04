@@ -1,0 +1,91 @@
+{
+  "artifact_path": "candidates/7e1603ada7f56f349210828480b0cb239a98d66a53bac6034169bff2f683f7a6",
+  "candidate_id": "7e1603ada7f56f349210828480b0cb239a98d66a53bac6034169bff2f683f7a6",
+  "codex_service_tier": "default",
+  "condition": "C3",
+  "conversation_session_id": null,
+  "evaluation": {
+    "evaluator_calls": 1,
+    "evaluator_seconds": 62.79534774995409,
+    "failure_kind": null,
+    "fitness": 9343.42090571629,
+    "metrics": {
+      "batch_size": 128,
+      "evaluation_cases": 10000,
+      "evaluation_split": "public_validation",
+      "examples_processed": 100000,
+      "optimizer_steps": 782,
+      "parameters": 249881,
+      "training_seconds": 51.05553245800547,
+      "validation_accuracy": 0.9343,
+      "validation_correct": 9343,
+      "validation_cross_entropy": 0.18791449165344237,
+      "validation_score": 9343.42090571629
+    },
+    "valid": true
+  },
+  "evaluator_calls_cumulative": 50,
+  "evaluator_calls_increment": 1,
+  "evaluator_seconds_cumulative": 3000.261568167014,
+  "evaluator_seconds_increment": 62.79534774995409,
+  "event": "proposal_completed",
+  "evicted_candidate_id": "b1dc7bc792ee235cd46ad96dcd9884c14f02ee88f79311b42e476392ed105828",
+  "evidence": "Sparse full-state 0.99 EMA improved the same model from 9,322 to 9,334 correct, whereas the proposed 0.985 horizon produced no accuracy evidence because both prior implementations timed out; batching the state updates directly tests that localized hypothesis with less Python overhead.",
+  "hypothesis": "A computationally batched 0.985-decay full-state EMA will finish within the time limit and exceed 9,334 correct predictions by tracking late low-learning-rate convergence more closely than the successful 0.99 EMA.",
+  "incumbent_after": "7e1603ada7f56f349210828480b0cb239a98d66a53bac6034169bff2f683f7a6",
+  "intended_edit": "Replace dictionary-based sparse EMA with batched foreach updates over all floating parameters and BatchNorm buffers, while shortening the EMA horizon from 0.99 to 0.985.",
+  "mechanism": "Foreach-accelerated short-horizon full-state EMA",
+  "opportunity": 61,
+  "parent_ids": [
+    "b1dc7bc792ee235cd46ad96dcd9884c14f02ee88f79311b42e476392ed105828"
+  ],
+  "portfolio_after": [
+    "e47709c6746c2f7f19ceaa7f6360c0f101295e761d1682d24b83808248a17c33",
+    "7e1603ada7f56f349210828480b0cb239a98d66a53bac6034169bff2f683f7a6",
+    "99f3df2dc53031905dd3faa67092f8951dba6757bce7f03b89daaa3ba9ccace7",
+    "56af0019f70f4e3ef06683de368d0af8e8ce5e917cfb11fe53efb113e32f2ad8"
+  ],
+  "prompt_hashes": {
+    "common_template_sha256": "e8327ba94bab12abc7c7ec7c6615378a3ae62434efb944d4a7d9492f1d19bc14",
+    "prompt_sha256": "c2e9bab2e827c56c23a4284274dd785aed91311ec3ba78c7c1e2bb212dda55cc",
+    "proposal_policy_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "search_state_sha256": "c938ac007bf70fe8d27f64661175531e51fcb16b38318c328493c32ee292e27e",
+    "treatment_skeleton_sha256": "54ac517d9370c0d651e0e6f8639717299860b0b302b5a019420da01beb38f072"
+  },
+  "proposal_type": "ordinary",
+  "proposals_cumulative": 61,
+  "remaining_budget": {
+    "evaluations": 150,
+    "evaluator_seconds": 20999.738431832986,
+    "proposals": 139,
+    "tokens": 98401590
+  },
+  "retained": true,
+  "retention_decision": "replaced_selected_parent_on_strict_improvement",
+  "run_id": "fashion-mnist-openevolve-v2-1-mps-fashion_mnist_source_only_mps-openevolve-b02-c3",
+  "schema_version": "1.0",
+  "selected_parent_ids": [
+    "b1dc7bc792ee235cd46ad96dcd9884c14f02ee88f79311b42e476392ed105828"
+  ],
+  "timestamp": "2026-08-24T07:54:22.134393+00:00",
+  "usage_cumulative": {
+    "cached_input_tokens": 646656,
+    "input_tokens": 1430197,
+    "output_tokens": 168213,
+    "reasoning_output_tokens": 128943,
+    "total_tokens": 1598410
+  },
+  "usage_increment": {
+    "cached_input_tokens": 12032,
+    "input_tokens": 25168,
+    "output_tokens": 3978,
+    "reasoning_output_tokens": 3350,
+    "total_tokens": 29146
+  },
+  "visible_candidate_ids": [
+    "e47709c6746c2f7f19ceaa7f6360c0f101295e761d1682d24b83808248a17c33",
+    "b1dc7bc792ee235cd46ad96dcd9884c14f02ee88f79311b42e476392ed105828",
+    "99f3df2dc53031905dd3faa67092f8951dba6757bce7f03b89daaa3ba9ccace7",
+    "56af0019f70f4e3ef06683de368d0af8e8ce5e917cfb11fe53efb113e32f2ad8"
+  ]
+}

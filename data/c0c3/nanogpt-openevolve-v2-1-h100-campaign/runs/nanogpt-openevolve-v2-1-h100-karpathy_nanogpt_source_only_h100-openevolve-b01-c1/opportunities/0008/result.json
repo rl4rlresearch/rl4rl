@@ -1,0 +1,82 @@
+{
+  "artifact_path": "candidates/9eb7a18f73a200d275cc61bd518d084f39c4cea460a8ed43296bb80392e45a4f",
+  "candidate_id": "9eb7a18f73a200d275cc61bd518d084f39c4cea460a8ed43296bb80392e45a4f",
+  "codex_service_tier": "fast",
+  "condition": "C1",
+  "conversation_session_id": null,
+  "evaluation": {
+    "evaluator_calls": 1,
+    "evaluator_seconds": 420.057027537001,
+    "failure_kind": null,
+    "fitness": -1.017858,
+    "metrics": {
+      "depth": 7.0,
+      "mfu_percent": 23.36,
+      "num_params_M": 47.2,
+      "num_steps": 748.0,
+      "peak_vram_mb": 40139.2,
+      "total_tokens_M": 392.2,
+      "training_seconds": 300.1,
+      "val_bpb": 1.017858
+    },
+    "valid": true
+  },
+  "evaluator_calls_cumulative": 8,
+  "evaluator_calls_increment": 1,
+  "evaluator_seconds_cumulative": 3006.2075204590024,
+  "evaluator_seconds_increment": 420.057027537001,
+  "event": "proposal_completed",
+  "evicted_candidate_id": null,
+  "evidence": "The current 8-layer design reached 0.992286 after throughput gains from removing an earlier global-attention layer, while removing the final global layer sharply regressed to 1.015479. This motivates reducing cheaper local depth while retaining the empirically essential final global layer.",
+  "hypothesis": "Removing one 256-token local block while preserving model width, four value embeddings, and the final full-context layer will increase throughput enough to lower val_bpb below 0.992286.",
+  "incumbent_after": "a1a9234027b48bc7b7b3915b2e809e849b6afedfe79a9a211f23947b1f8adec9",
+  "intended_edit": "Reduce transformer depth from eight to seven layers; rounding keeps n_embd at 512 and the last layer remains full-context.",
+  "mechanism": "Shallower local-attention backbone",
+  "opportunity": 8,
+  "parent_ids": [
+    "a1a9234027b48bc7b7b3915b2e809e849b6afedfe79a9a211f23947b1f8adec9"
+  ],
+  "portfolio_after": [
+    "a1a9234027b48bc7b7b3915b2e809e849b6afedfe79a9a211f23947b1f8adec9"
+  ],
+  "prompt_hashes": {
+    "common_template_sha256": "ba85b39aa7288f4f48475376da6cff65661f39cfeb7ac7cde15b2a9a2e692fde",
+    "prompt_sha256": "42d09633b8b55e3119e16feebfbe4dd2f48a18bdc52af9df59bed599a57ab23a",
+    "proposal_policy_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "search_state_sha256": "04e5eb078ae1964e4ec65bfeeeb1acd0ffa246e7d54d5e0f997f81f602da28c5",
+    "treatment_skeleton_sha256": "e3d19f50d14819d2617c19746bce37598a959d34cbbb6f40cc842108963e345d"
+  },
+  "proposal_type": "ordinary",
+  "proposals_cumulative": 8,
+  "remaining_budget": {
+    "evaluations": 192,
+    "evaluator_seconds": 716993.792479541,
+    "proposals": 192,
+    "tokens": 99806183
+  },
+  "retained": false,
+  "retention_decision": "not_strictly_better_than_incumbent",
+  "run_id": "nanogpt-openevolve-v2-1-h100-karpathy_nanogpt_source_only_h100-openevolve-b01-c1",
+  "schema_version": "1.0",
+  "selected_parent_ids": [
+    "a1a9234027b48bc7b7b3915b2e809e849b6afedfe79a9a211f23947b1f8adec9"
+  ],
+  "timestamp": "2026-08-23T17:42:57.658165+00:00",
+  "usage_cumulative": {
+    "cached_input_tokens": 77056,
+    "input_tokens": 181404,
+    "output_tokens": 12413,
+    "reasoning_output_tokens": 10937,
+    "total_tokens": 193817
+  },
+  "usage_increment": {
+    "cached_input_tokens": 0,
+    "input_tokens": 23442,
+    "output_tokens": 3095,
+    "reasoning_output_tokens": 2915,
+    "total_tokens": 26537
+  },
+  "visible_candidate_ids": [
+    "a1a9234027b48bc7b7b3915b2e809e849b6afedfe79a9a211f23947b1f8adec9"
+  ]
+}

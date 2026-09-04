@@ -1,0 +1,82 @@
+{
+  "artifact_path": "candidates/0d04b5eee099d86211b15c4aeced743cbfb1712a10978257cc0ff546d93d3c6d",
+  "candidate_id": "0d04b5eee099d86211b15c4aeced743cbfb1712a10978257cc0ff546d93d3c6d",
+  "codex_service_tier": "default",
+  "condition": "C0",
+  "conversation_session_id": null,
+  "evaluation": {
+    "evaluator_calls": 1,
+    "evaluator_seconds": 417.50931773300545,
+    "failure_kind": null,
+    "fitness": -0.983064,
+    "metrics": {
+      "depth": 8.0,
+      "mfu_percent": 36.64,
+      "num_params_M": 50.3,
+      "num_steps": 3148.0,
+      "peak_vram_mb": 28254.4,
+      "total_tokens_M": 515.8,
+      "training_seconds": 300.0,
+      "val_bpb": 0.983064
+    },
+    "valid": true
+  },
+  "evaluator_calls_cumulative": 39,
+  "evaluator_calls_increment": 1,
+  "evaluator_seconds_cumulative": 21528.843437815933,
+  "evaluator_seconds_increment": 417.50931773300545,
+  "event": "proposal_completed",
+  "evicted_candidate_id": null,
+  "evidence": "Increasing only the first pre-global window from 256 to 512 tokens improved `val_bpb` from `0.982234` to `0.982068` despite slightly lower throughput, directly motivating a power-of-two continuation that isolates whether the early-boundary benefit persists.",
+  "hypothesis": "Expanding only the first pre-global attention window from 512 to 1,024 tokens will achieve `val_bpb < 0.982068` by strengthening early contextualization while retaining 128-token windows in the other five local layers.",
+  "incumbent_after": "3ec9b9aabcb7248455b38d2664925e59a660e0e1900234e1b71e825b54611157",
+  "intended_edit": "Increase the first pre-global window from one-quarter to one-half of the 2,048-token context; preserve architecture, optimizer, batching, schedules, and all other attention windows.",
+  "mechanism": "Continued isolated early-boundary context expansion",
+  "opportunity": 39,
+  "parent_ids": [
+    "3ec9b9aabcb7248455b38d2664925e59a660e0e1900234e1b71e825b54611157"
+  ],
+  "portfolio_after": [
+    "3ec9b9aabcb7248455b38d2664925e59a660e0e1900234e1b71e825b54611157"
+  ],
+  "prompt_hashes": {
+    "common_template_sha256": "ba85b39aa7288f4f48475376da6cff65661f39cfeb7ac7cde15b2a9a2e692fde",
+    "prompt_sha256": "7d7a1c6fc1867da81c3d2622bd7382d267ec258cb710c6106234c7f7a8449761",
+    "proposal_policy_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "search_state_sha256": "04e5eb078ae1964e4ec65bfeeeb1acd0ffa246e7d54d5e0f997f81f602da28c5",
+    "treatment_skeleton_sha256": "7755227ed63e25233bd17ac5b2f0f9675c628b372a86f70dd01bea6e114a679b"
+  },
+  "proposal_type": "ordinary",
+  "proposals_cumulative": 39,
+  "remaining_budget": {
+    "evaluations": 161,
+    "evaluator_seconds": 698471.1565621841,
+    "proposals": 161,
+    "tokens": 98972958
+  },
+  "retained": false,
+  "retention_decision": "not_strictly_better_than_incumbent",
+  "run_id": "nanogpt-openevolve-v2-1-h100-karpathy_nanogpt_source_only_h100-openevolve-b03-c0",
+  "schema_version": "1.0",
+  "selected_parent_ids": [
+    "3ec9b9aabcb7248455b38d2664925e59a660e0e1900234e1b71e825b54611157"
+  ],
+  "timestamp": "2026-08-24T08:49:23.293329+00:00",
+  "usage_cumulative": {
+    "cached_input_tokens": 427776,
+    "input_tokens": 949293,
+    "output_tokens": 77749,
+    "reasoning_output_tokens": 67215,
+    "total_tokens": 1027042
+  },
+  "usage_increment": {
+    "cached_input_tokens": 12032,
+    "input_tokens": 25065,
+    "output_tokens": 536,
+    "reasoning_output_tokens": 335,
+    "total_tokens": 25601
+  },
+  "visible_candidate_ids": [
+    "3ec9b9aabcb7248455b38d2664925e59a660e0e1900234e1b71e825b54611157"
+  ]
+}

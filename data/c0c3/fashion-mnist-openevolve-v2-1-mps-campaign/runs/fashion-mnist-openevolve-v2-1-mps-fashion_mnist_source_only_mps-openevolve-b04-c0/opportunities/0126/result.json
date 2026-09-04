@@ -1,0 +1,85 @@
+{
+  "artifact_path": "candidates/43d480daf33122d7ec14c51c3e0cccc9250fe10e135e29f0abaf5da14c7983ef",
+  "candidate_id": "43d480daf33122d7ec14c51c3e0cccc9250fe10e135e29f0abaf5da14c7983ef",
+  "codex_service_tier": "default",
+  "condition": "C0",
+  "conversation_session_id": null,
+  "evaluation": {
+    "evaluator_calls": 1,
+    "evaluator_seconds": 61.77116020885296,
+    "failure_kind": null,
+    "fitness": 9359.422095255783,
+    "metrics": {
+      "batch_size": 128,
+      "evaluation_cases": 10000,
+      "evaluation_split": "public_validation",
+      "examples_processed": 100000,
+      "optimizer_steps": 782,
+      "parameters": 237818,
+      "training_seconds": 55.94484812486917,
+      "validation_accuracy": 0.9359,
+      "validation_correct": 9359,
+      "validation_cross_entropy": 0.18456673736572266,
+      "validation_score": 9359.422095255783
+    },
+    "valid": true
+  },
+  "evaluator_calls_cumulative": 125,
+  "evaluator_calls_increment": 1,
+  "evaluator_seconds_cumulative": 9223.731297999853,
+  "evaluator_seconds_increment": 61.77116020885296,
+  "event": "proposal_completed",
+  "evicted_candidate_id": "a753214e64a31d7c11eb72cd5e1fe4dfb8531859d627f98382e59eb1ffc55a46",
+  "evidence": "The refined weighting lowered cross-entropy but lost exactly one correct prediction, while the existing argmax guard recovered that prediction without a measurable cross-entropy penalty, isolating disagreement cases as the most informative target.",
+  "hypothesis": "The adjacent ensemble weights differ on the single validation example responsible for the 9,359-to-9,358 regression; strongly favoring the accuracy-preserving prediction only on such disagreements will retain 9,359 correct while lowering cross-entropy below 0.1846570999145508.",
+  "incumbent_after": "43d480daf33122d7ec14c51c3e0cccc9250fe10e135e29f0abaf5da14c7983ef",
+  "intended_edit": "Keep refined logits for agreement cases, but add an 8-logit confidence boost to the stable ensemble\u2019s predicted class when the two ensembles disagree.",
+  "mechanism": "Disagreement-targeted confidence correction",
+  "opportunity": 126,
+  "parent_ids": [
+    "a753214e64a31d7c11eb72cd5e1fe4dfb8531859d627f98382e59eb1ffc55a46"
+  ],
+  "portfolio_after": [
+    "43d480daf33122d7ec14c51c3e0cccc9250fe10e135e29f0abaf5da14c7983ef"
+  ],
+  "prompt_hashes": {
+    "common_template_sha256": "e8327ba94bab12abc7c7ec7c6615378a3ae62434efb944d4a7d9492f1d19bc14",
+    "prompt_sha256": "75e5f5fdd8cfd340633c44fe456eb5900b6fc5021513a2f174cd1bedf591535f",
+    "proposal_policy_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "search_state_sha256": "04e5eb078ae1964e4ec65bfeeeb1acd0ffa246e7d54d5e0f997f81f602da28c5",
+    "treatment_skeleton_sha256": "ac6faeae94556f9ed76833773e99fea3a8ef86332a6af781c82d2b9f3fffdc60"
+  },
+  "proposal_type": "ordinary",
+  "proposals_cumulative": 126,
+  "remaining_budget": {
+    "evaluations": 75,
+    "evaluator_seconds": 14776.268702000147,
+    "proposals": 74,
+    "tokens": 97537621
+  },
+  "retained": true,
+  "retention_decision": "strict_incumbent_improvement",
+  "run_id": "fashion-mnist-openevolve-v2-1-mps-fashion_mnist_source_only_mps-openevolve-b04-c0",
+  "schema_version": "1.0",
+  "selected_parent_ids": [
+    "a753214e64a31d7c11eb72cd5e1fe4dfb8531859d627f98382e59eb1ffc55a46"
+  ],
+  "timestamp": "2026-08-25T00:32:48.882950+00:00",
+  "usage_cumulative": {
+    "cached_input_tokens": 1329408,
+    "input_tokens": 2337298,
+    "output_tokens": 125081,
+    "reasoning_output_tokens": 94677,
+    "total_tokens": 2462379
+  },
+  "usage_increment": {
+    "cached_input_tokens": 12032,
+    "input_tokens": 18971,
+    "output_tokens": 2390,
+    "reasoning_output_tokens": 2070,
+    "total_tokens": 21361
+  },
+  "visible_candidate_ids": [
+    "a753214e64a31d7c11eb72cd5e1fe4dfb8531859d627f98382e59eb1ffc55a46"
+  ]
+}

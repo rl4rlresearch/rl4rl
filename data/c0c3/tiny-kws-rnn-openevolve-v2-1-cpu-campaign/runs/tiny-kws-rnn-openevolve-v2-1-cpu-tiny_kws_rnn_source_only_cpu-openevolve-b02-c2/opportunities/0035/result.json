@@ -1,0 +1,105 @@
+{
+  "artifact_path": "candidates/f18d7feaa3bce23dd7a70f3b7be305e186aa74c0adb6626a295f4710b62be885",
+  "candidate_id": "f18d7feaa3bce23dd7a70f3b7be305e186aa74c0adb6626a295f4710b62be885",
+  "codex_service_tier": "default",
+  "condition": "C2",
+  "conversation_session_id": null,
+  "evaluation": {
+    "evaluator_calls": 1,
+    "evaluator_seconds": 65.67109795799479,
+    "failure_kind": null,
+    "fitness": -3205666745972424105,
+    "metrics": {
+      "batch_size": 128,
+      "evaluation_cases": 815,
+      "evaluation_split": "public_speaker_disjoint_validation",
+      "examples_processed": 50000,
+      "inference_cost": 3205666745972424105,
+      "maximum_recurrent_steps": 29,
+      "mean_recurrent_steps": 29.0,
+      "median_recurrent_steps": 29,
+      "optimizer_steps": 397,
+      "p95_recurrent_steps": 29,
+      "parameters": 27850,
+      "peak_hidden_elements": 86528,
+      "recurrent_logit_effect": 0.0725865513086319,
+      "recurrent_macs": 613470060,
+      "recurrent_steps": 23635,
+      "state_dependence_effect": 0.4035477340221405,
+      "state_update_effect": 0.4028429090976715,
+      "total_inference_macs": 614565420,
+      "trained_recurrent_logit_effect": 0.4186049699783325,
+      "trained_state_dependence_effect": 0.44427061080932617,
+      "trained_state_update_effect": 0.4433179795742035,
+      "training_seconds": 46.13132729195058,
+      "validation_accuracy": 0.8674846625766871,
+      "validation_correct": 707,
+      "validation_cross_entropy": 0.4174555959877061
+    },
+    "valid": true
+  },
+  "evaluator_calls_cumulative": 34,
+  "evaluator_calls_increment": 1,
+  "evaluator_seconds_cumulative": 4131.547718455549,
+  "evaluator_seconds_increment": 65.67109795799479,
+  "event": "proposal_completed",
+  "evicted_candidate_id": "52cffa22f2cd1a18c28913e5d3e6fbd055390e2d213db296a422192856e503b3",
+  "evidence": "The 84-unit, 20-band model achieved 85.64% accuracy, whereas reducing recurrent width to 83 failed at 84.66%; preserving width 84 while pruning only one edge band targets input-side MACs without crossing the observed recurrent-capacity boundary. The failed 20-to-16 projection further favors a conservative one-band reduction over aggressive spectral compression.",
+  "hypothesis": "An 84-unit GRU using the lowest 19 mel bands over the qualified 29-frame schedule will retain at least 85% validation accuracy while reducing total inference MACs from 620,521,440 to approximately 614,565,420.",
+  "incumbent_after": "f18d7feaa3bce23dd7a70f3b7be305e186aa74c0adb6626a295f4710b62be885",
+  "intended_edit": "Preserve the qualified dual-view recurrent architecture and training procedure, reduce hidden width from 86 to 84, and structurally remove the highest-frequency mel band from every recurrent input.",
+  "mechanism": "Edge-band structural pruning while preserving recurrent capacity",
+  "opportunity": 35,
+  "parent_ids": [
+    "52cffa22f2cd1a18c28913e5d3e6fbd055390e2d213db296a422192856e503b3"
+  ],
+  "portfolio_after": [
+    "3e3f710bf673b43c81269743582d9c5a0f9d8a2f2dadfde9b7a29c6f4ed42eff",
+    "f18d7feaa3bce23dd7a70f3b7be305e186aa74c0adb6626a295f4710b62be885",
+    "6469d041becebf49f552bb911c2d29d38c2cdffabe9b78bb6413bbfc1860f2f7",
+    "16e54c9e634bc8ca37befc9ef94a131a991fba3072c1a0dbca5ee60d992488a2"
+  ],
+  "prompt_hashes": {
+    "common_template_sha256": "dee04faf4c430276c1036ba97f5705a339857dbdf19117dac88952a5a3a47e9d",
+    "prompt_sha256": "3980d70d6314ac3c65437bf6dad3060e1d73a1837a9643c2dc38d09f9d4c05fe",
+    "proposal_policy_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "search_state_sha256": "c938ac007bf70fe8d27f64661175531e51fcb16b38318c328493c32ee292e27e",
+    "treatment_skeleton_sha256": "e5936e5c1e9c1f0396c68408dd733ba47676edc36f68ad0bf2211ca86f3db0ef"
+  },
+  "proposal_type": "ordinary",
+  "proposals_cumulative": 35,
+  "remaining_budget": {
+    "evaluations": 166,
+    "evaluator_seconds": 55868.45228154445,
+    "proposals": 165,
+    "tokens": 99091612
+  },
+  "retained": true,
+  "retention_decision": "replaced_selected_parent_on_strict_improvement",
+  "run_id": "tiny-kws-rnn-openevolve-v2-1-cpu-tiny_kws_rnn_source_only_cpu-openevolve-b02-c2",
+  "schema_version": "1.0",
+  "selected_parent_ids": [
+    "52cffa22f2cd1a18c28913e5d3e6fbd055390e2d213db296a422192856e503b3"
+  ],
+  "timestamp": "2026-09-04T04:26:41.558616+00:00",
+  "usage_cumulative": {
+    "cached_input_tokens": 446080,
+    "input_tokens": 856959,
+    "output_tokens": 51429,
+    "reasoning_output_tokens": 38750,
+    "total_tokens": 908388
+  },
+  "usage_increment": {
+    "cached_input_tokens": 10752,
+    "input_tokens": 23758,
+    "output_tokens": 2248,
+    "reasoning_output_tokens": 1788,
+    "total_tokens": 26006
+  },
+  "visible_candidate_ids": [
+    "3e3f710bf673b43c81269743582d9c5a0f9d8a2f2dadfde9b7a29c6f4ed42eff",
+    "52cffa22f2cd1a18c28913e5d3e6fbd055390e2d213db296a422192856e503b3",
+    "6469d041becebf49f552bb911c2d29d38c2cdffabe9b78bb6413bbfc1860f2f7",
+    "16e54c9e634bc8ca37befc9ef94a131a991fba3072c1a0dbca5ee60d992488a2"
+  ]
+}

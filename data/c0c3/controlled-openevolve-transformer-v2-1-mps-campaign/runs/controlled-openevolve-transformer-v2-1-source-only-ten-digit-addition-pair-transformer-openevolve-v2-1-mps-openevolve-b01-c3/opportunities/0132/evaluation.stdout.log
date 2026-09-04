@@ -1,0 +1,74 @@
+Run: repro_l1_d8_ff12
+Params: 860
+Device: mps
+step=     0 loss=4.7272 val_exact=0.00000 val_tok=0.02414 lr=3.00e-05 t=4.7s
+step=   300 loss=2.1287 val_exact=0.00000 val_tok=0.12836 lr=2.99e-03 t=12.6s
+step=   600 loss=1.0880 val_exact=0.00100 val_tok=0.47668 lr=2.93e-03 t=20.1s
+step=   900 loss=0.5321 val_exact=0.03600 val_tok=0.72600 lr=2.83e-03 t=27.4s
+step=  1200 loss=0.4532 val_exact=0.05200 val_tok=0.74077 lr=2.68e-03 t=35.3s
+step=  1500 loss=0.4456 val_exact=0.05400 val_tok=0.74191 lr=2.49e-03 t=42.4s
+step=  1800 loss=0.4445 val_exact=0.05700 val_tok=0.74536 lr=2.27e-03 t=49.6s
+step=  2100 loss=0.4315 val_exact=0.05850 val_tok=0.74468 lr=2.03e-03 t=56.7s
+step=  2400 loss=0.4282 val_exact=0.05450 val_tok=0.74973 lr=1.78e-03 t=64.4s
+step=  2700 loss=0.3406 val_exact=0.19800 val_tok=0.85164 lr=1.52e-03 t=70.9s
+step=  3000 loss=0.2192 val_exact=0.41850 val_tok=0.91864 lr=1.27e-03 t=77.9s
+step=  3300 loss=0.1681 val_exact=0.52150 val_tok=0.94068 lr=1.03e-03 t=85.4s
+step=  3600 loss=0.1459 val_exact=0.57750 val_tok=0.95023 lr=8.08e-04 t=92.6s
+step=  3900 loss=0.1148 val_exact=0.64050 val_tok=0.95977 lr=6.22e-04 t=99.3s
+step=  4200 loss=0.1088 val_exact=0.70200 val_tok=0.96782 lr=4.74e-04 t=106.3s
+step=  4500 loss=0.0924 val_exact=0.73650 val_tok=0.97205 lr=3.69e-04 t=112.9s
+step=  4800 loss=0.0878 val_exact=0.76350 val_tok=0.97550 lr=3.11e-04 t=119.9s
+step=  4999 loss=0.0832 val_exact=0.78450 val_tok=0.97745 lr=3.00e-04 t=124.6s
+{
+  "run_name": "repro_l1_d8_ff12",
+  "params": 860,
+  "best_val_exact": 0.7845,
+  "best_step": 4999,
+  "train_steps": 5000,
+  "elapsed_sec": 124.60401892662048,
+  "metrics_csv": "results/runs/repro_l1_d8_ff12/metrics.csv",
+  "best_ckpt": "checkpoints/best.pt",
+  "last_ckpt": "checkpoints/last.pt"
+}
+Model: 10-digit addition transformer
+Author: autonomous optimization run
+Parameters (unique): 860
+Architecture: trained autoregressive transformer with pair-column input tokens d=8, h=2, L=1, ff=6
+Tricks: generic greedy decoding, freshly trained checkpoint
+
+  Progress: 1000/10010 (781/1000 correct) [17.9s]
+  Progress: 2000/10010 (1577/2000 correct) [34.4s]
+  Progress: 3000/10010 (2341/3000 correct) [50.9s]
+  Progress: 4000/10010 (3112/4000 correct) [67.5s]
+  Progress: 5000/10010 (3897/5000 correct) [84.8s]
+  Progress: 6000/10010 (4695/6000 correct) [102.9s]
+  Progress: 7000/10010 (5481/7000 correct) [119.7s]
+  Progress: 8000/10010 (6279/8000 correct) [135.7s]
+  Progress: 9000/10010 (7056/9000 correct) [156.2s]
+  Progress: 10000/10010 (7855/10000 correct) [175.2s]
+
+Results: 7862/10010 correct (78.54%)
+Time: 175.4s (57 additions/sec)
+Status: NOT QUALIFIED (threshold: 99%)
+
+First 20 failures (of 2148):
+  9999999999 + 9999999999 = 19999999998, got 18888888888
+  5000000000 + 5000000000 = 10000000000, got 11000000000
+  1234567890 + 9876543210 = 11111111100, got 11111111110
+  9999999999 + 9999999999 = 19999999998, got 18888888888
+  5487960534 + 2479695299 = 7967655833, got 7967665833
+  9773982893 + 9769054290 = 19543037183, got 19543037193
+  9699986894 + 48874272 = 9748861166, got 9747761166
+  9910916827 + 6473406151 = 16384322978, got 15383322978
+  9809325681 + 9732050258 = 19541375939, got 18541375939
+  4529066999 + 9231012381 = 13760079380, got 13761079380
+  3483823901 + 6130410025 = 9614233926, got 9614333926
+  1114493100 + 7190875402 = 8305368502, got 8305368512
+  8710017511 + 6341231919 = 15051249430, got 15061249430
+  632969767 + 7238958333 = 7871928100, got 7871828100
+  7829306287 + 1024919386 = 8854225673, got 8854325673
+  895830358 + 3511082695 = 4406913053, got 3406913053
+  7380035983 + 2131518373 = 9511554356, got 9521554356
+  5012345727 + 9423256841 = 14435602568, got 15435602568
+  5541457967 + 4314580997 = 9856038964, got 9856038864
+  1367733295 + 5073249002 = 6440982297, got 6340983297

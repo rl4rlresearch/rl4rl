@@ -1,0 +1,99 @@
+{
+  "artifact_path": "candidates/7cc33768b1451f257b84448f21f6e14ef0257a5641f4b4acafe4699dd1765e6f",
+  "candidate_id": "7cc33768b1451f257b84448f21f6e14ef0257a5641f4b4acafe4699dd1765e6f",
+  "codex_service_tier": "default",
+  "condition": "C1",
+  "conversation_session_id": null,
+  "evaluation": {
+    "evaluator_calls": 1,
+    "evaluator_seconds": 70.57372591691092,
+    "failure_kind": "nonqualification",
+    "fitness": null,
+    "metrics": {
+      "batch_size": 128,
+      "evaluation_cases": 815,
+      "evaluation_split": "public_speaker_disjoint_validation",
+      "examples_processed": 50000,
+      "inference_cost": 1138631770964361477,
+      "maximum_recurrent_steps": 27,
+      "mean_recurrent_steps": 27.0,
+      "median_recurrent_steps": 27,
+      "optimizer_steps": 397,
+      "p95_recurrent_steps": 27,
+      "parameters": 13872,
+      "peak_hidden_elements": 221696,
+      "recurrent_logit_effect": 0.44843581318855286,
+      "recurrent_macs": 215472960,
+      "recurrent_steps": 22005,
+      "state_dependence_effect": 0.48991259932518005,
+      "state_update_effect": 0.606030285358429,
+      "total_inference_macs": 218289600,
+      "trained_recurrent_logit_effect": 1.0619122982025146,
+      "trained_state_dependence_effect": 0.4854499101638794,
+      "trained_state_update_effect": 0.617946207523346,
+      "training_seconds": 56.854744458105415,
+      "validation_accuracy": 0.8171779141104294,
+      "validation_correct": 666,
+      "validation_cross_entropy": 0.5688745416746549
+    },
+    "valid": false
+  },
+  "evaluator_calls_cumulative": 40,
+  "evaluator_calls_increment": 1,
+  "evaluator_seconds_cumulative": 4220.243629249744,
+  "evaluator_seconds_increment": 70.57372591691092,
+  "event": "proposal_completed",
+  "evicted_candidate_id": null,
+  "evidence": "Parallel GRUs succeeded with both two 48-unit heads (86.13%) and three 36-unit heads (86.01%), while four 29-unit heads failed, suggesting adequate per-stream width matters more than dense coupling. Using 48-unit streams preserves that demonstrated width but removes two of the three recurrent matrix transforms per head.",
+  "hypothesis": "Three 48-unit tanh RNN streams with normalized temporal readouts will retain at least 85% accuracy while reducing recurrent MACs by approximately 33% versus the 32/32/31 GRU ensemble.",
+  "incumbent_after": "238608c371f8c032589686cdee86b3913dfd23c6fe856fe478f4394ad8f228cc",
+  "intended_edit": "Challenge the assumption that three learned gates are necessary at every recurrent update by replacing each GRU with a wider, orthogonally initialized single-transform RNN and per-stream output normalization, while preserving the successful endpoint/mean/maximum readout and 27-step schedule.",
+  "mechanism": "Orthogonally stabilized ungated recurrent ensemble",
+  "opportunity": 40,
+  "parent_ids": [
+    "238608c371f8c032589686cdee86b3913dfd23c6fe856fe478f4394ad8f228cc"
+  ],
+  "portfolio_after": [
+    "238608c371f8c032589686cdee86b3913dfd23c6fe856fe478f4394ad8f228cc"
+  ],
+  "prompt_hashes": {
+    "common_template_sha256": "dee04faf4c430276c1036ba97f5705a339857dbdf19117dac88952a5a3a47e9d",
+    "prompt_sha256": "eb3058aa61a6eac84d2ca3048cb4fb7ba8e8051fc3a9ad5440db0811aa13e3e5",
+    "proposal_policy_sha256": "f3e935f1a3cb6334e7f39b20b1b6b601cd727de9c5f0c3630206a91f08e358c9",
+    "search_state_sha256": "04e5eb078ae1964e4ec65bfeeeb1acd0ffa246e7d54d5e0f997f81f602da28c5",
+    "treatment_skeleton_sha256": "a8063b7ee9c9c0b03345dc4d010fff62be514e8e9f035173bf30b0c07eeb862c"
+  },
+  "proposal_type": "assumption_changing",
+  "proposals_cumulative": 40,
+  "remaining_budget": {
+    "evaluations": 160,
+    "evaluator_seconds": 55779.756370750256,
+    "proposals": 160,
+    "tokens": 99118604
+  },
+  "retained": false,
+  "retention_decision": "invalid",
+  "run_id": "tiny-kws-rnn-openevolve-v2-1-cpu-tiny_kws_rnn_source_only_cpu-openevolve-b03-c1",
+  "schema_version": "1.0",
+  "selected_parent_ids": [
+    "238608c371f8c032589686cdee86b3913dfd23c6fe856fe478f4394ad8f228cc"
+  ],
+  "timestamp": "2026-09-04T05:03:28.048582+00:00",
+  "usage_cumulative": {
+    "cached_input_tokens": 430080,
+    "input_tokens": 782989,
+    "output_tokens": 98407,
+    "reasoning_output_tokens": 76277,
+    "total_tokens": 881396
+  },
+  "usage_increment": {
+    "cached_input_tokens": 10752,
+    "input_tokens": 20759,
+    "output_tokens": 11111,
+    "reasoning_output_tokens": 9102,
+    "total_tokens": 31870
+  },
+  "visible_candidate_ids": [
+    "238608c371f8c032589686cdee86b3913dfd23c6fe856fe478f4394ad8f228cc"
+  ]
+}

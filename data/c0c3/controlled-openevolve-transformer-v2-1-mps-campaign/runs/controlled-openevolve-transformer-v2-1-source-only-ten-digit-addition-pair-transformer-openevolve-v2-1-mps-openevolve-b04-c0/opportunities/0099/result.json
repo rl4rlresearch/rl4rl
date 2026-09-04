@@ -1,0 +1,79 @@
+{
+  "artifact_path": "candidates/c698f8356e9c0cdda0317f1de1bd7cb30ba5f4d8819ec2ba4e9aabdf84199e5e",
+  "candidate_id": "c698f8356e9c0cdda0317f1de1bd7cb30ba5f4d8819ec2ba4e9aabdf84199e5e",
+  "codex_service_tier": "default",
+  "condition": "C0",
+  "conversation_session_id": null,
+  "evaluation": {
+    "evaluator_calls": 1,
+    "evaluator_seconds": 215.55441279197112,
+    "failure_kind": "nonqualification",
+    "fitness": null,
+    "metrics": {
+      "accuracy": 0.3961,
+      "cases": 10010,
+      "correct": 3965,
+      "parameters": 1576,
+      "training_steps": 4999
+    },
+    "valid": false
+  },
+  "evaluator_calls_cumulative": 99,
+  "evaluator_calls_increment": 1,
+  "evaluator_seconds_cumulative": 40796.487121245475,
+  "evaluator_seconds_increment": 215.55441279197112,
+  "event": "proposal_completed",
+  "evicted_candidate_id": null,
+  "evidence": "The fourth scale anchor in head 1 passed at 99.13%, showing four coordinate anchors can work, while the first head-0 anchor at column 4 previously passed at 99.79%; this motivates testing column 4 for head-0 row 3 after its column-0 anchor failed at 71.61%. The subsequent query-bias reduction failed at 70.02%, favoring another function-preserving scale gauge.",
+  "hypothesis": "Fixing `qkv.weight[3,4]` at 0.02 with reciprocal scaling of head-0 key row 3 will produce a 1576-parameter model with at least 99% accuracy, because it uses the exact fourth head-0 coordinate-scale gauge without repeating the unsuccessful column-0 anchor.",
+  "incumbent_after": "4fe6fb5efd625783d57937f5e4e8c5084ecdd087739732b26976a8d430406d9d",
+  "intended_edit": "Store 182 learned QKV weights, reconstruct `qkv.weight[3,4]` as 0.02, and initialize query row 3 and key row 11 with reciprocal scaling that preserves initial attention scores.",
+  "mechanism": "Alternative-coefficient query\u2013key scale-gauge anchor",
+  "opportunity": 99,
+  "parent_ids": [
+    "4fe6fb5efd625783d57937f5e4e8c5084ecdd087739732b26976a8d430406d9d"
+  ],
+  "portfolio_after": [
+    "4fe6fb5efd625783d57937f5e4e8c5084ecdd087739732b26976a8d430406d9d"
+  ],
+  "prompt_hashes": {
+    "common_template_sha256": "3f2bea6418b6969c4bf2aa1df18dcda8a3a4ac075bf20c79068c754698b6be5e",
+    "prompt_sha256": "8e85bf0cfa1fd648af184f31ab02557b3e203d68ea33dc04eca2a85c3ff4657f",
+    "proposal_policy_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "search_state_sha256": "04e5eb078ae1964e4ec65bfeeeb1acd0ffa246e7d54d5e0f997f81f602da28c5",
+    "treatment_skeleton_sha256": "a911209e95a8441b639769592c914a2f108eff60b4e69ba8a496b9f7053d891b"
+  },
+  "proposal_type": "ordinary",
+  "proposals_cumulative": 99,
+  "remaining_budget": {
+    "evaluations": 101,
+    "evaluator_seconds": 319203.5128787545,
+    "proposals": 101,
+    "tokens": 97535642
+  },
+  "retained": false,
+  "retention_decision": "invalid",
+  "run_id": "controlled-openevolve-transformer-v2-1-source-only-ten-digit-addition-pair-transformer-openevolve-v2-1-mps-openevolve-b04-c0",
+  "schema_version": "1.0",
+  "selected_parent_ids": [
+    "4fe6fb5efd625783d57937f5e4e8c5084ecdd087739732b26976a8d430406d9d"
+  ],
+  "timestamp": "2026-08-26T05:19:49.825973+00:00",
+  "usage_cumulative": {
+    "cached_input_tokens": 997376,
+    "input_tokens": 2235757,
+    "output_tokens": 228601,
+    "reasoning_output_tokens": 170865,
+    "total_tokens": 2464358
+  },
+  "usage_increment": {
+    "cached_input_tokens": 12032,
+    "input_tokens": 24284,
+    "output_tokens": 3728,
+    "reasoning_output_tokens": 3037,
+    "total_tokens": 28012
+  },
+  "visible_candidate_ids": [
+    "4fe6fb5efd625783d57937f5e4e8c5084ecdd087739732b26976a8d430406d9d"
+  ]
+}

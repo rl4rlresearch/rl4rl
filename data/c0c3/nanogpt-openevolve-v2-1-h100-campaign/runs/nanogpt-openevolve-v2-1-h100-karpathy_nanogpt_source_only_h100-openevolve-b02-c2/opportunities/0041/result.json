@@ -1,0 +1,88 @@
+{
+  "artifact_path": "candidates/2509666ac675fa13e6dfc864209770869cfc49843c5d6418d5705d9dd420a837",
+  "candidate_id": "2509666ac675fa13e6dfc864209770869cfc49843c5d6418d5705d9dd420a837",
+  "codex_service_tier": "default",
+  "condition": "C2",
+  "conversation_session_id": null,
+  "evaluation": {
+    "evaluator_calls": 1,
+    "evaluator_seconds": 358.2254063309956,
+    "failure_kind": null,
+    "fitness": -0.988445,
+    "metrics": {
+      "depth": 8.0,
+      "mfu_percent": 35.84,
+      "num_params_M": 50.3,
+      "num_steps": 1977.0,
+      "peak_vram_mb": 44908.2,
+      "total_tokens_M": 518.3,
+      "training_seconds": 300.1,
+      "val_bpb": 0.988445
+    },
+    "valid": true
+  },
+  "evaluator_calls_cumulative": 41,
+  "evaluator_calls_increment": 1,
+  "evaluator_seconds_cumulative": 14496.379221884,
+  "evaluator_seconds_increment": 358.2254063309956,
+  "event": "proposal_completed",
+  "evicted_candidate_id": null,
+  "evidence": "Advancing the first full-context layer from layer 4 to layer 3 improved val_bpb from 0.983152 to 0.982662 at unchanged compute; shifting the second full-context layer one step earlier tests the same benefit while preserving the best first-global placement, whereas the large regression at layer 2 cautions against a larger shift.",
+  "hypothesis": "Moving the second full-context layer from layer 8 to layer 7 while retaining full context at layer 3 and the verified local-window multiset will lower val_bpb below 0.982662 by allowing the final block to transform globally mixed representations without changing aggregate attention compute.",
+  "incumbent_after": "690b4834a299848eab5a3ec7a1387a8748309de700b8ef809ecc5e1e9cd29bcf",
+  "intended_edit": "Place full-context attention at layers 3 and 7, with 144/144/136/136/128/128 windows across the remaining layers, and remove the unconditional final-layer override.",
+  "mechanism": "Penultimate global-context integration",
+  "opportunity": 41,
+  "parent_ids": [
+    "690b4834a299848eab5a3ec7a1387a8748309de700b8ef809ecc5e1e9cd29bcf"
+  ],
+  "portfolio_after": [
+    "690b4834a299848eab5a3ec7a1387a8748309de700b8ef809ecc5e1e9cd29bcf",
+    "6803dfb643d775263736fa184140f42d2eb6927dd8ed115ba61027cb4b34b665",
+    "3564d064ea69e1fdb01bdea4b50596ade907225fd291222d767fce37165e2f7a",
+    "668e4a8eb9addff07c0ea19c69f44df9e7c96f796a33fe29b6e513cce7f9dac1"
+  ],
+  "prompt_hashes": {
+    "common_template_sha256": "ba85b39aa7288f4f48475376da6cff65661f39cfeb7ac7cde15b2a9a2e692fde",
+    "prompt_sha256": "39a8f3345ced51e03b3216ff6e75e6d864b7d6d35a80c798708c01942a0b6745",
+    "proposal_policy_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "search_state_sha256": "c938ac007bf70fe8d27f64661175531e51fcb16b38318c328493c32ee292e27e",
+    "treatment_skeleton_sha256": "517117e4e968891c8dc07bbe51e5c17b3915908db905f934da2f5c667a648757"
+  },
+  "proposal_type": "ordinary",
+  "proposals_cumulative": 41,
+  "remaining_budget": {
+    "evaluations": 159,
+    "evaluator_seconds": 705503.620778116,
+    "proposals": 159,
+    "tokens": 98055187
+  },
+  "retained": false,
+  "retention_decision": "not_strictly_better_than_selected_parent",
+  "run_id": "nanogpt-openevolve-v2-1-h100-karpathy_nanogpt_source_only_h100-openevolve-b02-c2",
+  "schema_version": "1.0",
+  "selected_parent_ids": [
+    "690b4834a299848eab5a3ec7a1387a8748309de700b8ef809ecc5e1e9cd29bcf"
+  ],
+  "timestamp": "2026-08-24T08:44:52.896030+00:00",
+  "usage_cumulative": {
+    "cached_input_tokens": 444416,
+    "input_tokens": 1868075,
+    "output_tokens": 76738,
+    "reasoning_output_tokens": 60362,
+    "total_tokens": 1944813
+  },
+  "usage_increment": {
+    "cached_input_tokens": 12032,
+    "input_tokens": 47441,
+    "output_tokens": 1270,
+    "reasoning_output_tokens": 949,
+    "total_tokens": 48711
+  },
+  "visible_candidate_ids": [
+    "690b4834a299848eab5a3ec7a1387a8748309de700b8ef809ecc5e1e9cd29bcf",
+    "6803dfb643d775263736fa184140f42d2eb6927dd8ed115ba61027cb4b34b665",
+    "3564d064ea69e1fdb01bdea4b50596ade907225fd291222d767fce37165e2f7a",
+    "668e4a8eb9addff07c0ea19c69f44df9e7c96f796a33fe29b6e513cce7f9dac1"
+  ]
+}

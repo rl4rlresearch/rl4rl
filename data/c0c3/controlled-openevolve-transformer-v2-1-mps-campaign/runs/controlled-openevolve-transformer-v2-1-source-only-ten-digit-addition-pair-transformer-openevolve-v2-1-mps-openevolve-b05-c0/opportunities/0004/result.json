@@ -1,0 +1,79 @@
+{
+  "artifact_path": "candidates/02ab8b6faac43f73a463eab6f4ab623dc372b3c1d0448b02215eee2f02086a4e",
+  "candidate_id": "02ab8b6faac43f73a463eab6f4ab623dc372b3c1d0448b02215eee2f02086a4e",
+  "codex_service_tier": "fast",
+  "condition": "C0",
+  "conversation_session_id": null,
+  "evaluation": {
+    "evaluator_calls": 1,
+    "evaluator_seconds": 225.41427737497725,
+    "failure_kind": "nonqualification",
+    "fitness": null,
+    "metrics": {
+      "accuracy": 0.9112,
+      "cases": 10010,
+      "correct": 9121,
+      "parameters": 1620,
+      "training_steps": 4999
+    },
+    "valid": false
+  },
+  "evaluator_calls_cumulative": 4,
+  "evaluator_calls_increment": 1,
+  "evaluator_seconds_cumulative": 888.711298209033,
+  "evaluator_seconds_increment": 225.41427737497725,
+  "event": "proposal_completed",
+  "evicted_candidate_id": null,
+  "evidence": "The 1636-parameter design reaches 99.84% accuracy while preserving query and value biases; removing value bias caused optimization failure, so this patch retains those successful parameters and instead removes upstream offsets that duplicate them and the existing MLP input bias.",
+  "hypothesis": "Disabling both LayerNorm bias vectors will reduce the model from 1636 to 1620 parameters while retaining at least 99% accuracy, because the MLP LayerNorm offset is absorbable by `fc1.bias`, while the attention LayerNorm offset is absorbable by the retained query/value biases and produces only a softmax-invariant constant key shift.",
+  "incumbent_after": "0c5739da9f29148e1e6269ddc9aed365a62c24fd7d53dc756ee0ead7226bed9b",
+  "intended_edit": "Keep both learned LayerNorm scale vectors but construct the two block LayerNorms without learned biases.",
+  "mechanism": "Remove affine offsets duplicated by downstream biases",
+  "opportunity": 4,
+  "parent_ids": [
+    "0c5739da9f29148e1e6269ddc9aed365a62c24fd7d53dc756ee0ead7226bed9b"
+  ],
+  "portfolio_after": [
+    "0c5739da9f29148e1e6269ddc9aed365a62c24fd7d53dc756ee0ead7226bed9b"
+  ],
+  "prompt_hashes": {
+    "common_template_sha256": "3f2bea6418b6969c4bf2aa1df18dcda8a3a4ac075bf20c79068c754698b6be5e",
+    "prompt_sha256": "077b480686ddb11217d860480ff2056417eefbd1f18fecdf9f1f018cfbe3c2bc",
+    "proposal_policy_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "search_state_sha256": "04e5eb078ae1964e4ec65bfeeeb1acd0ffa246e7d54d5e0f997f81f602da28c5",
+    "treatment_skeleton_sha256": "fbd5652174c0f9cc678b8b8f1b30aa5c88d5a81256a4c044f614a6b37c226102"
+  },
+  "proposal_type": "ordinary",
+  "proposals_cumulative": 4,
+  "remaining_budget": {
+    "evaluations": 196,
+    "evaluator_seconds": 359111.28870179097,
+    "proposals": 196,
+    "tokens": 99914637
+  },
+  "retained": false,
+  "retention_decision": "invalid",
+  "run_id": "controlled-openevolve-transformer-v2-1-source-only-ten-digit-addition-pair-transformer-openevolve-v2-1-mps-openevolve-b05-c0",
+  "schema_version": "1.0",
+  "selected_parent_ids": [
+    "0c5739da9f29148e1e6269ddc9aed365a62c24fd7d53dc756ee0ead7226bed9b"
+  ],
+  "timestamp": "2026-08-23T11:28:15.181851+00:00",
+  "usage_cumulative": {
+    "cached_input_tokens": 43008,
+    "input_tokens": 75798,
+    "output_tokens": 9565,
+    "reasoning_output_tokens": 8409,
+    "total_tokens": 85363
+  },
+  "usage_increment": {
+    "cached_input_tokens": 12032,
+    "input_tokens": 19357,
+    "output_tokens": 2358,
+    "reasoning_output_tokens": 2070,
+    "total_tokens": 21715
+  },
+  "visible_candidate_ids": [
+    "0c5739da9f29148e1e6269ddc9aed365a62c24fd7d53dc756ee0ead7226bed9b"
+  ]
+}

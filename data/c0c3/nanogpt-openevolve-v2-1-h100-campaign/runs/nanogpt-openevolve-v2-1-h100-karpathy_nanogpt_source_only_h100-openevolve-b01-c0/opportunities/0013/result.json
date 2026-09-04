@@ -1,0 +1,82 @@
+{
+  "artifact_path": "candidates/66ab3c3eb981352b065d933b733bea5e574f3e3b63d32e96b3d5c5866539d087",
+  "candidate_id": "66ab3c3eb981352b065d933b733bea5e574f3e3b63d32e96b3d5c5866539d087",
+  "codex_service_tier": "fast",
+  "condition": "C0",
+  "conversation_session_id": null,
+  "evaluation": {
+    "evaluator_calls": 1,
+    "evaluator_seconds": 363.034587169,
+    "failure_kind": null,
+    "fitness": -0.986515,
+    "metrics": {
+      "depth": 8.0,
+      "mfu_percent": 36.69,
+      "num_params_M": 50.3,
+      "num_steps": 2167.0,
+      "peak_vram_mb": 39356.2,
+      "total_tokens_M": 497.1,
+      "training_seconds": 300.1,
+      "val_bpb": 0.986515
+    },
+    "valid": true
+  },
+  "evaluator_calls_cumulative": 13,
+  "evaluator_calls_increment": 1,
+  "evaluator_seconds_cumulative": 5544.745988507964,
+  "evaluator_seconds_increment": 363.034587169,
+  "event": "proposal_completed",
+  "evicted_candidate_id": null,
+  "evidence": "The unscaled 229,376-token run reached 0.985719 val_bpb on 501.6M tokens, only 0.000401 behind the best result while taking 2,187 rather than 1,933 optimizer steps; this motivates correcting its per-step learning rates rather than further refining batch size alone.",
+  "hypothesis": "A 229,376-token batch with every optimizer learning rate scaled by 7/8 will beat 0.985318 val_bpb by retaining the prior 112-sequence run\u2019s 13% higher update cadence while preventing excess cumulative parameter movement.",
+  "incumbent_after": "ccc2cf21c464d43856fa029f503c8a0da17a6c3010d77ca05f867752f5ab67d8",
+  "intended_edit": "Restore the nearly competitive 112-sequence single-microbatch configuration and linearly scale all AdamW and Muon learning rates with its batch-size reduction.",
+  "mechanism": "Batch-proportional learning-rate compensation",
+  "opportunity": 13,
+  "parent_ids": [
+    "ccc2cf21c464d43856fa029f503c8a0da17a6c3010d77ca05f867752f5ab67d8"
+  ],
+  "portfolio_after": [
+    "ccc2cf21c464d43856fa029f503c8a0da17a6c3010d77ca05f867752f5ab67d8"
+  ],
+  "prompt_hashes": {
+    "common_template_sha256": "ba85b39aa7288f4f48475376da6cff65661f39cfeb7ac7cde15b2a9a2e692fde",
+    "prompt_sha256": "a0f67c3fca14be21cf740380d36fc004adb3f713664cd19e3cc97a2d2505a82f",
+    "proposal_policy_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "search_state_sha256": "04e5eb078ae1964e4ec65bfeeeb1acd0ffa246e7d54d5e0f997f81f602da28c5",
+    "treatment_skeleton_sha256": "635dd2fb314deb16051d9b00219b03bc43c48c78c757ecb8d73751459c5a8e01"
+  },
+  "proposal_type": "ordinary",
+  "proposals_cumulative": 13,
+  "remaining_budget": {
+    "evaluations": 187,
+    "evaluator_seconds": 714455.254011492,
+    "proposals": 187,
+    "tokens": 99669431
+  },
+  "retained": false,
+  "retention_decision": "not_strictly_better_than_incumbent",
+  "run_id": "nanogpt-openevolve-v2-1-h100-karpathy_nanogpt_source_only_h100-openevolve-b01-c0",
+  "schema_version": "1.0",
+  "selected_parent_ids": [
+    "ccc2cf21c464d43856fa029f503c8a0da17a6c3010d77ca05f867752f5ab67d8"
+  ],
+  "timestamp": "2026-08-23T21:44:57.248302+00:00",
+  "usage_cumulative": {
+    "cached_input_tokens": 146176,
+    "input_tokens": 302759,
+    "output_tokens": 27810,
+    "reasoning_output_tokens": 24662,
+    "total_tokens": 330569
+  },
+  "usage_increment": {
+    "cached_input_tokens": 12032,
+    "input_tokens": 24697,
+    "output_tokens": 3321,
+    "reasoning_output_tokens": 2886,
+    "total_tokens": 28018
+  },
+  "visible_candidate_ids": [
+    "ccc2cf21c464d43856fa029f503c8a0da17a6c3010d77ca05f867752f5ab67d8"
+  ]
+}

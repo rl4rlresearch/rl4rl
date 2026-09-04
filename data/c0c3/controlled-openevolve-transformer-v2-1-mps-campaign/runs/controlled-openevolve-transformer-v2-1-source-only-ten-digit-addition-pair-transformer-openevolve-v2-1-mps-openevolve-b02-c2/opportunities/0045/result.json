@@ -1,0 +1,85 @@
+{
+  "artifact_path": "candidates/148645546257ab1cca8600aee343d88a6802a0b5806fddd208eaf64fc1eb94c4",
+  "candidate_id": "148645546257ab1cca8600aee343d88a6802a0b5806fddd208eaf64fc1eb94c4",
+  "codex_service_tier": "default",
+  "condition": "C2",
+  "conversation_session_id": null,
+  "evaluation": {
+    "evaluator_calls": 1,
+    "evaluator_seconds": 563.9892379159573,
+    "failure_kind": null,
+    "fitness": -1623.0,
+    "metrics": {
+      "accuracy": 0.9967,
+      "cases": 10010,
+      "correct": 9977,
+      "parameters": 1623,
+      "training_steps": 4999
+    },
+    "valid": true
+  },
+  "evaluator_calls_cumulative": 45,
+  "evaluator_calls_increment": 1,
+  "evaluator_seconds_cumulative": 18812.881486125872,
+  "evaluator_seconds_increment": 563.9892379159573,
+  "event": "proposal_completed",
+  "evicted_candidate_id": "5b9bc7c2c39d15ad4288ce4bdd324e3ade500761fa4e53f1f0afe8f55f1a011c",
+  "evidence": "The current 1,624-parameter design achieved 99.64%. Tested 1,623-parameter attention changes and the `ln2` scale quotient failed, motivating a distinct exact affine-offset redundancy that does not alter attention or constrain `ln2` scaling.",
+  "hypothesis": "Fixing one `ln2` bias coordinate at zero will produce a 1,623-parameter model with at least 99% accuracy because `fc1.bias` can absorb its entire downstream effect while the qualified attention layout and all LayerNorm scales remain unchanged.",
+  "incumbent_after": "148645546257ab1cca8600aee343d88a6802a0b5806fddd208eaf64fc1eb94c4",
+  "intended_edit": "Replace each block\u2019s `ln2` with a compact LayerNorm retaining all eight scales and seven bias coordinates, reconstructing the final bias coordinate as zero.",
+  "mechanism": "LayerNorm-to-MLP affine-offset quotient",
+  "opportunity": 45,
+  "parent_ids": [
+    "5b9bc7c2c39d15ad4288ce4bdd324e3ade500761fa4e53f1f0afe8f55f1a011c"
+  ],
+  "portfolio_after": [
+    "2b9cea175ed60b009337ac54f6e8ad23bf2c014eb4080237777bfb70bfd9fd5b",
+    "56f2b3a6961c9a3c74cfc39eee2fee066bbf32fa0038d1b014a94788d394cc62",
+    "d3a823bb2c3f2ffc0c4ae768b46233b1e21d9c077f3cccb4795eb2d56b57be47",
+    "148645546257ab1cca8600aee343d88a6802a0b5806fddd208eaf64fc1eb94c4"
+  ],
+  "prompt_hashes": {
+    "common_template_sha256": "3f2bea6418b6969c4bf2aa1df18dcda8a3a4ac075bf20c79068c754698b6be5e",
+    "prompt_sha256": "f372655c88854a09b70036665f444e56214bf35445bc3ba6c7653f079e3c2acb",
+    "proposal_policy_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "search_state_sha256": "c938ac007bf70fe8d27f64661175531e51fcb16b38318c328493c32ee292e27e",
+    "treatment_skeleton_sha256": "8128bde9b4feb3a8f005846894a4437307674c8b7b2bff7b43c542ff8d1545dd"
+  },
+  "proposal_type": "ordinary",
+  "proposals_cumulative": 45,
+  "remaining_budget": {
+    "evaluations": 155,
+    "evaluator_seconds": 341187.1185138741,
+    "proposals": 155,
+    "tokens": 98441683
+  },
+  "retained": true,
+  "retention_decision": "replaced_selected_parent_on_strict_improvement",
+  "run_id": "controlled-openevolve-transformer-v2-1-source-only-ten-digit-addition-pair-transformer-openevolve-v2-1-mps-openevolve-b02-c2",
+  "schema_version": "1.0",
+  "selected_parent_ids": [
+    "5b9bc7c2c39d15ad4288ce4bdd324e3ade500761fa4e53f1f0afe8f55f1a011c"
+  ],
+  "timestamp": "2026-08-24T17:26:42.723151+00:00",
+  "usage_cumulative": {
+    "cached_input_tokens": 518144,
+    "input_tokens": 1416543,
+    "output_tokens": 141774,
+    "reasoning_output_tokens": 108408,
+    "total_tokens": 1558317
+  },
+  "usage_increment": {
+    "cached_input_tokens": 12032,
+    "input_tokens": 34819,
+    "output_tokens": 4261,
+    "reasoning_output_tokens": 3859,
+    "total_tokens": 39080
+  },
+  "visible_candidate_ids": [
+    "2b9cea175ed60b009337ac54f6e8ad23bf2c014eb4080237777bfb70bfd9fd5b",
+    "56f2b3a6961c9a3c74cfc39eee2fee066bbf32fa0038d1b014a94788d394cc62",
+    "d3a823bb2c3f2ffc0c4ae768b46233b1e21d9c077f3cccb4795eb2d56b57be47",
+    "5b9bc7c2c39d15ad4288ce4bdd324e3ade500761fa4e53f1f0afe8f55f1a011c"
+  ]
+}

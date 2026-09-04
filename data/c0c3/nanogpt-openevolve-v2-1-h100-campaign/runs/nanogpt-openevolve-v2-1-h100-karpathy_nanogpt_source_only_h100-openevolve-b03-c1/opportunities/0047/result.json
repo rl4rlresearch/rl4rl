@@ -1,0 +1,82 @@
+{
+  "artifact_path": "candidates/ffdd387333bd94cf2d63a78cb52115cedc2407f5f8f24155252373bf1c1f224f",
+  "candidate_id": "ffdd387333bd94cf2d63a78cb52115cedc2407f5f8f24155252373bf1c1f224f",
+  "codex_service_tier": "default",
+  "condition": "C1",
+  "conversation_session_id": null,
+  "evaluation": {
+    "evaluator_calls": 1,
+    "evaluator_seconds": 360.2560052510016,
+    "failure_kind": null,
+    "fitness": -0.984226,
+    "metrics": {
+      "depth": 8.0,
+      "mfu_percent": 38.57,
+      "num_params_M": 50.3,
+      "num_steps": 2155.0,
+      "peak_vram_mb": 39356.7,
+      "total_tokens_M": 494.3,
+      "training_seconds": 300.1,
+      "val_bpb": 0.984226
+    },
+    "valid": true
+  },
+  "evaluator_calls_cumulative": 47,
+  "evaluator_calls_increment": 1,
+  "evaluator_seconds_cumulative": 21125.906086994026,
+  "evaluator_seconds_increment": 360.2560052510016,
+  "event": "proposal_completed",
+  "evicted_candidate_id": null,
+  "evidence": "Learned 32-channel gates achieved 0.984083 versus 0.986944 with fixed gates, while widening their inputs to 64 or 512 channels regressed to 0.984472 and 0.984493. This indicates the compact gates are useful and motivates improving their optimization rather than increasing their capacity.",
+  "hypothesis": "Moving the existing 32-channel value gates from Muon to AdamW will reduce val_bpb below 0.984083 by allowing the tiny 4\u00d732 routing matrices to learn correlated per-head updates without Muon\u2019s orthogonalization constraint.",
+  "incumbent_after": "95728985013fd9e1cfec4eb8e3d2c24c475c3a287aad6464397514f68717aa91",
+  "intended_edit": "Exclude value-gate weights from the Muon matrix groups and optimize them with AdamW at one-quarter of the matrix learning rate, preserving the architecture and all other settings.",
+  "mechanism": "Adam-optimized low-dimensional value routing",
+  "opportunity": 47,
+  "parent_ids": [
+    "95728985013fd9e1cfec4eb8e3d2c24c475c3a287aad6464397514f68717aa91"
+  ],
+  "portfolio_after": [
+    "95728985013fd9e1cfec4eb8e3d2c24c475c3a287aad6464397514f68717aa91"
+  ],
+  "prompt_hashes": {
+    "common_template_sha256": "ba85b39aa7288f4f48475376da6cff65661f39cfeb7ac7cde15b2a9a2e692fde",
+    "prompt_sha256": "0080d7fe7a94ef908ff79006ceb02eb9b210f76675c4a9822c442458d9c2d945",
+    "proposal_policy_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "search_state_sha256": "04e5eb078ae1964e4ec65bfeeeb1acd0ffa246e7d54d5e0f997f81f602da28c5",
+    "treatment_skeleton_sha256": "abe442d5af66c60625b87ceab2f06353bb64921c05f631536a03b937a54f1282"
+  },
+  "proposal_type": "ordinary",
+  "proposals_cumulative": 47,
+  "remaining_budget": {
+    "evaluations": 153,
+    "evaluator_seconds": 698874.093913006,
+    "proposals": 153,
+    "tokens": 98743709
+  },
+  "retained": false,
+  "retention_decision": "not_strictly_better_than_incumbent",
+  "run_id": "nanogpt-openevolve-v2-1-h100-karpathy_nanogpt_source_only_h100-openevolve-b03-c1",
+  "schema_version": "1.0",
+  "selected_parent_ids": [
+    "95728985013fd9e1cfec4eb8e3d2c24c475c3a287aad6464397514f68717aa91"
+  ],
+  "timestamp": "2026-08-24T09:44:10.894678+00:00",
+  "usage_cumulative": {
+    "cached_input_tokens": 535040,
+    "input_tokens": 1147665,
+    "output_tokens": 108626,
+    "reasoning_output_tokens": 95544,
+    "total_tokens": 1256291
+  },
+  "usage_increment": {
+    "cached_input_tokens": 6912,
+    "input_tokens": 24951,
+    "output_tokens": 5679,
+    "reasoning_output_tokens": 4927,
+    "total_tokens": 30630
+  },
+  "visible_candidate_ids": [
+    "95728985013fd9e1cfec4eb8e3d2c24c475c3a287aad6464397514f68717aa91"
+  ]
+}

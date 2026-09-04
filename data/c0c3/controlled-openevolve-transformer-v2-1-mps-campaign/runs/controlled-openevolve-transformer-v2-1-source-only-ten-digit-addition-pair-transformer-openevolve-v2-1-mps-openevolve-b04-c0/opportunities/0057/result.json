@@ -1,0 +1,79 @@
+{
+  "artifact_path": "candidates/87698306f8b705253e89f9fdb80241c47118bbeade2d4e7ee7eece70b9a679ce",
+  "candidate_id": "87698306f8b705253e89f9fdb80241c47118bbeade2d4e7ee7eece70b9a679ce",
+  "codex_service_tier": "default",
+  "condition": "C0",
+  "conversation_session_id": null,
+  "evaluation": {
+    "evaluator_calls": 1,
+    "evaluator_seconds": 596.26830075006,
+    "failure_kind": "nonqualification",
+    "fitness": null,
+    "metrics": {
+      "accuracy": 0.9882,
+      "cases": 10010,
+      "correct": 9892,
+      "parameters": 1598,
+      "training_steps": 4999
+    },
+    "valid": false
+  },
+  "evaluator_calls_cumulative": 57,
+  "evaluator_calls_increment": 1,
+  "evaluator_seconds_cumulative": 28010.492268579896,
+  "evaluator_seconds_increment": 596.26830075006,
+  "event": "proposal_completed",
+  "evicted_candidate_id": null,
+  "evidence": "The verified 1599-parameter design already absorbs six pre-MLP LayerNorm gains into its downstream projection, while removing `fc1.bias[8]` failed at 77.57%; applying the analogous exact gain redundancy on the previously untouched attention side is therefore the most informative alternative.",
+  "hypothesis": "Fixing coordinate 3 of the pre-attention LayerNorm gain at one will reduce the model from 1599 to 1598 parameters while retaining at least 99% accuracy, because its scale can be learned equivalently by coordinate 3 of every QKV projection row.",
+  "incumbent_after": "99b4cec439f1d5dc731d4625110a6da8b805566957e27cfeb9c30cb510c6fae3",
+  "intended_edit": "Replace the eight learned pre-attention LayerNorm gains with seven learned coordinates, reconstructing gain coordinate 3 as a fixed one while preserving the existing initialization and anchored shift.",
+  "mechanism": "Attention preprojection gain gauge fixing",
+  "opportunity": 57,
+  "parent_ids": [
+    "99b4cec439f1d5dc731d4625110a6da8b805566957e27cfeb9c30cb510c6fae3"
+  ],
+  "portfolio_after": [
+    "99b4cec439f1d5dc731d4625110a6da8b805566957e27cfeb9c30cb510c6fae3"
+  ],
+  "prompt_hashes": {
+    "common_template_sha256": "3f2bea6418b6969c4bf2aa1df18dcda8a3a4ac075bf20c79068c754698b6be5e",
+    "prompt_sha256": "20271c601e3f0e61a0126c7d9d5e473541115f2bd8528809c683a4e579786ee0",
+    "proposal_policy_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "search_state_sha256": "04e5eb078ae1964e4ec65bfeeeb1acd0ffa246e7d54d5e0f997f81f602da28c5",
+    "treatment_skeleton_sha256": "75694ecfb8443e473b6e00360dfc00ba5a2ba8d5ccd3bc58ead02cd828ebee50"
+  },
+  "proposal_type": "ordinary",
+  "proposals_cumulative": 57,
+  "remaining_budget": {
+    "evaluations": 143,
+    "evaluator_seconds": 331989.5077314201,
+    "proposals": 143,
+    "tokens": 98614789
+  },
+  "retained": false,
+  "retention_decision": "invalid",
+  "run_id": "controlled-openevolve-transformer-v2-1-source-only-ten-digit-addition-pair-transformer-openevolve-v2-1-mps-openevolve-b04-c0",
+  "schema_version": "1.0",
+  "selected_parent_ids": [
+    "99b4cec439f1d5dc731d4625110a6da8b805566957e27cfeb9c30cb510c6fae3"
+  ],
+  "timestamp": "2026-08-25T05:03:56.078211+00:00",
+  "usage_cumulative": {
+    "cached_input_tokens": 602368,
+    "input_tokens": 1251239,
+    "output_tokens": 133972,
+    "reasoning_output_tokens": 98422,
+    "total_tokens": 1385211
+  },
+  "usage_increment": {
+    "cached_input_tokens": 12032,
+    "input_tokens": 22965,
+    "output_tokens": 2544,
+    "reasoning_output_tokens": 1999,
+    "total_tokens": 25509
+  },
+  "visible_candidate_ids": [
+    "99b4cec439f1d5dc731d4625110a6da8b805566957e27cfeb9c30cb510c6fae3"
+  ]
+}

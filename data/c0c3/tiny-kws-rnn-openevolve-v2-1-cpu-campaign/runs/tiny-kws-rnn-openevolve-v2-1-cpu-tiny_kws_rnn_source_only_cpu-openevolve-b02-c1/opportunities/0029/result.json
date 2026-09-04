@@ -1,0 +1,99 @@
+{
+  "artifact_path": "candidates/8c892929fee43414208392affb25f5b9dcaf423f9cfe18f67ebae1bc6fc2fa0e",
+  "candidate_id": "8c892929fee43414208392affb25f5b9dcaf423f9cfe18f67ebae1bc6fc2fa0e",
+  "codex_service_tier": "default",
+  "condition": "C1",
+  "conversation_session_id": null,
+  "evaluation": {
+    "evaluator_calls": 1,
+    "evaluator_seconds": 84.16666158312,
+    "failure_kind": "nonqualification",
+    "fitness": null,
+    "metrics": {
+      "batch_size": 128,
+      "evaluation_cases": 815,
+      "evaluation_split": "public_speaker_disjoint_validation",
+      "examples_processed": 50000,
+      "inference_cost": 2928078489532115480,
+      "maximum_recurrent_steps": 29,
+      "mean_recurrent_steps": 29.0,
+      "median_recurrent_steps": 29,
+      "optimizer_steps": 397,
+      "p95_recurrent_steps": 29,
+      "parameters": 25080,
+      "peak_hidden_elements": 122368,
+      "recurrent_logit_effect": 0.0733034536242485,
+      "recurrent_macs": 560669470,
+      "recurrent_steps": 23635,
+      "state_dependence_effect": 0.3288651704788208,
+      "state_update_effect": 0.34254348278045654,
+      "total_inference_macs": 561348365,
+      "trained_recurrent_logit_effect": 0.7299554347991943,
+      "trained_state_dependence_effect": 0.3759601414203644,
+      "trained_state_update_effect": 0.39018601179122925,
+      "training_seconds": 63.70274870796129,
+      "validation_accuracy": 0.8355828220858895,
+      "validation_correct": 681,
+      "validation_cross_entropy": 0.49833491974813077
+    },
+    "valid": false
+  },
+  "evaluator_calls_cumulative": 29,
+  "evaluator_calls_increment": 1,
+  "evaluator_seconds_cumulative": 3342.664474497782,
+  "evaluator_seconds_increment": 84.16666158312,
+  "event": "proposal_completed",
+  "evicted_candidate_id": null,
+  "evidence": "Replacing both GRUs with coupled forget cells narrowly missed the target at 84.79% while cutting recurrent MACs by one third; retaining a full GRU in the larger branch tests whether one reset-gated recurrent path can recover that small accuracy deficit while still removing 110,162,735 recurrent MACs.",
+  "hypothesis": "Retaining the dominant 60-unit GRU while replacing only the 59-unit branch with a coupled forget cell will preserve at least 85% validation accuracy and reduce total inference MACs from 671,511,100 to approximately 561,348,365.",
+  "incumbent_after": "186cd8dd3ab2fd44fab9e9b07e22f9ef7908d1a859e6e5876422d869ca1eac41",
+  "intended_edit": "Replace the smaller GRU with a two-output `nn.Linear` recurrent cell while preserving the 60-unit GRU, 29-frame schedule, temporal mean summary, classifier, and training procedure.",
+  "mechanism": "Single-GRU anchor with coupled-gate auxiliary recurrence",
+  "opportunity": 29,
+  "parent_ids": [
+    "186cd8dd3ab2fd44fab9e9b07e22f9ef7908d1a859e6e5876422d869ca1eac41"
+  ],
+  "portfolio_after": [
+    "186cd8dd3ab2fd44fab9e9b07e22f9ef7908d1a859e6e5876422d869ca1eac41"
+  ],
+  "prompt_hashes": {
+    "common_template_sha256": "dee04faf4c430276c1036ba97f5705a339857dbdf19117dac88952a5a3a47e9d",
+    "prompt_sha256": "10d88f3d4704d20854d5d4acda5318151eabdcd686d75a8c0c4833e1b41f4a12",
+    "proposal_policy_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "search_state_sha256": "04e5eb078ae1964e4ec65bfeeeb1acd0ffa246e7d54d5e0f997f81f602da28c5",
+    "treatment_skeleton_sha256": "76e5053b97f521b4e16a6c21fdbbb137f440ba5330f0c4ef3b7339c32355d7b0"
+  },
+  "proposal_type": "ordinary",
+  "proposals_cumulative": 29,
+  "remaining_budget": {
+    "evaluations": 171,
+    "evaluator_seconds": 56657.33552550222,
+    "proposals": 171,
+    "tokens": 99356118
+  },
+  "retained": false,
+  "retention_decision": "invalid",
+  "run_id": "tiny-kws-rnn-openevolve-v2-1-cpu-tiny_kws_rnn_source_only_cpu-openevolve-b02-c1",
+  "schema_version": "1.0",
+  "selected_parent_ids": [
+    "186cd8dd3ab2fd44fab9e9b07e22f9ef7908d1a859e6e5876422d869ca1eac41"
+  ],
+  "timestamp": "2026-09-04T04:29:03.695527+00:00",
+  "usage_cumulative": {
+    "cached_input_tokens": 311808,
+    "input_tokens": 560594,
+    "output_tokens": 83288,
+    "reasoning_output_tokens": 68504,
+    "total_tokens": 643882
+  },
+  "usage_increment": {
+    "cached_input_tokens": 10752,
+    "input_tokens": 20627,
+    "output_tokens": 3606,
+    "reasoning_output_tokens": 2529,
+    "total_tokens": 24233
+  },
+  "visible_candidate_ids": [
+    "186cd8dd3ab2fd44fab9e9b07e22f9ef7908d1a859e6e5876422d869ca1eac41"
+  ]
+}

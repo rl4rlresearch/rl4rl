@@ -1,0 +1,82 @@
+{
+  "artifact_path": "candidates/a214c573cb93388c325c1dac163bb2c02379c2f52c6eb9f51bfec6ccc1e44445",
+  "candidate_id": "a214c573cb93388c325c1dac163bb2c02379c2f52c6eb9f51bfec6ccc1e44445",
+  "codex_service_tier": "default",
+  "condition": "C1",
+  "conversation_session_id": null,
+  "evaluation": {
+    "evaluator_calls": 1,
+    "evaluator_seconds": 358.5409578030012,
+    "failure_kind": null,
+    "fitness": -0.984407,
+    "metrics": {
+      "depth": 8.0,
+      "mfu_percent": 37.11,
+      "num_params_M": 50.3,
+      "num_steps": 2672.0,
+      "peak_vram_mb": 31031.5,
+      "total_tokens_M": 481.6,
+      "training_seconds": 300.0,
+      "val_bpb": 0.984407
+    },
+    "valid": true
+  },
+  "evaluator_calls_cumulative": 37,
+  "evaluator_calls_increment": 1,
+  "evaluator_seconds_cumulative": 13429.786099859,
+  "evaluator_seconds_increment": 358.5409578030012,
+  "event": "proposal_completed",
+  "evicted_candidate_id": null,
+  "evidence": "The best design processed 478.5M tokens at 0.984068, while the slower delay-line design processed 442.1M and regressed to 0.986236; shortening only the six local-attention windows targets throughput without removing full-context attention.",
+  "hypothesis": "Reducing short-layer context from 1,024 to 768 tokens while retaining two full-context layers will increase token throughput enough to lower val_bpb below 0.984068.",
+  "incumbent_after": "9e282569d79dfb73ab3f519cd8dbb17572918ea4314655a1a32cfeb60f7e5a6e",
+  "intended_edit": "Set each `S` attention window to three-eighths of the 2,048-token sequence length.",
+  "mechanism": "Throughput-biased three-eighths sliding attention",
+  "opportunity": 37,
+  "parent_ids": [
+    "9e282569d79dfb73ab3f519cd8dbb17572918ea4314655a1a32cfeb60f7e5a6e"
+  ],
+  "portfolio_after": [
+    "9e282569d79dfb73ab3f519cd8dbb17572918ea4314655a1a32cfeb60f7e5a6e"
+  ],
+  "prompt_hashes": {
+    "common_template_sha256": "ba85b39aa7288f4f48475376da6cff65661f39cfeb7ac7cde15b2a9a2e692fde",
+    "prompt_sha256": "1947a69ad7f9200d136826f14e5929a09404f259b5ec41d0271b2da0b32faff9",
+    "proposal_policy_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "search_state_sha256": "04e5eb078ae1964e4ec65bfeeeb1acd0ffa246e7d54d5e0f997f81f602da28c5",
+    "treatment_skeleton_sha256": "4edf65c3b83c1f5a89c2abee7694b6eb80194c4611782f52b4237d3eb3844e5f"
+  },
+  "proposal_type": "ordinary",
+  "proposals_cumulative": 37,
+  "remaining_budget": {
+    "evaluations": 163,
+    "evaluator_seconds": 706570.213900141,
+    "proposals": 163,
+    "tokens": 98985642
+  },
+  "retained": false,
+  "retention_decision": "not_strictly_better_than_incumbent",
+  "run_id": "nanogpt-openevolve-v2-1-h100-karpathy_nanogpt_source_only_h100-openevolve-b02-c1",
+  "schema_version": "1.0",
+  "selected_parent_ids": [
+    "9e282569d79dfb73ab3f519cd8dbb17572918ea4314655a1a32cfeb60f7e5a6e"
+  ],
+  "timestamp": "2026-08-24T07:55:04.853965+00:00",
+  "usage_cumulative": {
+    "cached_input_tokens": 393728,
+    "input_tokens": 907095,
+    "output_tokens": 107263,
+    "reasoning_output_tokens": 93173,
+    "total_tokens": 1014358
+  },
+  "usage_increment": {
+    "cached_input_tokens": 12032,
+    "input_tokens": 25156,
+    "output_tokens": 4600,
+    "reasoning_output_tokens": 4422,
+    "total_tokens": 29756
+  },
+  "visible_candidate_ids": [
+    "9e282569d79dfb73ab3f519cd8dbb17572918ea4314655a1a32cfeb60f7e5a6e"
+  ]
+}

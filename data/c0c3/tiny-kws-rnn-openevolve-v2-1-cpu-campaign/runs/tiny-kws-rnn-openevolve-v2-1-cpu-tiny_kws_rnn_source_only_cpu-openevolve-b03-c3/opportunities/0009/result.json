@@ -1,0 +1,105 @@
+{
+  "artifact_path": "candidates/fe1a063de70f12b7cc2686e8c09ea2568ba48235a902b22268e607c6b84332b0",
+  "candidate_id": "fe1a063de70f12b7cc2686e8c09ea2568ba48235a902b22268e607c6b84332b0",
+  "codex_service_tier": "default",
+  "condition": "C3",
+  "conversation_session_id": null,
+  "evaluation": {
+    "evaluator_calls": 1,
+    "evaluator_seconds": 178.62398266606033,
+    "failure_kind": "nonqualification",
+    "fitness": null,
+    "metrics": {
+      "batch_size": 128,
+      "evaluation_cases": 815,
+      "evaluation_split": "public_speaker_disjoint_validation",
+      "examples_processed": 50000,
+      "inference_cost": 4634959100755551733,
+      "maximum_recurrent_steps": 32,
+      "mean_recurrent_steps": 32.0,
+      "median_recurrent_steps": 32,
+      "optimizer_steps": 397,
+      "p95_recurrent_steps": 32,
+      "parameters": 35453,
+      "peak_hidden_elements": 99840,
+      "recurrent_logit_effect": 0.06485570222139359,
+      "recurrent_macs": 887945760,
+      "recurrent_steps": 26080,
+      "state_dependence_effect": 0.40404829382896423,
+      "state_update_effect": 0.40395280718803406,
+      "total_inference_macs": 888578200,
+      "trained_recurrent_logit_effect": 0.6439195871353149,
+      "trained_state_dependence_effect": 0.45609167218208313,
+      "trained_state_update_effect": 0.44185057282447815,
+      "training_seconds": 157.04429112491198,
+      "validation_accuracy": 0.8429447852760736,
+      "validation_correct": 687,
+      "validation_cross_entropy": 0.45863346029644364
+    },
+    "valid": false
+  },
+  "evaluator_calls_cumulative": 9,
+  "evaluator_calls_increment": 1,
+  "evaluator_seconds_cumulative": 1171.1152348748874,
+  "evaluator_seconds_increment": 178.62398266606033,
+  "event": "proposal_completed",
+  "evicted_candidate_id": null,
+  "evidence": "The 97-unit model missed the target by only 0.58 percentage points while achieving lower cross-entropy than the qualified 98-unit model; unlike the failed 24- and 16-frame schedules, temporal translation augmentation preserves full frame density and adds no inference cost.",
+  "hypothesis": "A 97-unit full-frame GRU trained with random \u00b12-frame temporal shifts will recover at least 85% validation accuracy while reducing total inference MACs below the qualified 98-unit model\u2019s 905,406,320 MACs.",
+  "incumbent_after": "66cc6e1a66c9b7b46d0027da3b420cd37413acda3e54418b8d75485527dd30a6",
+  "intended_edit": "Reduce the GRU and recurrent state width from 98 to 97, and add random zero-padded temporal shifts during training while retaining all 32 recurrent steps at inference.",
+  "mechanism": "Training-only temporal translation regularization at the recurrent-width boundary",
+  "opportunity": 9,
+  "parent_ids": [
+    "66cc6e1a66c9b7b46d0027da3b420cd37413acda3e54418b8d75485527dd30a6"
+  ],
+  "portfolio_after": [
+    "016d906da09d1fe9115b3d48dd009dea2faccbbb35792057b39773f1cdb8582b",
+    "497f437b4acea755000f5631415f1c963f25971555d43a9fc890d4c88c100aef",
+    "66cc6e1a66c9b7b46d0027da3b420cd37413acda3e54418b8d75485527dd30a6",
+    "90d52e0ba942b8628a131c6ad3fc0c780ecbd7ae12ba6a6108e96d860673b731"
+  ],
+  "prompt_hashes": {
+    "common_template_sha256": "dee04faf4c430276c1036ba97f5705a339857dbdf19117dac88952a5a3a47e9d",
+    "prompt_sha256": "4b895d79927c35e6ab0bbe3ce4774d0eb7bd954bdc0e7e896f5427350db1ff5b",
+    "proposal_policy_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "search_state_sha256": "c938ac007bf70fe8d27f64661175531e51fcb16b38318c328493c32ee292e27e",
+    "treatment_skeleton_sha256": "b110c1b3e7a44cd2639d15bdb4b55d75a6a708dea3d9d0751b3de24607255a02"
+  },
+  "proposal_type": "ordinary",
+  "proposals_cumulative": 9,
+  "remaining_budget": {
+    "evaluations": 191,
+    "evaluator_seconds": 58828.88476512511,
+    "proposals": 191,
+    "tokens": 99807297
+  },
+  "retained": false,
+  "retention_decision": "invalid",
+  "run_id": "tiny-kws-rnn-openevolve-v2-1-cpu-tiny_kws_rnn_source_only_cpu-openevolve-b03-c3",
+  "schema_version": "1.0",
+  "selected_parent_ids": [
+    "66cc6e1a66c9b7b46d0027da3b420cd37413acda3e54418b8d75485527dd30a6"
+  ],
+  "timestamp": "2026-09-04T03:00:02.309801+00:00",
+  "usage_cumulative": {
+    "cached_input_tokens": 96768,
+    "input_tokens": 174905,
+    "output_tokens": 17798,
+    "reasoning_output_tokens": 14836,
+    "total_tokens": 192703
+  },
+  "usage_increment": {
+    "cached_input_tokens": 10752,
+    "input_tokens": 22203,
+    "output_tokens": 7251,
+    "reasoning_output_tokens": 6732,
+    "total_tokens": 29454
+  },
+  "visible_candidate_ids": [
+    "016d906da09d1fe9115b3d48dd009dea2faccbbb35792057b39773f1cdb8582b",
+    "497f437b4acea755000f5631415f1c963f25971555d43a9fc890d4c88c100aef",
+    "66cc6e1a66c9b7b46d0027da3b420cd37413acda3e54418b8d75485527dd30a6",
+    "90d52e0ba942b8628a131c6ad3fc0c780ecbd7ae12ba6a6108e96d860673b731"
+  ]
+}

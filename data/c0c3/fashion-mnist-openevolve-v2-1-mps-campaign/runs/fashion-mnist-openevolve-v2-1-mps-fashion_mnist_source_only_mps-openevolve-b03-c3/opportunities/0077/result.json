@@ -1,0 +1,91 @@
+{
+  "artifact_path": "candidates/5fb7541277f6b3a325c52bf87f6c0b7c2d7f26546dcc1f4d4dc20effa6531615",
+  "candidate_id": "5fb7541277f6b3a325c52bf87f6c0b7c2d7f26546dcc1f4d4dc20effa6531615",
+  "codex_service_tier": "default",
+  "condition": "C3",
+  "conversation_session_id": null,
+  "evaluation": {
+    "evaluator_calls": 1,
+    "evaluator_seconds": 85.15582412504591,
+    "failure_kind": null,
+    "fitness": 9252.412873951087,
+    "metrics": {
+      "batch_size": 192,
+      "evaluation_cases": 10000,
+      "evaluation_split": "public_validation",
+      "examples_processed": 100000,
+      "optimizer_steps": 522,
+      "parameters": 245150,
+      "training_seconds": 65.67841108399443,
+      "validation_accuracy": 0.9252,
+      "validation_correct": 9252,
+      "validation_cross_entropy": 0.2110233612060547,
+      "validation_score": 9252.412873951087
+    },
+    "valid": true
+  },
+  "evaluator_calls_cumulative": 71,
+  "evaluator_calls_increment": 1,
+  "evaluator_seconds_cumulative": 3826.8386059990153,
+  "evaluator_seconds_increment": 85.15582412504591,
+  "event": "proposal_completed",
+  "evicted_candidate_id": null,
+  "evidence": "Adding dilation-2 context improved correctness from 9,255 to 9,265 and then 9,268, while increasing context capacity further or adding fusion reduced accuracy. This motivates improving the successful context branch itself; replicate padding also matches the translation padding already used during training and evaluation.",
+  "hypothesis": "Replicate-padding the dilation-2 context branch will exceed 9,268 correct predictions by eliminating artificial zero-valued boundaries from its wide receptive field while preserving the verified 40-local/24-context allocation.",
+  "incumbent_after": "7cdd182bf35de76050529ba8d85735d35b8c73d48234f6efae9d59ef01a11c68",
+  "intended_edit": "Change only the context aggregator\u2019s padding mode from zero padding to replicate padding; parameter count and all other architecture, training, augmentation, TTA, and calibration settings remain unchanged.",
+  "mechanism": "Boundary-consistent dilated context aggregation",
+  "opportunity": 77,
+  "parent_ids": [
+    "7cdd182bf35de76050529ba8d85735d35b8c73d48234f6efae9d59ef01a11c68"
+  ],
+  "portfolio_after": [
+    "88e5bd76fae41a80806b1600625c982923307ee4db4fc3f113b7b2e09d5d6175",
+    "a7338954aae2911c6b58c78b8e54055196a3c88534ae83bc1231d15410a95471",
+    "7cdd182bf35de76050529ba8d85735d35b8c73d48234f6efae9d59ef01a11c68",
+    "3d242de1e129ce6babe066cfe570b677914fdfb6ca420a02e0edc79d0a0f3812"
+  ],
+  "prompt_hashes": {
+    "common_template_sha256": "e8327ba94bab12abc7c7ec7c6615378a3ae62434efb944d4a7d9492f1d19bc14",
+    "prompt_sha256": "06960fc9154b1bda16331a4423df79c51e00e9e18a835638ba10f177d78a8ff9",
+    "proposal_policy_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "search_state_sha256": "c938ac007bf70fe8d27f64661175531e51fcb16b38318c328493c32ee292e27e",
+    "treatment_skeleton_sha256": "8b7a0152cbda1944da5a9019b42c7fe3989d9c51438eed4bbc7797dd45cdb472"
+  },
+  "proposal_type": "ordinary",
+  "proposals_cumulative": 77,
+  "remaining_budget": {
+    "evaluations": 129,
+    "evaluator_seconds": 20173.161394000985,
+    "proposals": 123,
+    "tokens": 97888141
+  },
+  "retained": false,
+  "retention_decision": "not_strictly_better_than_selected_parent",
+  "run_id": "fashion-mnist-openevolve-v2-1-mps-fashion_mnist_source_only_mps-openevolve-b03-c3",
+  "schema_version": "1.0",
+  "selected_parent_ids": [
+    "7cdd182bf35de76050529ba8d85735d35b8c73d48234f6efae9d59ef01a11c68"
+  ],
+  "timestamp": "2026-08-24T12:23:57.113736+00:00",
+  "usage_cumulative": {
+    "cached_input_tokens": 837888,
+    "input_tokens": 1906184,
+    "output_tokens": 205675,
+    "reasoning_output_tokens": 163788,
+    "total_tokens": 2111859
+  },
+  "usage_increment": {
+    "cached_input_tokens": 0,
+    "input_tokens": 26483,
+    "output_tokens": 1659,
+    "reasoning_output_tokens": 1452,
+    "total_tokens": 28142
+  },
+  "visible_candidate_ids": [
+    "88e5bd76fae41a80806b1600625c982923307ee4db4fc3f113b7b2e09d5d6175",
+    "a7338954aae2911c6b58c78b8e54055196a3c88534ae83bc1231d15410a95471",
+    "7cdd182bf35de76050529ba8d85735d35b8c73d48234f6efae9d59ef01a11c68",
+    "3d242de1e129ce6babe066cfe570b677914fdfb6ca420a02e0edc79d0a0f3812"
+  ]
+}

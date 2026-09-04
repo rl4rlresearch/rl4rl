@@ -1,0 +1,82 @@
+{
+  "artifact_path": "candidates/e9c0b371ec660fac02d3510e43b42837a9ad63a7fefb7b8f0d1bedf0235e5ef3",
+  "candidate_id": "e9c0b371ec660fac02d3510e43b42837a9ad63a7fefb7b8f0d1bedf0235e5ef3",
+  "codex_service_tier": "fast",
+  "condition": "C1",
+  "conversation_session_id": null,
+  "evaluation": {
+    "evaluator_calls": 1,
+    "evaluator_seconds": 373.96621319899987,
+    "failure_kind": null,
+    "fitness": -1.0038,
+    "metrics": {
+      "depth": 8.0,
+      "mfu_percent": 37.64,
+      "num_params_M": 50.3,
+      "num_steps": 902.0,
+      "peak_vram_mb": 45160.7,
+      "total_tokens_M": 472.9,
+      "training_seconds": 300.2,
+      "val_bpb": 1.0038
+    },
+    "valid": true
+  },
+  "evaluator_calls_cumulative": 8,
+  "evaluator_calls_increment": 1,
+  "evaluator_seconds_cumulative": 2950.4369376899967,
+  "evaluator_seconds_increment": 373.96621319899987,
+  "event": "proposal_completed",
+  "evicted_candidate_id": null,
+  "evidence": "Changing depth or attention-window topology reduced throughput and regressed val_bpb, while the 8-layer SSSL baseline reached 0.995558. This isolates an untested attention-capacity tradeoff without repeating those changes.",
+  "hypothesis": "Replacing four 128-dimensional attention heads with eight 64-dimensional heads, while holding depth, width, parameter count, window pattern, and batching effectively constant, will improve attention specialization and reduce val_bpb below 0.995558 without materially reducing training tokens.",
+  "incumbent_after": "2865e528e18dc51191e4037eaeb5824cb0ea83ede79061b59b8f3caac686da6b",
+  "intended_edit": "Set HEAD_DIM to 64; the model remains 512-dimensional but uses eight attention heads instead of four.",
+  "mechanism": "Finer-grained attention heads at fixed model width",
+  "opportunity": 8,
+  "parent_ids": [
+    "2865e528e18dc51191e4037eaeb5824cb0ea83ede79061b59b8f3caac686da6b"
+  ],
+  "portfolio_after": [
+    "2865e528e18dc51191e4037eaeb5824cb0ea83ede79061b59b8f3caac686da6b"
+  ],
+  "prompt_hashes": {
+    "common_template_sha256": "ba85b39aa7288f4f48475376da6cff65661f39cfeb7ac7cde15b2a9a2e692fde",
+    "prompt_sha256": "55c6f38c74b672d06eb59e8eed390dfbaaf9b0257bcdaaa6508f05edf614fb3b",
+    "proposal_policy_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "search_state_sha256": "04e5eb078ae1964e4ec65bfeeeb1acd0ffa246e7d54d5e0f997f81f602da28c5",
+    "treatment_skeleton_sha256": "56cb7af49e7ea469d36c1562c1b174779351af7b4930d112771bee72b661f678"
+  },
+  "proposal_type": "ordinary",
+  "proposals_cumulative": 8,
+  "remaining_budget": {
+    "evaluations": 192,
+    "evaluator_seconds": 717049.56306231,
+    "proposals": 192,
+    "tokens": 99786718
+  },
+  "retained": false,
+  "retention_decision": "not_strictly_better_than_incumbent",
+  "run_id": "nanogpt-openevolve-v2-1-h100-karpathy_nanogpt_source_only_h100-openevolve-b02-c1",
+  "schema_version": "1.0",
+  "selected_parent_ids": [
+    "2865e528e18dc51191e4037eaeb5824cb0ea83ede79061b59b8f3caac686da6b"
+  ],
+  "timestamp": "2026-08-23T20:07:33.052810+00:00",
+  "usage_cumulative": {
+    "cached_input_tokens": 79360,
+    "input_tokens": 183912,
+    "output_tokens": 29370,
+    "reasoning_output_tokens": 27194,
+    "total_tokens": 213282
+  },
+  "usage_increment": {
+    "cached_input_tokens": 24320,
+    "input_tokens": 25701,
+    "output_tokens": 3601,
+    "reasoning_output_tokens": 3410,
+    "total_tokens": 29302
+  },
+  "visible_candidate_ids": [
+    "2865e528e18dc51191e4037eaeb5824cb0ea83ede79061b59b8f3caac686da6b"
+  ]
+}

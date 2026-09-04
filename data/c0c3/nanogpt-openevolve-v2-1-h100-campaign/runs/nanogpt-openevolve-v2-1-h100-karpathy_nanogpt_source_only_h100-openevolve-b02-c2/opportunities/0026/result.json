@@ -1,0 +1,88 @@
+{
+  "artifact_path": "candidates/200401d395c37fc19ada5f742f14b98c178b873258ba04c7e28d0630809eaeae",
+  "candidate_id": "200401d395c37fc19ada5f742f14b98c178b873258ba04c7e28d0630809eaeae",
+  "codex_service_tier": "default",
+  "condition": "C2",
+  "conversation_session_id": null,
+  "evaluation": {
+    "evaluator_calls": 1,
+    "evaluator_seconds": 361.81256483799916,
+    "failure_kind": null,
+    "fitness": -0.984784,
+    "metrics": {
+      "depth": 8.0,
+      "mfu_percent": 35.62,
+      "num_params_M": 50.3,
+      "num_steps": 1991.0,
+      "peak_vram_mb": 44908.2,
+      "total_tokens_M": 521.9,
+      "training_seconds": 300.1,
+      "val_bpb": 0.984784
+    },
+    "valid": true
+  },
+  "evaluator_calls_cumulative": 26,
+  "evaluator_calls_increment": 1,
+  "evaluator_seconds_cumulative": 9070.474159153006,
+  "evaluator_seconds_increment": 361.81256483799916,
+  "event": "proposal_completed",
+  "evicted_candidate_id": null,
+  "evidence": "Successive reductions from 1024 to 768, 512, 256, and 128 tokens monotonically improved val_bpb from 0.985746 to 0.984868, 0.984125, 0.983993, and 0.983766; testing 64 tokens directly probes whether that trend continues beyond the current best design.",
+  "hypothesis": "Reducing the six local-attention layers from 128 to 64 tokens while retaining full-context layers 4 and 8 will lower val_bpb below 0.983766 by increasing throughput enough to offset the smaller local receptive field.",
+  "incumbent_after": "19333425065e68028aa79197d960a71fc0b444fb65bec3a5146e0a4ddea91fa3",
+  "intended_edit": "Set short attention windows to one-thirty-second of the 2048-token context while preserving the proven SSSL pattern and optimizer settings.",
+  "mechanism": "Extreme local-window compression with preserved global integration",
+  "opportunity": 26,
+  "parent_ids": [
+    "8c52475db4fda09893476c96d40fc69047ae1c48337447459d04d848b6668f86"
+  ],
+  "portfolio_after": [
+    "19333425065e68028aa79197d960a71fc0b444fb65bec3a5146e0a4ddea91fa3",
+    "d4b308634a871b4dd5a418885788814dfbd68b7c580e75f85fc0542805b74e25",
+    "b167b4ea24017770dfa20861b6aad33546af93659696e9bb410ab4c7d9e459e7",
+    "8c52475db4fda09893476c96d40fc69047ae1c48337447459d04d848b6668f86"
+  ],
+  "prompt_hashes": {
+    "common_template_sha256": "ba85b39aa7288f4f48475376da6cff65661f39cfeb7ac7cde15b2a9a2e692fde",
+    "prompt_sha256": "c22a3000288243ed88bba40be5cdcc1f87b07d0a258e435417d394b6ae83508c",
+    "proposal_policy_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "search_state_sha256": "c938ac007bf70fe8d27f64661175531e51fcb16b38318c328493c32ee292e27e",
+    "treatment_skeleton_sha256": "cf805f375d8126533cd92ba7d2fb102d2993bc02bc3de4f12880e6439f6d7427"
+  },
+  "proposal_type": "ordinary",
+  "proposals_cumulative": 26,
+  "remaining_budget": {
+    "evaluations": 174,
+    "evaluator_seconds": 710929.5258408469,
+    "proposals": 174,
+    "tokens": 98787534
+  },
+  "retained": false,
+  "retention_decision": "not_strictly_better_than_selected_parent",
+  "run_id": "nanogpt-openevolve-v2-1-h100-karpathy_nanogpt_source_only_h100-openevolve-b02-c2",
+  "schema_version": "1.0",
+  "selected_parent_ids": [
+    "8c52475db4fda09893476c96d40fc69047ae1c48337447459d04d848b6668f86"
+  ],
+  "timestamp": "2026-08-24T03:28:37.758835+00:00",
+  "usage_cumulative": {
+    "cached_input_tokens": 288512,
+    "input_tokens": 1158818,
+    "output_tokens": 53648,
+    "reasoning_output_tokens": 44201,
+    "total_tokens": 1212466
+  },
+  "usage_increment": {
+    "cached_input_tokens": 12032,
+    "input_tokens": 47052,
+    "output_tokens": 603,
+    "reasoning_output_tokens": 338,
+    "total_tokens": 47655
+  },
+  "visible_candidate_ids": [
+    "19333425065e68028aa79197d960a71fc0b444fb65bec3a5146e0a4ddea91fa3",
+    "d4b308634a871b4dd5a418885788814dfbd68b7c580e75f85fc0542805b74e25",
+    "b167b4ea24017770dfa20861b6aad33546af93659696e9bb410ab4c7d9e459e7",
+    "8c52475db4fda09893476c96d40fc69047ae1c48337447459d04d848b6668f86"
+  ]
+}

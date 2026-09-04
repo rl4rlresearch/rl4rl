@@ -1,0 +1,88 @@
+{
+  "artifact_path": "candidates/87493078cffe8ab2e690eb9d634c4f491db06a94942234d3551b09ff84d1e1d3",
+  "candidate_id": "87493078cffe8ab2e690eb9d634c4f491db06a94942234d3551b09ff84d1e1d3",
+  "codex_service_tier": "fast",
+  "condition": "C3",
+  "conversation_session_id": null,
+  "evaluation": {
+    "evaluator_calls": 1,
+    "evaluator_seconds": 359.90139579000015,
+    "failure_kind": null,
+    "fitness": -0.996815,
+    "metrics": {
+      "depth": 8.0,
+      "mfu_percent": 37.36,
+      "num_params_M": 50.3,
+      "num_steps": 971.0,
+      "peak_vram_mb": 45060.2,
+      "total_tokens_M": 509.1,
+      "training_seconds": 300.2,
+      "val_bpb": 0.996815
+    },
+    "valid": true
+  },
+  "evaluator_calls_cumulative": 12,
+  "evaluator_calls_increment": 1,
+  "evaluator_seconds_cumulative": 4583.244595650007,
+  "evaluator_seconds_increment": 359.90139579000015,
+  "event": "proposal_completed",
+  "evicted_candidate_id": null,
+  "evidence": "Linear warmdowns of 40%, 52%, and 60% all underperformed the 50% result of 0.993287 at similar throughput, indicating that 50% is the strongest duration and motivating a schedule-shape test at that fixed duration.",
+  "hypothesis": "Replacing the best 50% linear warmdown with an equal-duration cosine decay will preserve roughly 513M-token throughput while improving late-stage convergence enough to reduce val_bpb below 0.993287.",
+  "incumbent_after": "ee1f1cf686a479f175a9b2178602df52386a3561e80b0612b88ccd725e447c2e",
+  "intended_edit": "Restore the proven 50% warmdown and change only its interpolation from linear to cosine, retaining the established architecture, batch size, optimizer, and zero final learning rate.",
+  "mechanism": "Half-window cosine learning-rate annealing",
+  "opportunity": 12,
+  "parent_ids": [
+    "2d771edf47265f31291fbb34e32f91548e44b43045421f48f01ac9a7b05d9d0f"
+  ],
+  "portfolio_after": [
+    "2865e528e18dc51191e4037eaeb5824cb0ea83ede79061b59b8f3caac686da6b",
+    "ee1f1cf686a479f175a9b2178602df52386a3561e80b0612b88ccd725e447c2e",
+    "8739f3a112cc296b7e52346edda0d7c193dbfb73b3aec6a3e9ed03bb18a2b8f5",
+    "2d771edf47265f31291fbb34e32f91548e44b43045421f48f01ac9a7b05d9d0f"
+  ],
+  "prompt_hashes": {
+    "common_template_sha256": "ba85b39aa7288f4f48475376da6cff65661f39cfeb7ac7cde15b2a9a2e692fde",
+    "prompt_sha256": "6e1fabf0c67047d701492b8b27b3b15851fd18c133817ff11e3ea5fb8cb6abd2",
+    "proposal_policy_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "search_state_sha256": "c938ac007bf70fe8d27f64661175531e51fcb16b38318c328493c32ee292e27e",
+    "treatment_skeleton_sha256": "a440d1e202f63e39af7bc830a6152e3bb322c9cd947769feb64e924faa37a384"
+  },
+  "proposal_type": "ordinary",
+  "proposals_cumulative": 12,
+  "remaining_budget": {
+    "evaluations": 188,
+    "evaluator_seconds": 715416.75540435,
+    "proposals": 188,
+    "tokens": 99467672
+  },
+  "retained": false,
+  "retention_decision": "not_strictly_better_than_selected_parent",
+  "run_id": "nanogpt-openevolve-v2-1-h100-karpathy_nanogpt_source_only_h100-openevolve-b02-c3",
+  "schema_version": "1.0",
+  "selected_parent_ids": [
+    "2d771edf47265f31291fbb34e32f91548e44b43045421f48f01ac9a7b05d9d0f"
+  ],
+  "timestamp": "2026-08-23T20:38:17.334552+00:00",
+  "usage_cumulative": {
+    "cached_input_tokens": 144384,
+    "input_tokens": 499874,
+    "output_tokens": 32454,
+    "reasoning_output_tokens": 28256,
+    "total_tokens": 532328
+  },
+  "usage_increment": {
+    "cached_input_tokens": 12032,
+    "input_tokens": 46759,
+    "output_tokens": 3419,
+    "reasoning_output_tokens": 3106,
+    "total_tokens": 50178
+  },
+  "visible_candidate_ids": [
+    "2865e528e18dc51191e4037eaeb5824cb0ea83ede79061b59b8f3caac686da6b",
+    "ee1f1cf686a479f175a9b2178602df52386a3561e80b0612b88ccd725e447c2e",
+    "8739f3a112cc296b7e52346edda0d7c193dbfb73b3aec6a3e9ed03bb18a2b8f5",
+    "2d771edf47265f31291fbb34e32f91548e44b43045421f48f01ac9a7b05d9d0f"
+  ]
+}

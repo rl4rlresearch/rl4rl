@@ -1,0 +1,82 @@
+{
+  "artifact_path": "candidates/fe49cdd63eb9041f549680713f9871e739e112a74e7891d0a784a75400119000",
+  "candidate_id": "fe49cdd63eb9041f549680713f9871e739e112a74e7891d0a784a75400119000",
+  "codex_service_tier": "default",
+  "condition": "C1",
+  "conversation_session_id": null,
+  "evaluation": {
+    "evaluator_calls": 1,
+    "evaluator_seconds": 363.9777424729982,
+    "failure_kind": null,
+    "fitness": -0.984595,
+    "metrics": {
+      "depth": 8.0,
+      "mfu_percent": 39.0,
+      "num_params_M": 50.3,
+      "num_steps": 2150.0,
+      "peak_vram_mb": 39356.7,
+      "total_tokens_M": 493.2,
+      "training_seconds": 300.1,
+      "val_bpb": 0.984595
+    },
+    "valid": true
+  },
+  "evaluator_calls_cumulative": 43,
+  "evaluator_calls_increment": 1,
+  "evaluator_seconds_cumulative": 19664.823724243015,
+  "evaluator_seconds_increment": 363.9777424729982,
+  "event": "proposal_completed",
+  "evicted_candidate_id": null,
+  "evidence": "A single 1024-token window at layer 6 improved val_bpb from 0.984227 to 0.984083, whereas widening every short layer to 768 regressed to 0.985663; this motivates another concentrated medium window rather than distributed widening.",
+  "hypothesis": "Giving layer 4 a 1024-token window will reduce val_bpb below 0.984083 by adding targeted post-global refinement without broadly widening all local layers.",
+  "incumbent_after": "95728985013fd9e1cfec4eb8e3d2c24c475c3a287aad6464397514f68717aa91",
+  "intended_edit": "Change layer 4 from a 512-token short window to a 1024-token medium window, preserving full-context layers 3, 5, and 7 and the proven medium window at layer 6.",
+  "mechanism": "Alternating late-stage medium/global context refinement",
+  "opportunity": 43,
+  "parent_ids": [
+    "95728985013fd9e1cfec4eb8e3d2c24c475c3a287aad6464397514f68717aa91"
+  ],
+  "portfolio_after": [
+    "95728985013fd9e1cfec4eb8e3d2c24c475c3a287aad6464397514f68717aa91"
+  ],
+  "prompt_hashes": {
+    "common_template_sha256": "ba85b39aa7288f4f48475376da6cff65661f39cfeb7ac7cde15b2a9a2e692fde",
+    "prompt_sha256": "bcc89e696493c2bc4959851a3f77bb5bfd7d8b0ab215ca6fa678ce7eef37133d",
+    "proposal_policy_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "search_state_sha256": "04e5eb078ae1964e4ec65bfeeeb1acd0ffa246e7d54d5e0f997f81f602da28c5",
+    "treatment_skeleton_sha256": "1b09744870d8e77e014a3cabf376f771c7cdd96dce978b7b854a1d2325b0dbe2"
+  },
+  "proposal_type": "ordinary",
+  "proposals_cumulative": 43,
+  "remaining_budget": {
+    "evaluations": 157,
+    "evaluator_seconds": 700335.176275757,
+    "proposals": 157,
+    "tokens": 98859331
+  },
+  "retained": false,
+  "retention_decision": "not_strictly_better_than_incumbent",
+  "run_id": "nanogpt-openevolve-v2-1-h100-karpathy_nanogpt_source_only_h100-openevolve-b03-c1",
+  "schema_version": "1.0",
+  "selected_parent_ids": [
+    "95728985013fd9e1cfec4eb8e3d2c24c475c3a287aad6464397514f68717aa91"
+  ],
+  "timestamp": "2026-08-24T08:05:52.340475+00:00",
+  "usage_cumulative": {
+    "cached_input_tokens": 492032,
+    "input_tokens": 1047886,
+    "output_tokens": 92783,
+    "reasoning_output_tokens": 81284,
+    "total_tokens": 1140669
+  },
+  "usage_increment": {
+    "cached_input_tokens": 6912,
+    "input_tokens": 24948,
+    "output_tokens": 1224,
+    "reasoning_output_tokens": 997,
+    "total_tokens": 26172
+  },
+  "visible_candidate_ids": [
+    "95728985013fd9e1cfec4eb8e3d2c24c475c3a287aad6464397514f68717aa91"
+  ]
+}

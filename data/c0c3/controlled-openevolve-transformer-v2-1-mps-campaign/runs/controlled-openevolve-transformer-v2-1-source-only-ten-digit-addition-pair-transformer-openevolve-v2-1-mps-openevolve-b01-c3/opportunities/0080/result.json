@@ -1,0 +1,85 @@
+{
+  "artifact_path": "candidates/08d28a599076a5725a32446eb7a236ba3cace5aeee11d04087cd45505b58e1c2",
+  "candidate_id": "08d28a599076a5725a32446eb7a236ba3cace5aeee11d04087cd45505b58e1c2",
+  "codex_service_tier": "default",
+  "condition": "C3",
+  "conversation_session_id": null,
+  "evaluation": {
+    "evaluator_calls": 1,
+    "evaluator_seconds": 197.79241004097275,
+    "failure_kind": "nonqualification",
+    "fitness": null,
+    "metrics": {
+      "accuracy": 0.5809000000000001,
+      "cases": 10010,
+      "correct": 5815,
+      "parameters": 1268,
+      "training_steps": 4999
+    },
+    "valid": false
+  },
+  "evaluator_calls_cumulative": 77,
+  "evaluator_calls_increment": 1,
+  "evaluator_seconds_cumulative": 33267.744786202675,
+  "evaluator_seconds_increment": 197.79241004097275,
+  "event": "proposal_completed",
+  "evicted_candidate_id": null,
+  "evidence": "Positional sharing and hidden-bias reductions became fragile near 1,271 parameters, whereas the current design has substantially greater accuracy margin. All available designs assume learned anisotropic final rescaling is necessary; this cleanly tests the alternative that normalization should standardize features while the learned transformer and embedding carry the task representation.",
+  "hypothesis": "A 1,268-parameter model will retain at least 99% accuracy because the current 1,275-parameter model achieved 99.98%, while its mean-zero residual stream and tied learned embedding can represent the output geometry without seven independently learned final normalization scales.",
+  "incumbent_after": "fb0b24eced973da9cc4ee463a71ceef9c011ebc7419471ad3409f50a8d1cf52e",
+  "intended_edit": "Replace the seven-parameter anchored final LayerNorm with parameter-free LayerNorm, preserving the current robust attention and MLP mechanisms while forcing output discrimination to be represented in the learned residual stream and tied embedding.",
+  "mechanism": "Parameter-free final feature normalization",
+  "opportunity": 80,
+  "parent_ids": [
+    "51332e197c5cd34bc1ef8d1d61fc132c3583730a6478a553e519bf09d41e247d"
+  ],
+  "portfolio_after": [
+    "6ffbe5639cbfedced0aba303696504033995c8599043aa3a92534633d4b5c23b",
+    "fd4078a37d1bdfc9e8de7725cfc51855d02845f1e7a62269722b3f9965903931",
+    "fb0b24eced973da9cc4ee463a71ceef9c011ebc7419471ad3409f50a8d1cf52e",
+    "51332e197c5cd34bc1ef8d1d61fc132c3583730a6478a553e519bf09d41e247d"
+  ],
+  "prompt_hashes": {
+    "common_template_sha256": "3f2bea6418b6969c4bf2aa1df18dcda8a3a4ac075bf20c79068c754698b6be5e",
+    "prompt_sha256": "80da15601765337fe57350238bd0c6e89c15dbb0f57dce12418af22a58836982",
+    "proposal_policy_sha256": "4a27c08e098e719db007f4d6b37fabe2967b41836bb9070e2513a8a24ff7ce90",
+    "search_state_sha256": "c938ac007bf70fe8d27f64661175531e51fcb16b38318c328493c32ee292e27e",
+    "treatment_skeleton_sha256": "dd380cd8f94e7b90b60e7cdfecc6ac7273815c06c8620d3a25f33c54b8f9f0ec"
+  },
+  "proposal_type": "assumption_changing",
+  "proposals_cumulative": 80,
+  "remaining_budget": {
+    "evaluations": 123,
+    "evaluator_seconds": 326732.2552137973,
+    "proposals": 120,
+    "tokens": 97095515
+  },
+  "retained": false,
+  "retention_decision": "invalid",
+  "run_id": "controlled-openevolve-transformer-v2-1-source-only-ten-digit-addition-pair-transformer-openevolve-v2-1-mps-openevolve-b01-c3",
+  "schema_version": "1.0",
+  "selected_parent_ids": [
+    "51332e197c5cd34bc1ef8d1d61fc132c3583730a6478a553e519bf09d41e247d"
+  ],
+  "timestamp": "2026-08-25T18:35:06.604313+00:00",
+  "usage_cumulative": {
+    "cached_input_tokens": 849664,
+    "input_tokens": 2677157,
+    "output_tokens": 227328,
+    "reasoning_output_tokens": 182374,
+    "total_tokens": 2904485
+  },
+  "usage_increment": {
+    "cached_input_tokens": 6912,
+    "input_tokens": 37097,
+    "output_tokens": 3508,
+    "reasoning_output_tokens": 3106,
+    "total_tokens": 40605
+  },
+  "visible_candidate_ids": [
+    "6ffbe5639cbfedced0aba303696504033995c8599043aa3a92534633d4b5c23b",
+    "fd4078a37d1bdfc9e8de7725cfc51855d02845f1e7a62269722b3f9965903931",
+    "fb0b24eced973da9cc4ee463a71ceef9c011ebc7419471ad3409f50a8d1cf52e",
+    "51332e197c5cd34bc1ef8d1d61fc132c3583730a6478a553e519bf09d41e247d"
+  ]
+}

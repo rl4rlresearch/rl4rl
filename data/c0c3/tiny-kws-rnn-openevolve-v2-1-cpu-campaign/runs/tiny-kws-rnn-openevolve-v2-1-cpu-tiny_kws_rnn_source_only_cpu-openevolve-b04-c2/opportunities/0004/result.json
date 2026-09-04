@@ -1,0 +1,100 @@
+{
+  "artifact_path": "candidates/497f437b4acea755000f5631415f1c963f25971555d43a9fc890d4c88c100aef",
+  "candidate_id": "497f437b4acea755000f5631415f1c963f25971555d43a9fc890d4c88c100aef",
+  "codex_service_tier": "default",
+  "condition": "C2",
+  "conversation_session_id": null,
+  "evaluation": {
+    "evaluator_calls": 1,
+    "evaluator_seconds": 170.6401430410333,
+    "failure_kind": null,
+    "fitness": -6037333084775166448,
+    "metrics": {
+      "batch_size": 128,
+      "evaluation_cases": 815,
+      "evaluation_split": "public_speaker_disjoint_validation",
+      "examples_processed": 50000,
+      "inference_cost": 6037333084775166448,
+      "maximum_recurrent_steps": 32,
+      "mean_recurrent_steps": 32.0,
+      "median_recurrent_steps": 32,
+      "optimizer_steps": 397,
+      "p95_recurrent_steps": 32,
+      "parameters": 45968,
+      "peak_hidden_elements": 115200,
+      "recurrent_logit_effect": 0.058126337826251984,
+      "recurrent_macs": 1156700160,
+      "recurrent_steps": 26080,
+      "state_dependence_effect": 0.40080466866493225,
+      "state_update_effect": 0.3998759686946869,
+      "total_inference_macs": 1157430400,
+      "trained_recurrent_logit_effect": 0.6722397804260254,
+      "trained_state_dependence_effect": 0.4649786055088043,
+      "trained_state_update_effect": 0.4450913965702057,
+      "training_seconds": 145.34480095887557,
+      "validation_accuracy": 0.8625766871165644,
+      "validation_correct": 703,
+      "validation_cross_entropy": 0.4392715641325968
+    },
+    "valid": true
+  },
+  "evaluator_calls_cumulative": 4,
+  "evaluator_calls_increment": 1,
+  "evaluator_seconds_cumulative": 479.4759165828582,
+  "evaluator_seconds_increment": 170.6401430410333,
+  "event": "proposal_completed",
+  "evicted_candidate_id": null,
+  "evidence": "The 128-unit, 32-step model achieved 87.24% accuracy, whereas every tested temporal subsampling schedule failed; this motivates preserving all frames and reducing recurrent width instead.",
+  "hypothesis": "A 112-unit GRU processing all 32 frames will preserve at least 85% validation accuracy while reducing recurrent MACs by 22.0%, from 1,482,178,560 to 1,156,700,160.",
+  "incumbent_after": "497f437b4acea755000f5631415f1c963f25971555d43a9fc890d4c88c100aef",
+  "intended_edit": "Reduce the GRU state, temporal summary, and classifier input width from 128 to 112 while retaining complete temporal coverage.",
+  "mechanism": "Full-resolution recurrent width bottleneck",
+  "opportunity": 4,
+  "parent_ids": [
+    "016d906da09d1fe9115b3d48dd009dea2faccbbb35792057b39773f1cdb8582b"
+  ],
+  "portfolio_after": [
+    "016d906da09d1fe9115b3d48dd009dea2faccbbb35792057b39773f1cdb8582b",
+    "497f437b4acea755000f5631415f1c963f25971555d43a9fc890d4c88c100aef"
+  ],
+  "prompt_hashes": {
+    "common_template_sha256": "dee04faf4c430276c1036ba97f5705a339857dbdf19117dac88952a5a3a47e9d",
+    "prompt_sha256": "0556d4ccfa3a36fd0cc6610640cec5debe79ba81acc8f8c2d10a785f47b1ab87",
+    "proposal_policy_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "search_state_sha256": "c938ac007bf70fe8d27f64661175531e51fcb16b38318c328493c32ee292e27e",
+    "treatment_skeleton_sha256": "9e0cc5ad2c069c1ea38a0dfaf782bddee164375e6879321bb0bc716b989eebe6"
+  },
+  "proposal_type": "ordinary",
+  "proposals_cumulative": 4,
+  "remaining_budget": {
+    "evaluations": 196,
+    "evaluator_seconds": 59520.52408341714,
+    "proposals": 196,
+    "tokens": 99927065
+  },
+  "retained": true,
+  "retention_decision": "filled_open_portfolio_slot",
+  "run_id": "tiny-kws-rnn-openevolve-v2-1-cpu-tiny_kws_rnn_source_only_cpu-openevolve-b04-c2",
+  "schema_version": "1.0",
+  "selected_parent_ids": [
+    "016d906da09d1fe9115b3d48dd009dea2faccbbb35792057b39773f1cdb8582b"
+  ],
+  "timestamp": "2026-09-04T02:33:49.975235+00:00",
+  "usage_cumulative": {
+    "cached_input_tokens": 43008,
+    "input_tokens": 66738,
+    "output_tokens": 6197,
+    "reasoning_output_tokens": 5231,
+    "total_tokens": 72935
+  },
+  "usage_increment": {
+    "cached_input_tokens": 10752,
+    "input_tokens": 17136,
+    "output_tokens": 1393,
+    "reasoning_output_tokens": 1086,
+    "total_tokens": 18529
+  },
+  "visible_candidate_ids": [
+    "016d906da09d1fe9115b3d48dd009dea2faccbbb35792057b39773f1cdb8582b"
+  ]
+}

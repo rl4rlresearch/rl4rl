@@ -1,0 +1,29 @@
+MECHANISM: Delayed cosine annealing for stronger fixed-exposure optimization
+
+HYPOTHESIS: Restoring flip-only augmentation and delaying cosine decay for the first 20% of training will exceed 9,229 correct predictions by increasing useful optimization distance without adding steps or meaningful runtime.
+
+INTENDED_EDIT: Remove the harmful random translations and retain the peak learning rate for 20% of training before annealing smoothly to zero.
+
+EVIDENCE: The qualified batch-64 design reached 9,229 correct after increased optimizer steps, while translation augmentation fell to 9,058; this motivates preserving its data pipeline and computational cost while modestly increasing the learning-rate integral.
+
+<<<<<<< SEARCH
+    images = F.pad(images, (2, 2, 2, 2))
+    top, left = torch.randint(0, 5, (2,)).tolist()
+    images = images[..., top : top + 28, left : left + 28]
+    return images, labels
+=======
+    return images, labels
+>>>>>>> REPLACE
+
+<<<<<<< SEARCH
+    progress = step / max(total_steps, 1)
+    multiplier = 0.5 * (1.0 + math.cos(math.pi * progress))
+    for group in optimizer.param_groups:
+        group["lr"] = 2.5e-3 * multiplier
+=======
+    progress = step / max(total_steps, 1)
+    anneal_progress = min(max((progress - 0.2) / 0.8, 0.0), 1.0)
+    multiplier = 0.5 * (1.0 + math.cos(math.pi * anneal_progress))
+    for group in optimizer.param_groups:
+        group["lr"] = 2.5e-3 * multiplier
+>>>>>>> REPLACE

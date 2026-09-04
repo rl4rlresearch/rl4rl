@@ -1,0 +1,57 @@
+Run: repro_l1_d8_ff12
+Params: 1396
+Device: mps
+step= 74999 loss=1.5379 val_exact=0.00000 val_tok=0.25255 lr=3.00e-04 t=1418.2s
+{
+  "run_name": "repro_l1_d8_ff12",
+  "params": 1396,
+  "best_val_exact": 0.0,
+  "best_step": 74999,
+  "train_steps": 75000,
+  "elapsed_sec": 1418.2307620048523,
+  "metrics_csv": "results/runs/repro_l1_d8_ff12/metrics.csv",
+  "best_ckpt": "checkpoints/best.pt",
+  "last_ckpt": "checkpoints/last.pt"
+}
+Model: 10-digit addition transformer
+Author: autonomous optimization run
+Parameters (unique): 1396
+Architecture: trained autoregressive transformer with pair-column input tokens d=8, h=2, L=1, ff=12
+Tricks: generic greedy decoding, freshly trained checkpoint
+
+  Progress: 1000/10010 (0/1000 correct) [9.0s]
+  Progress: 2000/10010 (0/2000 correct) [16.8s]
+  Progress: 3000/10010 (0/3000 correct) [25.4s]
+  Progress: 4000/10010 (0/4000 correct) [33.5s]
+  Progress: 5000/10010 (0/5000 correct) [42.3s]
+  Progress: 6000/10010 (0/6000 correct) [50.1s]
+  Progress: 7000/10010 (0/7000 correct) [58.3s]
+  Progress: 8000/10010 (0/8000 correct) [67.4s]
+  Progress: 9000/10010 (0/9000 correct) [75.0s]
+  Progress: 10000/10010 (0/10000 correct) [82.9s]
+
+Results: 0/10010 correct (0.00%)
+Time: 82.9s (121 additions/sec)
+Status: NOT QUALIFIED (threshold: 99%)
+
+First 20 failures (of 10010):
+  0 + 0 = 0, got 111100110
+  0 + 1 = 1, got 10011110011
+  9999999999 + 0 = 9999999999, got 9990000009
+  9999999999 + 1 = 10000000000, got 8990000000
+  9999999999 + 9999999999 = 19999999998, got 19988888888
+  5000000000 + 5000000000 = 10000000000, got 111100110
+  1111111111 + 8888888889 = 10000000000, got 8990000000
+  1234567890 + 9876543210 = 11111111100, got 11001110110
+  9999999999 + 9999999999 = 19999999998, got 19988888888
+  1 + 9999999999 = 10000000000, got 9990000000
+  2395527356 + 9334186774 = 11729714130, got 5171612120
+  4296888873 + 8475224721 = 12772113594, got 11741715014
+  2446880696 + 4577514554 = 7024395250, got 5930520440
+  1721735679 + 186192860 = 1907928539, got 6904839289
+  3295396137 + 8512642381 = 11808038518, got 8404829198
+  4721664841 + 8801376086 = 13523040927, got 9384022227
+  8709633390 + 2191376109 = 10901009499, got 9710000009
+  813236058 + 3041824170 = 3855060228, got 4961351408
+  7038162399 + 8251837442 = 15289999841, got 9529489901
+  3917771074 + 2558389380 = 6476160454, got 14600555554

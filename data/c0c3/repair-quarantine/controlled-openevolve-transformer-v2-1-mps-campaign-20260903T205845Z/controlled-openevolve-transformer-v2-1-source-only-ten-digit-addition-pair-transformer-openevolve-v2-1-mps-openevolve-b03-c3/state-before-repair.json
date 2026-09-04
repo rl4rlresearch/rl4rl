@@ -1,0 +1,1069 @@
+{
+  "active": null,
+  "candidates": {
+    "005c404b3aac2ecfd2439f958fd09316664ac7b227f94d072f8f844112f635b5": {
+      "artifact_path": "candidates/005c404b3aac2ecfd2439f958fd09316664ac7b227f94d072f8f844112f635b5",
+      "candidate_id": "005c404b3aac2ecfd2439f958fd09316664ac7b227f94d072f8f844112f635b5",
+      "created_opportunity": 37,
+      "fitness": -1541.0,
+      "hypothesis": "Gauge-fixing the all-ones component of the attention output bias will reduce the qualified 1,542-parameter model to 1,541 parameters while retaining at least 99% accuracy, because the resulting scalar residual shift is erased by both the second pre-norm and final LayerNorm.",
+      "intended_edit": "Reproduce the verified shared key/value, bias-free value, bias-free `ln1` design and represent the attention projection bias with seven learned differences, preserving its full eight-coordinate AdamW dynamics.",
+      "metrics": {
+        "accuracy": 0.9912000000000001,
+        "cases": 10010,
+        "correct": 9922,
+        "parameters": 1541,
+        "training_steps": 4999
+      },
+      "parent_ids": [
+        "f710a90b7fe51188fcfc3a07580a92dbe6c6b26a4147c943a5d702729241fe10"
+      ],
+      "retained_order": 37,
+      "selected_count": 8
+    },
+    "04b2e95382700b6fb0e7ce0616933c1cdbc990c44e362dde3eff8c9447a577cd": {
+      "artifact_path": "candidates/04b2e95382700b6fb0e7ce0616933c1cdbc990c44e362dde3eff8c9447a577cd",
+      "candidate_id": "04b2e95382700b6fb0e7ce0616933c1cdbc990c44e362dde3eff8c9447a577cd",
+      "created_opportunity": 77,
+      "fitness": -1520.0,
+      "hypothesis": "A 1,520-parameter model will retain at least 99% accuracy because the verified 1,521-parameter design achieved 99.88%, while a sixth positional row has the same exact pre-LayerNorm scalar-shift symmetry as the five successfully removed rows.",
+      "intended_edit": "Gauge-fix the sixth positional embedding row and preserve its omitted ambient coordinate through initialization, gradient clipping, AdamW moments, decay, and updates.",
+      "metrics": {
+        "accuracy": 0.9995999999999999,
+        "cases": 10010,
+        "correct": 10006,
+        "parameters": 1520,
+        "training_steps": 4999
+      },
+      "parent_ids": [
+        "3546ed1a6f6cf2bc9e316d95ba142b2b97f71cb26d0820afba0cdadb75717643"
+      ],
+      "retained_order": 77,
+      "selected_count": 21
+    },
+    "0826338009e62d6cb88030d8e2fc47a8eb9bd2a46bfdb01abc403f3d5b0a9034": {
+      "artifact_path": "candidates/0826338009e62d6cb88030d8e2fc47a8eb9bd2a46bfdb01abc403f3d5b0a9034",
+      "candidate_id": "0826338009e62d6cb88030d8e2fc47a8eb9bd2a46bfdb01abc403f3d5b0a9034",
+      "created_opportunity": 41,
+      "fitness": -1539.0,
+      "hypothesis": "Fixing one `ln2` scale to one will reduce the model from 1,540 to 1,539 parameters while retaining at least 99% accuracy, because the following `fc1` weight column can absorb that coordinate\u2019s learned scaling without reducing functional capacity.",
+      "intended_edit": "Replace `ln2` with a LayerNorm that learns seven scales and fixes the eighth to one, while leaving all other qualified components and training behavior unchanged.",
+      "metrics": {
+        "accuracy": 0.9993000000000001,
+        "cases": 10010,
+        "correct": 10003,
+        "parameters": 1539,
+        "training_steps": 4999
+      },
+      "parent_ids": [
+        "51f19755bd05315390eddf0d462a8d5421cd9aaed2c4bdcec9a6c085c4c026ab"
+      ],
+      "retained_order": 41,
+      "selected_count": 14
+    },
+    "0c5739da9f29148e1e6269ddc9aed365a62c24fd7d53dc756ee0ead7226bed9b": {
+      "artifact_path": "candidates/0c5739da9f29148e1e6269ddc9aed365a62c24fd7d53dc756ee0ead7226bed9b",
+      "candidate_id": "0c5739da9f29148e1e6269ddc9aed365a62c24fd7d53dc756ee0ead7226bed9b",
+      "created_opportunity": 3,
+      "fitness": -1636.0,
+      "hypothesis": "Retaining query and value biases while removing only the key bias will preserve at least 99% accuracy with 1,636 parameters, because a position-independent key bias adds the same scalar to every attention logit in a softmax row.",
+      "intended_edit": "Replace the fused QKV bias with separate learned query and value biases while leaving the key projection unbiased; all other architecture and training settings remain unchanged.",
+      "metrics": {
+        "accuracy": 0.9997,
+        "cases": 10010,
+        "correct": 10007,
+        "parameters": 1636,
+        "training_steps": 4999
+      },
+      "parent_ids": [
+        "2b9cea175ed60b009337ac54f6e8ad23bf2c014eb4080237777bfb70bfd9fd5b"
+      ],
+      "retained_order": 3,
+      "selected_count": 3
+    },
+    "10a82b951476eb42249d85024e4a093fbe925b2a3b0d5adae413ae21e0f4ab01": {
+      "artifact_path": "candidates/10a82b951476eb42249d85024e4a093fbe925b2a3b0d5adae413ae21e0f4ab01",
+      "candidate_id": "10a82b951476eb42249d85024e4a093fbe925b2a3b0d5adae413ae21e0f4ab01",
+      "created_opportunity": 78,
+      "fitness": -1519.0,
+      "hypothesis": "A 1,519-parameter model will retain at least 99% accuracy because the verified 1,520-parameter six-gauge design achieved 99.96%, and a seventh positional row has the same exact pre-LayerNorm scalar-shift symmetry.",
+      "intended_edit": "Extend the current four positional gauges through the verified fifth and sixth gauges, then gauge-fix the seventh row while preserving every omitted coordinate during initialization, gradient clipping, AdamW moments, decay, and updates.",
+      "metrics": {
+        "accuracy": 0.9998,
+        "cases": 10010,
+        "correct": 10008,
+        "parameters": 1519,
+        "training_steps": 4999
+      },
+      "parent_ids": [
+        "e76091a441e2a2bc0c20ad0d7181bf37ae203c525de4aaf00fc90e46c8fac189"
+      ],
+      "retained_order": 78,
+      "selected_count": 21
+    },
+    "181e99c8f559733dbfec8c0e6078c9d02445a3460b48a69f27191e3b3f26e923": {
+      "artifact_path": "candidates/181e99c8f559733dbfec8c0e6078c9d02445a3460b48a69f27191e3b3f26e923",
+      "candidate_id": "181e99c8f559733dbfec8c0e6078c9d02445a3460b48a69f27191e3b3f26e923",
+      "created_opportunity": 68,
+      "fitness": -1527.0,
+      "hypothesis": "A 1,527-parameter model will retain at least 99% accuracy because the verified seven-scale design achieved 99.93%, while the eighth and final `ln2` scale is equally absorbable into its corresponding `fc1` column without reducing model expressivity.",
+      "intended_edit": "Reproduce the qualified tied-embedding, positional, six-terminal-column, and three-attention-column gauges, then absorb all eight `ln2` scales into `fc1`; use a parameter-free LayerNorm instead of creating a forbidden zero-length parameter, and preserve full weight/scale AdamW dynamics in optimizer state.",
+      "metrics": {
+        "accuracy": 0.9994,
+        "cases": 10010,
+        "correct": 10004,
+        "parameters": 1527,
+        "training_steps": 4999
+      },
+      "parent_ids": [
+        "2b9cea175ed60b009337ac54f6e8ad23bf2c014eb4080237777bfb70bfd9fd5b"
+      ],
+      "retained_order": 68,
+      "selected_count": 18
+    },
+    "2b9cea175ed60b009337ac54f6e8ad23bf2c014eb4080237777bfb70bfd9fd5b": {
+      "artifact_path": "candidates/2b9cea175ed60b009337ac54f6e8ad23bf2c014eb4080237777bfb70bfd9fd5b",
+      "candidate_id": "2b9cea175ed60b009337ac54f6e8ad23bf2c014eb4080237777bfb70bfd9fd5b",
+      "created_opportunity": 0,
+      "fitness": -1644.0,
+      "hypothesis": "frozen seed baseline",
+      "intended_edit": "none",
+      "metrics": {
+        "accuracy": 0.9995999999999999,
+        "cases": 10010,
+        "correct": 10006,
+        "parameters": 1644,
+        "training_steps": 4999
+      },
+      "parent_ids": [],
+      "retained_order": 0,
+      "selected_count": 17
+    },
+    "304a7e0ff6e0ae6304820f1f40d69a78348a741015083892fb8b6074fa2d9909": {
+      "artifact_path": "candidates/304a7e0ff6e0ae6304820f1f40d69a78348a741015083892fb8b6074fa2d9909",
+      "candidate_id": "304a7e0ff6e0ae6304820f1f40d69a78348a741015083892fb8b6074fa2d9909",
+      "created_opportunity": 117,
+      "fitness": -1372.0,
+      "hypothesis": "A 1,372-parameter transformer will retain at least 99% accuracy because the 1,373-parameter design achieved 99.83%, and each preceding single-coordinate query-bias reduction from 1,376 through 1,373 parameters remained above the threshold.",
+      "intended_edit": "Learn only the first query-bias coordinate of each head and reconstruct the remaining six coordinates as zero.",
+      "metrics": {
+        "accuracy": 0.9995999999999999,
+        "cases": 10010,
+        "correct": 10006,
+        "parameters": 1372,
+        "training_steps": 4999
+      },
+      "parent_ids": [
+        "bbbdaa188e472e409108a1e59b773e9e491fada0938d8ac54e5cfe8723c846b7"
+      ],
+      "retained_order": 117,
+      "selected_count": 30
+    },
+    "31054289e71c5109d0c93410160594e3ea67929baeb1fa61e8feeb507db48059": {
+      "artifact_path": "candidates/31054289e71c5109d0c93410160594e3ea67929baeb1fa61e8feeb507db48059",
+      "candidate_id": "31054289e71c5109d0c93410160594e3ea67929baeb1fa61e8feeb507db48059",
+      "created_opportunity": 83,
+      "fitness": -1384.0,
+      "hypothesis": "A 1,384-parameter model will retain at least 99% accuracy because the verified 1,385-parameter relative-lag design achieved 99.64%, while removing the common output component of an eighth `fc2` column is the same exact pre-LayerNorm scalar-shift symmetry already applied to seven columns.",
+      "intended_edit": "Replace absolute positional embeddings with per-head gauge-fixed learned relative-lag logits, reproduce the verified seven-column terminal gauge, and extend it to an eighth column while preserving omitted coordinates through gradient clipping and ambient AdamW updates.",
+      "metrics": {
+        "accuracy": 0.9973000000000001,
+        "cases": 10010,
+        "correct": 9983,
+        "parameters": 1384,
+        "training_steps": 4999
+      },
+      "parent_ids": [
+        "04b2e95382700b6fb0e7ce0616933c1cdbc990c44e362dde3eff8c9447a577cd"
+      ],
+      "retained_order": 83,
+      "selected_count": 22
+    },
+    "32e8771aed2d4dc78160c229983e5650e55f27cbfccd37c554b4e9cd2af37268": {
+      "artifact_path": "candidates/32e8771aed2d4dc78160c229983e5650e55f27cbfccd37c554b4e9cd2af37268",
+      "candidate_id": "32e8771aed2d4dc78160c229983e5650e55f27cbfccd37c554b4e9cd2af37268",
+      "created_opportunity": 105,
+      "fitness": -1376.0,
+      "hypothesis": "A 1,376-parameter transformer will retain at least 99% accuracy because the current 1,377-parameter design achieved 100%, while fixing the corresponding initially zero coordinate in the other attention head leaves three learned query-bias coordinates per head and preserves all query-key projections and relative-lag routing.",
+      "intended_edit": "Replace the seven-coordinate query bias with six learned coordinates, reconstructing the final coordinate of each query head as zero during every forward pass.",
+      "metrics": {
+        "accuracy": 0.9961,
+        "cases": 10010,
+        "correct": 9971,
+        "parameters": 1376,
+        "training_steps": 4999
+      },
+      "parent_ids": [
+        "f8fd5c46d5f6cdaf53d5c242a16adcc44512f7c446e4f14b25f748228a39e923"
+      ],
+      "retained_order": 105,
+      "selected_count": 29
+    },
+    "3305a2e0c3f026cfb92ea1a80ffc6c38b0a1da3ccd39ac946450602e6bb1388c": {
+      "artifact_path": "candidates/3305a2e0c3f026cfb92ea1a80ffc6c38b0a1da3ccd39ac946450602e6bb1388c",
+      "candidate_id": "3305a2e0c3f026cfb92ea1a80ffc6c38b0a1da3ccd39ac946450602e6bb1388c",
+      "created_opportunity": 46,
+      "fitness": -1537.0,
+      "hypothesis": "Extending the qualified two-scale optimizer-side factorization to a third `ln2` scale will produce a 1,537-parameter model with at least 99% accuracy, because the third scale is exactly absorbable into its corresponding `fc1` column and its separate AdamW dynamics are preserved outside the deduplicated learned model.",
+      "intended_edit": "Reproduce the qualified 1,538-parameter shared-key/value, bias-free-value, bias-free-`ln1`, attention-gauged, four-terminal-gauge design, then absorb three rather than two `ln2` scales into `fc1` with ambient-coordinate moments and clipping.",
+      "metrics": {
+        "accuracy": 0.9997,
+        "cases": 10010,
+        "correct": 10007,
+        "parameters": 1537,
+        "training_steps": 4999
+      },
+      "parent_ids": [
+        "b4a21570cab95320208e1ad0c75ead10cad3a2f08b2749f6f3b2eecabdb7f3a7"
+      ],
+      "retained_order": 46,
+      "selected_count": 11
+    },
+    "3546ed1a6f6cf2bc9e316d95ba142b2b97f71cb26d0820afba0cdadb75717643": {
+      "artifact_path": "candidates/3546ed1a6f6cf2bc9e316d95ba142b2b97f71cb26d0820afba0cdadb75717643",
+      "candidate_id": "3546ed1a6f6cf2bc9e316d95ba142b2b97f71cb26d0820afba0cdadb75717643",
+      "created_opportunity": 76,
+      "fitness": -1521.0,
+      "hypothesis": "A 1,521-parameter model will retain at least 99% accuracy because the verified 1,522-parameter design achieved 99.96%, while a fifth positional row has the same exact pre-LayerNorm scalar-shift symmetry as the four successfully removed rows.",
+      "intended_edit": "Reproduce the qualified two-scale ln1 absorption, complete ln2 absorption, and four positional gauges, then gauge-fix a fifth positional row while preserving every omitted coordinate through initialization, gradient clipping, AdamW moments, decay, and updates.",
+      "metrics": {
+        "accuracy": 0.9987999999999999,
+        "cases": 10010,
+        "correct": 9998,
+        "parameters": 1521,
+        "training_steps": 4999
+      },
+      "parent_ids": [
+        "94a2b63432cda2bc04a8706d5f90cceefd6e36550991ad8a3444f6ed0d5fe499"
+      ],
+      "retained_order": 76,
+      "selected_count": 20
+    },
+    "37e026bbf9edfb41641cacd971cf2c76413d43f6cb73f2c16816f3953c0fc4ad": {
+      "artifact_path": "candidates/37e026bbf9edfb41641cacd971cf2c76413d43f6cb73f2c16816f3953c0fc4ad",
+      "candidate_id": "37e026bbf9edfb41641cacd971cf2c76413d43f6cb73f2c16816f3953c0fc4ad",
+      "created_opportunity": 81,
+      "fitness": -1386.0,
+      "hypothesis": "A 1,386-parameter model will retain at least 99% accuracy because the verified 1,388-parameter relative-lag design reached 99.22%, while removing one additive constant from each head\u2019s lag logits is an exact softmax symmetry with ambient AdamW dynamics preserved.",
+      "intended_edit": "Store each head\u2019s learned relative-lag vector with its final coordinate fixed to zero, reconstruct the full vectors during attention, and optimize both omitted coordinates through the existing gauge-aware clipping and AdamW path.",
+      "metrics": {
+        "accuracy": 0.995,
+        "cases": 10010,
+        "correct": 9960,
+        "parameters": 1386,
+        "training_steps": 4999
+      },
+      "parent_ids": [
+        "b70308764a00e063cff1005edb6fc17b5434029706044550de506a00c57b20ce"
+      ],
+      "retained_order": 81,
+      "selected_count": 22
+    },
+    "3de861edf98625e0142becac758da7a5d84dd7c8ca4b68e2fe1782f9eda2ed78": {
+      "artifact_path": "candidates/3de861edf98625e0142becac758da7a5d84dd7c8ca4b68e2fe1782f9eda2ed78",
+      "candidate_id": "3de861edf98625e0142becac758da7a5d84dd7c8ca4b68e2fe1782f9eda2ed78",
+      "created_opportunity": 106,
+      "fitness": -1375.0,
+      "hypothesis": "A 1,375-parameter transformer will retain at least 99% accuracy because the verified 1,376-parameter design achieved 99.61%, while fixing one additional initially zero query-bias coordinate preserves all projection weights, value paths, and relative-lag routing.",
+      "intended_edit": "Replace the eight-coordinate query bias with five learned coordinates, reconstructing the final coordinate of both heads and the penultimate coordinate of the first head as zero.",
+      "metrics": {
+        "accuracy": 0.9997,
+        "cases": 10010,
+        "correct": 10007,
+        "parameters": 1375,
+        "training_steps": 4999
+      },
+      "parent_ids": [
+        "8c634ad88f141bc206f324e7a438f472b74f274ac1b2e503fb5010c2bb7a438b"
+      ],
+      "retained_order": 106,
+      "selected_count": 29
+    },
+    "445db01bca5dfb79507af18ea5b735c4085d3804c17647d05e10a68beb110b94": {
+      "artifact_path": "candidates/445db01bca5dfb79507af18ea5b735c4085d3804c17647d05e10a68beb110b94",
+      "candidate_id": "445db01bca5dfb79507af18ea5b735c4085d3804c17647d05e10a68beb110b94",
+      "created_opportunity": 86,
+      "fitness": -1381.0,
+      "hypothesis": "A 1,381-parameter relative-lag model will retain at least 99% accuracy because the verified 1,382-parameter ten-column design achieved 99.45%, while gauge-fixing an eleventh `fc2` column applies the same exact pre-final-LayerNorm output-shift symmetry.",
+      "intended_edit": "Reproduce the qualified ten-column terminal gauge and extend it to eleven columns, preserving the omitted coordinate through the existing ambient-gradient clipping and AdamW update path.",
+      "metrics": {
+        "accuracy": 0.9975,
+        "cases": 10010,
+        "correct": 9985,
+        "parameters": 1381,
+        "training_steps": 4999
+      },
+      "parent_ids": [
+        "31054289e71c5109d0c93410160594e3ea67929baeb1fa61e8feeb507db48059"
+      ],
+      "retained_order": 86,
+      "selected_count": 29
+    },
+    "46335d824728857e399def2993cf5c0065fd805f228a120b142fd84c75b1110d": {
+      "artifact_path": "candidates/46335d824728857e399def2993cf5c0065fd805f228a120b142fd84c75b1110d",
+      "candidate_id": "46335d824728857e399def2993cf5c0065fd805f228a120b142fd84c75b1110d",
+      "created_opportunity": 56,
+      "fitness": -1534.0,
+      "hypothesis": "Removing the tied embedding\u2019s single global scalar-shift degree of freedom will produce a 1,534-parameter model with at least 99% accuracy because LayerNorm erases its input-side effect, softmax erases its common-logit output effect, and ambient-coordinate AdamW preserves the qualified optimization dynamics.",
+      "intended_edit": "Replace the full tied token table with an exactly gauge-fixed table containing one fewer learned scalar, retain the generic learned output head, preserve initialization RNG order, and extend the existing ambient moments, clipping, and updates to the omitted embedding coordinate.",
+      "metrics": {
+        "accuracy": 0.9990000000000001,
+        "cases": 10010,
+        "correct": 10000,
+        "parameters": 1534,
+        "training_steps": 4999
+      },
+      "parent_ids": [
+        "ad63f5f6c6a681c22efd89bfd04f45d3def5f4389e4c99d47241aa7134b4ebaf"
+      ],
+      "retained_order": 56,
+      "selected_count": 15
+    },
+    "51f19755bd05315390eddf0d462a8d5421cd9aaed2c4bdcec9a6c085c4c026ab": {
+      "artifact_path": "candidates/51f19755bd05315390eddf0d462a8d5421cd9aaed2c4bdcec9a6c085c4c026ab",
+      "candidate_id": "51f19755bd05315390eddf0d462a8d5421cd9aaed2c4bdcec9a6c085c4c026ab",
+      "created_opportunity": 38,
+      "fitness": -1540.0,
+      "hypothesis": "Gauge-fixing the all-ones output component of the first attention projection weight column will reduce the model from 1,541 to 1,540 parameters while retaining at least 99% accuracy, because it adds only a token-dependent scalar residual shift that is erased by the second pre-norm and final LayerNorm.",
+      "intended_edit": "Represent the first attention projection weight column with seven learned differences, reconstruct its eighth coordinate during forward passes, and preserve its full eight-coordinate AdamW dynamics alongside the existing attention-bias gauge.",
+      "metrics": {
+        "accuracy": 0.9998999999999999,
+        "cases": 10010,
+        "correct": 10009,
+        "parameters": 1540,
+        "training_steps": 4999
+      },
+      "parent_ids": [
+        "005c404b3aac2ecfd2439f958fd09316664ac7b227f94d072f8f844112f635b5"
+      ],
+      "retained_order": 38,
+      "selected_count": 9
+    },
+    "5681139d612b8aee49d79e110a769740053f4f1a4039eb69fafcd4ce4d8ec135": {
+      "artifact_path": "candidates/5681139d612b8aee49d79e110a769740053f4f1a4039eb69fafcd4ce4d8ec135",
+      "candidate_id": "5681139d612b8aee49d79e110a769740053f4f1a4039eb69fafcd4ce4d8ec135",
+      "created_opportunity": 88,
+      "fitness": -1379.0,
+      "hypothesis": "A 1,379-parameter relative-lag model will retain at least 99% accuracy because the verified 1,380-parameter complete-terminal-gauge design achieved 99.71%, while gauge-fixing a fourth attention-output column applies the same exact pre-final-LayerNorm scalar-shift symmetry already used on three columns.",
+      "intended_edit": "Reproduce the qualified all-twelve-column terminal projection gauge, then extend the attention output projection from three to four gauge-fixed columns while preserving omitted coordinates through the existing ambient-gradient clipping and AdamW path.",
+      "metrics": {
+        "accuracy": 0.9967,
+        "cases": 10010,
+        "correct": 9977,
+        "parameters": 1379,
+        "training_steps": 4999
+      },
+      "parent_ids": [
+        "37e026bbf9edfb41641cacd971cf2c76413d43f6cb73f2c16816f3953c0fc4ad"
+      ],
+      "retained_order": 88,
+      "selected_count": 24
+    },
+    "5bf336aacd27b15205bab2c593b43bd40be8fc536714a4207a24dafc587e3fa1": {
+      "artifact_path": "candidates/5bf336aacd27b15205bab2c593b43bd40be8fc536714a4207a24dafc587e3fa1",
+      "candidate_id": "5bf336aacd27b15205bab2c593b43bd40be8fc536714a4207a24dafc587e3fa1",
+      "created_opportunity": 107,
+      "fitness": -1374.0,
+      "hypothesis": "A 1,374-parameter transformer will retain at least 99% accuracy because the 1,375-parameter design achieved 99.97%, while fixing the corresponding penultimate coordinate in the second attention head preserves all learned projections, value paths, and relative-lag routing.",
+      "intended_edit": "Reproduce the qualified four-column attention-output gauge and three-scale `ln1` absorption, then learn only the first two query-bias coordinates of each head and reconstruct both trailing coordinates as zero.",
+      "metrics": {
+        "accuracy": 0.9937999999999999,
+        "cases": 10010,
+        "correct": 9948,
+        "parameters": 1374,
+        "training_steps": 4999
+      },
+      "parent_ids": [
+        "acf97f01c8a4e544b99e8209543a638dd2f26e5f70c823e389723de220b5977a"
+      ],
+      "retained_order": 107,
+      "selected_count": 29
+    },
+    "5d2534a0c25690ca66a1d92eba3d007ca8b791aa5abc390ff49ef1297d37f39a": {
+      "artifact_path": "candidates/5d2534a0c25690ca66a1d92eba3d007ca8b791aa5abc390ff49ef1297d37f39a",
+      "candidate_id": "5d2534a0c25690ca66a1d92eba3d007ca8b791aa5abc390ff49ef1297d37f39a",
+      "created_opportunity": 66,
+      "fitness": -1529.0,
+      "hypothesis": "A 1,529-parameter model will retain at least 99% accuracy because the qualified 1,530-parameter design achieved 99.93%, while a sixth `ln2` scale is exactly absorbable into its corresponding `fc1` column and can retain full ambient AdamW dynamics.",
+      "intended_edit": "Reproduce the qualified three-column attention-projection gauge, then extend the proven five-scale `ln2`/`fc1` factorization to six scales.",
+      "metrics": {
+        "accuracy": 0.9993000000000001,
+        "cases": 10010,
+        "correct": 10003,
+        "parameters": 1529,
+        "training_steps": 4999
+      },
+      "parent_ids": [
+        "db2adcb58ecc70407984542f088b81dd51bd1ed7ef7d8093aa3192853cab39f2"
+      ],
+      "retained_order": 66,
+      "selected_count": 18
+    },
+    "70ce514fb04a78f5d8049ca02ffea992acb9434d4b16bb170a45a2861e24409e": {
+      "artifact_path": "candidates/70ce514fb04a78f5d8049ca02ffea992acb9434d4b16bb170a45a2861e24409e",
+      "candidate_id": "70ce514fb04a78f5d8049ca02ffea992acb9434d4b16bb170a45a2861e24409e",
+      "created_opportunity": 71,
+      "fitness": -1525.0,
+      "hypothesis": "A 1,525-parameter model will retain at least 99% accuracy because the qualified 1,526-parameter design reached 99.61%, while a second ln1 scale has the same exact q/k/v column-factorization symmetry and preserves full ambient AdamW dynamics.",
+      "intended_edit": "Absorb all eight ln2 scales into fc1 and the final two ln1 scales into the corresponding q, k, and v columns, retaining virtual scale/weight gradients, clipping, moments, decay, and updates.",
+      "metrics": {
+        "accuracy": 0.9993000000000001,
+        "cases": 10010,
+        "correct": 10003,
+        "parameters": 1525,
+        "training_steps": 4999
+      },
+      "parent_ids": [
+        "5d2534a0c25690ca66a1d92eba3d007ca8b791aa5abc390ff49ef1297d37f39a"
+      ],
+      "retained_order": 71,
+      "selected_count": 19
+    },
+    "73a4b76eec516a2305e60a9bc667db137c6108048ba024af918dd2a50f4a9053": {
+      "artifact_path": "candidates/73a4b76eec516a2305e60a9bc667db137c6108048ba024af918dd2a50f4a9053",
+      "candidate_id": "73a4b76eec516a2305e60a9bc667db137c6108048ba024af918dd2a50f4a9053",
+      "created_opportunity": 84,
+      "fitness": -1383.0,
+      "hypothesis": "A 1,383-parameter relative-lag model will retain at least 99% accuracy because the verified 1,384-parameter design achieved 99.73%, while removing the common output component of a ninth `fc2` column uses the same exact pre-final-LayerNorm symmetry already verified for eight columns.",
+      "intended_edit": "Replace absolute position embeddings with gauge-fixed per-head relative-lag logits and extend the qualified terminal projection gauge from eight to nine columns, preserving omitted coordinates through clipping and ambient AdamW updates.",
+      "metrics": {
+        "accuracy": 0.9974,
+        "cases": 10010,
+        "correct": 9984,
+        "parameters": 1383,
+        "training_steps": 4999
+      },
+      "parent_ids": [
+        "e4d3472a73ef861498bf219847834e7ff2fb8616e9b9a350c77b92417912d1a3"
+      ],
+      "retained_order": 84,
+      "selected_count": 22
+    },
+    "75cfef9d9bff5c78daafc5c25c517f018342fb74c89af7e9976dfc0ecd97f623": {
+      "artifact_path": "candidates/75cfef9d9bff5c78daafc5c25c517f018342fb74c89af7e9976dfc0ecd97f623",
+      "candidate_id": "75cfef9d9bff5c78daafc5c25c517f018342fb74c89af7e9976dfc0ecd97f623",
+      "created_opportunity": 45,
+      "fitness": -1538.0,
+      "hypothesis": "A 1,538-parameter model will retain at least 99% accuracy because the two omitted `ln2` scales are exactly absorbed into their `fc1` columns, while optimizer-side factorization reproduces the full model\u2019s separate AdamW updates instead of the optimization geometry that caused the naive two-scale design to reach only 80.28%.",
+      "intended_edit": "Reproduce the qualified attention projection bias/first-column gauges, replace `ln2` with a six-scale LayerNorm, and train the two absorbed scale/weight factorizations in ambient coordinates while continuously materializing only their products in the learned model.",
+      "metrics": {
+        "accuracy": 0.9994,
+        "cases": 10010,
+        "correct": 10004,
+        "parameters": 1538,
+        "training_steps": 4999
+      },
+      "parent_ids": [
+        "d04555510b37b64a9830fd92d373493ddd090fdedf89c88a79c398a21614bc52"
+      ],
+      "retained_order": 45,
+      "selected_count": 11
+    },
+    "7fe758bc572f5c054fdb6cd11dedc5b53f1cffc59ab3f6f271109e5f5c07ab3b": {
+      "artifact_path": "candidates/7fe758bc572f5c054fdb6cd11dedc5b53f1cffc59ab3f6f271109e5f5c07ab3b",
+      "candidate_id": "7fe758bc572f5c054fdb6cd11dedc5b53f1cffc59ab3f6f271109e5f5c07ab3b",
+      "created_opportunity": 69,
+      "fitness": -1526.0,
+      "hypothesis": "A 1,526-parameter model will retain at least 99% accuracy because the verified 1,527-parameter design successfully absorbs all eight ln2 scales, while one ln1 scale is likewise exactly absorbable into the corresponding q, k, and v input columns with ambient AdamW dynamics preserved.",
+      "intended_edit": "Replace the final learned ln1 scale with a fixed unit scale, store its products in the final q/k/v columns, and optimize the omitted scale and virtual projection columns through ambient-coordinate clipping, moments, decay, and updates.",
+      "metrics": {
+        "accuracy": 0.9961,
+        "cases": 10010,
+        "correct": 9971,
+        "parameters": 1526,
+        "training_steps": 4999
+      },
+      "parent_ids": [
+        "181e99c8f559733dbfec8c0e6078c9d02445a3460b48a69f27191e3b3f26e923"
+      ],
+      "retained_order": 69,
+      "selected_count": 19
+    },
+    "8882c2602929778aa8af0daa473a54c8ea8b4da8f5aafe3fabbd6dba4932c18e": {
+      "artifact_path": "candidates/8882c2602929778aa8af0daa473a54c8ea8b4da8f5aafe3fabbd6dba4932c18e",
+      "candidate_id": "8882c2602929778aa8af0daa473a54c8ea8b4da8f5aafe3fabbd6dba4932c18e",
+      "created_opportunity": 18,
+      "fitness": -1626.0,
+      "hypothesis": "Gauge-fixing the first positional embedding and terminal MLP output bias while reproducing both full eight-coordinate AdamW updates will achieve at least 99% accuracy with 1,626 parameters.",
+      "intended_edit": "Add one-coordinate gauge-fixed parameterizations for the first positional row and each terminal MLP bias, excluding their stored differences from AdamW and updating them using ambient-coordinate moments and clipping.",
+      "metrics": {
+        "accuracy": 0.9995,
+        "cases": 10010,
+        "correct": 10005,
+        "parameters": 1626,
+        "training_steps": 4999
+      },
+      "parent_ids": [
+        "a4a0981ef54a0ebd6b6a4a125141c00f870580eca3ab3a62726138e415641ce7"
+      ],
+      "retained_order": 18,
+      "selected_count": 5
+    },
+    "8a734d55abde412a6988625dafeb8472d81dc37eba441cfcab371217daff9b2c": {
+      "artifact_path": "candidates/8a734d55abde412a6988625dafeb8472d81dc37eba441cfcab371217daff9b2c",
+      "candidate_id": "8a734d55abde412a6988625dafeb8472d81dc37eba441cfcab371217daff9b2c",
+      "created_opportunity": 57,
+      "fitness": -1533.0,
+      "hypothesis": "A 1,533-parameter model will retain at least 99% accuracy because the qualified 1,534-parameter tied-embedding/five-scale design already achieved 99.90%, while the fifth `fc2` column\u2019s common-output component is exactly erased by the final LayerNorm and its full AdamW dynamics remain preserved.",
+      "intended_edit": "Reproduce the qualified tied-token gauge and five absorbed `ln2` scales, then remove the common-output component from a fifth terminal projection column and include it in the existing ambient gauge optimizer.",
+      "metrics": {
+        "accuracy": 0.9989,
+        "cases": 10010,
+        "correct": 9999,
+        "parameters": 1533,
+        "training_steps": 4999
+      },
+      "parent_ids": [
+        "c45b9587eacc47d62e3dc063fba1877479b5475b22ddcbb8d4fe6e0916a311a6"
+      ],
+      "retained_order": 57,
+      "selected_count": 17
+    },
+    "8c634ad88f141bc206f324e7a438f472b74f274ac1b2e503fb5010c2bb7a438b": {
+      "artifact_path": "candidates/8c634ad88f141bc206f324e7a438f472b74f274ac1b2e503fb5010c2bb7a438b",
+      "candidate_id": "8c634ad88f141bc206f324e7a438f472b74f274ac1b2e503fb5010c2bb7a438b",
+      "created_opportunity": 93,
+      "fitness": -1378.0,
+      "hypothesis": "A 1,378-parameter model will retain at least 99% accuracy because the verified 1,379-parameter design achieved 99.67%, and absorbing a third `ln1` scale extends the exact downstream q/k/v factorization already used successfully for two scales.",
+      "intended_edit": "Remove one learned `ln1` scale, absorb it into the corresponding q/k/v input columns, and preserve its full ambient AdamW and gradient-clipping dynamics through the existing virtual-scale optimizer path.",
+      "metrics": {
+        "accuracy": 0.9939,
+        "cases": 10010,
+        "correct": 9949,
+        "parameters": 1378,
+        "training_steps": 4999
+      },
+      "parent_ids": [
+        "5681139d612b8aee49d79e110a769740053f4f1a4039eb69fafcd4ce4d8ec135"
+      ],
+      "retained_order": 93,
+      "selected_count": 27
+    },
+    "94a2b63432cda2bc04a8706d5f90cceefd6e36550991ad8a3444f6ed0d5fe499": {
+      "artifact_path": "candidates/94a2b63432cda2bc04a8706d5f90cceefd6e36550991ad8a3444f6ed0d5fe499",
+      "candidate_id": "94a2b63432cda2bc04a8706d5f90cceefd6e36550991ad8a3444f6ed0d5fe499",
+      "created_opportunity": 62,
+      "fitness": -1530.0,
+      "hypothesis": "A 1,530-parameter model will retain at least 99% accuracy because the verified two-column attention-projection gauge achieved 99.96%, while a third column\u2019s common-output component is erased by downstream LayerNorm and the existing ambient-coordinate optimizer preserves its full AdamW dynamics.",
+      "intended_edit": "Extend the attention output-projection gauge from two to three weight columns, retaining the existing initialization, gradient clipping, moment, and update machinery.",
+      "metrics": {
+        "accuracy": 0.9993000000000001,
+        "cases": 10010,
+        "correct": 10003,
+        "parameters": 1530,
+        "training_steps": 4999
+      },
+      "parent_ids": [
+        "ee030123e9796a5ce4f63bb6b693f5d1d8db397d6d7602efe9b79058ccfe4d4e"
+      ],
+      "retained_order": 62,
+      "selected_count": 19
+    },
+    "a118f23e18150f77a0a7cccb179ba89ceb3984b3310c61827bf87fa2ee35c364": {
+      "artifact_path": "candidates/a118f23e18150f77a0a7cccb179ba89ceb3984b3310c61827bf87fa2ee35c364",
+      "candidate_id": "a118f23e18150f77a0a7cccb179ba89ceb3984b3310c61827bf87fa2ee35c364",
+      "created_opportunity": 16,
+      "fitness": -1627.0,
+      "hypothesis": "Removing one LayerNorm-invariant scalar from the first positional embedding while reproducing its full eight-coordinate AdamW dynamics will yield 1,627 parameters and retain at least 99% accuracy.",
+      "intended_edit": "Apply the verified key-bias and `ln2`-bias removals, gauge-fix one positional coordinate, and update its seven learned differences using full-space AdamW moments and clipping.",
+      "metrics": {
+        "accuracy": 1.0,
+        "cases": 10010,
+        "correct": 10010,
+        "parameters": 1627,
+        "training_steps": 4999
+      },
+      "parent_ids": [
+        "2b9cea175ed60b009337ac54f6e8ad23bf2c014eb4080237777bfb70bfd9fd5b"
+      ],
+      "retained_order": 16,
+      "selected_count": 3
+    },
+    "a37d52e01dc1d3afbd44a0aa229fdb82d635ef8ec84fba54ec3c054da39c56d4": {
+      "artifact_path": "candidates/a37d52e01dc1d3afbd44a0aa229fdb82d635ef8ec84fba54ec3c054da39c56d4",
+      "candidate_id": "a37d52e01dc1d3afbd44a0aa229fdb82d635ef8ec84fba54ec3c054da39c56d4",
+      "created_opportunity": 31,
+      "fitness": -1554.0,
+      "hypothesis": "Combining the verified shared key/value attention with the verified four-column terminal gauge will achieve at least 99% accuracy with 1,554 parameters.",
+      "intended_edit": "Broadcast one learned four-dimensional key/value head across two independently learned query heads, and gauge-fix the terminal MLP bias plus its first four weight columns using full eight-coordinate AdamW dynamics.",
+      "metrics": {
+        "accuracy": 0.9998,
+        "cases": 10010,
+        "correct": 10008,
+        "parameters": 1554,
+        "training_steps": 4999
+      },
+      "parent_ids": [
+        "8882c2602929778aa8af0daa473a54c8ea8b4da8f5aafe3fabbd6dba4932c18e"
+      ],
+      "retained_order": 31,
+      "selected_count": 6
+    },
+    "a4a0981ef54a0ebd6b6a4a125141c00f870580eca3ab3a62726138e415641ce7": {
+      "artifact_path": "candidates/a4a0981ef54a0ebd6b6a4a125141c00f870580eca3ab3a62726138e415641ce7",
+      "candidate_id": "a4a0981ef54a0ebd6b6a4a125141c00f870580eca3ab3a62726138e415641ce7",
+      "created_opportunity": 4,
+      "fitness": -1628.0,
+      "hypothesis": "Removing the key-projection bias and the second LayerNorm bias will retain at least 99% accuracy with 1,628 parameters because key bias cancels under softmax and the LayerNorm offset can be absorbed by the existing MLP input bias.",
+      "intended_edit": "Preserve the width-12 MLP and query/value attention biases, while eliminating the redundant key bias and `ln2` bias.",
+      "metrics": {
+        "accuracy": 0.9995,
+        "cases": 10010,
+        "correct": 10005,
+        "parameters": 1628,
+        "training_steps": 4999
+      },
+      "parent_ids": [
+        "2b9cea175ed60b009337ac54f6e8ad23bf2c014eb4080237777bfb70bfd9fd5b"
+      ],
+      "retained_order": 4,
+      "selected_count": 1
+    },
+    "a9399efe4603c9cc60d1d9826afc296152eedc6b447293307bd9bdab027b88ef": {
+      "artifact_path": "candidates/a9399efe4603c9cc60d1d9826afc296152eedc6b447293307bd9bdab027b88ef",
+      "candidate_id": "a9399efe4603c9cc60d1d9826afc296152eedc6b447293307bd9bdab027b88ef",
+      "created_opportunity": 32,
+      "fitness": -1550.0,
+      "hypothesis": "Removing the four-dimensional shared value bias will reduce the verified 1,554-parameter model to 1,550 parameters while retaining at least 99% accuracy, because softmax-normalized attention propagates this position-independent offset unchanged and the learned output-projection bias already represents the resulting constant residual shift.",
+      "intended_edit": "Delete the redundant shared value-bias parameter and compute values solely with the learned shared value projection, preserving both learned query heads, shared key/value attention, and the verified four-column terminal gauge.",
+      "metrics": {
+        "accuracy": 0.9984999999999999,
+        "cases": 10010,
+        "correct": 9995,
+        "parameters": 1550,
+        "training_steps": 4999
+      },
+      "parent_ids": [
+        "a37d52e01dc1d3afbd44a0aa229fdb82d635ef8ec84fba54ec3c054da39c56d4"
+      ],
+      "retained_order": 32,
+      "selected_count": 7
+    },
+    "acf97f01c8a4e544b99e8209543a638dd2f26e5f70c823e389723de220b5977a": {
+      "artifact_path": "candidates/acf97f01c8a4e544b99e8209543a638dd2f26e5f70c823e389723de220b5977a",
+      "candidate_id": "acf97f01c8a4e544b99e8209543a638dd2f26e5f70c823e389723de220b5977a",
+      "created_opportunity": 87,
+      "fitness": -1380.0,
+      "hypothesis": "A 1,380-parameter relative-lag model will retain at least 99% accuracy because the verified 1,381-parameter design achieved 99.75%, while gauge-fixing the twelfth and final `fc2` column applies the same exact pre-final-LayerNorm symmetry already verified for eleven columns.",
+      "intended_edit": "Extend `GaugeFixedTerminalLinear` from seven to all twelve gauge-fixed columns, omit the now-empty residual weight parameter, and retain the existing full ambient-gradient clipping and AdamW updates.",
+      "metrics": {
+        "accuracy": 0.9971,
+        "cases": 10010,
+        "correct": 9981,
+        "parameters": 1380,
+        "training_steps": 4999
+      },
+      "parent_ids": [
+        "cbdd3dc362a2773e6a84aa4516f0b846f75c6cf0db15be6554aff8381fa8f0eb"
+      ],
+      "retained_order": 87,
+      "selected_count": 27
+    },
+    "ad63f5f6c6a681c22efd89bfd04f45d3def5f4389e4c99d47241aa7134b4ebaf": {
+      "artifact_path": "candidates/ad63f5f6c6a681c22efd89bfd04f45d3def5f4389e4c99d47241aa7134b4ebaf",
+      "candidate_id": "ad63f5f6c6a681c22efd89bfd04f45d3def5f4389e4c99d47241aa7134b4ebaf",
+      "created_opportunity": 48,
+      "fitness": -1535.0,
+      "hypothesis": "A 1,535-parameter model will retain at least 99% accuracy because the fifth `ln2` scale is exactly absorbable into its `fc1` column and the verified ambient-coordinate AdamW factorization preserves its separate optimization dynamics.",
+      "intended_edit": "Expand the current two-scale absorption to five trailing `ln2` scales, including the virtual scales, optimizer moments, clipping correction, and effective-column materialization.",
+      "metrics": {
+        "accuracy": 0.9995,
+        "cases": 10010,
+        "correct": 10005,
+        "parameters": 1535,
+        "training_steps": 4999
+      },
+      "parent_ids": [
+        "75cfef9d9bff5c78daafc5c25c517f018342fb74c89af7e9976dfc0ecd97f623"
+      ],
+      "retained_order": 48,
+      "selected_count": 14
+    },
+    "b0a8f05d85a845ee5f1b18f3b2828aa672fbe479d9b58375317378b3f986734d": {
+      "artifact_path": "candidates/b0a8f05d85a845ee5f1b18f3b2828aa672fbe479d9b58375317378b3f986734d",
+      "candidate_id": "b0a8f05d85a845ee5f1b18f3b2828aa672fbe479d9b58375317378b3f986734d",
+      "created_opportunity": 73,
+      "fitness": -1524.0,
+      "hypothesis": "Removing a second positional-row scalar will produce a 1,524-parameter model with at least 99% accuracy because this exact pre-LayerNorm shift symmetry already succeeds for the first positional row.",
+      "intended_edit": "Gauge-fix the second positional embedding row and include its omitted ambient coordinate in AdamW moments, gradient clipping, decay, and updates.",
+      "metrics": {
+        "accuracy": 0.9992,
+        "cases": 10010,
+        "correct": 10002,
+        "parameters": 1524,
+        "training_steps": 4999
+      },
+      "parent_ids": [
+        "70ce514fb04a78f5d8049ca02ffea992acb9434d4b16bb170a45a2861e24409e"
+      ],
+      "retained_order": 73,
+      "selected_count": 20
+    },
+    "b4a21570cab95320208e1ad0c75ead10cad3a2f08b2749f6f3b2eecabdb7f3a7": {
+      "artifact_path": "candidates/b4a21570cab95320208e1ad0c75ead10cad3a2f08b2749f6f3b2eecabdb7f3a7",
+      "candidate_id": "b4a21570cab95320208e1ad0c75ead10cad3a2f08b2749f6f3b2eecabdb7f3a7",
+      "created_opportunity": 30,
+      "fitness": -1555.0,
+      "hypothesis": "Replacing the two independent key/value heads with one shared four-dimensional learned key/value head will retain at least 99% accuracy while reducing the current model from 1,623 to 1,555 parameters, because separate query heads still provide two operand-routing patterns while addition tokens can share a common content representation.",
+      "intended_edit": "Challenge the assumption that each query head requires its own key and value projections. Preserve the full eight-dimensional residual stream, tied lexical interface, two learned query heads, MLP, and qualified gauges, but broadcast one learned key/value head across both attention maps.",
+      "metrics": {
+        "accuracy": 1.0,
+        "cases": 10010,
+        "correct": 10010,
+        "parameters": 1555,
+        "training_steps": 4999
+      },
+      "parent_ids": [
+        "d3aef7179d171a85bcb71256c5062b400a5844101c2e62ba9575925fb91f4b5d"
+      ],
+      "retained_order": 30,
+      "selected_count": 10
+    },
+    "b70308764a00e063cff1005edb6fc17b5434029706044550de506a00c57b20ce": {
+      "artifact_path": "candidates/b70308764a00e063cff1005edb6fc17b5434029706044550de506a00c57b20ce",
+      "candidate_id": "b70308764a00e063cff1005edb6fc17b5434029706044550de506a00c57b20ce",
+      "created_opportunity": 80,
+      "fitness": -1388.0,
+      "hypothesis": "Replacing full-width absolute position embeddings with per-head learned relative-lag logits will retain at least 99% accuracy while removing `6 * max_seq_len - 2` parameters, because addition dependencies repeat at relative offsets and content-dependent query/key attention remains intact.",
+      "intended_edit": "Remove absolute positions from the residual stream and let each causal attention head learn its own lag preference directly; simplify gauge optimization accordingly. This challenges the prior assumption that every position needs a full learned vector.",
+      "metrics": {
+        "accuracy": 0.9922,
+        "cases": 10010,
+        "correct": 9932,
+        "parameters": 1388,
+        "training_steps": 4999
+      },
+      "parent_ids": [
+        "b0a8f05d85a845ee5f1b18f3b2828aa672fbe479d9b58375317378b3f986734d"
+      ],
+      "retained_order": 80,
+      "selected_count": 21
+    },
+    "bbbdaa188e472e409108a1e59b773e9e491fada0938d8ac54e5cfe8723c846b7": {
+      "artifact_path": "candidates/bbbdaa188e472e409108a1e59b773e9e491fada0938d8ac54e5cfe8723c846b7",
+      "candidate_id": "bbbdaa188e472e409108a1e59b773e9e491fada0938d8ac54e5cfe8723c846b7",
+      "created_opportunity": 116,
+      "fitness": -1373.0,
+      "hypothesis": "A 1,373-parameter transformer will retain at least 99% accuracy because the 1,374-parameter design achieved 99.38%, while fixing one additional initially zero query-bias coordinate preserves every learned projection, value path, and relative-lag parameter.",
+      "intended_edit": "Reproduce the qualified complete terminal gauge, four-column attention-output gauge, and three-scale ln1 absorption, then learn one query-bias coordinate in the first head and two in the second while reconstructing the remaining five as zero.",
+      "metrics": {
+        "accuracy": 0.9983,
+        "cases": 10010,
+        "correct": 9993,
+        "parameters": 1373,
+        "training_steps": 4999
+      },
+      "parent_ids": [
+        "445db01bca5dfb79507af18ea5b735c4085d3804c17647d05e10a68beb110b94"
+      ],
+      "retained_order": 116,
+      "selected_count": 30
+    },
+    "c45b9587eacc47d62e3dc063fba1877479b5475b22ddcbb8d4fe6e0916a311a6": {
+      "artifact_path": "candidates/c45b9587eacc47d62e3dc063fba1877479b5475b22ddcbb8d4fe6e0916a311a6",
+      "candidate_id": "c45b9587eacc47d62e3dc063fba1877479b5475b22ddcbb8d4fe6e0916a311a6",
+      "created_opportunity": 47,
+      "fitness": -1536.0,
+      "hypothesis": "Extending the verified three-scale optimizer-side factorization to a fourth `ln2` scale will reduce the model from 1,537 to 1,536 parameters while retaining at least 99% accuracy, because the additional scale is exactly absorbable into its `fc1` column and its separate AdamW dynamics remain preserved outside the deduplicated model.",
+      "intended_edit": "Absorb four rather than three trailing `ln2` scales into the corresponding `fc1` columns, expanding the existing ambient-coordinate moments, clipping correction, and materialization update accordingly.",
+      "metrics": {
+        "accuracy": 1.0,
+        "cases": 10010,
+        "correct": 10010,
+        "parameters": 1536,
+        "training_steps": 4999
+      },
+      "parent_ids": [
+        "3305a2e0c3f026cfb92ea1a80ffc6c38b0a1da3ccd39ac946450602e6bb1388c"
+      ],
+      "retained_order": 47,
+      "selected_count": 14
+    },
+    "cbdd3dc362a2773e6a84aa4516f0b846f75c6cf0db15be6554aff8381fa8f0eb": {
+      "artifact_path": "candidates/cbdd3dc362a2773e6a84aa4516f0b846f75c6cf0db15be6554aff8381fa8f0eb",
+      "candidate_id": "cbdd3dc362a2773e6a84aa4516f0b846f75c6cf0db15be6554aff8381fa8f0eb",
+      "created_opportunity": 82,
+      "fitness": -1385.0,
+      "hypothesis": "A 1,385-parameter model will retain at least 99% accuracy because the verified 1,386-parameter relative-lag design achieved 99.50%, while removing the common output component of a seventh `fc2` column is the same exact pre-LayerNorm scalar-shift symmetry already used successfully on six columns.",
+      "intended_edit": "Replace absolute positional embeddings with gauge-fixed learned per-head relative-lag logits, then extend the terminal projection\u2019s ambient-AdamW output gauge from six to seven columns.",
+      "metrics": {
+        "accuracy": 0.9964,
+        "cases": 10010,
+        "correct": 9974,
+        "parameters": 1385,
+        "training_steps": 4999
+      },
+      "parent_ids": [
+        "10a82b951476eb42249d85024e4a093fbe925b2a3b0d5adae413ae21e0f4ab01"
+      ],
+      "retained_order": 82,
+      "selected_count": 22
+    },
+    "cf8fe12a14b754d7fcaf83b4f587925df6c64d662436fff011a49e6eca24f517": {
+      "artifact_path": "candidates/cf8fe12a14b754d7fcaf83b4f587925df6c64d662436fff011a49e6eca24f517",
+      "candidate_id": "cf8fe12a14b754d7fcaf83b4f587925df6c64d662436fff011a49e6eca24f517",
+      "created_opportunity": 85,
+      "fitness": -1382.0,
+      "hypothesis": "A 1,382-parameter relative-lag model will retain at least 99% accuracy because the verified 1,383-parameter design achieved 99.74%, while removing the common output component of a tenth `fc2` column uses the identical pre-final-LayerNorm symmetry already verified for nine columns.",
+      "intended_edit": "Extend `GaugeFixedTerminalLinear` from nine to ten gauge-fixed weight columns, retaining the existing full ambient-gradient clipping and AdamW update path for the omitted coordinate.",
+      "metrics": {
+        "accuracy": 0.9945,
+        "cases": 10010,
+        "correct": 9955,
+        "parameters": 1382,
+        "training_steps": 4999
+      },
+      "parent_ids": [
+        "73a4b76eec516a2305e60a9bc667db137c6108048ba024af918dd2a50f4a9053"
+      ],
+      "retained_order": 85,
+      "selected_count": 26
+    },
+    "d04555510b37b64a9830fd92d373493ddd090fdedf89c88a79c398a21614bc52": {
+      "artifact_path": "candidates/d04555510b37b64a9830fd92d373493ddd090fdedf89c88a79c398a21614bc52",
+      "candidate_id": "d04555510b37b64a9830fd92d373493ddd090fdedf89c88a79c398a21614bc52",
+      "created_opportunity": 35,
+      "fitness": -1542.0,
+      "hypothesis": "Making `ln1` bias-free will reduce the model from 1,550 to 1,542 parameters while retaining at least 99% accuracy, because its query offset is representable by the retained learned query bias, its key offset cancels under softmax, and its position-independent value offset is representable by the attention output bias.",
+      "intended_edit": "Disable only the eight-dimensional bias of the first pre-attention LayerNorm while preserving its learned scale and all existing attention, MLP, and gauge parameters.",
+      "metrics": {
+        "accuracy": 0.9991,
+        "cases": 10010,
+        "correct": 10001,
+        "parameters": 1542,
+        "training_steps": 4999
+      },
+      "parent_ids": [
+        "a9399efe4603c9cc60d1d9826afc296152eedc6b447293307bd9bdab027b88ef"
+      ],
+      "retained_order": 35,
+      "selected_count": 10
+    },
+    "d3aef7179d171a85bcb71256c5062b400a5844101c2e62ba9575925fb91f4b5d": {
+      "artifact_path": "candidates/d3aef7179d171a85bcb71256c5062b400a5844101c2e62ba9575925fb91f4b5d",
+      "candidate_id": "d3aef7179d171a85bcb71256c5062b400a5844101c2e62ba9575925fb91f4b5d",
+      "created_opportunity": 26,
+      "fitness": -1623.0,
+      "hypothesis": "Extending the qualified terminal gauge from two to three `fc2` weight columns will reduce the model to 1,623 parameters while retaining at least 99% accuracy, because the additional omitted all-ones output component is erased by the final LayerNorm and its full eight-coordinate AdamW dynamics are preserved.",
+      "intended_edit": "Gauge-fix the first three terminal MLP weight columns and update initialization/storage offsets accordingly; the existing ambient optimizer automatically includes the added gauge vector.",
+      "metrics": {
+        "accuracy": 0.9995,
+        "cases": 10010,
+        "correct": 10005,
+        "parameters": 1623,
+        "training_steps": 4999
+      },
+      "parent_ids": [
+        "d73b369862f45d8fc1a2da6dc8e0d25fffc511cc34b4a0fd87c3c3abac2f9da3"
+      ],
+      "retained_order": 26,
+      "selected_count": 5
+    },
+    "d73b369862f45d8fc1a2da6dc8e0d25fffc511cc34b4a0fd87c3c3abac2f9da3": {
+      "artifact_path": "candidates/d73b369862f45d8fc1a2da6dc8e0d25fffc511cc34b4a0fd87c3c3abac2f9da3",
+      "candidate_id": "d73b369862f45d8fc1a2da6dc8e0d25fffc511cc34b4a0fd87c3c3abac2f9da3",
+      "created_opportunity": 25,
+      "fitness": -1624.0,
+      "hypothesis": "Extending the qualified terminal gauge from one to two `fc2` weight columns will yield 1,624 parameters while retaining at least 99% accuracy, because each omitted all-ones output component is erased by the final LayerNorm and its full eight-coordinate AdamW dynamics are preserved.",
+      "intended_edit": "Reproduce the successful positional and terminal-bias gauges, gauge-fix the first two terminal MLP weight columns, and optimize all four gauge vectors using ambient-coordinate moments and clipping.",
+      "metrics": {
+        "accuracy": 0.9995999999999999,
+        "cases": 10010,
+        "correct": 10006,
+        "parameters": 1624,
+        "training_steps": 4999
+      },
+      "parent_ids": [
+        "0c5739da9f29148e1e6269ddc9aed365a62c24fd7d53dc756ee0ead7226bed9b"
+      ],
+      "retained_order": 25,
+      "selected_count": 4
+    },
+    "d92205565a7c2d9105d0cbcca5aa93829b6e866eda5201acb6e44b02edf4b853": {
+      "artifact_path": "candidates/d92205565a7c2d9105d0cbcca5aa93829b6e866eda5201acb6e44b02edf4b853",
+      "candidate_id": "d92205565a7c2d9105d0cbcca5aa93829b6e866eda5201acb6e44b02edf4b853",
+      "created_opportunity": 67,
+      "fitness": -1528.0,
+      "hypothesis": "A 1,528-parameter model will retain at least 99% accuracy because the qualified six-scale, three-attention-gauge design achieved 99.93%, while the seventh `ln2` scale is exactly absorbable into its corresponding `fc1` column and can preserve ambient AdamW dynamics.",
+      "intended_edit": "Reproduce the qualified six-terminal-column and three-attention-column gauges, then extend the `ln2`/`fc1` factorization from six to seven scales.",
+      "metrics": {
+        "accuracy": 0.9993000000000001,
+        "cases": 10010,
+        "correct": 10003,
+        "parameters": 1528,
+        "training_steps": 4999
+      },
+      "parent_ids": [
+        "8a734d55abde412a6988625dafeb8472d81dc37eba441cfcab371217daff9b2c"
+      ],
+      "retained_order": 67,
+      "selected_count": 19
+    },
+    "db2adcb58ecc70407984542f088b81dd51bd1ed7ef7d8093aa3192853cab39f2": {
+      "artifact_path": "candidates/db2adcb58ecc70407984542f088b81dd51bd1ed7ef7d8093aa3192853cab39f2",
+      "candidate_id": "db2adcb58ecc70407984542f088b81dd51bd1ed7ef7d8093aa3192853cab39f2",
+      "created_opportunity": 58,
+      "fitness": -1532.0,
+      "hypothesis": "A 1,532-parameter model will retain at least 99% accuracy because the qualified 1,533-parameter design reached 99.89%, while a sixth `fc2` column\u2019s common-output component is also exactly erased by the final LayerNorm and its full AdamW dynamics can be preserved.",
+      "intended_edit": "Reproduce the qualified tied-token gauge, five absorbed `ln2` scales, and five terminal-column gauges, then gauge-fix a sixth terminal column using the existing ambient-coordinate optimizer.",
+      "metrics": {
+        "accuracy": 0.9991,
+        "cases": 10010,
+        "correct": 10001,
+        "parameters": 1532,
+        "training_steps": 4999
+      },
+      "parent_ids": [
+        "0826338009e62d6cb88030d8e2fc47a8eb9bd2a46bfdb01abc403f3d5b0a9034"
+      ],
+      "retained_order": 58,
+      "selected_count": 17
+    },
+    "e4d3472a73ef861498bf219847834e7ff2fb8616e9b9a350c77b92417912d1a3": {
+      "artifact_path": "candidates/e4d3472a73ef861498bf219847834e7ff2fb8616e9b9a350c77b92417912d1a3",
+      "candidate_id": "e4d3472a73ef861498bf219847834e7ff2fb8616e9b9a350c77b92417912d1a3",
+      "created_opportunity": 74,
+      "fitness": -1523.0,
+      "hypothesis": "A 1,523-parameter model will retain at least 99% accuracy because the verified 1,524-parameter design achieved 99.92%, while a third positional row has the same exact pre-LayerNorm scalar-shift symmetry as the two already removed.",
+      "intended_edit": "Reproduce the qualified two-scale ln1 absorption and two positional gauges, then gauge-fix a third positional row while preserving all omitted coordinates in initialization, gradient clipping, AdamW moments, decay, and updates.",
+      "metrics": {
+        "accuracy": 0.9987,
+        "cases": 10010,
+        "correct": 9997,
+        "parameters": 1523,
+        "training_steps": 4999
+      },
+      "parent_ids": [
+        "7fe758bc572f5c054fdb6cd11dedc5b53f1cffc59ab3f6f271109e5f5c07ab3b"
+      ],
+      "retained_order": 74,
+      "selected_count": 21
+    },
+    "e76091a441e2a2bc0c20ad0d7181bf37ae203c525de4aaf00fc90e46c8fac189": {
+      "artifact_path": "candidates/e76091a441e2a2bc0c20ad0d7181bf37ae203c525de4aaf00fc90e46c8fac189",
+      "candidate_id": "e76091a441e2a2bc0c20ad0d7181bf37ae203c525de4aaf00fc90e46c8fac189",
+      "created_opportunity": 75,
+      "fitness": -1522.0,
+      "hypothesis": "A 1,522-parameter model will retain at least 99% accuracy because the verified 1,523-parameter design achieved 99.87%, while a fourth positional row has the same exact pre-LayerNorm scalar-shift symmetry as the three already removed.",
+      "intended_edit": "Reproduce the qualified two-scale `ln1` absorption, complete `ln2` absorption, and three positional gauges, then gauge-fix a fourth positional row while preserving omitted coordinates through initialization, clipping, AdamW moments, decay, and updates.",
+      "metrics": {
+        "accuracy": 0.9995999999999999,
+        "cases": 10010,
+        "correct": 10006,
+        "parameters": 1522,
+        "training_steps": 4999
+      },
+      "parent_ids": [
+        "d92205565a7c2d9105d0cbcca5aa93829b6e866eda5201acb6e44b02edf4b853"
+      ],
+      "retained_order": 75,
+      "selected_count": 20
+    },
+    "ee030123e9796a5ce4f63bb6b693f5d1d8db397d6d7602efe9b79058ccfe4d4e": {
+      "artifact_path": "candidates/ee030123e9796a5ce4f63bb6b693f5d1d8db397d6d7602efe9b79058ccfe4d4e",
+      "candidate_id": "ee030123e9796a5ce4f63bb6b693f5d1d8db397d6d7602efe9b79058ccfe4d4e",
+      "created_opportunity": 61,
+      "fitness": -1531.0,
+      "hypothesis": "A 1,531-parameter model will retain at least 99% accuracy because the verified six-terminal-column design achieved 99.91%, while removing a second attention-projection column\u2019s common-output component is an exact downstream-LayerNorm symmetry whose full AdamW dynamics are preserved in ambient coordinates.",
+      "intended_edit": "Extend the qualified terminal projection gauge from four to six columns and independently gauge-fix a second attention output-projection column, updating initialization, gradient clipping, and ambient AdamW bookkeeping accordingly.",
+      "metrics": {
+        "accuracy": 0.9995999999999999,
+        "cases": 10010,
+        "correct": 10006,
+        "parameters": 1531,
+        "training_steps": 4999
+      },
+      "parent_ids": [
+        "46335d824728857e399def2993cf5c0065fd805f228a120b142fd84c75b1110d"
+      ],
+      "retained_order": 61,
+      "selected_count": 16
+    },
+    "f710a90b7fe51188fcfc3a07580a92dbe6c6b26a4147c943a5d702729241fe10": {
+      "artifact_path": "candidates/f710a90b7fe51188fcfc3a07580a92dbe6c6b26a4147c943a5d702729241fe10",
+      "candidate_id": "f710a90b7fe51188fcfc3a07580a92dbe6c6b26a4147c943a5d702729241fe10",
+      "created_opportunity": 27,
+      "fitness": -1622.0,
+      "hypothesis": "Extending the verified three-column terminal gauge to four `fc2` weight columns will reduce the model to 1,622 parameters while retaining at least 99% accuracy, because the additional all-ones output component is erased by the final LayerNorm and its full eight-coordinate AdamW dynamics are preserved.",
+      "intended_edit": "Gauge-fix the first four terminal MLP weight columns, reconstruct them during forward passes, and include every column in the existing ambient-coordinate optimizer.",
+      "metrics": {
+        "accuracy": 0.9995999999999999,
+        "cases": 10010,
+        "correct": 10006,
+        "parameters": 1622,
+        "training_steps": 4999
+      },
+      "parent_ids": [
+        "ff4148b3616f78d7d258e9dbbf26e170663b47b7c06554b06a5b59ed7b19975d"
+      ],
+      "retained_order": 27,
+      "selected_count": 7
+    },
+    "f8fd5c46d5f6cdaf53d5c242a16adcc44512f7c446e4f14b25f748228a39e923": {
+      "artifact_path": "candidates/f8fd5c46d5f6cdaf53d5c242a16adcc44512f7c446e4f14b25f748228a39e923",
+      "candidate_id": "f8fd5c46d5f6cdaf53d5c242a16adcc44512f7c446e4f14b25f748228a39e923",
+      "created_opportunity": 104,
+      "fitness": -1377.0,
+      "hypothesis": "A 1,377-parameter transformer will retain at least 99% accuracy because the qualified 1,378-parameter design reached 99.39%, while fixing one initially zero query-bias coordinate leaves seven learned bias coordinates, full query-key projections, and learned relative-lag routing intact.",
+      "intended_edit": "Reproduce the qualified complete terminal gauge, four-column attention-output gauge, and three-scale `ln1` absorption, then remove the final scalar of the learned query bias by reconstructing it as zero during the forward pass.",
+      "metrics": {
+        "accuracy": 1.0,
+        "cases": 10010,
+        "correct": 10010,
+        "parameters": 1377,
+        "training_steps": 4999
+      },
+      "parent_ids": [
+        "cf8fe12a14b754d7fcaf83b4f587925df6c64d662436fff011a49e6eca24f517"
+      ],
+      "retained_order": 104,
+      "selected_count": 27
+    },
+    "ff4148b3616f78d7d258e9dbbf26e170663b47b7c06554b06a5b59ed7b19975d": {
+      "artifact_path": "candidates/ff4148b3616f78d7d258e9dbbf26e170663b47b7c06554b06a5b59ed7b19975d",
+      "candidate_id": "ff4148b3616f78d7d258e9dbbf26e170663b47b7c06554b06a5b59ed7b19975d",
+      "created_opportunity": 24,
+      "fitness": -1625.0,
+      "hypothesis": "Extending the qualified terminal-bias gauge to one `fc2` weight column will yield 1,625 parameters and retain at least 99% accuracy, because its omitted all-ones output component is erased by the final LayerNorm while full eight-coordinate AdamW dynamics are preserved.",
+      "intended_edit": "Gauge-fix the terminal MLP bias and first weight column, reconstruct both eight-dimensional tensors during forward passes, and optimize their stored differences using ambient AdamW moments and clipping.",
+      "metrics": {
+        "accuracy": 0.9998999999999999,
+        "cases": 10010,
+        "correct": 10009,
+        "parameters": 1625,
+        "training_steps": 4999
+      },
+      "parent_ids": [
+        "a118f23e18150f77a0a7cccb179ba89ceb3984b3310c61827bf87fa2ee35c364"
+      ],
+      "retained_order": 24,
+      "selected_count": 4
+    }
+  },
+  "condition": "C3",
+  "conversation_session_id": null,
+  "evaluations_used": 104,
+  "evaluator_seconds_used": 49900.30288467393,
+  "incumbent_id": "304a7e0ff6e0ae6304820f1f40d69a78348a741015083892fb8b6074fa2d9909",
+  "next_opportunity": 118,
+  "no_search": false,
+  "portfolio_ids": [
+    "32e8771aed2d4dc78160c229983e5650e55f27cbfccd37c554b4e9cd2af37268",
+    "5bf336aacd27b15205bab2c593b43bd40be8fc536714a4207a24dafc587e3fa1",
+    "304a7e0ff6e0ae6304820f1f40d69a78348a741015083892fb8b6074fa2d9909",
+    "3de861edf98625e0142becac758da7a5d84dd7c8ca4b68e2fe1782f9eda2ed78"
+  ],
+  "proposals_used": 117,
+  "protocol_hash": "0247b4415c62d35b231e3347f31a3f63cd54eb4ec6bb2441bfc209e0ee2d3cc4",
+  "revision": 235,
+  "run_id": "controlled-openevolve-transformer-v2-1-source-only-ten-digit-addition-pair-transformer-openevolve-v2-1-mps-openevolve-b03-c3",
+  "schema_version": "1.0",
+  "status": "running",
+  "token_budget_continuation_notice_sent": false,
+  "usage": {
+    "cached_input_tokens": 1161728,
+    "input_tokens": 4489466,
+    "output_tokens": 555072,
+    "reasoning_output_tokens": 382598
+  }
+}

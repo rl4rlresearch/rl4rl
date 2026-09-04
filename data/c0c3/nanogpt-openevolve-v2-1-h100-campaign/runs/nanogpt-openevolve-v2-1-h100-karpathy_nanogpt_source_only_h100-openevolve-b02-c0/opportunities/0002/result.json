@@ -1,0 +1,82 @@
+{
+  "artifact_path": "candidates/72b7775ae8554d567ebafc9d43652536de881525ddd45b2545bbcb0b3de8dc78",
+  "candidate_id": "72b7775ae8554d567ebafc9d43652536de881525ddd45b2545bbcb0b3de8dc78",
+  "codex_service_tier": "fast",
+  "condition": "C0",
+  "conversation_session_id": null,
+  "evaluation": {
+    "evaluator_calls": 1,
+    "evaluator_seconds": 352.0010930869994,
+    "failure_kind": null,
+    "fitness": -0.999148,
+    "metrics": {
+      "depth": 8.0,
+      "mfu_percent": 44.47,
+      "num_params_M": 50.3,
+      "num_steps": 920.0,
+      "peak_vram_mb": 45060.2,
+      "total_tokens_M": 482.3,
+      "training_seconds": 300.1,
+      "val_bpb": 0.999148
+    },
+    "valid": true
+  },
+  "evaluator_calls_cumulative": 2,
+  "evaluator_calls_increment": 1,
+  "evaluator_seconds_cumulative": 716.0229895519994,
+  "evaluator_seconds_increment": 352.0010930869994,
+  "event": "proposal_completed",
+  "evicted_candidate_id": null,
+  "evidence": "Reducing six local windows from 1024 to 512 tokens unexpectedly cut throughput from 497.0M to 404.2M tokens and worsened val_bpb to 1.009175, indicating that smaller sliding windows are counterproductive on this kernel.",
+  "hypothesis": "Replacing all sliding-window layers with FA3\u2019s native full-causal mode will beat val_bpb 0.995558 by avoiding the inefficient local-attention path while giving every layer complete context.",
+  "incumbent_after": "2865e528e18dc51191e4037eaeb5824cb0ea83ede79061b59b8f3caac686da6b",
+  "intended_edit": "Use `(-1, -1)` for global attention and make every layer global.",
+  "mechanism": "True full-causal attention fast path",
+  "opportunity": 2,
+  "parent_ids": [
+    "2865e528e18dc51191e4037eaeb5824cb0ea83ede79061b59b8f3caac686da6b"
+  ],
+  "portfolio_after": [
+    "2865e528e18dc51191e4037eaeb5824cb0ea83ede79061b59b8f3caac686da6b"
+  ],
+  "prompt_hashes": {
+    "common_template_sha256": "ba85b39aa7288f4f48475376da6cff65661f39cfeb7ac7cde15b2a9a2e692fde",
+    "prompt_sha256": "93defb79b8875323f198a428fef36dc20b8dbe320083da128e5f690c9b7c1116",
+    "proposal_policy_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "search_state_sha256": "04e5eb078ae1964e4ec65bfeeeb1acd0ffa246e7d54d5e0f997f81f602da28c5",
+    "treatment_skeleton_sha256": "ddc47804ee1c188ea0e96229c2c0c21f6f99a8e794127f3f14f2d8a40a434b43"
+  },
+  "proposal_type": "ordinary",
+  "proposals_cumulative": 2,
+  "remaining_budget": {
+    "evaluations": 198,
+    "evaluator_seconds": 719283.977010448,
+    "proposals": 198,
+    "tokens": 99948696
+  },
+  "retained": false,
+  "retention_decision": "not_strictly_better_than_incumbent",
+  "run_id": "nanogpt-openevolve-v2-1-h100-karpathy_nanogpt_source_only_h100-openevolve-b02-c0",
+  "schema_version": "1.0",
+  "selected_parent_ids": [
+    "2865e528e18dc51191e4037eaeb5824cb0ea83ede79061b59b8f3caac686da6b"
+  ],
+  "timestamp": "2026-08-23T14:35:10.673998+00:00",
+  "usage_cumulative": {
+    "cached_input_tokens": 22016,
+    "input_tokens": 43968,
+    "output_tokens": 7336,
+    "reasoning_output_tokens": 6730,
+    "total_tokens": 51304
+  },
+  "usage_increment": {
+    "cached_input_tokens": 12032,
+    "input_tokens": 22042,
+    "output_tokens": 4074,
+    "reasoning_output_tokens": 3624,
+    "total_tokens": 26116
+  },
+  "visible_candidate_ids": [
+    "2865e528e18dc51191e4037eaeb5824cb0ea83ede79061b59b8f3caac686da6b"
+  ]
+}

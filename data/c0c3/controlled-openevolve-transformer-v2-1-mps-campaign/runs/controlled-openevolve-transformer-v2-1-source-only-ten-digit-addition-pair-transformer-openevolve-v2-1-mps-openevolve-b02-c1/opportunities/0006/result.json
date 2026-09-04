@@ -1,0 +1,79 @@
+{
+  "artifact_path": "candidates/011cfe37c5bb024318afd61e9c5fd405b589f43f3d417957552c9b5cbdc9f5b0",
+  "candidate_id": "011cfe37c5bb024318afd61e9c5fd405b589f43f3d417957552c9b5cbdc9f5b0",
+  "codex_service_tier": "fast",
+  "condition": "C1",
+  "conversation_session_id": null,
+  "evaluation": {
+    "evaluator_calls": 1,
+    "evaluator_seconds": 244.2280256249942,
+    "failure_kind": null,
+    "fitness": -1612.0,
+    "metrics": {
+      "accuracy": 0.9992,
+      "cases": 10010,
+      "correct": 10002,
+      "parameters": 1612,
+      "training_steps": 4999
+    },
+    "valid": true
+  },
+  "evaluator_calls_cumulative": 6,
+  "evaluator_calls_increment": 1,
+  "evaluator_seconds_cumulative": 1366.890301585081,
+  "evaluator_seconds_increment": 244.2280256249942,
+  "event": "proposal_completed",
+  "evicted_candidate_id": "4bb266c45c95c1a4f8856648e3fce9f5d20ddb90c851a54730657eba0a43a068",
+  "evidence": "The 1,628-parameter shared-bias design reached 99.99% accuracy, whereas reducing positional or token representation capacity failed. This motivates eliminating an exact affine reparameterization rather than removing representational dimensions.",
+  "hypothesis": "Removing the second LayerNorm\u2019s 16 affine parameters will reduce the model from 1,628 to 1,612 parameters while retaining at least 99% accuracy, because its learned scale and shift can be absorbed exactly into the following MLP input weights and bias.",
+  "incumbent_after": "011cfe37c5bb024318afd61e9c5fd405b589f43f3d417957552c9b5cbdc9f5b0",
+  "intended_edit": "Make the LayerNorm immediately before the MLP non-affine; leave all attention, embeddings, residual width, and MLP capacity unchanged.",
+  "mechanism": "MLP pre-normalization affine absorption",
+  "opportunity": 6,
+  "parent_ids": [
+    "4bb266c45c95c1a4f8856648e3fce9f5d20ddb90c851a54730657eba0a43a068"
+  ],
+  "portfolio_after": [
+    "011cfe37c5bb024318afd61e9c5fd405b589f43f3d417957552c9b5cbdc9f5b0"
+  ],
+  "prompt_hashes": {
+    "common_template_sha256": "3f2bea6418b6969c4bf2aa1df18dcda8a3a4ac075bf20c79068c754698b6be5e",
+    "prompt_sha256": "85f233f29aa7177bb79667e25b6dc3ade1b08c5f24c767903e816b2da709293d",
+    "proposal_policy_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "search_state_sha256": "04e5eb078ae1964e4ec65bfeeeb1acd0ffa246e7d54d5e0f997f81f602da28c5",
+    "treatment_skeleton_sha256": "546cb4cd74aac70c4509d653cacee42852f102f058d11b0863c2921a6ce29b0b"
+  },
+  "proposal_type": "ordinary",
+  "proposals_cumulative": 6,
+  "remaining_budget": {
+    "evaluations": 194,
+    "evaluator_seconds": 358633.1096984149,
+    "proposals": 194,
+    "tokens": 99860960
+  },
+  "retained": true,
+  "retention_decision": "strict_incumbent_improvement",
+  "run_id": "controlled-openevolve-transformer-v2-1-source-only-ten-digit-addition-pair-transformer-openevolve-v2-1-mps-openevolve-b02-c1",
+  "schema_version": "1.0",
+  "selected_parent_ids": [
+    "4bb266c45c95c1a4f8856648e3fce9f5d20ddb90c851a54730657eba0a43a068"
+  ],
+  "timestamp": "2026-08-23T10:56:24.383261+00:00",
+  "usage_cumulative": {
+    "cached_input_tokens": 52736,
+    "input_tokens": 114762,
+    "output_tokens": 24278,
+    "reasoning_output_tokens": 22355,
+    "total_tokens": 139040
+  },
+  "usage_increment": {
+    "cached_input_tokens": 12032,
+    "input_tokens": 19596,
+    "output_tokens": 5892,
+    "reasoning_output_tokens": 5696,
+    "total_tokens": 25488
+  },
+  "visible_candidate_ids": [
+    "4bb266c45c95c1a4f8856648e3fce9f5d20ddb90c851a54730657eba0a43a068"
+  ]
+}

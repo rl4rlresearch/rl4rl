@@ -1,0 +1,1769 @@
+{
+  "active": null,
+  "candidates": {
+    "01335139ef1775d87ef1004c11c93fbe4f47faab22be70b5196863f6a5ec9e24": {
+      "artifact_path": "candidates/01335139ef1775d87ef1004c11c93fbe4f47faab22be70b5196863f6a5ec9e24",
+      "candidate_id": "01335139ef1775d87ef1004c11c93fbe4f47faab22be70b5196863f6a5ec9e24",
+      "created_opportunity": 64,
+      "fitness": -1276.0,
+      "hypothesis": "A 1,276-parameter model will retain at least 99% accuracy because the verified 1,277-parameter model achieved 100%, while sharing the tenth-farthest bias affects only ten query-key pairs at full context and preserves head-specific biases at every more frequent distance.",
+      "intended_edit": "Extend cross-head sharing from the current two to the ten maximum-distance attention biases, reducing the current model by eight learned parameters and the best verified design by one.",
+      "metrics": {
+        "accuracy": 0.9995999999999999,
+        "cases": 10010,
+        "correct": 10006,
+        "parameters": 1276,
+        "training_steps": 4999
+      },
+      "parent_ids": [
+        "b7aa51c4a435fc5e79f75667f61f6d203cb5dd8e81268355c69ee0472ad80f86"
+      ],
+      "retained_order": 64,
+      "selected_count": 17
+    },
+    "08882bc4d672ff98595a46e5e110767d06188ab3c142cd97255458029afbbce0": {
+      "artifact_path": "candidates/08882bc4d672ff98595a46e5e110767d06188ab3c142cd97255458029afbbce0",
+      "candidate_id": "08882bc4d672ff98595a46e5e110767d06188ab3c142cd97255458029afbbce0",
+      "created_opportunity": 13,
+      "fitness": -1534.0,
+      "hypothesis": "Fixing one final LayerNorm scale coordinate at 1 while learning the other seven will produce a 1,534-parameter model with at least 99% accuracy, because it removes the prediction-invariant global-scale degree of freedom without imposing the failed mean-one constraint that prevented the learned scale average from moving.",
+      "intended_edit": "Replace the affine final LayerNorm with a bias-free normalization whose eight-element scale consists of seven learned coordinates and one fixed anchor.",
+      "metrics": {
+        "accuracy": 1.0,
+        "cases": 10010,
+        "correct": 10010,
+        "parameters": 1534,
+        "training_steps": 4999
+      },
+      "parent_ids": [
+        "4186d8a6926bebdd50198f23a72624f9f82de893aa213a1529e1f5bc0ccd04f0"
+      ],
+      "retained_order": 13,
+      "selected_count": 4
+    },
+    "0f2bbf9f4b579cc232f059a49a6ef6e9a419e0512968685842553354169124b2": {
+      "artifact_path": "candidates/0f2bbf9f4b579cc232f059a49a6ef6e9a419e0512968685842553354169124b2",
+      "candidate_id": "0f2bbf9f4b579cc232f059a49a6ef6e9a419e0512968685842553354169124b2",
+      "created_opportunity": 103,
+      "fitness": -1067.0,
+      "hypothesis": "The 1,067-parameter transformer will maintain at least 99% accuracy because non-affine LayerNorm makes every MLP input feature-mean-zero, so replacing its learned 12\u00d78 projection with an equivalent 12\u00d77 projection removes only an unobservable input direction.",
+      "intended_edit": "Adopt the verified 1,079-parameter shared mean-zero attention value design with doubly pair-tied MLP output bias, then restrict the MLP input projection to the seven-dimensional mean-zero basis, removing twelve additional parameters.",
+      "metrics": {
+        "accuracy": 0.9982,
+        "cases": 10010,
+        "correct": 9992,
+        "parameters": 1067,
+        "training_steps": 4999
+      },
+      "parent_ids": [
+        "420a617f87abf846987f99973661610f9c864c344d9cfb0796a87ff4faf9c630"
+      ],
+      "retained_order": 103,
+      "selected_count": 27
+    },
+    "11a6b94d1903fb16cc673162f80db76baed1280f7d8a8b314f86bd607763e049": {
+      "artifact_path": "candidates/11a6b94d1903fb16cc673162f80db76baed1280f7d8a8b314f86bd607763e049",
+      "candidate_id": "11a6b94d1903fb16cc673162f80db76baed1280f7d8a8b314f86bd607763e049",
+      "created_opportunity": 38,
+      "fitness": -1405.0,
+      "hypothesis": "Sharing MLP biases in two four-neuron clusters and two pairs will produce a 1,405-parameter model with at least 99% accuracy, because the verified 1,406-parameter design achieved 99.87% and this imposes only one additional scalar tie while preserving every neuron, weight, and learned threshold.",
+      "intended_edit": "Replace five learned MLP bias groups\u2014one quartet and four pairs\u2014with four learned groups comprising two quartets and two pairs.",
+      "metrics": {
+        "accuracy": 0.9940000000000001,
+        "cases": 10010,
+        "correct": 9950,
+        "parameters": 1405,
+        "training_steps": 4999
+      },
+      "parent_ids": [
+        "156f88c7cfc9c91ed7d11bf6753d7e88b4727c92200bacb12c3536acc4ee7f71"
+      ],
+      "retained_order": 38,
+      "selected_count": 13
+    },
+    "11e54e726313b6afe5fa24d33dea900e1d5280951a16e2377a436d241bdb6786": {
+      "artifact_path": "candidates/11e54e726313b6afe5fa24d33dea900e1d5280951a16e2377a436d241bdb6786",
+      "candidate_id": "11e54e726313b6afe5fa24d33dea900e1d5280951a16e2377a436d241bdb6786",
+      "created_opportunity": 55,
+      "fitness": -1282.0,
+      "hypothesis": "A 1,282-parameter model will retain at least 99% accuracy because the verified 1,283-parameter model achieved 100%, while additionally sharing the fourth-farthest bias preserves an adaptive value and affects only four query-key pairs at full context.",
+      "intended_edit": "Anchor distance-zero biases at zero and share the four maximum-distance attention biases across heads, while retaining independent head-specific biases at every shorter causal distance.",
+      "metrics": {
+        "accuracy": 0.9994,
+        "cases": 10010,
+        "correct": 10004,
+        "parameters": 1282,
+        "training_steps": 4999
+      },
+      "parent_ids": [
+        "f9b65738557b31b6f947f097b1af1df0a9d63cf8fa19616b8ed4fffbc1f3267b"
+      ],
+      "retained_order": 55,
+      "selected_count": 15
+    },
+    "12d824f95102a381de2011e9ba0015ab150fa7bf67d7c1905df1b92edb242b13": {
+      "artifact_path": "candidates/12d824f95102a381de2011e9ba0015ab150fa7bf67d7c1905df1b92edb242b13",
+      "candidate_id": "12d824f95102a381de2011e9ba0015ab150fa7bf67d7c1905df1b92edb242b13",
+      "created_opportunity": 133,
+      "fitness": -861.0,
+      "hypothesis": "The resulting 861-parameter transformer will maintain at least 99% accuracy because the current rank-six, final-pair-tied model achieved 99.99%, while the same `[a,b,c,d,d,e,e]` gain pattern achieved 99.97% with the six-unit MLP before vocabulary compression.",
+      "intended_edit": "Replace six learned secondary-head gains expanded as `[a,b,c,d,e,f,f]` with five gains expanded as `[a,b,c,d,d,e,e]`, removing one parameter while preserving the successful rank-six embedding and six-unit MLP.",
+      "metrics": {
+        "accuracy": 0.9998999999999999,
+        "cases": 10010,
+        "correct": 10009,
+        "parameters": 861,
+        "training_steps": 4999
+      },
+      "parent_ids": [
+        "ffd608c7eafd03e2e57293296535320df24ebc7389379bd90b424ab103f462ff"
+      ],
+      "retained_order": 133,
+      "selected_count": 41
+    },
+    "13c4f70932afd2bc8599bf933384e41c7e92a990e3ace2ac3090a15dfbbf86d4": {
+      "artifact_path": "candidates/13c4f70932afd2bc8599bf933384e41c7e92a990e3ace2ac3090a15dfbbf86d4",
+      "candidate_id": "13c4f70932afd2bc8599bf933384e41c7e92a990e3ace2ac3090a15dfbbf86d4",
+      "created_opportunity": 56,
+      "fitness": -1281.0,
+      "hypothesis": "A 1,281-parameter model will retain at least 99% accuracy because the verified 1,282-parameter model achieved 99.94%, while additionally sharing the fifth-farthest bias affects only five query-key pairs at full context and preserves independent head-specific biases at every more frequent distance.",
+      "intended_edit": "Replace absolute position embeddings with gauge-anchored relative-attention biases, sharing the five maximum-distance biases across heads while retaining the current learned projections, MLP bias quartets, and attention-output bias tie.",
+      "metrics": {
+        "accuracy": 0.9998,
+        "cases": 10010,
+        "correct": 10008,
+        "parameters": 1281,
+        "training_steps": 4999
+      },
+      "parent_ids": [
+        "4804d9240eabf2869a4e10bf4ed8bc99074fdbb273fdcf4d14ecadec7ddb08b4"
+      ],
+      "retained_order": 56,
+      "selected_count": 15
+    },
+    "156f88c7cfc9c91ed7d11bf6753d7e88b4727c92200bacb12c3536acc4ee7f71": {
+      "artifact_path": "candidates/156f88c7cfc9c91ed7d11bf6753d7e88b4727c92200bacb12c3536acc4ee7f71",
+      "candidate_id": "156f88c7cfc9c91ed7d11bf6753d7e88b4727c92200bacb12c3536acc4ee7f71",
+      "created_opportunity": 35,
+      "fitness": -1408.0,
+      "hypothesis": "Sharing biases within five disjoint pairs of permutation-symmetric MLP neurons will produce a 1,408-parameter model with at least 99% accuracy, because the verified four-pair design achieved 99.98% while preserving all twelve neurons, independent weights, and learned thresholds.",
+      "intended_edit": "Parameterize the twelve MLP hidden biases with seven learned values, using the final five values for five disjoint neuron pairs.",
+      "metrics": {
+        "accuracy": 0.9995999999999999,
+        "cases": 10010,
+        "correct": 10006,
+        "parameters": 1408,
+        "training_steps": 4999
+      },
+      "parent_ids": [
+        "e1322722af46a445cd061e74cf79ea0efa8002b9102b6d9a9dc358c65e54927b"
+      ],
+      "retained_order": 35,
+      "selected_count": 10
+    },
+    "1e5ee939e7f995809e7b55c0dc39ff2ce5d04ac23b63f11ead471f98ae0f3af8": {
+      "artifact_path": "candidates/1e5ee939e7f995809e7b55c0dc39ff2ce5d04ac23b63f11ead471f98ae0f3af8",
+      "candidate_id": "1e5ee939e7f995809e7b55c0dc39ff2ce5d04ac23b63f11ead471f98ae0f3af8",
+      "created_opportunity": 66,
+      "fitness": -1274.0,
+      "hypothesis": "A 1,274-parameter model will retain at least 99% accuracy because the verified 1,275-parameter model achieved 99.98%, while sharing the twelfth-farthest bias affects only twelve query-key pairs at full context and preserves head-specific biases at every more frequent distance.",
+      "intended_edit": "Extend cross-head sharing from the current nine to the twelve maximum-distance attention biases, reducing the current model by three learned parameters and the best verified design by one.",
+      "metrics": {
+        "accuracy": 0.9998,
+        "cases": 10010,
+        "correct": 10008,
+        "parameters": 1274,
+        "training_steps": 4999
+      },
+      "parent_ids": [
+        "2cf768dba5c16d5cdd4649b2ef3ca0a09f51250dcbd57d36e37992ff0d80e2fe"
+      ],
+      "retained_order": 66,
+      "selected_count": 19
+    },
+    "1f9c1ba2ac0852a547a3f201747794e09830a3d9e93676797d7b2f7430af009f": {
+      "artifact_path": "candidates/1f9c1ba2ac0852a547a3f201747794e09830a3d9e93676797d7b2f7430af009f",
+      "candidate_id": "1f9c1ba2ac0852a547a3f201747794e09830a3d9e93676797d7b2f7430af009f",
+      "created_opportunity": 111,
+      "fitness": -1061.0,
+      "hypothesis": "A 1,061-parameter transformer will maintain at least 99% accuracy because the verified 1,062-parameter model achieved 99.94%, and this adds only one equality constraint to its triplet-tied attention output bias while preserving the load-bearing scalar MLP bias, feature-wise head adapter, learned matrices, and positional routing.",
+      "intended_edit": "Adopt the verified scalar-shared MLP output bias and reduce the attention output bias from six learned scalars to four by expanding its final scalar across four of the seven mean-zero basis coordinates.",
+      "metrics": {
+        "accuracy": 0.9998,
+        "cases": 10010,
+        "correct": 10008,
+        "parameters": 1061,
+        "training_steps": 4999
+      },
+      "parent_ids": [
+        "59a190f1a2032204c80ad9474364f4bdecf2d8278fdc69fe66be9b9bf85722b4"
+      ],
+      "retained_order": 111,
+      "selected_count": 29
+    },
+    "20a5c3bfbf04aa80b96f17343a77f8831e6c5f4c41c01d279f005f3028872399": {
+      "artifact_path": "candidates/20a5c3bfbf04aa80b96f17343a77f8831e6c5f4c41c01d279f005f3028872399",
+      "candidate_id": "20a5c3bfbf04aa80b96f17343a77f8831e6c5f4c41c01d279f005f3028872399",
+      "created_opportunity": 99,
+      "fitness": -1136.0,
+      "hypothesis": "The 1,136-parameter transformer will maintain at least 99% accuracy because the verified 1,137-parameter design reached 99.92%, and this ties only one pair of initially identical MLP output-bias coordinates while preserving every learned weight matrix and attention mechanism.",
+      "intended_edit": "Adopt the verified fixed-direction scalar addressing, direct per-head 8\u21927 attention output maps, and bias-free MLP expansion, then reduce one additional parameter by pair-tying the mean-zero MLP output bias.",
+      "metrics": {
+        "accuracy": 0.9998999999999999,
+        "cases": 10010,
+        "correct": 10009,
+        "parameters": 1136,
+        "training_steps": 4999
+      },
+      "parent_ids": [
+        "90ceea9c659ed5882e7f7f2d553af7ca32363ee9f359ab394eb99c1e21573475"
+      ],
+      "retained_order": 99,
+      "selected_count": 26
+    },
+    "233394cd375a5ff2e6ce46d1b46cbed468499a6f42b3c710d410413603edab39": {
+      "artifact_path": "candidates/233394cd375a5ff2e6ce46d1b46cbed468499a6f42b3c710d410413603edab39",
+      "candidate_id": "233394cd375a5ff2e6ce46d1b46cbed468499a6f42b3c710d410413603edab39",
+      "created_opportunity": 11,
+      "fitness": -1535.0,
+      "hypothesis": "Applying the verified 1,543-parameter gauge reductions and removing only the final LayerNorm bias will produce a 1,535-parameter model with at least 99% accuracy, because the terminal bias supplies only a position-independent class prior while the learned scale and all proven-critical internal biases remain intact.",
+      "intended_edit": "Add mean-zero positional and residual-output parameterizations, vocabulary-center the tied embeddings, and replace the final LayerNorm with a learned-scale-only normalization.",
+      "metrics": {
+        "accuracy": 0.9963,
+        "cases": 10010,
+        "correct": 9973,
+        "parameters": 1535,
+        "training_steps": 4999
+      },
+      "parent_ids": [
+        "612141e9f8dc70435f06cfd2738fce94f10aa50f3b04a0c02a313003d1af34fb"
+      ],
+      "retained_order": 11,
+      "selected_count": 4
+    },
+    "2b9cea175ed60b009337ac54f6e8ad23bf2c014eb4080237777bfb70bfd9fd5b": {
+      "artifact_path": "candidates/2b9cea175ed60b009337ac54f6e8ad23bf2c014eb4080237777bfb70bfd9fd5b",
+      "candidate_id": "2b9cea175ed60b009337ac54f6e8ad23bf2c014eb4080237777bfb70bfd9fd5b",
+      "created_opportunity": 0,
+      "fitness": -1644.0,
+      "hypothesis": "frozen seed baseline",
+      "intended_edit": "none",
+      "metrics": {
+        "accuracy": 0.9995999999999999,
+        "cases": 10010,
+        "correct": 10006,
+        "parameters": 1644,
+        "training_steps": 4999
+      },
+      "parent_ids": [],
+      "retained_order": 0,
+      "selected_count": 6
+    },
+    "2cf768dba5c16d5cdd4649b2ef3ca0a09f51250dcbd57d36e37992ff0d80e2fe": {
+      "artifact_path": "candidates/2cf768dba5c16d5cdd4649b2ef3ca0a09f51250dcbd57d36e37992ff0d80e2fe",
+      "candidate_id": "2cf768dba5c16d5cdd4649b2ef3ca0a09f51250dcbd57d36e37992ff0d80e2fe",
+      "created_opportunity": 63,
+      "fitness": -1277.0,
+      "hypothesis": "A 1,277-parameter model will retain at least 99% accuracy because the verified 1,278-parameter model achieved 100%, while sharing the ninth-farthest bias affects only nine query-key pairs at full context and preserves head-specific biases at every more frequent distance.",
+      "intended_edit": "Extend cross-head sharing from the current six to the nine maximum-distance attention biases, reducing the current model by three learned parameters and the best verified design by one.",
+      "metrics": {
+        "accuracy": 1.0,
+        "cases": 10010,
+        "correct": 10010,
+        "parameters": 1277,
+        "training_steps": 4999
+      },
+      "parent_ids": [
+        "ee5e4e31ff43ae136c59ff5a21301ca5a95e00a95cedba676c26b14d27d4518e"
+      ],
+      "retained_order": 63,
+      "selected_count": 17
+    },
+    "2d817a55b0125c1ad46768fc0b977a5564a189b293ffb08f4fa8bf1fd1acde7b": {
+      "artifact_path": "candidates/2d817a55b0125c1ad46768fc0b977a5564a189b293ffb08f4fa8bf1fd1acde7b",
+      "candidate_id": "2d817a55b0125c1ad46768fc0b977a5564a189b293ffb08f4fa8bf1fd1acde7b",
+      "created_opportunity": 37,
+      "fitness": -1406.0,
+      "hypothesis": "Merging two of the six learned MLP bias pairs into one four-neuron cluster will produce a 1,406-parameter model with at least 99% accuracy, because it preserves every neuron, weight, and adaptive threshold while imposing only one additional scalar tie.",
+      "intended_edit": "Replace six pairwise-shared MLP biases with five learned biases: one shared across four neurons and four shared across two neurons each.",
+      "metrics": {
+        "accuracy": 0.9987,
+        "cases": 10010,
+        "correct": 9997,
+        "parameters": 1406,
+        "training_steps": 4999
+      },
+      "parent_ids": [
+        "d58454a126efdd88af5b972571cacb7b1e3630010660b3551a2dcd2ae8e725af"
+      ],
+      "retained_order": 37,
+      "selected_count": 13
+    },
+    "323e5b9c28bcc297efc0375ba4bdd7894ef36c59db3b0203f815d004c25ccb05": {
+      "artifact_path": "candidates/323e5b9c28bcc297efc0375ba4bdd7894ef36c59db3b0203f815d004c25ccb05",
+      "candidate_id": "323e5b9c28bcc297efc0375ba4bdd7894ef36c59db3b0203f815d004c25ccb05",
+      "created_opportunity": 125,
+      "fitness": -976.0,
+      "hypothesis": "A 976-parameter transformer will maintain at least 99% accuracy because five successive MLP-width reductions through seven units retained at least 99%, and the verified seven-unit 990-parameter model achieved 100%; reducing the width by one tests the same isolated 14-parameter reduction.",
+      "intended_edit": "Reduce the MLP hidden width from seven to six units while preserving the verified attention, embeddings, projections, biases, residual width, training procedure, and decoding interface.",
+      "metrics": {
+        "accuracy": 1.0,
+        "cases": 10010,
+        "correct": 10010,
+        "parameters": 976,
+        "training_steps": 4999
+      },
+      "parent_ids": [
+        "c63ac85761b9d6013ad6dba0856dae3166a6c7a9485b48a775faa51e5149d8bf"
+      ],
+      "retained_order": 125,
+      "selected_count": 41
+    },
+    "346398f888c5e300ac66be838954083a9dacecbcb4bd69412d19ac629d94725a": {
+      "artifact_path": "candidates/346398f888c5e300ac66be838954083a9dacecbcb4bd69412d19ac629d94725a",
+      "candidate_id": "346398f888c5e300ac66be838954083a9dacecbcb4bd69412d19ac629d94725a",
+      "created_opportunity": 95,
+      "fitness": -1148.0,
+      "hypothesis": "A 1,148-parameter transformer will achieve at least 99% accuracy because the verified 1,155-parameter model reached 100% with one tied scalar query-key feature, and the learned embeddings can align that feature with a fixed input coordinate while a learned gain preserves adaptive attention strength.",
+      "intended_edit": "Replace the eight-parameter tied scalar address projection with a one-parameter gain applied to the first normalized feature coordinate, while preserving shared query-key addressing, full-width values, and eleven-bin positional routing.",
+      "metrics": {
+        "accuracy": 1.0,
+        "cases": 10010,
+        "correct": 10010,
+        "parameters": 1148,
+        "training_steps": 4999
+      },
+      "parent_ids": [
+        "40e49edb32316056b1da4c071290d0ea028f64d1f7ba71026c31647d988fc528"
+      ],
+      "retained_order": 95,
+      "selected_count": 25
+    },
+    "38c2a21cfbb6283fbe9a37aa9cc13fb5f9a3fda76b761e040c57551faabd44f0": {
+      "artifact_path": "candidates/38c2a21cfbb6283fbe9a37aa9cc13fb5f9a3fda76b761e040c57551faabd44f0",
+      "candidate_id": "38c2a21cfbb6283fbe9a37aa9cc13fb5f9a3fda76b761e040c57551faabd44f0",
+      "created_opportunity": 67,
+      "fitness": -1273.0,
+      "hypothesis": "A 1,273-parameter model will retain at least 99% accuracy because the verified 1,274-parameter model achieved 99.98%, while sharing the thirteenth-farthest bias affects only thirteen query-key pairs at full context.",
+      "intended_edit": "Extend cross-head sharing from the eight to the thirteen maximum-distance attention biases, reducing the current model by five parameters and the best verified design by one.",
+      "metrics": {
+        "accuracy": 0.9959,
+        "cases": 10010,
+        "correct": 9969,
+        "parameters": 1273,
+        "training_steps": 4999
+      },
+      "parent_ids": [
+        "9f1dc28b7858ab801bf58c077f75ca53ebab8dcd29b723c82616486cd35492a9"
+      ],
+      "retained_order": 67,
+      "selected_count": 19
+    },
+    "38f10465b71abfce6ebf37715bda81a0d5528699101d63c55144b7bd4c6172b6": {
+      "artifact_path": "candidates/38f10465b71abfce6ebf37715bda81a0d5528699101d63c55144b7bd4c6172b6",
+      "candidate_id": "38f10465b71abfce6ebf37715bda81a0d5528699101d63c55144b7bd4c6172b6",
+      "created_opportunity": 117,
+      "fitness": -1056.0,
+      "hypothesis": "A 1,056-parameter transformer will maintain at least 99% accuracy because the verified 1,057-parameter model achieved 99.88%, and tying one additional adjacent pair preserves five independently learned secondary-head gains rather than collapsing all feature specialization.",
+      "intended_edit": "Preserve the verified final gain pair and tie the two preceding secondary-head gain coordinates, changing the expansion from `[a,b,c,d,e,f,f]` to `[a,b,c,d,d,e,e]`.",
+      "metrics": {
+        "accuracy": 1.0,
+        "cases": 10010,
+        "correct": 10010,
+        "parameters": 1056,
+        "training_steps": 4999
+      },
+      "parent_ids": [
+        "e29c377cc6c1d9a9ce886ca7ae81b7f7ef6d23c7a0352e259b299b17766f87ee"
+      ],
+      "retained_order": 117,
+      "selected_count": 31
+    },
+    "3cf5f3aeba18a4bb176c87dad4aef30c3b96512b8f096a9bd07faa756419e9c5": {
+      "artifact_path": "candidates/3cf5f3aeba18a4bb176c87dad4aef30c3b96512b8f096a9bd07faa756419e9c5",
+      "candidate_id": "3cf5f3aeba18a4bb176c87dad4aef30c3b96512b8f096a9bd07faa756419e9c5",
+      "created_opportunity": 115,
+      "fitness": -1058.0,
+      "hypothesis": "The 1,058-parameter transformer will maintain at least 99% accuracy because the verified 1,059-parameter design achieved 99.79%, and sharing its scalar MLP output bias with the attention triplet scalar preserves both learned biases and the load-bearing triplet/quartet attention boundary while adding only one cross-layer equality constraint.",
+      "intended_edit": "Adopt the verified scalar MLP bias and triplet/quartet attention bias, then reuse the attention triplet parameter as the MLP scalar bias, removing one deduplicated learned parameter.",
+      "metrics": {
+        "accuracy": 0.9995999999999999,
+        "cases": 10010,
+        "correct": 10006,
+        "parameters": 1058,
+        "training_steps": 4999
+      },
+      "parent_ids": [
+        "aaba422180eb2da15caca5c9de27e97fa234bd0b8d06854a50593d83f92df266"
+      ],
+      "retained_order": 115,
+      "selected_count": 30
+    },
+    "3d06172053acf3c0155510eab2e51a6f7b85efd67e29b7a1d5ddd15f72978e96": {
+      "artifact_path": "candidates/3d06172053acf3c0155510eab2e51a6f7b85efd67e29b7a1d5ddd15f72978e96",
+      "candidate_id": "3d06172053acf3c0155510eab2e51a6f7b85efd67e29b7a1d5ddd15f72978e96",
+      "created_opportunity": 160,
+      "fitness": -748.0,
+      "hypothesis": "Restricting the verified 861-parameter design\u2019s tied token/logit embedding from rank six to rank five will retain at least 99% accuracy while reducing the model to 748 parameters.",
+      "intended_edit": "Adopt the verified six-unit MLP and paired secondary-head gain, then remove one additional learned vocabulary coordinate from both input representation and output classification.",
+      "metrics": {
+        "accuracy": 0.9987999999999999,
+        "cases": 10010,
+        "correct": 9998,
+        "parameters": 748,
+        "training_steps": 4999
+      },
+      "parent_ids": [
+        "c1e9d871a1212b1e19f31d0dc4edafb99e7a5fe23d06514f25cac54e22c7f159"
+      ],
+      "retained_order": 160,
+      "selected_count": 43
+    },
+    "3ebd940b35a7aa1f58ee4449c6bc20da29c3160ece09c3c6de5a7f9b9d1d8e61": {
+      "artifact_path": "candidates/3ebd940b35a7aa1f58ee4449c6bc20da29c3160ece09c3c6de5a7f9b9d1d8e61",
+      "candidate_id": "3ebd940b35a7aa1f58ee4449c6bc20da29c3160ece09c3c6de5a7f9b9d1d8e61",
+      "created_opportunity": 173,
+      "fitness": -744.0,
+      "hypothesis": "Extending the verified 745-parameter final LayerNorm pattern from two disjoint tied pairs to three\u2014`[a,b,b,c,c,d,d,1]`\u2014will retain at least 99% accuracy while reducing the model to 744 learned parameters.",
+      "intended_edit": "Replace five learned final-normalization scales with four, tying the second and third coordinates while preserving the two already verified pairs and fixed anchor.",
+      "metrics": {
+        "accuracy": 0.9984999999999999,
+        "cases": 10010,
+        "correct": 9995,
+        "parameters": 744,
+        "training_steps": 4999
+      },
+      "parent_ids": [
+        "5c77fe064ceb3a0a2585e6b72886de1bb0d62e62dc0d0c6ed2a7eb0784df4c72"
+      ],
+      "retained_order": 173,
+      "selected_count": 44
+    },
+    "40e49edb32316056b1da4c071290d0ea028f64d1f7ba71026c31647d988fc528": {
+      "artifact_path": "candidates/40e49edb32316056b1da4c071290d0ea028f64d1f7ba71026c31647d988fc528",
+      "candidate_id": "40e49edb32316056b1da4c071290d0ea028f64d1f7ba71026c31647d988fc528",
+      "created_opportunity": 90,
+      "fitness": -1211.0,
+      "hypothesis": "A 1,211-parameter transformer will achieve at least 99% accuracy because two-dimensional query/key features should suffice to distinguish the small token vocabulary, while the 99.98%-accurate eleven-bin design preserves head-specific positional routing.",
+      "intended_edit": "Replace four-dimensional query/key vectors with independent two-dimensional vectors while retaining four-dimensional values, and restore the robust eleven-bin far-distance sharing layout.",
+      "metrics": {
+        "accuracy": 0.9993000000000001,
+        "cases": 10010,
+        "correct": 10003,
+        "parameters": 1211,
+        "training_steps": 4999
+      },
+      "parent_ids": [
+        "6ffbe5639cbfedced0aba303696504033995c8599043aa3a92534633d4b5c23b"
+      ],
+      "retained_order": 90,
+      "selected_count": 24
+    },
+    "4186d8a6926bebdd50198f23a72624f9f82de893aa213a1529e1f5bc0ccd04f0": {
+      "artifact_path": "candidates/4186d8a6926bebdd50198f23a72624f9f82de893aa213a1529e1f5bc0ccd04f0",
+      "candidate_id": "4186d8a6926bebdd50198f23a72624f9f82de893aa213a1529e1f5bc0ccd04f0",
+      "created_opportunity": 9,
+      "fitness": -1543.0,
+      "hypothesis": "Centering tied token embeddings across vocabulary entries will reduce the verified 1,551-parameter model to 1,543 parameters while retaining at least 99% accuracy, because the removed shared embedding vector can be absorbed by the mean-zero positional embeddings up to an all-ones residual shift, while its output-head effect is only a class-independent logit shift.",
+      "intended_edit": "Parameterize the tied token embedding matrix in the vocabulary-mean-zero subspace and use its reconstructed full matrix for both input lookup and output logits.",
+      "metrics": {
+        "accuracy": 0.9998999999999999,
+        "cases": 10010,
+        "correct": 10009,
+        "parameters": 1543,
+        "training_steps": 4999
+      },
+      "parent_ids": [
+        "c84faa732819d98b9ddd5d0fd36d106b3d726876bb0d15e502f7405a1e302a24"
+      ],
+      "retained_order": 9,
+      "selected_count": 3
+    },
+    "420a617f87abf846987f99973661610f9c864c344d9cfb0796a87ff4faf9c630": {
+      "artifact_path": "candidates/420a617f87abf846987f99973661610f9c864c344d9cfb0796a87ff4faf9c630",
+      "candidate_id": "420a617f87abf846987f99973661610f9c864c344d9cfb0796a87ff4faf9c630",
+      "created_opportunity": 98,
+      "fitness": -1137.0,
+      "hypothesis": "The 1,137-parameter transformer will achieve at least 99% accuracy because each head\u2019s factorized 8\u21924\u21927 value/output path can be replaced by a more expressive direct 8\u21927 learned map while preserving attention, positional routing, normalization, and residual biases.",
+      "intended_edit": "Adopt the verified bias-free MLP and fuse the attention value and output weights into direct per-head mean-zero output maps, removing eight factorization parameters.",
+      "metrics": {
+        "accuracy": 0.9992,
+        "cases": 10010,
+        "correct": 10002,
+        "parameters": 1137,
+        "training_steps": 4999
+      },
+      "parent_ids": [
+        "346398f888c5e300ac66be838954083a9dacecbcb4bd69412d19ac629d94725a"
+      ],
+      "retained_order": 98,
+      "selected_count": 26
+    },
+    "479f3faeb0ea5dd0f739eca30ed4c5c3ed3e4497d03614ee67079b31933d63da": {
+      "artifact_path": "candidates/479f3faeb0ea5dd0f739eca30ed4c5c3ed3e4497d03614ee67079b31933d63da",
+      "candidate_id": "479f3faeb0ea5dd0f739eca30ed4c5c3ed3e4497d03614ee67079b31933d63da",
+      "created_opportunity": 119,
+      "fitness": -1054.0,
+      "hypothesis": "A 1,054-parameter transformer will maintain at least 99% accuracy because the verified 1,055-parameter `[a,b,b,c,c,d,d]` gain design achieved 99.88%, and tying its remaining singleton into the adjacent pair retains three independently learned feature gains.",
+      "intended_edit": "Adopt the verified cross-layer scalar-bias sharing and compress the secondary-head gain expansion to `[a,a,a,b,b,c,c]`, removing five deduplicated parameters from the current design.",
+      "metrics": {
+        "accuracy": 0.9923000000000001,
+        "cases": 10010,
+        "correct": 9933,
+        "parameters": 1054,
+        "training_steps": 4999
+      },
+      "parent_ids": [
+        "ace99e39b3f28576c043f4d55e4d9ae04dcaf8c49bc7a1b15d3efda8a278ac41"
+      ],
+      "retained_order": 119,
+      "selected_count": 31
+    },
+    "4804d9240eabf2869a4e10bf4ed8bc99074fdbb273fdcf4d14ecadec7ddb08b4": {
+      "artifact_path": "candidates/4804d9240eabf2869a4e10bf4ed8bc99074fdbb273fdcf4d14ecadec7ddb08b4",
+      "candidate_id": "4804d9240eabf2869a4e10bf4ed8bc99074fdbb273fdcf4d14ecadec7ddb08b4",
+      "created_opportunity": 45,
+      "fitness": -1403.0,
+      "hypothesis": "Tying two learned attention-output bias coordinates will produce a 1,403-parameter model with at least 99% accuracy while preserving all projection weights and an adaptive bias in every output direction.",
+      "intended_edit": "Replace the attention output projection with a mean-zero linear layer whose final two internal bias coordinates share one learned scalar; leave the MLP and final normalization unchanged.",
+      "metrics": {
+        "accuracy": 0.9998,
+        "cases": 10010,
+        "correct": 10008,
+        "parameters": 1403,
+        "training_steps": 4999
+      },
+      "parent_ids": [
+        "9f38e5572812370787520f9e537cb0ace88c16ad21ec2b59732212ab1ff52a41"
+      ],
+      "retained_order": 45,
+      "selected_count": 14
+    },
+    "4ad77a3578c651b4295b36d266e39364de3e497d16a3368e964227c41321c870": {
+      "artifact_path": "candidates/4ad77a3578c651b4295b36d266e39364de3e497d16a3368e964227c41321c870",
+      "candidate_id": "4ad77a3578c651b4295b36d266e39364de3e497d16a3368e964227c41321c870",
+      "created_opportunity": 34,
+      "fitness": -1409.0,
+      "hypothesis": "Sharing biases within four disjoint pairs of permutation-symmetric MLP neurons will produce a 1,409-parameter model with at least 99% accuracy, because the verified three-pair design reached 99.52% while retaining all twelve neurons, independent weights, and learned thresholds.",
+      "intended_edit": "Parameterize the twelve MLP hidden biases with eight learned values, using the final four values for four disjoint neuron pairs.",
+      "metrics": {
+        "accuracy": 0.9998,
+        "cases": 10010,
+        "correct": 10008,
+        "parameters": 1409,
+        "training_steps": 4999
+      },
+      "parent_ids": [
+        "c5704ceb7af26c4eea6595aafac80efbfa654c2c05c41b335d067cf3b99d94c4"
+      ],
+      "retained_order": 34,
+      "selected_count": 10
+    },
+    "4bbebfc8efb2e1d183dac60936a2db6b7ee3353d6d4148bd12b713bf48a1ca46": {
+      "artifact_path": "candidates/4bbebfc8efb2e1d183dac60936a2db6b7ee3353d6d4148bd12b713bf48a1ca46",
+      "candidate_id": "4bbebfc8efb2e1d183dac60936a2db6b7ee3353d6d4148bd12b713bf48a1ca46",
+      "created_opportunity": 54,
+      "fitness": -1283.0,
+      "hypothesis": "A 1,283-parameter model will retain at least 99% accuracy because the verified 1,284-parameter model achieved 99.94%, while sharing the third-farthest bias affects only three query-key pairs at full context and leaves all more frequently used routing bins head-specific.",
+      "intended_edit": "Share the three maximum-distance attention biases across heads while retaining independent head-specific biases at every shorter causal distance.",
+      "metrics": {
+        "accuracy": 1.0,
+        "cases": 10010,
+        "correct": 10010,
+        "parameters": 1283,
+        "training_steps": 4999
+      },
+      "parent_ids": [
+        "d978997d56cc3a6246e312cd7eeb679ed04eec6ae79193936e82c3dca0ac9ed7"
+      ],
+      "retained_order": 54,
+      "selected_count": 15
+    },
+    "51332e197c5cd34bc1ef8d1d61fc132c3583730a6478a553e519bf09d41e247d": {
+      "artifact_path": "candidates/51332e197c5cd34bc1ef8d1d61fc132c3583730a6478a553e519bf09d41e247d",
+      "candidate_id": "51332e197c5cd34bc1ef8d1d61fc132c3583730a6478a553e519bf09d41e247d",
+      "created_opportunity": 65,
+      "fitness": -1275.0,
+      "hypothesis": "A 1,275-parameter model will retain at least 99% accuracy because the verified 1,276-parameter model achieved 99.96%, while sharing the eleventh-farthest bias affects only eleven query-key pairs at full context and preserves head-specific biases at every more frequent distance.",
+      "intended_edit": "Extend cross-head sharing from the ten to the eleven maximum-distance attention biases, reducing the model by one learned parameter.",
+      "metrics": {
+        "accuracy": 0.9998,
+        "cases": 10010,
+        "correct": 10008,
+        "parameters": 1275,
+        "training_steps": 4999
+      },
+      "parent_ids": [
+        "01335139ef1775d87ef1004c11c93fbe4f47faab22be70b5196863f6a5ec9e24"
+      ],
+      "retained_order": 65,
+      "selected_count": 23
+    },
+    "554f89cbff95e49dac4d628eeac6ced06ed2bdbecfefe322075c245ae1e5fcf6": {
+      "artifact_path": "candidates/554f89cbff95e49dac4d628eeac6ced06ed2bdbecfefe322075c245ae1e5fcf6",
+      "candidate_id": "554f89cbff95e49dac4d628eeac6ced06ed2bdbecfefe322075c245ae1e5fcf6",
+      "created_opportunity": 113,
+      "fitness": -1060.0,
+      "hypothesis": "A 1,060-parameter transformer will maintain at least 99% accuracy because the verified 1,061-parameter model achieved 99.98%; unlike the failed quintet tie, this preserves the successful final quartet and its boundary while tying only two remaining singleton bias coordinates.",
+      "intended_edit": "Reduce the attention output bias from four scalars to three using the pattern `[a,b,b,c,c,c,c]`, preserving the first coordinate and the verified final quartet.",
+      "metrics": {
+        "accuracy": 0.9995,
+        "cases": 10010,
+        "correct": 10005,
+        "parameters": 1060,
+        "training_steps": 4999
+      },
+      "parent_ids": [
+        "1f9c1ba2ac0852a547a3f201747794e09830a3d9e93676797d7b2f7430af009f"
+      ],
+      "retained_order": 113,
+      "selected_count": 30
+    },
+    "5634b6d20ba43e62332c53f68f8f5e16bceacb643bbcf7f0d9cd6dfd741795e8": {
+      "artifact_path": "candidates/5634b6d20ba43e62332c53f68f8f5e16bceacb643bbcf7f0d9cd6dfd741795e8",
+      "candidate_id": "5634b6d20ba43e62332c53f68f8f5e16bceacb643bbcf7f0d9cd6dfd741795e8",
+      "created_opportunity": 81,
+      "fitness": -1270.0,
+      "hypothesis": "A 1,270-parameter model will achieve at least 99% accuracy because adding a small linear common-mode component to the narrowly failing 98.94% centered contrast preserves its useful quartet distinction while avoiding the quadratic coupling\u2019s zero initial common-mode gradient.",
+      "intended_edit": "Replace the two learned MLP hidden-bias values with one scalar that assigns the first quartet its full value and each tied final quartet negative one-third of that value.",
+      "metrics": {
+        "accuracy": 0.9931,
+        "cases": 10010,
+        "correct": 9941,
+        "parameters": 1270,
+        "training_steps": 4999
+      },
+      "parent_ids": [
+        "fb0b24eced973da9cc4ee463a71ceef9c011ebc7419471ad3409f50a8d1cf52e"
+      ],
+      "retained_order": 81,
+      "selected_count": 24
+    },
+    "59a190f1a2032204c80ad9474364f4bdecf2d8278fdc69fe66be9b9bf85722b4": {
+      "artifact_path": "candidates/59a190f1a2032204c80ad9474364f4bdecf2d8278fdc69fe66be9b9bf85722b4",
+      "candidate_id": "59a190f1a2032204c80ad9474364f4bdecf2d8278fdc69fe66be9b9bf85722b4",
+      "created_opportunity": 105,
+      "fitness": -1065.0,
+      "hypothesis": "The resulting 1,065-parameter transformer will maintain at least 99% accuracy because the verified 1,066-parameter model achieved 99.95%, and this adds only one equality constraint to its three-times-pair-tied MLP output bias while preserving all learned matrices, attention routing, normalization, and residual paths.",
+      "intended_edit": "Replace the seven-coordinate MLP output bias pattern `[a,b,b,c,c,d,d]` with `[a,a,a,b,b,c,c]`, reducing the learned bias from four scalars to three.",
+      "metrics": {
+        "accuracy": 0.9995999999999999,
+        "cases": 10010,
+        "correct": 10006,
+        "parameters": 1065,
+        "training_steps": 4999
+      },
+      "parent_ids": [
+        "66fc0d2b9b2bf7ee2d976cf2f259e53418c43bd47bfc82ddd0a7afa8a2fb4395"
+      ],
+      "retained_order": 105,
+      "selected_count": 28
+    },
+    "5c77fe064ceb3a0a2585e6b72886de1bb0d62e62dc0d0c6ed2a7eb0784df4c72": {
+      "artifact_path": "candidates/5c77fe064ceb3a0a2585e6b72886de1bb0d62e62dc0d0c6ed2a7eb0784df4c72",
+      "candidate_id": "5c77fe064ceb3a0a2585e6b72886de1bb0d62e62dc0d0c6ed2a7eb0784df4c72",
+      "created_opportunity": 172,
+      "fitness": -745.0,
+      "hypothesis": "The verified 746-parameter design will retain at least 99% accuracy when a second disjoint pair of final LayerNorm scales is tied, reducing the learned parameter count to 745.",
+      "intended_edit": "Adopt the verified rank-five tied embedding and four-gain attention design, then parameterize final normalization as `[a,b,c,d,d,e,e,1]`.",
+      "metrics": {
+        "accuracy": 0.9989,
+        "cases": 10010,
+        "correct": 9999,
+        "parameters": 745,
+        "training_steps": 4999
+      },
+      "parent_ids": [
+        "b31d43702dae789701e60d5d2cf6644a3877e93ecb5e7a8b5d3a0815651a9726"
+      ],
+      "retained_order": 172,
+      "selected_count": 44
+    },
+    "5d7888433eab18d1678cfe7b9e0eef80d72e53d59698da084f11dce835032e57": {
+      "artifact_path": "candidates/5d7888433eab18d1678cfe7b9e0eef80d72e53d59698da084f11dce835032e57",
+      "candidate_id": "5d7888433eab18d1678cfe7b9e0eef80d72e53d59698da084f11dce835032e57",
+      "created_opportunity": 107,
+      "fitness": -1063.0,
+      "hypothesis": "A 1,063-parameter transformer will maintain at least 99% accuracy because the verified 1,064-parameter model achieved 100%, and this adds only one equality constraint to its triplet-and-quartet MLP output bias while preserving all learned matrices, attention routing, normalization, and residual paths.",
+      "intended_edit": "Adopt the verified mean-zero MLP input factorization and replace the two-scalar triplet-and-quartet output bias with one scalar shared across all seven basis coordinates.",
+      "metrics": {
+        "accuracy": 0.9964,
+        "cases": 10010,
+        "correct": 9974,
+        "parameters": 1063,
+        "training_steps": 4999
+      },
+      "parent_ids": [
+        "d02acb54bbad4dcb6f9acffc4989e924c13c6aebed2b3528d51a8f2f14a18be0"
+      ],
+      "retained_order": 107,
+      "selected_count": 28
+    },
+    "5e9917afe2ae43465419e95f44c7c1fe45a7c8a0d92af1e51d451fab10a0443b": {
+      "artifact_path": "candidates/5e9917afe2ae43465419e95f44c7c1fe45a7c8a0d92af1e51d451fab10a0443b",
+      "candidate_id": "5e9917afe2ae43465419e95f44c7c1fe45a7c8a0d92af1e51d451fab10a0443b",
+      "created_opportunity": 24,
+      "fitness": -1414.0,
+      "hypothesis": "Combining the verified two-sided embedding constraint with the verified shared scalar query bias will produce a 1,414-parameter model with at least 99% accuracy, because each reduction preserved accuracy independently and leaves attention projection widths, positional capacity, MLP width, and terminal relative scales unchanged.",
+      "intended_edit": "Apply vocabulary- and feature-centered tied token embeddings, mean-zero positional embeddings and residual projections, affine-free internal normalization, anchored terminal scaling, and one learned query-bias scalar shared across both attention heads.",
+      "metrics": {
+        "accuracy": 0.9904000000000001,
+        "cases": 10010,
+        "correct": 9914,
+        "parameters": 1414,
+        "training_steps": 4999
+      },
+      "parent_ids": [
+        "2b9cea175ed60b009337ac54f6e8ad23bf2c014eb4080237777bfb70bfd9fd5b"
+      ],
+      "retained_order": 24,
+      "selected_count": 7
+    },
+    "612141e9f8dc70435f06cfd2738fce94f10aa50f3b04a0c02a313003d1af34fb": {
+      "artifact_path": "candidates/612141e9f8dc70435f06cfd2738fce94f10aa50f3b04a0c02a313003d1af34fb",
+      "candidate_id": "612141e9f8dc70435f06cfd2738fce94f10aa50f3b04a0c02a313003d1af34fb",
+      "created_opportunity": 5,
+      "fitness": -1596.0,
+      "hypothesis": "Combining the verified bias-minimal attention with affine-free pre-norm LayerNorms will reduce parameters from 1,628 to 1,596 while retaining at least 99% accuracy, because each removed LayerNorm scale can be absorbed into its following learned projection, while its shift is absorbed by the retained query, attention-output, and MLP input biases.",
+      "intended_edit": "Use bias-free packed QKV with only a learned query bias, and disable learned affine parameters in both transformer-block LayerNorms while preserving `d_ff=12` and both residual-output biases.",
+      "metrics": {
+        "accuracy": 0.9981,
+        "cases": 10010,
+        "correct": 9991,
+        "parameters": 1596,
+        "training_steps": 4999
+      },
+      "parent_ids": [
+        "2b9cea175ed60b009337ac54f6e8ad23bf2c014eb4080237777bfb70bfd9fd5b"
+      ],
+      "retained_order": 5,
+      "selected_count": 2
+    },
+    "66fc0d2b9b2bf7ee2d976cf2f259e53418c43bd47bfc82ddd0a7afa8a2fb4395": {
+      "artifact_path": "candidates/66fc0d2b9b2bf7ee2d976cf2f259e53418c43bd47bfc82ddd0a7afa8a2fb4395",
+      "candidate_id": "66fc0d2b9b2bf7ee2d976cf2f259e53418c43bd47bfc82ddd0a7afa8a2fb4395",
+      "created_opportunity": 104,
+      "fitness": -1066.0,
+      "hypothesis": "The resulting 1,066-parameter transformer will maintain at least 99% accuracy because the verified 1,067-parameter model reached 99.82%, and two successive MLP output-bias pair ties already preserved 99%+ accuracy.",
+      "intended_edit": "Adopt the verified 1,067-parameter mean-zero attention and MLP factorization, then remove one additional parameter by tying a third pair of MLP output-bias coordinates.",
+      "metrics": {
+        "accuracy": 0.9995,
+        "cases": 10010,
+        "correct": 10005,
+        "parameters": 1066,
+        "training_steps": 4999
+      },
+      "parent_ids": [
+        "fcc4299a047f8b88ed20d280cfc930518fe3a63f95ffe604d92168b6aaa5295f"
+      ],
+      "retained_order": 104,
+      "selected_count": 27
+    },
+    "6ffbe5639cbfedced0aba303696504033995c8599043aa3a92534633d4b5c23b": {
+      "artifact_path": "candidates/6ffbe5639cbfedced0aba303696504033995c8599043aa3a92534633d4b5c23b",
+      "candidate_id": "6ffbe5639cbfedced0aba303696504033995c8599043aa3a92534633d4b5c23b",
+      "created_opportunity": 68,
+      "fitness": -1272.0,
+      "hypothesis": "A 1,272-parameter model will retain at least 99% accuracy because the verified 1,273-parameter model achieved 99.59%, while sharing the next-sparsest bias affects only fourteen query-key pairs at full context.",
+      "intended_edit": "Extend cross-head sharing from seven to fourteen maximum-distance attention biases, reducing the current model by seven parameters and the best verified design by one.",
+      "metrics": {
+        "accuracy": 0.993,
+        "cases": 10010,
+        "correct": 9940,
+        "parameters": 1272,
+        "training_steps": 4999
+      },
+      "parent_ids": [
+        "f5bd618659af0c3708f55a21ea1a4a59430ea2c177f6d0617ad3f1b632d6bdc9"
+      ],
+      "retained_order": 68,
+      "selected_count": 23
+    },
+    "71e6282b5574133e521cf7f931b1f073c7081b69299076ee0589ef7f0a4843b5": {
+      "artifact_path": "candidates/71e6282b5574133e521cf7f931b1f073c7081b69299076ee0589ef7f0a4843b5",
+      "candidate_id": "71e6282b5574133e521cf7f931b1f073c7081b69299076ee0589ef7f0a4843b5",
+      "created_opportunity": 162,
+      "fitness": -747.0,
+      "hypothesis": "Combining the verified rank-five embedding with the independently verified `[a,b,b,c,c,d,d]` gain pattern will achieve at least 99% accuracy with 747 parameters.",
+      "intended_edit": "Reduce the tied embedding from rank six to rank five and tie one additional secondary-head gain while retaining the six-unit MLP.",
+      "metrics": {
+        "accuracy": 0.9989,
+        "cases": 10010,
+        "correct": 9999,
+        "parameters": 747,
+        "training_steps": 4999
+      },
+      "parent_ids": [
+        "12d824f95102a381de2011e9ba0015ab150fa7bf67d7c1905df1b92edb242b13"
+      ],
+      "retained_order": 162,
+      "selected_count": 43
+    },
+    "74b50d836619a8b8d9342b5b0f6481d2553f99a6db64ee813f390f65564074da": {
+      "artifact_path": "candidates/74b50d836619a8b8d9342b5b0f6481d2553f99a6db64ee813f390f65564074da",
+      "candidate_id": "74b50d836619a8b8d9342b5b0f6481d2553f99a6db64ee813f390f65564074da",
+      "created_opportunity": 7,
+      "fitness": -1573.0,
+      "hypothesis": "Constraining positional embeddings to the seven-dimensional mean-zero subspace, alongside the verified affine-free block norms, will reduce parameters below 1,596 while retaining at least 99% accuracy because position-dependent all-ones components are removed by every downstream LayerNorm and never affect logits.",
+      "intended_edit": "Use an orthonormally parameterized mean-zero positional embedding and disable affine parameters in both block LayerNorms, while preserving the verified attention and MLP capacities.",
+      "metrics": {
+        "accuracy": 0.9993000000000001,
+        "cases": 10010,
+        "correct": 10003,
+        "parameters": 1573,
+        "training_steps": 4999
+      },
+      "parent_ids": [
+        "f746e25e61f5e3e6ac7db58e30e7f9dedd63df4fff1d1fa76f88268622524d8c"
+      ],
+      "retained_order": 7,
+      "selected_count": 4
+    },
+    "85cfbf1e294cb0819ff3a8a764095809458ecc15429088b650547e7373655b24": {
+      "artifact_path": "candidates/85cfbf1e294cb0819ff3a8a764095809458ecc15429088b650547e7373655b24",
+      "candidate_id": "85cfbf1e294cb0819ff3a8a764095809458ecc15429088b650547e7373655b24",
+      "created_opportunity": 17,
+      "fitness": -1527.0,
+      "hypothesis": "Tying the two scalar query biases will reduce the verified 1,528-parameter design to 1,527 parameters while retaining at least 99% accuracy, because each head\u2019s unrestricted query and key projections permit reciprocal rescaling that normalizes nonzero bias amplitudes to one shared learned value without changing attention logits.",
+      "intended_edit": "Apply the verified vocabulary-centered embeddings, mean-zero residual projections, anchored terminal normalization, and scalar query-bias gauge reductions, then share one learned query-bias scalar across both attention heads.",
+      "metrics": {
+        "accuracy": 0.998,
+        "cases": 10010,
+        "correct": 9990,
+        "parameters": 1527,
+        "training_steps": 4999
+      },
+      "parent_ids": [
+        "74b50d836619a8b8d9342b5b0f6481d2553f99a6db64ee813f390f65564074da"
+      ],
+      "retained_order": 17,
+      "selected_count": 8
+    },
+    "887b2f422bbe4213c0a31850ae4d66de7811adb2ee48a53d76e2ce8a45c78a50": {
+      "artifact_path": "candidates/887b2f422bbe4213c0a31850ae4d66de7811adb2ee48a53d76e2ce8a45c78a50",
+      "candidate_id": "887b2f422bbe4213c0a31850ae4d66de7811adb2ee48a53d76e2ce8a45c78a50",
+      "created_opportunity": 52,
+      "fitness": -1285.0,
+      "hypothesis": "A 1,285-parameter model will retain at least 99% accuracy because the verified 1,286-parameter model achieved 100%, while sharing only the farthest-distance bias preserves an adaptive value and affects just one query-key pair when the context is full.",
+      "intended_edit": "Adopt the verified gauge-anchored relative-attention design, then tie the two heads\u2019 maximum-distance bias while retaining independent biases at every shorter causal distance.",
+      "metrics": {
+        "accuracy": 0.9998999999999999,
+        "cases": 10010,
+        "correct": 10009,
+        "parameters": 1285,
+        "training_steps": 4999
+      },
+      "parent_ids": [
+        "a88b46c7e55613c2dcf07f3e6e7020aa2f72d971747ac983c6b6517ee71198b2"
+      ],
+      "retained_order": 52,
+      "selected_count": 14
+    },
+    "90ceea9c659ed5882e7f7f2d553af7ca32363ee9f359ab394eb99c1e21573475": {
+      "artifact_path": "candidates/90ceea9c659ed5882e7f7f2d553af7ca32363ee9f359ab394eb99c1e21573475",
+      "candidate_id": "90ceea9c659ed5882e7f7f2d553af7ca32363ee9f359ab394eb99c1e21573475",
+      "created_opportunity": 94,
+      "fitness": -1155.0,
+      "hypothesis": "A 1,155-parameter transformer will achieve at least 99% accuracy because the verified 1,163-parameter model reached 99.99% with head-shared scalar queries and keys, leaving one scalar content feature that can serve both roles while positional routing and full-width values remain unchanged.",
+      "intended_edit": "Replace the separate head-specific scalar query/key projection with one eight-parameter projection shared across both heads and both addressing roles.",
+      "metrics": {
+        "accuracy": 1.0,
+        "cases": 10010,
+        "correct": 10010,
+        "parameters": 1155,
+        "training_steps": 4999
+      },
+      "parent_ids": [
+        "c43d61d6b31ce410cc2ea4c36a883905cf495f89d8edd20a62f5b5fe5b1ddd17"
+      ],
+      "retained_order": 94,
+      "selected_count": 25
+    },
+    "9cfe5cb5c3f3ec5093ff19b675a161f66440f594027b82ad004b23c4e7f1ab37": {
+      "artifact_path": "candidates/9cfe5cb5c3f3ec5093ff19b675a161f66440f594027b82ad004b23c4e7f1ab37",
+      "candidate_id": "9cfe5cb5c3f3ec5093ff19b675a161f66440f594027b82ad004b23c4e7f1ab37",
+      "created_opportunity": 16,
+      "fitness": -1528.0,
+      "hypothesis": "Reducing each head\u2019s query bias from four coordinates to one scalar, while applying the verified anchored terminal scale, will produce a 1,528-parameter model with at least 99% accuracy because unrestricted query/key projections can rotate any nonzero headwise bias onto a single coordinate without changing attention logits.",
+      "intended_edit": "Use one learned query-bias scalar per head reconstructed with three fixed zeros, and replace the final normalization with the verified seven-scale, one-anchor parameterization.",
+      "metrics": {
+        "accuracy": 0.9986,
+        "cases": 10010,
+        "correct": 9996,
+        "parameters": 1528,
+        "training_steps": 4999
+      },
+      "parent_ids": [
+        "233394cd375a5ff2e6ce46d1b46cbed468499a6f42b3c710d410413603edab39"
+      ],
+      "retained_order": 16,
+      "selected_count": 8
+    },
+    "9f1dc28b7858ab801bf58c077f75ca53ebab8dcd29b723c82616486cd35492a9": {
+      "artifact_path": "candidates/9f1dc28b7858ab801bf58c077f75ca53ebab8dcd29b723c82616486cd35492a9",
+      "candidate_id": "9f1dc28b7858ab801bf58c077f75ca53ebab8dcd29b723c82616486cd35492a9",
+      "created_opportunity": 59,
+      "fitness": -1278.0,
+      "hypothesis": "A 1,278-parameter model will retain at least 99% accuracy because the verified 1,279-parameter model achieved 99.99%, while additionally sharing the eighth-farthest bias affects only eight query-key pairs at full context and preserves head-specific biases at every more frequent distance.",
+      "intended_edit": "Extend cross-head sharing from the three to the eight maximum-distance attention biases, reducing the current model by five learned parameters and the best verified design by one.",
+      "metrics": {
+        "accuracy": 1.0,
+        "cases": 10010,
+        "correct": 10010,
+        "parameters": 1278,
+        "training_steps": 4999
+      },
+      "parent_ids": [
+        "4bbebfc8efb2e1d183dac60936a2db6b7ee3353d6d4148bd12b713bf48a1ca46"
+      ],
+      "retained_order": 59,
+      "selected_count": 17
+    },
+    "9f38e5572812370787520f9e537cb0ace88c16ad21ec2b59732212ab1ff52a41": {
+      "artifact_path": "candidates/9f38e5572812370787520f9e537cb0ace88c16ad21ec2b59732212ab1ff52a41",
+      "candidate_id": "9f38e5572812370787520f9e537cb0ace88c16ad21ec2b59732212ab1ff52a41",
+      "created_opportunity": 39,
+      "fitness": -1404.0,
+      "hypothesis": "Sharing the twelve MLP hidden biases across three learned four-neuron clusters will produce a 1,404-parameter model with at least 99% accuracy.",
+      "intended_edit": "Replace four independent biases and four pair-shared biases with three learned biases, each shared by four MLP neurons.",
+      "metrics": {
+        "accuracy": 0.9956999999999999,
+        "cases": 10010,
+        "correct": 9967,
+        "parameters": 1404,
+        "training_steps": 4999
+      },
+      "parent_ids": [
+        "4ad77a3578c651b4295b36d266e39364de3e497d16a3368e964227c41321c870"
+      ],
+      "retained_order": 39,
+      "selected_count": 12
+    },
+    "a0b9a9140b38ac8ab304c79b940df4ee45cccc3edfb38412ccf86149c7875fbf": {
+      "artifact_path": "candidates/a0b9a9140b38ac8ab304c79b940df4ee45cccc3edfb38412ccf86149c7875fbf",
+      "candidate_id": "a0b9a9140b38ac8ab304c79b940df4ee45cccc3edfb38412ccf86149c7875fbf",
+      "created_opportunity": 164,
+      "fitness": -746.0,
+      "hypothesis": "The verified 747-parameter design will retain at least 99% accuracy when two adjacent final LayerNorm scales are tied, reducing the model to 746 parameters without further constraining attention.",
+      "intended_edit": "Adopt the verified rank-five embedding and four-way secondary-head gain pattern, then replace seven independent final-normalization scales with six parameters expanded as `[a,b,c,d,e,f,f,1]`.",
+      "metrics": {
+        "accuracy": 0.998,
+        "cases": 10010,
+        "correct": 9990,
+        "parameters": 746,
+        "training_steps": 4999
+      },
+      "parent_ids": [
+        "323e5b9c28bcc297efc0375ba4bdd7894ef36c59db3b0203f815d004c25ccb05"
+      ],
+      "retained_order": 164,
+      "selected_count": 43
+    },
+    "a2d7644004326ac08adefb2154a6229b4494697237092079dd0063fe8d9efe0a": {
+      "artifact_path": "candidates/a2d7644004326ac08adefb2154a6229b4494697237092079dd0063fe8d9efe0a",
+      "candidate_id": "a2d7644004326ac08adefb2154a6229b4494697237092079dd0063fe8d9efe0a",
+      "created_opportunity": 32,
+      "fitness": -1411.0,
+      "hypothesis": "Sharing biases within two disjoint pairs of permutation-symmetric MLP neurons will produce a 1,411-parameter model with at least 99% accuracy, because all twelve neurons and their weights remain independent while every threshold remains learned.",
+      "intended_edit": "Apply two-sided centered tied embeddings and the verified fixed 0.02 query bias, then parameterize the twelve MLP biases with ten learned values shared across two neuron pairs.",
+      "metrics": {
+        "accuracy": 0.9995999999999999,
+        "cases": 10010,
+        "correct": 10006,
+        "parameters": 1411,
+        "training_steps": 4999
+      },
+      "parent_ids": [
+        "9cfe5cb5c3f3ec5093ff19b675a161f66440f594027b82ad004b23c4e7f1ab37"
+      ],
+      "retained_order": 32,
+      "selected_count": 9
+    },
+    "a79e5ed68799e61e422a3549ab8b8ee4e9903a49d43f20c6a42a7de7d0b5ef68": {
+      "artifact_path": "candidates/a79e5ed68799e61e422a3549ab8b8ee4e9903a49d43f20c6a42a7de7d0b5ef68",
+      "candidate_id": "a79e5ed68799e61e422a3549ab8b8ee4e9903a49d43f20c6a42a7de7d0b5ef68",
+      "created_opportunity": 15,
+      "fitness": -1532.0,
+      "hypothesis": "Fixing one query-bias coordinate per attention head will reduce the model from 1,534 to 1,532 parameters while retaining at least 99% accuracy, because a headwise orthogonal rotation can move any query-bias vector into the remaining three coordinates while applying the same rotation to queries and keys leaves every attention logit unchanged.",
+      "intended_edit": "Store three learned query-bias coordinates per four-dimensional head, reconstructing the fourth as zero, while preserving full query/key projection widths and the verified terminal normalization.",
+      "metrics": {
+        "accuracy": 0.9994,
+        "cases": 10010,
+        "correct": 10004,
+        "parameters": 1532,
+        "training_steps": 4999
+      },
+      "parent_ids": [
+        "08882bc4d672ff98595a46e5e110767d06188ab3c142cd97255458029afbbce0"
+      ],
+      "retained_order": 15,
+      "selected_count": 6
+    },
+    "a88b46c7e55613c2dcf07f3e6e7020aa2f72d971747ac983c6b6517ee71198b2": {
+      "artifact_path": "candidates/a88b46c7e55613c2dcf07f3e6e7020aa2f72d971747ac983c6b6517ee71198b2",
+      "candidate_id": "a88b46c7e55613c2dcf07f3e6e7020aa2f72d971747ac983c6b6517ee71198b2",
+      "created_opportunity": 33,
+      "fitness": -1410.0,
+      "hypothesis": "Sharing biases within three disjoint pairs of permutation-symmetric MLP neurons will produce a 1,410-parameter model with at least 99% accuracy, because the verified second disjoint tie preserved 99.96% accuracy while retaining all twelve neurons, independent weights, and learned thresholds.",
+      "intended_edit": "Parameterize the twelve MLP hidden biases with nine learned values, using the final three values for three disjoint neuron pairs.",
+      "metrics": {
+        "accuracy": 0.9952,
+        "cases": 10010,
+        "correct": 9962,
+        "parameters": 1410,
+        "training_steps": 4999
+      },
+      "parent_ids": [
+        "a2d7644004326ac08adefb2154a6229b4494697237092079dd0063fe8d9efe0a"
+      ],
+      "retained_order": 33,
+      "selected_count": 13
+    },
+    "a9680c4e22c10e209cd4e5064f30c17d1c09e2f89806d2463ab0b38fb5346935": {
+      "artifact_path": "candidates/a9680c4e22c10e209cd4e5064f30c17d1c09e2f89806d2463ab0b38fb5346935",
+      "candidate_id": "a9680c4e22c10e209cd4e5064f30c17d1c09e2f89806d2463ab0b38fb5346935",
+      "created_opportunity": 93,
+      "fitness": -1163.0,
+      "hypothesis": "A 1,163-parameter transformer will maintain at least 99% accuracy because the verified 1,171-parameter model achieved 100% with a head-shared scalar key, while distinct relative biases and value channels can still specialize the two heads when the scalar query is also shared.",
+      "intended_edit": "Replace the two-head scalar query projection with one shared scalar query projection, relying on the existing broadcast to both heads and removing eight learned parameters.",
+      "metrics": {
+        "accuracy": 0.9998999999999999,
+        "cases": 10010,
+        "correct": 10009,
+        "parameters": 1163,
+        "training_steps": 4999
+      },
+      "parent_ids": [
+        "e2aa462ba835d9e0dc24321e79b4e7452b9ea736653d1a1d4ba5cef52f433c1d"
+      ],
+      "retained_order": 93,
+      "selected_count": 25
+    },
+    "aaba422180eb2da15caca5c9de27e97fa234bd0b8d06854a50593d83f92df266": {
+      "artifact_path": "candidates/aaba422180eb2da15caca5c9de27e97fa234bd0b8d06854a50593d83f92df266",
+      "candidate_id": "aaba422180eb2da15caca5c9de27e97fa234bd0b8d06854a50593d83f92df266",
+      "created_opportunity": 106,
+      "fitness": -1064.0,
+      "hypothesis": "A 1,064-parameter transformer will maintain at least 99% accuracy because the verified 1,065-parameter model reached 99.96%, and this adds only one equality constraint to its three-scalar MLP output bias while preserving all learned matrices, attention routing, normalization, and residual paths.",
+      "intended_edit": "Adopt the verified triplet-and-pair bias sharing, then tie its two bias-pair scalars to form the seven-coordinate pattern `[a,a,a,b,b,b,b]`, reducing the model by one parameter.",
+      "metrics": {
+        "accuracy": 1.0,
+        "cases": 10010,
+        "correct": 10010,
+        "parameters": 1064,
+        "training_steps": 4999
+      },
+      "parent_ids": [
+        "0f2bbf9f4b579cc232f059a49a6ef6e9a419e0512968685842553354169124b2"
+      ],
+      "retained_order": 106,
+      "selected_count": 29
+    },
+    "ace99e39b3f28576c043f4d55e4d9ae04dcaf8c49bc7a1b15d3efda8a278ac41": {
+      "artifact_path": "candidates/ace99e39b3f28576c043f4d55e4d9ae04dcaf8c49bc7a1b15d3efda8a278ac41",
+      "candidate_id": "ace99e39b3f28576c043f4d55e4d9ae04dcaf8c49bc7a1b15d3efda8a278ac41",
+      "created_opportunity": 114,
+      "fitness": -1059.0,
+      "hypothesis": "A 1,059-parameter transformer will maintain at least 99% accuracy because the verified 1,060-parameter `[a,b,b,c,c,c,c]` attention-bias design achieved 99.95%, and merging its first singleton with the adjacent pair preserves the demonstrated quartet boundary.",
+      "intended_edit": "Adopt the verified final quartet and tie the three remaining attention output-bias coordinates, producing `[a,a,a,b,b,b,b]` and reducing the current model by three parameters.",
+      "metrics": {
+        "accuracy": 0.9979,
+        "cases": 10010,
+        "correct": 9989,
+        "parameters": 1059,
+        "training_steps": 4999
+      },
+      "parent_ids": [
+        "ed30c4fa18600444ae7c3fe8e637546be139dfb8cf4e39dd31d3fb4031a021d2"
+      ],
+      "retained_order": 114,
+      "selected_count": 30
+    },
+    "ae7e3cde81e4e5de3df778dd7554946c218d1e0e14fbbfede89b8ff5fcdf4332": {
+      "artifact_path": "candidates/ae7e3cde81e4e5de3df778dd7554946c218d1e0e14fbbfede89b8ff5fcdf4332",
+      "candidate_id": "ae7e3cde81e4e5de3df778dd7554946c218d1e0e14fbbfede89b8ff5fcdf4332",
+      "created_opportunity": 23,
+      "fitness": -1419.0,
+      "hypothesis": "Constraining tied token embeddings to the feature-mean-zero subspace will reduce the current 1,532-parameter model to 1,520 parameters while retaining at least 99% accuracy, because affine-free LayerNorm makes each token-dependent all-ones feature component invisible throughout the residual stack and terminal normalization, while terminal hidden states are mean-zero and therefore cannot use that component in output logits.",
+      "intended_edit": "Parameterize the tied embedding matrix with orthonormal bases across both vocabulary and feature dimensions, removing one functionally null feature coordinate for each of the twelve vocabulary-basis rows while preserving the current successful six-parameter query-bias design.",
+      "metrics": {
+        "accuracy": 0.9934000000000001,
+        "cases": 10010,
+        "correct": 9944,
+        "parameters": 1419,
+        "training_steps": 4999
+      },
+      "parent_ids": [
+        "a79e5ed68799e61e422a3549ab8b8ee4e9903a49d43f20c6a42a7de7d0b5ef68"
+      ],
+      "retained_order": 23,
+      "selected_count": 9
+    },
+    "b31d43702dae789701e60d5d2cf6644a3877e93ecb5e7a8b5d3a0815651a9726": {
+      "artifact_path": "candidates/b31d43702dae789701e60d5d2cf6644a3877e93ecb5e7a8b5d3a0815651a9726",
+      "candidate_id": "b31d43702dae789701e60d5d2cf6644a3877e93ecb5e7a8b5d3a0815651a9726",
+      "created_opportunity": 129,
+      "fitness": -973.0,
+      "hypothesis": "The resulting 973-parameter transformer will maintain at least 99% accuracy because the current 974-parameter model achieved 99.97%, while the same `[a,b,b,c,c,d,d]` gain pattern achieved 99.88% in the larger-MLP design.",
+      "intended_edit": "Replace the five learned secondary-head gains expanded as `[a,b,c,d,d,e,e]` with four gains expanded as `[a,b,b,c,c,d,d]`, removing one learned parameter while retaining the verified six-unit MLP.",
+      "metrics": {
+        "accuracy": 0.9993000000000001,
+        "cases": 10010,
+        "correct": 10003,
+        "parameters": 973,
+        "training_steps": 4999
+      },
+      "parent_ids": [
+        "da7ca82826a7e91454af0ad2fcd5f7ba4ab6d42ff9a717a618a8986a77fc4b4f"
+      ],
+      "retained_order": 129,
+      "selected_count": 43
+    },
+    "b7aa51c4a435fc5e79f75667f61f6d203cb5dd8e81268355c69ee0472ad80f86": {
+      "artifact_path": "candidates/b7aa51c4a435fc5e79f75667f61f6d203cb5dd8e81268355c69ee0472ad80f86",
+      "candidate_id": "b7aa51c4a435fc5e79f75667f61f6d203cb5dd8e81268355c69ee0472ad80f86",
+      "created_opportunity": 53,
+      "fitness": -1284.0,
+      "hypothesis": "A 1,284-parameter model will retain at least 99% accuracy because the verified 1,285-parameter model achieved 99.99%, while additionally sharing only the second-farthest-distance bias preserves an adaptive value and affects just two query-key pairs at full context.",
+      "intended_edit": "Share the two maximum-distance attention biases across heads while retaining independent head-specific biases at every shorter causal distance.",
+      "metrics": {
+        "accuracy": 0.9994,
+        "cases": 10010,
+        "correct": 10004,
+        "parameters": 1284,
+        "training_steps": 4999
+      },
+      "parent_ids": [
+        "887b2f422bbe4213c0a31850ae4d66de7811adb2ee48a53d76e2ce8a45c78a50"
+      ],
+      "retained_order": 53,
+      "selected_count": 16
+    },
+    "bcfed8cce953ebfbfc702490e405cb92b8732b468d327ba385e6b12dc713e9a6": {
+      "artifact_path": "candidates/bcfed8cce953ebfbfc702490e405cb92b8732b468d327ba385e6b12dc713e9a6",
+      "candidate_id": "bcfed8cce953ebfbfc702490e405cb92b8732b468d327ba385e6b12dc713e9a6",
+      "created_opportunity": 120,
+      "fitness": -1046.0,
+      "hypothesis": "A 1,046-parameter transformer will maintain at least 99% accuracy because the verified 1,060-parameter model reached 99.95%, and reducing the MLP from twelve to eleven learned nonlinear features preserves all attention routing, seven-dimensional residual features, biases, and embeddings while testing whether the previously fixed hidden width is overparameterized.",
+      "intended_edit": "Replace the twelve-unit MLP with an eleven-unit MLP, removing fourteen learned projection weights and challenging the prior assumption that further compression must come from tying attention-output or secondary-head coordinates.",
+      "metrics": {
+        "accuracy": 1.0,
+        "cases": 10010,
+        "correct": 10010,
+        "parameters": 1046,
+        "training_steps": 4999
+      },
+      "parent_ids": [
+        "554f89cbff95e49dac4d628eeac6ced06ed2bdbecfefe322075c245ae1e5fcf6"
+      ],
+      "retained_order": 120,
+      "selected_count": 31
+    },
+    "c043338da350b79ad9aa2d7eea9a09d85d53d2d593d4d0643dfe20dc4920653a": {
+      "artifact_path": "candidates/c043338da350b79ad9aa2d7eea9a09d85d53d2d593d4d0643dfe20dc4920653a",
+      "candidate_id": "c043338da350b79ad9aa2d7eea9a09d85d53d2d593d4d0643dfe20dc4920653a",
+      "created_opportunity": 122,
+      "fitness": -1018.0,
+      "hypothesis": "A 1,018-parameter transformer will maintain at least 99% accuracy because successive MLP-width reductions from twelve to eleven and eleven to ten units retained 100% and 99.89% accuracy; reducing the verified 1,032-parameter design by one more unit tests the same isolated 14-parameter reduction.",
+      "intended_edit": "Adopt the verified 1,032-parameter architecture and reduce its MLP hidden width from ten to nine units, preserving its feature-wise secondary-head gains, three-group attention bias, independent scalar MLP bias, routing, embeddings, and residual width.",
+      "metrics": {
+        "accuracy": 0.9995999999999999,
+        "cases": 10010,
+        "correct": 10006,
+        "parameters": 1018,
+        "training_steps": 4999
+      },
+      "parent_ids": [
+        "479f3faeb0ea5dd0f739eca30ed4c5c3ed3e4497d03614ee67079b31933d63da"
+      ],
+      "retained_order": 122,
+      "selected_count": 32
+    },
+    "c0a09408ef7b8f9d8ab52dd7613d276f83e8f2f75e6c2730e7b416e5d8b92701": {
+      "artifact_path": "candidates/c0a09408ef7b8f9d8ab52dd7613d276f83e8f2f75e6c2730e7b416e5d8b92701",
+      "candidate_id": "c0a09408ef7b8f9d8ab52dd7613d276f83e8f2f75e6c2730e7b416e5d8b92701",
+      "created_opportunity": 96,
+      "fitness": -1146.0,
+      "hypothesis": "A 1,146-parameter transformer will achieve at least 99% accuracy because the 1,148-parameter fixed-direction scalar-addressing design reached 100%, while the current one-scalar tilted MLP bias independently reached 99.31%.",
+      "intended_edit": "Replace full-width QKV projections with the verified learned scalar gain on one normalized coordinate plus a full-width value projection, restore eleven-bin positional routing, and retain the current one-scalar tilted MLP bias.",
+      "metrics": {
+        "accuracy": 0.9998999999999999,
+        "cases": 10010,
+        "correct": 10009,
+        "parameters": 1146,
+        "training_steps": 4999
+      },
+      "parent_ids": [
+        "5634b6d20ba43e62332c53f68f8f5e16bceacb643bbcf7f0d9cd6dfd741795e8"
+      ],
+      "retained_order": 96,
+      "selected_count": 25
+    },
+    "c1e9d871a1212b1e19f31d0dc4edafb99e7a5fe23d06514f25cac54e22c7f159": {
+      "artifact_path": "candidates/c1e9d871a1212b1e19f31d0dc4edafb99e7a5fe23d06514f25cac54e22c7f159",
+      "candidate_id": "c1e9d871a1212b1e19f31d0dc4edafb99e7a5fe23d06514f25cac54e22c7f159",
+      "created_opportunity": 123,
+      "fitness": -1004.0,
+      "hypothesis": "A 1,004-parameter transformer will maintain at least 99% accuracy because successive MLP-width reductions to eleven, ten, and nine units achieved 100%, 99.89%, and 99.96%, respectively; reducing the verified nine-unit design by one more unit tests the same isolated 14-parameter reduction.",
+      "intended_edit": "Adopt the verified 1,018-parameter architecture and reduce its MLP hidden width from nine to eight units, preserving its full secondary-head gains, three-group attention bias, independent scalar MLP bias, routing, embeddings, and residual width.",
+      "metrics": {
+        "accuracy": 0.9998999999999999,
+        "cases": 10010,
+        "correct": 10009,
+        "parameters": 1004,
+        "training_steps": 4999
+      },
+      "parent_ids": [
+        "e2c8f8015800c85012cc94351f430913c72bd65b4cc5eae8beaf9796b99391da"
+      ],
+      "retained_order": 123,
+      "selected_count": 40
+    },
+    "c27f6010a485ff5cfdc5ac2e71ac81e43da988dd61d34f2532c7acaa7f1609e8": {
+      "artifact_path": "candidates/c27f6010a485ff5cfdc5ac2e71ac81e43da988dd61d34f2532c7acaa7f1609e8",
+      "candidate_id": "c27f6010a485ff5cfdc5ac2e71ac81e43da988dd61d34f2532c7acaa7f1609e8",
+      "created_opportunity": 121,
+      "fitness": -1032.0,
+      "hypothesis": "A 1,032-parameter transformer will maintain at least 99% accuracy because reducing the MLP from twelve to eleven units removed fourteen parameters while improving the verified result from the 1,060-parameter model\u2019s 99.95% to 100%, indicating remaining nonlinear-width slack.",
+      "intended_edit": "Reduce the learned MLP hidden width from eleven to ten units, removing fourteen projection weights while preserving the verified attention routing, embeddings, biases, residual width, and decoding interface.",
+      "metrics": {
+        "accuracy": 0.9989,
+        "cases": 10010,
+        "correct": 9999,
+        "parameters": 1032,
+        "training_steps": 4999
+      },
+      "parent_ids": [
+        "bcfed8cce953ebfbfc702490e405cb92b8732b468d327ba385e6b12dc713e9a6"
+      ],
+      "retained_order": 121,
+      "selected_count": 32
+    },
+    "c43d61d6b31ce410cc2ea4c36a883905cf495f89d8edd20a62f5b5fe5b1ddd17": {
+      "artifact_path": "candidates/c43d61d6b31ce410cc2ea4c36a883905cf495f89d8edd20a62f5b5fe5b1ddd17",
+      "candidate_id": "c43d61d6b31ce410cc2ea4c36a883905cf495f89d8edd20a62f5b5fe5b1ddd17",
+      "created_opportunity": 91,
+      "fitness": -1179.0,
+      "hypothesis": "A 1,179-parameter transformer will achieve at least 99% accuracy because the verified 1,211-parameter design reached 99.93% with two-dimensional queries and keys, leaving margin to test whether one learned scalar per head is sufficient while preserving full-width values and the robust eleven-bin positional routing.",
+      "intended_edit": "Replace full-width QKV with independent one-dimensional query/key projections per head and a full-width value projection, while restoring the verified eleven-bin far-distance sharing layout.",
+      "metrics": {
+        "accuracy": 1.0,
+        "cases": 10010,
+        "correct": 10010,
+        "parameters": 1179,
+        "training_steps": 4999
+      },
+      "parent_ids": [
+        "fd4078a37d1bdfc9e8de7725cfc51855d02845f1e7a62269722b3f9965903931"
+      ],
+      "retained_order": 91,
+      "selected_count": 24
+    },
+    "c5704ceb7af26c4eea6595aafac80efbfa654c2c05c41b335d067cf3b99d94c4": {
+      "artifact_path": "candidates/c5704ceb7af26c4eea6595aafac80efbfa654c2c05c41b335d067cf3b99d94c4",
+      "candidate_id": "c5704ceb7af26c4eea6595aafac80efbfa654c2c05c41b335d067cf3b99d94c4",
+      "created_opportunity": 31,
+      "fitness": -1412.0,
+      "hypothesis": "Sharing one learned threshold between two permutation-symmetric MLP neurons will produce a 1,412-parameter model with at least 99% accuracy, because it preserves all twelve neurons and keeps every bias position adaptive.",
+      "intended_edit": "Apply the verified two-sided centered embedding and fixed 0.02 query bias, then replace the twelve independent MLP input biases with eleven learned values by sharing the final value across two neurons.",
+      "metrics": {
+        "accuracy": 0.9995999999999999,
+        "cases": 10010,
+        "correct": 10006,
+        "parameters": 1412,
+        "training_steps": 4999
+      },
+      "parent_ids": [
+        "85cfbf1e294cb0819ff3a8a764095809458ecc15429088b650547e7373655b24"
+      ],
+      "retained_order": 31,
+      "selected_count": 9
+    },
+    "c63ac85761b9d6013ad6dba0856dae3166a6c7a9485b48a775faa51e5149d8bf": {
+      "artifact_path": "candidates/c63ac85761b9d6013ad6dba0856dae3166a6c7a9485b48a775faa51e5149d8bf",
+      "candidate_id": "c63ac85761b9d6013ad6dba0856dae3166a6c7a9485b48a775faa51e5149d8bf",
+      "created_opportunity": 124,
+      "fitness": -990.0,
+      "hypothesis": "A 990-parameter transformer will maintain at least 99% accuracy because successive MLP-width reductions to eleven, ten, nine, and eight units all exceeded 99%, with the verified eight-unit 1,004-parameter model reaching 99.99%; reducing it by one further unit tests the same isolated 14-parameter reduction.",
+      "intended_edit": "Adopt the verified 1,004-parameter architecture and reduce its MLP hidden width from eight to seven units, preserving full secondary-head gains, the three-group attention bias, independent scalar MLP bias, attention routing, embeddings, and residual width.",
+      "metrics": {
+        "accuracy": 1.0,
+        "cases": 10010,
+        "correct": 10010,
+        "parameters": 990,
+        "training_steps": 4999
+      },
+      "parent_ids": [
+        "38f10465b71abfce6ebf37715bda81a0d5528699101d63c55144b7bd4c6172b6"
+      ],
+      "retained_order": 124,
+      "selected_count": 32
+    },
+    "c84faa732819d98b9ddd5d0fd36d106b3d726876bb0d15e502f7405a1e302a24": {
+      "artifact_path": "candidates/c84faa732819d98b9ddd5d0fd36d106b3d726876bb0d15e502f7405a1e302a24",
+      "candidate_id": "c84faa732819d98b9ddd5d0fd36d106b3d726876bb0d15e502f7405a1e302a24",
+      "created_opportunity": 8,
+      "fitness": -1551.0,
+      "hypothesis": "Constraining both residual-branch output projections to the seven-dimensional mean-zero subspace will reduce the verified 1,573-parameter design to 1,551 parameters while retaining at least 99% accuracy, because every discarded all-ones output component is invisible to subsequent affine-free pre-norms and the final LayerNorm.",
+      "intended_edit": "Reproduce the verified mean-zero positional, query-only attention, affine-free block-norm design, then parameterize the attention and MLP residual outputs in the mean-zero subspace while retaining their seven identifiable bias dimensions.",
+      "metrics": {
+        "accuracy": 0.9994,
+        "cases": 10010,
+        "correct": 10004,
+        "parameters": 1551,
+        "training_steps": 4999
+      },
+      "parent_ids": [
+        "db9b3f660e3520715480aa177e81d1c78e964a213309f9e03599519edb1eecd4"
+      ],
+      "retained_order": 8,
+      "selected_count": 2
+    },
+    "cbcd56c2185d9960873293113fd157e7eecc73deaa74b93aaa036021fdc48f14": {
+      "artifact_path": "candidates/cbcd56c2185d9960873293113fd157e7eecc73deaa74b93aaa036021fdc48f14",
+      "candidate_id": "cbcd56c2185d9960873293113fd157e7eecc73deaa74b93aaa036021fdc48f14",
+      "created_opportunity": 100,
+      "fitness": -1087.0,
+      "hypothesis": "A 1,087-parameter transformer will maintain at least 99% accuracy because the two positional heads can share one learned token-value representation while a seven-parameter diagonal adapter preserves head specialization.",
+      "intended_edit": "Replace independent headwise 8\u21927 attention maps with one shared 8\u21927 map and an anchored diagonal adapter for the second head; also adopt the verified fixed-direction addressing and bias-free, pair-tied MLP.",
+      "metrics": {
+        "accuracy": 0.9998,
+        "cases": 10010,
+        "correct": 10008,
+        "parameters": 1087,
+        "training_steps": 4999
+      },
+      "parent_ids": [
+        "a9680c4e22c10e209cd4e5064f30c17d1c09e2f89806d2463ab0b38fb5346935"
+      ],
+      "retained_order": 100,
+      "selected_count": 26
+    },
+    "d02acb54bbad4dcb6f9acffc4989e924c13c6aebed2b3528d51a8f2f14a18be0": {
+      "artifact_path": "candidates/d02acb54bbad4dcb6f9acffc4989e924c13c6aebed2b3528d51a8f2f14a18be0",
+      "candidate_id": "d02acb54bbad4dcb6f9acffc4989e924c13c6aebed2b3528d51a8f2f14a18be0",
+      "created_opportunity": 102,
+      "fitness": -1079.0,
+      "hypothesis": "The 1,079-parameter transformer will maintain at least 99% accuracy because the verified 1,080-parameter mean-zero shared-value design reached 99.79%, while the verified 1,136-parameter design showed that tying initially identical MLP output-bias coordinates preserves accuracy.",
+      "intended_edit": "Adopt the verified shared 7\u21927 mean-zero attention value map and seven-parameter second-head adapter, then save one additional parameter by tying a second pair of MLP output-bias coordinates.",
+      "metrics": {
+        "accuracy": 0.9995,
+        "cases": 10010,
+        "correct": 10005,
+        "parameters": 1079,
+        "training_steps": 4999
+      },
+      "parent_ids": [
+        "20a5c3bfbf04aa80b96f17343a77f8831e6c5f4c41c01d279f005f3028872399"
+      ],
+      "retained_order": 102,
+      "selected_count": 27
+    },
+    "d0b85a3f41dad9ed28a2a15375de6a4c8591240b2fa06aeb9678be2db1c1ccda": {
+      "artifact_path": "candidates/d0b85a3f41dad9ed28a2a15375de6a4c8591240b2fa06aeb9678be2db1c1ccda",
+      "candidate_id": "d0b85a3f41dad9ed28a2a15375de6a4c8591240b2fa06aeb9678be2db1c1ccda",
+      "created_opportunity": 101,
+      "fitness": -1080.0,
+      "hypothesis": "A 1,080-parameter transformer will maintain at least 99% accuracy because the value map receives non-affine LayerNorm outputs, whose all-ones input component is always zero, so removing that unidentifiable input direction preserves its effective learned function class.",
+      "intended_edit": "Replace the shared 8\u21927 value projection with a learned 7\u21927 projection over an orthonormal mean-zero input basis, removing seven parameters while preserving the head adapter and all routing mechanisms.",
+      "metrics": {
+        "accuracy": 0.9979,
+        "cases": 10010,
+        "correct": 9989,
+        "parameters": 1080,
+        "training_steps": 4999
+      },
+      "parent_ids": [
+        "cbcd56c2185d9960873293113fd157e7eecc73deaa74b93aaa036021fdc48f14"
+      ],
+      "retained_order": 101,
+      "selected_count": 29
+    },
+    "d58454a126efdd88af5b972571cacb7b1e3630010660b3551a2dcd2ae8e725af": {
+      "artifact_path": "candidates/d58454a126efdd88af5b972571cacb7b1e3630010660b3551a2dcd2ae8e725af",
+      "candidate_id": "d58454a126efdd88af5b972571cacb7b1e3630010660b3551a2dcd2ae8e725af",
+      "created_opportunity": 36,
+      "fitness": -1407.0,
+      "hypothesis": "Sharing biases across all six disjoint pairs of permutation-symmetric MLP neurons will produce a 1,407-parameter model with at least 99% accuracy, because the verified five-pair design achieved 99.96% while retaining all twelve neurons, independent weights, and learned thresholds.",
+      "intended_edit": "Apply the verified fixed 0.02 query bias and parameterize the twelve MLP hidden biases as six independently learned pairwise-shared values.",
+      "metrics": {
+        "accuracy": 0.9908,
+        "cases": 10010,
+        "correct": 9918,
+        "parameters": 1407,
+        "training_steps": 4999
+      },
+      "parent_ids": [
+        "ae7e3cde81e4e5de3df778dd7554946c218d1e0e14fbbfede89b8ff5fcdf4332"
+      ],
+      "retained_order": 36,
+      "selected_count": 10
+    },
+    "d978997d56cc3a6246e312cd7eeb679ed04eec6ae79193936e82c3dca0ac9ed7": {
+      "artifact_path": "candidates/d978997d56cc3a6246e312cd7eeb679ed04eec6ae79193936e82c3dca0ac9ed7",
+      "candidate_id": "d978997d56cc3a6246e312cd7eeb679ed04eec6ae79193936e82c3dca0ac9ed7",
+      "created_opportunity": 51,
+      "fitness": -1286.0,
+      "hypothesis": "Anchoring each head\u2019s distance-zero attention bias will reduce the verified 1,288-parameter relative-bias model to 1,286 parameters while retaining at least 99% accuracy, because softmax is invariant to a head-wise constant shift and the anchored parameterization preserves the full attention function class and zero initialization.",
+      "intended_edit": "Adopt the verified relative-distance design, including three MLP bias quartets and one attention-output bias tie, while learning only distances 1 through `max_seq_len - 1` and fixing each head\u2019s distance-zero bias to zero.",
+      "metrics": {
+        "accuracy": 1.0,
+        "cases": 10010,
+        "correct": 10010,
+        "parameters": 1286,
+        "training_steps": 4999
+      },
+      "parent_ids": [
+        "2d817a55b0125c1ad46768fc0b977a5564a189b293ffb08f4fa8bf1fd1acde7b"
+      ],
+      "retained_order": 51,
+      "selected_count": 14
+    },
+    "da7ca82826a7e91454af0ad2fcd5f7ba4ab6d42ff9a717a618a8986a77fc4b4f": {
+      "artifact_path": "candidates/da7ca82826a7e91454af0ad2fcd5f7ba4ab6d42ff9a717a618a8986a77fc4b4f",
+      "candidate_id": "da7ca82826a7e91454af0ad2fcd5f7ba4ab6d42ff9a717a618a8986a77fc4b4f",
+      "created_opportunity": 128,
+      "fitness": -974.0,
+      "hypothesis": "The resulting 974-parameter transformer will maintain at least 99% accuracy because the verified six-unit, final-pair-tied 975-parameter model achieved 99.98%, while extending gain sharing from `[a,b,c,d,e,f,f]` to `[a,b,c,d,d,e,e]` independently achieved 100% in the larger-MLP design.",
+      "intended_edit": "Reduce the MLP width from ten to six units and represent the seven secondary-head gains with five learned values expanded as `[a,b,c,d,d,e,e]`.",
+      "metrics": {
+        "accuracy": 0.9997,
+        "cases": 10010,
+        "correct": 10007,
+        "parameters": 974,
+        "training_steps": 4999
+      },
+      "parent_ids": [
+        "c27f6010a485ff5cfdc5ac2e71ac81e43da988dd61d34f2532c7acaa7f1609e8"
+      ],
+      "retained_order": 128,
+      "selected_count": 33
+    },
+    "db9b3f660e3520715480aa177e81d1c78e964a213309f9e03599519edb1eecd4": {
+      "artifact_path": "candidates/db9b3f660e3520715480aa177e81d1c78e964a213309f9e03599519edb1eecd4",
+      "candidate_id": "db9b3f660e3520715480aa177e81d1c78e964a213309f9e03599519edb1eecd4",
+      "created_opportunity": 3,
+      "fitness": -1636.0,
+      "hypothesis": "Removing only the attention key bias will reduce parameters from 1,644 to 1,636 while retaining at least 99% accuracy, because a position-independent key bias adds the same value to every unmasked attention logit for a query and therefore cancels exactly in softmax.",
+      "intended_edit": "Replace the packed QKV bias with learned query and value biases, preserving all functional attention biases, `d_ff=12`, and both residual-output biases.",
+      "metrics": {
+        "accuracy": 0.9995,
+        "cases": 10010,
+        "correct": 10005,
+        "parameters": 1636,
+        "training_steps": 4999
+      },
+      "parent_ids": [
+        "2b9cea175ed60b009337ac54f6e8ad23bf2c014eb4080237777bfb70bfd9fd5b"
+      ],
+      "retained_order": 3,
+      "selected_count": 1
+    },
+    "e1322722af46a445cd061e74cf79ea0efa8002b9102b6d9a9dc358c65e54927b": {
+      "artifact_path": "candidates/e1322722af46a445cd061e74cf79ea0efa8002b9102b6d9a9dc358c65e54927b",
+      "candidate_id": "e1322722af46a445cd061e74cf79ea0efa8002b9102b6d9a9dc358c65e54927b",
+      "created_opportunity": 25,
+      "fitness": -1413.0,
+      "hypothesis": "Fixing the shared query-bias amplitude at 0.02 will produce a 1,413-parameter model with at least 99% accuracy, because any nonzero amplitude retains the query/key rescaling-equivalent function class while matching the projection initialization scale and avoiding the disruptive unit-amplitude initialization.",
+      "intended_edit": "Replace the learned shared query-bias scalar with a fixed, nonpersistent 0.02 buffer while preserving both attention heads, full query/key widths, and all other verified components.",
+      "metrics": {
+        "accuracy": 0.9995999999999999,
+        "cases": 10010,
+        "correct": 10006,
+        "parameters": 1413,
+        "training_steps": 4999
+      },
+      "parent_ids": [
+        "5e9917afe2ae43465419e95f44c7c1fe45a7c8a0d92af1e51d451fab10a0443b"
+      ],
+      "retained_order": 25,
+      "selected_count": 9
+    },
+    "e29c377cc6c1d9a9ce886ca7ae81b7f7ef6d23c7a0352e259b299b17766f87ee": {
+      "artifact_path": "candidates/e29c377cc6c1d9a9ce886ca7ae81b7f7ef6d23c7a0352e259b299b17766f87ee",
+      "candidate_id": "e29c377cc6c1d9a9ce886ca7ae81b7f7ef6d23c7a0352e259b299b17766f87ee",
+      "created_opportunity": 116,
+      "fitness": -1057.0,
+      "hypothesis": "The resulting 1,057-parameter transformer will maintain at least 99% accuracy because the verified 1,058-parameter model achieved 99.96%, and tying only the final pair of its seven secondary-head feature gains preserves six learned gain values instead of the single gain that failed at 97.11%.",
+      "intended_edit": "Adopt the verified 1,058-parameter mean-zero projections, triplet/quartet attention bias, and cross-layer scalar bias sharing, then remove one parameter by tying the final two coordinates of the secondary-head value adapter.",
+      "metrics": {
+        "accuracy": 0.9987999999999999,
+        "cases": 10010,
+        "correct": 9998,
+        "parameters": 1057,
+        "training_steps": 4999
+      },
+      "parent_ids": [
+        "d0b85a3f41dad9ed28a2a15375de6a4c8591240b2fa06aeb9678be2db1c1ccda"
+      ],
+      "retained_order": 116,
+      "selected_count": 30
+    },
+    "e2aa462ba835d9e0dc24321e79b4e7452b9ea736653d1a1d4ba5cef52f433c1d": {
+      "artifact_path": "candidates/e2aa462ba835d9e0dc24321e79b4e7452b9ea736653d1a1d4ba5cef52f433c1d",
+      "candidate_id": "e2aa462ba835d9e0dc24321e79b4e7452b9ea736653d1a1d4ba5cef52f433c1d",
+      "created_opportunity": 92,
+      "fitness": -1171.0,
+      "hypothesis": "A 1,171-parameter transformer will achieve at least 99% accuracy because the verified 1,179-parameter scalar-query/key model achieved 100%, while sharing only the eight-parameter key projection preserves head-specific queries, values, and positional routing.",
+      "intended_edit": "Replace full-width QKV with one scalar query per head, one scalar key projection shared across heads, and the existing full-width value projection.",
+      "metrics": {
+        "accuracy": 1.0,
+        "cases": 10010,
+        "correct": 10010,
+        "parameters": 1171,
+        "training_steps": 4999
+      },
+      "parent_ids": [
+        "51332e197c5cd34bc1ef8d1d61fc132c3583730a6478a553e519bf09d41e247d"
+      ],
+      "retained_order": 92,
+      "selected_count": 24
+    },
+    "e2c8f8015800c85012cc94351f430913c72bd65b4cc5eae8beaf9796b99391da": {
+      "artifact_path": "candidates/e2c8f8015800c85012cc94351f430913c72bd65b4cc5eae8beaf9796b99391da",
+      "candidate_id": "e2c8f8015800c85012cc94351f430913c72bd65b4cc5eae8beaf9796b99391da",
+      "created_opportunity": 118,
+      "fitness": -1055.0,
+      "hypothesis": "A 1,055-parameter transformer will maintain at least 99% accuracy because the verified 1,056-parameter `[a,b,c,d,d,e,e]` gain design achieved 100%, and tying the next adjacent pair retains four independently learned feature gains.",
+      "intended_edit": "Change the secondary-head value-gain expansion to `[a,b,b,c,c,d,d]`, removing one learned parameter while preserving all attention routing, biases, projections, and residual paths.",
+      "metrics": {
+        "accuracy": 0.9987999999999999,
+        "cases": 10010,
+        "correct": 9998,
+        "parameters": 1055,
+        "training_steps": 4999
+      },
+      "parent_ids": [
+        "3cf5f3aeba18a4bb176c87dad4aef30c3b96512b8f096a9bd07faa756419e9c5"
+      ],
+      "retained_order": 118,
+      "selected_count": 31
+    },
+    "ed30c4fa18600444ae7c3fe8e637546be139dfb8cf4e39dd31d3fb4031a021d2": {
+      "artifact_path": "candidates/ed30c4fa18600444ae7c3fe8e637546be139dfb8cf4e39dd31d3fb4031a021d2",
+      "candidate_id": "ed30c4fa18600444ae7c3fe8e637546be139dfb8cf4e39dd31d3fb4031a021d2",
+      "created_opportunity": 109,
+      "fitness": -1062.0,
+      "hypothesis": "The resulting 1,062-parameter transformer will maintain at least 99% accuracy because it preserves the scalar MLP output bias whose removal reduced accuracy to 98.71%, while adding only one equality constraint to the already pair-tied attention output bias of the 99.64%-accurate 1,063-parameter model.",
+      "intended_edit": "Reduce the learned attention output bias from six scalars to five by changing its seven-coordinate expansion from a final pair to a final triplet.",
+      "metrics": {
+        "accuracy": 0.9994,
+        "cases": 10010,
+        "correct": 10004,
+        "parameters": 1062,
+        "training_steps": 4999
+      },
+      "parent_ids": [
+        "5d7888433eab18d1678cfe7b9e0eef80d72e53d59698da084f11dce835032e57"
+      ],
+      "retained_order": 109,
+      "selected_count": 29
+    },
+    "ee5e4e31ff43ae136c59ff5a21301ca5a95e00a95cedba676c26b14d27d4518e": {
+      "artifact_path": "candidates/ee5e4e31ff43ae136c59ff5a21301ca5a95e00a95cedba676c26b14d27d4518e",
+      "candidate_id": "ee5e4e31ff43ae136c59ff5a21301ca5a95e00a95cedba676c26b14d27d4518e",
+      "created_opportunity": 57,
+      "fitness": -1280.0,
+      "hypothesis": "A 1,280-parameter model will retain at least 99% accuracy because the verified 1,281-parameter model achieved 99.98%, while sharing the sixth-farthest bias affects only six query-key pairs at full context and preserves head-specific biases at every more frequent distance.",
+      "intended_edit": "Extend the current cross-head sharing from the five to the six maximum-distance attention biases, reducing the model by one learned parameter.",
+      "metrics": {
+        "accuracy": 1.0,
+        "cases": 10010,
+        "correct": 10010,
+        "parameters": 1280,
+        "training_steps": 4999
+      },
+      "parent_ids": [
+        "13c4f70932afd2bc8599bf933384e41c7e92a990e3ace2ac3090a15dfbbf86d4"
+      ],
+      "retained_order": 57,
+      "selected_count": 16
+    },
+    "f5bd618659af0c3708f55a21ea1a4a59430ea2c177f6d0617ad3f1b632d6bdc9": {
+      "artifact_path": "candidates/f5bd618659af0c3708f55a21ea1a4a59430ea2c177f6d0617ad3f1b632d6bdc9",
+      "candidate_id": "f5bd618659af0c3708f55a21ea1a4a59430ea2c177f6d0617ad3f1b632d6bdc9",
+      "created_opportunity": 58,
+      "fitness": -1279.0,
+      "hypothesis": "A 1,279-parameter model will retain at least 99% accuracy because the verified 1,280-parameter model achieved 100%, while sharing the seventh-farthest bias affects only seven query-key pairs at full context and preserves head-specific biases at every more frequent distance.",
+      "intended_edit": "Extend cross-head sharing from the six to the seven maximum-distance attention biases, reducing the model by one learned parameter beyond the verified 1,280-parameter design.",
+      "metrics": {
+        "accuracy": 0.9998999999999999,
+        "cases": 10010,
+        "correct": 10009,
+        "parameters": 1279,
+        "training_steps": 4999
+      },
+      "parent_ids": [
+        "11e54e726313b6afe5fa24d33dea900e1d5280951a16e2377a436d241bdb6786"
+      ],
+      "retained_order": 58,
+      "selected_count": 17
+    },
+    "f746e25e61f5e3e6ac7db58e30e7f9dedd63df4fff1d1fa76f88268622524d8c": {
+      "artifact_path": "candidates/f746e25e61f5e3e6ac7db58e30e7f9dedd63df4fff1d1fa76f88268622524d8c",
+      "candidate_id": "f746e25e61f5e3e6ac7db58e30e7f9dedd63df4fff1d1fa76f88268622524d8c",
+      "created_opportunity": 4,
+      "fitness": -1628.0,
+      "hypothesis": "Removing the attention value bias in addition to the proven-redundant key bias will reduce parameters from 1,644 to 1,628 while retaining at least 99% accuracy, because attention weights sum to one and the retained output-projection bias can represent the value bias\u2019s constant contribution.",
+      "intended_edit": "Use a bias-free packed QKV projection with only an explicit learned query bias, while retaining both residual-output biases and `d_ff=12`.",
+      "metrics": {
+        "accuracy": 0.9998,
+        "cases": 10010,
+        "correct": 10008,
+        "parameters": 1628,
+        "training_steps": 4999
+      },
+      "parent_ids": [
+        "2b9cea175ed60b009337ac54f6e8ad23bf2c014eb4080237777bfb70bfd9fd5b"
+      ],
+      "retained_order": 4,
+      "selected_count": 1
+    },
+    "f8d251062e85232214de9fdcbb910270757590d48ca357c538d532abbb1dfc7d": {
+      "artifact_path": "candidates/f8d251062e85232214de9fdcbb910270757590d48ca357c538d532abbb1dfc7d",
+      "candidate_id": "f8d251062e85232214de9fdcbb910270757590d48ca357c538d532abbb1dfc7d",
+      "created_opportunity": 127,
+      "fitness": -975.0,
+      "hypothesis": "A 975-parameter transformer will maintain at least 99% accuracy because the six-unit, 976-parameter design achieved 100%, while the same isolated final-pair gain tie previously retained 99.88%; preserving six MLP units avoids the five-unit bottleneck that fell to 96.48%.",
+      "intended_edit": "Adopt the verified six-unit MLP and parameterize the seven secondary-head gains as `[a,b,c,d,e,f,f]`, removing one additional learned parameter.",
+      "metrics": {
+        "accuracy": 0.9998,
+        "cases": 10010,
+        "correct": 10008,
+        "parameters": 975,
+        "training_steps": 4999
+      },
+      "parent_ids": [
+        "c043338da350b79ad9aa2d7eea9a09d85d53d2d593d4d0643dfe20dc4920653a"
+      ],
+      "retained_order": 127,
+      "selected_count": 33
+    },
+    "f9b65738557b31b6f947f097b1af1df0a9d63cf8fa19616b8ed4fffbc1f3267b": {
+      "artifact_path": "candidates/f9b65738557b31b6f947f097b1af1df0a9d63cf8fa19616b8ed4fffbc1f3267b",
+      "candidate_id": "f9b65738557b31b6f947f097b1af1df0a9d63cf8fa19616b8ed4fffbc1f3267b",
+      "created_opportunity": 50,
+      "fitness": -1288.0,
+      "hypothesis": "Replacing independent seven-dimensional absolute position vectors with two learned causal distance-bias tables will retain at least 99% accuracy while reducing the verified 1,403-parameter design by `5 * INPUT_LEN` parameters, because each attention head can learn its own relative routing profile without compressing the independent query, key, or value maps.",
+      "intended_edit": "Adopt the verified three-quartet MLP and single attention-output bias tie, remove absolute position embeddings, and inject learned head-specific relative-distance biases directly into causal attention logits.",
+      "metrics": {
+        "accuracy": 1.0,
+        "cases": 10010,
+        "correct": 10010,
+        "parameters": 1288,
+        "training_steps": 4999
+      },
+      "parent_ids": [
+        "11a6b94d1903fb16cc673162f80db76baed1280f7d8a8b314f86bd607763e049"
+      ],
+      "retained_order": 50,
+      "selected_count": 14
+    },
+    "fb0b24eced973da9cc4ee463a71ceef9c011ebc7419471ad3409f50a8d1cf52e": {
+      "artifact_path": "candidates/fb0b24eced973da9cc4ee463a71ceef9c011ebc7419471ad3409f50a8d1cf52e",
+      "candidate_id": "fb0b24eced973da9cc4ee463a71ceef9c011ebc7419471ad3409f50a8d1cf52e",
+      "created_opportunity": 75,
+      "fitness": -1271.0,
+      "hypothesis": "A 1,271-parameter model will achieve at least 99% accuracy because it preserves the twice-verified fourteen-bin positional design while tying only two already quartet-shared MLP hidden biases.",
+      "intended_edit": "Extend far-distance sharing from twelve to fourteen bins and tie the last two MLP hidden-bias quartets, reducing the verified 1,272-parameter design by one parameter.",
+      "metrics": {
+        "accuracy": 0.9904000000000001,
+        "cases": 10010,
+        "correct": 9914,
+        "parameters": 1271,
+        "training_steps": 4999
+      },
+      "parent_ids": [
+        "1e5ee939e7f995809e7b55c0dc39ff2ce5d04ac23b63f11ead471f98ae0f3af8"
+      ],
+      "retained_order": 75,
+      "selected_count": 21
+    },
+    "fcc4299a047f8b88ed20d280cfc930518fe3a63f95ffe604d92168b6aaa5295f": {
+      "artifact_path": "candidates/fcc4299a047f8b88ed20d280cfc930518fe3a63f95ffe604d92168b6aaa5295f",
+      "candidate_id": "fcc4299a047f8b88ed20d280cfc930518fe3a63f95ffe604d92168b6aaa5295f",
+      "created_opportunity": 97,
+      "fitness": -1145.0,
+      "hypothesis": "The resulting 1,145-parameter transformer will retain at least 99% accuracy because the verified 1,146-parameter model reached 99.99%, and this removes only its zero-initialized scalar MLP bias while preserving the successful attention, normalization, projections, and positional routing.",
+      "intended_edit": "Remove the learned tilted hidden-quartet bias and make the MLP input projection bias-free, reducing the model by one parameter.",
+      "metrics": {
+        "accuracy": 1.0,
+        "cases": 10010,
+        "correct": 10010,
+        "parameters": 1145,
+        "training_steps": 4999
+      },
+      "parent_ids": [
+        "c0a09408ef7b8f9d8ab52dd7613d276f83e8f2f75e6c2730e7b416e5d8b92701"
+      ],
+      "retained_order": 97,
+      "selected_count": 26
+    },
+    "fd4078a37d1bdfc9e8de7725cfc51855d02845f1e7a62269722b3f9965903931": {
+      "artifact_path": "candidates/fd4078a37d1bdfc9e8de7725cfc51855d02845f1e7a62269722b3f9965903931",
+      "candidate_id": "fd4078a37d1bdfc9e8de7725cfc51855d02845f1e7a62269722b3f9965903931",
+      "created_opportunity": 74,
+      "fitness": -1272.0,
+      "hypothesis": "The 1,272-parameter model will maintain at least 99% accuracy because the identical fourteen-bin sharing design previously achieved 99.3%.",
+      "intended_edit": "Extend cross-head sharing from thirteen to fourteen maximum-distance biases, removing one learned parameter.",
+      "metrics": {
+        "accuracy": 0.9928,
+        "cases": 10010,
+        "correct": 9938,
+        "parameters": 1272,
+        "training_steps": 4999
+      },
+      "parent_ids": [
+        "38c2a21cfbb6283fbe9a37aa9cc13fb5f9a3fda76b761e040c57551faabd44f0"
+      ],
+      "retained_order": 74,
+      "selected_count": 23
+    },
+    "ffd608c7eafd03e2e57293296535320df24ebc7389379bd90b424ab103f462ff": {
+      "artifact_path": "candidates/ffd608c7eafd03e2e57293296535320df24ebc7389379bd90b424ab103f462ff",
+      "candidate_id": "ffd608c7eafd03e2e57293296535320df24ebc7389379bd90b424ab103f462ff",
+      "created_opportunity": 130,
+      "fitness": -862.0,
+      "hypothesis": "The resulting 864-parameter transformer will maintain at least 99% accuracy because the six-unit MLP reached 100% while the 973-parameter gain-tied model reached 99.93%; retaining that nonlinear width but constraining the previously untested token/logit codebook to six centered features should preserve the learned computation.",
+      "intended_edit": "Replace the full seven-coordinate centered vocabulary embedding with a learned six-coordinate embedding projected through a fixed orthonormal mean-zero basis, removing 111 parameters while preserving the eight-dimensional residual stream, six-unit MLP, causal attention, and tied learned logits.",
+      "metrics": {
+        "accuracy": 0.9998999999999999,
+        "cases": 10010,
+        "correct": 10009,
+        "parameters": 862,
+        "training_steps": 4999
+      },
+      "parent_ids": [
+        "f8d251062e85232214de9fdcbb910270757590d48ca357c538d532abbb1dfc7d"
+      ],
+      "retained_order": 130,
+      "selected_count": 34
+    }
+  },
+  "condition": "C3",
+  "conversation_session_id": null,
+  "evaluations_used": 138,
+  "evaluator_seconds_used": 52679.07578999945,
+  "incumbent_id": "3ebd940b35a7aa1f58ee4449c6bc20da29c3160ece09c3c6de5a7f9b9d1d8e61",
+  "next_opportunity": 174,
+  "no_search": false,
+  "portfolio_ids": [
+    "3d06172053acf3c0155510eab2e51a6f7b85efd67e29b7a1d5ddd15f72978e96",
+    "71e6282b5574133e521cf7f931b1f073c7081b69299076ee0589ef7f0a4843b5",
+    "3ebd940b35a7aa1f58ee4449c6bc20da29c3160ece09c3c6de5a7f9b9d1d8e61",
+    "a0b9a9140b38ac8ab304c79b940df4ee45cccc3edfb38412ccf86149c7875fbf"
+  ],
+  "proposals_used": 173,
+  "protocol_hash": "0247b4415c62d35b231e3347f31a3f63cd54eb4ec6bb2441bfc209e0ee2d3cc4",
+  "revision": 347,
+  "run_id": "controlled-openevolve-transformer-v2-1-source-only-ten-digit-addition-pair-transformer-openevolve-v2-1-mps-openevolve-b01-c3",
+  "schema_version": "1.0",
+  "status": "running",
+  "token_budget_continuation_notice_sent": false,
+  "usage": {
+    "cached_input_tokens": 1481856,
+    "input_tokens": 5009188,
+    "output_tokens": 386621,
+    "reasoning_output_tokens": 301496
+  }
+}

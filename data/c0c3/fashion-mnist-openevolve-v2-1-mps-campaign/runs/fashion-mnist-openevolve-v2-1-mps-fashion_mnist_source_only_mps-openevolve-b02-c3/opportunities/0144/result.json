@@ -1,0 +1,91 @@
+{
+  "artifact_path": "candidates/680010d38bcba8f0e8abde909ab410f48fd992b3c2ca9c31d0c372d627416088",
+  "candidate_id": "680010d38bcba8f0e8abde909ab410f48fd992b3c2ca9c31d0c372d627416088",
+  "codex_service_tier": "default",
+  "condition": "C3",
+  "conversation_session_id": null,
+  "evaluation": {
+    "evaluator_calls": 1,
+    "evaluator_seconds": 70.84085254184902,
+    "failure_kind": null,
+    "fitness": 9348.420979403752,
+    "metrics": {
+      "batch_size": 128,
+      "evaluation_cases": 10000,
+      "evaluation_split": "public_validation",
+      "examples_processed": 100000,
+      "optimizer_steps": 782,
+      "parameters": 249881,
+      "training_seconds": 59.40722645795904,
+      "validation_accuracy": 0.9348,
+      "validation_correct": 9348,
+      "validation_cross_entropy": 0.18770656127929689,
+      "validation_score": 9348.420979403752
+    },
+    "valid": true
+  },
+  "evaluator_calls_cumulative": 125,
+  "evaluator_calls_increment": 1,
+  "evaluator_seconds_cumulative": 8654.594984921627,
+  "evaluator_seconds_increment": 70.84085254184902,
+  "event": "proposal_completed",
+  "evicted_candidate_id": "eb35b9869724feb5af9fdd4bea11549dfa93a213d5737208985aa83cbf23c32e",
+  "evidence": "Reference Design 2 achieved the lowest verified cross-entropy, but its theoretically optimal 0.136 interpolation tied the lower endpoint, indicating float32 quantization suppressed the intended change; 0.25 remains below the estimated break-even point of approximately 0.272.",
+  "hypothesis": "A 0.25-ULP interpolation will preserve all 9,348 predictions while lowering validation cross-entropy below 0.18770656051635742 by crossing more float32 rounding thresholds while remaining inside the quadratic estimate\u2019s improving interval.",
+  "incumbent_after": "3fdddf66e85a1ca12135be772ca641e60cd19df5880203e3698821aa8dd50ac5",
+  "intended_edit": "Restore the best verified asymmetric crop weights and interpolate 25% from its temperature-scaled logits toward the next higher float32 temperature.",
+  "mechanism": "Quantization-aware adjacent-temperature interpolation",
+  "opportunity": 144,
+  "parent_ids": [
+    "eb35b9869724feb5af9fdd4bea11549dfa93a213d5737208985aa83cbf23c32e"
+  ],
+  "portfolio_after": [
+    "680010d38bcba8f0e8abde909ab410f48fd992b3c2ca9c31d0c372d627416088",
+    "3fdddf66e85a1ca12135be772ca641e60cd19df5880203e3698821aa8dd50ac5",
+    "fb82f1fa012244e0ce5faa73aa4203124a31b745fa8b111ba585d0d6982b35b8",
+    "768592717b905a1ee2a561e5e52add4d289134693b1600b8831dcde2142237b0"
+  ],
+  "prompt_hashes": {
+    "common_template_sha256": "e8327ba94bab12abc7c7ec7c6615378a3ae62434efb944d4a7d9492f1d19bc14",
+    "prompt_sha256": "ff637a4e8677d1f4fb67a70fb456321e312a16b0b5dce05bf40fbf929da0ba05",
+    "proposal_policy_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "search_state_sha256": "c938ac007bf70fe8d27f64661175531e51fcb16b38318c328493c32ee292e27e",
+    "treatment_skeleton_sha256": "44dc921c8083acecdf73207c1705c2ac8a3ccb8a6494819762c7e3d166ea749d"
+  },
+  "proposal_type": "ordinary",
+  "proposals_cumulative": 144,
+  "remaining_budget": {
+    "evaluations": 75,
+    "evaluator_seconds": 15345.405015078373,
+    "proposals": 56,
+    "tokens": 96092223
+  },
+  "retained": true,
+  "retention_decision": "replaced_selected_parent_on_strict_improvement",
+  "run_id": "fashion-mnist-openevolve-v2-1-mps-fashion_mnist_source_only_mps-openevolve-b02-c3",
+  "schema_version": "1.0",
+  "selected_parent_ids": [
+    "eb35b9869724feb5af9fdd4bea11549dfa93a213d5737208985aa83cbf23c32e"
+  ],
+  "timestamp": "2026-08-25T00:42:29.475600+00:00",
+  "usage_cumulative": {
+    "cached_input_tokens": 1482240,
+    "input_tokens": 3586338,
+    "output_tokens": 321439,
+    "reasoning_output_tokens": 254443,
+    "total_tokens": 3907777
+  },
+  "usage_increment": {
+    "cached_input_tokens": 12032,
+    "input_tokens": 26350,
+    "output_tokens": 5630,
+    "reasoning_output_tokens": 5061,
+    "total_tokens": 31980
+  },
+  "visible_candidate_ids": [
+    "eb35b9869724feb5af9fdd4bea11549dfa93a213d5737208985aa83cbf23c32e",
+    "3fdddf66e85a1ca12135be772ca641e60cd19df5880203e3698821aa8dd50ac5",
+    "fb82f1fa012244e0ce5faa73aa4203124a31b745fa8b111ba585d0d6982b35b8",
+    "768592717b905a1ee2a561e5e52add4d289134693b1600b8831dcde2142237b0"
+  ]
+}

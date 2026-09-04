@@ -1,0 +1,79 @@
+{
+  "artifact_path": "candidates/53ecd3408dc3c8e191191badefa3ef9772203d6b75960759fc2fe26cddff5755",
+  "candidate_id": "53ecd3408dc3c8e191191badefa3ef9772203d6b75960759fc2fe26cddff5755",
+  "codex_service_tier": "default",
+  "condition": "C0",
+  "conversation_session_id": null,
+  "evaluation": {
+    "evaluator_calls": 1,
+    "evaluator_seconds": 747.6321774169337,
+    "failure_kind": null,
+    "fitness": -1608.0,
+    "metrics": {
+      "accuracy": 0.9903,
+      "cases": 10010,
+      "correct": 9913,
+      "parameters": 1608,
+      "training_steps": 4999
+    },
+    "valid": true
+  },
+  "evaluator_calls_cumulative": 40,
+  "evaluator_calls_increment": 1,
+  "evaluator_seconds_cumulative": 16514.734234373667,
+  "evaluator_seconds_increment": 747.6321774169337,
+  "event": "proposal_completed",
+  "evicted_candidate_id": "70aa380dc05f3cfd54f2fa7da4ef06c64e8304dad83039600df3db6833024c99",
+  "evidence": "Fixing gains 3 through 7 retained 100% accuracy at 1611 parameters, while fixing gains 1 or 2 collapsed to 27.21% and 48.42%; coordinate 0 is the only untested gain and already tolerates a fixed LayerNorm bias in the 99.99%-accurate 1609-parameter design.",
+  "hypothesis": "Fixing pre-MLP LayerNorm gain coordinate 0 to one will reduce the model from 1609 to 1608 parameters while retaining at least 99% accuracy, because its scale is absorbable by column 0 of `fc1.weight` and its bias has remained successfully fixed throughout every passing anchored design.",
+  "incumbent_after": "53ecd3408dc3c8e191191badefa3ef9772203d6b75960759fc2fe26cddff5755",
+  "intended_edit": "Remove gain coordinate 0 from the learned vector and reconstruct gains 0 and 3 through 7 as fixed ones, leaving the sensitive gains 1 and 2 learned.",
+  "mechanism": "Final untested pre-MLP scale gauge fixing",
+  "opportunity": 40,
+  "parent_ids": [
+    "70aa380dc05f3cfd54f2fa7da4ef06c64e8304dad83039600df3db6833024c99"
+  ],
+  "portfolio_after": [
+    "53ecd3408dc3c8e191191badefa3ef9772203d6b75960759fc2fe26cddff5755"
+  ],
+  "prompt_hashes": {
+    "common_template_sha256": "3f2bea6418b6969c4bf2aa1df18dcda8a3a4ac075bf20c79068c754698b6be5e",
+    "prompt_sha256": "a55bbf029b2fa9321cc330182b58f5c9b4a2689e49eda8786fc385761a03177d",
+    "proposal_policy_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "search_state_sha256": "04e5eb078ae1964e4ec65bfeeeb1acd0ffa246e7d54d5e0f997f81f602da28c5",
+    "treatment_skeleton_sha256": "d782128e879309b138eae895afd4b0e1d65431ccdffcb489f5ef26785e96a113"
+  },
+  "proposal_type": "ordinary",
+  "proposals_cumulative": 40,
+  "remaining_budget": {
+    "evaluations": 160,
+    "evaluator_seconds": 343485.26576562633,
+    "proposals": 160,
+    "tokens": 99043918
+  },
+  "retained": true,
+  "retention_decision": "strict_incumbent_improvement",
+  "run_id": "controlled-openevolve-transformer-v2-1-source-only-ten-digit-addition-pair-transformer-openevolve-v2-1-mps-openevolve-b04-c0",
+  "schema_version": "1.0",
+  "selected_parent_ids": [
+    "70aa380dc05f3cfd54f2fa7da4ef06c64e8304dad83039600df3db6833024c99"
+  ],
+  "timestamp": "2026-08-24T07:01:26.481698+00:00",
+  "usage_cumulative": {
+    "cached_input_tokens": 406784,
+    "input_tokens": 860532,
+    "output_tokens": 95550,
+    "reasoning_output_tokens": 69148,
+    "total_tokens": 956082
+  },
+  "usage_increment": {
+    "cached_input_tokens": 2816,
+    "input_tokens": 22763,
+    "output_tokens": 891,
+    "reasoning_output_tokens": 516,
+    "total_tokens": 23654
+  },
+  "visible_candidate_ids": [
+    "70aa380dc05f3cfd54f2fa7da4ef06c64e8304dad83039600df3db6833024c99"
+  ]
+}

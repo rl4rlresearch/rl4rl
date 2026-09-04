@@ -1,0 +1,177 @@
+# Improve fixed-exposure image classification
+
+You are an autonomous ML engineer improving a learned classifier for 28×28
+grayscale images in ten classes.
+
+## Goal
+
+Maximize `validation_score`. It ranks implementations first by the exact number
+of correct predictions on the fixed 10,000-image validation set, then—only when
+correct counts tie—by lower validation cross-entropy. Every verification starts
+from a fresh initialization and presents exactly 100,000 examples from the
+fixed 50,000-image training split.
+
+You may change the model architecture, optimizer, loss, augmentation, batch
+size, gradient handling, schedule, and other contents of `train.py`. The fixed
+data split, normalization, example accounting, validation calculation,
+250,000-learned-parameter ceiling, and device are not editable. The protected
+loop calls the functions already defined in `train.py`; keep that interface
+intact. The model must return one ten-class logit vector per image.
+
+## Work boundaries
+
+Maximize validation_score. No additional accuracy threshold.
+Editable source files: train.py.
+Results reported after each verification: validation_score, validation_correct, validation_accuracy, validation_cross_entropy, parameters, examples_processed, optimizer_steps, training_seconds, batch_size.
+
+Propose changes through exact SEARCH/REPLACE blocks. The patching interface applies them to the supplied editable source.
+
+The editable source and any reference source are included below. Do not access
+parent directories, home directories, shared temporary directories, global
+session history, online sources, external datasets, pretrained weights, or any
+surrounding repository. Do not run training or validation yourself and do not
+generate hidden alternatives. Return one patch for one implementation;
+verification happens after you finish.
+
+## Available designs
+
+The current editable design and the qualified reference designs below are available as technical evidence. Edit only the current workspace.
+
+CURRENT DESIGN
+verified_results: {"batch_size": 128, "examples_processed": 100000, "optimizer_steps": 782, "parameters": 249961, "training_seconds": 63.96161983301863, "validation_accuracy": 0.9287, "validation_correct": 9287, "validation_cross_entropy": 0.20670600929260255, "validation_score": 9287.41435113122}
+prior_hypothesis: A 1.22775 evaluation-logit scale will preserve all 9,287 argmax predictions while reducing validation cross-entropy below 0.2067060364.
+
+REFERENCE DESIGN 1
+verified_results: {"batch_size": 128, "examples_processed": 100000, "optimizer_steps": 782, "parameters": 249961, "training_seconds": 66.3550312500447, "validation_accuracy": 0.9287, "validation_correct": 9287, "validation_cross_entropy": 0.20673983764648438, "validation_score": 9287.414339515777}
+prior_hypothesis: Scaling the linear-recency ten-view logits by 1.225 will preserve all 9,287 argmax predictions while reducing validation cross-entropy below 0.2071991.
+
+REFERENCE DESIGN 2
+verified_results: {"batch_size": 128, "examples_processed": 100000, "optimizer_steps": 782, "parameters": 249961, "training_seconds": 60.908168042078614, "validation_accuracy": 0.9287, "validation_correct": 9287, "validation_cross_entropy": 0.20670603637695312, "validation_score": 9287.414351121919}
+prior_hypothesis: A 1.227325 evaluation-logit scale will preserve all 9,287 argmax predictions while reducing validation cross-entropy below 0.2067065514.
+
+REFERENCE DESIGN 3
+verified_results: {"batch_size": 128, "examples_processed": 100000, "optimizer_steps": 782, "parameters": 249961, "training_seconds": 63.13886966602877, "validation_accuracy": 0.9287, "validation_correct": 9287, "validation_cross_entropy": 0.20670779724121094, "validation_score": 9287.414350517287}
+prior_hypothesis: Giving the unshifted offset 1.5× weight while retaining all ten views will exceed 9,287 correct predictions by favoring the validation-aligned center crop without discarding the complementary shifted evidence.
+
+## Recent verification evidence
+
+RECENT RESULT
+hypothesis: Raising the center-offset weight from 1.5× to 1.75× will exceed 9,287 correct predictions by strengthening validation-aligned evidence while retaining all shifted and flipped views.
+change: Increase only the unshifted offset’s pooling weight and adjust the normalization accordingly; preserve training and the 1.225 logit scale.
+mechanism: Intermediate center-biased full-view pooling
+evidence_used: Moving from uniform pooling to 1.5× center weighting preserved 9,287 correct while lowering cross-entropy from 0.2067398 to 0.2067078; the 2× attempt timed out, making 1.75× the informative untested midpoint.
+result: was valid but was not a strict improvement
+reported_values: {"batch_size": 128, "examples_processed": 100000, "optimizer_steps": 782, "parameters": 249961, "training_seconds": 57.55518033308908, "validation_accuracy": 0.9286, "validation_correct": 9286, "validation_cross_entropy": 0.20670757904052733, "validation_score": 9286.414350592211}
+
+RECENT RESULT
+hypothesis: A 1.625× center-offset weight will preserve 9,287 correct predictions while reducing cross-entropy below 0.2067078.
+change: Retain all ten evaluation views and the 1.225 logit scale, but weight the unshifted offset 1.625×.
+mechanism: Boundary-seeking center-biased full-view pooling
+evidence_used: Center weighting at 1.5× retained 9,287 correct and improved cross-entropy, whereas 1.75× lost one correct prediction; 1.625× is the informative midpoint between those outcomes.
+result: was valid but was not a strict improvement
+reported_values: {"batch_size": 128, "examples_processed": 100000, "optimizer_steps": 782, "parameters": 249961, "training_seconds": 73.89989495906048, "validation_accuracy": 0.9286, "validation_correct": 9286, "validation_cross_entropy": 0.20670665245056152, "validation_score": 9286.414350910376}
+
+RECENT RESULT
+hypothesis: A 1.5625× center-offset weight will retain 9,287 correct predictions while reducing validation cross-entropy below 0.206707797.
+change: Retain all ten views, weight the unshifted offset 1.5625×, normalize the pooled logits, and use the best-verified 1.225 evaluation scale.
+mechanism: Boundary-refined center-biased full-view pooling
+evidence_used: A 1.5× center weight achieved 9,287 correct at 0.206707797 cross-entropy, while 1.625× reduced cross-entropy slightly but lost one prediction; 1.5625× is the informative midpoint at that accuracy boundary.
+result: was valid but was not a strict improvement
+reported_values: {"batch_size": 128, "examples_processed": 100000, "optimizer_steps": 782, "parameters": 249961, "training_seconds": 64.4250784998294, "validation_accuracy": 0.9286, "validation_correct": 9286, "validation_cross_entropy": 0.2067069496154785, "validation_score": 9286.414350808338}
+
+RECENT RESULT
+hypothesis: A 1.53125× center-offset weight will retain 9,287 correct predictions while reducing validation cross-entropy below 0.206707797.
+change: Restore linear-recency tail averaging, retain all ten evaluation views, weight the unshifted offset 1.53125×, and apply 1.225 logit scaling.
+mechanism: Boundary-refined center-biased full-view pooling
+evidence_used: A 1.5× center weight retained 9,287 correct, while 1.5625× lost one prediction but slightly lowered cross-entropy; their midpoint is the most informative refinement of that accuracy boundary.
+result: improved the objective and became an available design
+reported_values: {"batch_size": 128, "examples_processed": 100000, "optimizer_steps": 782, "parameters": 249961, "training_seconds": 61.73870625020936, "validation_accuracy": 0.9287, "validation_correct": 9287, "validation_cross_entropy": 0.2067073055267334, "validation_score": 9287.414350686127}
+
+RECENT RESULT
+hypothesis: A 1.546875× center-offset weight will preserve 9,287 correct predictions while reducing validation cross-entropy below 0.2067073055.
+change: Increase the unshifted offset weight from 1.53125× to the midpoint 1.546875× and update the pooling normalization.
+mechanism: Accuracy-boundary bisection for center-biased view pooling
+evidence_used: A 1.53125× weight retained 9,287 correct, while 1.5625× lost one prediction but achieved slightly lower cross-entropy; their midpoint is the most informative refinement of the accuracy boundary.
+result: improved the objective and became an available design
+reported_values: {"batch_size": 128, "examples_processed": 100000, "optimizer_steps": 782, "parameters": 249961, "training_seconds": 64.05267137498595, "validation_accuracy": 0.9287, "validation_correct": 9287, "validation_cross_entropy": 0.20670711212158202, "validation_score": 9287.414350752537}
+
+RECENT RESULT
+hypothesis: Replacing global mean pooling with a learned 32-channel 2×2 spatial representation while retaining global peak features will exceed 9,287 correct predictions by preserving class-relevant feature arrangement that the current global pooling discards.
+change: Add a lightweight nonlinear 1×1 feature projection, pool it into four spatial regions, and reallocate the classifier width to remain under the 250,000-parameter ceiling.
+mechanism: Learned coarse-spatial projection head
+evidence_used: View-weight refinements plateaued at 9,287 correct and primarily changed cross-entropy, while stronger weighting lost a prediction; this suggests the load-bearing limitation is the shared assumption that all spatial layout should be erased before classification.
+result: the implementation could not be verified
+
+RECENT RESULT
+hypothesis: A 1.5546875× center-offset weight will retain 9,287 correct predictions while reducing validation cross-entropy below 0.2067071121.
+change: Retain all ten evaluation views and the 1.225 logit scale, but weight the unshifted offset 1.5546875× with matching normalization.
+mechanism: Accuracy-boundary bisection for center-biased view pooling
+evidence_used: A 1.546875× center weight retained 9,287 correct at 0.2067071121 cross-entropy, while 1.5625× lost one prediction; their midpoint is the most informative refinement of the observed accuracy boundary.
+result: training did not finish within the verification time limit
+
+RECENT RESULT
+hypothesis: A 1.225825 logit scale with the proven 1.546875× center weight will retain 9,287 correct predictions while reducing validation cross-entropy below 0.2067071121.
+change: Restore the best-verified center-biased pooling and replace its 1.225 scale with the estimated cross-entropy-minimizing scale of 1.225825.
+mechanism: Quadratically calibrated center-biased ten-view pooling
+evidence_used: The 1.546875× center weight achieved the best verified score; scales 1.125, 1.175, and 1.225 preserved identical argmax predictions while tracing a convex, diminishing cross-entropy curve whose quadratic minimum is approximately 1.225825.
+result: improved the objective and became an available design
+reported_values: {"batch_size": 128, "examples_processed": 100000, "optimizer_steps": 782, "parameters": 249961, "training_seconds": 65.18364420812577, "validation_accuracy": 0.9287, "validation_correct": 9287, "validation_cross_entropy": 0.20670655136108398, "validation_score": 9287.414350945088}
+
+RECENT RESULT
+hypothesis: A 1.227325 evaluation-logit scale will preserve all 9,287 argmax predictions while reducing validation cross-entropy below 0.2067065514.
+change: Increase only the final center-biased pooled-logit scale from 1.225825 to the estimated local cross-entropy minimum of 1.227325.
+mechanism: Locally quadratic temperature calibration
+evidence_used: Raising the scale from 1.225 to 1.225825 reduced cross-entropy from 0.2067071121 to 0.2067065514 without changing predictions; combining that measured slope with the curvature of the prior 1.125–1.225 calibration series estimates the minimum near 1.2273.
+result: improved the objective and became an available design
+reported_values: {"batch_size": 128, "examples_processed": 100000, "optimizer_steps": 782, "parameters": 249961, "training_seconds": 60.908168042078614, "validation_accuracy": 0.9287, "validation_correct": 9287, "validation_cross_entropy": 0.20670603637695312, "validation_score": 9287.414351121919}
+
+RECENT RESULT
+hypothesis: A 1.22775 evaluation-logit scale will preserve all 9,287 argmax predictions while reducing validation cross-entropy below 0.2067060364.
+change: Increase only the final center-biased pooled-logit scale from 1.225 to 1.22775.
+mechanism: Local temperature-calibration refinement
+evidence_used: With identical 1.546875× center pooling, increasing the scale from 1.225 to 1.225825 and then 1.227325 preserved 9,287 correct while reducing cross-entropy from 0.2067071121 to 0.2067065514 and 0.2067060364; the measured local curvature places the estimated minimum near 1.22775.
+result: improved the objective and became an available design
+reported_values: {"batch_size": 128, "examples_processed": 100000, "optimizer_steps": 782, "parameters": 249961, "training_seconds": 63.96161983301863, "validation_accuracy": 0.9287, "validation_correct": 9287, "validation_cross_entropy": 0.20670600929260255, "validation_score": 9287.41435113122}
+
+RECENT RESULT
+hypothesis: A 1.55078125× center-offset weight with the calibrated 1.22775 logit scale will retain 9,287 correct predictions while reducing validation cross-entropy below 0.2067060093.
+change: Restore the best calibrated scale and move the center weight one quarter of the way from the verified-safe 1.546875× setting toward the accuracy-losing 1.5625× setting.
+mechanism: Conservative accuracy-boundary refinement for center-biased view pooling
+evidence_used: A 1.546875× center weight retained 9,287 correct, while 1.5625× lost one prediction despite lower cross-entropy; 1.55078125× is a conservative unresolved boundary probe, and 1.22775 is the best verified calibration.
+result: training did not finish within the verification time limit
+
+RECENT RESULT
+hypothesis: Sampling the centered crop with the same 1.546875× prior used by the best verified evaluation pool will exceed 9,287 correct predictions by emphasizing validation-aligned evidence during learning while preserving shifted-view robustness.
+change: Restore the best verified 1.546875× center-biased pooling and 1.22775 calibration, then match that center bias in training augmentation.
+mechanism: Train–evaluation view-prior alignment
+evidence_used: Center-biased evaluation retained 9,287 correct and reduced cross-entropy to 0.2067060093, while stronger evaluation-only bias lost a prediction; aligning the training distribution to the proven safe bias is the most direct untested extension.
+result: training did not finish within the verification time limit
+
+
+
+Use the available technical evidence to choose the most informative next
+change. Treat unsuccessful or malformed work as evidence when a useful
+subject-level reason is provided. Do not invent missing evidence.
+
+## Response
+
+Return these short metadata lines followed by one or more exact
+`SEARCH`/`REPLACE` blocks that together produce one implementation:
+
+`MECHANISM: <a concise free-form name for the computational idea>`
+
+`HYPOTHESIS: <a falsifiable claim grounded in the evidence above>`
+
+`INTENDED_EDIT: <what this patch changes>`
+
+`EVIDENCE: <the most relevant prior result and why it motivates this patch>`
+
+Start each block with `<<<<<<< SEARCH`, put the exact existing lines next, use a
+line containing `=======` as the divider, put the replacement lines after it,
+and finish the block with `>>>>>>> REPLACE`.
+
+Every `SEARCH` section must be nonempty and match exactly once after earlier
+blocks have been applied. All blocks must apply. Together they must describe
+one implementation ready for verification. The mechanism name is descriptive,
+not chosen from a fixed list. Do not paste whole files, lengthy logs, or routine
+progress reports outside the patch.

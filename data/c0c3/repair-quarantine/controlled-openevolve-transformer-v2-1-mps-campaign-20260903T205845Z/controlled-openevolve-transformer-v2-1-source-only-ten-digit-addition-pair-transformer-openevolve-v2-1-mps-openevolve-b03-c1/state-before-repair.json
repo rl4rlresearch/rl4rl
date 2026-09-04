@@ -1,0 +1,1326 @@
+{
+  "active": null,
+  "candidates": {
+    "02f4afb4f9179ffb072b74d69a35acc92642f85b9d13dc38213284cf33a27630": {
+      "artifact_path": "candidates/02f4afb4f9179ffb072b74d69a35acc92642f85b9d13dc38213284cf33a27630",
+      "candidate_id": "02f4afb4f9179ffb072b74d69a35acc92642f85b9d13dc38213284cf33a27630",
+      "created_opportunity": 40,
+      "fitness": -1259.0,
+      "hypothesis": "Replacing the dense 114-by-8 tied token table with a learned rank-six factorization will reduce parameters from 1,439 to 1,259 while retaining at least 99% accuracy, because token identity and output classification can share a six-dimensional learned latent space while the full-width attention pathway remains intact.",
+      "intended_edit": "Initialize the existing dense tied token table, truncate it by SVD into learned token codes and a learned 6-by-8 projection, and use their product for both input embeddings and output logits.",
+      "metrics": {
+        "accuracy": 0.9987,
+        "cases": 10010,
+        "correct": 9997,
+        "parameters": 1259,
+        "training_steps": 4999
+      },
+      "parent_ids": [
+        "258fedf5b4d1c2c083b8fdd4e68d35c2c4310edea44ffa71d5d2324b69aabb1a"
+      ],
+      "retained_order": 40,
+      "selected_count": 1
+    },
+    "08608c2a9b9bdf933d90e83b93f7683b64dfd587bbed0d2f4d8683b68adb21f7": {
+      "artifact_path": "candidates/08608c2a9b9bdf933d90e83b93f7683b64dfd587bbed0d2f4d8683b68adb21f7",
+      "candidate_id": "08608c2a9b9bdf933d90e83b93f7683b64dfd587bbed0d2f4d8683b68adb21f7",
+      "created_opportunity": 41,
+      "fitness": -1223.0,
+      "hypothesis": "Removing the 36-dimensional factorization gauge from the successful rank-six tied token table will reduce learned parameters from 1,259 to 1,223 while retaining at least 99% accuracy, because the reconstructed token table has unchanged rank-six expressivity and is initialized identically.",
+      "intended_edit": "Select the best-conditioned six feature columns as a fixed coordinate chart, absorb their invertible projection into the token codes, learn only the remaining 6-by-2 projection, and reconstruct the full tied token table during forward passes.",
+      "metrics": {
+        "accuracy": 0.9995999999999999,
+        "cases": 10010,
+        "correct": 10006,
+        "parameters": 1223,
+        "training_steps": 4999
+      },
+      "parent_ids": [
+        "02f4afb4f9179ffb072b74d69a35acc92642f85b9d13dc38213284cf33a27630"
+      ],
+      "retained_order": 41,
+      "selected_count": 3
+    },
+    "08f345645b10290f072a2a9fa867ddacb33704513dbe14fde83f8fb41c97d116": {
+      "artifact_path": "candidates/08f345645b10290f072a2a9fa867ddacb33704513dbe14fde83f8fb41c97d116",
+      "candidate_id": "08f345645b10290f072a2a9fa867ddacb33704513dbe14fde83f8fb41c97d116",
+      "created_opportunity": 51,
+      "fitness": -1162.0,
+      "hypothesis": "Fixing each head\u2019s second-farthest attention bias to zero will reduce parameters from 1,164 to 1,162 while retaining at least 99% accuracy, because this distance affects only two causal query-key pairs per full sequence and pruning the even-farthest endpoint retained 99.99% accuracy.",
+      "intended_edit": "Learn relative biases only for distances 1 through `max_seq_len - 3`, appending fixed zeros for distance zero and the two largest distances.",
+      "metrics": {
+        "accuracy": 0.9995,
+        "cases": 10010,
+        "correct": 10005,
+        "parameters": 1162,
+        "training_steps": 4999
+      },
+      "parent_ids": [
+        "148308afd549812381e3c70be021318a6cb7d1164845847286f6b84572e9f03d"
+      ],
+      "retained_order": 51,
+      "selected_count": 1
+    },
+    "148308afd549812381e3c70be021318a6cb7d1164845847286f6b84572e9f03d": {
+      "artifact_path": "candidates/148308afd549812381e3c70be021318a6cb7d1164845847286f6b84572e9f03d",
+      "candidate_id": "148308afd549812381e3c70be021318a6cb7d1164845847286f6b84572e9f03d",
+      "created_opportunity": 50,
+      "fitness": -1164.0,
+      "hypothesis": "Sharing one four-dimensional learned value projection across both heads will reduce parameters from 1,192 to 1,164 while retaining at least 99% accuracy, because addition requires distinct head-specific addressing but both routes can transport digits through a common learned value representation.",
+      "intended_edit": "Preserve independent query and key projections and biases for each head, but replace the two value projections with one learned shared projection whose attended outputs remain separately mixed by the output projection.",
+      "metrics": {
+        "accuracy": 0.9998,
+        "cases": 10010,
+        "correct": 10008,
+        "parameters": 1164,
+        "training_steps": 4999
+      },
+      "parent_ids": [
+        "2ec42ddb6bdf8415ab30b3bed92bc8a9a625d51b87008b0ce34612b3cc8b2570"
+      ],
+      "retained_order": 50,
+      "selected_count": 1
+    },
+    "1607223b51ab89b514b2ce785a1fee33543aaabefd911bff07a610e1abdb3481": {
+      "artifact_path": "candidates/1607223b51ab89b514b2ce785a1fee33543aaabefd911bff07a610e1abdb3481",
+      "candidate_id": "1607223b51ab89b514b2ce785a1fee33543aaabefd911bff07a610e1abdb3481",
+      "created_opportunity": 47,
+      "fitness": -1194.0,
+      "hypothesis": "Reducing `d_ff` from 12 to 11 will lower the model from 1,209 to 1,194 learned parameters while retaining at least 99% accuracy, because the successful zero-mean MLP output compression indicates remaining MLP redundancy, whereas the failed rank-five lexical bottleneck shows lexical rank is the riskier capacity target.",
+      "intended_edit": "Change the default feed-forward width from 12 hidden units to 11, preserving the architecture, training schedule, and learned causal attention pathway.",
+      "metrics": {
+        "accuracy": 0.9998,
+        "cases": 10010,
+        "correct": 10008,
+        "parameters": 1194,
+        "training_steps": 4999
+      },
+      "parent_ids": [
+        "7b7c957e5ab97b951c2fa2e21a5fcba04a59d327d649e8cedc12884b7201b755"
+      ],
+      "retained_order": 47,
+      "selected_count": 2
+    },
+    "1800b22c8b728af84d025246f40d408821d66e42184f96af8f276a4bbe36e8d5": {
+      "artifact_path": "candidates/1800b22c8b728af84d025246f40d408821d66e42184f96af8f276a4bbe36e8d5",
+      "candidate_id": "1800b22c8b728af84d025246f40d408821d66e42184f96af8f276a4bbe36e8d5",
+      "created_opportunity": 36,
+      "fitness": -1462.0,
+      "hypothesis": "Constraining every key-projection row to the zero-mean input subspace will reduce the model from 1,470 to 1,462 parameters while retaining at least 99% accuracy, because the removed component produces only a position-independent key shift that cancels exactly in the attention softmax.",
+      "intended_edit": "Store the eight key-projection rows as coefficients in the existing seven-dimensional orthonormal zero-mean basis, reconstruct them during forward passes, and preserve the initialized attention function.",
+      "metrics": {
+        "accuracy": 1.0,
+        "cases": 10010,
+        "correct": 10010,
+        "parameters": 1462,
+        "training_steps": 4999
+      },
+      "parent_ids": [
+        "3c17997b3312b3017ac1dfd905a0ac4d4c7142dff5a1c9aff90ad7f89a728659"
+      ],
+      "retained_order": 36,
+      "selected_count": 1
+    },
+    "1811ef6f6ff7bc95fcc7a21895715dea6e80d130caaf7797aa196e64184c9533": {
+      "artifact_path": "candidates/1811ef6f6ff7bc95fcc7a21895715dea6e80d130caaf7797aa196e64184c9533",
+      "candidate_id": "1811ef6f6ff7bc95fcc7a21895715dea6e80d130caaf7797aa196e64184c9533",
+      "created_opportunity": 25,
+      "fitness": -1582.0,
+      "hypothesis": "Rotating latent dimensions 0 and 1 to fix `pos_proj[0, 1]` at zero will reduce the model from 1,583 to 1,582 parameters while retaining at least 99% accuracy, because the rotation preserves the initialized positional table and the three existing first-column constraints exactly.",
+      "intended_edit": "Apply a fourth initialization-preserving latent-basis rotation, omit the newly fixed projection scalar, and reconstruct the four fixed zeros during each forward pass.",
+      "metrics": {
+        "accuracy": 0.9994,
+        "cases": 10010,
+        "correct": 10004,
+        "parameters": 1582,
+        "training_steps": 4999
+      },
+      "parent_ids": [
+        "a7e8cf5db3e7be75f4b2a58dc4916e804180b87c4e8dcf21ef1a62402a7b761f"
+      ],
+      "retained_order": 25,
+      "selected_count": 1
+    },
+    "255a5b7842e9a1160dc8e5a7b35f7139633273032fe8792af1bf753d4c511a41": {
+      "artifact_path": "candidates/255a5b7842e9a1160dc8e5a7b35f7139633273032fe8792af1bf753d4c511a41",
+      "candidate_id": "255a5b7842e9a1160dc8e5a7b35f7139633273032fe8792af1bf753d4c511a41",
+      "created_opportunity": 96,
+      "fitness": -866.0,
+      "hypothesis": "Reducing `d_ff` from 11 to 10 will lower the model from 881 to 866 learned parameters while retaining at least 99% accuracy.",
+      "intended_edit": "Remove one hidden unit from the transformer MLP without changing the proven rank-four lexical representation or attention routing.",
+      "metrics": {
+        "accuracy": 0.9922,
+        "cases": 10010,
+        "correct": 9932,
+        "parameters": 866,
+        "training_steps": 4999
+      },
+      "parent_ids": [
+        "8301cb8954e22a00c395785ff37eae4849bec05357584df3d8080ca26f072b0a"
+      ],
+      "retained_order": 96,
+      "selected_count": 3
+    },
+    "258fedf5b4d1c2c083b8fdd4e68d35c2c4310edea44ffa71d5d2324b69aabb1a": {
+      "artifact_path": "candidates/258fedf5b4d1c2c083b8fdd4e68d35c2c4310edea44ffa71d5d2324b69aabb1a",
+      "candidate_id": "258fedf5b4d1c2c083b8fdd4e68d35c2c4310edea44ffa71d5d2324b69aabb1a",
+      "created_opportunity": 39,
+      "fitness": -1439.0,
+      "hypothesis": "Removing `ln1_bias`, restoring all eight direct query-bias coordinates, and centering every query-weight row will reduce learned parameters from 1,453 to 1,439 while retaining at least 99% accuracy, because the attention input then comes directly from zero-mean LayerNorm, while the removed constant query and value effects remain representable by the existing direct query and centered output biases.",
+      "intended_edit": "Delete the redundant eight-parameter pre-attention bias, expand the query bias from six to eight parameters, and store query weights in the same seven-dimensional zero-mean basis already used successfully for key and value weights.",
+      "metrics": {
+        "accuracy": 0.9997,
+        "cases": 10010,
+        "correct": 10007,
+        "parameters": 1439,
+        "training_steps": 4999
+      },
+      "parent_ids": [
+        "770da40461e137e4ae6f9c31f0a00dfa0c5a413f5780265ee4534d835a4c6eba"
+      ],
+      "retained_order": 39,
+      "selected_count": 1
+    },
+    "2673a4d78a423f95fae6d8f97c8ea15e708f89624db77ce97219109f9b37e343": {
+      "artifact_path": "candidates/2673a4d78a423f95fae6d8f97c8ea15e708f89624db77ce97219109f9b37e343",
+      "candidate_id": "2673a4d78a423f95fae6d8f97c8ea15e708f89624db77ce97219109f9b37e343",
+      "created_opportunity": 11,
+      "fitness": -1604.0,
+      "hypothesis": "Removing the eight zero-initialized attention output-projection bias parameters will reduce the model from 1,612 to 1,604 parameters while retaining at least 99% accuracy, because the retained value bias can supply a position-independent vector through the output projection.",
+      "intended_edit": "Construct the attention output projection normally to preserve initialization ordering, then remove only its learned bias.",
+      "metrics": {
+        "accuracy": 0.9937,
+        "cases": 10010,
+        "correct": 9947,
+        "parameters": 1604,
+        "training_steps": 4999
+      },
+      "parent_ids": [
+        "530a473c4550adc9e7cfa3af8efb61c886ee59f95aa5c98474065ec0280d8aac"
+      ],
+      "retained_order": 11,
+      "selected_count": 3
+    },
+    "26a72caae6d1c359cfcfff0df9e448149df20f2e678aadb86b5f691427921486": {
+      "artifact_path": "candidates/26a72caae6d1c359cfcfff0df9e448149df20f2e678aadb86b5f691427921486",
+      "candidate_id": "26a72caae6d1c359cfcfff0df9e448149df20f2e678aadb86b5f691427921486",
+      "created_opportunity": 4,
+      "fitness": -1636.0,
+      "hypothesis": "Removing the eight key-bias parameters while preserving the baseline constructor RNG stream and parameter ordering will retain at least 99% accuracy with 1,636 parameters.",
+      "intended_edit": "Retain the combined QKV weight, replace its 24-element bias with 16 learned query/value biases, and apply those biases explicitly.",
+      "metrics": {
+        "accuracy": 0.9909,
+        "cases": 10010,
+        "correct": 9919,
+        "parameters": 1636,
+        "training_steps": 4999
+      },
+      "parent_ids": [
+        "2b9cea175ed60b009337ac54f6e8ad23bf2c014eb4080237777bfb70bfd9fd5b"
+      ],
+      "retained_order": 4,
+      "selected_count": 1
+    },
+    "284a23f04cf89101cfc3d21e02a55334264bb7e8df50faa062392c3c662b083c": {
+      "artifact_path": "candidates/284a23f04cf89101cfc3d21e02a55334264bb7e8df50faa062392c3c662b083c",
+      "candidate_id": "284a23f04cf89101cfc3d21e02a55334264bb7e8df50faa062392c3c662b083c",
+      "created_opportunity": 21,
+      "fitness": -1586.0,
+      "hypothesis": "Fixing each head\u2019s distance-zero relative bias to zero will reduce parameters from 1,588 to 1,586 while retaining at least 99% accuracy, because subtracting that bias from every causal attention logit leaves the softmax unchanged.",
+      "intended_edit": "Store only nonzero-distance relative biases and prepend a fixed zero reference bias during attention.",
+      "metrics": {
+        "accuracy": 0.9995999999999999,
+        "cases": 10010,
+        "correct": 10006,
+        "parameters": 1586,
+        "training_steps": 4999
+      },
+      "parent_ids": [
+        "85b7779b30c2377308f4d27bc9fb2ae3bad58306c036e3ec5e9797b6c940d631"
+      ],
+      "retained_order": 21,
+      "selected_count": 1
+    },
+    "2a9b612ed2502479f1254ffeff03a2543ddbc7a4bafc596eec4f70bf44b75fe2": {
+      "artifact_path": "candidates/2a9b612ed2502479f1254ffeff03a2543ddbc7a4bafc596eec4f70bf44b75fe2",
+      "candidate_id": "2a9b612ed2502479f1254ffeff03a2543ddbc7a4bafc596eec4f70bf44b75fe2",
+      "created_opportunity": 53,
+      "fitness": -1158.0,
+      "hypothesis": "Fixing each head\u2019s fourth-farthest attention bias to zero will reduce parameters from 1,160 to 1,158 while retaining at least 99% accuracy, because this distance affects only four causal query-key pairs per full sequence and pruning the three farther endpoints retained 99.94% accuracy.",
+      "intended_edit": "Learn relative biases only for distances 1 through `max_seq_len - 5`, appending fixed zeros for distance zero and the four largest distances.",
+      "metrics": {
+        "accuracy": 0.9994,
+        "cases": 10010,
+        "correct": 10004,
+        "parameters": 1158,
+        "training_steps": 4999
+      },
+      "parent_ids": [
+        "fe949bb4fbd62d1e902f1de0e41c712d93f2ccf2a6efd58f5a51601bcb73c83c"
+      ],
+      "retained_order": 53,
+      "selected_count": 1
+    },
+    "2b9cea175ed60b009337ac54f6e8ad23bf2c014eb4080237777bfb70bfd9fd5b": {
+      "artifact_path": "candidates/2b9cea175ed60b009337ac54f6e8ad23bf2c014eb4080237777bfb70bfd9fd5b",
+      "candidate_id": "2b9cea175ed60b009337ac54f6e8ad23bf2c014eb4080237777bfb70bfd9fd5b",
+      "created_opportunity": 0,
+      "fitness": -1644.0,
+      "hypothesis": "frozen seed baseline",
+      "intended_edit": "none",
+      "metrics": {
+        "accuracy": 0.9995999999999999,
+        "cases": 10010,
+        "correct": 10006,
+        "parameters": 1644,
+        "training_steps": 4999
+      },
+      "parent_ids": [],
+      "retained_order": 0,
+      "selected_count": 4
+    },
+    "2c6ea0c2038ed255e9115e281fb39fa7318e4ba9825458ecaafccf2bc06a799e": {
+      "artifact_path": "candidates/2c6ea0c2038ed255e9115e281fb39fa7318e4ba9825458ecaafccf2bc06a799e",
+      "candidate_id": "2c6ea0c2038ed255e9115e281fb39fa7318e4ba9825458ecaafccf2bc06a799e",
+      "created_opportunity": 81,
+      "fitness": -1108.0,
+      "hypothesis": "Tying both heads\u2019 twenty-first-farthest attention biases will reduce the model from 1,109 to 1,108 parameters while retaining at least 99% accuracy, because the adjacent fourteenth- through twentieth-farthest ties all succeeded without removing any routing distance.",
+      "intended_edit": "Shorten the independent per-head relative-bias core by one distance and reconstruct the twenty-first-farthest bias for both heads from one shared learned scalar.",
+      "metrics": {
+        "accuracy": 0.9995999999999999,
+        "cases": 10010,
+        "correct": 10006,
+        "parameters": 1108,
+        "training_steps": 4999
+      },
+      "parent_ids": [
+        "6426274ef5c4abde8448321ae255fb52f4e182f486ba1a1b95e49aab63da5f64"
+      ],
+      "retained_order": 81,
+      "selected_count": 1
+    },
+    "2dd783e21441e681c07e4c3fa6c8a81256fd9232568f47728f0711409039f7a4": {
+      "artifact_path": "candidates/2dd783e21441e681c07e4c3fa6c8a81256fd9232568f47728f0711409039f7a4",
+      "candidate_id": "2dd783e21441e681c07e4c3fa6c8a81256fd9232568f47728f0711409039f7a4",
+      "created_opportunity": 73,
+      "fitness": -1115.0,
+      "hypothesis": "Tying both heads\u2019 fourteenth-farthest attention biases will reduce the model from 1,116 to 1,115 parameters while retaining at least 99% accuracy, because complementary endpoint tying reached 99.87%, showing that distinct routing paths can share a learned strength without losing accuracy.",
+      "intended_edit": "Remove the final column from each head\u2019s relative-bias core and reconstruct that distance for both heads from one shared learned scalar.",
+      "metrics": {
+        "accuracy": 0.9992,
+        "cases": 10010,
+        "correct": 10002,
+        "parameters": 1115,
+        "training_steps": 4999
+      },
+      "parent_ids": [
+        "8da1f1ab7621d8816ee19bf1bd4a4e3859765375a014db2e105fe31ec5907548"
+      ],
+      "retained_order": 73,
+      "selected_count": 1
+    },
+    "2ec42ddb6bdf8415ab30b3bed92bc8a9a625d51b87008b0ce34612b3cc8b2570": {
+      "artifact_path": "candidates/2ec42ddb6bdf8415ab30b3bed92bc8a9a625d51b87008b0ce34612b3cc8b2570",
+      "candidate_id": "2ec42ddb6bdf8415ab30b3bed92bc8a9a625d51b87008b0ce34612b3cc8b2570",
+      "created_opportunity": 49,
+      "fitness": -1192.0,
+      "hypothesis": "Fixing each head\u2019s least-used maximum-distance attention bias to zero will reduce the model from 1,194 to 1,192 parameters while retaining at least 99% accuracy, because that bias affects only one causal query-key pair per full sequence.",
+      "intended_edit": "Learn relative biases only for distances 1 through `max_seq_len - 2` and append fixed zeros at distances zero and `max_seq_len - 1`.",
+      "metrics": {
+        "accuracy": 0.9998999999999999,
+        "cases": 10010,
+        "correct": 10009,
+        "parameters": 1192,
+        "training_steps": 4999
+      },
+      "parent_ids": [
+        "1607223b51ab89b514b2ce785a1fee33543aaabefd911bff07a610e1abdb3481"
+      ],
+      "retained_order": 49,
+      "selected_count": 1
+    },
+    "2fee91c71f672913dcbc44de09b1159275459e692b2498bc4ca187b1fd215446": {
+      "artifact_path": "candidates/2fee91c71f672913dcbc44de09b1159275459e692b2498bc4ca187b1fd215446",
+      "candidate_id": "2fee91c71f672913dcbc44de09b1159275459e692b2498bc4ca187b1fd215446",
+      "created_opportunity": 69,
+      "fitness": -1118.0,
+      "hypothesis": "Compressing `fc2.bias` to its seven observable zero-mean coordinates while emulating the original eight-coordinate AdamW updates will reduce the model from 1,119 to 1,118 parameters and retain at least 99% accuracy.",
+      "intended_edit": "Reconstruct the full zero-mean MLP output bias from seven learned coordinates and train those coordinates using projected updates from virtual eight-dimensional Adam moments.",
+      "metrics": {
+        "accuracy": 0.9933,
+        "cases": 10010,
+        "correct": 9943,
+        "parameters": 1118,
+        "training_steps": 4999
+      },
+      "parent_ids": [
+        "a663f6eaa7d490b410fed9866dd4b7e95218b0a229cb55edebcb82829efeca2a"
+      ],
+      "retained_order": 69,
+      "selected_count": 2
+    },
+    "3c17997b3312b3017ac1dfd905a0ac4d4c7142dff5a1c9aff90ad7f89a728659": {
+      "artifact_path": "candidates/3c17997b3312b3017ac1dfd905a0ac4d4c7142dff5a1c9aff90ad7f89a728659",
+      "candidate_id": "3c17997b3312b3017ac1dfd905a0ac4d4c7142dff5a1c9aff90ad7f89a728659",
+      "created_opportunity": 34,
+      "fitness": -1470.0,
+      "hypothesis": "Constraining only the attention output projection to the zero-mean feature subspace will reduce the model from 1,478 to 1,470 parameters while retaining at least 99% accuracy, because its removed per-token all-ones component is erased by subsequent LayerNorms under the fixed zero-dropout configuration.",
+      "intended_edit": "Store the 8-by-8 attention output projection as 7-by-8 coefficients in a fixed orthonormal zero-mean basis, reconstruct its centered 8-dimensional output during forward passes, and preserve the observable initialized function.",
+      "metrics": {
+        "accuracy": 0.9993000000000001,
+        "cases": 10010,
+        "correct": 10003,
+        "parameters": 1470,
+        "training_steps": 4999
+      },
+      "parent_ids": [
+        "a326da9aff492539925559fd2b31bd4cb3b3892fc18b94aa2c9006fdd7e15a4c"
+      ],
+      "retained_order": 34,
+      "selected_count": 2
+    },
+    "455e519edc926babd868cbfcdf43a5ec1a1d53a74340cbd1903ec52a8b87e498": {
+      "artifact_path": "candidates/455e519edc926babd868cbfcdf43a5ec1a1d53a74340cbd1903ec52a8b87e498",
+      "candidate_id": "455e519edc926babd868cbfcdf43a5ec1a1d53a74340cbd1903ec52a8b87e498",
+      "created_opportunity": 100,
+      "fitness": -638.0,
+      "hypothesis": "Constraining each token\u2019s learned rank-four code to a trainable radius and phase will reduce the model from 850 to 638 parameters while retaining at least 99% accuracy, because it preserves four ambient lexical channels while replacing four independent coordinates per token with two learned semantic coordinates.",
+      "intended_edit": "Generate tied input/output token codes by harmonically lifting learned per-token phases and radii into four dimensions, restore a full learned token-to-residual projection, and exempt periodic phase coordinates from weight decay.",
+      "metrics": {
+        "accuracy": 0.9974,
+        "cases": 10010,
+        "correct": 9984,
+        "parameters": 638,
+        "training_steps": 4999
+      },
+      "parent_ids": [
+        "ed3bbf0a66ec10cc944715647fe8b9fd14b3af1be38002026d8ae7119f50231d"
+      ],
+      "retained_order": 100,
+      "selected_count": 3
+    },
+    "456a23822443bdeb3f9923f94830c80fe3803da37f3fd020ddeaa2d00ef91baf": {
+      "artifact_path": "candidates/456a23822443bdeb3f9923f94830c80fe3803da37f3fd020ddeaa2d00ef91baf",
+      "candidate_id": "456a23822443bdeb3f9923f94830c80fe3803da37f3fd020ddeaa2d00ef91baf",
+      "created_opportunity": 55,
+      "fitness": -1154.0,
+      "hypothesis": "Fixing each head\u2019s sixth-farthest attention bias to zero will reduce learned parameters from 1,156 to 1,154 while retaining at least 99% accuracy, because this distance affects only six causal query-key pairs per full sequence and pruning the five farther endpoints retained 99.92% accuracy.",
+      "intended_edit": "Learn relative biases only for distances 1 through `max_seq_len - 7`, with fixed zeros at distance zero and the six largest distances.",
+      "metrics": {
+        "accuracy": 0.9992,
+        "cases": 10010,
+        "correct": 10002,
+        "parameters": 1154,
+        "training_steps": 4999
+      },
+      "parent_ids": [
+        "6178decc57b5ce5943ab87904295d872cedb77f9de60f805ccab200fd8f90ef1"
+      ],
+      "retained_order": 55,
+      "selected_count": 1
+    },
+    "471d0d820c2eed68fea4ad349f32dbad349e58cd25ce123412a9e81f7ea95cc4": {
+      "artifact_path": "candidates/471d0d820c2eed68fea4ad349f32dbad349e58cd25ce123412a9e81f7ea95cc4",
+      "candidate_id": "471d0d820c2eed68fea4ad349f32dbad349e58cd25ce123412a9e81f7ea95cc4",
+      "created_opportunity": 5,
+      "fitness": -1628.0,
+      "hypothesis": "Disabling the second LayerNorm bias will reduce parameters from 1,636 to 1,628 while retaining at least 99% accuracy, because the following `fc1` bias can represent the same pre-GELU offset.",
+      "intended_edit": "Construct `ln2` without a learned bias while preserving its learned scale, the full `d_ff=12` capacity, initialization RNG stream, and training procedure.",
+      "metrics": {
+        "accuracy": 0.9976999999999999,
+        "cases": 10010,
+        "correct": 9987,
+        "parameters": 1628,
+        "training_steps": 4999
+      },
+      "parent_ids": [
+        "26a72caae6d1c359cfcfff0df9e448149df20f2e678aadb86b5f691427921486"
+      ],
+      "retained_order": 5,
+      "selected_count": 3
+    },
+    "4c9be0edb6087e9deb2ff1479825a7ba86531969ce6adcbfb88325e6f6d2d17e": {
+      "artifact_path": "candidates/4c9be0edb6087e9deb2ff1479825a7ba86531969ce6adcbfb88325e6f6d2d17e",
+      "candidate_id": "4c9be0edb6087e9deb2ff1479825a7ba86531969ce6adcbfb88325e6f6d2d17e",
+      "created_opportunity": 76,
+      "fitness": -1112.0,
+      "hypothesis": "Tying both heads\u2019 seventeenth-farthest attention biases will reduce the model from 1,113 to 1,112 parameters while retaining at least 99% accuracy, because the adjacent fourteenth-, fifteenth-, and sixteenth-farthest ties all preserved at least 99.92% accuracy without removing any routing distance.",
+      "intended_edit": "Shorten the independent per-head relative-bias core by one distance and reconstruct the seventeenth-farthest bias for both heads from one shared learned scalar.",
+      "metrics": {
+        "accuracy": 0.9984000000000001,
+        "cases": 10010,
+        "correct": 9994,
+        "parameters": 1112,
+        "training_steps": 4999
+      },
+      "parent_ids": [
+        "ec5d1f9ac839f234f72cf1522fe223149c87e6acbf99d04f99fa4d9d17f30dab"
+      ],
+      "retained_order": 76,
+      "selected_count": 1
+    },
+    "530a473c4550adc9e7cfa3af8efb61c886ee59f95aa5c98474065ec0280d8aac": {
+      "artifact_path": "candidates/530a473c4550adc9e7cfa3af8efb61c886ee59f95aa5c98474065ec0280d8aac",
+      "candidate_id": "530a473c4550adc9e7cfa3af8efb61c886ee59f95aa5c98474065ec0280d8aac",
+      "created_opportunity": 9,
+      "fitness": -1612.0,
+      "hypothesis": "Removing the eight learned `ln1` scale parameters while retaining a learned `ln1` bias will reduce the model from 1,620 to 1,612 parameters and preserve at least 99% accuracy.",
+      "intended_edit": "Make `ln1` non-affine, add a standalone learned bias, and apply that bias before causal self-attention.",
+      "metrics": {
+        "accuracy": 0.9995999999999999,
+        "cases": 10010,
+        "correct": 10006,
+        "parameters": 1612,
+        "training_steps": 4999
+      },
+      "parent_ids": [
+        "79c35a51a501610b15676fbdb6973fa06ad7b08ff1b2576017af02f501918df8"
+      ],
+      "retained_order": 9,
+      "selected_count": 2
+    },
+    "556f228603a0076df390a5c0665dc5c967d2d3e679fe6271bcd02b83740b0651": {
+      "artifact_path": "candidates/556f228603a0076df390a5c0665dc5c967d2d3e679fe6271bcd02b83740b0651",
+      "candidate_id": "556f228603a0076df390a5c0665dc5c967d2d3e679fe6271bcd02b83740b0651",
+      "created_opportunity": 30,
+      "fitness": -1494.0,
+      "hypothesis": "Replacing the adaptive rank-four positional lookup with two fixed Fourier harmonics will remove `4 * max_seq_len - 8` learned parameters while retaining at least 99% accuracy, because learned full query/key projections can turn harmonic coordinates into sum- and difference-of-position alignment features, while the relative-bias table continues to provide exact distance cues.",
+      "intended_edit": "Freeze absolute position representation to generic two-frequency sine/cosine coordinates, restore a fully learned 4-by-8 positional readout, and remove the positional-factor reconstruction and its fixed pivots.",
+      "metrics": {
+        "accuracy": 0.9995999999999999,
+        "cases": 10010,
+        "correct": 10006,
+        "parameters": 1494,
+        "training_steps": 4999
+      },
+      "parent_ids": [
+        "a6690fe334913bfac5e7371f0bff29f4600568adb4fb497ff7135582e62ed438"
+      ],
+      "retained_order": 30,
+      "selected_count": 1
+    },
+    "57ef70806fb1d690734f9c772740d75771f933f424295ee523f112a2c4acbafe": {
+      "artifact_path": "candidates/57ef70806fb1d690734f9c772740d75771f933f424295ee523f112a2c4acbafe",
+      "candidate_id": "57ef70806fb1d690734f9c772740d75771f933f424295ee523f112a2c4acbafe",
+      "created_opportunity": 19,
+      "fitness": -1600.0,
+      "hypothesis": "Fixing a second query-bias coordinate at zero will reduce the model from 1,601 to 1,600 parameters while retaining at least 99% accuracy, because the learned pre-attention bias and full value bias can represent query offsets and six explicit query-bias coordinates should preserve most of the optimization benefit.",
+      "intended_edit": "Store six learned query-bias coordinates plus all eight value-bias coordinates, reconstructing the final two query-bias coordinates as zeros during attention.",
+      "metrics": {
+        "accuracy": 0.9994,
+        "cases": 10010,
+        "correct": 10004,
+        "parameters": 1600,
+        "training_steps": 4999
+      },
+      "parent_ids": [
+        "bb6b9af903336c1a1f427a9212c69c8522eec0a0f762ef7edd1723262130251b"
+      ],
+      "retained_order": 19,
+      "selected_count": 1
+    },
+    "5c4b55a0769e8d961cdafff3de0ba3fda204135d6c7aaaf16c859bfead984713": {
+      "artifact_path": "candidates/5c4b55a0769e8d961cdafff3de0ba3fda204135d6c7aaaf16c859bfead984713",
+      "candidate_id": "5c4b55a0769e8d961cdafff3de0ba3fda204135d6c7aaaf16c859bfead984713",
+      "created_opportunity": 59,
+      "fitness": -1146.0,
+      "hypothesis": "Fixing each head\u2019s tenth-farthest attention bias to zero will reduce learned parameters from 1,148 to 1,146 while retaining at least 99% accuracy, because this distance affects only ten causal query-key pairs per full sequence and pruning the nine farther endpoints retained 99.96% accuracy.",
+      "intended_edit": "Learn relative biases only for distances 1 through `max_seq_len - 11`, with fixed zeros at distance zero and the ten largest distances.",
+      "metrics": {
+        "accuracy": 0.9995999999999999,
+        "cases": 10010,
+        "correct": 10006,
+        "parameters": 1146,
+        "training_steps": 4999
+      },
+      "parent_ids": [
+        "b3f4b5ba624abf2fad46ae9676639b6955e760f4fa7c28ae906f526195a87aea"
+      ],
+      "retained_order": 59,
+      "selected_count": 1
+    },
+    "6000b3f12f9f125bfdca8e30c1ed70798a461ba2fc66b962451a72444619600d": {
+      "artifact_path": "candidates/6000b3f12f9f125bfdca8e30c1ed70798a461ba2fc66b962451a72444619600d",
+      "candidate_id": "6000b3f12f9f125bfdca8e30c1ed70798a461ba2fc66b962451a72444619600d",
+      "created_opportunity": 23,
+      "fitness": -1584.0,
+      "hypothesis": "Removing a second rotationally redundant scalar from the rank-four positional factors will reduce parameters from 1,585 to 1,584 while retaining at least 99% accuracy, because a second orthogonal basis rotation preserves both the initialized positional table and latent-factor geometry.",
+      "intended_edit": "Rotate positional latent dimensions 1 and 2 so `pos_proj[1, 0]` is zero, omit that scalar, and reconstruct both fixed zeros during the forward pass.",
+      "metrics": {
+        "accuracy": 0.9995,
+        "cases": 10010,
+        "correct": 10005,
+        "parameters": 1584,
+        "training_steps": 4999
+      },
+      "parent_ids": [
+        "9f269ac1f25175c3d90dfa65ffe09f4e1e485eaaf2d9adc2047b0c3c69cb7e96"
+      ],
+      "retained_order": 23,
+      "selected_count": 1
+    },
+    "6103cfc68314a9bb2e8be470505bf4deb4f6340771ba8e232d9bdf528f01a5aa": {
+      "artifact_path": "candidates/6103cfc68314a9bb2e8be470505bf4deb4f6340771ba8e232d9bdf528f01a5aa",
+      "candidate_id": "6103cfc68314a9bb2e8be470505bf4deb4f6340771ba8e232d9bdf528f01a5aa",
+      "created_opportunity": 37,
+      "fitness": -1454.0,
+      "hypothesis": "Constraining every value-projection row to the zero-mean input subspace will reduce the model from 1,462 to 1,454 learned parameters while retaining at least 99% accuracy, because the removed component is position-independent after `ln1` and is exactly representable by the existing value bias.",
+      "intended_edit": "Store each 8-by-8 value projection as 8-by-7 coefficients in the existing orthonormal zero-mean basis and reconstruct its centered weight during every forward pass.",
+      "metrics": {
+        "accuracy": 0.9997,
+        "cases": 10010,
+        "correct": 10007,
+        "parameters": 1454,
+        "training_steps": 4999
+      },
+      "parent_ids": [
+        "1800b22c8b728af84d025246f40d408821d66e42184f96af8f276a4bbe36e8d5"
+      ],
+      "retained_order": 37,
+      "selected_count": 1
+    },
+    "6178decc57b5ce5943ab87904295d872cedb77f9de60f805ccab200fd8f90ef1": {
+      "artifact_path": "candidates/6178decc57b5ce5943ab87904295d872cedb77f9de60f805ccab200fd8f90ef1",
+      "candidate_id": "6178decc57b5ce5943ab87904295d872cedb77f9de60f805ccab200fd8f90ef1",
+      "created_opportunity": 54,
+      "fitness": -1156.0,
+      "hypothesis": "Fixing each head\u2019s fifth-farthest attention bias to zero will reduce learned parameters from 1,158 to 1,156 while retaining at least 99% accuracy, because this distance affects only five causal query-key pairs per full sequence and pruning the four farther endpoints retained 99.94% accuracy.",
+      "intended_edit": "Learn relative biases only for distances 1 through `max_seq_len - 6`, with fixed zeros at distance zero and the five largest distances.",
+      "metrics": {
+        "accuracy": 0.9992,
+        "cases": 10010,
+        "correct": 10002,
+        "parameters": 1156,
+        "training_steps": 4999
+      },
+      "parent_ids": [
+        "2a9b612ed2502479f1254ffeff03a2543ddbc7a4bafc596eec4f70bf44b75fe2"
+      ],
+      "retained_order": 54,
+      "selected_count": 1
+    },
+    "623b2bc70c652a1b83441df2626de35b53179911da36d5377ba6b35d75b00653": {
+      "artifact_path": "candidates/623b2bc70c652a1b83441df2626de35b53179911da36d5377ba6b35d75b00653",
+      "candidate_id": "623b2bc70c652a1b83441df2626de35b53179911da36d5377ba6b35d75b00653",
+      "created_opportunity": 31,
+      "fitness": -1490.0,
+      "hypothesis": "Centering each harmonic readout row and reconstructing its eighth coordinate as the negative sum of the other seven will reduce the model from 1,494 to 1,490 parameters while retaining at least 99% accuracy, because per-position shifts along the all-ones feature direction are exactly removed by every downstream LayerNorm.",
+      "intended_edit": "Replace the learned 4-by-8 positional readout with a centered 4-by-7 parameterization and reconstruct the omitted coordinates during the forward pass.",
+      "metrics": {
+        "accuracy": 0.9998,
+        "cases": 10010,
+        "correct": 10008,
+        "parameters": 1490,
+        "training_steps": 4999
+      },
+      "parent_ids": [
+        "556f228603a0076df390a5c0665dc5c967d2d3e679fe6271bcd02b83740b0651"
+      ],
+      "retained_order": 31,
+      "selected_count": 1
+    },
+    "6426274ef5c4abde8448321ae255fb52f4e182f486ba1a1b95e49aab63da5f64": {
+      "artifact_path": "candidates/6426274ef5c4abde8448321ae255fb52f4e182f486ba1a1b95e49aab63da5f64",
+      "candidate_id": "6426274ef5c4abde8448321ae255fb52f4e182f486ba1a1b95e49aab63da5f64",
+      "created_opportunity": 79,
+      "fitness": -1109.0,
+      "hypothesis": "Tying both heads\u2019 twentieth-farthest attention biases will reduce the model from 1,110 to 1,109 parameters while retaining at least 99% accuracy, because the adjacent fourteenth- through nineteenth-farthest ties all succeeded without removing any routing distance.",
+      "intended_edit": "Shorten the independent per-head relative-bias core by one distance and reconstruct the twentieth-farthest bias for both heads from one shared learned scalar.",
+      "metrics": {
+        "accuracy": 0.9993000000000001,
+        "cases": 10010,
+        "correct": 10003,
+        "parameters": 1109,
+        "training_steps": 4999
+      },
+      "parent_ids": [
+        "81a73cce74f2450254995d57369ceee11ae3f5fd7d9a1606d8713a93cd4c11cc"
+      ],
+      "retained_order": 79,
+      "selected_count": 2
+    },
+    "66392298de53eae2a20b6b2f02f35e03ce9ad6691e631d7a985c4f21a0ee9bfd": {
+      "artifact_path": "candidates/66392298de53eae2a20b6b2f02f35e03ce9ad6691e631d7a985c4f21a0ee9bfd",
+      "candidate_id": "66392298de53eae2a20b6b2f02f35e03ce9ad6691e631d7a985c4f21a0ee9bfd",
+      "created_opportunity": 28,
+      "fitness": -1579.0,
+      "hypothesis": "Fixing `pos_proj[3, 0]` at its initialized value will reduce the model from 1,580 to 1,579 learned parameters while retaining at least 99% accuracy, because scaling positional-code column 3 and inversely scaling projection row 3 leaves their product unchanged.",
+      "intended_edit": "Store the initialized positional pivot as a fixed buffer, omit it from the learned flattened projection, and reconstruct the fourth projection row during every forward pass.",
+      "metrics": {
+        "accuracy": 0.9987,
+        "cases": 10010,
+        "correct": 9997,
+        "parameters": 1579,
+        "training_steps": 4999
+      },
+      "parent_ids": [
+        "80c5ea6eca1ea9b4ebea9a5bcde73eabbed93c6b179d1598bfb4e26becd0ae59"
+      ],
+      "retained_order": 28,
+      "selected_count": 1
+    },
+    "6af0433264903c417f147ced0a06b3f25616ebb9859fdf15baf601dece03c06f": {
+      "artifact_path": "candidates/6af0433264903c417f147ced0a06b3f25616ebb9859fdf15baf601dece03c06f",
+      "candidate_id": "6af0433264903c417f147ced0a06b3f25616ebb9859fdf15baf601dece03c06f",
+      "created_opportunity": 44,
+      "fitness": -1221.0,
+      "hypothesis": "Reparameterizing the final eight-dimensional LayerNorm bias as a six-dimensional token-feature bias will reduce parameters from 1,223 to 1,221 while retaining at least 99% accuracy, because logits observe the final hidden state only through the full-rank six-dimensional lexical projection.",
+      "intended_edit": "Remove the final LayerNorm\u2019s redundant eight-coordinate bias and add a learned six-coordinate bias immediately after projection into token-feature space.",
+      "metrics": {
+        "accuracy": 0.9990000000000001,
+        "cases": 10010,
+        "correct": 10000,
+        "parameters": 1221,
+        "training_steps": 4999
+      },
+      "parent_ids": [
+        "08608c2a9b9bdf933d90e83b93f7683b64dfd587bbed0d2f4d8683b68adb21f7"
+      ],
+      "retained_order": 44,
+      "selected_count": 1
+    },
+    "731fc482a8d992961463c7242d5a7dc93e07263e257e6f9140732c9194250023": {
+      "artifact_path": "candidates/731fc482a8d992961463c7242d5a7dc93e07263e257e6f9140732c9194250023",
+      "candidate_id": "731fc482a8d992961463c7242d5a7dc93e07263e257e6f9140732c9194250023",
+      "created_opportunity": 74,
+      "fitness": -1114.0,
+      "hypothesis": "Tying both heads\u2019 fifteenth-farthest attention biases will reduce the model from 1,115 to 1,114 parameters while retaining at least 99% accuracy, because the adjacent fourteenth-farthest cross-head tie achieved 99.92% without removing any routing distance.",
+      "intended_edit": "Remove the final column from each head\u2019s relative-bias core and reconstruct that fifteenth-farthest distance from one new shared learned scalar.",
+      "metrics": {
+        "accuracy": 0.9997,
+        "cases": 10010,
+        "correct": 10007,
+        "parameters": 1114,
+        "training_steps": 4999
+      },
+      "parent_ids": [
+        "2dd783e21441e681c07e4c3fa6c8a81256fd9232568f47728f0711409039f7a4"
+      ],
+      "retained_order": 74,
+      "selected_count": 1
+    },
+    "770da40461e137e4ae6f9c31f0a00dfa0c5a413f5780265ee4534d835a4c6eba": {
+      "artifact_path": "candidates/770da40461e137e4ae6f9c31f0a00dfa0c5a413f5780265ee4534d835a4c6eba",
+      "candidate_id": "770da40461e137e4ae6f9c31f0a00dfa0c5a413f5780265ee4534d835a4c6eba",
+      "created_opportunity": 38,
+      "fitness": -1453.0,
+      "hypothesis": "Replacing the eight-dimensional value bias with a seven-dimensional zero-mean attention output bias will reduce learned parameters from 1,454 to 1,453 while retaining at least 99% accuracy, because zero-dropout attention weights sum to one and the centered output projection maps the value bias to only seven observable residual-stream dimensions.",
+      "intended_edit": "Retain only the six query-bias parameters, learn seven coefficients for a centered attention output bias, and add that bias after the value aggregation and output projection.",
+      "metrics": {
+        "accuracy": 0.9997,
+        "cases": 10010,
+        "correct": 10007,
+        "parameters": 1453,
+        "training_steps": 4999
+      },
+      "parent_ids": [
+        "6103cfc68314a9bb2e8be470505bf4deb4f6340771ba8e232d9bdf528f01a5aa"
+      ],
+      "retained_order": 38,
+      "selected_count": 1
+    },
+    "79c35a51a501610b15676fbdb6973fa06ad7b08ff1b2576017af02f501918df8": {
+      "artifact_path": "candidates/79c35a51a501610b15676fbdb6973fa06ad7b08ff1b2576017af02f501918df8",
+      "candidate_id": "79c35a51a501610b15676fbdb6973fa06ad7b08ff1b2576017af02f501918df8",
+      "created_opportunity": 8,
+      "fitness": -1620.0,
+      "hypothesis": "Removing the eight learned `ln2` scale parameters will reduce the model from 1,628 to 1,620 parameters while retaining at least 99% accuracy, because with no `ln2` bias its elementwise scale can be represented exactly by rescaling the columns of `fc1.weight`.",
+      "intended_edit": "Disable all affine parameters in `ln2` while preserving the full `d_ff=12` MLP, attention architecture, initialization RNG stream, and training procedure.",
+      "metrics": {
+        "accuracy": 0.9995999999999999,
+        "cases": 10010,
+        "correct": 10006,
+        "parameters": 1620,
+        "training_steps": 4999
+      },
+      "parent_ids": [
+        "471d0d820c2eed68fea4ad349f32dbad349e58cd25ce123412a9e81f7ea95cc4"
+      ],
+      "retained_order": 8,
+      "selected_count": 1
+    },
+    "7b7c957e5ab97b951c2fa2e21a5fcba04a59d327d649e8cedc12884b7201b755": {
+      "artifact_path": "candidates/7b7c957e5ab97b951c2fa2e21a5fcba04a59d327d649e8cedc12884b7201b755",
+      "candidate_id": "7b7c957e5ab97b951c2fa2e21a5fcba04a59d327d649e8cedc12884b7201b755",
+      "created_opportunity": 45,
+      "fitness": -1209.0,
+      "hypothesis": "Constraining only the MLP output weight to the seven-dimensional zero-mean residual subspace will reduce parameters from 1,221 to 1,209 while retaining at least 99% accuracy, because each removed all-ones output component is erased by the final LayerNorm while the full eight-dimensional MLP output bias remains unchanged.",
+      "intended_edit": "Store `fc2.weight` as 7-by-12 coefficients, reconstruct its centered 8-by-12 weight during forward passes, and preserve its initialized observable function.",
+      "metrics": {
+        "accuracy": 0.9989,
+        "cases": 10010,
+        "correct": 9999,
+        "parameters": 1209,
+        "training_steps": 4999
+      },
+      "parent_ids": [
+        "6af0433264903c417f147ced0a06b3f25616ebb9859fdf15baf601dece03c06f"
+      ],
+      "retained_order": 45,
+      "selected_count": 2
+    },
+    "80c5ea6eca1ea9b4ebea9a5bcde73eabbed93c6b179d1598bfb4e26becd0ae59": {
+      "artifact_path": "candidates/80c5ea6eca1ea9b4ebea9a5bcde73eabbed93c6b179d1598bfb4e26becd0ae59",
+      "candidate_id": "80c5ea6eca1ea9b4ebea9a5bcde73eabbed93c6b179d1598bfb4e26becd0ae59",
+      "created_opportunity": 27,
+      "fitness": -1580.0,
+      "hypothesis": "Rotating latent dimensions 0 and 1 to fix `pos_proj[0, 2]` at zero will reduce the model from 1,581 to 1,580 parameters while retaining at least 99% accuracy, because both rows are already zero in the first two projection columns, so this rotation preserves the initialized positional table and all five existing constraints exactly.",
+      "intended_edit": "Apply an initialization-preserving rotation between positional latent dimensions 0 and 1, omit the newly fixed scalar, and reconstruct the six fixed zeros during every forward pass.",
+      "metrics": {
+        "accuracy": 0.9998,
+        "cases": 10010,
+        "correct": 10008,
+        "parameters": 1580,
+        "training_steps": 4999
+      },
+      "parent_ids": [
+        "ef7c40f76a3c4b95964295b86be4e4f60b1f5513cb2ab49acce9fed6d8101055"
+      ],
+      "retained_order": 27,
+      "selected_count": 1
+    },
+    "81a73cce74f2450254995d57369ceee11ae3f5fd7d9a1606d8713a93cd4c11cc": {
+      "artifact_path": "candidates/81a73cce74f2450254995d57369ceee11ae3f5fd7d9a1606d8713a93cd4c11cc",
+      "candidate_id": "81a73cce74f2450254995d57369ceee11ae3f5fd7d9a1606d8713a93cd4c11cc",
+      "created_opportunity": 78,
+      "fitness": -1110.0,
+      "hypothesis": "Tying both heads\u2019 nineteenth-farthest attention biases will reduce the model from 1,111 to 1,110 parameters while retaining at least 99% accuracy, because the adjacent fourteenth- through eighteenth-farthest ties all succeeded without removing any routing distance.",
+      "intended_edit": "Shorten the independent per-head relative-bias core by one distance and reconstruct the nineteenth-farthest bias for both heads from one shared learned scalar.",
+      "metrics": {
+        "accuracy": 0.9993000000000001,
+        "cases": 10010,
+        "correct": 10003,
+        "parameters": 1110,
+        "training_steps": 4999
+      },
+      "parent_ids": [
+        "fb28b049486413b2b16b1c28036bc8225a7cd56215cb366fdd24decd8c760ccb"
+      ],
+      "retained_order": 78,
+      "selected_count": 1
+    },
+    "81ef7600c2f3d411b54e8b0b148fe77785186517e5f18ad4340ee5f6dde62b43": {
+      "artifact_path": "candidates/81ef7600c2f3d411b54e8b0b148fe77785186517e5f18ad4340ee5f6dde62b43",
+      "candidate_id": "81ef7600c2f3d411b54e8b0b148fe77785186517e5f18ad4340ee5f6dde62b43",
+      "created_opportunity": 82,
+      "fitness": -1107.0,
+      "hypothesis": "Tying both heads\u2019 twenty-second-farthest attention biases will reduce the model from 1,108 to 1,107 parameters while retaining at least 99% accuracy, because the adjacent fourteenth- through twenty-first-farthest ties all succeeded without removing any routing distance.",
+      "intended_edit": "Shorten the independent per-head relative-bias core by one distance and reconstruct the twenty-second-farthest bias for both heads from one shared learned scalar.",
+      "metrics": {
+        "accuracy": 0.9991,
+        "cases": 10010,
+        "correct": 10001,
+        "parameters": 1107,
+        "training_steps": 4999
+      },
+      "parent_ids": [
+        "2c6ea0c2038ed255e9115e281fb39fa7318e4ba9825458ecaafccf2bc06a799e"
+      ],
+      "retained_order": 82,
+      "selected_count": 8
+    },
+    "8301cb8954e22a00c395785ff37eae4849bec05357584df3d8080ca26f072b0a": {
+      "artifact_path": "candidates/8301cb8954e22a00c395785ff37eae4849bec05357584df3d8080ca26f072b0a",
+      "candidate_id": "8301cb8954e22a00c395785ff37eae4849bec05357584df3d8080ca26f072b0a",
+      "created_opportunity": 91,
+      "fitness": -881.0,
+      "hypothesis": "Reducing the tied token representation and output projection from rank five to rank four will remove `VOCAB_SIZE` learned parameters while retaining at least 99% accuracy, because the rank-five model achieved 99.92% and this change leaves its proven attention-routing and MLP mechanisms intact.",
+      "intended_edit": "Set `token_rank` to four and retain the existing adaptive pivot-gauge factorization for the resulting four-dimensional lexical space.",
+      "metrics": {
+        "accuracy": 0.9998,
+        "cases": 10010,
+        "correct": 10008,
+        "parameters": 881,
+        "training_steps": 4999
+      },
+      "parent_ids": [
+        "b3271e3dfe20b3d25073d4c79ccd3b0f312b60052d1f2ed55f2ec8d78d3b7b32"
+      ],
+      "retained_order": 91,
+      "selected_count": 5
+    },
+    "85b7779b30c2377308f4d27bc9fb2ae3bad58306c036e3ec5e9797b6c940d631": {
+      "artifact_path": "candidates/85b7779b30c2377308f4d27bc9fb2ae3bad58306c036e3ec5e9797b6c940d631",
+      "candidate_id": "85b7779b30c2377308f4d27bc9fb2ae3bad58306c036e3ec5e9797b6c940d631",
+      "created_opportunity": 20,
+      "fitness": -1588.0,
+      "hypothesis": "Replacing full 8-dimensional positional embeddings with learned rank-4 codes while adding per-head relative-distance attention biases will reduce the model below 1,600 parameters and retain at least 99% accuracy, because addition primarily needs relational alignment between output and operand positions rather than eight independent absolute-position coordinates.",
+      "intended_edit": "Factorize the learned absolute positional table to rank 4 using an RNG-preserving truncated SVD initialization, and augment each causal attention head with a learned bias indexed by query-key distance.",
+      "metrics": {
+        "accuracy": 0.9997,
+        "cases": 10010,
+        "correct": 10007,
+        "parameters": 1588,
+        "training_steps": 4999
+      },
+      "parent_ids": [
+        "57ef70806fb1d690734f9c772740d75771f933f424295ee523f112a2c4acbafe"
+      ],
+      "retained_order": 20,
+      "selected_count": 1
+    },
+    "8da1f1ab7621d8816ee19bf1bd4a4e3859765375a014db2e105fe31ec5907548": {
+      "artifact_path": "candidates/8da1f1ab7621d8816ee19bf1bd4a4e3859765375a014db2e105fe31ec5907548",
+      "candidate_id": "8da1f1ab7621d8816ee19bf1bd4a4e3859765375a014db2e105fe31ec5907548",
+      "created_opportunity": 72,
+      "fitness": -1116.0,
+      "hypothesis": "Tying the first head\u2019s twelfth-farthest bias to the second head\u2019s thirteenth-farthest bias will reduce the model from 1,117 to 1,116 parameters while maintaining at least 99% accuracy, because prior ablations show that both routes must remain present but do not establish that they require independent learned strengths.",
+      "intended_edit": "Replace the two complementary head-specific endpoint parameters with one shared scalar used at both distances.",
+      "metrics": {
+        "accuracy": 0.9987,
+        "cases": 10010,
+        "correct": 9997,
+        "parameters": 1116,
+        "training_steps": 4999
+      },
+      "parent_ids": [
+        "9aaab7cce76fd115e1bfb46cb140dd9a23ab9e7351cbf9dbb41a0c76651f62e9"
+      ],
+      "retained_order": 72,
+      "selected_count": 1
+    },
+    "9aaab7cce76fd115e1bfb46cb140dd9a23ab9e7351cbf9dbb41a0c76651f62e9": {
+      "artifact_path": "candidates/9aaab7cce76fd115e1bfb46cb140dd9a23ab9e7351cbf9dbb41a0c76651f62e9",
+      "candidate_id": "9aaab7cce76fd115e1bfb46cb140dd9a23ab9e7351cbf9dbb41a0c76651f62e9",
+      "created_opportunity": 71,
+      "fitness": -1117.0,
+      "hypothesis": "Retaining the thirteenth-farthest bias only for the second head will reduce the model from 1,118 to 1,117 parameters while maintaining at least 99% accuracy, because removing that second-head bias caused the partial collapse to 73.42%, whereas the preceding distance showed that only one head needed its endpoint.",
+      "intended_edit": "Shorten the shared per-head relative-bias core by one distance, retain the twelfth-farthest endpoint only for the first head, and retain the thirteenth-farthest endpoint only for the second head.",
+      "metrics": {
+        "accuracy": 0.9948,
+        "cases": 10010,
+        "correct": 9958,
+        "parameters": 1117,
+        "training_steps": 4999
+      },
+      "parent_ids": [
+        "2fee91c71f672913dcbc44de09b1159275459e692b2498bc4ca187b1fd215446"
+      ],
+      "retained_order": 71,
+      "selected_count": 1
+    },
+    "9e92afe049aab6d27afb227cf5b801f429b8c44094abf69ce934a7fa36dd9f5b": {
+      "artifact_path": "candidates/9e92afe049aab6d27afb227cf5b801f429b8c44094abf69ce934a7fa36dd9f5b",
+      "candidate_id": "9e92afe049aab6d27afb227cf5b801f429b8c44094abf69ce934a7fa36dd9f5b",
+      "created_opportunity": 57,
+      "fitness": -1150.0,
+      "hypothesis": "Fixing each head\u2019s eighth-farthest attention bias to zero will reduce learned parameters from 1,152 to 1,150 while retaining at least 99% accuracy, because this distance affects only eight causal query-key pairs per full sequence and pruning the seven farther endpoints retained 99.77% accuracy.",
+      "intended_edit": "Learn relative biases only for distances 1 through `max_seq_len - 9`, with fixed zeros at distance zero and the eight largest distances.",
+      "metrics": {
+        "accuracy": 0.9987,
+        "cases": 10010,
+        "correct": 9997,
+        "parameters": 1150,
+        "training_steps": 4999
+      },
+      "parent_ids": [
+        "adec3ef86090f922a938b89f3740af572d004442582caad0efc0e6136f757e9f"
+      ],
+      "retained_order": 57,
+      "selected_count": 1
+    },
+    "9f269ac1f25175c3d90dfa65ffe09f4e1e485eaaf2d9adc2047b0c3c69cb7e96": {
+      "artifact_path": "candidates/9f269ac1f25175c3d90dfa65ffe09f4e1e485eaaf2d9adc2047b0c3c69cb7e96",
+      "candidate_id": "9f269ac1f25175c3d90dfa65ffe09f4e1e485eaaf2d9adc2047b0c3c69cb7e96",
+      "created_opportunity": 22,
+      "fitness": -1585.0,
+      "hypothesis": "Removing one rotationally redundant scalar from the rank-four positional factors will reduce parameters from 1,586 to 1,585 while retaining at least 99% accuracy, because an orthogonal basis change preserves the initialized positional table and factor-space geometry while fixing one projection entry to zero.",
+      "intended_edit": "Rotate the first two positional latent dimensions so `pos_proj[0, 0]` is zero, omit that scalar from the learned parameter, and reconstruct the fixed zero during inference and training.",
+      "metrics": {
+        "accuracy": 0.9995999999999999,
+        "cases": 10010,
+        "correct": 10006,
+        "parameters": 1585,
+        "training_steps": 4999
+      },
+      "parent_ids": [
+        "284a23f04cf89101cfc3d21e02a55334264bb7e8df50faa062392c3c662b083c"
+      ],
+      "retained_order": 22,
+      "selected_count": 1
+    },
+    "a326da9aff492539925559fd2b31bd4cb3b3892fc18b94aa2c9006fdd7e15a4c": {
+      "artifact_path": "candidates/a326da9aff492539925559fd2b31bd4cb3b3892fc18b94aa2c9006fdd7e15a4c",
+      "candidate_id": "a326da9aff492539925559fd2b31bd4cb3b3892fc18b94aa2c9006fdd7e15a4c",
+      "created_opportunity": 32,
+      "fitness": -1478.0,
+      "hypothesis": "Constraining every MLP input-weight row to the zero-mean subspace will reduce the model from 1,490 to 1,478 parameters while retaining at least 99% accuracy, because `ln2` outputs have exactly zero coordinate sum and therefore the removed component cannot affect the learned function.",
+      "intended_edit": "Store each 12-by-8 `fc1` weight as 12-by-7 coefficients in a fixed orthonormal basis of the zero-mean subspace, preserving the initialized function while removing 12 unobservable parameters.",
+      "metrics": {
+        "accuracy": 0.9995,
+        "cases": 10010,
+        "correct": 10005,
+        "parameters": 1478,
+        "training_steps": 4999
+      },
+      "parent_ids": [
+        "623b2bc70c652a1b83441df2626de35b53179911da36d5377ba6b35d75b00653"
+      ],
+      "retained_order": 32,
+      "selected_count": 2
+    },
+    "a663f6eaa7d490b410fed9866dd4b7e95218b0a229cb55edebcb82829efeca2a": {
+      "artifact_path": "candidates/a663f6eaa7d490b410fed9866dd4b7e95218b0a229cb55edebcb82829efeca2a",
+      "candidate_id": "a663f6eaa7d490b410fed9866dd4b7e95218b0a229cb55edebcb82829efeca2a",
+      "created_opportunity": 65,
+      "fitness": -1119.0,
+      "hypothesis": "Fixing only the second head\u2019s twelfth-farthest attention bias will reduce the model from 1,120 to 1,119 learned parameters while retaining at least 99% accuracy, because the failed complementary ablation indicates that the first head may be the sole head requiring this routing endpoint.",
+      "intended_edit": "Split the relative biases into a per-head core and a one-parameter twelfth-farthest endpoint retained only for the first head, reconstructing the full bias table during the forward pass.",
+      "metrics": {
+        "accuracy": 0.9953,
+        "cases": 10010,
+        "correct": 9963,
+        "parameters": 1119,
+        "training_steps": 4999
+      },
+      "parent_ids": [
+        "ebb3ff9ca224216710bd5bbc41ece9cb6e93aa0053248ca49ac5c06955f0ec31"
+      ],
+      "retained_order": 65,
+      "selected_count": 4
+    },
+    "a6690fe334913bfac5e7371f0bff29f4600568adb4fb497ff7135582e62ed438": {
+      "artifact_path": "candidates/a6690fe334913bfac5e7371f0bff29f4600568adb4fb497ff7135582e62ed438",
+      "candidate_id": "a6690fe334913bfac5e7371f0bff29f4600568adb4fb497ff7135582e62ed438",
+      "created_opportunity": 29,
+      "fitness": -1578.0,
+      "hypothesis": "Fixing `pos_proj[2, 1]` at initialization will reduce learned parameters from 1,579 to 1,578 while retaining at least 99% accuracy, because inverse scaling of positional-code column 2 preserves the represented positional table.",
+      "intended_edit": "Store the row-2 projection pivot as a fixed buffer, omit it from the learned flattened projection, and reconstruct it during every forward pass.",
+      "metrics": {
+        "accuracy": 0.9989,
+        "cases": 10010,
+        "correct": 9999,
+        "parameters": 1578,
+        "training_steps": 4999
+      },
+      "parent_ids": [
+        "66392298de53eae2a20b6b2f02f35e03ce9ad6691e631d7a985c4f21a0ee9bfd"
+      ],
+      "retained_order": 29,
+      "selected_count": 1
+    },
+    "a7e8cf5db3e7be75f4b2a58dc4916e804180b87c4e8dcf21ef1a62402a7b761f": {
+      "artifact_path": "candidates/a7e8cf5db3e7be75f4b2a58dc4916e804180b87c4e8dcf21ef1a62402a7b761f",
+      "candidate_id": "a7e8cf5db3e7be75f4b2a58dc4916e804180b87c4e8dcf21ef1a62402a7b761f",
+      "created_opportunity": 24,
+      "fitness": -1583.0,
+      "hypothesis": "Removing a third rotationally redundant scalar from the rank-four positional factors will reduce parameters from 1,584 to 1,583 while retaining at least 99% accuracy, because another orthogonal latent-basis rotation preserves the initialized positional table and factor geometry exactly.",
+      "intended_edit": "Rotate positional latent dimensions 2 and 3 so `pos_proj[2, 0]` is zero, omit that scalar, and reconstruct all three fixed zeros during the forward pass.",
+      "metrics": {
+        "accuracy": 0.9998,
+        "cases": 10010,
+        "correct": 10008,
+        "parameters": 1583,
+        "training_steps": 4999
+      },
+      "parent_ids": [
+        "6000b3f12f9f125bfdca8e30c1ed70798a461ba2fc66b962451a72444619600d"
+      ],
+      "retained_order": 24,
+      "selected_count": 1
+    },
+    "ace2677baeb9d968103cad0120fa1e93667cf3d1f22117c699340fd9d5ac5d01": {
+      "artifact_path": "candidates/ace2677baeb9d968103cad0120fa1e93667cf3d1f22117c699340fd9d5ac5d01",
+      "candidate_id": "ace2677baeb9d968103cad0120fa1e93667cf3d1f22117c699340fd9d5ac5d01",
+      "created_opportunity": 15,
+      "fitness": -1602.0,
+      "hypothesis": "Extending the successful positional-embedding gauge fixing from one coordinate to two will reduce parameters from 1,603 to 1,602 while retaining at least 99% accuracy.",
+      "intended_edit": "Absorb position zero\u2019s first two coordinates into every token embedding, remove both scalars from the positional parameter, and reconstruct them as zeros during the forward pass.",
+      "metrics": {
+        "accuracy": 0.9975,
+        "cases": 10010,
+        "correct": 9985,
+        "parameters": 1602,
+        "training_steps": 4999
+      },
+      "parent_ids": [
+        "f7cda2b294cb4f3d7416df7cf34b5fe05216d5438d7f3ea47507638f90484e22"
+      ],
+      "retained_order": 15,
+      "selected_count": 3
+    },
+    "adec3ef86090f922a938b89f3740af572d004442582caad0efc0e6136f757e9f": {
+      "artifact_path": "candidates/adec3ef86090f922a938b89f3740af572d004442582caad0efc0e6136f757e9f",
+      "candidate_id": "adec3ef86090f922a938b89f3740af572d004442582caad0efc0e6136f757e9f",
+      "created_opportunity": 56,
+      "fitness": -1152.0,
+      "hypothesis": "Fixing each head\u2019s seventh-farthest attention bias to zero will reduce learned parameters from 1,154 to 1,152 while retaining at least 99% accuracy, because this distance affects only seven causal query-key pairs per full sequence and pruning the six farther endpoints retained 99.92% accuracy.",
+      "intended_edit": "Learn relative biases only for distances 1 through `max_seq_len - 8`, with fixed zeros at distance zero and the seven largest distances.",
+      "metrics": {
+        "accuracy": 0.9976999999999999,
+        "cases": 10010,
+        "correct": 9987,
+        "parameters": 1152,
+        "training_steps": 4999
+      },
+      "parent_ids": [
+        "456a23822443bdeb3f9923f94830c80fe3803da37f3fd020ddeaa2d00ef91baf"
+      ],
+      "retained_order": 56,
+      "selected_count": 1
+    },
+    "b3271e3dfe20b3d25073d4c79ccd3b0f312b60052d1f2ed55f2ec8d78d3b7b32": {
+      "artifact_path": "candidates/b3271e3dfe20b3d25073d4c79ccd3b0f312b60052d1f2ed55f2ec8d78d3b7b32",
+      "candidate_id": "b3271e3dfe20b3d25073d4c79ccd3b0f312b60052d1f2ed55f2ec8d78d3b7b32",
+      "created_opportunity": 90,
+      "fitness": -995.0,
+      "hypothesis": "Reducing the tied token representation and logit projection from rank six to rank five will lower the model from 1,107 to 1,095 learned parameters while retaining at least 99% accuracy, because digit identity and output classification do not intrinsically require six independent lexical coordinates.",
+      "intended_edit": "Use a rank-five learned token code with a five-dimensional output bottleneck, leaving the proven attention-routing and MLP mechanisms unchanged.",
+      "metrics": {
+        "accuracy": 0.9992,
+        "cases": 10010,
+        "correct": 10002,
+        "parameters": 995,
+        "training_steps": 4999
+      },
+      "parent_ids": [
+        "81ef7600c2f3d411b54e8b0b148fe77785186517e5f18ad4340ee5f6dde62b43"
+      ],
+      "retained_order": 90,
+      "selected_count": 1
+    },
+    "b3f4b5ba624abf2fad46ae9676639b6955e760f4fa7c28ae906f526195a87aea": {
+      "artifact_path": "candidates/b3f4b5ba624abf2fad46ae9676639b6955e760f4fa7c28ae906f526195a87aea",
+      "candidate_id": "b3f4b5ba624abf2fad46ae9676639b6955e760f4fa7c28ae906f526195a87aea",
+      "created_opportunity": 58,
+      "fitness": -1148.0,
+      "hypothesis": "Fixing each head\u2019s ninth-farthest attention bias to zero will reduce learned parameters from 1,150 to 1,148 while retaining at least 99% accuracy, because this distance affects only nine causal query-key pairs per full sequence and pruning the eight farther endpoints retained 99.87% accuracy.",
+      "intended_edit": "Learn relative biases only for distances 1 through `max_seq_len - 10`, with fixed zeros at distance zero and the nine largest distances.",
+      "metrics": {
+        "accuracy": 0.9995999999999999,
+        "cases": 10010,
+        "correct": 10006,
+        "parameters": 1148,
+        "training_steps": 4999
+      },
+      "parent_ids": [
+        "9e92afe049aab6d27afb227cf5b801f429b8c44094abf69ce934a7fa36dd9f5b"
+      ],
+      "retained_order": 58,
+      "selected_count": 1
+    },
+    "bb6b9af903336c1a1f427a9212c69c8522eec0a0f762ef7edd1723262130251b": {
+      "artifact_path": "candidates/bb6b9af903336c1a1f427a9212c69c8522eec0a0f762ef7edd1723262130251b",
+      "candidate_id": "bb6b9af903336c1a1f427a9212c69c8522eec0a0f762ef7edd1723262130251b",
+      "created_opportunity": 18,
+      "fitness": -1601.0,
+      "hypothesis": "Fixing one query-bias coordinate at zero will reduce the model from 1,602 to 1,601 parameters while retaining at least 99% accuracy, because the learned pre-attention bias and retained value bias can represent query offsets, and preserving seven query-bias coordinates avoids the optimization collapse seen when all eight were removed.",
+      "intended_edit": "Store seven learned query-bias coordinates plus all eight value-bias coordinates, reconstructing the final query-bias coordinate as zero during attention.",
+      "metrics": {
+        "accuracy": 0.9994,
+        "cases": 10010,
+        "correct": 10004,
+        "parameters": 1601,
+        "training_steps": 4999
+      },
+      "parent_ids": [
+        "ace2677baeb9d968103cad0120fa1e93667cf3d1f22117c699340fd9d5ac5d01"
+      ],
+      "retained_order": 18,
+      "selected_count": 1
+    },
+    "bd3de48f5525dcfff6bd60d317420799f884f2ebdb491cb5078d6dbf650b991c": {
+      "artifact_path": "candidates/bd3de48f5525dcfff6bd60d317420799f884f2ebdb491cb5078d6dbf650b991c",
+      "candidate_id": "bd3de48f5525dcfff6bd60d317420799f884f2ebdb491cb5078d6dbf650b991c",
+      "created_opportunity": 103,
+      "fitness": -606.0,
+      "hypothesis": "Fixing an adaptive four-column key basis to identity in each attention head will reduce the verified 638-parameter model to 606 parameters while retaining at least 99% accuracy, because the transformation preserves every initialized attention score and the model\u2019s full learned query/key function class.",
+      "intended_edit": "Select an invertible key-projection pivot per head, retain only the three non-pivot columns, and apply the compensating transpose transformation to each head\u2019s query projection and bias.",
+      "metrics": {
+        "accuracy": 0.9989,
+        "cases": 10010,
+        "correct": 9999,
+        "parameters": 606,
+        "training_steps": 4999
+      },
+      "parent_ids": [
+        "455e519edc926babd868cbfcdf43a5ec1a1d53a74340cbd1903ec52a8b87e498"
+      ],
+      "retained_order": 103,
+      "selected_count": 69
+    },
+    "ebb3ff9ca224216710bd5bbc41ece9cb6e93aa0053248ca49ac5c06955f0ec31": {
+      "artifact_path": "candidates/ebb3ff9ca224216710bd5bbc41ece9cb6e93aa0053248ca49ac5c06955f0ec31",
+      "candidate_id": "ebb3ff9ca224216710bd5bbc41ece9cb6e93aa0053248ca49ac5c06955f0ec31",
+      "created_opportunity": 61,
+      "fitness": -1120.0,
+      "hypothesis": "Fixing each head\u2019s eleventh-farthest attention bias to zero will reduce learned parameters from 1,122 to 1,120 while retaining at least 99% accuracy, because this distance affects only eleven causal query-key pairs per full sequence.",
+      "intended_edit": "Learn relative biases only for distances 1 through `max_seq_len - 12`, with fixed zeros at distance zero and the eleven largest distances.",
+      "metrics": {
+        "accuracy": 0.9965,
+        "cases": 10010,
+        "correct": 9975,
+        "parameters": 1120,
+        "training_steps": 4999
+      },
+      "parent_ids": [
+        "f61a2039ed945074517914769bd1af6d4f2c78b8cb620e9216015f3f67803ae4"
+      ],
+      "retained_order": 61,
+      "selected_count": 4
+    },
+    "ec5d1f9ac839f234f72cf1522fe223149c87e6acbf99d04f99fa4d9d17f30dab": {
+      "artifact_path": "candidates/ec5d1f9ac839f234f72cf1522fe223149c87e6acbf99d04f99fa4d9d17f30dab",
+      "candidate_id": "ec5d1f9ac839f234f72cf1522fe223149c87e6acbf99d04f99fa4d9d17f30dab",
+      "created_opportunity": 75,
+      "fitness": -1113.0,
+      "hypothesis": "Tying both heads\u2019 sixteenth-farthest attention biases will reduce the model from 1,114 to 1,113 parameters while retaining at least 99% accuracy, because the adjacent fourteenth- and fifteenth-farthest cross-head ties achieved 99.92% and 99.97% without removing any routing distance.",
+      "intended_edit": "Shorten the independent per-head relative-bias core by one distance and reconstruct the sixteenth-farthest bias for both heads from one shared learned scalar.",
+      "metrics": {
+        "accuracy": 0.9993000000000001,
+        "cases": 10010,
+        "correct": 10003,
+        "parameters": 1113,
+        "training_steps": 4999
+      },
+      "parent_ids": [
+        "731fc482a8d992961463c7242d5a7dc93e07263e257e6f9140732c9194250023"
+      ],
+      "retained_order": 75,
+      "selected_count": 1
+    },
+    "ed3bbf0a66ec10cc944715647fe8b9fd14b3af1be38002026d8ae7119f50231d": {
+      "artifact_path": "candidates/ed3bbf0a66ec10cc944715647fe8b9fd14b3af1be38002026d8ae7119f50231d",
+      "candidate_id": "ed3bbf0a66ec10cc944715647fe8b9fd14b3af1be38002026d8ae7119f50231d",
+      "created_opportunity": 99,
+      "fitness": -850.0,
+      "hypothesis": "Eliminating the 16-dimensional invertible basis redundancy between the shared value map and attention output projection will reduce the model from 866 to 850 learned parameters while retaining at least 99% accuracy.",
+      "intended_edit": "Adaptively select four value-map pivot columns, fix them to an identity matrix, retain only the remaining coefficients, and compensate exactly in each head\u2019s output-projection block.",
+      "metrics": {
+        "accuracy": 0.9994,
+        "cases": 10010,
+        "correct": 10004,
+        "parameters": 850,
+        "training_steps": 4999
+      },
+      "parent_ids": [
+        "255a5b7842e9a1160dc8e5a7b35f7139633273032fe8792af1bf753d4c511a41"
+      ],
+      "retained_order": 99,
+      "selected_count": 1
+    },
+    "ef7c40f76a3c4b95964295b86be4e4f60b1f5513cb2ab49acce9fed6d8101055": {
+      "artifact_path": "candidates/ef7c40f76a3c4b95964295b86be4e4f60b1f5513cb2ab49acce9fed6d8101055",
+      "candidate_id": "ef7c40f76a3c4b95964295b86be4e4f60b1f5513cb2ab49acce9fed6d8101055",
+      "created_opportunity": 26,
+      "fitness": -1581.0,
+      "hypothesis": "Rotating latent dimensions 1 and 2 to fix `pos_proj[1, 1]` at zero will reduce the model from 1,582 to 1,581 parameters while retaining at least 99% accuracy, because this orthogonal rotation preserves the initialized positional table and all four existing zero constraints exactly.",
+      "intended_edit": "Apply an initialization-preserving rotation between positional latent dimensions 1 and 2, omit the newly fixed projection scalar, and reconstruct the five fixed zeros during each forward pass.",
+      "metrics": {
+        "accuracy": 0.9998,
+        "cases": 10010,
+        "correct": 10008,
+        "parameters": 1581,
+        "training_steps": 4999
+      },
+      "parent_ids": [
+        "1811ef6f6ff7bc95fcc7a21895715dea6e80d130caaf7797aa196e64184c9533"
+      ],
+      "retained_order": 26,
+      "selected_count": 1
+    },
+    "f61a2039ed945074517914769bd1af6d4f2c78b8cb620e9216015f3f67803ae4": {
+      "artifact_path": "candidates/f61a2039ed945074517914769bd1af6d4f2c78b8cb620e9216015f3f67803ae4",
+      "candidate_id": "f61a2039ed945074517914769bd1af6d4f2c78b8cb620e9216015f3f67803ae4",
+      "created_opportunity": 60,
+      "fitness": -1122.0,
+      "hypothesis": "Replacing the 28-parameter dense positional readout with four learned harmonic amplitudes will reduce the model from 1,146 to 1,122 parameters while retaining at least 99% accuracy, because the independent learned query/key projections can mix a fixed orthogonal positional basis without requiring a separately learned direction for every harmonic-coordinate pair.",
+      "intended_edit": "Represent the four fixed harmonics along deterministic orthogonal zero-mean residual directions, learning only one amplitude per harmonic while preserving the initialized positional magnitude and all lexical, MLP, and head-specific routing capacity.",
+      "metrics": {
+        "accuracy": 0.9951000000000001,
+        "cases": 10010,
+        "correct": 9961,
+        "parameters": 1122,
+        "training_steps": 4999
+      },
+      "parent_ids": [
+        "5c4b55a0769e8d961cdafff3de0ba3fda204135d6c7aaaf16c859bfead984713"
+      ],
+      "retained_order": 60,
+      "selected_count": 1
+    },
+    "f7cda2b294cb4f3d7416df7cf34b5fe05216d5438d7f3ea47507638f90484e22": {
+      "artifact_path": "candidates/f7cda2b294cb4f3d7416df7cf34b5fe05216d5438d7f3ea47507638f90484e22",
+      "candidate_id": "f7cda2b294cb4f3d7416df7cf34b5fe05216d5438d7f3ea47507638f90484e22",
+      "created_opportunity": 14,
+      "fitness": -1603.0,
+      "hypothesis": "Fixing one positional-embedding coordinate at zero through an initialization-aligned token/position reparameterization will reduce the model from 1,604 to 1,603 parameters while retaining at least 99% accuracy.",
+      "intended_edit": "Absorb position zero\u2019s first coordinate into the corresponding coordinate of every token embedding, compact the positional parameter by one scalar, and reconstruct the fixed zero coordinate during the forward pass.",
+      "metrics": {
+        "accuracy": 0.9992,
+        "cases": 10010,
+        "correct": 10002,
+        "parameters": 1603,
+        "training_steps": 4999
+      },
+      "parent_ids": [
+        "2673a4d78a423f95fae6d8f97c8ea15e708f89624db77ce97219109f9b37e343"
+      ],
+      "retained_order": 14,
+      "selected_count": 1
+    },
+    "fb28b049486413b2b16b1c28036bc8225a7cd56215cb366fdd24decd8c760ccb": {
+      "artifact_path": "candidates/fb28b049486413b2b16b1c28036bc8225a7cd56215cb366fdd24decd8c760ccb",
+      "candidate_id": "fb28b049486413b2b16b1c28036bc8225a7cd56215cb366fdd24decd8c760ccb",
+      "created_opportunity": 77,
+      "fitness": -1111.0,
+      "hypothesis": "Tying both heads\u2019 eighteenth-farthest attention biases will reduce the model from 1,112 to 1,111 parameters while retaining at least 99% accuracy, because the adjacent fourteenth- through seventeenth-farthest ties all preserved at least 99.84% accuracy without removing any routing distance.",
+      "intended_edit": "Shorten the independent per-head relative-bias core by one distance and reconstruct the eighteenth-farthest bias for both heads from one shared learned scalar.",
+      "metrics": {
+        "accuracy": 0.9992,
+        "cases": 10010,
+        "correct": 10002,
+        "parameters": 1111,
+        "training_steps": 4999
+      },
+      "parent_ids": [
+        "4c9be0edb6087e9deb2ff1479825a7ba86531969ce6adcbfb88325e6f6d2d17e"
+      ],
+      "retained_order": 77,
+      "selected_count": 1
+    },
+    "fe949bb4fbd62d1e902f1de0e41c712d93f2ccf2a6efd58f5a51601bcb73c83c": {
+      "artifact_path": "candidates/fe949bb4fbd62d1e902f1de0e41c712d93f2ccf2a6efd58f5a51601bcb73c83c",
+      "candidate_id": "fe949bb4fbd62d1e902f1de0e41c712d93f2ccf2a6efd58f5a51601bcb73c83c",
+      "created_opportunity": 52,
+      "fitness": -1160.0,
+      "hypothesis": "Fixing each head\u2019s third-farthest attention bias to zero will reduce parameters from 1,162 to 1,160 while retaining at least 99% accuracy, because this distance affects only three causal query-key pairs per full sequence and pruning the two farther endpoints retained 99.95% accuracy.",
+      "intended_edit": "Learn relative biases only for distances 1 through `max_seq_len - 4`, appending fixed zeros for distance zero and the three largest distances.",
+      "metrics": {
+        "accuracy": 0.9994,
+        "cases": 10010,
+        "correct": 10004,
+        "parameters": 1160,
+        "training_steps": 4999
+      },
+      "parent_ids": [
+        "08f345645b10290f072a2a9fa867ddacb33704513dbe14fde83f8fb41c97d116"
+      ],
+      "retained_order": 52,
+      "selected_count": 1
+    }
+  },
+  "condition": "C1",
+  "conversation_session_id": null,
+  "evaluations_used": 141,
+  "evaluator_seconds_used": 42875.40995374776,
+  "incumbent_id": "bd3de48f5525dcfff6bd60d317420799f884f2ebdb491cb5078d6dbf650b991c",
+  "next_opportunity": 173,
+  "no_search": false,
+  "portfolio_ids": [
+    "bd3de48f5525dcfff6bd60d317420799f884f2ebdb491cb5078d6dbf650b991c"
+  ],
+  "proposals_used": 172,
+  "protocol_hash": "0247b4415c62d35b231e3347f31a3f63cd54eb4ec6bb2441bfc209e0ee2d3cc4",
+  "revision": 345,
+  "run_id": "controlled-openevolve-transformer-v2-1-source-only-ten-digit-addition-pair-transformer-openevolve-v2-1-mps-openevolve-b03-c1",
+  "schema_version": "1.0",
+  "status": "running",
+  "token_budget_continuation_notice_sent": false,
+  "usage": {
+    "cached_input_tokens": 1484288,
+    "input_tokens": 3427445,
+    "output_tokens": 407153,
+    "reasoning_output_tokens": 326019
+  }
+}

@@ -1,0 +1,88 @@
+{
+  "artifact_path": "candidates/641925a7ed74e99403b590c977aa5c1e5a9aa19a465285e01393ea3c7bdf1a90",
+  "candidate_id": "641925a7ed74e99403b590c977aa5c1e5a9aa19a465285e01393ea3c7bdf1a90",
+  "codex_service_tier": "fast",
+  "condition": "C2",
+  "conversation_session_id": null,
+  "evaluation": {
+    "evaluator_calls": 1,
+    "evaluator_seconds": 330.13411508900026,
+    "failure_kind": null,
+    "fitness": -0.990027,
+    "metrics": {
+      "depth": 8.0,
+      "mfu_percent": 39.26,
+      "num_params_M": 50.3,
+      "num_steps": 1870.0,
+      "peak_vram_mb": 44908.2,
+      "total_tokens_M": 490.2,
+      "training_seconds": 300.0,
+      "val_bpb": 0.990027
+    },
+    "valid": true
+  },
+  "evaluator_calls_cumulative": 9,
+  "evaluator_calls_increment": 1,
+  "evaluator_seconds_cumulative": 3299.016714534,
+  "evaluator_seconds_increment": 330.13411508900026,
+  "event": "proposal_completed",
+  "evicted_candidate_id": "ed4c9655645388fe2e7f93a69093c1d6510263f3a5280f15e89a2c00dcf02c36",
+  "evidence": "Reference Design 3 achieved the best val_bpb, 0.98713, at 489.7M tokens; extending its momentum ramp to 600 steps regressed to 0.999525, motivating restoration of the verified ramp and an isolated schedule-shape test that leaves batch geometry and model capacity unchanged.",
+  "hypothesis": "On Reference Design 3\u2019s efficient geometry and 300-step momentum ramp, replacing linear warmdown with an equal-area cosine warmdown will beat val_bpb 0.98713 by preserving larger updates early in cooldown and providing gentler refinement near the end without changing throughput or total learning-rate exposure.",
+  "incumbent_after": "183c12a3e4e8f1c2092d95b8d30fc5061c1587032104e5cecf97c87b200cc27c",
+  "intended_edit": "Restore the best verified 300-step Muon momentum ramp and change only the warmdown curve from linear to cosine while retaining its duration and endpoints.",
+  "mechanism": "Endpoint-weighted cosine learning-rate cooldown",
+  "opportunity": 9,
+  "parent_ids": [
+    "ed4c9655645388fe2e7f93a69093c1d6510263f3a5280f15e89a2c00dcf02c36"
+  ],
+  "portfolio_after": [
+    "2865e528e18dc51191e4037eaeb5824cb0ea83ede79061b59b8f3caac686da6b",
+    "641925a7ed74e99403b590c977aa5c1e5a9aa19a465285e01393ea3c7bdf1a90",
+    "4675b7271f4f63a246cd0c0c4245c7e4b56dd1e71d6c4f9c4839079a42b92b56",
+    "183c12a3e4e8f1c2092d95b8d30fc5061c1587032104e5cecf97c87b200cc27c"
+  ],
+  "prompt_hashes": {
+    "common_template_sha256": "ba85b39aa7288f4f48475376da6cff65661f39cfeb7ac7cde15b2a9a2e692fde",
+    "prompt_sha256": "b81d832252a4c35ada60916f0823a710fb2b6936d8c8da9b0835c8a7fb5bdbae",
+    "proposal_policy_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "search_state_sha256": "c938ac007bf70fe8d27f64661175531e51fcb16b38318c328493c32ee292e27e",
+    "treatment_skeleton_sha256": "bd15ad4f9f15ece413886a875a5d474779897ec26f881bece35ee2ab30a9b11d"
+  },
+  "proposal_type": "ordinary",
+  "proposals_cumulative": 9,
+  "remaining_budget": {
+    "evaluations": 191,
+    "evaluator_seconds": 716700.983285466,
+    "proposals": 191,
+    "tokens": 99610454
+  },
+  "retained": true,
+  "retention_decision": "replaced_selected_parent_on_strict_improvement",
+  "run_id": "nanogpt-openevolve-v2-1-h100-karpathy_nanogpt_source_only_h100-openevolve-b03-c2",
+  "schema_version": "1.0",
+  "selected_parent_ids": [
+    "ed4c9655645388fe2e7f93a69093c1d6510263f3a5280f15e89a2c00dcf02c36"
+  ],
+  "timestamp": "2026-08-23T18:22:48.177363+00:00",
+  "usage_cumulative": {
+    "cached_input_tokens": 98048,
+    "input_tokens": 360738,
+    "output_tokens": 28808,
+    "reasoning_output_tokens": 26234,
+    "total_tokens": 389546
+  },
+  "usage_increment": {
+    "cached_input_tokens": 12032,
+    "input_tokens": 46003,
+    "output_tokens": 6898,
+    "reasoning_output_tokens": 6515,
+    "total_tokens": 52901
+  },
+  "visible_candidate_ids": [
+    "2865e528e18dc51191e4037eaeb5824cb0ea83ede79061b59b8f3caac686da6b",
+    "ed4c9655645388fe2e7f93a69093c1d6510263f3a5280f15e89a2c00dcf02c36",
+    "4675b7271f4f63a246cd0c0c4245c7e4b56dd1e71d6c4f9c4839079a42b92b56",
+    "183c12a3e4e8f1c2092d95b8d30fc5061c1587032104e5cecf97c87b200cc27c"
+  ]
+}

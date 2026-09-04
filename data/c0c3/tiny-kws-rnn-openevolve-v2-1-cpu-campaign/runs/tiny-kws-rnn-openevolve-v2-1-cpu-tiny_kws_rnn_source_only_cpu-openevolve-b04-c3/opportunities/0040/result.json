@@ -1,0 +1,105 @@
+{
+  "artifact_path": "candidates/4ad03a1c0584baae702477742484e275b6c515de616f0605f60c542bb5f5ed42",
+  "candidate_id": "4ad03a1c0584baae702477742484e275b6c515de616f0605f60c542bb5f5ed42",
+  "codex_service_tier": "default",
+  "condition": "C3",
+  "conversation_session_id": null,
+  "evaluation": {
+    "evaluator_calls": 1,
+    "evaluator_seconds": 156.78451449982822,
+    "failure_kind": null,
+    "fitness": -4054182077465937993,
+    "metrics": {
+      "batch_size": 128,
+      "evaluation_cases": 815,
+      "evaluation_split": "public_speaker_disjoint_validation",
+      "examples_processed": 50000,
+      "inference_cost": 4054182077465937993,
+      "maximum_recurrent_steps": 23,
+      "mean_recurrent_steps": 23.0,
+      "median_recurrent_steps": 23,
+      "optimizer_steps": 397,
+      "p95_recurrent_steps": 23,
+      "parameters": 77488,
+      "peak_hidden_elements": 197632,
+      "recurrent_logit_effect": 0.34571120142936707,
+      "recurrent_macs": 775045440,
+      "recurrent_steps": 18745,
+      "state_dependence_effect": 0.2352512776851654,
+      "state_update_effect": 0.3647936284542084,
+      "total_inference_macs": 777236160,
+      "trained_recurrent_logit_effect": 0.8639997243881226,
+      "trained_state_dependence_effect": 0.24031689763069153,
+      "trained_state_update_effect": 0.3665207326412201,
+      "training_seconds": 139.67524154111743,
+      "validation_accuracy": 0.8503067484662576,
+      "validation_correct": 693,
+      "validation_cross_entropy": 0.43983145871776747
+    },
+    "valid": true
+  },
+  "evaluator_calls_cumulative": 40,
+  "evaluator_calls_increment": 1,
+  "evaluator_seconds_cumulative": 4197.2011281671,
+  "evaluator_seconds_increment": 156.78451449982822,
+  "event": "proposal_completed",
+  "evicted_candidate_id": "d10624c443dfcf75349e1ea81d6fb14a3d849c4ad8fd78f4750cb1e9428e4b28",
+  "evidence": "The 48/87 synchronous hierarchy qualified at 85.52% with 23 frames, while both 22-frame variants failed. This suggests retaining every acoustic observation is load-bearing, but does not establish that the expensive contextual transition must execute on every frame; pair pooling preserves all 23 observations and widening the half-rate context from 87 to 120 provides capacity for the coarser temporal representation.",
+  "hypothesis": "A 48-unit acoustic GRU processing all 23 qualified frames, paired with a 120-unit contextual GRU executing only 12 pooled updates, will retain at least 85% validation accuracy while reducing total inference MACs from 845,791,515 to approximately 777,236,160.",
+  "incumbent_after": "4ad03a1c0584baae702477742484e275b6c515de616f0605f60c542bb5f5ed42",
+  "intended_edit": "Replace synchronous monolithic recurrence with a full-rate acoustic state and a wider half-rate contextual state; aggregate adjacent acoustic outputs before contextual updates while preserving the proven mean/terminal readout and auxiliary supervision.",
+  "mechanism": "Pair-pooled multirate hierarchical recurrence",
+  "opportunity": 40,
+  "parent_ids": [
+    "d10624c443dfcf75349e1ea81d6fb14a3d849c4ad8fd78f4750cb1e9428e4b28"
+  ],
+  "portfolio_after": [
+    "7bded3feef1b45ae4d4cc1a9f564a3f93ae243290d60d84b5f2de0ea55763db3",
+    "15cde5b38af27d8db01124103389558162d326f4bc7136efbd8f32b49cb03246",
+    "1c2827acf94041ad9af5d6304c77e17cd258e36eb0ef7e37732bbfe2a001b6a6",
+    "4ad03a1c0584baae702477742484e275b6c515de616f0605f60c542bb5f5ed42"
+  ],
+  "prompt_hashes": {
+    "common_template_sha256": "dee04faf4c430276c1036ba97f5705a339857dbdf19117dac88952a5a3a47e9d",
+    "prompt_sha256": "491b563e1b13bc8b382bad96515e8eb087e2f7f53c696e6c4dc1860e0485051a",
+    "proposal_policy_sha256": "f3e935f1a3cb6334e7f39b20b1b6b601cd727de9c5f0c3630206a91f08e358c9",
+    "search_state_sha256": "c938ac007bf70fe8d27f64661175531e51fcb16b38318c328493c32ee292e27e",
+    "treatment_skeleton_sha256": "4ea551df2ecc7e350f2d5e6bcf28f3281e1bb88327cc69dd26c499f0fd7d6e96"
+  },
+  "proposal_type": "assumption_changing",
+  "proposals_cumulative": 40,
+  "remaining_budget": {
+    "evaluations": 160,
+    "evaluator_seconds": 55802.7988718329,
+    "proposals": 160,
+    "tokens": 98862959
+  },
+  "retained": true,
+  "retention_decision": "replaced_selected_parent_on_strict_improvement",
+  "run_id": "tiny-kws-rnn-openevolve-v2-1-cpu-tiny_kws_rnn_source_only_cpu-openevolve-b04-c3",
+  "schema_version": "1.0",
+  "selected_parent_ids": [
+    "d10624c443dfcf75349e1ea81d6fb14a3d849c4ad8fd78f4750cb1e9428e4b28"
+  ],
+  "timestamp": "2026-09-04T05:19:09.254372+00:00",
+  "usage_cumulative": {
+    "cached_input_tokens": 488960,
+    "input_tokens": 1004791,
+    "output_tokens": 132250,
+    "reasoning_output_tokens": 106260,
+    "total_tokens": 1137041
+  },
+  "usage_increment": {
+    "cached_input_tokens": 10752,
+    "input_tokens": 26453,
+    "output_tokens": 12283,
+    "reasoning_output_tokens": 10358,
+    "total_tokens": 38736
+  },
+  "visible_candidate_ids": [
+    "7bded3feef1b45ae4d4cc1a9f564a3f93ae243290d60d84b5f2de0ea55763db3",
+    "15cde5b38af27d8db01124103389558162d326f4bc7136efbd8f32b49cb03246",
+    "1c2827acf94041ad9af5d6304c77e17cd258e36eb0ef7e37732bbfe2a001b6a6",
+    "d10624c443dfcf75349e1ea81d6fb14a3d849c4ad8fd78f4750cb1e9428e4b28"
+  ]
+}

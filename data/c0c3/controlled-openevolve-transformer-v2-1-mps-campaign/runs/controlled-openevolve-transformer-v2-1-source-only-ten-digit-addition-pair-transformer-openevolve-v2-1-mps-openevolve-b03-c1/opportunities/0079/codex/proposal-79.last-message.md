@@ -1,0 +1,52 @@
+MECHANISM: Cross-head twentieth-distance bias tying
+
+HYPOTHESIS: Tying both heads’ twentieth-farthest attention biases will reduce the model from 1,110 to 1,109 parameters while retaining at least 99% accuracy, because the adjacent fourteenth- through nineteenth-farthest ties all succeeded without removing any routing distance.
+
+INTENDED_EDIT: Shorten the independent per-head relative-bias core by one distance and reconstruct the twentieth-farthest bias for both heads from one shared learned scalar.
+
+EVIDENCE: The immediately preceding nineteenth-farthest cross-head tie reduced parameters from 1,111 to 1,110 and achieved 99.93% accuracy, extending six consecutive successful adjacent bias ties.
+
+<<<<<<< SEARCH
+        # Fix the eleven sparsest endpoints for both heads. Share the next six
+        # learned distances across heads, then retain the two complementary
+        # head-specific endpoints with one additional shared scalar.
+        self.relative_bias = nn.Parameter(torch.zeros(n_head, max_seq_len - 20))
+        self.relative_bias_core_nineteenth = nn.Parameter(torch.zeros(1))
+=======
+        # Fix the eleven sparsest endpoints for both heads. Share the next seven
+        # learned distances across heads, then retain the two complementary
+        # head-specific endpoints with one additional shared scalar.
+        self.relative_bias = nn.Parameter(torch.zeros(n_head, max_seq_len - 21))
+        self.relative_bias_core_twentieth = nn.Parameter(torch.zeros(1))
+        self.relative_bias_core_nineteenth = nn.Parameter(torch.zeros(1))
+>>>>>>> REPLACE
+
+<<<<<<< SEARCH
+        relative_bias_core_nineteenth = (
+            self.relative_bias_core_nineteenth.expand(
+                self.n_head
+            ).unsqueeze(1)
+        )
+=======
+        relative_bias_core_twentieth = (
+            self.relative_bias_core_twentieth.expand(
+                self.n_head
+            ).unsqueeze(1)
+        )
+        relative_bias_core_nineteenth = (
+            self.relative_bias_core_nineteenth.expand(
+                self.n_head
+            ).unsqueeze(1)
+        )
+>>>>>>> REPLACE
+
+<<<<<<< SEARCH
+                self.relative_bias,
+                relative_bias_core_nineteenth,
+                relative_bias_core_eighteenth,
+=======
+                self.relative_bias,
+                relative_bias_core_twentieth,
+                relative_bias_core_nineteenth,
+                relative_bias_core_eighteenth,
+>>>>>>> REPLACE

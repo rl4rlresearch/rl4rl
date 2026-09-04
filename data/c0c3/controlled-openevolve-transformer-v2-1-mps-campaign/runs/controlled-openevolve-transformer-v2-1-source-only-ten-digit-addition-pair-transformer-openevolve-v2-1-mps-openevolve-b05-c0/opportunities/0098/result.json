@@ -1,0 +1,79 @@
+{
+  "artifact_path": "candidates/1a56896fd4ab07d3c1bbcce2e371ef6b8d037f24913ecc1c21c00c42815e0045",
+  "candidate_id": "1a56896fd4ab07d3c1bbcce2e371ef6b8d037f24913ecc1c21c00c42815e0045",
+  "codex_service_tier": "default",
+  "condition": "C0",
+  "conversation_session_id": null,
+  "evaluation": {
+    "evaluator_calls": 1,
+    "evaluator_seconds": 981.9385202501435,
+    "failure_kind": null,
+    "fitness": -1604.0,
+    "metrics": {
+      "accuracy": 0.9992,
+      "cases": 10010,
+      "correct": 10002,
+      "parameters": 1604,
+      "training_steps": 4999
+    },
+    "valid": true
+  },
+  "evaluator_calls_cumulative": 96,
+  "evaluator_calls_increment": 1,
+  "evaluator_seconds_cumulative": 56333.32925095374,
+  "evaluator_seconds_increment": 981.9385202501435,
+  "event": "proposal_completed",
+  "evicted_candidate_id": "66f9f80a3d83e83ef4177498cef58e07f6de4118e774a52e52c6baf7360e66b1",
+  "evidence": "Two attention-output quotients reached 99.99% accuracy, but extending them to the final three columns failed at 72.98%; the failed third coordinate was column 5, which the current design also uses for virtual value-bias compensation, motivating an alternate independent column.",
+  "hypothesis": "Gauge-fixing attention-output column 4 instead of the previously failed column 5 will reduce the model from 1605 to 1604 parameters while retaining at least 99% accuracy, because columns 7 and 6 already support this exact symmetry and column 4 avoids overlap with the virtual value-bias pathway on feature 5.",
+  "incumbent_after": "1a56896fd4ab07d3c1bbcce2e371ef6b8d037f24913ecc1c21c00c42815e0045",
+  "intended_edit": "Add a third attention-output projection gauge at row 4, column 4 while leaving the existing generic reconstruction, virtual AdamW, and gradient-clipping machinery unchanged.",
+  "mechanism": "Alternate-column third attention-output common-shift quotient",
+  "opportunity": 98,
+  "parent_ids": [
+    "66f9f80a3d83e83ef4177498cef58e07f6de4118e774a52e52c6baf7360e66b1"
+  ],
+  "portfolio_after": [
+    "1a56896fd4ab07d3c1bbcce2e371ef6b8d037f24913ecc1c21c00c42815e0045"
+  ],
+  "prompt_hashes": {
+    "common_template_sha256": "3f2bea6418b6969c4bf2aa1df18dcda8a3a4ac075bf20c79068c754698b6be5e",
+    "prompt_sha256": "7a256af657f82bcafd342673f96da8a6f157757200845d7cc692d0510a8f4221",
+    "proposal_policy_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "search_state_sha256": "04e5eb078ae1964e4ec65bfeeeb1acd0ffa246e7d54d5e0f997f81f602da28c5",
+    "treatment_skeleton_sha256": "2af84b0b8617e5f1f7e033eca90c9d2e95cbc0ecfa04a1370e79dc98d40f6dc8"
+  },
+  "proposal_type": "ordinary",
+  "proposals_cumulative": 98,
+  "remaining_budget": {
+    "evaluations": 104,
+    "evaluator_seconds": 303666.67074904626,
+    "proposals": 102,
+    "tokens": 97058294
+  },
+  "retained": true,
+  "retention_decision": "strict_incumbent_improvement",
+  "run_id": "controlled-openevolve-transformer-v2-1-source-only-ten-digit-addition-pair-transformer-openevolve-v2-1-mps-openevolve-b05-c0",
+  "schema_version": "1.0",
+  "selected_parent_ids": [
+    "66f9f80a3d83e83ef4177498cef58e07f6de4118e774a52e52c6baf7360e66b1"
+  ],
+  "timestamp": "2026-09-03T23:43:09.558630+00:00",
+  "usage_cumulative": {
+    "cached_input_tokens": 1029376,
+    "input_tokens": 2472831,
+    "output_tokens": 468875,
+    "reasoning_output_tokens": 357546,
+    "total_tokens": 2941706
+  },
+  "usage_increment": {
+    "cached_input_tokens": 10752,
+    "input_tokens": 30810,
+    "output_tokens": 1439,
+    "reasoning_output_tokens": 1034,
+    "total_tokens": 32249
+  },
+  "visible_candidate_ids": [
+    "66f9f80a3d83e83ef4177498cef58e07f6de4118e774a52e52c6baf7360e66b1"
+  ]
+}

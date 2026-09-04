@@ -1,0 +1,63 @@
+Run: repro_l1_d8_ff12
+Params: 1578
+Device: mps
+step=     0 loss=4.7242 val_exact=0.00000 val_tok=0.00000 lr=3.00e-05 t=4.9s
+step=   300 loss=2.0105 val_exact=0.00000 val_tok=0.13368 lr=2.99e-03 t=18.3s
+step=   600 loss=1.9703 val_exact=0.00000 val_tok=0.13550 lr=2.93e-03 t=28.9s
+step=   900 loss=1.9256 val_exact=0.00000 val_tok=0.17786 lr=2.83e-03 t=41.4s
+step=  1200 loss=1.9214 val_exact=0.00000 val_tok=0.16532 lr=2.68e-03 t=53.3s
+step=  1500 loss=1.9156 val_exact=0.00000 val_tok=0.18732 lr=2.49e-03 t=64.5s
+step=  1800 loss=1.1084 val_exact=0.00050 val_tok=0.48459 lr=2.27e-03 t=75.7s
+step=  2100 loss=0.3700 val_exact=0.23350 val_tok=0.87164 lr=2.03e-03 t=86.4s
+step=  2400 loss=0.1261 val_exact=0.77050 val_tok=0.97655 lr=1.78e-03 t=97.7s
+step=  2700 loss=0.0440 val_exact=0.98800 val_tok=0.99882 lr=1.52e-03 t=108.2s
+step=  3000 loss=0.0249 val_exact=0.99650 val_tok=0.99959 lr=1.27e-03 t=118.6s
+step=  3300 loss=0.0176 val_exact=0.99850 val_tok=0.99986 lr=1.03e-03 t=127.6s
+step=  3600 loss=0.0137 val_exact=0.99950 val_tok=0.99995 lr=8.08e-04 t=136.5s
+step=  3900 loss=0.0111 val_exact=1.00000 val_tok=1.00000 lr=6.22e-04 t=145.0s
+step=  4200 loss=0.0095 val_exact=1.00000 val_tok=1.00000 lr=4.74e-04 t=153.7s
+step=  4500 loss=0.0086 val_exact=1.00000 val_tok=1.00000 lr=3.69e-04 t=162.6s
+step=  4800 loss=0.0076 val_exact=1.00000 val_tok=1.00000 lr=3.11e-04 t=171.1s
+step=  4999 loss=0.0072 val_exact=1.00000 val_tok=1.00000 lr=3.00e-04 t=177.0s
+{
+  "run_name": "repro_l1_d8_ff12",
+  "params": 1578,
+  "best_val_exact": 1.0,
+  "best_step": 3900,
+  "train_steps": 5000,
+  "elapsed_sec": 177.02819108963013,
+  "metrics_csv": "results/runs/repro_l1_d8_ff12/metrics.csv",
+  "best_ckpt": "checkpoints/best.pt",
+  "last_ckpt": "checkpoints/last.pt"
+}
+Model: 10-digit addition transformer
+Author: autonomous optimization run
+Parameters (unique): 1578
+Architecture: trained autoregressive transformer with pair-column input tokens d=8, h=2, L=1, ff=12
+Tricks: generic greedy decoding, freshly trained checkpoint
+
+  Progress: 1000/10010 (999/1000 correct) [17.2s]
+  Progress: 2000/10010 (1997/2000 correct) [35.1s]
+  Progress: 3000/10010 (2996/3000 correct) [52.6s]
+  Progress: 4000/10010 (3996/4000 correct) [72.8s]
+  Progress: 5000/10010 (4996/5000 correct) [93.7s]
+  Progress: 6000/10010 (5996/6000 correct) [115.2s]
+  Progress: 7000/10010 (6996/7000 correct) [134.9s]
+  Progress: 8000/10010 (7995/8000 correct) [162.5s]
+  Progress: 9000/10010 (8995/9000 correct) [192.7s]
+  Progress: 10000/10010 (9991/10000 correct) [220.1s]
+
+Results: 10001/10010 correct (99.91%)
+Time: 220.4s (45 additions/sec)
+Status: QUALIFIED (threshold: 99%)
+
+Failures (9):
+  5385070159 + 8833091476 = 14218161635, got 14218061635
+  9844069800 + 8764070362 = 18608140162, got 18608040162
+  3081098439 + 8327042935 = 11408141374, got 11408041374
+  2795744996 + 9889082795 = 12684827791, got 12684827691
+  6332080074 + 1914080546 = 8246160620, got 8246060620
+  4581431996 + 5779723897 = 10361155893, got 10361155793
+  2477057626 + 7341092411 = 9818150037, got 9818050037
+  5311069999 + 665080742 = 5976150741, got 5976050741
+  4669703510 + 6357916879 = 11027620389, got 11027520389

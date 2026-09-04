@@ -1,0 +1,79 @@
+{
+  "artifact_path": "candidates/ab643eb1c760aa418a1663a4bf6c111e27aa6d3356e48a3753184b60c075d986",
+  "candidate_id": "ab643eb1c760aa418a1663a4bf6c111e27aa6d3356e48a3753184b60c075d986",
+  "codex_service_tier": "default",
+  "condition": "C0",
+  "conversation_session_id": null,
+  "evaluation": {
+    "evaluator_calls": 1,
+    "evaluator_seconds": 310.3731591659598,
+    "failure_kind": null,
+    "fitness": -1569.0,
+    "metrics": {
+      "accuracy": 0.9993000000000001,
+      "cases": 10010,
+      "correct": 10003,
+      "parameters": 1569,
+      "training_steps": 4999
+    },
+    "valid": true
+  },
+  "evaluator_calls_cumulative": 115,
+  "evaluator_calls_increment": 1,
+  "evaluator_seconds_cumulative": 46408.114319498534,
+  "evaluator_seconds_increment": 310.3731591659598,
+  "event": "proposal_completed",
+  "evicted_candidate_id": "34d312e2c4f4c2e0bdd72957d20039df47c2f46a3305df71dc6bc0c359ece0fa",
+  "evidence": "The current 1570-parameter design reached 99.46%, whereas constraining the tied bias reached only 19.94%; this tests the independent projection-weight residual gauge without perturbing the bias coupling implicated by that failure.",
+  "hypothesis": "Fixing `proj.weight[0,0]` at zero will produce a 1569-parameter model with at least 99% accuracy, because subtracting that coefficient from every output row changes each token only by a feature-uniform residual shift, which downstream LayerNorms remove under the fixed zero-dropout configuration.",
+  "incumbent_after": "ab643eb1c760aa418a1663a4bf6c111e27aa6d3356e48a3753184b60c075d986",
+  "intended_edit": "Replace the attention output projection with a 63-weight parameterization, reconstruct `proj.weight[0,0]` as zero, and canonicalize its initialization while leaving the tied value/projection bias unchanged.",
+  "mechanism": "Attention-output residual-shift weight gauge",
+  "opportunity": 115,
+  "parent_ids": [
+    "34d312e2c4f4c2e0bdd72957d20039df47c2f46a3305df71dc6bc0c359ece0fa"
+  ],
+  "portfolio_after": [
+    "ab643eb1c760aa418a1663a4bf6c111e27aa6d3356e48a3753184b60c075d986"
+  ],
+  "prompt_hashes": {
+    "common_template_sha256": "3f2bea6418b6969c4bf2aa1df18dcda8a3a4ac075bf20c79068c754698b6be5e",
+    "prompt_sha256": "5b1fd1f7b524096710c118ae1f5b86e3e482ca49dc03b91b735c3beff27f7ce6",
+    "proposal_policy_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "search_state_sha256": "04e5eb078ae1964e4ec65bfeeeb1acd0ffa246e7d54d5e0f997f81f602da28c5",
+    "treatment_skeleton_sha256": "85d44151a16262b75fccf24cd1aeffae6fcdae667cebed8cd98b57272be94a61"
+  },
+  "proposal_type": "ordinary",
+  "proposals_cumulative": 115,
+  "remaining_budget": {
+    "evaluations": 85,
+    "evaluator_seconds": 313591.88568050147,
+    "proposals": 85,
+    "tokens": 97051592
+  },
+  "retained": true,
+  "retention_decision": "strict_incumbent_improvement",
+  "run_id": "controlled-openevolve-transformer-v2-1-source-only-ten-digit-addition-pair-transformer-openevolve-v2-1-mps-openevolve-b04-c0",
+  "schema_version": "1.0",
+  "selected_parent_ids": [
+    "34d312e2c4f4c2e0bdd72957d20039df47c2f46a3305df71dc6bc0c359ece0fa"
+  ],
+  "timestamp": "2026-09-03T11:42:54.969937+00:00",
+  "usage_cumulative": {
+    "cached_input_tokens": 1155072,
+    "input_tokens": 2628073,
+    "output_tokens": 320335,
+    "reasoning_output_tokens": 251149,
+    "total_tokens": 2948408
+  },
+  "usage_increment": {
+    "cached_input_tokens": 10752,
+    "input_tokens": 24733,
+    "output_tokens": 10704,
+    "reasoning_output_tokens": 10020,
+    "total_tokens": 35437
+  },
+  "visible_candidate_ids": [
+    "34d312e2c4f4c2e0bdd72957d20039df47c2f46a3305df71dc6bc0c359ece0fa"
+  ]
+}

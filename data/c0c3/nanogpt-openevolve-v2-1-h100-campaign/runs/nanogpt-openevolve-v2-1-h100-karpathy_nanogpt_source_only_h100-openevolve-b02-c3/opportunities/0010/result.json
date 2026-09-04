@@ -1,0 +1,88 @@
+{
+  "artifact_path": "candidates/0ab6e901fc43cc4576f310d0effe0a751b23c55ce5ee9f6be054f0f012264aa0",
+  "candidate_id": "0ab6e901fc43cc4576f310d0effe0a751b23c55ce5ee9f6be054f0f012264aa0",
+  "codex_service_tier": "fast",
+  "condition": "C3",
+  "conversation_session_id": null,
+  "evaluation": {
+    "evaluator_calls": 1,
+    "evaluator_seconds": 455.64946116000283,
+    "failure_kind": null,
+    "fitness": -1.010413,
+    "metrics": {
+      "depth": 8.0,
+      "mfu_percent": 28.54,
+      "num_params_M": 50.3,
+      "num_steps": 744.0,
+      "peak_vram_mb": 47108.3,
+      "total_tokens_M": 390.1,
+      "training_seconds": 300.1,
+      "val_bpb": 1.010413
+    },
+    "valid": true
+  },
+  "evaluator_calls_cumulative": 10,
+  "evaluator_calls_increment": 1,
+  "evaluator_seconds_cumulative": 3884.5083818560074,
+  "evaluator_seconds_increment": 455.64946116000283,
+  "event": "proposal_completed",
+  "evicted_candidate_id": null,
+  "evidence": "The 512-token SSSL design reached 0.993287, while shrinking attention further or removing a global layer caused severe throughput and quality regressions. This motivates retaining proven attention and testing a different context mechanism: cheap temporal mixing outside attention.",
+  "hypothesis": "Replacing the positionwise-MLP assumption with a learned per-channel blend of current and previous-token states will improve local transition modeling, achieving val_bpb below 0.993287 while processing at least 480M tokens.",
+  "incumbent_after": "ee1f1cf686a479f175a9b2178602df52386a3561e80b0612b88ccd725e447c2e",
+  "intended_edit": "Preserve the proven 512-token SSSL attention geometry, but give every MLP a learned causal one-token context path initialized to retain 88% of the current state; optimize its mixing vectors with AdamW.",
+  "mechanism": "Learned causal token-shift MLP",
+  "opportunity": 10,
+  "parent_ids": [
+    "ee1f1cf686a479f175a9b2178602df52386a3561e80b0612b88ccd725e447c2e"
+  ],
+  "portfolio_after": [
+    "2865e528e18dc51191e4037eaeb5824cb0ea83ede79061b59b8f3caac686da6b",
+    "ee1f1cf686a479f175a9b2178602df52386a3561e80b0612b88ccd725e447c2e",
+    "8739f3a112cc296b7e52346edda0d7c193dbfb73b3aec6a3e9ed03bb18a2b8f5",
+    "2d771edf47265f31291fbb34e32f91548e44b43045421f48f01ac9a7b05d9d0f"
+  ],
+  "prompt_hashes": {
+    "common_template_sha256": "ba85b39aa7288f4f48475376da6cff65661f39cfeb7ac7cde15b2a9a2e692fde",
+    "prompt_sha256": "98a84299f1ae20e0a58eb6099548e00ef32c5334ca8705095c71c03d683e3d4d",
+    "proposal_policy_sha256": "cd7b9ba20a1cd1edd0663b5e3652baa9cd3c81925074103fe47e66c021d61a4a",
+    "search_state_sha256": "c938ac007bf70fe8d27f64661175531e51fcb16b38318c328493c32ee292e27e",
+    "treatment_skeleton_sha256": "34bab21431e0a5cbcbff35ea402aca739a7ca8958acdaa6f61ebc2de70bfa46d"
+  },
+  "proposal_type": "assumption_changing",
+  "proposals_cumulative": 10,
+  "remaining_budget": {
+    "evaluations": 190,
+    "evaluator_seconds": 716115.491618144,
+    "proposals": 190,
+    "tokens": 99567335
+  },
+  "retained": false,
+  "retention_decision": "not_strictly_better_than_selected_parent",
+  "run_id": "nanogpt-openevolve-v2-1-h100-karpathy_nanogpt_source_only_h100-openevolve-b02-c3",
+  "schema_version": "1.0",
+  "selected_parent_ids": [
+    "ee1f1cf686a479f175a9b2178602df52386a3561e80b0612b88ccd725e447c2e"
+  ],
+  "timestamp": "2026-08-23T18:41:36.089016+00:00",
+  "usage_cumulative": {
+    "cached_input_tokens": 120320,
+    "input_tokens": 406721,
+    "output_tokens": 25944,
+    "reasoning_output_tokens": 22270,
+    "total_tokens": 432665
+  },
+  "usage_increment": {
+    "cached_input_tokens": 12032,
+    "input_tokens": 46313,
+    "output_tokens": 6907,
+    "reasoning_output_tokens": 5696,
+    "total_tokens": 53220
+  },
+  "visible_candidate_ids": [
+    "2865e528e18dc51191e4037eaeb5824cb0ea83ede79061b59b8f3caac686da6b",
+    "ee1f1cf686a479f175a9b2178602df52386a3561e80b0612b88ccd725e447c2e",
+    "8739f3a112cc296b7e52346edda0d7c193dbfb73b3aec6a3e9ed03bb18a2b8f5",
+    "2d771edf47265f31291fbb34e32f91548e44b43045421f48f01ac9a7b05d9d0f"
+  ]
+}

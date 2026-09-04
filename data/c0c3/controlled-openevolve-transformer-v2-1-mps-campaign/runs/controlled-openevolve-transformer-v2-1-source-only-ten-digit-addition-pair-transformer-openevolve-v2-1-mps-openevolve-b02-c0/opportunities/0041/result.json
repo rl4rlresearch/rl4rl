@@ -1,0 +1,79 @@
+{
+  "artifact_path": "candidates/75e0fc9bdc7a7d3aa8643aca70ea32b0af1c03af84c70ff4cb1eacbca085a922",
+  "candidate_id": "75e0fc9bdc7a7d3aa8643aca70ea32b0af1c03af84c70ff4cb1eacbca085a922",
+  "codex_service_tier": "default",
+  "condition": "C0",
+  "conversation_session_id": null,
+  "evaluation": {
+    "evaluator_calls": 1,
+    "evaluator_seconds": 615.5000461249147,
+    "failure_kind": "nonqualification",
+    "fitness": null,
+    "metrics": {
+      "accuracy": 0.7129000000000001,
+      "cases": 10010,
+      "correct": 7136,
+      "parameters": 1625,
+      "training_steps": 4999
+    },
+    "valid": false
+  },
+  "evaluator_calls_cumulative": 41,
+  "evaluator_calls_increment": 1,
+  "evaluator_seconds_cumulative": 18560.48947587423,
+  "evaluator_seconds_increment": 615.5000461249147,
+  "event": "proposal_completed",
+  "evicted_candidate_id": null,
+  "evidence": "A single learned `ln1` scale tie met the threshold at 99.78%, and the independent `ln2` bias anchor reached 99.95% after an additional within-`ln1` bias tie failed; this motivates applying one proven scale tie to the separate `ln2` normalization rather than further constraining `ln1`.",
+  "hypothesis": "Tying one `ln2` scale coordinate to its first learned coordinate will reduce the model from 1,626 to 1,625 parameters while retaining at least 99% accuracy, because the corresponding single dynamic scale tie in `ln1` achieved 99.78% and preserves the all-ones initialization.",
+  "incumbent_after": "1d7f5e22b0ea5264e2bea0c310ee7eab709a423fd26551726fbb0ad83fdceccb",
+  "intended_edit": "Reuse `AnchoredLayerNorm` for `ln2`, retaining its successful zero bias anchor while dynamically reconstructing the final scale coordinate from the first.",
+  "mechanism": "Independent post-attention LayerNorm scale tying",
+  "opportunity": 41,
+  "parent_ids": [
+    "1d7f5e22b0ea5264e2bea0c310ee7eab709a423fd26551726fbb0ad83fdceccb"
+  ],
+  "portfolio_after": [
+    "1d7f5e22b0ea5264e2bea0c310ee7eab709a423fd26551726fbb0ad83fdceccb"
+  ],
+  "prompt_hashes": {
+    "common_template_sha256": "3f2bea6418b6969c4bf2aa1df18dcda8a3a4ac075bf20c79068c754698b6be5e",
+    "prompt_sha256": "01933d32dea5dab450b8fd845c67a9fe5c708354c175eea8bfa63244747171d4",
+    "proposal_policy_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "search_state_sha256": "04e5eb078ae1964e4ec65bfeeeb1acd0ffa246e7d54d5e0f997f81f602da28c5",
+    "treatment_skeleton_sha256": "16b86b6b2d731bcf046c7edbd43022d81af14a3cb41987ae18db8ddfe155ce3b"
+  },
+  "proposal_type": "ordinary",
+  "proposals_cumulative": 41,
+  "remaining_budget": {
+    "evaluations": 159,
+    "evaluator_seconds": 341439.51052412577,
+    "proposals": 159,
+    "tokens": 99034281
+  },
+  "retained": false,
+  "retention_decision": "invalid",
+  "run_id": "controlled-openevolve-transformer-v2-1-source-only-ten-digit-addition-pair-transformer-openevolve-v2-1-mps-openevolve-b02-c0",
+  "schema_version": "1.0",
+  "selected_parent_ids": [
+    "1d7f5e22b0ea5264e2bea0c310ee7eab709a423fd26551726fbb0ad83fdceccb"
+  ],
+  "timestamp": "2026-08-24T10:53:45.062560+00:00",
+  "usage_cumulative": {
+    "cached_input_tokens": 463872,
+    "input_tokens": 867308,
+    "output_tokens": 98411,
+    "reasoning_output_tokens": 78961,
+    "total_tokens": 965719
+  },
+  "usage_increment": {
+    "cached_input_tokens": 12032,
+    "input_tokens": 22628,
+    "output_tokens": 566,
+    "reasoning_output_tokens": 333,
+    "total_tokens": 23194
+  },
+  "visible_candidate_ids": [
+    "1d7f5e22b0ea5264e2bea0c310ee7eab709a423fd26551726fbb0ad83fdceccb"
+  ]
+}

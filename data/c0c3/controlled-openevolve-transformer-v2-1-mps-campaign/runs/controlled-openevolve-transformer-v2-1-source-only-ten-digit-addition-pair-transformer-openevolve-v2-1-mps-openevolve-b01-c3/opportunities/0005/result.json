@@ -1,0 +1,84 @@
+{
+  "artifact_path": "candidates/612141e9f8dc70435f06cfd2738fce94f10aa50f3b04a0c02a313003d1af34fb",
+  "candidate_id": "612141e9f8dc70435f06cfd2738fce94f10aa50f3b04a0c02a313003d1af34fb",
+  "codex_service_tier": "fast",
+  "condition": "C3",
+  "conversation_session_id": null,
+  "evaluation": {
+    "evaluator_calls": 1,
+    "evaluator_seconds": 221.04088466695976,
+    "failure_kind": null,
+    "fitness": -1596.0,
+    "metrics": {
+      "accuracy": 0.9981,
+      "cases": 10010,
+      "correct": 9991,
+      "parameters": 1596,
+      "training_steps": 4999
+    },
+    "valid": true
+  },
+  "evaluator_calls_cumulative": 5,
+  "evaluator_calls_increment": 1,
+  "evaluator_seconds_cumulative": 1167.9317010830855,
+  "evaluator_seconds_increment": 221.04088466695976,
+  "event": "proposal_completed",
+  "evicted_candidate_id": null,
+  "evidence": "Reference Design 2 achieved 99.98% accuracy with 1,628 parameters after removing key and value biases; unlike the failed feed-forward-width and residual-output-bias reductions, this patch preserves those demonstrated capacities and removes downstream-reparameterizable normalization parameters.",
+  "hypothesis": "Combining the verified bias-minimal attention with affine-free pre-norm LayerNorms will reduce parameters from 1,628 to 1,596 while retaining at least 99% accuracy, because each removed LayerNorm scale can be absorbed into its following learned projection, while its shift is absorbed by the retained query, attention-output, and MLP input biases.",
+  "incumbent_after": "612141e9f8dc70435f06cfd2738fce94f10aa50f3b04a0c02a313003d1af34fb",
+  "intended_edit": "Use bias-free packed QKV with only a learned query bias, and disable learned affine parameters in both transformer-block LayerNorms while preserving `d_ff=12` and both residual-output biases.",
+  "mechanism": "Downstream absorption of pre-normalization affine parameters",
+  "opportunity": 5,
+  "parent_ids": [
+    "2b9cea175ed60b009337ac54f6e8ad23bf2c014eb4080237777bfb70bfd9fd5b"
+  ],
+  "portfolio_after": [
+    "2b9cea175ed60b009337ac54f6e8ad23bf2c014eb4080237777bfb70bfd9fd5b",
+    "db9b3f660e3520715480aa177e81d1c78e964a213309f9e03599519edb1eecd4",
+    "f746e25e61f5e3e6ac7db58e30e7f9dedd63df4fff1d1fa76f88268622524d8c",
+    "612141e9f8dc70435f06cfd2738fce94f10aa50f3b04a0c02a313003d1af34fb"
+  ],
+  "prompt_hashes": {
+    "common_template_sha256": "3f2bea6418b6969c4bf2aa1df18dcda8a3a4ac075bf20c79068c754698b6be5e",
+    "prompt_sha256": "b5e162ef3f11d179f15c32afcc6d50c38c6dba5c197dc01d251c3029c6e1e108",
+    "proposal_policy_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "search_state_sha256": "c938ac007bf70fe8d27f64661175531e51fcb16b38318c328493c32ee292e27e",
+    "treatment_skeleton_sha256": "983b812dd4291388ba97466277a945f57b8ca98c996d3b8d3c873411ab5f756a"
+  },
+  "proposal_type": "ordinary",
+  "proposals_cumulative": 5,
+  "remaining_budget": {
+    "evaluations": 195,
+    "evaluator_seconds": 358832.0682989169,
+    "proposals": 195,
+    "tokens": 99881754
+  },
+  "retained": true,
+  "retention_decision": "filled_open_portfolio_slot",
+  "run_id": "controlled-openevolve-transformer-v2-1-source-only-ten-digit-addition-pair-transformer-openevolve-v2-1-mps-openevolve-b01-c3",
+  "schema_version": "1.0",
+  "selected_parent_ids": [
+    "2b9cea175ed60b009337ac54f6e8ad23bf2c014eb4080237777bfb70bfd9fd5b"
+  ],
+  "timestamp": "2026-08-23T11:05:03.904403+00:00",
+  "usage_cumulative": {
+    "cached_input_tokens": 55040,
+    "input_tokens": 107157,
+    "output_tokens": 11089,
+    "reasoning_output_tokens": 9398,
+    "total_tokens": 118246
+  },
+  "usage_increment": {
+    "cached_input_tokens": 12032,
+    "input_tokens": 27493,
+    "output_tokens": 2591,
+    "reasoning_output_tokens": 2070,
+    "total_tokens": 30084
+  },
+  "visible_candidate_ids": [
+    "2b9cea175ed60b009337ac54f6e8ad23bf2c014eb4080237777bfb70bfd9fd5b",
+    "db9b3f660e3520715480aa177e81d1c78e964a213309f9e03599519edb1eecd4",
+    "f746e25e61f5e3e6ac7db58e30e7f9dedd63df4fff1d1fa76f88268622524d8c"
+  ]
+}

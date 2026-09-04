@@ -1,0 +1,79 @@
+{
+  "artifact_path": "candidates/f6b56c33d52a1002922e58a3500aa8c440134230b572c2481763b488c650d2ee",
+  "candidate_id": "f6b56c33d52a1002922e58a3500aa8c440134230b572c2481763b488c650d2ee",
+  "codex_service_tier": "default",
+  "condition": "C1",
+  "conversation_session_id": null,
+  "evaluation": {
+    "evaluator_calls": 1,
+    "evaluator_seconds": 392.30481558293104,
+    "failure_kind": "nonqualification",
+    "fitness": null,
+    "metrics": {
+      "accuracy": 0.4014,
+      "cases": 10010,
+      "correct": 4018,
+      "parameters": 1501,
+      "training_steps": 4999
+    },
+    "valid": false
+  },
+  "evaluator_calls_cumulative": 129,
+  "evaluator_calls_increment": 1,
+  "evaluator_seconds_cumulative": 54987.53838099353,
+  "evaluator_seconds_increment": 392.30481558293104,
+  "event": "proposal_completed",
+  "evicted_candidate_id": null,
+  "evidence": "The verified 1,525-parameter model reaches 99.88% while applying the same distributed one-coordinate quotient to all twelve `fc1` rows. Unlike key-weight sharing, which collapsed accuracy to 21.68%, this removes no head-specific addressing functions: query/value constants remain representable by their biases, and key constants are softmax-null.",
+  "hypothesis": "Removing one LayerNorm-normal-direction coefficient from each of the 24 independent QKV rows will reduce the model from 1,525 to 1,501 parameters while retaining at least 99% accuracy, because each projection row has only seven observable linear degrees of freedom on centered LayerNorm states.",
+  "incumbent_after": "aeb317294f5cdaba0bcb74b446d00317b314f03060810088194811cb528274b6",
+  "intended_edit": "Replace the assumption that attention requires dense QKV rows with learned row-specific tangent-space projections, distributing omitted coordinates evenly while preserving every head-specific query, key, and value row.",
+  "mechanism": "Distributed LayerNorm-tangent QKV projections",
+  "opportunity": 130,
+  "parent_ids": [
+    "aeb317294f5cdaba0bcb74b446d00317b314f03060810088194811cb528274b6"
+  ],
+  "portfolio_after": [
+    "aeb317294f5cdaba0bcb74b446d00317b314f03060810088194811cb528274b6"
+  ],
+  "prompt_hashes": {
+    "common_template_sha256": "3f2bea6418b6969c4bf2aa1df18dcda8a3a4ac075bf20c79068c754698b6be5e",
+    "prompt_sha256": "a4eaf40a7c577a766e13d677bdebc8f09e13221f82b5e686d04c591fbd23d758",
+    "proposal_policy_sha256": "4a27c08e098e719db007f4d6b37fabe2967b41836bb9070e2513a8a24ff7ce90",
+    "search_state_sha256": "04e5eb078ae1964e4ec65bfeeeb1acd0ffa246e7d54d5e0f997f81f602da28c5",
+    "treatment_skeleton_sha256": "eb82968e34025f985e83c7c2f150cea7b66b0156b9a3a1d0fcf2fe96d7f3edd2"
+  },
+  "proposal_type": "assumption_changing",
+  "proposals_cumulative": 130,
+  "remaining_budget": {
+    "evaluations": 71,
+    "evaluator_seconds": 305012.46161900647,
+    "proposals": 70,
+    "tokens": 96459264
+  },
+  "retained": false,
+  "retention_decision": "invalid",
+  "run_id": "controlled-openevolve-transformer-v2-1-source-only-ten-digit-addition-pair-transformer-openevolve-v2-1-mps-openevolve-b01-c1",
+  "schema_version": "1.0",
+  "selected_parent_ids": [
+    "aeb317294f5cdaba0bcb74b446d00317b314f03060810088194811cb528274b6"
+  ],
+  "timestamp": "2026-09-03T14:11:12.463693+00:00",
+  "usage_cumulative": {
+    "cached_input_tokens": 1375872,
+    "input_tokens": 3040794,
+    "output_tokens": 499942,
+    "reasoning_output_tokens": 399832,
+    "total_tokens": 3540736
+  },
+  "usage_increment": {
+    "cached_input_tokens": 10752,
+    "input_tokens": 25360,
+    "output_tokens": 6804,
+    "reasoning_output_tokens": 5690,
+    "total_tokens": 32164
+  },
+  "visible_candidate_ids": [
+    "aeb317294f5cdaba0bcb74b446d00317b314f03060810088194811cb528274b6"
+  ]
+}

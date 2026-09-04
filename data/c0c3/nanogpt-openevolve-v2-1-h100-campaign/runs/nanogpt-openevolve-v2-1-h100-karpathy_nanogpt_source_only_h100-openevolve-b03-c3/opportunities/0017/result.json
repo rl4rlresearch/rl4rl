@@ -1,0 +1,88 @@
+{
+  "artifact_path": "candidates/1533d562d84b2fca1e0eb45870815abb4e691e66b0aeedd9b7b12be99fdc85ce",
+  "candidate_id": "1533d562d84b2fca1e0eb45870815abb4e691e66b0aeedd9b7b12be99fdc85ce",
+  "codex_service_tier": "fast",
+  "condition": "C3",
+  "conversation_session_id": null,
+  "evaluation": {
+    "evaluator_calls": 1,
+    "evaluator_seconds": 364.4911228840001,
+    "failure_kind": null,
+    "fitness": -0.994766,
+    "metrics": {
+      "depth": 8.0,
+      "mfu_percent": 37.88,
+      "num_params_M": 50.3,
+      "num_steps": 907.0,
+      "peak_vram_mb": 47124.2,
+      "total_tokens_M": 475.5,
+      "training_seconds": 300.0,
+      "val_bpb": 0.994766
+    },
+    "valid": true
+  },
+  "evaluator_calls_cumulative": 17,
+  "evaluator_calls_increment": 1,
+  "evaluator_seconds_cumulative": 6334.900042516999,
+  "evaluator_seconds_increment": 364.4911228840001,
+  "event": "proposal_completed",
+  "evicted_candidate_id": null,
+  "evidence": "The original first-32-channel sigmoid gate achieved the best val_bpb of 0.993637, while increasing its neutral slope to 0.75 regressed to 0.996193. Matching the successful 0.5 initial slope while narrowing only the attainable amplitude isolates whether large gate excursions caused that regression.",
+  "hypothesis": "Preserving the proven gate\u2019s neutral slope while limiting each head\u2019s multiplier to 0.5\u20131.5 will prevent excessive head suppression or amplification and lower val_bpb below 0.993637 without reducing throughput.",
+  "incumbent_after": "dc725a877809c8c9b98a82241aae181de0c7f1b656d987c1c5f1a6364c0eeb4a",
+  "intended_edit": "Replace the 0\u20132 sigmoid output gate with a neutral, equal-slope 0.5\u20131.5 tanh gate; batching, conditioning channels, softcap, and optimization remain unchanged.",
+  "mechanism": "Bounded-amplitude attention-head gating",
+  "opportunity": 17,
+  "parent_ids": [
+    "dc725a877809c8c9b98a82241aae181de0c7f1b656d987c1c5f1a6364c0eeb4a"
+  ],
+  "portfolio_after": [
+    "2865e528e18dc51191e4037eaeb5824cb0ea83ede79061b59b8f3caac686da6b",
+    "eae6d6f6e71f7c40476d436f13b811436a914f2aadd4ccb896baad1149666905",
+    "af099c1e5833ed09c2eef778dbc8248d8162ae106aa291d1a9b5b78c0fb16662",
+    "dc725a877809c8c9b98a82241aae181de0c7f1b656d987c1c5f1a6364c0eeb4a"
+  ],
+  "prompt_hashes": {
+    "common_template_sha256": "ba85b39aa7288f4f48475376da6cff65661f39cfeb7ac7cde15b2a9a2e692fde",
+    "prompt_sha256": "d9a050830ceefe34d08976407a5f6e3a2e08641db6e717f95d26b0cfbff038db",
+    "proposal_policy_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "search_state_sha256": "c938ac007bf70fe8d27f64661175531e51fcb16b38318c328493c32ee292e27e",
+    "treatment_skeleton_sha256": "3395c071ca4006b13effc6c3e12553058b18b3e5b93ae27c62a33dfa7f3f5f4d"
+  },
+  "proposal_type": "ordinary",
+  "proposals_cumulative": 17,
+  "remaining_budget": {
+    "evaluations": 183,
+    "evaluator_seconds": 713665.099957483,
+    "proposals": 183,
+    "tokens": 99214160
+  },
+  "retained": false,
+  "retention_decision": "not_strictly_better_than_selected_parent",
+  "run_id": "nanogpt-openevolve-v2-1-h100-karpathy_nanogpt_source_only_h100-openevolve-b03-c3",
+  "schema_version": "1.0",
+  "selected_parent_ids": [
+    "dc725a877809c8c9b98a82241aae181de0c7f1b656d987c1c5f1a6364c0eeb4a"
+  ],
+  "timestamp": "2026-08-23T23:06:20.006986+00:00",
+  "usage_cumulative": {
+    "cached_input_tokens": 232192,
+    "input_tokens": 740533,
+    "output_tokens": 45307,
+    "reasoning_output_tokens": 38609,
+    "total_tokens": 785840
+  },
+  "usage_increment": {
+    "cached_input_tokens": 12032,
+    "input_tokens": 47271,
+    "output_tokens": 1808,
+    "reasoning_output_tokens": 1447,
+    "total_tokens": 49079
+  },
+  "visible_candidate_ids": [
+    "2865e528e18dc51191e4037eaeb5824cb0ea83ede79061b59b8f3caac686da6b",
+    "eae6d6f6e71f7c40476d436f13b811436a914f2aadd4ccb896baad1149666905",
+    "af099c1e5833ed09c2eef778dbc8248d8162ae106aa291d1a9b5b78c0fb16662",
+    "dc725a877809c8c9b98a82241aae181de0c7f1b656d987c1c5f1a6364c0eeb4a"
+  ]
+}

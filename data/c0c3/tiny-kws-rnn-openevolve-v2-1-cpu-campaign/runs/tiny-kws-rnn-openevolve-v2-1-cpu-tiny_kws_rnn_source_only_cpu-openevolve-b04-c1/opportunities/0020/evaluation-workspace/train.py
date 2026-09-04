@@ -1,0 +1,134 @@
+"""Editable recurrent keyword-spotting research program.
+
+The protected evaluator owns the audio, speaker-disjoint splits, log-mel
+frontend, training exposure, recurrent execution loop, and exact MAC counter.
+This file owns the recurrent model and trainable procedure.
+"""
+
+from __future__ import annotations
+
+import math
+
+import torch
+from torch import nn
+from torch.nn import functional as F
+
+BATCH_SIZE = 128
+GRAD_CLIP_NORM = 1.0
+
+
+class KeywordMGU(nn.Module):
+    """A full-rank minimally gated recurrent keyword spotter."""
+
+    def __init__(self) -> None:
+        super().__init__()
+        self.input_norm = nn.LayerNorm(20)
+        self.update_gate = nn.Linear(96, 76)
+        self.candidate = nn.Linear(96, 76)
+        self.candidate_norm = nn.LayerNorm(76)
+        self.classifier = nn.Linear(228, 8)
+
+    def initial_state(
+        self, batch_size: int, device: torch.device, dtype: torch.dtype
+    ) -> tuple[torch.Tensor, torch.Tensor, torch.Tensor, torch.Tensor]:
+        hidden = torch.zeros(batch_size, 76, device=device, dtype=dtype)
+        summary = torch.zeros(batch_size, 76, device=device, dtype=dtype)
+        maximum = torch.zeros(batch_size, 76, device=device, dtype=dtype)
+        count = torch.zeros(batch_size, 1, device=device, dtype=dtype)
+        return hidden, summary, maximum, count
+
+    def recurrent_step(
+        self,
+        frame: torch.Tensor,
+        state: tuple[torch.Tensor, torch.Tensor, torch.Tensor, torch.Tensor],
+    ) -> tuple[torch.Tensor, torch.Tensor, torch.Tensor, torch.Tensor]:
+        hidden, summary, maximum, count = state
+        normalized = self.input_norm(frame)
+        update = torch.sigmoid(
+            self.update_gate(torch.cat((normalized, hidden), dim=1))
+        )
+        candidate = torch.tanh(
+            self.candidate_norm(
+                self.candidate(
+                    torch.cat((normalized, update * hidden), dim=1)
+                )
+            )
+        )
+        output = hidden + update * (candidate - hidden)
+        maximum = torch.where(
+            count > 0,
+            torch.maximum(maximum, output),
+            output,
+        )
+        return output, summary + output, maximum, count + 1.0
+
+    def recurrent_sequence(
+        self,
+        frames: torch.Tensor,
+        state: tuple[torch.Tensor, torch.Tensor, torch.Tensor, torch.Tensor],
+    ) -> tuple[torch.Tensor, torch.Tensor, torch.Tensor, torch.Tensor]:
+        for frame in frames.unbind(dim=1):
+            state = self.recurrent_step(frame, state)
+        return state
+
+    def classify(
+        self,
+        state: tuple[torch.Tensor, torch.Tensor, torch.Tensor, torch.Tensor],
+    ) -> torch.Tensor:
+        hidden, summary, maximum, count = state
+        pooled = torch.cat(
+            (summary / count.clamp_min(1.0), maximum, hidden),
+            dim=1,
+        )
+        return self.classifier(pooled)
+
+    def frame_schedule(self, available_frames: int) -> list[int]:
+        steps = min(32, available_frames)
+        return [
+            round(index * (available_frames - 1) / (steps - 1))
+            for index in range(steps)
+        ]
+
+
+def build_model() -> nn.Module:
+    return KeywordMGU()
+
+
+def build_optimizer(model: nn.Module, total_steps: int) -> torch.optim.Optimizer:
+    del total_steps
+    return torch.optim.AdamW(model.parameters(), lr=3.0e-3, weight_decay=1.0e-4)
+
+
+def prepare_training_batch(
+    frames: torch.Tensor,
+    labels: torch.Tensor,
+    step: int,
+    total_steps: int,
+) -> tuple[torch.Tensor, torch.Tensor]:
+    del step, total_steps
+    if torch.rand(()) < 0.8:
+        frames = frames + 0.025 * torch.randn_like(frames)
+    return frames, labels
+
+
+def training_loss(
+    model: nn.Module,
+    logits: torch.Tensor,
+    labels: torch.Tensor,
+    step: int,
+    total_steps: int,
+) -> torch.Tensor:
+    del model, step, total_steps
+    return F.cross_entropy(logits, labels, label_smoothing=0.03)
+
+
+def after_optimizer_step(
+    optimizer: torch.optim.Optimizer,
+    step: int,
+    total_steps: int,
+) -> None:
+    multiplier = 0.05 + 0.95 * 0.5 * (
+        1.0 + math.cos(math.pi * step / max(total_steps, 1))
+    )
+    for group in optimizer.param_groups:
+        group["lr"] = 3.0e-3 * multiplier

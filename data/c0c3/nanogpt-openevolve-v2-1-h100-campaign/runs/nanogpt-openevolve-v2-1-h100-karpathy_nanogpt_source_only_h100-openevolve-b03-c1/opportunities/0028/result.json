@@ -1,0 +1,82 @@
+{
+  "artifact_path": "candidates/78329861fa5c0c943bab0a29379e55aac7eb5cfac80d838410d9ad9ea0070a63",
+  "candidate_id": "78329861fa5c0c943bab0a29379e55aac7eb5cfac80d838410d9ad9ea0070a63",
+  "codex_service_tier": "default",
+  "condition": "C1",
+  "conversation_session_id": null,
+  "evaluation": {
+    "evaluator_calls": 1,
+    "evaluator_seconds": 332.2080813780012,
+    "failure_kind": null,
+    "fitness": -0.985007,
+    "metrics": {
+      "depth": 8.0,
+      "mfu_percent": 36.85,
+      "num_params_M": 50.3,
+      "num_steps": 2176.0,
+      "peak_vram_mb": 39356.7,
+      "total_tokens_M": 499.1,
+      "training_seconds": 300.0,
+      "val_bpb": 0.985007
+    },
+    "valid": true
+  },
+  "evaluator_calls_cumulative": 28,
+  "evaluator_calls_increment": 1,
+  "evaluator_seconds_cumulative": 14200.705479679022,
+  "evaluator_seconds_increment": 332.2080813780012,
+  "event": "proposal_completed",
+  "evicted_candidate_id": null,
+  "evidence": "Equal-mean cosine annealing regressed val_bpb from 0.985757 to 0.988710 when it retained larger early-annealing updates, while progressively earlier linear decay improved val_bpb through the 78% schedule; this directly motivates testing the opposite redistribution without changing total learning-rate exposure.",
+  "hypothesis": "Redistributing learning rate from the first half of the 78% warmdown to its second half, while preserving its duration, endpoints, and mean, will reduce val_bpb below 0.984312.",
+  "incumbent_after": "79371db426a82a4f0105fd545b7b96597e928410dda205b26f8eaa70efcb19fd",
+  "intended_edit": "Replace the linear warmdown with a monotonic sinusoidally tilted linear curve that is 0.05 lower early in annealing and 0.05 higher late in annealing.",
+  "mechanism": "Mean-preserving front-loaded annealing",
+  "opportunity": 28,
+  "parent_ids": [
+    "79371db426a82a4f0105fd545b7b96597e928410dda205b26f8eaa70efcb19fd"
+  ],
+  "portfolio_after": [
+    "79371db426a82a4f0105fd545b7b96597e928410dda205b26f8eaa70efcb19fd"
+  ],
+  "prompt_hashes": {
+    "common_template_sha256": "ba85b39aa7288f4f48475376da6cff65661f39cfeb7ac7cde15b2a9a2e692fde",
+    "prompt_sha256": "091c3dcd49f0506204576d01f4b0375f2b3a39109df7348122bcf5148fc8c75d",
+    "proposal_policy_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "search_state_sha256": "04e5eb078ae1964e4ec65bfeeeb1acd0ffa246e7d54d5e0f997f81f602da28c5",
+    "treatment_skeleton_sha256": "0b65a0cd5d9b3a82d088adaf1e4110897efce91a435cc86200d876c34415cad7"
+  },
+  "proposal_type": "ordinary",
+  "proposals_cumulative": 28,
+  "remaining_budget": {
+    "evaluations": 172,
+    "evaluator_seconds": 705799.294520321,
+    "proposals": 172,
+    "tokens": 99274497
+  },
+  "retained": false,
+  "retention_decision": "not_strictly_better_than_incumbent",
+  "run_id": "nanogpt-openevolve-v2-1-h100-karpathy_nanogpt_source_only_h100-openevolve-b03-c1",
+  "schema_version": "1.0",
+  "selected_parent_ids": [
+    "79371db426a82a4f0105fd545b7b96597e928410dda205b26f8eaa70efcb19fd"
+  ],
+  "timestamp": "2026-08-24T02:31:13.162534+00:00",
+  "usage_cumulative": {
+    "cached_input_tokens": 328960,
+    "input_tokens": 674381,
+    "output_tokens": 51122,
+    "reasoning_output_tokens": 43644,
+    "total_tokens": 725503
+  },
+  "usage_increment": {
+    "cached_input_tokens": 12032,
+    "input_tokens": 24829,
+    "output_tokens": 3239,
+    "reasoning_output_tokens": 2958,
+    "total_tokens": 28068
+  },
+  "visible_candidate_ids": [
+    "79371db426a82a4f0105fd545b7b96597e928410dda205b26f8eaa70efcb19fd"
+  ]
+}

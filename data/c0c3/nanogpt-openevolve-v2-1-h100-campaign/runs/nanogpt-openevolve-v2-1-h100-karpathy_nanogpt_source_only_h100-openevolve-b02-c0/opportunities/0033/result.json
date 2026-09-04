@@ -1,0 +1,82 @@
+{
+  "artifact_path": "candidates/51b7655eea19e90592f44f5f502ff298afe59f77e6b25fa5bb41641577b0aa36",
+  "candidate_id": "51b7655eea19e90592f44f5f502ff298afe59f77e6b25fa5bb41641577b0aa36",
+  "codex_service_tier": "default",
+  "condition": "C0",
+  "conversation_session_id": null,
+  "evaluation": {
+    "evaluator_calls": 1,
+    "evaluator_seconds": 332.4700506939989,
+    "failure_kind": null,
+    "fitness": -0.984293,
+    "metrics": {
+      "depth": 8.0,
+      "mfu_percent": 36.84,
+      "num_params_M": 50.3,
+      "num_steps": 1905.0,
+      "peak_vram_mb": 44908.2,
+      "total_tokens_M": 499.4,
+      "training_seconds": 300.1,
+      "val_bpb": 0.984293
+    },
+    "valid": true
+  },
+  "evaluator_calls_cumulative": 33,
+  "evaluator_calls_increment": 1,
+  "evaluator_seconds_cumulative": 11019.981621759996,
+  "evaluator_seconds_increment": 332.4700506939989,
+  "event": "proposal_completed",
+  "evicted_candidate_id": "384e9ca323c5322a208a8ff63b4a17b924b4403535bf1b5bb8ca3ff6d6717b33",
+  "evidence": "The best design processes 491.0M tokens in five minutes, while six of eight layers use short attention and two retain full attention. Recent weight-decay and warmdown refinements bracketed their local optima without improving 0.985730, motivating an independent compute-efficiency change.",
+  "hypothesis": "Reducing short-layer attention from half-context to quarter-context will lower val_bpb below 0.985730 by increasing training throughput while the two full-context layers preserve global token mixing.",
+  "incumbent_after": "51b7655eea19e90592f44f5f502ff298afe59f77e6b25fa5bb41641577b0aa36",
+  "intended_edit": "Change the six short-window layers from 1024-token to 512-token attention; retain the existing SSSL pattern, final full-context layer, optimizer, and schedules.",
+  "mechanism": "More training tokens through tighter local attention",
+  "opportunity": 33,
+  "parent_ids": [
+    "384e9ca323c5322a208a8ff63b4a17b924b4403535bf1b5bb8ca3ff6d6717b33"
+  ],
+  "portfolio_after": [
+    "51b7655eea19e90592f44f5f502ff298afe59f77e6b25fa5bb41641577b0aa36"
+  ],
+  "prompt_hashes": {
+    "common_template_sha256": "ba85b39aa7288f4f48475376da6cff65661f39cfeb7ac7cde15b2a9a2e692fde",
+    "prompt_sha256": "627b973806a90b87b85e31afb2887338cc5119f5f7b48fefbbf8bc31dd1e6bc0",
+    "proposal_policy_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "search_state_sha256": "04e5eb078ae1964e4ec65bfeeeb1acd0ffa246e7d54d5e0f997f81f602da28c5",
+    "treatment_skeleton_sha256": "0ac93315e1d58d4ccb99a66d6515ea8c1d9e362f2dfc0acfa389b3cfb9d5422a"
+  },
+  "proposal_type": "ordinary",
+  "proposals_cumulative": 33,
+  "remaining_budget": {
+    "evaluations": 167,
+    "evaluator_seconds": 708980.01837824,
+    "proposals": 167,
+    "tokens": 99135057
+  },
+  "retained": true,
+  "retention_decision": "strict_incumbent_improvement",
+  "run_id": "nanogpt-openevolve-v2-1-h100-karpathy_nanogpt_source_only_h100-openevolve-b02-c0",
+  "schema_version": "1.0",
+  "selected_parent_ids": [
+    "384e9ca323c5322a208a8ff63b4a17b924b4403535bf1b5bb8ca3ff6d6717b33"
+  ],
+  "timestamp": "2026-08-24T04:05:16.992395+00:00",
+  "usage_cumulative": {
+    "cached_input_tokens": 371456,
+    "input_tokens": 799016,
+    "output_tokens": 65927,
+    "reasoning_output_tokens": 57522,
+    "total_tokens": 864943
+  },
+  "usage_increment": {
+    "cached_input_tokens": 9984,
+    "input_tokens": 24974,
+    "output_tokens": 1984,
+    "reasoning_output_tokens": 1796,
+    "total_tokens": 26958
+  },
+  "visible_candidate_ids": [
+    "384e9ca323c5322a208a8ff63b4a17b924b4403535bf1b5bb8ca3ff6d6717b33"
+  ]
+}

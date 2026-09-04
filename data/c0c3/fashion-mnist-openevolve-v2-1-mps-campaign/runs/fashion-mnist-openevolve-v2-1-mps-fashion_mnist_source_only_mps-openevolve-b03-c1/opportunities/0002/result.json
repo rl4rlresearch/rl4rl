@@ -1,0 +1,85 @@
+{
+  "artifact_path": "candidates/41e57f4df7af3a1f1fbc11d605b499eafbeb344ace71007267415bce8ed85af1",
+  "candidate_id": "41e57f4df7af3a1f1fbc11d605b499eafbeb344ace71007267415bce8ed85af1",
+  "codex_service_tier": "fast",
+  "condition": "C1",
+  "conversation_session_id": null,
+  "evaluation": {
+    "evaluator_calls": 1,
+    "evaluator_seconds": 29.654931291937828,
+    "failure_kind": null,
+    "fitness": 9050.394805590035,
+    "metrics": {
+      "batch_size": 128,
+      "evaluation_cases": 10000,
+      "evaluation_split": "public_validation",
+      "examples_processed": 100000,
+      "optimizer_steps": 782,
+      "parameters": 244386,
+      "training_seconds": 24.701929665869102,
+      "validation_accuracy": 0.905,
+      "validation_correct": 9050,
+      "validation_cross_entropy": 0.2664461006164551,
+      "validation_score": 9050.394805590035
+    },
+    "valid": true
+  },
+  "evaluator_calls_cumulative": 2,
+  "evaluator_calls_increment": 1,
+  "evaluator_seconds_cumulative": 33.580686582950875,
+  "evaluator_seconds_increment": 29.654931291937828,
+  "event": "proposal_completed",
+  "evicted_candidate_id": "1519f52d28c6c739b31c8d221690983a68a7059a34bf6272219d467f90e88386",
+  "evidence": "The baseline achieves 8,928 correct with only 392 optimizer steps and 105,866 parameters; this motivates safely using the remaining parameter budget and doubling update frequency. The prior near-budget residual attempt produced no verifiable metric, so this patch uses a simpler sequential architecture.",
+  "hypothesis": "A 244,386-parameter batch-normalized CNN trained for roughly twice as many optimizer steps will exceed 8,928 correct predictions, while mild augmentation and flip-averaged evaluation reduce overfitting.",
+  "incumbent_after": "41e57f4df7af3a1f1fbc11d605b499eafbeb344ace71007267415bce8ed85af1",
+  "intended_edit": "Use batch size 128, add two convolutional stages within the parameter ceiling, apply mild translation and horizontal-flip augmentation, use low-smoothing AdamW with warmup-cosine decay, and average original/flipped logits during evaluation.",
+  "mechanism": "Exposure-efficient deep CNN with evaluation-time flip ensembling",
+  "opportunity": 2,
+  "parent_ids": [
+    "1519f52d28c6c739b31c8d221690983a68a7059a34bf6272219d467f90e88386"
+  ],
+  "portfolio_after": [
+    "41e57f4df7af3a1f1fbc11d605b499eafbeb344ace71007267415bce8ed85af1"
+  ],
+  "prompt_hashes": {
+    "common_template_sha256": "e8327ba94bab12abc7c7ec7c6615378a3ae62434efb944d4a7d9492f1d19bc14",
+    "prompt_sha256": "8b4043679b0305d7103ecdf07cfc7b062f28d1a83156d4455eb802273b4cc6c4",
+    "proposal_policy_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "search_state_sha256": "04e5eb078ae1964e4ec65bfeeeb1acd0ffa246e7d54d5e0f997f81f602da28c5",
+    "treatment_skeleton_sha256": "47102f5dc4e6a4589fdcca51fb2caee5c832e3453d093f5a68c0fbb699fb6f71"
+  },
+  "proposal_type": "ordinary",
+  "proposals_cumulative": 2,
+  "remaining_budget": {
+    "evaluations": 198,
+    "evaluator_seconds": 23966.41931341705,
+    "proposals": 198,
+    "tokens": 99958002
+  },
+  "retained": true,
+  "retention_decision": "strict_incumbent_improvement",
+  "run_id": "fashion-mnist-openevolve-v2-1-mps-fashion_mnist_source_only_mps-openevolve-b03-c1",
+  "schema_version": "1.0",
+  "selected_parent_ids": [
+    "1519f52d28c6c739b31c8d221690983a68a7059a34bf6272219d467f90e88386"
+  ],
+  "timestamp": "2026-08-24T00:08:22.242460+00:00",
+  "usage_cumulative": {
+    "cached_input_tokens": 24064,
+    "input_tokens": 30550,
+    "output_tokens": 11448,
+    "reasoning_output_tokens": 8302,
+    "total_tokens": 41998
+  },
+  "usage_increment": {
+    "cached_input_tokens": 12032,
+    "input_tokens": 15349,
+    "output_tokens": 6522,
+    "reasoning_output_tokens": 4937,
+    "total_tokens": 21871
+  },
+  "visible_candidate_ids": [
+    "1519f52d28c6c739b31c8d221690983a68a7059a34bf6272219d467f90e88386"
+  ]
+}

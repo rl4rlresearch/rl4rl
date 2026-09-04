@@ -1,0 +1,85 @@
+{
+  "artifact_path": "candidates/af2c77358ec502937c99eca31d2787d2c60ec853054f80bd16dcad32ec900c0a",
+  "candidate_id": "af2c77358ec502937c99eca31d2787d2c60ec853054f80bd16dcad32ec900c0a",
+  "codex_service_tier": "fast",
+  "condition": "C3",
+  "conversation_session_id": null,
+  "evaluation": {
+    "evaluator_calls": 1,
+    "evaluator_seconds": 236.13873504207004,
+    "failure_kind": null,
+    "fitness": -1604.0,
+    "metrics": {
+      "accuracy": 0.998,
+      "cases": 10010,
+      "correct": 9990,
+      "parameters": 1604,
+      "training_steps": 4999
+    },
+    "valid": true
+  },
+  "evaluator_calls_cumulative": 10,
+  "evaluator_calls_increment": 1,
+  "evaluator_seconds_cumulative": 2305.8403196692234,
+  "evaluator_seconds_increment": 236.13873504207004,
+  "event": "proposal_completed",
+  "evicted_candidate_id": "7a9f398dcb8ad9d30dcf46f21fbcd6e3f907123db2d6945cc846454d0409815f",
+  "evidence": "The 1627-parameter query-bias design reached 99.88%, while an earlier positional gauge edit failed at 4.5%; the key-bias experiments showed that an analytically redundant change recovered from 86.15% to 99.86% when the original RNG stream was preserved. This patch additionally preserves AdamW and clipping dynamics, directly addressing a second load-bearing assumption of the failed gauge parameterization.",
+  "hypothesis": "Representing each positional vector with seven coordinates modulo its LayerNorm-invisible common-channel shift will remove `max_seq_len` parameters from the qualified 1627-parameter model while retaining at least 99% accuracy, provided initialization, gradient clipping, and AdamW updates preserve the original eight-coordinate quotient dynamics.",
+  "incumbent_after": "af2c77358ec502937c99eca31d2787d2c60ec853054f80bd16dcad32ec900c0a",
+  "intended_edit": "Replace the full positional table with a last-coordinate-zero gauge representation, preserve the proven constructor and initialization RNG streams, and train it with a gauge-aware AdamW optimizer that reconstructs the omitted gradient and optimizer state.",
+  "mechanism": "Gauge-quotient positional embeddings with AdamW-equivalent updates",
+  "opportunity": 10,
+  "parent_ids": [
+    "7a9f398dcb8ad9d30dcf46f21fbcd6e3f907123db2d6945cc846454d0409815f"
+  ],
+  "portfolio_after": [
+    "2b9cea175ed60b009337ac54f6e8ad23bf2c014eb4080237777bfb70bfd9fd5b",
+    "ab1f04e2fd829b04a7203faf36349aa0ebb5b0229225bf61b12e800f0d7f6ab4",
+    "a91d17a18b4eb5b68640561507be2dfdd6ebe850bd8a64c62897914ce559cfcd",
+    "af2c77358ec502937c99eca31d2787d2c60ec853054f80bd16dcad32ec900c0a"
+  ],
+  "prompt_hashes": {
+    "common_template_sha256": "3f2bea6418b6969c4bf2aa1df18dcda8a3a4ac075bf20c79068c754698b6be5e",
+    "prompt_sha256": "7aabc3c2c8fb09723fdb45084cc89dc9d6e3d4f83674000234a929d8449c85b9",
+    "proposal_policy_sha256": "4a27c08e098e719db007f4d6b37fabe2967b41836bb9070e2513a8a24ff7ce90",
+    "search_state_sha256": "c938ac007bf70fe8d27f64661175531e51fcb16b38318c328493c32ee292e27e",
+    "treatment_skeleton_sha256": "7e7bd5330bfbdfaebd226ba68527f6807d420bef948b72cd09f7f5dedbba1cbb"
+  },
+  "proposal_type": "assumption_changing",
+  "proposals_cumulative": 10,
+  "remaining_budget": {
+    "evaluations": 190,
+    "evaluator_seconds": 357694.1596803308,
+    "proposals": 190,
+    "tokens": 99718603
+  },
+  "retained": true,
+  "retention_decision": "replaced_selected_parent_on_strict_improvement",
+  "run_id": "controlled-openevolve-transformer-v2-1-source-only-ten-digit-addition-pair-transformer-openevolve-v2-1-mps-openevolve-b05-c3",
+  "schema_version": "1.0",
+  "selected_parent_ids": [
+    "7a9f398dcb8ad9d30dcf46f21fbcd6e3f907123db2d6945cc846454d0409815f"
+  ],
+  "timestamp": "2026-08-23T11:26:31.213736+00:00",
+  "usage_cumulative": {
+    "cached_input_tokens": 112128,
+    "input_tokens": 236442,
+    "output_tokens": 44955,
+    "reasoning_output_tokens": 38262,
+    "total_tokens": 281397
+  },
+  "usage_increment": {
+    "cached_input_tokens": 12032,
+    "input_tokens": 32921,
+    "output_tokens": 14487,
+    "reasoning_output_tokens": 12552,
+    "total_tokens": 47408
+  },
+  "visible_candidate_ids": [
+    "2b9cea175ed60b009337ac54f6e8ad23bf2c014eb4080237777bfb70bfd9fd5b",
+    "ab1f04e2fd829b04a7203faf36349aa0ebb5b0229225bf61b12e800f0d7f6ab4",
+    "a91d17a18b4eb5b68640561507be2dfdd6ebe850bd8a64c62897914ce559cfcd",
+    "7a9f398dcb8ad9d30dcf46f21fbcd6e3f907123db2d6945cc846454d0409815f"
+  ]
+}

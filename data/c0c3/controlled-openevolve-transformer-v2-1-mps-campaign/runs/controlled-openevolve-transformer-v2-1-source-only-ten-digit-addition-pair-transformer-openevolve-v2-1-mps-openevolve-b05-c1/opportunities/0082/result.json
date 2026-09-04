@@ -1,0 +1,79 @@
+{
+  "artifact_path": "candidates/7e5ecd0867d85099d3cb7622d104888c0612b2b631b3acd1151f5ecf15ed799c",
+  "candidate_id": "7e5ecd0867d85099d3cb7622d104888c0612b2b631b3acd1151f5ecf15ed799c",
+  "codex_service_tier": "default",
+  "condition": "C1",
+  "conversation_session_id": null,
+  "evaluation": {
+    "evaluator_calls": 1,
+    "evaluator_seconds": 828.9349285829812,
+    "failure_kind": "nonqualification",
+    "fitness": null,
+    "metrics": {
+      "accuracy": 0.7415,
+      "cases": 10010,
+      "correct": 7422,
+      "parameters": 1271,
+      "training_steps": 49999
+    },
+    "valid": false
+  },
+  "evaluator_calls_cumulative": 82,
+  "evaluator_calls_increment": 1,
+  "evaluator_seconds_cumulative": 89009.98948446207,
+  "evaluator_seconds_increment": 828.9349285829812,
+  "event": "proposal_completed",
+  "evicted_candidate_id": null,
+  "evidence": "The current 1,272-parameter model reached 100% accuracy, while removing all eight attention-output common modes reached only 74.64% with an oblique chart and 41.25% with an orthonormal chart. A one-column quotient is the smallest test of whether those failures came from simultaneously reparameterizing the entire projection rather than from removing a single redundant direction.",
+  "hypothesis": "Removing only one row-common attention-output degree of freedom will reduce the model from 1,272 to 1,271 parameters while retaining at least 99% accuracy, because the discarded component produces only a LayerNorm-invisible all-ones residual shift, and limiting the quotient reparameterization to one column avoids the global optimization disruption seen when all eight columns were changed.",
+  "incumbent_after": "6e615f107940f639368cf1b3d415c1fb8a22ace3f17e34970407cfc8d6b12097",
+  "intended_edit": "Parameterize the first attention-output weight column in a seven-dimensional orthonormal mean-zero basis while leaving the other seven columns dense and retaining the full bias.",
+  "mechanism": "Single-column orthonormal attention-output quotient",
+  "opportunity": 82,
+  "parent_ids": [
+    "6e615f107940f639368cf1b3d415c1fb8a22ace3f17e34970407cfc8d6b12097"
+  ],
+  "portfolio_after": [
+    "6e615f107940f639368cf1b3d415c1fb8a22ace3f17e34970407cfc8d6b12097"
+  ],
+  "prompt_hashes": {
+    "common_template_sha256": "3f2bea6418b6969c4bf2aa1df18dcda8a3a4ac075bf20c79068c754698b6be5e",
+    "prompt_sha256": "a32c28af11c2bd8257ae656db6c1a44b6a3ee1cba659db6031d35b9419ba44fb",
+    "proposal_policy_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "search_state_sha256": "04e5eb078ae1964e4ec65bfeeeb1acd0ffa246e7d54d5e0f997f81f602da28c5",
+    "treatment_skeleton_sha256": "a363b4f3c8f0b7fe1597d6272b5bf19df1af2b984a2ad0ca2d6dd6fd79d5ca97"
+  },
+  "proposal_type": "ordinary",
+  "proposals_cumulative": 82,
+  "remaining_budget": {
+    "evaluations": 118,
+    "evaluator_seconds": 270990.0105155379,
+    "proposals": 118,
+    "tokens": 98007937
+  },
+  "retained": false,
+  "retention_decision": "invalid",
+  "run_id": "controlled-openevolve-transformer-v2-1-source-only-ten-digit-addition-pair-transformer-openevolve-v2-1-mps-openevolve-b05-c1",
+  "schema_version": "1.0",
+  "selected_parent_ids": [
+    "6e615f107940f639368cf1b3d415c1fb8a22ace3f17e34970407cfc8d6b12097"
+  ],
+  "timestamp": "2026-08-26T04:29:22.440907+00:00",
+  "usage_cumulative": {
+    "cached_input_tokens": 881408,
+    "input_tokens": 1731633,
+    "output_tokens": 260430,
+    "reasoning_output_tokens": 224563,
+    "total_tokens": 1992063
+  },
+  "usage_increment": {
+    "cached_input_tokens": 2816,
+    "input_tokens": 21742,
+    "output_tokens": 6299,
+    "reasoning_output_tokens": 5551,
+    "total_tokens": 28041
+  },
+  "visible_candidate_ids": [
+    "6e615f107940f639368cf1b3d415c1fb8a22ace3f17e34970407cfc8d6b12097"
+  ]
+}

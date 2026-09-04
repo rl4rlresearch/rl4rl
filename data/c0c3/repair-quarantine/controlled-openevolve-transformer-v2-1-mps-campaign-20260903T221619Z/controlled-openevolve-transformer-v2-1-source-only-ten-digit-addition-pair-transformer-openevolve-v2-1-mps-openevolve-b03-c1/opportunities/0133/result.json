@@ -1,0 +1,79 @@
+{
+  "artifact_path": "candidates/51781df0d4c7311fb8bd671663386833ff502c147041db4a3bbc6cb32960dc02",
+  "candidate_id": "51781df0d4c7311fb8bd671663386833ff502c147041db4a3bbc6cb32960dc02",
+  "codex_service_tier": "default",
+  "condition": "C1",
+  "conversation_session_id": null,
+  "evaluation": {
+    "evaluator_calls": 1,
+    "evaluator_seconds": 394.2874204169493,
+    "failure_kind": "nonqualification",
+    "fitness": null,
+    "metrics": {
+      "accuracy": 0.5774,
+      "cases": 10010,
+      "correct": 5780,
+      "parameters": 605,
+      "training_steps": 4999
+    },
+    "valid": false
+  },
+  "evaluator_calls_cumulative": 133,
+  "evaluator_calls_increment": 1,
+  "evaluator_seconds_cumulative": 40501.89701153769,
+  "evaluator_seconds_increment": 394.2874204169493,
+  "event": "proposal_completed",
+  "evicted_candidate_id": null,
+  "evidence": "The 606-parameter model achieved 99.89% accuracy. The 605-parameter phase gauge fell to 44.29% after rotating lexical coordinates, motivating a scale-gauge fixing that leaves every initialized model value and all relative token radii unchanged.",
+  "hypothesis": "Freezing one token radius at its initialized value will reduce the verified model from 606 to 605 parameters while retaining at least 99% accuracy, because a common rescaling of all token radii can be absorbed exactly by the lexical projection and latent bias, while this edit preserves the successful initialization without the coordinate rotation used by the failed phase gauge.",
+  "incumbent_after": "bd3de48f5525dcfff6bd60d317420799f884f2ebdb491cb5078d6dbf650b991c",
+  "intended_edit": "Store the first initialized token radius as a fixed buffer and learn only the remaining radii, reconstructing the full radius vector during every forward pass.",
+  "mechanism": "Fixed lexical-radius scale gauge",
+  "opportunity": 133,
+  "parent_ids": [
+    "bd3de48f5525dcfff6bd60d317420799f884f2ebdb491cb5078d6dbf650b991c"
+  ],
+  "portfolio_after": [
+    "bd3de48f5525dcfff6bd60d317420799f884f2ebdb491cb5078d6dbf650b991c"
+  ],
+  "prompt_hashes": {
+    "common_template_sha256": "3f2bea6418b6969c4bf2aa1df18dcda8a3a4ac075bf20c79068c754698b6be5e",
+    "prompt_sha256": "7b9c2ff792055184d6e46f5a82843198f6891fac2d3d5764bb8e39f7c0abfc6d",
+    "proposal_policy_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "search_state_sha256": "04e5eb078ae1964e4ec65bfeeeb1acd0ffa246e7d54d5e0f997f81f602da28c5",
+    "treatment_skeleton_sha256": "ad2cde937319f47deb5348ff409cb6fcd4f8ee9eb54cfc13460777b6c49ffb95"
+  },
+  "proposal_type": "ordinary",
+  "proposals_cumulative": 133,
+  "remaining_budget": {
+    "evaluations": 67,
+    "evaluator_seconds": 319498.1029884623,
+    "proposals": 67,
+    "tokens": 96398927
+  },
+  "retained": false,
+  "retention_decision": "invalid",
+  "run_id": "controlled-openevolve-transformer-v2-1-source-only-ten-digit-addition-pair-transformer-openevolve-v2-1-mps-openevolve-b03-c1",
+  "schema_version": "1.0",
+  "selected_parent_ids": [
+    "bd3de48f5525dcfff6bd60d317420799f884f2ebdb491cb5078d6dbf650b991c"
+  ],
+  "timestamp": "2026-09-03T21:08:58.563183+00:00",
+  "usage_cumulative": {
+    "cached_input_tokens": 1383936,
+    "input_tokens": 3221112,
+    "output_tokens": 379961,
+    "reasoning_output_tokens": 303328,
+    "total_tokens": 3601073
+  },
+  "usage_increment": {
+    "cached_input_tokens": 10752,
+    "input_tokens": 25963,
+    "output_tokens": 3486,
+    "reasoning_output_tokens": 3106,
+    "total_tokens": 29449
+  },
+  "visible_candidate_ids": [
+    "bd3de48f5525dcfff6bd60d317420799f884f2ebdb491cb5078d6dbf650b991c"
+  ]
+}

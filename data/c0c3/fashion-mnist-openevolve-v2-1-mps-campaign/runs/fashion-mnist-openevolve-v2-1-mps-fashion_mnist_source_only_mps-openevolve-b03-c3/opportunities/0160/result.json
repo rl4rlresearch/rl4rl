@@ -1,0 +1,91 @@
+{
+  "artifact_path": "candidates/afed89f0328af6f0636af96a0c11d9bfa36fa5254fcad74a1d054a5d2a821375",
+  "candidate_id": "afed89f0328af6f0636af96a0c11d9bfa36fa5254fcad74a1d054a5d2a821375",
+  "codex_service_tier": "default",
+  "condition": "C3",
+  "conversation_session_id": null,
+  "evaluation": {
+    "evaluator_calls": 1,
+    "evaluator_seconds": 64.71425312501378,
+    "failure_kind": null,
+    "fitness": 9280.413791847188,
+    "metrics": {
+      "batch_size": 192,
+      "evaluation_cases": 10000,
+      "evaluation_split": "public_validation",
+      "examples_processed": 100000,
+      "optimizer_steps": 522,
+      "parameters": 245294,
+      "training_seconds": 45.81469799997285,
+      "validation_accuracy": 0.928,
+      "validation_correct": 9280,
+      "validation_cross_entropy": 0.2083370018005371,
+      "validation_score": 9280.413791847188
+    },
+    "valid": true
+  },
+  "evaluator_calls_cumulative": 149,
+  "evaluator_calls_increment": 1,
+  "evaluator_seconds_cumulative": 9135.44496983313,
+  "evaluator_seconds_increment": 64.71425312501378,
+  "event": "proposal_completed",
+  "evicted_candidate_id": null,
+  "evidence": "TTA refinements plateaued at 9,284 correct and increasingly small weight changes crossed a sharp boundary back to 9,283, indicating that fixed-view calibration is exhausted. All available designs assume one input-independent pooling ratio per layer; content-conditioned channelwise pooling instead changes the learned representation while starting exactly from the validated pooling behavior.",
+  "hypothesis": "Replacing layer-wide pooling ratios with content-conditioned per-channel gates, initialized to reproduce the current 90% max-pooling behavior, will improve validation_score beyond 9284.413861719328 when combined with the best validated TTA weights.",
+  "incumbent_after": "7a74b74b140de24fa7692c3579ee8c06957b10091dee9a6c37d4722b1c6dda07",
+  "intended_edit": "Give every channel its own baseline pooling logit and learned response to local peakiness, allowing edge and texture channels to downsample differently; restore Reference Design 1\u2019s best-known center/vertical/horizontal TTA weighting. The model remains below the parameter ceiling at 245,294 learned parameters.",
+  "mechanism": "Contrast-conditioned channelwise mixed pooling",
+  "opportunity": 160,
+  "parent_ids": [
+    "8d423e6f9eefc11bb88bc83b0d41a2031e561f89c1bf3e87ba1555a5a66df2b7"
+  ],
+  "portfolio_after": [
+    "8d423e6f9eefc11bb88bc83b0d41a2031e561f89c1bf3e87ba1555a5a66df2b7",
+    "7a74b74b140de24fa7692c3579ee8c06957b10091dee9a6c37d4722b1c6dda07",
+    "3648855b6308458a235b7515f326083af01e6b53fd58f74d56bf03024a0e83f7",
+    "7d0451aebcff494085e9e47f023d858af6a864b47c37f72cb89ee372dbd841c8"
+  ],
+  "prompt_hashes": {
+    "common_template_sha256": "e8327ba94bab12abc7c7ec7c6615378a3ae62434efb944d4a7d9492f1d19bc14",
+    "prompt_sha256": "d397369f0b4b873f61997f3ebbea36d3dfc3f9dadffef64682c5fe2e2ad5fa68",
+    "proposal_policy_sha256": "ce1e11aa597bbfab85bb87bc9a6089bf0c32df89ea8da0d0be408234b8f6347d",
+    "search_state_sha256": "c938ac007bf70fe8d27f64661175531e51fcb16b38318c328493c32ee292e27e",
+    "treatment_skeleton_sha256": "795f34054f8d0709870d9a2252da0d164dfbdfa78a2a943aeec6f422661f46d3"
+  },
+  "proposal_type": "assumption_changing",
+  "proposals_cumulative": 160,
+  "remaining_budget": {
+    "evaluations": 51,
+    "evaluator_seconds": 14864.55503016687,
+    "proposals": 40,
+    "tokens": 95561769
+  },
+  "retained": false,
+  "retention_decision": "not_strictly_better_than_selected_parent",
+  "run_id": "fashion-mnist-openevolve-v2-1-mps-fashion_mnist_source_only_mps-openevolve-b03-c3",
+  "schema_version": "1.0",
+  "selected_parent_ids": [
+    "8d423e6f9eefc11bb88bc83b0d41a2031e561f89c1bf3e87ba1555a5a66df2b7"
+  ],
+  "timestamp": "2026-08-25T03:43:05.690409+00:00",
+  "usage_cumulative": {
+    "cached_input_tokens": 1665024,
+    "input_tokens": 4013006,
+    "output_tokens": 425225,
+    "reasoning_output_tokens": 344634,
+    "total_tokens": 4438231
+  },
+  "usage_increment": {
+    "cached_input_tokens": 12032,
+    "input_tokens": 26731,
+    "output_tokens": 4458,
+    "reasoning_output_tokens": 3624,
+    "total_tokens": 31189
+  },
+  "visible_candidate_ids": [
+    "8d423e6f9eefc11bb88bc83b0d41a2031e561f89c1bf3e87ba1555a5a66df2b7",
+    "7a74b74b140de24fa7692c3579ee8c06957b10091dee9a6c37d4722b1c6dda07",
+    "3648855b6308458a235b7515f326083af01e6b53fd58f74d56bf03024a0e83f7",
+    "7d0451aebcff494085e9e47f023d858af6a864b47c37f72cb89ee372dbd841c8"
+  ]
+}

@@ -1,0 +1,79 @@
+{
+  "artifact_path": "candidates/7c3ec0c75eb2a5577ba98cb8336f06c75024d0a575330241fe6ae59327f11418",
+  "candidate_id": "7c3ec0c75eb2a5577ba98cb8336f06c75024d0a575330241fe6ae59327f11418",
+  "codex_service_tier": "default",
+  "condition": "C1",
+  "conversation_session_id": null,
+  "evaluation": {
+    "evaluator_calls": 1,
+    "evaluator_seconds": 391.04406183282845,
+    "failure_kind": null,
+    "fitness": -1530.0,
+    "metrics": {
+      "accuracy": 0.9995999999999999,
+      "cases": 10010,
+      "correct": 10006,
+      "parameters": 1530,
+      "training_steps": 4999
+    },
+    "valid": true
+  },
+  "evaluator_calls_cumulative": 115,
+  "evaluator_calls_increment": 1,
+  "evaluator_seconds_cumulative": 48896.40251428797,
+  "evaluator_seconds_increment": 391.04406183282845,
+  "event": "proposal_completed",
+  "evicted_candidate_id": "500e7b99a3b0cc99f7511fd79615af374a2ecd605f7812570dc512376028cc21",
+  "evidence": "The 1,531-parameter design reached 99.94% accuracy while `fc1` already omits its final input coordinate in seven of twelve rows; the scale is unused in those rows and multiplicatively redundant with the five remaining trainable final-coordinate weights.",
+  "hypothesis": "Fixing `ln2` scale coordinate seven at its initialized value of one will reduce the model from 1,531 to 1,530 parameters while retaining at least 99% accuracy, because its effect can be absorbed by the corresponding trainable `fc1` coefficients.",
+  "incumbent_after": "7c3ec0c75eb2a5577ba98cb8336f06c75024d0a575330241fe6ae59327f11418",
+  "intended_edit": "Retain seven learned `ln2` scale coordinates and reconstruct the final coordinate as one during the forward pass.",
+  "mechanism": "Downstream-absorbed final LayerNorm scale",
+  "opportunity": 116,
+  "parent_ids": [
+    "500e7b99a3b0cc99f7511fd79615af374a2ecd605f7812570dc512376028cc21"
+  ],
+  "portfolio_after": [
+    "7c3ec0c75eb2a5577ba98cb8336f06c75024d0a575330241fe6ae59327f11418"
+  ],
+  "prompt_hashes": {
+    "common_template_sha256": "3f2bea6418b6969c4bf2aa1df18dcda8a3a4ac075bf20c79068c754698b6be5e",
+    "prompt_sha256": "76a1a46cb1a3961e1d6086ed7b820dc81cec8e04f454ee963f52d30d08ce240b",
+    "proposal_policy_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "search_state_sha256": "04e5eb078ae1964e4ec65bfeeeb1acd0ffa246e7d54d5e0f997f81f602da28c5",
+    "treatment_skeleton_sha256": "f938c8d6d638fc89fe8b6e25c8904029a1a445335172c16ae9a42072a88079b5"
+  },
+  "proposal_type": "ordinary",
+  "proposals_cumulative": 116,
+  "remaining_budget": {
+    "evaluations": 85,
+    "evaluator_seconds": 311103.59748571203,
+    "proposals": 84,
+    "tokens": 96848950
+  },
+  "retained": true,
+  "retention_decision": "strict_incumbent_improvement",
+  "run_id": "controlled-openevolve-transformer-v2-1-source-only-ten-digit-addition-pair-transformer-openevolve-v2-1-mps-openevolve-b01-c1",
+  "schema_version": "1.0",
+  "selected_parent_ids": [
+    "500e7b99a3b0cc99f7511fd79615af374a2ecd605f7812570dc512376028cc21"
+  ],
+  "timestamp": "2026-09-03T09:57:02.694964+00:00",
+  "usage_cumulative": {
+    "cached_input_tokens": 1208576,
+    "input_tokens": 2687273,
+    "output_tokens": 463777,
+    "reasoning_output_tokens": 372716,
+    "total_tokens": 3151050
+  },
+  "usage_increment": {
+    "cached_input_tokens": 10752,
+    "input_tokens": 24936,
+    "output_tokens": 3854,
+    "reasoning_output_tokens": 3469,
+    "total_tokens": 28790
+  },
+  "visible_candidate_ids": [
+    "500e7b99a3b0cc99f7511fd79615af374a2ecd605f7812570dc512376028cc21"
+  ]
+}

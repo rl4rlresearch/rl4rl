@@ -1,0 +1,79 @@
+{
+  "artifact_path": "candidates/a4d848dc2842671937f5167959074c8759d124a35ad8d1bf2419115683ce1ddc",
+  "candidate_id": "a4d848dc2842671937f5167959074c8759d124a35ad8d1bf2419115683ce1ddc",
+  "codex_service_tier": "default",
+  "condition": "C1",
+  "conversation_session_id": null,
+  "evaluation": {
+    "evaluator_calls": 1,
+    "evaluator_seconds": 786.494523917092,
+    "failure_kind": "nonqualification",
+    "fitness": null,
+    "metrics": {
+      "accuracy": 0.8448,
+      "cases": 10010,
+      "correct": 8456,
+      "parameters": 1577,
+      "training_steps": 4999
+    },
+    "valid": false
+  },
+  "evaluator_calls_cumulative": 47,
+  "evaluator_calls_increment": 1,
+  "evaluator_seconds_cumulative": 23266.09524749918,
+  "evaluator_seconds_increment": 786.494523917092,
+  "event": "proposal_completed",
+  "evicted_candidate_id": null,
+  "evidence": "Removing the first `fc1` bias scalar achieved 99.92% accuracy at 1,578 parameters, whereas pruning an additional `ln2` bias coordinate collapsed accuracy; this directly supports extending the successful downstream-bias removal while preserving the LayerNorm optimization pathway.",
+  "hypothesis": "Removing a second `fc1` bias scalar will reduce the model from 1,578 to 1,577 parameters while retaining at least 99% accuracy, because the preceding `ln2` retains six learned bias coordinates that can supply both omitted neuron offsets through `fc1`\u2019s learned weight rows.",
+  "incumbent_after": "0db570d96b3a92065765061257b3c3114441631ae43ba3a976488072b3a09a3c",
+  "intended_edit": "Replace the one-pruned MLP input linear layer with a two-pruned version that fixes its final two output-bias coordinates at zero while preserving its full weight matrix and all other model and training settings.",
+  "mechanism": "Incremental LayerNorm-beta/downstream-bias gauge reorientation",
+  "opportunity": 47,
+  "parent_ids": [
+    "0db570d96b3a92065765061257b3c3114441631ae43ba3a976488072b3a09a3c"
+  ],
+  "portfolio_after": [
+    "0db570d96b3a92065765061257b3c3114441631ae43ba3a976488072b3a09a3c"
+  ],
+  "prompt_hashes": {
+    "common_template_sha256": "3f2bea6418b6969c4bf2aa1df18dcda8a3a4ac075bf20c79068c754698b6be5e",
+    "prompt_sha256": "d1b8f935b95a63b976723bb3f827d351ca5966324fff8a8980f3447302b0a5ae",
+    "proposal_policy_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "search_state_sha256": "04e5eb078ae1964e4ec65bfeeeb1acd0ffa246e7d54d5e0f997f81f602da28c5",
+    "treatment_skeleton_sha256": "0ee334abaabc2deb1a2c746449b03976b1f84a2a65eaf3247c0fcd5d91e62e79"
+  },
+  "proposal_type": "ordinary",
+  "proposals_cumulative": 47,
+  "remaining_budget": {
+    "evaluations": 153,
+    "evaluator_seconds": 336733.9047525008,
+    "proposals": 153,
+    "tokens": 98784858
+  },
+  "retained": false,
+  "retention_decision": "invalid",
+  "run_id": "controlled-openevolve-transformer-v2-1-source-only-ten-digit-addition-pair-transformer-openevolve-v2-1-mps-openevolve-b01-c1",
+  "schema_version": "1.0",
+  "selected_parent_ids": [
+    "0db570d96b3a92065765061257b3c3114441631ae43ba3a976488072b3a09a3c"
+  ],
+  "timestamp": "2026-08-24T16:21:53.411957+00:00",
+  "usage_cumulative": {
+    "cached_input_tokens": 492288,
+    "input_tokens": 1030457,
+    "output_tokens": 184685,
+    "reasoning_output_tokens": 154395,
+    "total_tokens": 1215142
+  },
+  "usage_increment": {
+    "cached_input_tokens": 12032,
+    "input_tokens": 23389,
+    "output_tokens": 711,
+    "reasoning_output_tokens": 239,
+    "total_tokens": 24100
+  },
+  "visible_candidate_ids": [
+    "0db570d96b3a92065765061257b3c3114441631ae43ba3a976488072b3a09a3c"
+  ]
+}

@@ -1,0 +1,82 @@
+{
+  "artifact_path": "candidates/95728985013fd9e1cfec4eb8e3d2c24c475c3a287aad6464397514f68717aa91",
+  "candidate_id": "95728985013fd9e1cfec4eb8e3d2c24c475c3a287aad6464397514f68717aa91",
+  "codex_service_tier": "default",
+  "condition": "C1",
+  "conversation_session_id": null,
+  "evaluation": {
+    "evaluator_calls": 1,
+    "evaluator_seconds": 368.67291785699854,
+    "failure_kind": null,
+    "fitness": -0.984083,
+    "metrics": {
+      "depth": 8.0,
+      "mfu_percent": 38.58,
+      "num_params_M": 50.3,
+      "num_steps": 2156.0,
+      "peak_vram_mb": 39356.7,
+      "total_tokens_M": 494.5,
+      "training_seconds": 300.1,
+      "val_bpb": 0.984083
+    },
+    "valid": true
+  },
+  "evaluator_calls_cumulative": 38,
+  "evaluator_calls_increment": 1,
+  "evaluator_seconds_cumulative": 17829.021612288023,
+  "evaluator_seconds_increment": 368.67291785699854,
+  "event": "proposal_completed",
+  "evicted_candidate_id": "fec1ef429620b33ffdd89eedd4dc590b06e3b24777b48f242296b09bba44638b",
+  "evidence": "Promoting layer 6 to full context nearly matched the winner at 0.984308 despite processing 2.8M fewer tokens, suggesting useful late-context capacity with excessive compute cost; widening all local layers regressed to 0.985663, motivating a concentrated intermediate window.",
+  "hypothesis": "Giving only layer 6 a 1024-token attention window will reduce val_bpb below 0.984227 by retaining useful late-context refinement without the throughput cost of another full-context layer.",
+  "incumbent_after": "95728985013fd9e1cfec4eb8e3d2c24c475c3a287aad6464397514f68717aa91",
+  "intended_edit": "Add a medium-window pattern symbol and change layer 6 from a 512-token local window to a 1024-token window, preserving the proven full-context layers at indices 3, 5, and 7.",
+  "mechanism": "Concentrated medium-context late refinement",
+  "opportunity": 38,
+  "parent_ids": [
+    "fec1ef429620b33ffdd89eedd4dc590b06e3b24777b48f242296b09bba44638b"
+  ],
+  "portfolio_after": [
+    "95728985013fd9e1cfec4eb8e3d2c24c475c3a287aad6464397514f68717aa91"
+  ],
+  "prompt_hashes": {
+    "common_template_sha256": "ba85b39aa7288f4f48475376da6cff65661f39cfeb7ac7cde15b2a9a2e692fde",
+    "prompt_sha256": "16aab12ac1bc3d07169587635cf6946857c517e74494a69aea887246c3f455c2",
+    "proposal_policy_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "search_state_sha256": "04e5eb078ae1964e4ec65bfeeeb1acd0ffa246e7d54d5e0f997f81f602da28c5",
+    "treatment_skeleton_sha256": "04c6f1299ab637181b417f8e46fbdb52779d4c189a412631264fef626db2ee20"
+  },
+  "proposal_type": "ordinary",
+  "proposals_cumulative": 38,
+  "remaining_budget": {
+    "evaluations": 162,
+    "evaluator_seconds": 702170.978387712,
+    "proposals": 162,
+    "tokens": 98993082
+  },
+  "retained": true,
+  "retention_decision": "strict_incumbent_improvement",
+  "run_id": "nanogpt-openevolve-v2-1-h100-karpathy_nanogpt_source_only_h100-openevolve-b03-c1",
+  "schema_version": "1.0",
+  "selected_parent_ids": [
+    "fec1ef429620b33ffdd89eedd4dc590b06e3b24777b48f242296b09bba44638b"
+  ],
+  "timestamp": "2026-08-24T06:52:13.743707+00:00",
+  "usage_cumulative": {
+    "cached_input_tokens": 442112,
+    "input_tokens": 923149,
+    "output_tokens": 83769,
+    "reasoning_output_tokens": 73629,
+    "total_tokens": 1006918
+  },
+  "usage_increment": {
+    "cached_input_tokens": 6912,
+    "input_tokens": 24824,
+    "output_tokens": 4624,
+    "reasoning_output_tokens": 4235,
+    "total_tokens": 29448
+  },
+  "visible_candidate_ids": [
+    "fec1ef429620b33ffdd89eedd4dc590b06e3b24777b48f242296b09bba44638b"
+  ]
+}

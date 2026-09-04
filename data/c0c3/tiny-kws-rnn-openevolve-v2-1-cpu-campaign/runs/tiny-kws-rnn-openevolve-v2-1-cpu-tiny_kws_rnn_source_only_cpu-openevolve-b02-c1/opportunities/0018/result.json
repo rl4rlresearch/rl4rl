@@ -1,0 +1,99 @@
+{
+  "artifact_path": "candidates/ff9b3069d2d804c5f3ab634e769ffd2e331ab766c6bf8911afcf3faff7ddcd48",
+  "candidate_id": "ff9b3069d2d804c5f3ab634e769ffd2e331ab766c6bf8911afcf3faff7ddcd48",
+  "codex_service_tier": "default",
+  "condition": "C1",
+  "conversation_session_id": null,
+  "evaluation": {
+    "evaluator_calls": 1,
+    "evaluator_seconds": 86.94129587500356,
+    "failure_kind": "nonqualification",
+    "fitness": null,
+    "metrics": {
+      "batch_size": 128,
+      "evaluation_cases": 815,
+      "evaluation_split": "public_speaker_disjoint_validation",
+      "examples_processed": 50000,
+      "inference_cost": 3502704077764040712,
+      "maximum_recurrent_steps": 29,
+      "mean_recurrent_steps": 29.0,
+      "median_recurrent_steps": 29,
+      "optimizer_steps": 397,
+      "p95_recurrent_steps": 29,
+      "parameters": 29977,
+      "peak_hidden_elements": 122368,
+      "recurrent_logit_effect": 0.05892529338598251,
+      "recurrent_macs": 670832205,
+      "recurrent_steps": 23635,
+      "state_dependence_effect": 0.32659006118774414,
+      "state_update_effect": 0.3427595794200897,
+      "total_inference_macs": 671511100,
+      "trained_recurrent_logit_effect": 0.8371638059616089,
+      "trained_state_dependence_effect": 0.38917258381843567,
+      "trained_state_update_effect": 0.39353835582733154,
+      "training_seconds": 69.34918704093434,
+      "validation_accuracy": 0.8441717791411043,
+      "validation_correct": 688,
+      "validation_cross_entropy": 0.481317831402176
+    },
+    "valid": false
+  },
+  "evaluator_calls_cumulative": 18,
+  "evaluator_calls_increment": 1,
+  "evaluator_seconds_cumulative": 2367.0491076684557,
+  "evaluator_seconds_increment": 86.94129587500356,
+  "event": "proposal_completed",
+  "evicted_candidate_id": null,
+  "evidence": "The 60+59 GRU over frames 3\u201331 met the target at 85.03% accuracy; softmax is invariant to subtracting one class logit from every logit, so fixing that reference logit to zero removes redundant learned computation without reducing representational capacity.",
+  "hypothesis": "Representing eight-class softmax probabilities with seven learned logits and one fixed-zero reference logit will retain at least 85% validation accuracy while reducing classifier MACs by 119 per example and learned parameters by 120.",
+  "incumbent_after": "ac21c3198549f046b2738837fd9f39d002d3990f83bba5f6c0a5bf7a4b3dd98f",
+  "intended_edit": "Change the classifier from eight outputs to seven and append a fixed-zero eighth logit, preserving the full softmax function class and the verified 29-step recurrent architecture.",
+  "mechanism": "Reference-class logit gauge fixing",
+  "opportunity": 18,
+  "parent_ids": [
+    "ac21c3198549f046b2738837fd9f39d002d3990f83bba5f6c0a5bf7a4b3dd98f"
+  ],
+  "portfolio_after": [
+    "ac21c3198549f046b2738837fd9f39d002d3990f83bba5f6c0a5bf7a4b3dd98f"
+  ],
+  "prompt_hashes": {
+    "common_template_sha256": "dee04faf4c430276c1036ba97f5705a339857dbdf19117dac88952a5a3a47e9d",
+    "prompt_sha256": "f4d775374362975e0ad49f85c9933e805c787a921082101af67d04d7863600f7",
+    "proposal_policy_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "search_state_sha256": "04e5eb078ae1964e4ec65bfeeeb1acd0ffa246e7d54d5e0f997f81f602da28c5",
+    "treatment_skeleton_sha256": "4d3d0baa4e3ce99606aea8f9a9ea81a0432846a23e0a07370e94cd51d52d18f6"
+  },
+  "proposal_type": "ordinary",
+  "proposals_cumulative": 18,
+  "remaining_budget": {
+    "evaluations": 182,
+    "evaluator_seconds": 57632.950892331544,
+    "proposals": 182,
+    "tokens": 99627420
+  },
+  "retained": false,
+  "retention_decision": "invalid",
+  "run_id": "tiny-kws-rnn-openevolve-v2-1-cpu-tiny_kws_rnn_source_only_cpu-openevolve-b02-c1",
+  "schema_version": "1.0",
+  "selected_parent_ids": [
+    "ac21c3198549f046b2738837fd9f39d002d3990f83bba5f6c0a5bf7a4b3dd98f"
+  ],
+  "timestamp": "2026-09-04T03:40:54.549718+00:00",
+  "usage_cumulative": {
+    "cached_input_tokens": 193536,
+    "input_tokens": 336380,
+    "output_tokens": 36200,
+    "reasoning_output_tokens": 28311,
+    "total_tokens": 372580
+  },
+  "usage_increment": {
+    "cached_input_tokens": 10752,
+    "input_tokens": 20015,
+    "output_tokens": 2126,
+    "reasoning_output_tokens": 1818,
+    "total_tokens": 22141
+  },
+  "visible_candidate_ids": [
+    "ac21c3198549f046b2738837fd9f39d002d3990f83bba5f6c0a5bf7a4b3dd98f"
+  ]
+}

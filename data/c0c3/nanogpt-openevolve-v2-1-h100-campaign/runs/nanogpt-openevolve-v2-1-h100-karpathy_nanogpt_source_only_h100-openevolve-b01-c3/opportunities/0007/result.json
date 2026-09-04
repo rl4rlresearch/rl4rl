@@ -1,0 +1,88 @@
+{
+  "artifact_path": "candidates/6a6210e0bb9080342083a1d8625eb66b940fbb50117020c4302fe8ca68746204",
+  "candidate_id": "6a6210e0bb9080342083a1d8625eb66b940fbb50117020c4302fe8ca68746204",
+  "codex_service_tier": "fast",
+  "condition": "C3",
+  "conversation_session_id": null,
+  "evaluation": {
+    "evaluator_calls": 1,
+    "evaluator_seconds": 458.41270178000013,
+    "failure_kind": null,
+    "fitness": -1.018396,
+    "metrics": {
+      "depth": 8.0,
+      "mfu_percent": 29.22,
+      "num_params_M": 39.8,
+      "num_steps": 741.0,
+      "peak_vram_mb": 41364.2,
+      "total_tokens_M": 388.5,
+      "training_seconds": 300.2,
+      "val_bpb": 1.018396
+    },
+    "valid": true
+  },
+  "evaluator_calls_cumulative": 7,
+  "evaluator_calls_increment": 1,
+  "evaluator_seconds_cumulative": 2677.880338953998,
+  "evaluator_seconds_increment": 458.41270178000013,
+  "event": "proposal_completed",
+  "evicted_candidate_id": null,
+  "evidence": "SSSS achieved essentially unchanged throughput (496.5M versus 497.0M tokens) while worsening val_bpb to 0.997009, so reducing attention context is ineffective; compressing K/V compute while preserving the successful context allocation is the clearest untested efficiency change.",
+  "hypothesis": "Halving the KV-head count while restoring SSSL will reduce projection and value-embedding cost enough to process more than 497M tokens and achieve val_bpb below 0.995558 without sacrificing query-head capacity.",
+  "incumbent_after": "2865e528e18dc51191e4037eaeb5824cb0ea83ede79061b59b8f3caac686da6b",
+  "intended_edit": "Restore the best-performing SSSL attention pattern and use two KV heads shared across four query heads.",
+  "mechanism": "Grouped-query KV compression with restored full-context layers",
+  "opportunity": 7,
+  "parent_ids": [
+    "4b4b8eda44d73f74c14a1179ff73edf4e434066ed7ceb8d4d058a3b6d07e3236"
+  ],
+  "portfolio_after": [
+    "2865e528e18dc51191e4037eaeb5824cb0ea83ede79061b59b8f3caac686da6b",
+    "005b27c638e8ced7b681518a1df47186e926fc1a87b4dda0797371df3c14496a",
+    "1dfdda4e155579415df2f0419942e6ec1d5989a12399f914d7984eed7a57ffdf",
+    "4b4b8eda44d73f74c14a1179ff73edf4e434066ed7ceb8d4d058a3b6d07e3236"
+  ],
+  "prompt_hashes": {
+    "common_template_sha256": "ba85b39aa7288f4f48475376da6cff65661f39cfeb7ac7cde15b2a9a2e692fde",
+    "prompt_sha256": "e0c17485f002092cab910ef804a0f2eed99108fdc743acf6a30270bfd6666b5b",
+    "proposal_policy_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "search_state_sha256": "c938ac007bf70fe8d27f64661175531e51fcb16b38318c328493c32ee292e27e",
+    "treatment_skeleton_sha256": "fa14a7734c023a5b80d055364446ac36cf00b8e01c52ec5b702ea043091b0c2e"
+  },
+  "proposal_type": "ordinary",
+  "proposals_cumulative": 7,
+  "remaining_budget": {
+    "evaluations": 193,
+    "evaluator_seconds": 717322.119661046,
+    "proposals": 193,
+    "tokens": 99712116
+  },
+  "retained": false,
+  "retention_decision": "not_strictly_better_than_selected_parent",
+  "run_id": "nanogpt-openevolve-v2-1-h100-karpathy_nanogpt_source_only_h100-openevolve-b01-c3",
+  "schema_version": "1.0",
+  "selected_parent_ids": [
+    "4b4b8eda44d73f74c14a1179ff73edf4e434066ed7ceb8d4d058a3b6d07e3236"
+  ],
+  "timestamp": "2026-08-23T14:50:40.255679+00:00",
+  "usage_cumulative": {
+    "cached_input_tokens": 84224,
+    "input_tokens": 268405,
+    "output_tokens": 19479,
+    "reasoning_output_tokens": 17218,
+    "total_tokens": 287884
+  },
+  "usage_increment": {
+    "cached_input_tokens": 12032,
+    "input_tokens": 45375,
+    "output_tokens": 2345,
+    "reasoning_output_tokens": 1990,
+    "total_tokens": 47720
+  },
+  "visible_candidate_ids": [
+    "2865e528e18dc51191e4037eaeb5824cb0ea83ede79061b59b8f3caac686da6b",
+    "005b27c638e8ced7b681518a1df47186e926fc1a87b4dda0797371df3c14496a",
+    "1dfdda4e155579415df2f0419942e6ec1d5989a12399f914d7984eed7a57ffdf",
+    "4b4b8eda44d73f74c14a1179ff73edf4e434066ed7ceb8d4d058a3b6d07e3236"
+  ]
+}

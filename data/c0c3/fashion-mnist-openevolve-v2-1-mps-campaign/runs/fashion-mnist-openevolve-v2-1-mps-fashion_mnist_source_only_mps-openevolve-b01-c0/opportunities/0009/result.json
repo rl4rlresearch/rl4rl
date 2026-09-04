@@ -1,0 +1,85 @@
+{
+  "artifact_path": "candidates/39270d8fa5e586ef6c403a6acc961a81ae5844874e21809db110d3d5fd490c07",
+  "candidate_id": "39270d8fa5e586ef6c403a6acc961a81ae5844874e21809db110d3d5fd490c07",
+  "codex_service_tier": "fast",
+  "condition": "C0",
+  "conversation_session_id": null,
+  "evaluation": {
+    "evaluator_calls": 1,
+    "evaluator_seconds": 69.30443474999629,
+    "failure_kind": null,
+    "fitness": 9187.40297354781,
+    "metrics": {
+      "batch_size": 48,
+      "evaluation_cases": 10000,
+      "evaluation_split": "public_validation",
+      "examples_processed": 100000,
+      "optimizer_steps": 2084,
+      "parameters": 216346,
+      "training_seconds": 58.067536499816924,
+      "validation_accuracy": 0.9187,
+      "validation_correct": 9187,
+      "validation_cross_entropy": 0.24077623138427734,
+      "validation_score": 9187.40297354781
+    },
+    "valid": true
+  },
+  "evaluator_calls_cumulative": 9,
+  "evaluator_calls_increment": 1,
+  "evaluator_seconds_cumulative": 493.19849275122397,
+  "evaluator_seconds_increment": 69.30443474999629,
+  "event": "proposal_completed",
+  "evicted_candidate_id": null,
+  "evidence": "Reducing batch size from 128 to 64 improved validation correct from 9,177 to 9,188, but batch size 32 timed out; batch size 48 tests an intermediate increase in update count with substantially less runtime risk.",
+  "hypothesis": "Batch size 48 will exceed 9,188 correct predictions by providing about 2,084 optimizer updates while retaining sufficient throughput to finish verification; exposure-matched learning rates and EMA decay will preserve the stability of the successful batch-64 design.",
+  "incumbent_after": "91d01908c01f0f1d8054fcc35b42c82690940b8f6175177b880cec32e9a43f6a",
+  "intended_edit": "Reduce batch size from 64 to 48, scale learning rates by \u221a(48/64), and increase EMA decay to 0.9925 to maintain approximately the same averaging horizon in examples.",
+  "mechanism": "Intermediate smaller-batch optimization with exposure-matched learning rate and EMA",
+  "opportunity": 9,
+  "parent_ids": [
+    "91d01908c01f0f1d8054fcc35b42c82690940b8f6175177b880cec32e9a43f6a"
+  ],
+  "portfolio_after": [
+    "91d01908c01f0f1d8054fcc35b42c82690940b8f6175177b880cec32e9a43f6a"
+  ],
+  "prompt_hashes": {
+    "common_template_sha256": "e8327ba94bab12abc7c7ec7c6615378a3ae62434efb944d4a7d9492f1d19bc14",
+    "prompt_sha256": "0679821b1f623da2c88c18c8f9ef91107b323e6631ab46d6477f9987b8906e58",
+    "proposal_policy_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "search_state_sha256": "04e5eb078ae1964e4ec65bfeeeb1acd0ffa246e7d54d5e0f997f81f602da28c5",
+    "treatment_skeleton_sha256": "172407894b91b92e389453633e1244d407728c4f83ff4a8a72e318e8b86cee85"
+  },
+  "proposal_type": "ordinary",
+  "proposals_cumulative": 9,
+  "remaining_budget": {
+    "evaluations": 191,
+    "evaluator_seconds": 23506.801507248776,
+    "proposals": 191,
+    "tokens": 99821495
+  },
+  "retained": false,
+  "retention_decision": "not_strictly_better_than_incumbent",
+  "run_id": "fashion-mnist-openevolve-v2-1-mps-fashion_mnist_source_only_mps-openevolve-b01-c0",
+  "schema_version": "1.0",
+  "selected_parent_ids": [
+    "91d01908c01f0f1d8054fcc35b42c82690940b8f6175177b880cec32e9a43f6a"
+  ],
+  "timestamp": "2026-08-24T00:18:09.419344+00:00",
+  "usage_cumulative": {
+    "cached_input_tokens": 106240,
+    "input_tokens": 152914,
+    "output_tokens": 25591,
+    "reasoning_output_tokens": 20210,
+    "total_tokens": 178505
+  },
+  "usage_increment": {
+    "cached_input_tokens": 9984,
+    "input_tokens": 18261,
+    "output_tokens": 1257,
+    "reasoning_output_tokens": 934,
+    "total_tokens": 19518
+  },
+  "visible_candidate_ids": [
+    "91d01908c01f0f1d8054fcc35b42c82690940b8f6175177b880cec32e9a43f6a"
+  ]
+}

@@ -1,0 +1,1406 @@
+{
+  "active": null,
+  "candidates": {
+    "070c54388c25295b2ae34ddc653997d80510f4bc8d583b92c46b5a333143dcb1": {
+      "artifact_path": "candidates/070c54388c25295b2ae34ddc653997d80510f4bc8d583b92c46b5a333143dcb1",
+      "candidate_id": "070c54388c25295b2ae34ddc653997d80510f4bc8d583b92c46b5a333143dcb1",
+      "created_opportunity": 118,
+      "fitness": -1567.0,
+      "hypothesis": "Fixing `proj.weight[0,2]` alongside the successful component-zero anchors will produce a 1567-parameter model with at least 99% accuracy, because the removed projection coefficient contributes only a feature-uniform residual shift, and component 2 previously tolerated a QKV gauge reduction while component 1 did not.",
+      "intended_edit": "Store 61 learned attention-output projection weights, reconstruct `proj.weight[0,0]`, `[0,2]`, and `[0,4]` as zeros, and canonicalize all three columns at initialization.",
+      "metrics": {
+        "accuracy": 0.9989,
+        "cases": 10010,
+        "correct": 9999,
+        "parameters": 1567,
+        "training_steps": 4999
+      },
+      "parent_ids": [
+        "36af129e387359a2a2df7a38ac23da4542be8479b63952bed4bf66008aeb257e"
+      ],
+      "retained_order": 118,
+      "selected_count": 10
+    },
+    "0c5739da9f29148e1e6269ddc9aed365a62c24fd7d53dc756ee0ead7226bed9b": {
+      "artifact_path": "candidates/0c5739da9f29148e1e6269ddc9aed365a62c24fd7d53dc756ee0ead7226bed9b",
+      "candidate_id": "0c5739da9f29148e1e6269ddc9aed365a62c24fd7d53dc756ee0ead7226bed9b",
+      "created_opportunity": 3,
+      "fitness": -1636.0,
+      "hypothesis": "Removing only the attention key bias will reduce parameters from 1644 to 1636 while retaining at least 99% accuracy, because a shared key bias adds the same query-dependent constant to every unmasked attention logit and therefore cancels exactly in softmax.",
+      "intended_edit": "Replace the combined QKV bias with learned query and value biases, preserving the combined QKV weight, all LayerNorm affine parameters, and the original feed-forward width.",
+      "metrics": {
+        "accuracy": 0.9995,
+        "cases": 10010,
+        "correct": 10005,
+        "parameters": 1636,
+        "training_steps": 4999
+      },
+      "parent_ids": [
+        "2b9cea175ed60b009337ac54f6e8ad23bf2c014eb4080237777bfb70bfd9fd5b"
+      ],
+      "retained_order": 3,
+      "selected_count": 2
+    },
+    "0cd0e7c2f0668eb689fbe16e00240ee6dcdeb5eb30639e94bac7f611e00b41ef": {
+      "artifact_path": "candidates/0cd0e7c2f0668eb689fbe16e00240ee6dcdeb5eb30639e94bac7f611e00b41ef",
+      "candidate_id": "0cd0e7c2f0668eb689fbe16e00240ee6dcdeb5eb30639e94bac7f611e00b41ef",
+      "created_opportunity": 91,
+      "fitness": -1582.0,
+      "hypothesis": "Fixing `qkv.weight[1,0]` at 0.02 with reciprocal scaling of head-0 key row 1 will reduce the model to 1582 parameters while retaining at least 99% accuracy, because it preserves initial attention scores without eliminating the query direction that the prior zero anchor removed.",
+      "intended_edit": "Store 188 learned QKV weights, reconstruct weights 0 and 2 as zero and weights 4 and 8 as 0.02, then initialize query/key row 1 with reciprocal scaling.",
+      "metrics": {
+        "accuracy": 0.9993000000000001,
+        "cases": 10010,
+        "correct": 10003,
+        "parameters": 1582,
+        "training_steps": 4999
+      },
+      "parent_ids": [
+        "917487b069e4291da9c1684f0ed472d198a441de04c2ecc4604c4c964f8d1aec"
+      ],
+      "retained_order": 91,
+      "selected_count": 1
+    },
+    "0d77b960a8aad706bf8f3f9f7dbf1dcb42b412b5186486bdf95c609d65f84ddf": {
+      "artifact_path": "candidates/0d77b960a8aad706bf8f3f9f7dbf1dcb42b412b5186486bdf95c609d65f84ddf",
+      "candidate_id": "0d77b960a8aad706bf8f3f9f7dbf1dcb42b412b5186486bdf95c609d65f84ddf",
+      "created_opportunity": 18,
+      "fitness": -1625.0,
+      "hypothesis": "Expanding to three shared embedding coordinates while detaching only the third coordinate\u2019s positional gradient will reduce the model from 1626 to 1625 parameters and achieve at least 99% accuracy, because it preserves the exact token/position gauge constraint but avoids the conflicting joint optimization pathway implicated by the coupled third anchor.",
+      "intended_edit": "Retain the two successful bidirectionally trained anchors, add a third shared coordinate initialized by the same gauge-preserving transformation, and train that new scalar only through the token/input-output embedding pathway.",
+      "metrics": {
+        "accuracy": 0.9995,
+        "cases": 10010,
+        "correct": 10005,
+        "parameters": 1625,
+        "training_steps": 4999
+      },
+      "parent_ids": [
+        "d02b55b6603d9ade34d0e0f441edc3fc63609e6115c52d862b952879efa57aa3"
+      ],
+      "retained_order": 18,
+      "selected_count": 2
+    },
+    "0f7da1df25a129e162ad733a79aa672076f441d5126eefa2e51af596f4d1c9ad": {
+      "artifact_path": "candidates/0f7da1df25a129e162ad733a79aa672076f441d5126eefa2e51af596f4d1c9ad",
+      "candidate_id": "0f7da1df25a129e162ad733a79aa672076f441d5126eefa2e51af596f4d1c9ad",
+      "created_opportunity": 134,
+      "fitness": -1562.0,
+      "hypothesis": "Fixing `qkv.weight[1,1]` at zero through query row 3\u2019s verified `0.02` pivot will reduce the model to 1562 parameters while retaining at least 99% accuracy, because the compensating key-row shear preserves every attention score and does not disturb existing row-1 anchors.",
+      "intended_edit": "Store 175 learned QKV weights, reconstruct `qkv.weight[1,1]` as zero, and canonicalize initialization by shearing query row 1 against row 3 while applying the inverse shear to key row 11.",
+      "metrics": {
+        "accuracy": 0.9998999999999999,
+        "cases": 10010,
+        "correct": 10009,
+        "parameters": 1562,
+        "training_steps": 4999
+      },
+      "parent_ids": [
+        "ceeb6644ab29b348f756b931274b5be14bd454e6cc50a6e45bd82842060ef0a6"
+      ],
+      "retained_order": 134,
+      "selected_count": 18
+    },
+    "107bce4f90de49ea8e03d01ba0a0bef454212092d6b4b064d5ca24328d2d03d0": {
+      "artifact_path": "candidates/107bce4f90de49ea8e03d01ba0a0bef454212092d6b4b064d5ca24328d2d03d0",
+      "candidate_id": "107bce4f90de49ea8e03d01ba0a0bef454212092d6b4b064d5ca24328d2d03d0",
+      "created_opportunity": 77,
+      "fitness": -1588.0,
+      "hypothesis": "Fixing `ln1.weight[6]` alongside coordinates 0, 2, and 4 will reduce the model from 1589 to 1588 parameters while retaining at least 99% accuracy, because every tested even gain coordinate so far has been removable whereas coordinates 1 and 3 failed.",
+      "intended_edit": "Store four learned first-LayerNorm gains and reconstruct gain coordinates 0, 2, 4, and 6 as fixed ones, while continuing to fix shift coordinate 3.",
+      "metrics": {
+        "accuracy": 0.9990000000000001,
+        "cases": 10010,
+        "correct": 10000,
+        "parameters": 1588,
+        "training_steps": 4999
+      },
+      "parent_ids": [
+        "600ea7294f835194fa5064d65371ac8ad24f3f9be36e3a480349c2548afaa26b"
+      ],
+      "retained_order": 77,
+      "selected_count": 1
+    },
+    "1179220e3f6073988fbe8e47b734b4b56007042dd99a79771560870e47d66df1": {
+      "artifact_path": "candidates/1179220e3f6073988fbe8e47b734b4b56007042dd99a79771560870e47d66df1",
+      "candidate_id": "1179220e3f6073988fbe8e47b734b4b56007042dd99a79771560870e47d66df1",
+      "created_opportunity": 82,
+      "fitness": -1586.0,
+      "hypothesis": "Reusing gain 1 for gain 7 while detaching the coordinate-7 branch will achieve at least 99% accuracy with 1586 parameters; ordinary sharing reached 98.67% versus 96.28% when fixed, suggesting the learned value helps but its additional gradient may create harmful optimization interference.",
+      "intended_edit": "Store only gains 1 and 3, reconstruct gain 7 from a detached view of gain 1, and keep gains 0, 2, 4, 5, and 6 fixed.",
+      "metrics": {
+        "accuracy": 0.9990000000000001,
+        "cases": 10010,
+        "correct": 10000,
+        "parameters": 1586,
+        "training_steps": 4999
+      },
+      "parent_ids": [
+        "356bc3474761d46f8469a1819c2396b701ba4be98de14b7ba092180614b86743"
+      ],
+      "retained_order": 82,
+      "selected_count": 2
+    },
+    "19b66b09f353fbc8b805045902fc1593d327e6a7f1b4561d402972a39ba876fe": {
+      "artifact_path": "candidates/19b66b09f353fbc8b805045902fc1593d327e6a7f1b4561d402972a39ba876fe",
+      "candidate_id": "19b66b09f353fbc8b805045902fc1593d327e6a7f1b4561d402972a39ba876fe",
+      "created_opportunity": 50,
+      "fitness": -1602.0,
+      "hypothesis": "Fixing coordinate 4 of `fc1.bias` at zero will reduce the model from 1603 to 1602 parameters while retaining at least 99% accuracy, because coordinates 0 through 3 were removed consecutively with at least 99.95% accuracy and the hidden units have symmetric initialization.",
+      "intended_edit": "Replace the first MLP projection\u2019s eight learned bias coordinates with seven, reconstructing bias coordinates 0 through 4 as fixed zeros while preserving ordinary linear-layer initialization RNG use.",
+      "metrics": {
+        "accuracy": 0.9987,
+        "cases": 10010,
+        "correct": 9997,
+        "parameters": 1602,
+        "training_steps": 4999
+      },
+      "parent_ids": [
+        "46aa4e23e8136a57448806ea975d01b0ee300fd6c74cd82a4548fae243f9ffb2"
+      ],
+      "retained_order": 50,
+      "selected_count": 1
+    },
+    "1d55e1491fdad0e877de561b1158c5f8efb2a129d3ec866d3591262edc3060e3": {
+      "artifact_path": "candidates/1d55e1491fdad0e877de561b1158c5f8efb2a129d3ec866d3591262edc3060e3",
+      "candidate_id": "1d55e1491fdad0e877de561b1158c5f8efb2a129d3ec866d3591262edc3060e3",
+      "created_opportunity": 21,
+      "fitness": -1623.0,
+      "hypothesis": "Adding a detached-position fifth anchor between `token[2, 4]` and `position[0, 4]` will reduce the model from 1624 to 1623 parameters while retaining at least 99% accuracy, because distributing the fourth anchor to a separate token row restored accuracy to 99.98%, and this applies the same exact gauge symmetry without concentrating another constraint on an existing endpoint.",
+      "intended_edit": "Expand the shared embedding representation to five anchors, placing the new coordinate on token row 2 and detaching its positional gradient while preserving gauge-equivalent initialization.",
+      "metrics": {
+        "accuracy": 0.9994,
+        "cases": 10010,
+        "correct": 10004,
+        "parameters": 1623,
+        "training_steps": 4999
+      },
+      "parent_ids": [
+        "38b7a86e0c566c6211b00ba236dcff3c6331b828055321beb28a50a05d83453e"
+      ],
+      "retained_order": 21,
+      "selected_count": 1
+    },
+    "2047ce6d50495cf53869f6d0ca7394a4195b43fd24fd563d4d08b8cdd84563e0": {
+      "artifact_path": "candidates/2047ce6d50495cf53869f6d0ca7394a4195b43fd24fd563d4d08b8cdd84563e0",
+      "candidate_id": "2047ce6d50495cf53869f6d0ca7394a4195b43fd24fd563d4d08b8cdd84563e0",
+      "created_opportunity": 46,
+      "fitness": -1605.0,
+      "hypothesis": "Fixing coordinate 1 of `fc1.bias` at zero will reduce the model from 1606 to 1605 parameters while retaining at least 99% accuracy, because the second remaining learned pre-MLP LayerNorm shift provides another independent degree of freedom for absorbing a hidden-unit bias constraint.",
+      "intended_edit": "Replace the first MLP projection\u2019s eleven learned bias coordinates with ten, reconstructing bias coordinates 0 and 1 as fixed zeros while preserving ordinary linear-layer initialization RNG use.",
+      "metrics": {
+        "accuracy": 0.9995,
+        "cases": 10010,
+        "correct": 10005,
+        "parameters": 1605,
+        "training_steps": 4999
+      },
+      "parent_ids": [
+        "95d3cad48166bbaeb1940d8ece011906544a2967d7ac99c5f6ec2025558490f6"
+      ],
+      "retained_order": 46,
+      "selected_count": 2
+    },
+    "2b9cea175ed60b009337ac54f6e8ad23bf2c014eb4080237777bfb70bfd9fd5b": {
+      "artifact_path": "candidates/2b9cea175ed60b009337ac54f6e8ad23bf2c014eb4080237777bfb70bfd9fd5b",
+      "candidate_id": "2b9cea175ed60b009337ac54f6e8ad23bf2c014eb4080237777bfb70bfd9fd5b",
+      "created_opportunity": 0,
+      "fitness": -1644.0,
+      "hypothesis": "frozen seed baseline",
+      "intended_edit": "none",
+      "metrics": {
+        "accuracy": 0.9995999999999999,
+        "cases": 10010,
+        "correct": 10006,
+        "parameters": 1644,
+        "training_steps": 4999
+      },
+      "parent_ids": [],
+      "retained_order": 0,
+      "selected_count": 3
+    },
+    "34d312e2c4f4c2e0bdd72957d20039df47c2f46a3305df71dc6bc0c359ece0fa": {
+      "artifact_path": "candidates/34d312e2c4f4c2e0bdd72957d20039df47c2f46a3305df71dc6bc0c359ece0fa",
+      "candidate_id": "34d312e2c4f4c2e0bdd72957d20039df47c2f46a3305df71dc6bc0c359ece0fa",
+      "created_opportunity": 113,
+      "fitness": -1570.0,
+      "hypothesis": "Fixing `qkv.weight[8,3]` at zero will produce a 1570-parameter model with at least 99% accuracy, because it is the head-0 counterpart of the successful `qkv.weight[12,3]` anchor and removes the same softmax-invariant key-row direction.",
+      "intended_edit": "Store 179 learned QKV weights, reconstruct `qkv.weight[8,3]` as zero, and canonicalize its initialized key row after the existing score-preserving scale and shear transformations.",
+      "metrics": {
+        "accuracy": 0.9945999999999999,
+        "cases": 10010,
+        "correct": 9956,
+        "parameters": 1570,
+        "training_steps": 4999
+      },
+      "parent_ids": [
+        "d51bf74c97477d2666fc9b424cddad8868b2d632eaf4863918fa2e1b7a555198"
+      ],
+      "retained_order": 113,
+      "selected_count": 2
+    },
+    "356bc3474761d46f8469a1819c2396b701ba4be98de14b7ba092180614b86743": {
+      "artifact_path": "candidates/356bc3474761d46f8469a1819c2396b701ba4be98de14b7ba092180614b86743",
+      "candidate_id": "356bc3474761d46f8469a1819c2396b701ba4be98de14b7ba092180614b86743",
+      "created_opportunity": 78,
+      "fitness": -1587.0,
+      "hypothesis": "Fixing `ln1.weight[5]` alongside coordinates 0, 2, 4, and 6 will reduce the model from 1588 to 1587 parameters while retaining at least 99% accuracy, because its scale is absorbable by QKV column 5 and coordinate-specific outcomes leave untested coordinate 5 informative despite earlier failures at odd coordinates 1 and 3.",
+      "intended_edit": "Store three learned first-LayerNorm gains and reconstruct gain coordinates 0, 2, 4, 5, and 6 as fixed ones, while continuing to fix shift coordinate 3.",
+      "metrics": {
+        "accuracy": 0.9963,
+        "cases": 10010,
+        "correct": 9973,
+        "parameters": 1587,
+        "training_steps": 4999
+      },
+      "parent_ids": [
+        "107bce4f90de49ea8e03d01ba0a0bef454212092d6b4b064d5ca24328d2d03d0"
+      ],
+      "retained_order": 78,
+      "selected_count": 4
+    },
+    "36af129e387359a2a2df7a38ac23da4542be8479b63952bed4bf66008aeb257e": {
+      "artifact_path": "candidates/36af129e387359a2a2df7a38ac23da4542be8479b63952bed4bf66008aeb257e",
+      "candidate_id": "36af129e387359a2a2df7a38ac23da4542be8479b63952bed4bf66008aeb257e",
+      "created_opportunity": 117,
+      "fitness": -1568.0,
+      "hypothesis": "Fixing `proj.weight[0,4]` alongside the verified `proj.weight[0,0]` anchor will produce a 1568-parameter model with at least 99% accuracy, because column 4 is the component-zero counterpart in the second attention head and its removal adds only a feature-uniform residual shift eliminated by downstream LayerNorms.",
+      "intended_edit": "Store 62 learned attention-output projection weights, reconstruct `proj.weight[0,0]` and `proj.weight[0,4]` as zeros, and canonicalize both columns at initialization.",
+      "metrics": {
+        "accuracy": 0.9963,
+        "cases": 10010,
+        "correct": 9973,
+        "parameters": 1568,
+        "training_steps": 4999
+      },
+      "parent_ids": [
+        "ab643eb1c760aa418a1663a4bf6c111e27aa6d3356e48a3753184b60c075d986"
+      ],
+      "retained_order": 117,
+      "selected_count": 1
+    },
+    "38b7a86e0c566c6211b00ba236dcff3c6331b828055321beb28a50a05d83453e": {
+      "artifact_path": "candidates/38b7a86e0c566c6211b00ba236dcff3c6331b828055321beb28a50a05d83453e",
+      "candidate_id": "38b7a86e0c566c6211b00ba236dcff3c6331b828055321beb28a50a05d83453e",
+      "created_opportunity": 20,
+      "fitness": -1624.0,
+      "hypothesis": "Anchoring the fourth gauge coordinate to `token[1, 3]` instead of concentrating four constraints on token zero will reduce the model to 1624 parameters while retaining at least 99% accuracy, because it preserves the successful position-zero, token-only-gradient mechanism while distributing embedding optimization across token rows.",
+      "intended_edit": "Keep the three successful anchors unchanged and add a detached-position fourth anchor between `token[1, 3]` and `position[0, 3]`, with a gauge-equivalent initialization.",
+      "metrics": {
+        "accuracy": 0.9998,
+        "cases": 10010,
+        "correct": 10008,
+        "parameters": 1624,
+        "training_steps": 4999
+      },
+      "parent_ids": [
+        "0d77b960a8aad706bf8f3f9f7dbf1dcb42b412b5186486bdf95c609d65f84ddf"
+      ],
+      "retained_order": 20,
+      "selected_count": 1
+    },
+    "3a0ad1b331c523e8b6307cd56f0b5b1dcde7c42fe73bdd4f0ac512d50a0cfb3f": {
+      "artifact_path": "candidates/3a0ad1b331c523e8b6307cd56f0b5b1dcde7c42fe73bdd4f0ac512d50a0cfb3f",
+      "candidate_id": "3a0ad1b331c523e8b6307cd56f0b5b1dcde7c42fe73bdd4f0ac512d50a0cfb3f",
+      "created_opportunity": 132,
+      "fitness": -1564.0,
+      "hypothesis": "Fixing `qkv.weight[3,4]` through the same row-0-pivot shear already verified for `[1,4]` and `[2,4]` will reduce the model to 1564 parameters while retaining at least 99% accuracy.",
+      "intended_edit": "Store 177 learned QKV weights, reconstruct `qkv.weight[3,4]` as zero, and canonicalize initialization with the compensating key-row shear.",
+      "metrics": {
+        "accuracy": 0.9993000000000001,
+        "cases": 10010,
+        "correct": 10003,
+        "parameters": 1564,
+        "training_steps": 4999
+      },
+      "parent_ids": [
+        "5e58dd849e4981bb22a28ed1a331e6f26cab37cf5b653d8158fcc23eb1072bd8"
+      ],
+      "retained_order": 132,
+      "selected_count": 1
+    },
+    "40ab1b6f954c7e185e099061bca95aedb6ece9c9f553092067ed33b8e8336729": {
+      "artifact_path": "candidates/40ab1b6f954c7e185e099061bca95aedb6ece9c9f553092067ed33b8e8336729",
+      "candidate_id": "40ab1b6f954c7e185e099061bca95aedb6ece9c9f553092067ed33b8e8336729",
+      "created_opportunity": 92,
+      "fitness": -1581.0,
+      "hypothesis": "Fixing `qkv.weight[2,0]` at 0.02 with reciprocal scaling of head-0 key row 2 will reduce the model to 1581 parameters while retaining at least 99% accuracy, because it preserves initial attention scores and extends the scale-gauge mechanism that succeeded for query rows 0 and 1.",
+      "intended_edit": "Store 187 learned QKV weights, reconstruct weights 0 and 2 as zero and weights 4, 8, and 16 as 0.02, then initialize query row 2 and key row 10 with reciprocal scaling.",
+      "metrics": {
+        "accuracy": 0.9986,
+        "cases": 10010,
+        "correct": 9996,
+        "parameters": 1581,
+        "training_steps": 4999
+      },
+      "parent_ids": [
+        "0cd0e7c2f0668eb689fbe16e00240ee6dcdeb5eb30639e94bac7f611e00b41ef"
+      ],
+      "retained_order": 92,
+      "selected_count": 2
+    },
+    "410f5b9f486b6fb64f0f76b1c7c2428ce8ac7caa6f304b38af92f367e67f1470": {
+      "artifact_path": "candidates/410f5b9f486b6fb64f0f76b1c7c2428ce8ac7caa6f304b38af92f367e67f1470",
+      "candidate_id": "410f5b9f486b6fb64f0f76b1c7c2428ce8ac7caa6f304b38af92f367e67f1470",
+      "created_opportunity": 26,
+      "fitness": -1618.0,
+      "hypothesis": "Fixing a second coordinate of the pre-MLP LayerNorm bias at zero will reduce the model from 1619 to 1618 parameters while retaining at least 99% accuracy, because both fixed shifts are exactly absorbable by the learned `fc1` bias.",
+      "intended_edit": "Extend `MLPAnchoredLayerNorm` from one fixed-zero bias coordinate to two, preserving its zero initialization and all other architecture and training settings.",
+      "metrics": {
+        "accuracy": 0.9992,
+        "cases": 10010,
+        "correct": 10002,
+        "parameters": 1618,
+        "training_steps": 4999
+      },
+      "parent_ids": [
+        "dce9156b86eac194b36ba1ba92f853436e010fc00ae10e893947da9a709ef6c5"
+      ],
+      "retained_order": 26,
+      "selected_count": 2
+    },
+    "45689f935618e770318e536538fdc749b529d2b7d0086092eb07ed4f3114d26b": {
+      "artifact_path": "candidates/45689f935618e770318e536538fdc749b529d2b7d0086092eb07ed4f3114d26b",
+      "candidate_id": "45689f935618e770318e536538fdc749b529d2b7d0086092eb07ed4f3114d26b",
+      "created_opportunity": 51,
+      "fitness": -1601.0,
+      "hypothesis": "Fixing coordinate 5 of `fc1.bias` at zero will reduce the model from 1602 to 1601 parameters while retaining at least 99% accuracy, because coordinates 0 through 4 were removed consecutively without violating the accuracy requirement and the hidden units are initialization-symmetric.",
+      "intended_edit": "Replace the first MLP projection\u2019s seven learned bias coordinates with six, reconstructing bias coordinates 0 through 5 as fixed zeros while preserving ordinary linear-layer initialization RNG use.",
+      "metrics": {
+        "accuracy": 0.9992,
+        "cases": 10010,
+        "correct": 10002,
+        "parameters": 1601,
+        "training_steps": 4999
+      },
+      "parent_ids": [
+        "19b66b09f353fbc8b805045902fc1593d327e6a7f1b4561d402972a39ba876fe"
+      ],
+      "retained_order": 51,
+      "selected_count": 1
+    },
+    "46aa4e23e8136a57448806ea975d01b0ee300fd6c74cd82a4548fae243f9ffb2": {
+      "artifact_path": "candidates/46aa4e23e8136a57448806ea975d01b0ee300fd6c74cd82a4548fae243f9ffb2",
+      "candidate_id": "46aa4e23e8136a57448806ea975d01b0ee300fd6c74cd82a4548fae243f9ffb2",
+      "created_opportunity": 49,
+      "fitness": -1603.0,
+      "hypothesis": "Fixing coordinate 3 of `fc1.bias` at zero will reduce the model from 1604 to 1603 parameters while retaining at least 99% accuracy, because coordinates 0 through 2 were removed consecutively with at least 99.95% accuracy and all hidden units use symmetric initialization.",
+      "intended_edit": "Replace the first MLP projection\u2019s nine learned bias coordinates with eight, reconstructing bias coordinates 0 through 3 as fixed zeros while preserving ordinary linear-layer initialization RNG use.",
+      "metrics": {
+        "accuracy": 0.9995,
+        "cases": 10010,
+        "correct": 10005,
+        "parameters": 1603,
+        "training_steps": 4999
+      },
+      "parent_ids": [
+        "c68f3c6f5ae0e063b8ceca51406d9b90d82fc3de27370361e89ccd88d2951f70"
+      ],
+      "retained_order": 49,
+      "selected_count": 1
+    },
+    "4772c898be90da657c988afe9a00d68d7ef5651026545a1ab5a0cfe7e5bf306c": {
+      "artifact_path": "candidates/4772c898be90da657c988afe9a00d68d7ef5651026545a1ab5a0cfe7e5bf306c",
+      "candidate_id": "4772c898be90da657c988afe9a00d68d7ef5651026545a1ab5a0cfe7e5bf306c",
+      "created_opportunity": 73,
+      "fitness": -1591.0,
+      "hypothesis": "Fixing `ln1.weight[0]` at one will reduce the model from 1592 to 1591 parameters while retaining at least 99% accuracy, because coordinate 0 may be optimization-compatible even though fixing coordinate 3\u2014whose shift is already anchored\u2014failed.",
+      "intended_edit": "Replace the eight-parameter first LayerNorm gain with seven learned coordinates, reconstructing gain coordinate 0 as one while continuing to fix shift coordinate 3.",
+      "metrics": {
+        "accuracy": 0.9991,
+        "cases": 10010,
+        "correct": 10001,
+        "parameters": 1591,
+        "training_steps": 4999
+      },
+      "parent_ids": [
+        "c7a9b593d85924d63e30facafb5756225c68dbfbb07206cca573a652824b39e6"
+      ],
+      "retained_order": 73,
+      "selected_count": 2
+    },
+    "4fe6fb5efd625783d57937f5e4e8c5084ecdd087739732b26976a8d430406d9d": {
+      "artifact_path": "candidates/4fe6fb5efd625783d57937f5e4e8c5084ecdd087739732b26976a8d430406d9d",
+      "candidate_id": "4fe6fb5efd625783d57937f5e4e8c5084ecdd087739732b26976a8d430406d9d",
+      "created_opportunity": 97,
+      "fitness": -1577.0,
+      "hypothesis": "Fixing `qkv.weight[7,0]` at 0.02 with reciprocal scaling of head-1 key row 7 will produce a 1577-parameter model with at least 99% accuracy; this tests whether the failed fourth head-0 anchor was head-specific rather than a general four-anchor limit.",
+      "intended_edit": "Store 183 learned QKV weights, reconstruct weights 0 and 2 as zero and weights 4, 8, 16, 32, 40, 48, and 56 as 0.02, and initialize query row 7 and key row 15 with reciprocal scaling.",
+      "metrics": {
+        "accuracy": 0.9913,
+        "cases": 10010,
+        "correct": 9923,
+        "parameters": 1577,
+        "training_steps": 4999
+      },
+      "parent_ids": [
+        "fd66f0ee754b1294c5c67d3c3615990a9792d51145a4cdc041d1f0774daa2f96"
+      ],
+      "retained_order": 97,
+      "selected_count": 6
+    },
+    "51dcf4ff6b979197a9b8b86e10ffa67b55b0cbe5e03f3683ce01d3b1e0bffd33": {
+      "artifact_path": "candidates/51dcf4ff6b979197a9b8b86e10ffa67b55b0cbe5e03f3683ce01d3b1e0bffd33",
+      "candidate_id": "51dcf4ff6b979197a9b8b86e10ffa67b55b0cbe5e03f3683ce01d3b1e0bffd33",
+      "created_opportunity": 31,
+      "fitness": -1615.0,
+      "hypothesis": "Fixing pre-MLP LayerNorm gain coordinate 7 to one will reduce the model from 1616 to 1615 parameters while retaining at least 99% accuracy, because its zero shift is already fixed and its gain is exactly absorbable by column 7 of `fc1.weight`.",
+      "intended_edit": "Replace gain coordinate 7 with a fixed one while preserving the existing fixed bias coordinates and initialization.",
+      "metrics": {
+        "accuracy": 0.9997,
+        "cases": 10010,
+        "correct": 10007,
+        "parameters": 1615,
+        "training_steps": 4999
+      },
+      "parent_ids": [
+        "ce77a8f3e6386cc4d95791a2ca8b41906b4c1cd834fe5752118a75cfb5e1acdb"
+      ],
+      "retained_order": 31,
+      "selected_count": 1
+    },
+    "53ecd3408dc3c8e191191badefa3ef9772203d6b75960759fc2fe26cddff5755": {
+      "artifact_path": "candidates/53ecd3408dc3c8e191191badefa3ef9772203d6b75960759fc2fe26cddff5755",
+      "candidate_id": "53ecd3408dc3c8e191191badefa3ef9772203d6b75960759fc2fe26cddff5755",
+      "created_opportunity": 40,
+      "fitness": -1608.0,
+      "hypothesis": "Fixing pre-MLP LayerNorm gain coordinate 0 to one will reduce the model from 1609 to 1608 parameters while retaining at least 99% accuracy, because its scale is absorbable by column 0 of `fc1.weight` and its bias has remained successfully fixed throughout every passing anchored design.",
+      "intended_edit": "Remove gain coordinate 0 from the learned vector and reconstruct gains 0 and 3 through 7 as fixed ones, leaving the sensitive gains 1 and 2 learned.",
+      "metrics": {
+        "accuracy": 0.9903,
+        "cases": 10010,
+        "correct": 9913,
+        "parameters": 1608,
+        "training_steps": 4999
+      },
+      "parent_ids": [
+        "70aa380dc05f3cfd54f2fa7da4ef06c64e8304dad83039600df3db6833024c99"
+      ],
+      "retained_order": 40,
+      "selected_count": 1
+    },
+    "5e58dd849e4981bb22a28ed1a331e6f26cab37cf5b653d8158fcc23eb1072bd8": {
+      "artifact_path": "candidates/5e58dd849e4981bb22a28ed1a331e6f26cab37cf5b653d8158fcc23eb1072bd8",
+      "candidate_id": "5e58dd849e4981bb22a28ed1a331e6f26cab37cf5b653d8158fcc23eb1072bd8",
+      "created_opportunity": 131,
+      "fitness": -1565.0,
+      "hypothesis": "Fixing `qkv.weight[1,4]` through the same exact row-0-pivot shear already used for `[2,4]` will reduce the model to 1565 parameters while retaining at least 99% accuracy.",
+      "intended_edit": "Store 178 learned QKV weights, reconstruct `qkv.weight[1,4]` as zero, and canonicalize initialization with the compensating key-row shear.",
+      "metrics": {
+        "accuracy": 0.9987999999999999,
+        "cases": 10010,
+        "correct": 9998,
+        "parameters": 1565,
+        "training_steps": 4999
+      },
+      "parent_ids": [
+        "5f7b883d536bc481e215a42cc911c3063054555f4bfdb05bb105e05983ef8b95"
+      ],
+      "retained_order": 131,
+      "selected_count": 1
+    },
+    "5f7b883d536bc481e215a42cc911c3063054555f4bfdb05bb105e05983ef8b95": {
+      "artifact_path": "candidates/5f7b883d536bc481e215a42cc911c3063054555f4bfdb05bb105e05983ef8b95",
+      "candidate_id": "5f7b883d536bc481e215a42cc911c3063054555f4bfdb05bb105e05983ef8b95",
+      "created_opportunity": 128,
+      "fitness": -1566.0,
+      "hypothesis": "Fixing `proj.weight[0,6]` alongside `[0,0]`, `[0,2]`, and `[0,4]` will produce a 1566-parameter model with at least 99% accuracy because it is the second-head counterpart of the newly verified component-two anchor.",
+      "intended_edit": "Store 60 learned attention-output projection weights, reconstruct `proj.weight[0,0]`, `[0,2]`, `[0,4]`, and `[0,6]` as zeros, and canonicalize all four columns at initialization.",
+      "metrics": {
+        "accuracy": 0.9987,
+        "cases": 10010,
+        "correct": 9997,
+        "parameters": 1566,
+        "training_steps": 4999
+      },
+      "parent_ids": [
+        "070c54388c25295b2ae34ddc653997d80510f4bc8d583b92c46b5a333143dcb1"
+      ],
+      "retained_order": 128,
+      "selected_count": 3
+    },
+    "600ea7294f835194fa5064d65371ac8ad24f3f9be36e3a480349c2548afaa26b": {
+      "artifact_path": "candidates/600ea7294f835194fa5064d65371ac8ad24f3f9be36e3a480349c2548afaa26b",
+      "candidate_id": "600ea7294f835194fa5064d65371ac8ad24f3f9be36e3a480349c2548afaa26b",
+      "created_opportunity": 76,
+      "fitness": -1589.0,
+      "hypothesis": "Fixing `ln1.weight[4]` alongside coordinates 0 and 2 will reduce the model from 1590 to 1589 parameters while retaining at least 99% accuracy, because LayerNorm-gain removability is strongly coordinate-sensitive and coordinate 2 preserved 99.87% whereas coordinates 1 and 3 failed.",
+      "intended_edit": "Store five learned first-LayerNorm gains and reconstruct gain coordinates 0, 2, and 4 as fixed ones, while continuing to fix shift coordinate 3.",
+      "metrics": {
+        "accuracy": 0.9987999999999999,
+        "cases": 10010,
+        "correct": 9998,
+        "parameters": 1589,
+        "training_steps": 4999
+      },
+      "parent_ids": [
+        "db84a8296a5c1c20e4aae6f5b23bbf5faf41c69908c38626f4b7a4ba15487d50"
+      ],
+      "retained_order": 76,
+      "selected_count": 1
+    },
+    "6c618a2a1e9387c6d9f653e6dd716e93b2474042907f387d6adff14e80b89806": {
+      "artifact_path": "candidates/6c618a2a1e9387c6d9f653e6dd716e93b2474042907f387d6adff14e80b89806",
+      "candidate_id": "6c618a2a1e9387c6d9f653e6dd716e93b2474042907f387d6adff14e80b89806",
+      "created_opportunity": 60,
+      "fitness": -1597.0,
+      "hypothesis": "Fixing `fc1.bias[10]` in addition to coordinates 0 through 7 and 9 will reduce the model from 1598 to 1597 parameters while retaining at least 99% accuracy, because fixing coordinate 9 achieved 100% accuracy and showed that performance depends on which initialized hidden-unit bias is removed rather than requiring all four previously remaining biases.",
+      "intended_edit": "Retain learned biases only for hidden units 8 and 11, reconstructing bias coordinates 0 through 7, 9, and 10 as fixed zeros while preserving ordinary linear-layer initialization RNG use.",
+      "metrics": {
+        "accuracy": 0.9997,
+        "cases": 10010,
+        "correct": 10007,
+        "parameters": 1597,
+        "training_steps": 4999
+      },
+      "parent_ids": [
+        "72363b0ea940ce11b25aae361405d7a668c72ee77d6f0e455b7d381a898f1b7d"
+      ],
+      "retained_order": 60,
+      "selected_count": 1
+    },
+    "70aa380dc05f3cfd54f2fa7da4ef06c64e8304dad83039600df3db6833024c99": {
+      "artifact_path": "candidates/70aa380dc05f3cfd54f2fa7da4ef06c64e8304dad83039600df3db6833024c99",
+      "candidate_id": "70aa380dc05f3cfd54f2fa7da4ef06c64e8304dad83039600df3db6833024c99",
+      "created_opportunity": 39,
+      "fitness": -1609.0,
+      "hypothesis": "Fixing pre-MLP LayerNorm bias coordinate 6 at zero will reduce the model from 1610 to 1609 parameters while retaining at least 99% accuracy, because its shift is absorbable by `fc1.bias`, its gain is already fixed, and unlike remaining bias coordinates 2 and 5 it has not caused a prior failure.",
+      "intended_edit": "Remove bias coordinate 6 from the learned vector and reconstruct bias coordinates 0, 1, 3, 4, 6, and 7 as fixed zeros.",
+      "metrics": {
+        "accuracy": 0.9998999999999999,
+        "cases": 10010,
+        "correct": 10009,
+        "parameters": 1609,
+        "training_steps": 4999
+      },
+      "parent_ids": [
+        "c74bb7474edb701384c9662f6cd7bb696a272f3ece411eab8ac753433b5025dc"
+      ],
+      "retained_order": 39,
+      "selected_count": 1
+    },
+    "72363b0ea940ce11b25aae361405d7a668c72ee77d6f0e455b7d381a898f1b7d": {
+      "artifact_path": "candidates/72363b0ea940ce11b25aae361405d7a668c72ee77d6f0e455b7d381a898f1b7d",
+      "candidate_id": "72363b0ea940ce11b25aae361405d7a668c72ee77d6f0e455b7d381a898f1b7d",
+      "created_opportunity": 59,
+      "fitness": -1598.0,
+      "hypothesis": "Fixing `fc1.bias[9]` instead of `fc1.bias[8]` will reduce the model from 1599 to 1598 parameters while retaining at least 99% accuracy, because the four remaining hidden units are architecturally symmetric but receive different fixed-seed weight initializations.",
+      "intended_edit": "Retain learned biases for hidden units 8, 10, and 11 while reconstructing bias coordinates 0 through 7 and coordinate 9 as fixed zeros.",
+      "metrics": {
+        "accuracy": 1.0,
+        "cases": 10010,
+        "correct": 10010,
+        "parameters": 1598,
+        "training_steps": 4999
+      },
+      "parent_ids": [
+        "99b4cec439f1d5dc731d4625110a6da8b805566957e27cfeb9c30cb510c6fae3"
+      ],
+      "retained_order": 59,
+      "selected_count": 1
+    },
+    "7747fee785c2f732de8ea26705d6e233b614e23599029911abdbd131380b5276": {
+      "artifact_path": "candidates/7747fee785c2f732de8ea26705d6e233b614e23599029911abdbd131380b5276",
+      "candidate_id": "7747fee785c2f732de8ea26705d6e233b614e23599029911abdbd131380b5276",
+      "created_opportunity": 63,
+      "fitness": -1594.0,
+      "hypothesis": "Fixing `q_bias[1]` at zero will reduce the model from 1595 to 1594 parameters while retaining at least 99% accuracy, because coordinate 0 was removed successfully and the zero-initialized query-bias coordinates are architecturally symmetric.",
+      "intended_edit": "Replace the seven learned query-bias coordinates with six, reconstructing coordinates 0 and 1 as fixed zeros while preserving initialization behavior.",
+      "metrics": {
+        "accuracy": 0.9997,
+        "cases": 10010,
+        "correct": 10007,
+        "parameters": 1594,
+        "training_steps": 4999
+      },
+      "parent_ids": [
+        "8e30732ea093b61dbd97138b28bdeaddd69ad13c8788e978c1aeca330e2a1734"
+      ],
+      "retained_order": 63,
+      "selected_count": 1
+    },
+    "7ddb77e317e8f922379817ba863915efae1b3a1fb16bfa20374a1df23f2a82c3": {
+      "artifact_path": "candidates/7ddb77e317e8f922379817ba863915efae1b3a1fb16bfa20374a1df23f2a82c3",
+      "candidate_id": "7ddb77e317e8f922379817ba863915efae1b3a1fb16bfa20374a1df23f2a82c3",
+      "created_opportunity": 14,
+      "fitness": -1627.0,
+      "hypothesis": "Sharing one token-embedding coordinate with the corresponding positional-embedding coordinate will reduce the model from 1628 to 1627 parameters while retaining at least 99% accuracy, because a common shift between all token embeddings and all positional embeddings leaves transformer inputs unchanged and changes every output logit equally.",
+      "intended_edit": "Replace the two embedding tables with jointly initialized tables whose first scalar is shared, using a gauge-equivalent transformation of the original initialization and the shared token table for output logits.",
+      "metrics": {
+        "accuracy": 0.9986,
+        "cases": 10010,
+        "correct": 9996,
+        "parameters": 1627,
+        "training_steps": 4999
+      },
+      "parent_ids": [
+        "ade72cf1d02e97b76dbd2f5fa1ee53d63a77cbe0a373f323c143e054f9851e05"
+      ],
+      "retained_order": 14,
+      "selected_count": 1
+    },
+    "8bdfa72a50a1bc8dc77c2f0670e13fefb3c0db1dbc598221bbf6ef3092103afc": {
+      "artifact_path": "candidates/8bdfa72a50a1bc8dc77c2f0670e13fefb3c0db1dbc598221bbf6ef3092103afc",
+      "candidate_id": "8bdfa72a50a1bc8dc77c2f0670e13fefb3c0db1dbc598221bbf6ef3092103afc",
+      "created_opportunity": 106,
+      "fitness": -1574.0,
+      "hypothesis": "Fixing MLP LayerNorm gain coordinate 2 at one will produce a 1574-parameter model with at least 99% accuracy, because coordinate 1 remains learned and shared with attention while coordinate 2 is zero-shift and absorbable into its downstream `fc1.weight` column.",
+      "intended_edit": "Store one MLP LayerNorm gain instead of two, reconstruct coordinate 2 as one, and retain the verified cross-sublayer sharing through coordinate 1.",
+      "metrics": {
+        "accuracy": 0.9995,
+        "cases": 10010,
+        "correct": 10005,
+        "parameters": 1574,
+        "training_steps": 4999
+      },
+      "parent_ids": [
+        "e6156e9e3115b409c941fe0258c4b1279e1d50b7fcb728a6475f58ddeb68f4f4"
+      ],
+      "retained_order": 106,
+      "selected_count": 1
+    },
+    "8e30732ea093b61dbd97138b28bdeaddd69ad13c8788e978c1aeca330e2a1734": {
+      "artifact_path": "candidates/8e30732ea093b61dbd97138b28bdeaddd69ad13c8788e978c1aeca330e2a1734",
+      "candidate_id": "8e30732ea093b61dbd97138b28bdeaddd69ad13c8788e978c1aeca330e2a1734",
+      "created_opportunity": 62,
+      "fitness": -1595.0,
+      "hypothesis": "Fixing `q_bias[0]` at zero will reduce the model from 1596 to 1595 parameters while retaining at least 99% accuracy, because one query-shift direction is invisible to attention softmax and the remaining seven query-bias coordinates preserve trainable content-independent attention control.",
+      "intended_edit": "Replace the eight-parameter query bias with seven learned coordinates, reconstructing coordinate 0 as a fixed zero while preserving the existing zero initialization.",
+      "metrics": {
+        "accuracy": 0.9956,
+        "cases": 10010,
+        "correct": 9966,
+        "parameters": 1595,
+        "training_steps": 4999
+      },
+      "parent_ids": [
+        "c9ddbedd33342e885277e9c9267940611f564e5b74071fa34c1010b220309d28"
+      ],
+      "retained_order": 62,
+      "selected_count": 1
+    },
+    "917487b069e4291da9c1684f0ed472d198a441de04c2ecc4604c4c964f8d1aec": {
+      "artifact_path": "candidates/917487b069e4291da9c1684f0ed472d198a441de04c2ecc4604c4c964f8d1aec",
+      "candidate_id": "917487b069e4291da9c1684f0ed472d198a441de04c2ecc4604c4c964f8d1aec",
+      "created_opportunity": 90,
+      "fitness": -1583.0,
+      "hypothesis": "Fixing `qkv.weight[0,4]` at 0.02 while inversely rescaling head-0 key row 0 will reduce the model to 1583 parameters and retain at least 99% accuracy, because this consumes the remaining query-key scale gauge without eliminating another query input direction.",
+      "intended_edit": "Store 189 learned QKV weights, reconstruct weights 0 and 2 as zeros and weight 4 as 0.02, and initialize the corresponding query/key rows with reciprocal scaling that preserves the successful 1584-parameter model\u2019s initial attention scores.",
+      "metrics": {
+        "accuracy": 0.9979,
+        "cases": 10010,
+        "correct": 9989,
+        "parameters": 1583,
+        "training_steps": 4999
+      },
+      "parent_ids": [
+        "d3e9ce2e4eab388ce11e3e7928b449237c0177d48f0608c4c9ca0b792951d66e"
+      ],
+      "retained_order": 90,
+      "selected_count": 1
+    },
+    "9398359eb731d8adc3d11240344b2b66f0426a12503dad8dc48d36eba0cbed30": {
+      "artifact_path": "candidates/9398359eb731d8adc3d11240344b2b66f0426a12503dad8dc48d36eba0cbed30",
+      "candidate_id": "9398359eb731d8adc3d11240344b2b66f0426a12503dad8dc48d36eba0cbed30",
+      "created_opportunity": 109,
+      "fitness": -1572.0,
+      "hypothesis": "Fixing `qkv.weight[2,4]` at zero through a shear against query row 0 will produce a 1572-parameter model with at least 99% accuracy, because row 2 already tolerates its scale anchor and the transformation uses the stable fixed `qkv.weight[0,4] = 0.02` pivot while exactly preserving attention scores.",
+      "intended_edit": "Store 181 learned QKV weights, reconstruct `qkv.weight[2,4]` as zero, and initialize it by shearing query row 2 against query row 0 while applying the inverse shear to key row 8.",
+      "metrics": {
+        "accuracy": 0.9959,
+        "cases": 10010,
+        "correct": 9969,
+        "parameters": 1572,
+        "training_steps": 4999
+      },
+      "parent_ids": [
+        "a2d5c47506492914eff40ede728fa60a9f9c089a191ca63ce0d4bcd383ba6c4b"
+      ],
+      "retained_order": 109,
+      "selected_count": 2
+    },
+    "95d3cad48166bbaeb1940d8ece011906544a2967d7ac99c5f6ec2025558490f6": {
+      "artifact_path": "candidates/95d3cad48166bbaeb1940d8ece011906544a2967d7ac99c5f6ec2025558490f6",
+      "candidate_id": "95d3cad48166bbaeb1940d8ece011906544a2967d7ac99c5f6ec2025558490f6",
+      "created_opportunity": 45,
+      "fitness": -1606.0,
+      "hypothesis": "Fixing coordinate 0 of `fc1.bias` at zero will reduce the model from 1607 to 1606 parameters while retaining at least 99% accuracy, because either remaining learned pre-MLP LayerNorm shift can absorb that scalar while the other hidden-unit biases compensate for its distributed effect.",
+      "intended_edit": "Replace the first MLP projection with an initialization-equivalent linear layer whose bias has eleven learned coordinates and a fixed-zero coordinate 0.",
+      "metrics": {
+        "accuracy": 0.9995999999999999,
+        "cases": 10010,
+        "correct": 10006,
+        "parameters": 1606,
+        "training_steps": 4999
+      },
+      "parent_ids": [
+        "fc9d61eaf6fdca7044f0a593ea4de56e5b23d61e138ed1c039c11cf55fa10152"
+      ],
+      "retained_order": 45,
+      "selected_count": 1
+    },
+    "98394f78b5f2423dd988b2ede7fc65dc54f3204a2e7e3395cbb359e4417dd8a4": {
+      "artifact_path": "candidates/98394f78b5f2423dd988b2ede7fc65dc54f3204a2e7e3395cbb359e4417dd8a4",
+      "candidate_id": "98394f78b5f2423dd988b2ede7fc65dc54f3204a2e7e3395cbb359e4417dd8a4",
+      "created_opportunity": 84,
+      "fitness": -1585.0,
+      "hypothesis": "Fixing `qkv.weight[0,0]` at zero will reduce the model to 1585 parameters while retaining at least 99% accuracy, because an invertible query/key basis transformation can absorb one query-coordinate constraint without reducing the attention score functions representable by the head.",
+      "intended_edit": "Replace the QKV linear layer with an otherwise identical learned projection whose first query weight is fixed at zero, while preserving initialization random-number consumption and all 191 remaining learned QKV weights.",
+      "metrics": {
+        "accuracy": 0.9954999999999999,
+        "cases": 10010,
+        "correct": 9965,
+        "parameters": 1585,
+        "training_steps": 4999
+      },
+      "parent_ids": [
+        "1179220e3f6073988fbe8e47b734b4b56007042dd99a79771560870e47d66df1"
+      ],
+      "retained_order": 84,
+      "selected_count": 2
+    },
+    "992a77e8bbd38f49d5d7b894c00ee4272a4fee3ad36b25e8948d11edad5c78bc": {
+      "artifact_path": "candidates/992a77e8bbd38f49d5d7b894c00ee4272a4fee3ad36b25e8948d11edad5c78bc",
+      "candidate_id": "992a77e8bbd38f49d5d7b894c00ee4272a4fee3ad36b25e8948d11edad5c78bc",
+      "created_opportunity": 22,
+      "fitness": -1622.0,
+      "hypothesis": "Adding a detached-position sixth anchor between `token[3, 5]` and `position[0, 5]` will reduce the model from 1623 to 1622 parameters while retaining at least 99% accuracy, because the independently distributed fourth and fifth anchors achieved 99.98% and 99.94%, respectively, without concentrating another constraint on an existing token row.",
+      "intended_edit": "Expand the shared embedding representation to six anchors, place the new coordinate on token row 3, detach its positional gradient, and preserve the gauge-equivalent initialization.",
+      "metrics": {
+        "accuracy": 0.9997,
+        "cases": 10010,
+        "correct": 10007,
+        "parameters": 1622,
+        "training_steps": 4999
+      },
+      "parent_ids": [
+        "1d55e1491fdad0e877de561b1158c5f8efb2a129d3ec866d3591262edc3060e3"
+      ],
+      "retained_order": 22,
+      "selected_count": 1
+    },
+    "99b4cec439f1d5dc731d4625110a6da8b805566957e27cfeb9c30cb510c6fae3": {
+      "artifact_path": "candidates/99b4cec439f1d5dc731d4625110a6da8b805566957e27cfeb9c30cb510c6fae3",
+      "candidate_id": "99b4cec439f1d5dc731d4625110a6da8b805566957e27cfeb9c30cb510c6fae3",
+      "created_opportunity": 53,
+      "fitness": -1599.0,
+      "hypothesis": "Fixing coordinate 7 of `fc1.bias` at zero will reduce the model from 1600 to 1599 parameters while retaining at least 99% accuracy, because coordinates 0 through 6 were removed consecutively without violating the accuracy requirement and the hidden units are initialization-symmetric.",
+      "intended_edit": "Replace the first MLP projection\u2019s five learned bias coordinates with four, reconstructing bias coordinates 0 through 7 as fixed zeros while preserving ordinary linear-layer initialization RNG use.",
+      "metrics": {
+        "accuracy": 0.9991,
+        "cases": 10010,
+        "correct": 10001,
+        "parameters": 1599,
+        "training_steps": 4999
+      },
+      "parent_ids": [
+        "9ae121fcde17267525fcb7a9e4d0673e70860794d0f38627a3839ceab4a0d962"
+      ],
+      "retained_order": 53,
+      "selected_count": 6
+    },
+    "9ae121fcde17267525fcb7a9e4d0673e70860794d0f38627a3839ceab4a0d962": {
+      "artifact_path": "candidates/9ae121fcde17267525fcb7a9e4d0673e70860794d0f38627a3839ceab4a0d962",
+      "candidate_id": "9ae121fcde17267525fcb7a9e4d0673e70860794d0f38627a3839ceab4a0d962",
+      "created_opportunity": 52,
+      "fitness": -1600.0,
+      "hypothesis": "Fixing coordinate 6 of `fc1.bias` at zero will reduce the model from 1601 to 1600 parameters while retaining at least 99% accuracy, because coordinates 0 through 5 were removed consecutively without violating the accuracy requirement and the hidden units are initialization-symmetric.",
+      "intended_edit": "Replace the first MLP projection\u2019s six learned bias coordinates with five, reconstructing bias coordinates 0 through 6 as fixed zeros while preserving ordinary linear-layer initialization RNG use.",
+      "metrics": {
+        "accuracy": 0.9976999999999999,
+        "cases": 10010,
+        "correct": 9987,
+        "parameters": 1600,
+        "training_steps": 4999
+      },
+      "parent_ids": [
+        "45689f935618e770318e536538fdc749b529d2b7d0086092eb07ed4f3114d26b"
+      ],
+      "retained_order": 52,
+      "selected_count": 1
+    },
+    "9b8e28ae59fcf33619d5504a4b163588f061d304570d8c7ae01b3f56c2124f70": {
+      "artifact_path": "candidates/9b8e28ae59fcf33619d5504a4b163588f061d304570d8c7ae01b3f56c2124f70",
+      "candidate_id": "9b8e28ae59fcf33619d5504a4b163588f061d304570d8c7ae01b3f56c2124f70",
+      "created_opportunity": 23,
+      "fitness": -1621.0,
+      "hypothesis": "Adding a detached-position seventh anchor between `token[4, 6]` and `position[0, 6]` will reduce the model from 1622 to 1621 parameters while retaining at least 99% accuracy, because the similarly distributed fourth, fifth, and sixth anchors each preserved accuracy above 99.9%.",
+      "intended_edit": "Expand the shared embedding representation to seven anchors, place the new coordinate on token row 4, detach its positional gradient, and preserve gauge-equivalent initialization.",
+      "metrics": {
+        "accuracy": 0.9972,
+        "cases": 10010,
+        "correct": 9982,
+        "parameters": 1621,
+        "training_steps": 4999
+      },
+      "parent_ids": [
+        "992a77e8bbd38f49d5d7b894c00ee4272a4fee3ad36b25e8948d11edad5c78bc"
+      ],
+      "retained_order": 23,
+      "selected_count": 1
+    },
+    "9dc10682e35c24c982ed34a39545917f4578ba4de1d7433f1b04cd2ee0515f66": {
+      "artifact_path": "candidates/9dc10682e35c24c982ed34a39545917f4578ba4de1d7433f1b04cd2ee0515f66",
+      "candidate_id": "9dc10682e35c24c982ed34a39545917f4578ba4de1d7433f1b04cd2ee0515f66",
+      "created_opportunity": 34,
+      "fitness": -1613.0,
+      "hypothesis": "Fixing pre-MLP LayerNorm gain coordinate 5 to one will reduce the model from 1614 to 1613 parameters while retaining at least 99% accuracy, because its scale is absorbable by `fc1.weight` and this tests a distinct redundancy from the failed coordinate-5 bias constraint.",
+      "intended_edit": "Remove gain coordinate 5 from the learned vector and reconstruct gains 3, 5, and 7 as fixed ones during the forward pass.",
+      "metrics": {
+        "accuracy": 0.9995,
+        "cases": 10010,
+        "correct": 10005,
+        "parameters": 1613,
+        "training_steps": 4999
+      },
+      "parent_ids": [
+        "d4a025dd9c4ec67302e915db74f66a5251e4fc1d5edcc36ac07dcaec85c8d602"
+      ],
+      "retained_order": 34,
+      "selected_count": 1
+    },
+    "a0545ea331d50c5d66147f4e42f3cc3b9de9340e392fee47f08645f48de0de6e": {
+      "artifact_path": "candidates/a0545ea331d50c5d66147f4e42f3cc3b9de9340e392fee47f08645f48de0de6e",
+      "candidate_id": "a0545ea331d50c5d66147f4e42f3cc3b9de9340e392fee47f08645f48de0de6e",
+      "created_opportunity": 24,
+      "fitness": -1620.0,
+      "hypothesis": "Adding a detached-position eighth anchor between `token[5, 7]` and `position[0, 7]` will reduce the model from 1621 to 1620 parameters while retaining at least 99% accuracy, because the similarly distributed fourth through seventh anchors all preserved accuracy above 99%.",
+      "intended_edit": "Expand the shared embedding representation to eight anchors, place the new coordinate on unused token row 5, detach its positional gradient, and preserve gauge-equivalent initialization.",
+      "metrics": {
+        "accuracy": 0.9997,
+        "cases": 10010,
+        "correct": 10007,
+        "parameters": 1620,
+        "training_steps": 4999
+      },
+      "parent_ids": [
+        "9b8e28ae59fcf33619d5504a4b163588f061d304570d8c7ae01b3f56c2124f70"
+      ],
+      "retained_order": 24,
+      "selected_count": 1
+    },
+    "a2d5c47506492914eff40ede728fa60a9f9c089a191ca63ce0d4bcd383ba6c4b": {
+      "artifact_path": "candidates/a2d5c47506492914eff40ede728fa60a9f9c089a191ca63ce0d4bcd383ba6c4b",
+      "candidate_id": "a2d5c47506492914eff40ede728fa60a9f9c089a191ca63ce0d4bcd383ba6c4b",
+      "created_opportunity": 107,
+      "fitness": -1573.0,
+      "hypothesis": "Fixing `qkv.weight[3,0]` at zero through a shear against the already anchored query row 1 will produce a 1573-parameter model with at least 99% accuracy, because the reciprocal key-row shear exactly preserves attention scores without the ill-conditioned scaling used by prior failed row-3 anchors.",
+      "intended_edit": "Store 182 learned QKV weights, reconstruct `qkv.weight[3,0]` as zero, and shear query row 3 against query row 1 while applying the inverse shear to key row 9 during initialization.",
+      "metrics": {
+        "accuracy": 0.9969,
+        "cases": 10010,
+        "correct": 9979,
+        "parameters": 1573,
+        "training_steps": 4999
+      },
+      "parent_ids": [
+        "8bdfa72a50a1bc8dc77c2f0670e13fefb3c0db1dbc598221bbf6ef3092103afc"
+      ],
+      "retained_order": 107,
+      "selected_count": 2
+    },
+    "a826bc62ce40df80dcd03546119c33e6a5438094fb102261a2301644aa415500": {
+      "artifact_path": "candidates/a826bc62ce40df80dcd03546119c33e6a5438094fb102261a2301644aa415500",
+      "candidate_id": "a826bc62ce40df80dcd03546119c33e6a5438094fb102261a2301644aa415500",
+      "created_opportunity": 103,
+      "fitness": -1576.0,
+      "hypothesis": "Fixing attention LayerNorm gain coordinate 3 at one will produce a 1576-parameter model with at least 99% accuracy because its corresponding LayerNorm shift is already fixed at zero, making the gain exactly absorbable into QKV column 3 while leaving initialization unchanged.",
+      "intended_edit": "Remove the second learned attention LayerNorm gain and reconstruct coordinate 3 as one; retain the learned gain shared by coordinates 1 and 7.",
+      "metrics": {
+        "accuracy": 0.9992,
+        "cases": 10010,
+        "correct": 10002,
+        "parameters": 1576,
+        "training_steps": 4999
+      },
+      "parent_ids": [
+        "4fe6fb5efd625783d57937f5e4e8c5084ecdd087739732b26976a8d430406d9d"
+      ],
+      "retained_order": 103,
+      "selected_count": 2
+    },
+    "a874bce98f86686d8a6a8df539ee6cd546e7360fda07e0cee99c040760270869": {
+      "artifact_path": "candidates/a874bce98f86686d8a6a8df539ee6cd546e7360fda07e0cee99c040760270869",
+      "candidate_id": "a874bce98f86686d8a6a8df539ee6cd546e7360fda07e0cee99c040760270869",
+      "created_opportunity": 95,
+      "fitness": -1579.0,
+      "hypothesis": "Fixing `qkv.weight[5,0]` at 0.02 with reciprocal scaling of head-1 key row 5 will reduce the model to 1579 parameters while retaining at least 99% accuracy, because the first function-preserving nonzero scale anchor in head 1 achieved 99.95% and this applies the same gauge mechanism to its next coordinate.",
+      "intended_edit": "Store 185 learned QKV weights, reconstruct weights 0 and 2 as zero and weights 4, 8, 16, 32, and 40 as 0.02, then initialize query row 5 and key row 13 with reciprocal scaling.",
+      "metrics": {
+        "accuracy": 0.9989,
+        "cases": 10010,
+        "correct": 9999,
+        "parameters": 1579,
+        "training_steps": 4999
+      },
+      "parent_ids": [
+        "fd57f42d9c34813dbc14f79b49c15fc095e6d86a9278990aa2957513fca1bd9d"
+      ],
+      "retained_order": 95,
+      "selected_count": 1
+    },
+    "ab643eb1c760aa418a1663a4bf6c111e27aa6d3356e48a3753184b60c075d986": {
+      "artifact_path": "candidates/ab643eb1c760aa418a1663a4bf6c111e27aa6d3356e48a3753184b60c075d986",
+      "candidate_id": "ab643eb1c760aa418a1663a4bf6c111e27aa6d3356e48a3753184b60c075d986",
+      "created_opportunity": 115,
+      "fitness": -1569.0,
+      "hypothesis": "Fixing `proj.weight[0,0]` at zero will produce a 1569-parameter model with at least 99% accuracy, because subtracting that coefficient from every output row changes each token only by a feature-uniform residual shift, which downstream LayerNorms remove under the fixed zero-dropout configuration.",
+      "intended_edit": "Replace the attention output projection with a 63-weight parameterization, reconstruct `proj.weight[0,0]` as zero, and canonicalize its initialization while leaving the tied value/projection bias unchanged.",
+      "metrics": {
+        "accuracy": 0.9993000000000001,
+        "cases": 10010,
+        "correct": 10003,
+        "parameters": 1569,
+        "training_steps": 4999
+      },
+      "parent_ids": [
+        "34d312e2c4f4c2e0bdd72957d20039df47c2f46a3305df71dc6bc0c359ece0fa"
+      ],
+      "retained_order": 115,
+      "selected_count": 2
+    },
+    "ade72cf1d02e97b76dbd2f5fa1ee53d63a77cbe0a373f323c143e054f9851e05": {
+      "artifact_path": "candidates/ade72cf1d02e97b76dbd2f5fa1ee53d63a77cbe0a373f323c143e054f9851e05",
+      "candidate_id": "ade72cf1d02e97b76dbd2f5fa1ee53d63a77cbe0a373f323c143e054f9851e05",
+      "created_opportunity": 5,
+      "fitness": -1628.0,
+      "hypothesis": "Tying the attention value bias to the output-projection bias will reduce parameters from 1636 to 1628 while retaining at least 99% accuracy, because it preserves both bias pathways whose isolated removal failed while eliminating their redundant independent parameterization.",
+      "intended_edit": "Make the projection bias and value bias reference the same learned 8-element parameter, leaving all computations, widths, training, and decoding unchanged.",
+      "metrics": {
+        "accuracy": 0.9976,
+        "cases": 10010,
+        "correct": 9986,
+        "parameters": 1628,
+        "training_steps": 4999
+      },
+      "parent_ids": [
+        "0c5739da9f29148e1e6269ddc9aed365a62c24fd7d53dc756ee0ead7226bed9b"
+      ],
+      "retained_order": 5,
+      "selected_count": 9
+    },
+    "c68f3c6f5ae0e063b8ceca51406d9b90d82fc3de27370361e89ccd88d2951f70": {
+      "artifact_path": "candidates/c68f3c6f5ae0e063b8ceca51406d9b90d82fc3de27370361e89ccd88d2951f70",
+      "candidate_id": "c68f3c6f5ae0e063b8ceca51406d9b90d82fc3de27370361e89ccd88d2951f70",
+      "created_opportunity": 48,
+      "fitness": -1604.0,
+      "hypothesis": "Fixing coordinate 2 of `fc1.bias` at zero will reduce the model from 1605 to 1604 parameters while retaining at least 99% accuracy, because coordinates 0 and 1 were removed independently with 99.96% and 99.95% accuracy, and the identically initialized hidden units remain symmetric.",
+      "intended_edit": "Replace the first MLP projection\u2019s ten learned bias coordinates with nine, reconstructing bias coordinates 0 through 2 as fixed zeros while preserving ordinary linear-layer initialization RNG use.",
+      "metrics": {
+        "accuracy": 0.9998,
+        "cases": 10010,
+        "correct": 10008,
+        "parameters": 1604,
+        "training_steps": 4999
+      },
+      "parent_ids": [
+        "2047ce6d50495cf53869f6d0ca7394a4195b43fd24fd563d4d08b8cdd84563e0"
+      ],
+      "retained_order": 48,
+      "selected_count": 1
+    },
+    "c74bb7474edb701384c9662f6cd7bb696a272f3ece411eab8ac753433b5025dc": {
+      "artifact_path": "candidates/c74bb7474edb701384c9662f6cd7bb696a272f3ece411eab8ac753433b5025dc",
+      "candidate_id": "c74bb7474edb701384c9662f6cd7bb696a272f3ece411eab8ac753433b5025dc",
+      "created_opportunity": 38,
+      "fitness": -1610.0,
+      "hypothesis": "Fixing pre-MLP LayerNorm bias coordinate 4 at zero will reduce the model from 1611 to 1610 parameters while retaining at least 99% accuracy, because its shift is absorbable by `fc1.bias` and coordinate 4 has remained viable while its gain was fixed.",
+      "intended_edit": "Remove bias coordinate 4 from the learned vector and reconstruct bias coordinates 0, 1, 3, 4, and 7 as fixed zeros.",
+      "metrics": {
+        "accuracy": 0.9991,
+        "cases": 10010,
+        "correct": 10001,
+        "parameters": 1610,
+        "training_steps": 4999
+      },
+      "parent_ids": [
+        "cb658840fcb75e175a1e42b5ebce317f569d5ea4b2eb4b4314076761cbe2c426"
+      ],
+      "retained_order": 38,
+      "selected_count": 1
+    },
+    "c7a9b593d85924d63e30facafb5756225c68dbfbb07206cca573a652824b39e6": {
+      "artifact_path": "candidates/c7a9b593d85924d63e30facafb5756225c68dbfbb07206cca573a652824b39e6",
+      "candidate_id": "c7a9b593d85924d63e30facafb5756225c68dbfbb07206cca573a652824b39e6",
+      "created_opportunity": 71,
+      "fitness": -1592.0,
+      "hypothesis": "Fixing `fc2.bias[1]` instead of coordinate 0 will reduce the model from 1593 to 1592 parameters while retaining at least 99% accuracy, because coordinate-specific optimization effects may make coordinate 1 removable even though fixing coordinate 0 failed.",
+      "intended_edit": "Replace the eight-parameter `fc2` bias with seven learned coordinates, reconstruct coordinate 1 as zero, and preserve ordinary `nn.Linear` initialization RNG consumption.",
+      "metrics": {
+        "accuracy": 0.9993000000000001,
+        "cases": 10010,
+        "correct": 10003,
+        "parameters": 1592,
+        "training_steps": 4999
+      },
+      "parent_ids": [
+        "d848e7ae2b9533654360b5ea86a3be954b3b955a72a01bcecfe6cba123668bb2"
+      ],
+      "retained_order": 71,
+      "selected_count": 2
+    },
+    "c9ddbedd33342e885277e9c9267940611f564e5b74071fa34c1010b220309d28": {
+      "artifact_path": "candidates/c9ddbedd33342e885277e9c9267940611f564e5b74071fa34c1010b220309d28",
+      "candidate_id": "c9ddbedd33342e885277e9c9267940611f564e5b74071fa34c1010b220309d28",
+      "created_opportunity": 61,
+      "fitness": -1596.0,
+      "hypothesis": "Fixing `fc1.bias[11]` in addition to coordinates 0 through 7, 9, and 10 will reduce the model from 1597 to 1596 parameters while retaining at least 99% accuracy, because the current design retained 99.97% accuracy with only coordinates 8 and 11 learned, while prior evidence specifically identifies coordinate 8\u2014not coordinate 11\u2014as initialization-sensitive.",
+      "intended_edit": "Retain a learned `fc1` bias only for hidden unit 8 and reconstruct every other bias coordinate as a fixed zero while preserving ordinary linear-layer initialization RNG use.",
+      "metrics": {
+        "accuracy": 0.9994,
+        "cases": 10010,
+        "correct": 10004,
+        "parameters": 1596,
+        "training_steps": 4999
+      },
+      "parent_ids": [
+        "6c618a2a1e9387c6d9f653e6dd716e93b2474042907f387d6adff14e80b89806"
+      ],
+      "retained_order": 61,
+      "selected_count": 1
+    },
+    "cb658840fcb75e175a1e42b5ebce317f569d5ea4b2eb4b4314076761cbe2c426": {
+      "artifact_path": "candidates/cb658840fcb75e175a1e42b5ebce317f569d5ea4b2eb4b4314076761cbe2c426",
+      "candidate_id": "cb658840fcb75e175a1e42b5ebce317f569d5ea4b2eb4b4314076761cbe2c426",
+      "created_opportunity": 36,
+      "fitness": -1611.0,
+      "hypothesis": "Fixing pre-MLP LayerNorm gain coordinate 6 to one will reduce the model from 1612 to 1611 parameters while retaining at least 99% accuracy, because its scale is absorbable by column 6 of `fc1.weight` and its distributed embedding anchor previously retained 99.72% accuracy.",
+      "intended_edit": "Remove gain coordinate 6 from the learned vector and reconstruct gains 3 through 7 as fixed ones during the forward pass.",
+      "metrics": {
+        "accuracy": 1.0,
+        "cases": 10010,
+        "correct": 10010,
+        "parameters": 1611,
+        "training_steps": 4999
+      },
+      "parent_ids": [
+        "da135ea7a0e989ddacaebb6a2febf34bfe6280a7fd2fe70630b2088597d6b765"
+      ],
+      "retained_order": 36,
+      "selected_count": 2
+    },
+    "ce77a8f3e6386cc4d95791a2ca8b41906b4c1cd834fe5752118a75cfb5e1acdb": {
+      "artifact_path": "candidates/ce77a8f3e6386cc4d95791a2ca8b41906b4c1cd834fe5752118a75cfb5e1acdb",
+      "candidate_id": "ce77a8f3e6386cc4d95791a2ca8b41906b4c1cd834fe5752118a75cfb5e1acdb",
+      "created_opportunity": 29,
+      "fitness": -1616.0,
+      "hypothesis": "Fixing pre-MLP LayerNorm bias coordinate 3 in addition to coordinates 0, 1, and 7 will reduce the model from 1617 to 1616 parameters while retaining at least 99% accuracy, because its shift is exactly absorbable by `fc1.bias` and coordinate 3 previously supported the strongest distributed-anchor result.",
+      "intended_edit": "Remove LayerNorm bias coordinate 3 from the learned parameter vector and reconstruct it as zero during the forward pass.",
+      "metrics": {
+        "accuracy": 0.9993000000000001,
+        "cases": 10010,
+        "correct": 10003,
+        "parameters": 1616,
+        "training_steps": 4999
+      },
+      "parent_ids": [
+        "f06ca3a3db753dfeae9ef7a5774f7d63e748fd557b8f7a047d69014b5babc4c8"
+      ],
+      "retained_order": 29,
+      "selected_count": 2
+    },
+    "ceeb6644ab29b348f756b931274b5be14bd454e6cc50a6e45bd82842060ef0a6": {
+      "artifact_path": "candidates/ceeb6644ab29b348f756b931274b5be14bd454e6cc50a6e45bd82842060ef0a6",
+      "candidate_id": "ceeb6644ab29b348f756b931274b5be14bd454e6cc50a6e45bd82842060ef0a6",
+      "created_opportunity": 133,
+      "fitness": -1563.0,
+      "hypothesis": "Fixing `qkv.weight[3,1]` at `0.02` with the reciprocal key-row scaling will reduce the model to 1563 parameters while retaining at least 99% accuracy.",
+      "intended_edit": "Store 176 learned QKV weights, reconstruct `qkv.weight[3,1]` as fixed, and canonicalize initialization by scaling query row 3 and inversely scaling key row 11.",
+      "metrics": {
+        "accuracy": 0.9974,
+        "cases": 10010,
+        "correct": 9984,
+        "parameters": 1563,
+        "training_steps": 4999
+      },
+      "parent_ids": [
+        "3a0ad1b331c523e8b6307cd56f0b5b1dcde7c42fe73bdd4f0ac512d50a0cfb3f"
+      ],
+      "retained_order": 133,
+      "selected_count": 1
+    },
+    "d02b55b6603d9ade34d0e0f441edc3fc63609e6115c52d862b952879efa57aa3": {
+      "artifact_path": "candidates/d02b55b6603d9ade34d0e0f441edc3fc63609e6115c52d862b952879efa57aa3",
+      "candidate_id": "d02b55b6603d9ade34d0e0f441edc3fc63609e6115c52d862b952879efa57aa3",
+      "created_opportunity": 15,
+      "fitness": -1626.0,
+      "hypothesis": "Sharing a second token-embedding coordinate with its positional-embedding counterpart will reduce the model from 1627 to 1626 parameters while retaining at least 99% accuracy, because the corresponding opposing global shifts leave transformer inputs unchanged and add only a common offset to output logits.",
+      "intended_edit": "Expand the shared embedding anchor from one to two coordinates and apply the initialization-preserving gauge transformation independently to both coordinates.",
+      "metrics": {
+        "accuracy": 1.0,
+        "cases": 10010,
+        "correct": 10010,
+        "parameters": 1626,
+        "training_steps": 4999
+      },
+      "parent_ids": [
+        "7ddb77e317e8f922379817ba863915efae1b3a1fb16bfa20374a1df23f2a82c3"
+      ],
+      "retained_order": 15,
+      "selected_count": 3
+    },
+    "d3e9ce2e4eab388ce11e3e7928b449237c0177d48f0608c4c9ca0b792951d66e": {
+      "artifact_path": "candidates/d3e9ce2e4eab388ce11e3e7928b449237c0177d48f0608c4c9ca0b792951d66e",
+      "candidate_id": "d3e9ce2e4eab388ce11e3e7928b449237c0177d48f0608c4c9ca0b792951d66e",
+      "created_opportunity": 86,
+      "fitness": -1584.0,
+      "hypothesis": "Fixing `qkv.weight[0,2]` alongside `qkv.weight[0,0]` will reduce the model to 1584 parameters while retaining at least 99% accuracy, because a query-basis covector can be oriented orthogonally to two input-column vectors without suppressing a second query coordinate.",
+      "intended_edit": "Reconstruct flattened QKV weights 0 and 2 as zeros while learning the other 190 weights and preserving ordinary initialization random-number consumption.",
+      "metrics": {
+        "accuracy": 1.0,
+        "cases": 10010,
+        "correct": 10010,
+        "parameters": 1584,
+        "training_steps": 4999
+      },
+      "parent_ids": [
+        "98394f78b5f2423dd988b2ede7fc65dc54f3204a2e7e3395cbb359e4417dd8a4"
+      ],
+      "retained_order": 86,
+      "selected_count": 4
+    },
+    "d4a025dd9c4ec67302e915db74f66a5251e4fc1d5edcc36ac07dcaec85c8d602": {
+      "artifact_path": "candidates/d4a025dd9c4ec67302e915db74f66a5251e4fc1d5edcc36ac07dcaec85c8d602",
+      "candidate_id": "d4a025dd9c4ec67302e915db74f66a5251e4fc1d5edcc36ac07dcaec85c8d602",
+      "created_opportunity": 32,
+      "fitness": -1614.0,
+      "hypothesis": "Fixing pre-MLP LayerNorm gain coordinate 3 to one will reduce the model from 1615 to 1614 parameters while retaining at least 99% accuracy, because its scale is exactly absorbable by column 3 of `fc1.weight`, its bias is already fixed at zero, and coordinate 3 previously tolerated bias gauge fixing.",
+      "intended_edit": "Remove gain coordinate 3 from the learned parameter vector and reconstruct gains 3 and 7 as fixed ones during the forward pass.",
+      "metrics": {
+        "accuracy": 0.9993000000000001,
+        "cases": 10010,
+        "correct": 10003,
+        "parameters": 1614,
+        "training_steps": 4999
+      },
+      "parent_ids": [
+        "51dcf4ff6b979197a9b8b86e10ffa67b55b0cbe5e03f3683ce01d3b1e0bffd33"
+      ],
+      "retained_order": 32,
+      "selected_count": 2
+    },
+    "d51bf74c97477d2666fc9b424cddad8868b2d632eaf4863918fa2e1b7a555198": {
+      "artifact_path": "candidates/d51bf74c97477d2666fc9b424cddad8868b2d632eaf4863918fa2e1b7a555198",
+      "candidate_id": "d51bf74c97477d2666fc9b424cddad8868b2d632eaf4863918fa2e1b7a555198",
+      "created_opportunity": 111,
+      "fitness": -1571.0,
+      "hypothesis": "Fixing `qkv.weight[12,3]` at zero will produce a 1571-parameter model with at least 99% accuracy, because a LayerNorm output has a zero-sum standardized component, so the removed key-row coefficient is gauge-redundant up to a position-independent key shift that causal softmax attention cancels.",
+      "intended_edit": "Store 180 learned QKV weights, reconstruct `qkv.weight[12,3]` as zero, and canonicalize its initialized key row by subtracting that coefficient from the full row, preserving the initialized attention function.",
+      "metrics": {
+        "accuracy": 0.9997,
+        "cases": 10010,
+        "correct": 10007,
+        "parameters": 1571,
+        "training_steps": 4999
+      },
+      "parent_ids": [
+        "9398359eb731d8adc3d11240344b2b66f0426a12503dad8dc48d36eba0cbed30"
+      ],
+      "retained_order": 111,
+      "selected_count": 2
+    },
+    "d848e7ae2b9533654360b5ea86a3be954b3b955a72a01bcecfe6cba123668bb2": {
+      "artifact_path": "candidates/d848e7ae2b9533654360b5ea86a3be954b3b955a72a01bcecfe6cba123668bb2",
+      "candidate_id": "d848e7ae2b9533654360b5ea86a3be954b3b955a72a01bcecfe6cba123668bb2",
+      "created_opportunity": 64,
+      "fitness": -1593.0,
+      "hypothesis": "Fixing `q_bias[2]` at zero will reduce the model from 1594 to 1593 parameters while retaining at least 99% accuracy, because fixing coordinates 0 and 1 consecutively preserved 99.97% accuracy and all query-bias coordinates share zero initialization.",
+      "intended_edit": "Replace the six learned query-bias coordinates with five, reconstructing coordinates 0 through 2 as fixed zeros.",
+      "metrics": {
+        "accuracy": 0.9990000000000001,
+        "cases": 10010,
+        "correct": 10000,
+        "parameters": 1593,
+        "training_steps": 4999
+      },
+      "parent_ids": [
+        "7747fee785c2f732de8ea26705d6e233b614e23599029911abdbd131380b5276"
+      ],
+      "retained_order": 64,
+      "selected_count": 7
+    },
+    "da135ea7a0e989ddacaebb6a2febf34bfe6280a7fd2fe70630b2088597d6b765": {
+      "artifact_path": "candidates/da135ea7a0e989ddacaebb6a2febf34bfe6280a7fd2fe70630b2088597d6b765",
+      "candidate_id": "da135ea7a0e989ddacaebb6a2febf34bfe6280a7fd2fe70630b2088597d6b765",
+      "created_opportunity": 35,
+      "fitness": -1612.0,
+      "hypothesis": "Fixing pre-MLP LayerNorm gain coordinate 4 to one will reduce the model from 1613 to 1612 parameters while retaining at least 99% accuracy, because its scale is absorbable by `fc1.weight` and its distributed embedding anchor previously retained 99.94% accuracy.",
+      "intended_edit": "Remove gain coordinate 4 from the learned vector and reconstruct gains 3, 4, 5, and 7 as fixed ones during the forward pass.",
+      "metrics": {
+        "accuracy": 0.9992,
+        "cases": 10010,
+        "correct": 10002,
+        "parameters": 1612,
+        "training_steps": 4999
+      },
+      "parent_ids": [
+        "9dc10682e35c24c982ed34a39545917f4578ba4de1d7433f1b04cd2ee0515f66"
+      ],
+      "retained_order": 35,
+      "selected_count": 1
+    },
+    "db84a8296a5c1c20e4aae6f5b23bbf5faf41c69908c38626f4b7a4ba15487d50": {
+      "artifact_path": "candidates/db84a8296a5c1c20e4aae6f5b23bbf5faf41c69908c38626f4b7a4ba15487d50",
+      "candidate_id": "db84a8296a5c1c20e4aae6f5b23bbf5faf41c69908c38626f4b7a4ba15487d50",
+      "created_opportunity": 75,
+      "fitness": -1590.0,
+      "hypothesis": "Fixing `ln1.weight[2]` alongside coordinate 0 will reduce the model from 1591 to 1590 parameters while retaining at least 99% accuracy, because LayerNorm-gain removability is coordinate-sensitive and the alternative coordinate 1 narrowly missed at 98.89%.",
+      "intended_edit": "Store six learned first-LayerNorm gains and reconstruct gain coordinates 0 and 2 as fixed ones, while continuing to fix shift coordinate 3.",
+      "metrics": {
+        "accuracy": 0.9987,
+        "cases": 10010,
+        "correct": 9997,
+        "parameters": 1590,
+        "training_steps": 4999
+      },
+      "parent_ids": [
+        "4772c898be90da657c988afe9a00d68d7ef5651026545a1ab5a0cfe7e5bf306c"
+      ],
+      "retained_order": 75,
+      "selected_count": 1
+    },
+    "dce9156b86eac194b36ba1ba92f853436e010fc00ae10e893947da9a709ef6c5": {
+      "artifact_path": "candidates/dce9156b86eac194b36ba1ba92f853436e010fc00ae10e893947da9a709ef6c5",
+      "candidate_id": "dce9156b86eac194b36ba1ba92f853436e010fc00ae10e893947da9a709ef6c5",
+      "created_opportunity": 25,
+      "fitness": -1619.0,
+      "hypothesis": "Fixing one coordinate of the second pre-LayerNorm bias at zero will reduce the model from 1620 to 1619 parameters while retaining at least 99% accuracy, because that coordinate\u2019s effect is exactly absorbable by the existing `fc1` bias and the initialization remains unchanged.",
+      "intended_edit": "Add a LayerNorm variant with one fixed-zero bias coordinate and use it only before the MLP.",
+      "metrics": {
+        "accuracy": 0.9995,
+        "cases": 10010,
+        "correct": 10005,
+        "parameters": 1619,
+        "training_steps": 4999
+      },
+      "parent_ids": [
+        "a0545ea331d50c5d66147f4e42f3cc3b9de9340e392fee47f08645f48de0de6e"
+      ],
+      "retained_order": 25,
+      "selected_count": 1
+    },
+    "e6156e9e3115b409c941fe0258c4b1279e1d50b7fcb728a6475f58ddeb68f4f4": {
+      "artifact_path": "candidates/e6156e9e3115b409c941fe0258c4b1279e1d50b7fcb728a6475f58ddeb68f4f4",
+      "candidate_id": "e6156e9e3115b409c941fe0258c4b1279e1d50b7fcb728a6475f58ddeb68f4f4",
+      "created_opportunity": 105,
+      "fitness": -1575.0,
+      "hypothesis": "Sharing the remaining attention LayerNorm gain with MLP LayerNorm gain coordinate 1 will produce a 1575-parameter model with at least 99% accuracy, because both gains are downstream-absorbable gauge scalars while the gain remains learned rather than frozen.",
+      "intended_edit": "Rebind the attention LayerNorm gain parameter to the MLP LayerNorm\u2019s two-coordinate gain parameter; its first coordinate controls both norms, while the second remains exclusive to the MLP norm.",
+      "metrics": {
+        "accuracy": 0.9995999999999999,
+        "cases": 10010,
+        "correct": 10006,
+        "parameters": 1575,
+        "training_steps": 4999
+      },
+      "parent_ids": [
+        "a826bc62ce40df80dcd03546119c33e6a5438094fb102261a2301644aa415500"
+      ],
+      "retained_order": 105,
+      "selected_count": 1
+    },
+    "f06ca3a3db753dfeae9ef7a5774f7d63e748fd557b8f7a047d69014b5babc4c8": {
+      "artifact_path": "candidates/f06ca3a3db753dfeae9ef7a5774f7d63e748fd557b8f7a047d69014b5babc4c8",
+      "candidate_id": "f06ca3a3db753dfeae9ef7a5774f7d63e748fd557b8f7a047d69014b5babc4c8",
+      "created_opportunity": 28,
+      "fitness": -1617.0,
+      "hypothesis": "Fixing the final pre-MLP LayerNorm bias coordinate instead of coordinate 2 will reduce the model from 1618 to 1617 parameters while retaining at least 99% accuracy, because the shift remains exactly absorbable by `fc1.bias` and avoids the coordinate whose removal caused the 48.74% collapse.",
+      "intended_edit": "Keep bias coordinates 0 and 1 fixed, additionally fix coordinate 7, and retain learned biases for coordinates 2 through 6.",
+      "metrics": {
+        "accuracy": 0.9990000000000001,
+        "cases": 10010,
+        "correct": 10000,
+        "parameters": 1617,
+        "training_steps": 4999
+      },
+      "parent_ids": [
+        "410f5b9f486b6fb64f0f76b1c7c2428ce8ac7caa6f304b38af92f367e67f1470"
+      ],
+      "retained_order": 28,
+      "selected_count": 1
+    },
+    "fc9d61eaf6fdca7044f0a593ea4de56e5b23d61e138ed1c039c11cf55fa10152": {
+      "artifact_path": "candidates/fc9d61eaf6fdca7044f0a593ea4de56e5b23d61e138ed1c039c11cf55fa10152",
+      "candidate_id": "fc9d61eaf6fdca7044f0a593ea4de56e5b23d61e138ed1c039c11cf55fa10152",
+      "created_opportunity": 41,
+      "fitness": -1607.0,
+      "hypothesis": "Fixing pre-attention LayerNorm bias coordinate 3 at zero will reduce the model from 1608 to 1607 parameters while retaining at least 99% accuracy, because its query and value shifts are absorbable by the learned attention biases, while its constant key shift cancels in the softmax.",
+      "intended_edit": "Replace the first block LayerNorm with an equivalent parameterization whose bias coordinate 3 is fixed at zero.",
+      "metrics": {
+        "accuracy": 0.9991,
+        "cases": 10010,
+        "correct": 10001,
+        "parameters": 1607,
+        "training_steps": 4999
+      },
+      "parent_ids": [
+        "53ecd3408dc3c8e191191badefa3ef9772203d6b75960759fc2fe26cddff5755"
+      ],
+      "retained_order": 41,
+      "selected_count": 4
+    },
+    "fd57f42d9c34813dbc14f79b49c15fc095e6d86a9278990aa2957513fca1bd9d": {
+      "artifact_path": "candidates/fd57f42d9c34813dbc14f79b49c15fc095e6d86a9278990aa2957513fca1bd9d",
+      "candidate_id": "fd57f42d9c34813dbc14f79b49c15fc095e6d86a9278990aa2957513fca1bd9d",
+      "created_opportunity": 94,
+      "fitness": -1580.0,
+      "hypothesis": "Fixing `qkv.weight[4,0]` at 0.02 with reciprocal scaling of head-1 key row 4 will reduce the model to 1580 parameters while retaining at least 99% accuracy, because it preserves initial attention scores and uses an independent head\u2019s coordinate-scale gauge rather than the head-0 coordinate whose fourth anchor failed.",
+      "intended_edit": "Store 186 learned QKV weights, reconstruct weights 0 and 2 as zero and weights 4, 8, 16, and 32 as 0.02, then initialize query row 4 and key row 12 with reciprocal scaling.",
+      "metrics": {
+        "accuracy": 0.9995,
+        "cases": 10010,
+        "correct": 10005,
+        "parameters": 1580,
+        "training_steps": 4999
+      },
+      "parent_ids": [
+        "40ab1b6f954c7e185e099061bca95aedb6ece9c9f553092067ed33b8e8336729"
+      ],
+      "retained_order": 94,
+      "selected_count": 1
+    },
+    "fd66f0ee754b1294c5c67d3c3615990a9792d51145a4cdc041d1f0774daa2f96": {
+      "artifact_path": "candidates/fd66f0ee754b1294c5c67d3c3615990a9792d51145a4cdc041d1f0774daa2f96",
+      "candidate_id": "fd66f0ee754b1294c5c67d3c3615990a9792d51145a4cdc041d1f0774daa2f96",
+      "created_opportunity": 96,
+      "fitness": -1578.0,
+      "hypothesis": "Fixing `qkv.weight[6,0]` at 0.02 with reciprocal scaling of head-1 key row 6 will reduce the model to 1578 parameters while retaining at least 99% accuracy, because the first two function-preserving scale anchors in head 1 achieved 99.95% and 99.89%.",
+      "intended_edit": "Store 184 learned QKV weights, reconstruct weights 0 and 2 as zero and weights 4, 8, 16, 32, 40, and 48 as 0.02, then initialize query row 6 and key row 14 with reciprocal scaling.",
+      "metrics": {
+        "accuracy": 0.9994,
+        "cases": 10010,
+        "correct": 10004,
+        "parameters": 1578,
+        "training_steps": 4999
+      },
+      "parent_ids": [
+        "a874bce98f86686d8a6a8df539ee6cd546e7360fda07e0cee99c040760270869"
+      ],
+      "retained_order": 96,
+      "selected_count": 1
+    }
+  },
+  "condition": "C0",
+  "conversation_session_id": null,
+  "evaluations_used": 128,
+  "evaluator_seconds_used": 53949.79262354283,
+  "incumbent_id": "0f7da1df25a129e162ad733a79aa672076f441d5126eefa2e51af596f4d1c9ad",
+  "next_opportunity": 153,
+  "no_search": false,
+  "portfolio_ids": [
+    "0f7da1df25a129e162ad733a79aa672076f441d5126eefa2e51af596f4d1c9ad"
+  ],
+  "proposals_used": 152,
+  "protocol_hash": "0247b4415c62d35b231e3347f31a3f63cd54eb4ec6bb2441bfc209e0ee2d3cc4",
+  "revision": 305,
+  "run_id": "controlled-openevolve-transformer-v2-1-source-only-ten-digit-addition-pair-transformer-openevolve-v2-1-mps-openevolve-b04-c0",
+  "schema_version": "1.0",
+  "status": "running",
+  "token_budget_continuation_notice_sent": false,
+  "usage": {
+    "cached_input_tokens": 1332608,
+    "input_tokens": 2965439,
+    "output_tokens": 364153,
+    "reasoning_output_tokens": 282072
+  }
+}

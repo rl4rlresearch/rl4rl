@@ -1,0 +1,99 @@
+{
+  "artifact_path": "candidates/ef77434ec0825ebe42c1bf94b41c092d870aab83a5f873ba41067d5c098046a8",
+  "candidate_id": "ef77434ec0825ebe42c1bf94b41c092d870aab83a5f873ba41067d5c098046a8",
+  "codex_service_tier": "default",
+  "condition": "C1",
+  "conversation_session_id": null,
+  "evaluation": {
+    "evaluator_calls": 1,
+    "evaluator_seconds": 178.94625262496993,
+    "failure_kind": null,
+    "fitness": -3573834554244191336,
+    "metrics": {
+      "batch_size": 128,
+      "evaluation_cases": 815,
+      "evaluation_split": "public_speaker_disjoint_validation",
+      "examples_processed": 50000,
+      "inference_cost": 3573834554244191336,
+      "maximum_recurrent_steps": 32,
+      "mean_recurrent_steps": 32.0,
+      "median_recurrent_steps": 32,
+      "optimizer_steps": 397,
+      "p95_recurrent_steps": 32,
+      "parameters": 28776,
+      "peak_hidden_elements": 129536,
+      "recurrent_logit_effect": 0.08753733336925507,
+      "recurrent_macs": 683504640,
+      "recurrent_steps": 26080,
+      "state_dependence_effect": 0.3201450705528259,
+      "state_update_effect": 0.33472058176994324,
+      "total_inference_macs": 685147680,
+      "trained_recurrent_logit_effect": 0.5285130739212036,
+      "trained_state_dependence_effect": 0.3786967098712921,
+      "trained_state_update_effect": 0.4047926068305969,
+      "training_seconds": 144.75289745815098,
+      "validation_accuracy": 0.8674846625766871,
+      "validation_correct": 707,
+      "validation_cross_entropy": 0.39589817538583205
+    },
+    "valid": true
+  },
+  "evaluator_calls_cumulative": 14,
+  "evaluator_calls_increment": 1,
+  "evaluator_seconds_cumulative": 1807.8768279158976,
+  "evaluator_seconds_increment": 178.94625262496993,
+  "event": "proposal_completed",
+  "evicted_candidate_id": "e9e7523b6f3b0a95361d79f702e9b927a762293fa1724aa34b776b57faeab54e",
+  "evidence": "The 84-unit mean-plus-final model narrowly missed at 84.79%, while the 88-unit version reached 85.77%; adding a parameter-light maximum readout exposes salient transient speech evidence that temporal averaging may suppress, while the 84-unit recurrent core preserves the prior model\u2019s structural MAC reduction.",
+  "hypothesis": "An 84-unit GRU classified from mean, maximum, and final recurrent outputs will recover the 0.22-point accuracy shortfall of the prior 84-unit model and reach at least 85% while retaining substantially fewer MACs than the verified 88-unit model.",
+  "incumbent_after": "ef77434ec0825ebe42c1bf94b41c092d870aab83a5f873ba41067d5c098046a8",
+  "intended_edit": "Reduce the GRU width to 84 and add a running elementwise maximum of recurrent outputs to the state and classifier features, preserving all 32 causal steps and the existing training procedure.",
+  "mechanism": "Salience-preserving max-augmented recurrent readout",
+  "opportunity": 14,
+  "parent_ids": [
+    "e9e7523b6f3b0a95361d79f702e9b927a762293fa1724aa34b776b57faeab54e"
+  ],
+  "portfolio_after": [
+    "ef77434ec0825ebe42c1bf94b41c092d870aab83a5f873ba41067d5c098046a8"
+  ],
+  "prompt_hashes": {
+    "common_template_sha256": "dee04faf4c430276c1036ba97f5705a339857dbdf19117dac88952a5a3a47e9d",
+    "prompt_sha256": "ad974f51e14de1c4c9e022245aa018b919761529519f1e732eedeb0e2b9d4fa3",
+    "proposal_policy_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "search_state_sha256": "04e5eb078ae1964e4ec65bfeeeb1acd0ffa246e7d54d5e0f997f81f602da28c5",
+    "treatment_skeleton_sha256": "6499c0256d262b6f6c7e7df63b1986660f163ac1becdc13b07e1323baded8c28"
+  },
+  "proposal_type": "ordinary",
+  "proposals_cumulative": 14,
+  "remaining_budget": {
+    "evaluations": 186,
+    "evaluator_seconds": 58192.1231720841,
+    "proposals": 186,
+    "tokens": 99724774
+  },
+  "retained": true,
+  "retention_decision": "strict_incumbent_improvement",
+  "run_id": "tiny-kws-rnn-openevolve-v2-1-cpu-tiny_kws_rnn_source_only_cpu-openevolve-b04-c1",
+  "schema_version": "1.0",
+  "selected_parent_ids": [
+    "e9e7523b6f3b0a95361d79f702e9b927a762293fa1724aa34b776b57faeab54e"
+  ],
+  "timestamp": "2026-09-04T03:12:03.302952+00:00",
+  "usage_cumulative": {
+    "cached_input_tokens": 150528,
+    "input_tokens": 257367,
+    "output_tokens": 17859,
+    "reasoning_output_tokens": 12268,
+    "total_tokens": 275226
+  },
+  "usage_increment": {
+    "cached_input_tokens": 10752,
+    "input_tokens": 20253,
+    "output_tokens": 2374,
+    "reasoning_output_tokens": 1250,
+    "total_tokens": 22627
+  },
+  "visible_candidate_ids": [
+    "e9e7523b6f3b0a95361d79f702e9b927a762293fa1724aa34b776b57faeab54e"
+  ]
+}

@@ -1,0 +1,83 @@
+{
+  "artifact_path": "candidates/36c463348d540145e8589ca9040da77605c85259de4f2321220a1596d1f93f35",
+  "candidate_id": "36c463348d540145e8589ca9040da77605c85259de4f2321220a1596d1f93f35",
+  "codex_service_tier": "fast",
+  "condition": "C3",
+  "conversation_session_id": null,
+  "evaluation": {
+    "evaluator_calls": 1,
+    "evaluator_seconds": 245.1294165420113,
+    "failure_kind": "nonqualification",
+    "fitness": null,
+    "metrics": {
+      "accuracy": 0.1727,
+      "cases": 10010,
+      "correct": 1729,
+      "parameters": 1620,
+      "training_steps": 4999
+    },
+    "valid": false
+  },
+  "evaluator_calls_cumulative": 7,
+  "evaluator_calls_increment": 1,
+  "evaluator_seconds_cumulative": 1576.3517518760636,
+  "evaluator_seconds_increment": 245.1294165420113,
+  "event": "proposal_completed",
+  "evicted_candidate_id": null,
+  "evidence": "The query-only QKV design achieved 99.92% accuracy at 1628 parameters; unlike the failed `d_ff` reductions, this removes an analytically redundant affine parameter while preserving nonlinear capacity.",
+  "hypothesis": "The 1628-parameter qualified design can remove all eight `ln2` bias parameters and retain at least 99% accuracy, because `fc1.bias` can represent the LayerNorm bias\u2019s entire downstream effect without reducing the function class, producing 1620 parameters.",
+  "incumbent_after": "a91d17a18b4eb5b68640561507be2dfdd6ebe850bd8a64c62897914ce559cfcd",
+  "intended_edit": "Apply the qualified query-only QKV bias design, retain `d_ff=12`, and remove the second LayerNorm bias while preserving the proven initialization RNG stream.",
+  "mechanism": "Absorb the second LayerNorm bias into the MLP input bias",
+  "opportunity": 7,
+  "parent_ids": [
+    "2b9cea175ed60b009337ac54f6e8ad23bf2c014eb4080237777bfb70bfd9fd5b"
+  ],
+  "portfolio_after": [
+    "2b9cea175ed60b009337ac54f6e8ad23bf2c014eb4080237777bfb70bfd9fd5b",
+    "ab1f04e2fd829b04a7203faf36349aa0ebb5b0229225bf61b12e800f0d7f6ab4",
+    "a91d17a18b4eb5b68640561507be2dfdd6ebe850bd8a64c62897914ce559cfcd"
+  ],
+  "prompt_hashes": {
+    "common_template_sha256": "3f2bea6418b6969c4bf2aa1df18dcda8a3a4ac075bf20c79068c754698b6be5e",
+    "prompt_sha256": "f832c827632ca3123a55910c2781ba462635e80d64d8193511b9064f51778931",
+    "proposal_policy_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "search_state_sha256": "c938ac007bf70fe8d27f64661175531e51fcb16b38318c328493c32ee292e27e",
+    "treatment_skeleton_sha256": "a8a127307991df51040a4376385d20b09c26c572de8b4d766e429bb3ccd055ce"
+  },
+  "proposal_type": "ordinary",
+  "proposals_cumulative": 7,
+  "remaining_budget": {
+    "evaluations": 193,
+    "evaluator_seconds": 358423.64824812394,
+    "proposals": 193,
+    "tokens": 99830962
+  },
+  "retained": false,
+  "retention_decision": "invalid",
+  "run_id": "controlled-openevolve-transformer-v2-1-source-only-ten-digit-addition-pair-transformer-openevolve-v2-1-mps-openevolve-b05-c3",
+  "schema_version": "1.0",
+  "selected_parent_ids": [
+    "2b9cea175ed60b009337ac54f6e8ad23bf2c014eb4080237777bfb70bfd9fd5b"
+  ],
+  "timestamp": "2026-08-23T10:42:25.214618+00:00",
+  "usage_cumulative": {
+    "cached_input_tokens": 76032,
+    "input_tokens": 146836,
+    "output_tokens": 22202,
+    "reasoning_output_tokens": 18620,
+    "total_tokens": 169038
+  },
+  "usage_increment": {
+    "cached_input_tokens": 5888,
+    "input_tokens": 27981,
+    "output_tokens": 5832,
+    "reasoning_output_tokens": 5111,
+    "total_tokens": 33813
+  },
+  "visible_candidate_ids": [
+    "2b9cea175ed60b009337ac54f6e8ad23bf2c014eb4080237777bfb70bfd9fd5b",
+    "ab1f04e2fd829b04a7203faf36349aa0ebb5b0229225bf61b12e800f0d7f6ab4",
+    "a91d17a18b4eb5b68640561507be2dfdd6ebe850bd8a64c62897914ce559cfcd"
+  ]
+}

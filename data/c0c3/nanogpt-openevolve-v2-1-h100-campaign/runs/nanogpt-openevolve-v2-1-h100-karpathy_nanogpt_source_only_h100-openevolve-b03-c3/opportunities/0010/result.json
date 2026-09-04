@@ -1,0 +1,88 @@
+{
+  "artifact_path": "candidates/dc725a877809c8c9b98a82241aae181de0c7f1b656d987c1c5f1a6364c0eeb4a",
+  "candidate_id": "dc725a877809c8c9b98a82241aae181de0c7f1b656d987c1c5f1a6364c0eeb4a",
+  "codex_service_tier": "fast",
+  "condition": "C3",
+  "conversation_session_id": null,
+  "evaluation": {
+    "evaluator_calls": 1,
+    "evaluator_seconds": 402.708687904,
+    "failure_kind": null,
+    "fitness": -0.993637,
+    "metrics": {
+      "depth": 8.0,
+      "mfu_percent": 38.41,
+      "num_params_M": 50.3,
+      "num_steps": 920.0,
+      "peak_vram_mb": 47124.2,
+      "total_tokens_M": 482.3,
+      "training_seconds": 300.1,
+      "val_bpb": 0.993637
+    },
+    "valid": true
+  },
+  "evaluator_calls_cumulative": 10,
+  "evaluator_calls_increment": 1,
+  "evaluator_seconds_cumulative": 3737.7089847939983,
+  "evaluator_seconds_increment": 402.708687904,
+  "event": "proposal_completed",
+  "evicted_candidate_id": "ba73cbf0bf34205a20f97f1763f38b44028756f1997651baeb7f1846d60e2f39",
+  "evidence": "Quarter-context attention reduced training volume from 497.0M to 401.1M tokens and regressed val_bpb to 1.009577, so discarding context is unpromising. Meanwhile, softcap refinements have produced only marginal gains around 0.9952. This patch preserves the proven context windows, batching, and softcap while testing a distinct learned context-selection mechanism with negligible parameter and compute cost.",
+  "hypothesis": "Replacing fixed-amplitude attention outputs with lightweight, token-dependent per-head gates will improve context selection and lower val_bpb below 0.995200 without materially reducing the roughly 493M-token training volume.",
+  "incumbent_after": "dc725a877809c8c9b98a82241aae181de0c7f1b656d987c1c5f1a6364c0eeb4a",
+  "intended_edit": "Add a zero-initialized sigmoid gate to every attention layer that conditionally attenuates or amplifies each retrieved head. The old assumption is that attention weights alone adequately control contextual influence; the new approach separately learns whether each head\u2019s retrieved context should enter the residual stream.",
+  "mechanism": "Query-conditioned attention head gating",
+  "opportunity": 10,
+  "parent_ids": [
+    "ba73cbf0bf34205a20f97f1763f38b44028756f1997651baeb7f1846d60e2f39"
+  ],
+  "portfolio_after": [
+    "2865e528e18dc51191e4037eaeb5824cb0ea83ede79061b59b8f3caac686da6b",
+    "3d0984c417edfa34c39b8016244d3bbf5f1d7050ef6de35c69d1dd306e084003",
+    "527028f3b302d06fb4a431bbb3f2b311bf4db7e77ee41ff03039a0e4bbf79212",
+    "dc725a877809c8c9b98a82241aae181de0c7f1b656d987c1c5f1a6364c0eeb4a"
+  ],
+  "prompt_hashes": {
+    "common_template_sha256": "ba85b39aa7288f4f48475376da6cff65661f39cfeb7ac7cde15b2a9a2e692fde",
+    "prompt_sha256": "56611ac83987b0d16375dc98a6d375cebda66c4c68396f8ea385ade622c84953",
+    "proposal_policy_sha256": "cd7b9ba20a1cd1edd0663b5e3652baa9cd3c81925074103fe47e66c021d61a4a",
+    "search_state_sha256": "c938ac007bf70fe8d27f64661175531e51fcb16b38318c328493c32ee292e27e",
+    "treatment_skeleton_sha256": "68bf4502d4b7b870d5efe70f6f3c750fcf6794af788421f4dbe1e550994efa02"
+  },
+  "proposal_type": "assumption_changing",
+  "proposals_cumulative": 10,
+  "remaining_budget": {
+    "evaluations": 190,
+    "evaluator_seconds": 716262.291015206,
+    "proposals": 190,
+    "tokens": 99568432
+  },
+  "retained": true,
+  "retention_decision": "replaced_selected_parent_on_strict_improvement",
+  "run_id": "nanogpt-openevolve-v2-1-h100-karpathy_nanogpt_source_only_h100-openevolve-b03-c3",
+  "schema_version": "1.0",
+  "selected_parent_ids": [
+    "ba73cbf0bf34205a20f97f1763f38b44028756f1997651baeb7f1846d60e2f39"
+  ],
+  "timestamp": "2026-08-23T19:55:14.731144+00:00",
+  "usage_cumulative": {
+    "cached_input_tokens": 150016,
+    "input_tokens": 411466,
+    "output_tokens": 20102,
+    "reasoning_output_tokens": 17433,
+    "total_tokens": 431568
+  },
+  "usage_increment": {
+    "cached_input_tokens": 12032,
+    "input_tokens": 46376,
+    "output_tokens": 3072,
+    "reasoning_output_tokens": 2474,
+    "total_tokens": 49448
+  },
+  "visible_candidate_ids": [
+    "2865e528e18dc51191e4037eaeb5824cb0ea83ede79061b59b8f3caac686da6b",
+    "3d0984c417edfa34c39b8016244d3bbf5f1d7050ef6de35c69d1dd306e084003",
+    "527028f3b302d06fb4a431bbb3f2b311bf4db7e77ee41ff03039a0e4bbf79212",
+    "ba73cbf0bf34205a20f97f1763f38b44028756f1997651baeb7f1846d60e2f39"
+  ]
+}

@@ -1,0 +1,79 @@
+{
+  "artifact_path": "candidates/6c59b25963618491e71ea30556e5891a21fddeb0d196b69a019be603a4c6a116",
+  "candidate_id": "6c59b25963618491e71ea30556e5891a21fddeb0d196b69a019be603a4c6a116",
+  "codex_service_tier": "default",
+  "condition": "C1",
+  "conversation_session_id": null,
+  "evaluation": {
+    "evaluator_calls": 1,
+    "evaluator_seconds": 829.1528714159504,
+    "failure_kind": "nonqualification",
+    "fitness": null,
+    "metrics": {
+      "accuracy": 0.6202000000000001,
+      "cases": 10010,
+      "correct": 6208,
+      "parameters": 1524,
+      "training_steps": 4999
+    },
+    "valid": false
+  },
+  "evaluator_calls_cumulative": 132,
+  "evaluator_calls_increment": 1,
+  "evaluator_seconds_cumulative": 56579.766989867436,
+  "evaluator_seconds_increment": 829.1528714159504,
+  "event": "proposal_completed",
+  "evicted_candidate_id": null,
+  "evidence": "Simultaneously pruning one coefficient from all 24 QKV rows collapsed accuracy to 40.14%, while the current unpruned-QKV design reaches 99.88%; isolating the quotient to one key row tests whether the failure came from applying 24 optimization-changing reparameterizations at once.",
+  "hypothesis": "Removing one centered-input coefficient from the first key-projection row will reduce the model from 1,525 to 1,524 parameters while retaining at least 99% accuracy, because the row\u2019s omitted coefficient is representationally redundant on centered LayerNorm states and its constant key contribution is softmax-null.",
+  "incumbent_after": "aeb317294f5cdaba0bcb74b446d00317b314f03060810088194811cb528274b6",
+  "intended_edit": "Store the QKV matrix with the final input coefficient of the first key row omitted, reconstruct it as zero during inference, and canonicalize that row at initialization while preserving the original RNG sequence.",
+  "mechanism": "Single-key-row LayerNorm-tangent quotient",
+  "opportunity": 133,
+  "parent_ids": [
+    "aeb317294f5cdaba0bcb74b446d00317b314f03060810088194811cb528274b6"
+  ],
+  "portfolio_after": [
+    "aeb317294f5cdaba0bcb74b446d00317b314f03060810088194811cb528274b6"
+  ],
+  "prompt_hashes": {
+    "common_template_sha256": "3f2bea6418b6969c4bf2aa1df18dcda8a3a4ac075bf20c79068c754698b6be5e",
+    "prompt_sha256": "88933af7057c4c784dc5e2ce3d39e7fb4bda64179d804cbe81a1c69ff7d05ed0",
+    "proposal_policy_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "search_state_sha256": "04e5eb078ae1964e4ec65bfeeeb1acd0ffa246e7d54d5e0f997f81f602da28c5",
+    "treatment_skeleton_sha256": "62824025f078d72dadbbf3c6036643e5601d70d93317ea958c17b7c174503005"
+  },
+  "proposal_type": "ordinary",
+  "proposals_cumulative": 133,
+  "remaining_budget": {
+    "evaluations": 68,
+    "evaluator_seconds": 303420.23301013256,
+    "proposals": 67,
+    "tokens": 96369940
+  },
+  "retained": false,
+  "retention_decision": "invalid",
+  "run_id": "controlled-openevolve-transformer-v2-1-source-only-ten-digit-addition-pair-transformer-openevolve-v2-1-mps-openevolve-b01-c1",
+  "schema_version": "1.0",
+  "selected_parent_ids": [
+    "aeb317294f5cdaba0bcb74b446d00317b314f03060810088194811cb528274b6"
+  ],
+  "timestamp": "2026-09-03T15:17:17.653795+00:00",
+  "usage_cumulative": {
+    "cached_input_tokens": 1408128,
+    "input_tokens": 3116420,
+    "output_tokens": 513640,
+    "reasoning_output_tokens": 411164,
+    "total_tokens": 3630060
+  },
+  "usage_increment": {
+    "cached_input_tokens": 10752,
+    "input_tokens": 25193,
+    "output_tokens": 4356,
+    "reasoning_output_tokens": 3624,
+    "total_tokens": 29549
+  },
+  "visible_candidate_ids": [
+    "aeb317294f5cdaba0bcb74b446d00317b314f03060810088194811cb528274b6"
+  ]
+}

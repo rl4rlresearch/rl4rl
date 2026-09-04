@@ -1,0 +1,30 @@
+W0824 03:29:54.818000 30777 site-packages/torch/_dynamo/convert_frame.py:1358] [2/8] torch._dynamo hit config.recompile_limit (8)
+W0824 03:29:54.818000 30777 site-packages/torch/_dynamo/convert_frame.py:1358] [2/8]    function: 'muon_step_fused' (/tmp/nanogpt-23c0e91cc805459da807cba51d8237f8-r45mmduy/opportunity/evaluation-workspace/train.py:325)
+W0824 03:29:54.818000 30777 site-packages/torch/_dynamo/convert_frame.py:1358] [2/8]    last reason: 2/7: tensor 'stacked_grads' size mismatch at index 1. expected 1408, actual 2560
+W0824 03:29:54.818000 30777 site-packages/torch/_dynamo/convert_frame.py:1358] [2/8] To log all recompilation reasons, use TORCH_LOGS="recompiles".
+W0824 03:29:54.818000 30777 site-packages/torch/_dynamo/convert_frame.py:1358] [2/8] To diagnose recompilation issues, see https://pytorch.org/docs/main/torch.compiler_troubleshooting.html
+Traceback (most recent call last):
+  File "/tmp/nanogpt-23c0e91cc805459da807cba51d8237f8-r45mmduy/opportunity/evaluation-workspace/train.py", line 573, in <module>
+    optimizer.step()
+  File "/usr/local/lib/python3.12/site-packages/torch/optim/optimizer.py", line 517, in wrapper
+    out = func(*args, **kwargs)
+          ^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.12/site-packages/torch/utils/_contextlib.py", line 120, in decorate_context
+    return func(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^
+  File "/tmp/nanogpt-23c0e91cc805459da807cba51d8237f8-r45mmduy/opportunity/evaluation-workspace/train.py", line 435, in step
+    self._step_muon(group)
+  File "/tmp/nanogpt-23c0e91cc805459da807cba51d8237f8-r45mmduy/opportunity/evaluation-workspace/train.py", line 423, in _step_muon
+    muon_step_fused(stacked_grads, stacked_params,
+  File "/usr/local/lib/python3.12/site-packages/torch/_dynamo/eval_frame.py", line 832, in compile_wrapper
+    return fn(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.12/site-packages/torch/_dynamo/convert_frame.py", line 1875, in __call__
+    result = self._torchdynamo_orig_backend(
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.12/site-packages/torch/_dynamo/convert_frame.py", line 688, in __call__
+    result = _compile(
+             ^^^^^^^^^
+  File "/usr/local/lib/python3.12/site-packages/torch/_dynamo/convert_frame.py", line 1375, in _compile
+    raise FailOnRecompileLimitHit(
+torch._dynamo.exc.FailOnRecompileLimitHit: recompile_limit reached with fullgraph=True. Excessive recompilations can degrade performance due to the compilation overhead of each recompilation. To monitor recompilations, enable TORCH_LOGS=recompiles. If recompilations are expected, consider increasing torch._dynamo.config.cache_size_limit to an appropriate value.

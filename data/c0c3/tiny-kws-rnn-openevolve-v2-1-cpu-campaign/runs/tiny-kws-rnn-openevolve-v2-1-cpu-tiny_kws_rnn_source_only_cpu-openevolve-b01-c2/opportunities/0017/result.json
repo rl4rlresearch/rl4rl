@@ -1,0 +1,105 @@
+{
+  "artifact_path": "candidates/6e54f583ceb428bec8a6c7ba7963f28be69807aca24e426892c7446f8e68d086",
+  "candidate_id": "6e54f583ceb428bec8a6c7ba7963f28be69807aca24e426892c7446f8e68d086",
+  "codex_service_tier": "default",
+  "condition": "C2",
+  "conversation_session_id": null,
+  "evaluation": {
+    "evaluator_calls": 1,
+    "evaluator_seconds": 83.93506654188968,
+    "failure_kind": "nonqualification",
+    "fitness": null,
+    "metrics": {
+      "batch_size": 128,
+      "evaluation_cases": 815,
+      "evaluation_split": "public_speaker_disjoint_validation",
+      "examples_processed": 50000,
+      "inference_cost": 1720191007780076668,
+      "maximum_recurrent_steps": 28,
+      "mean_recurrent_steps": 28.0,
+      "median_recurrent_steps": 28,
+      "optimizer_steps": 397,
+      "p95_recurrent_steps": 28,
+      "parameters": 16248,
+      "peak_hidden_elements": 92672,
+      "recurrent_logit_effect": 0.08940517902374268,
+      "recurrent_macs": 328608000,
+      "recurrent_steps": 22820,
+      "state_dependence_effect": 0.34123721718788147,
+      "state_update_effect": 0.5678372383117676,
+      "total_inference_macs": 329781600,
+      "trained_recurrent_logit_effect": 0.48915788531303406,
+      "trained_state_dependence_effect": 0.3947141170501709,
+      "trained_state_update_effect": 0.5874742269515991,
+      "training_seconds": 65.35321154189296,
+      "validation_accuracy": 0.849079754601227,
+      "validation_correct": 692,
+      "validation_cross_entropy": 0.4591733686763085
+    },
+    "valid": false
+  },
+  "evaluator_calls_cumulative": 17,
+  "evaluator_calls_increment": 1,
+  "evaluator_seconds_cumulative": 1910.6872915851418,
+  "evaluator_seconds_increment": 83.93506654188968,
+  "event": "proposal_completed",
+  "evicted_candidate_id": null,
+  "evidence": "The qualified 60-unit model processing frames 3\u201331 achieved 85.40% accuracy at 341,517,600 MACs. Removing one additional leading boundary frame is the smallest direct probe beyond that result and saves one complete recurrent step per example.",
+  "hypothesis": "The 60-unit GRU can omit frame 3 and process frames 4\u201331 while retaining at least 85% validation accuracy, reducing total dense inference MACs from 341,517,600 to approximately 329,781,600.",
+  "incumbent_after": "b5810849442c75c23cebfc871ea96fca3f7d54ba361d6fcd8812f0b698d97ef2",
+  "intended_edit": "Narrow the current GRU from 68 to 60 units and use the 28-step causal schedule covering frames 4\u201331, while preserving the proven mean, maximum, and final-state summaries and training procedure.",
+  "mechanism": "Incremental leading-context pruning at the qualified capacity boundary",
+  "opportunity": 17,
+  "parent_ids": [
+    "34e853280544938eb8ef527ef94f3411ee5edde9de30f3fbc08177e61f6d0f30"
+  ],
+  "portfolio_after": [
+    "016d906da09d1fe9115b3d48dd009dea2faccbbb35792057b39773f1cdb8582b",
+    "97f922734c712678c3d0fa129ff8375661f7ef35419a47b3e2fe03e0ca73f861",
+    "34e853280544938eb8ef527ef94f3411ee5edde9de30f3fbc08177e61f6d0f30",
+    "b5810849442c75c23cebfc871ea96fca3f7d54ba361d6fcd8812f0b698d97ef2"
+  ],
+  "prompt_hashes": {
+    "common_template_sha256": "dee04faf4c430276c1036ba97f5705a339857dbdf19117dac88952a5a3a47e9d",
+    "prompt_sha256": "d9153cfec50ab14309bd945c7fb40e5e758ebb1ee6499dbea2612a16b300cba2",
+    "proposal_policy_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "search_state_sha256": "c938ac007bf70fe8d27f64661175531e51fcb16b38318c328493c32ee292e27e",
+    "treatment_skeleton_sha256": "8a726cfa613bcc02f89c95bd3577045b233b32c167a26de35a4914cdda1bd197"
+  },
+  "proposal_type": "ordinary",
+  "proposals_cumulative": 17,
+  "remaining_budget": {
+    "evaluations": 183,
+    "evaluator_seconds": 58089.31270841486,
+    "proposals": 183,
+    "tokens": 99607955
+  },
+  "retained": false,
+  "retention_decision": "invalid",
+  "run_id": "tiny-kws-rnn-openevolve-v2-1-cpu-tiny_kws_rnn_source_only_cpu-openevolve-b01-c2",
+  "schema_version": "1.0",
+  "selected_parent_ids": [
+    "34e853280544938eb8ef527ef94f3411ee5edde9de30f3fbc08177e61f6d0f30"
+  ],
+  "timestamp": "2026-09-04T03:21:20.421979+00:00",
+  "usage_cumulative": {
+    "cached_input_tokens": 182784,
+    "input_tokens": 367577,
+    "output_tokens": 24468,
+    "reasoning_output_tokens": 17634,
+    "total_tokens": 392045
+  },
+  "usage_increment": {
+    "cached_input_tokens": 10752,
+    "input_tokens": 24214,
+    "output_tokens": 634,
+    "reasoning_output_tokens": 376,
+    "total_tokens": 24848
+  },
+  "visible_candidate_ids": [
+    "016d906da09d1fe9115b3d48dd009dea2faccbbb35792057b39773f1cdb8582b",
+    "97f922734c712678c3d0fa129ff8375661f7ef35419a47b3e2fe03e0ca73f861",
+    "34e853280544938eb8ef527ef94f3411ee5edde9de30f3fbc08177e61f6d0f30",
+    "b5810849442c75c23cebfc871ea96fca3f7d54ba361d6fcd8812f0b698d97ef2"
+  ]
+}

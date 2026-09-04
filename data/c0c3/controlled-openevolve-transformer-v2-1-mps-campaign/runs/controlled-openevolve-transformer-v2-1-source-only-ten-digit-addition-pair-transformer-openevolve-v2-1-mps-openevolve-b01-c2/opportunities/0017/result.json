@@ -1,0 +1,85 @@
+{
+  "artifact_path": "candidates/5f4d9a46e4b09e312cfd5a41493e2309a5e22422780352d0b6a0e37e4ea01444",
+  "candidate_id": "5f4d9a46e4b09e312cfd5a41493e2309a5e22422780352d0b6a0e37e4ea01444",
+  "codex_service_tier": "fast",
+  "condition": "C2",
+  "conversation_session_id": null,
+  "evaluation": {
+    "evaluator_calls": 1,
+    "evaluator_seconds": 368.4920063340105,
+    "failure_kind": null,
+    "fitness": -1609.0,
+    "metrics": {
+      "accuracy": 0.9997,
+      "cases": 10010,
+      "correct": 10007,
+      "parameters": 1609,
+      "training_steps": 4999
+    },
+    "valid": true
+  },
+  "evaluator_calls_cumulative": 17,
+  "evaluator_calls_increment": 1,
+  "evaluator_seconds_cumulative": 5352.41134295729,
+  "evaluator_seconds_increment": 368.4920063340105,
+  "event": "proposal_completed",
+  "evicted_candidate_id": "580a5574f2b9daf4dac13dbb4d00adf565e2c04f2221a3efdfb49e9aaffde9ac",
+  "evidence": "The distributed LayerNorm-anchor design achieved 99.97% with 1,610 parameters. Both prior 1,609-parameter attempts altered sensitive additive pathways and failed, motivating a different one-parameter reduction based on the exact zero-mean nullspace immediately downstream of `ln2`.",
+  "hypothesis": "Removing one `fc1` input-weight coordinate from the verified distributed-anchor design will yield 1,609 parameters and at least 99% accuracy, because bias-free LayerNorm outputs have zero mean and the omitted coefficient is exactly absorbable by the other coefficients in that output row; gauge-adjusted initialization preserves the original model\u2019s initial function and RNG stream.",
+  "incumbent_after": "5f4d9a46e4b09e312cfd5a41493e2309a5e22422780352d0b6a0e37e4ea01444",
+  "intended_edit": "Anchor one scale coordinate in each pre-sublayer LayerNorm, then replace `fc1` with a linear layer that learns all but one weight, synthesizes the omitted weight as zero, and initializes the retained row coefficients to an equivalent gauge.",
+  "mechanism": "LayerNorm-nullspace weight gauge fixing",
+  "opportunity": 17,
+  "parent_ids": [
+    "580a5574f2b9daf4dac13dbb4d00adf565e2c04f2221a3efdfb49e9aaffde9ac"
+  ],
+  "portfolio_after": [
+    "2b9cea175ed60b009337ac54f6e8ad23bf2c014eb4080237777bfb70bfd9fd5b",
+    "a224b654c3699b400b1466b0c55800c8bea3a40fcf541016f1e303623507be3c",
+    "be84cd77b2b0cf38685e6ff2e32f2f50f76df6076da200f85a75791e9b039dfb",
+    "5f4d9a46e4b09e312cfd5a41493e2309a5e22422780352d0b6a0e37e4ea01444"
+  ],
+  "prompt_hashes": {
+    "common_template_sha256": "3f2bea6418b6969c4bf2aa1df18dcda8a3a4ac075bf20c79068c754698b6be5e",
+    "prompt_sha256": "60b24b817538105af77d857c69bd8b497d2278cb81423bf0ee5089ad9e715269",
+    "proposal_policy_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "search_state_sha256": "c938ac007bf70fe8d27f64661175531e51fcb16b38318c328493c32ee292e27e",
+    "treatment_skeleton_sha256": "39adafae7bbab38ba0e7a349c371b172038ff0ef6ed7a72344ef00a0fc9e0f20"
+  },
+  "proposal_type": "ordinary",
+  "proposals_cumulative": 17,
+  "remaining_budget": {
+    "evaluations": 183,
+    "evaluator_seconds": 354647.5886570427,
+    "proposals": 183,
+    "tokens": 99490785
+  },
+  "retained": true,
+  "retention_decision": "replaced_selected_parent_on_strict_improvement",
+  "run_id": "controlled-openevolve-transformer-v2-1-source-only-ten-digit-addition-pair-transformer-openevolve-v2-1-mps-openevolve-b01-c2",
+  "schema_version": "1.0",
+  "selected_parent_ids": [
+    "580a5574f2b9daf4dac13dbb4d00adf565e2c04f2221a3efdfb49e9aaffde9ac"
+  ],
+  "timestamp": "2026-08-23T16:59:31.377775+00:00",
+  "usage_cumulative": {
+    "cached_input_tokens": 188160,
+    "input_tokens": 465234,
+    "output_tokens": 43981,
+    "reasoning_output_tokens": 36157,
+    "total_tokens": 509215
+  },
+  "usage_increment": {
+    "cached_input_tokens": 12032,
+    "input_tokens": 33616,
+    "output_tokens": 4511,
+    "reasoning_output_tokens": 3347,
+    "total_tokens": 38127
+  },
+  "visible_candidate_ids": [
+    "2b9cea175ed60b009337ac54f6e8ad23bf2c014eb4080237777bfb70bfd9fd5b",
+    "a224b654c3699b400b1466b0c55800c8bea3a40fcf541016f1e303623507be3c",
+    "be84cd77b2b0cf38685e6ff2e32f2f50f76df6076da200f85a75791e9b039dfb",
+    "580a5574f2b9daf4dac13dbb4d00adf565e2c04f2221a3efdfb49e9aaffde9ac"
+  ]
+}

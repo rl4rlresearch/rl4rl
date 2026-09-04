@@ -1,0 +1,99 @@
+{
+  "artifact_path": "candidates/53cf0a639eb38f973b9c5b1c1dbec42559dd92ee1bc2dd0fe205d36d4f8b1fea",
+  "candidate_id": "53cf0a639eb38f973b9c5b1c1dbec42559dd92ee1bc2dd0fe205d36d4f8b1fea",
+  "codex_service_tier": "default",
+  "condition": "C1",
+  "conversation_session_id": null,
+  "evaluation": {
+    "evaluator_calls": 1,
+    "evaluator_seconds": 47.40980270807631,
+    "failure_kind": null,
+    "fitness": -1253987106327190496,
+    "metrics": {
+      "batch_size": 128,
+      "evaluation_cases": 815,
+      "evaluation_split": "public_speaker_disjoint_validation",
+      "examples_processed": 50000,
+      "inference_cost": 1253987106327190496,
+      "maximum_recurrent_steps": 26,
+      "mean_recurrent_steps": 26.0,
+      "median_recurrent_steps": 26,
+      "optimizer_steps": 397,
+      "p95_recurrent_steps": 26,
+      "parameters": 24681,
+      "peak_hidden_elements": 152576,
+      "recurrent_logit_effect": 0.06486769020557404,
+      "recurrent_macs": 239054985,
+      "recurrent_steps": 21190,
+      "state_dependence_effect": 0.46672704815864563,
+      "state_update_effect": 0.263119101524353,
+      "total_inference_macs": 240404625,
+      "trained_recurrent_logit_effect": 0.4349280893802643,
+      "trained_state_dependence_effect": 0.5284143090248108,
+      "trained_state_update_effect": 0.2781716287136078,
+      "training_seconds": 33.265574417077005,
+      "validation_accuracy": 0.852760736196319,
+      "validation_correct": 695,
+      "validation_cross_entropy": 0.4450192410521712
+    },
+    "valid": true
+  },
+  "evaluator_calls_cumulative": 43,
+  "evaluator_calls_increment": 1,
+  "evaluator_seconds_cumulative": 4111.027708499227,
+  "evaluator_seconds_increment": 47.40980270807631,
+  "event": "proposal_completed",
+  "evicted_candidate_id": "a4b5150624ee462d923b23fc82000c609b7ac40219c6e5b234fa42cf4dbcf4f2",
+  "evidence": "The 69-unit model passed at 85.89% only after adding separate early/late summaries; unlike the failed global-mean three-view model, this patch preserves that successful temporal structure and removes the final state, which is already represented within the late summary and recurrent maximum.",
+  "hypothesis": "Early/late mean pooling plus max pooling will retain at least 85% validation accuracy while removing 552 classifier MACs per example, reducing total validation MACs from 240.85M to approximately 240.40M.",
+  "incumbent_after": "53cf0a639eb38f973b9c5b1c1dbec42559dd92ee1bc2dd0fe205d36d4f8b1fea",
+  "intended_edit": "Remove the final hidden-state view from the classifier while preserving the temporal-pyramid summaries, max pooling, 69-unit paired GRU, and 26-frame schedule.",
+  "mechanism": "Redundant final-state readout removal",
+  "opportunity": 43,
+  "parent_ids": [
+    "a4b5150624ee462d923b23fc82000c609b7ac40219c6e5b234fa42cf4dbcf4f2"
+  ],
+  "portfolio_after": [
+    "53cf0a639eb38f973b9c5b1c1dbec42559dd92ee1bc2dd0fe205d36d4f8b1fea"
+  ],
+  "prompt_hashes": {
+    "common_template_sha256": "dee04faf4c430276c1036ba97f5705a339857dbdf19117dac88952a5a3a47e9d",
+    "prompt_sha256": "ab83079f65b7d04d73c487b3912720b8fe46ca28186a2418c321c493a36c7ccd",
+    "proposal_policy_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "search_state_sha256": "04e5eb078ae1964e4ec65bfeeeb1acd0ffa246e7d54d5e0f997f81f602da28c5",
+    "treatment_skeleton_sha256": "542c7c377270af97cdd075f45a7bba68c795dbc220b2139257a76d963ec57733"
+  },
+  "proposal_type": "ordinary",
+  "proposals_cumulative": 43,
+  "remaining_budget": {
+    "evaluations": 157,
+    "evaluator_seconds": 55888.97229150077,
+    "proposals": 157,
+    "tokens": 99060333
+  },
+  "retained": true,
+  "retention_decision": "strict_incumbent_improvement",
+  "run_id": "tiny-kws-rnn-openevolve-v2-1-cpu-tiny_kws_rnn_source_only_cpu-openevolve-b04-c1",
+  "schema_version": "1.0",
+  "selected_parent_ids": [
+    "a4b5150624ee462d923b23fc82000c609b7ac40219c6e5b234fa42cf4dbcf4f2"
+  ],
+  "timestamp": "2026-09-04T04:46:01.387584+00:00",
+  "usage_cumulative": {
+    "cached_input_tokens": 462336,
+    "input_tokens": 851707,
+    "output_tokens": 87960,
+    "reasoning_output_tokens": 66580,
+    "total_tokens": 939667
+  },
+  "usage_increment": {
+    "cached_input_tokens": 10752,
+    "input_tokens": 21273,
+    "output_tokens": 1317,
+    "reasoning_output_tokens": 1034,
+    "total_tokens": 22590
+  },
+  "visible_candidate_ids": [
+    "a4b5150624ee462d923b23fc82000c609b7ac40219c6e5b234fa42cf4dbcf4f2"
+  ]
+}

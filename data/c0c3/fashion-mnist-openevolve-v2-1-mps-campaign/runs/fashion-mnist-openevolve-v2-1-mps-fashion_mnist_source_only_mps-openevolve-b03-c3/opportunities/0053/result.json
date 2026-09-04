@@ -1,0 +1,91 @@
+{
+  "artifact_path": "candidates/a850b3985856ce2210a34baa19bbb1717ca9c9dfdc00559929061a913cd0099f",
+  "candidate_id": "a850b3985856ce2210a34baa19bbb1717ca9c9dfdc00559929061a913cd0099f",
+  "codex_service_tier": "default",
+  "condition": "C3",
+  "conversation_session_id": null,
+  "evaluation": {
+    "evaluator_calls": 1,
+    "evaluator_seconds": 60.88629850000143,
+    "failure_kind": null,
+    "fitness": 9233.411132776093,
+    "metrics": {
+      "batch_size": 192,
+      "evaluation_cases": 10000,
+      "evaluation_split": "public_validation",
+      "examples_processed": 100000,
+      "optimizer_steps": 522,
+      "parameters": 242546,
+      "training_seconds": 40.07350220903754,
+      "validation_accuracy": 0.9233,
+      "validation_correct": 9233,
+      "validation_cross_entropy": 0.21615212669372558,
+      "validation_score": 9233.411132776093
+    },
+    "valid": true
+  },
+  "evaluator_calls_cumulative": 47,
+  "evaluator_calls_increment": 1,
+  "evaluator_seconds_cumulative": 2295.135026374599,
+  "evaluator_seconds_increment": 60.88629850000143,
+  "event": "proposal_completed",
+  "evicted_candidate_id": null,
+  "evidence": "Reducing average smoothing from 0.03 to 0.02 lowered validation cross-entropy from 0.2175833 to 0.2169272 without losing any of the 9,240 correct predictions, motivating a further reduction in smoothing duration while leaving the proven architecture, optimizer, and learning-rate schedule unchanged.",
+  "hypothesis": "Ending label smoothing halfway through training will exceed 9,240 correct predictions by preserving early regularization while allowing a full epoch of hard-label optimization.",
+  "incumbent_after": "ef114aef3fea43d70b2b879d26305d694ea713ab871f1925d19e13a4412dbfe9",
+  "intended_edit": "Replace the cosine 0.04-to-zero smoothing schedule with a linear 0.04-to-zero anneal over the first half of training, followed by zero smoothing.",
+  "mechanism": "Front-loaded label smoothing with hard-label second half",
+  "opportunity": 53,
+  "parent_ids": [
+    "ef114aef3fea43d70b2b879d26305d694ea713ab871f1925d19e13a4412dbfe9"
+  ],
+  "portfolio_after": [
+    "ef114aef3fea43d70b2b879d26305d694ea713ab871f1925d19e13a4412dbfe9",
+    "6b55e5532a1458391768e63bc3b04243501135d2f2f19e6c5a14f571275ddab1",
+    "8f77cf09d4e6026f6553029eb00822d526782e680272c5ff094bda772cce1641",
+    "f84cfcf55854b3bacd1acd20c4b41c9b1765fbfe5225453b5bb113f79319d627"
+  ],
+  "prompt_hashes": {
+    "common_template_sha256": "e8327ba94bab12abc7c7ec7c6615378a3ae62434efb944d4a7d9492f1d19bc14",
+    "prompt_sha256": "b2e4b75bee73240776778dcb52544642f40240148258ba995392533b881d3a57",
+    "proposal_policy_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "search_state_sha256": "c938ac007bf70fe8d27f64661175531e51fcb16b38318c328493c32ee292e27e",
+    "treatment_skeleton_sha256": "c063821f4211af841349cc6edeb5a62b8c108ffda27f740451e241e934d604eb"
+  },
+  "proposal_type": "ordinary",
+  "proposals_cumulative": 53,
+  "remaining_budget": {
+    "evaluations": 153,
+    "evaluator_seconds": 21704.8649736254,
+    "proposals": 147,
+    "tokens": 98578400
+  },
+  "retained": false,
+  "retention_decision": "not_strictly_better_than_selected_parent",
+  "run_id": "fashion-mnist-openevolve-v2-1-mps-fashion_mnist_source_only_mps-openevolve-b03-c3",
+  "schema_version": "1.0",
+  "selected_parent_ids": [
+    "ef114aef3fea43d70b2b879d26305d694ea713ab871f1925d19e13a4412dbfe9"
+  ],
+  "timestamp": "2026-08-24T06:23:54.131387+00:00",
+  "usage_cumulative": {
+    "cached_input_tokens": 600064,
+    "input_tokens": 1282187,
+    "output_tokens": 139413,
+    "reasoning_output_tokens": 107052,
+    "total_tokens": 1421600
+  },
+  "usage_increment": {
+    "cached_input_tokens": 12032,
+    "input_tokens": 25323,
+    "output_tokens": 1305,
+    "reasoning_output_tokens": 1090,
+    "total_tokens": 26628
+  },
+  "visible_candidate_ids": [
+    "ef114aef3fea43d70b2b879d26305d694ea713ab871f1925d19e13a4412dbfe9",
+    "6b55e5532a1458391768e63bc3b04243501135d2f2f19e6c5a14f571275ddab1",
+    "8f77cf09d4e6026f6553029eb00822d526782e680272c5ff094bda772cce1641",
+    "f84cfcf55854b3bacd1acd20c4b41c9b1765fbfe5225453b5bb113f79319d627"
+  ]
+}

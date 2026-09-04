@@ -1,0 +1,104 @@
+{
+  "artifact_path": "candidates/6b604fb2860c1a4dfacb3c32d1b14d1d9143d800f79c1e069fe39efceb2b4742",
+  "candidate_id": "6b604fb2860c1a4dfacb3c32d1b14d1d9143d800f79c1e069fe39efceb2b4742",
+  "codex_service_tier": "default",
+  "condition": "C2",
+  "conversation_session_id": null,
+  "evaluation": {
+    "evaluator_calls": 1,
+    "evaluator_seconds": 129.10433695907705,
+    "failure_kind": null,
+    "fitness": -6860358437346396608,
+    "metrics": {
+      "batch_size": 128,
+      "evaluation_cases": 815,
+      "evaluation_split": "public_speaker_disjoint_validation",
+      "examples_processed": 50000,
+      "inference_cost": 6860358437346396608,
+      "maximum_recurrent_steps": 32,
+      "mean_recurrent_steps": 32.0,
+      "median_recurrent_steps": 32,
+      "optimizer_steps": 397,
+      "p95_recurrent_steps": 32,
+      "parameters": 52128,
+      "peak_hidden_elements": 123392,
+      "recurrent_logit_effect": 0.05551940202713013,
+      "recurrent_macs": 1314432000,
+      "recurrent_steps": 26080,
+      "state_dependence_effect": 0.39620134234428406,
+      "state_update_effect": 0.3961314857006073,
+      "total_inference_macs": 1315214400,
+      "trained_recurrent_logit_effect": 0.8094733953475952,
+      "trained_state_dependence_effect": 0.4575163424015045,
+      "trained_state_update_effect": 0.4365220367908478,
+      "training_seconds": 106.96294012502767,
+      "validation_accuracy": 0.8674846625766871,
+      "validation_correct": 707,
+      "validation_cross_entropy": 0.4206474725454131
+    },
+    "valid": true
+  },
+  "evaluator_calls_cumulative": 5,
+  "evaluator_calls_increment": 1,
+  "evaluator_seconds_cumulative": 558.7615001671948,
+  "evaluator_seconds_increment": 129.10433695907705,
+  "event": "proposal_completed",
+  "evicted_candidate_id": null,
+  "evidence": "The current 128-unit, 32-step model achieves 87.24% accuracy with a 2.24-point margin, and recurrent computation accounts for virtually all MACs; a moderate width reduction targets that dominant cost while retaining all temporal evidence, unlike the failed 28-step schedule.",
+  "hypothesis": "A 120-unit GRU processing all 32 frames will retain at least 85% validation accuracy while reducing total inference MACs by about 11.3% versus the current design and below the qualified 29-step, 128-unit design.",
+  "incumbent_after": "6b604fb2860c1a4dfacb3c32d1b14d1d9143d800f79c1e069fe39efceb2b4742",
+  "intended_edit": "Reduce the GRU hidden state, temporal summary, and classifier width from 128 to 120 while preserving the full causal frame schedule and training procedure.",
+  "mechanism": "Moderate recurrent-width reduction",
+  "opportunity": 5,
+  "parent_ids": [
+    "016d906da09d1fe9115b3d48dd009dea2faccbbb35792057b39773f1cdb8582b"
+  ],
+  "portfolio_after": [
+    "016d906da09d1fe9115b3d48dd009dea2faccbbb35792057b39773f1cdb8582b",
+    "ca4b1e02377a4a0e545d74a7bc4f028b099c7d4e6d2ae4e2a6d0a3763f75c02f",
+    "b9ced83414e803b8497777990431e95d623274d8f320268b784e7513f7266a1a",
+    "6b604fb2860c1a4dfacb3c32d1b14d1d9143d800f79c1e069fe39efceb2b4742"
+  ],
+  "prompt_hashes": {
+    "common_template_sha256": "dee04faf4c430276c1036ba97f5705a339857dbdf19117dac88952a5a3a47e9d",
+    "prompt_sha256": "6a290e648245ee1a67f751d9d137aec3d5078d14c56f38e32a45fd7768fc9578",
+    "proposal_policy_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "search_state_sha256": "c938ac007bf70fe8d27f64661175531e51fcb16b38318c328493c32ee292e27e",
+    "treatment_skeleton_sha256": "f944be3959e6054bbac37f1f43b539fa6fb2203362b1ed655187493536125d2d"
+  },
+  "proposal_type": "ordinary",
+  "proposals_cumulative": 5,
+  "remaining_budget": {
+    "evaluations": 195,
+    "evaluator_seconds": 59441.238499832805,
+    "proposals": 195,
+    "tokens": 99906782
+  },
+  "retained": true,
+  "retention_decision": "filled_open_portfolio_slot",
+  "run_id": "tiny-kws-rnn-openevolve-v2-1-cpu-tiny_kws_rnn_source_only_cpu-openevolve-b03-c2",
+  "schema_version": "1.0",
+  "selected_parent_ids": [
+    "016d906da09d1fe9115b3d48dd009dea2faccbbb35792057b39773f1cdb8582b"
+  ],
+  "timestamp": "2026-09-04T02:36:10.831114+00:00",
+  "usage_cumulative": {
+    "cached_input_tokens": 43008,
+    "input_tokens": 87935,
+    "output_tokens": 5283,
+    "reasoning_output_tokens": 4029,
+    "total_tokens": 93218
+  },
+  "usage_increment": {
+    "cached_input_tokens": 10752,
+    "input_tokens": 19796,
+    "output_tokens": 1883,
+    "reasoning_output_tokens": 1552,
+    "total_tokens": 21679
+  },
+  "visible_candidate_ids": [
+    "016d906da09d1fe9115b3d48dd009dea2faccbbb35792057b39773f1cdb8582b",
+    "ca4b1e02377a4a0e545d74a7bc4f028b099c7d4e6d2ae4e2a6d0a3763f75c02f",
+    "b9ced83414e803b8497777990431e95d623274d8f320268b784e7513f7266a1a"
+  ]
+}

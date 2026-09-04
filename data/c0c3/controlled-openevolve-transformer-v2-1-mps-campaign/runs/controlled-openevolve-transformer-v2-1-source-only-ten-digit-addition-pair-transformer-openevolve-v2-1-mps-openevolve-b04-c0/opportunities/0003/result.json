@@ -1,0 +1,79 @@
+{
+  "artifact_path": "candidates/0c5739da9f29148e1e6269ddc9aed365a62c24fd7d53dc756ee0ead7226bed9b",
+  "candidate_id": "0c5739da9f29148e1e6269ddc9aed365a62c24fd7d53dc756ee0ead7226bed9b",
+  "codex_service_tier": "fast",
+  "condition": "C0",
+  "conversation_session_id": null,
+  "evaluation": {
+    "evaluator_calls": 1,
+    "evaluator_seconds": 247.5192530839704,
+    "failure_kind": null,
+    "fitness": -1636.0,
+    "metrics": {
+      "accuracy": 0.9995,
+      "cases": 10010,
+      "correct": 10005,
+      "parameters": 1636,
+      "training_steps": 4999
+    },
+    "valid": true
+  },
+  "evaluator_calls_cumulative": 3,
+  "evaluator_calls_increment": 1,
+  "evaluator_seconds_cumulative": 697.6936281680828,
+  "evaluator_seconds_increment": 247.5192530839704,
+  "event": "proposal_completed",
+  "evicted_candidate_id": "2b9cea175ed60b009337ac54f6e8ad23bf2c014eb4080237777bfb70bfd9fd5b",
+  "evidence": "The 1644-parameter baseline reached 99.96%, whereas simultaneously removing LayerNorm affine parameters and key/value biases fell to 4.23%; this isolates the mathematically redundant key bias without repeating the disruptive LayerNorm or value-bias removals.",
+  "hypothesis": "Removing only the attention key bias will reduce parameters from 1644 to 1636 while retaining at least 99% accuracy, because a shared key bias adds the same query-dependent constant to every unmasked attention logit and therefore cancels exactly in softmax.",
+  "incumbent_after": "0c5739da9f29148e1e6269ddc9aed365a62c24fd7d53dc756ee0ead7226bed9b",
+  "intended_edit": "Replace the combined QKV bias with learned query and value biases, preserving the combined QKV weight, all LayerNorm affine parameters, and the original feed-forward width.",
+  "mechanism": "Exact softmax-invariant key-bias elimination",
+  "opportunity": 3,
+  "parent_ids": [
+    "2b9cea175ed60b009337ac54f6e8ad23bf2c014eb4080237777bfb70bfd9fd5b"
+  ],
+  "portfolio_after": [
+    "0c5739da9f29148e1e6269ddc9aed365a62c24fd7d53dc756ee0ead7226bed9b"
+  ],
+  "prompt_hashes": {
+    "common_template_sha256": "3f2bea6418b6969c4bf2aa1df18dcda8a3a4ac075bf20c79068c754698b6be5e",
+    "prompt_sha256": "43fc43b71337493a1ea9650a75f64e58f45f854496b39887b906c7e84990683d",
+    "proposal_policy_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "search_state_sha256": "04e5eb078ae1964e4ec65bfeeeb1acd0ffa246e7d54d5e0f997f81f602da28c5",
+    "treatment_skeleton_sha256": "97c18990d156ae3de2521c528be9ca81face23ce917dc23280d74daabd8ea565"
+  },
+  "proposal_type": "ordinary",
+  "proposals_cumulative": 3,
+  "remaining_budget": {
+    "evaluations": 197,
+    "evaluator_seconds": 359302.3063718319,
+    "proposals": 197,
+    "tokens": 99936192
+  },
+  "retained": true,
+  "retention_decision": "strict_incumbent_improvement",
+  "run_id": "controlled-openevolve-transformer-v2-1-source-only-ten-digit-addition-pair-transformer-openevolve-v2-1-mps-openevolve-b04-c0",
+  "schema_version": "1.0",
+  "selected_parent_ids": [
+    "2b9cea175ed60b009337ac54f6e8ad23bf2c014eb4080237777bfb70bfd9fd5b"
+  ],
+  "timestamp": "2026-08-23T09:20:05.041702+00:00",
+  "usage_cumulative": {
+    "cached_input_tokens": 26880,
+    "input_tokens": 56455,
+    "output_tokens": 7353,
+    "reasoning_output_tokens": 6338,
+    "total_tokens": 63808
+  },
+  "usage_increment": {
+    "cached_input_tokens": 9984,
+    "input_tokens": 19119,
+    "output_tokens": 1594,
+    "reasoning_output_tokens": 1199,
+    "total_tokens": 20713
+  },
+  "visible_candidate_ids": [
+    "2b9cea175ed60b009337ac54f6e8ad23bf2c014eb4080237777bfb70bfd9fd5b"
+  ]
+}

@@ -1,0 +1,85 @@
+{
+  "artifact_path": "candidates/9159866062ebd4f2f02ff6c1693b9be9fffbe2d3c4b0797c9958d853b2a5f660",
+  "candidate_id": "9159866062ebd4f2f02ff6c1693b9be9fffbe2d3c4b0797c9958d853b2a5f660",
+  "codex_service_tier": "default",
+  "condition": "C1",
+  "conversation_session_id": null,
+  "evaluation": {
+    "evaluator_calls": 1,
+    "evaluator_seconds": 60.96617787494324,
+    "failure_kind": null,
+    "fitness": 9105.399937487799,
+    "metrics": {
+      "batch_size": 128,
+      "evaluation_cases": 10000,
+      "evaluation_split": "public_validation",
+      "examples_processed": 100000,
+      "optimizer_steps": 782,
+      "parameters": 230442,
+      "training_seconds": 50.48445470887236,
+      "validation_accuracy": 0.9105,
+      "validation_correct": 9105,
+      "validation_cross_entropy": 0.25019538116455076,
+      "validation_score": 9105.399937487799
+    },
+    "valid": true
+  },
+  "evaluator_calls_cumulative": 71,
+  "evaluator_calls_increment": 1,
+  "evaluator_seconds_cumulative": 4177.969653371023,
+  "evaluator_seconds_increment": 60.96617787494324,
+  "event": "proposal_completed",
+  "evicted_candidate_id": null,
+  "evidence": "Full-trajectory EMA reduced correctness from 9,247 to 9,225, indicating that broad temporal smoothing is harmful; a tightly localized tail average isolates variance reduction from stale-parameter bias while preserving the proven architecture, supervision, and schedule.",
+  "hypothesis": "Uniformly averaging the final 24 optimizer iterates will exceed 9,247 correct predictions by reducing endpoint minibatch noise without the trajectory lag that caused the 0.99-decay EMA to regress to 9,225.",
+  "incumbent_after": "291d75e5fb325014b9772e32d82e061a0ebd378bf3c6eb1882b194b3e5746e66",
+  "intended_edit": "Accumulate each learned parameter over the final 24 post-update checkpoints and replace the endpoint parameters with their uniform average after the last optimizer step.",
+  "mechanism": "Short-horizon tail checkpoint averaging",
+  "opportunity": 71,
+  "parent_ids": [
+    "291d75e5fb325014b9772e32d82e061a0ebd378bf3c6eb1882b194b3e5746e66"
+  ],
+  "portfolio_after": [
+    "291d75e5fb325014b9772e32d82e061a0ebd378bf3c6eb1882b194b3e5746e66"
+  ],
+  "prompt_hashes": {
+    "common_template_sha256": "e8327ba94bab12abc7c7ec7c6615378a3ae62434efb944d4a7d9492f1d19bc14",
+    "prompt_sha256": "7288ed30886861b3d5d715700b624cb846291b19109c51d3612daa32ec8d9e4a",
+    "proposal_policy_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "search_state_sha256": "04e5eb078ae1964e4ec65bfeeeb1acd0ffa246e7d54d5e0f997f81f602da28c5",
+    "treatment_skeleton_sha256": "0675e5c960c929b99bb29c5cec15c307beb8a5d18f559ab651e06dead5ead7dd"
+  },
+  "proposal_type": "ordinary",
+  "proposals_cumulative": 71,
+  "remaining_budget": {
+    "evaluations": 129,
+    "evaluator_seconds": 19822.030346628977,
+    "proposals": 129,
+    "tokens": 98484875
+  },
+  "retained": false,
+  "retention_decision": "not_strictly_better_than_incumbent",
+  "run_id": "fashion-mnist-openevolve-v2-1-mps-fashion_mnist_source_only_mps-openevolve-b01-c1",
+  "schema_version": "1.0",
+  "selected_parent_ids": [
+    "291d75e5fb325014b9772e32d82e061a0ebd378bf3c6eb1882b194b3e5746e66"
+  ],
+  "timestamp": "2026-08-24T10:17:22.083664+00:00",
+  "usage_cumulative": {
+    "cached_input_tokens": 741376,
+    "input_tokens": 1330239,
+    "output_tokens": 184886,
+    "reasoning_output_tokens": 150668,
+    "total_tokens": 1515125
+  },
+  "usage_increment": {
+    "cached_input_tokens": 12032,
+    "input_tokens": 19455,
+    "output_tokens": 2408,
+    "reasoning_output_tokens": 2070,
+    "total_tokens": 21863
+  },
+  "visible_candidate_ids": [
+    "291d75e5fb325014b9772e32d82e061a0ebd378bf3c6eb1882b194b3e5746e66"
+  ]
+}

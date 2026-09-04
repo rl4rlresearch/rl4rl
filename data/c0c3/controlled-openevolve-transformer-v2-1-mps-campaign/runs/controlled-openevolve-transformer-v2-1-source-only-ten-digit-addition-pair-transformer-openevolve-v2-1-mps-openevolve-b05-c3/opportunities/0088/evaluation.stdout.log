@@ -1,0 +1,60 @@
+Run: repro_l1_d8_ff12
+Params: 1278
+Device: mps
+step=     0 loss=4.7401 val_exact=0.00000 val_tok=0.00000 lr=3.00e-05 t=2.6s
+step=   300 loss=2.0198 val_exact=0.00000 val_tok=0.13755 lr=2.99e-03 t=9.9s
+step=   600 loss=1.9603 val_exact=0.00000 val_tok=0.14700 lr=2.93e-03 t=17.2s
+step=   900 loss=1.9481 val_exact=0.00000 val_tok=0.15614 lr=2.83e-03 t=24.9s
+step=  1200 loss=1.9217 val_exact=0.00000 val_tok=0.16405 lr=2.68e-03 t=32.1s
+step=  1500 loss=1.3909 val_exact=0.00000 val_tok=0.33259 lr=2.49e-03 t=39.5s
+step=  1800 loss=0.5596 val_exact=0.06550 val_tok=0.78764 lr=2.27e-03 t=46.7s
+step=  2100 loss=0.0914 val_exact=0.97250 val_tok=0.99718 lr=2.03e-03 t=54.7s
+step=  2400 loss=0.0277 val_exact=0.99700 val_tok=0.99973 lr=1.78e-03 t=62.1s
+step=  2700 loss=0.0138 val_exact=0.99900 val_tok=0.99991 lr=1.52e-03 t=69.4s
+step=  3000 loss=0.0084 val_exact=1.00000 val_tok=1.00000 lr=1.27e-03 t=76.6s
+step=  3300 loss=0.0062 val_exact=1.00000 val_tok=1.00000 lr=1.03e-03 t=83.9s
+step=  3600 loss=0.0048 val_exact=1.00000 val_tok=1.00000 lr=8.08e-04 t=90.8s
+step=  3900 loss=0.0038 val_exact=1.00000 val_tok=1.00000 lr=6.22e-04 t=97.7s
+step=  4200 loss=0.0034 val_exact=1.00000 val_tok=1.00000 lr=4.74e-04 t=104.6s
+step=  4500 loss=0.0031 val_exact=1.00000 val_tok=1.00000 lr=3.69e-04 t=114.0s
+step=  4800 loss=0.0026 val_exact=1.00000 val_tok=1.00000 lr=3.11e-04 t=121.3s
+step=  4999 loss=0.0025 val_exact=1.00000 val_tok=1.00000 lr=3.00e-04 t=126.3s
+{
+  "run_name": "repro_l1_d8_ff12",
+  "params": 1278,
+  "best_val_exact": 1.0,
+  "best_step": 3000,
+  "train_steps": 5000,
+  "elapsed_sec": 126.29994511604309,
+  "metrics_csv": "results/runs/repro_l1_d8_ff12/metrics.csv",
+  "best_ckpt": "checkpoints/best.pt",
+  "last_ckpt": "checkpoints/last.pt"
+}
+Model: 10-digit addition transformer
+Author: autonomous optimization run
+Parameters (unique): 1278
+Architecture: trained autoregressive transformer with pair-column input tokens d=8, h=2, L=1, ff=12
+Tricks: generic greedy decoding, freshly trained checkpoint
+
+  Progress: 1000/10010 (999/1000 correct) [9.0s]
+  Progress: 2000/10010 (1998/2000 correct) [18.0s]
+  Progress: 3000/10010 (2996/3000 correct) [27.0s]
+  Progress: 4000/10010 (3996/4000 correct) [35.8s]
+  Progress: 5000/10010 (4996/5000 correct) [46.9s]
+  Progress: 6000/10010 (5996/6000 correct) [55.7s]
+  Progress: 7000/10010 (6996/7000 correct) [65.1s]
+  Progress: 8000/10010 (7996/8000 correct) [75.1s]
+  Progress: 9000/10010 (8996/9000 correct) [83.7s]
+  Progress: 10000/10010 (9994/10000 correct) [92.2s]
+
+Results: 10004/10010 correct (99.94%)
+Time: 92.3s (108 additions/sec)
+Status: QUALIFIED (threshold: 99%)
+
+Failures (6):
+  4909861827 + 8649761747 = 13559623574, got 13559628574
+  7887847684 + 3194375733 = 11082223417, got 11082229417
+  140063434 + 2016186783 = 2156250217, got 2156240217
+  140993302 + 1405997540 = 1546990842, got 1546890842
+  6803018449 + 5318292052 = 12121310501, got 12121810501
+  6798096153 + 5788298748 = 12586394901, got 12586894901

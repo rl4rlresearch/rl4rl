@@ -1,0 +1,79 @@
+{
+  "artifact_path": "candidates/84ca3f937838f713fa2f68e83a7e8c71f58d95dc94b3cd2eec0f3238560fedfb",
+  "candidate_id": "84ca3f937838f713fa2f68e83a7e8c71f58d95dc94b3cd2eec0f3238560fedfb",
+  "codex_service_tier": "default",
+  "condition": "C0",
+  "conversation_session_id": null,
+  "evaluation": {
+    "evaluator_calls": 1,
+    "evaluator_seconds": 824.7518481658772,
+    "failure_kind": null,
+    "fitness": -1605.0,
+    "metrics": {
+      "accuracy": 0.9997,
+      "cases": 10010,
+      "correct": 10007,
+      "parameters": 1605,
+      "training_steps": 10999
+    },
+    "valid": true
+  },
+  "evaluator_calls_cumulative": 45,
+  "evaluator_calls_increment": 1,
+  "evaluator_seconds_cumulative": 19940.95970141585,
+  "evaluator_seconds_increment": 824.7518481658772,
+  "event": "proposal_completed",
+  "evicted_candidate_id": "099ef7e93317dcebbc8489d1b9b409cf72db599ddca5fe26fc6d58ddbba3070b",
+  "evidence": "The 1,606-parameter design reached 99.8%, while anchoring a second `fc1` neuron fell to 88.83%; the successful gauge-aware attention-output bias at 1,607 parameters motivates testing this distinct exact redundancy, since that bias can absorb the removed value offset.",
+  "hypothesis": "Removing the final singleton value-bias coordinate will reduce the model from 1,606 to 1,605 parameters while retaining at least 99% accuracy after 11,000 steps, because a position-independent value bias contributes only a constant after attention and can be represented by the learned output-projection bias.",
+  "incumbent_after": "84ca3f937838f713fa2f68e83a7e8c71f58d95dc94b3cd2eec0f3238560fedfb",
+  "intended_edit": "Store 11 QKV bias parameters, reconstruct the final value-bias coordinate as zero while preserving every other validated bias mapping, and add 1,000 low-learning-rate refinement steps.",
+  "mechanism": "Absorb a redundant value-bias coordinate into the attention output bias",
+  "opportunity": 45,
+  "parent_ids": [
+    "099ef7e93317dcebbc8489d1b9b409cf72db599ddca5fe26fc6d58ddbba3070b"
+  ],
+  "portfolio_after": [
+    "84ca3f937838f713fa2f68e83a7e8c71f58d95dc94b3cd2eec0f3238560fedfb"
+  ],
+  "prompt_hashes": {
+    "common_template_sha256": "3f2bea6418b6969c4bf2aa1df18dcda8a3a4ac075bf20c79068c754698b6be5e",
+    "prompt_sha256": "dbaa908d7590cc189300447da8aaf4023b31850fc11f6eda38731efc72eb84c3",
+    "proposal_policy_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "search_state_sha256": "04e5eb078ae1964e4ec65bfeeeb1acd0ffa246e7d54d5e0f997f81f602da28c5",
+    "treatment_skeleton_sha256": "a2d2091aa5eb61fd5305f2795a2e791710b70ccff7eb1c7185d8fccff206da4f"
+  },
+  "proposal_type": "ordinary",
+  "proposals_cumulative": 45,
+  "remaining_budget": {
+    "evaluations": 155,
+    "evaluator_seconds": 340059.04029858415,
+    "proposals": 155,
+    "tokens": 98899933
+  },
+  "retained": true,
+  "retention_decision": "strict_incumbent_improvement",
+  "run_id": "controlled-openevolve-transformer-v2-1-source-only-ten-digit-addition-pair-transformer-openevolve-v2-1-mps-openevolve-b03-c0",
+  "schema_version": "1.0",
+  "selected_parent_ids": [
+    "099ef7e93317dcebbc8489d1b9b409cf72db599ddca5fe26fc6d58ddbba3070b"
+  ],
+  "timestamp": "2026-08-24T12:10:08.783655+00:00",
+  "usage_cumulative": {
+    "cached_input_tokens": 495360,
+    "input_tokens": 949710,
+    "output_tokens": 150357,
+    "reasoning_output_tokens": 129243,
+    "total_tokens": 1100067
+  },
+  "usage_increment": {
+    "cached_input_tokens": 12032,
+    "input_tokens": 22550,
+    "output_tokens": 3836,
+    "reasoning_output_tokens": 3481,
+    "total_tokens": 26386
+  },
+  "visible_candidate_ids": [
+    "099ef7e93317dcebbc8489d1b9b409cf72db599ddca5fe26fc6d58ddbba3070b"
+  ]
+}

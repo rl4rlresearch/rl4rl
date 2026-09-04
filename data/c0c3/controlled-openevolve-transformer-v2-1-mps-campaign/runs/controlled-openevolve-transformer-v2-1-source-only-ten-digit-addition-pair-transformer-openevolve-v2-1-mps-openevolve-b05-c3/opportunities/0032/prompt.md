@@ -1,0 +1,196 @@
+# Optimize a transformer for 10-digit addition
+
+You are an autonomous ML engineer improving the source code for an
+autoregressive transformer that adds two 10-digit numbers.
+
+## Goal
+
+Minimize the actual number of deduplicated learned model parameters while
+maintaining at least 99% accuracy under the fixed verification process. A
+smaller implementation is useful only when it meets that accuracy requirement.
+Every submitted implementation is trained from a fresh initialization.
+
+## Learned-model requirement
+
+Produce a smaller trained autoregressive transformer, not a hand-coded addition
+program. The submitted implementation must:
+
+- have nonzero trainable parameters;
+- contain and use at least one learned causal self-attention module;
+- map token inputs to token logits through the learned model;
+- train from a fresh initialization during verification;
+- write both `checkpoints/best.pt` and a positive-step `checkpoints/last.pt`;
+- keep source code unchanged while training; and
+- use the protected generic decoding interface exactly as supplied.
+
+Do not implement or embed decimal arithmetic, carry propagation, place-value
+rules, digit lookup tables, finite-state addition transitions, fixed answer
+rules, or input-dependent Python logic that directly computes the sum. Do not
+hide such a solver in model generation, token processing, training, or saved
+weights. Do not add dummy or zero-length parameters to disguise a fixed
+algorithm as a learned model.
+
+Do not modify protected files. Do not perform post-training state-dictionary
+surgery, substitute a different saved model, truncate weights after training,
+or report a parameter count that differs from the submitted model.
+
+## Work boundaries
+
+Minimize parameters. Required result: accuracy >= 0.99.
+Editable source files: src/model.py, src/train.py.
+Results reported after each verification: accuracy, parameters, training_steps.
+
+Propose changes through exact SEARCH/REPLACE blocks. The patching interface applies them to the supplied editable source.
+
+The editable source and any reference source are included below. Do not access
+parent directories, home directories, shared temporary directories, global
+session history, online sources, or any surrounding repository. Do not run
+training or verification yourself and do not generate hidden alternatives.
+Return one patch for one implementation; verification happens after you finish.
+
+## Available designs
+
+The current editable design and the qualified reference designs below are available as technical evidence. Edit only the current workspace.
+
+CURRENT DESIGN
+verified_results: {"accuracy": 0.9983, "parameters": 1602, "training_steps": 4999}
+prior_hypothesis: Learning five query-bias coordinates while retaining the qualified gauge-aware positional parameterization will produce 1602 parameters and maintain at least 99% accuracy.
+
+REFERENCE DESIGN 1
+verified_results: {"accuracy": 0.9995999999999999, "parameters": 1644, "training_steps": 4999}
+prior_hypothesis: starting design
+
+REFERENCE DESIGN 2
+verified_results: {"accuracy": 0.9992, "parameters": 1628, "training_steps": 4999}
+prior_hypothesis: Removing the eight value-projection bias parameters in addition to the already qualified key-bias removal will produce 1628 parameters and retain at least 99% accuracy, because softmax-normalized attention makes value bias an input-independent vector that the existing output-projection bias can represent.
+
+REFERENCE DESIGN 3
+verified_results: {"accuracy": 0.9991, "parameters": 1600, "training_steps": 4999}
+prior_hypothesis: Fixing one `fc1` bias coordinate at zero will produce 1600 learned parameters while retaining at least 99% accuracy, because all 12 nonlinear units and their input/output weights remain trainable, and the learned `ln2` affine offset can still shift the affected unit’s preactivation.
+
+## Recent verification evidence
+
+RECENT RESULT
+hypothesis: Constraining the shared token-embedding/output matrix to learned rank seven will reduce the verified four-query-bias design from 1601 to 1543 parameters while retaining at least 99% accuracy, because the transformer’s eight-channel internal computation remains intact and only the least energetic singular direction of the tied vocabulary interface is removed.
+change: Replace the full tied vocabulary matrix with learned rank-seven token codes and basis factors, initialized from the best rank-seven approximation of the same fresh baseline draw; retain the qualified positional quotient and four-coordinate query bias.
+mechanism: Rank-seven tied vocabulary interface
+evidence_used: The four-query-bias design achieved 99.96% at 1601 parameters, while several one-coordinate attention, LayerNorm, and MLP ablations failed sharply. This indicates those internal paths are load-bearing and motivates challenging the previously untouched assumption that the 114-by-8 tied vocabulary interface must be full rank.
+result: did not meet the accuracy requirement
+reported_values: {"accuracy": 0.0001, "parameters": 1543, "training_steps": 4999}
+
+RECENT RESULT
+hypothesis: Gauge-fixing the single all-entries shift symmetry of the tied token-embedding/output matrix will reduce the verified 1601-parameter design to 1600 parameters while retaining at least 99% accuracy, because the shift is invisible to every LayerNorm-mediated residual block and adds only a common offset to all output logits.
+change: Adopt the qualified seven-coordinate positional embedding and four-coordinate query bias, then represent the tied vocabulary matrix with one global scalar omitted while preserving baseline initialization draws, full-space AdamW moments, and gradient clipping.
+mechanism: Global tied-embedding shift quotient with gauge-aware AdamW
+evidence_used: The four-query-bias positional-quotient design achieved 99.96% at 1601 parameters, and the positional quotient succeeded after full-space optimizer dynamics were preserved; the rank-seven tied-interface attempt failed at 0.01%, motivating removal of only an exact global shift redundancy rather than an embedding rank direction.
+result: did not meet the accuracy requirement
+reported_values: {"accuracy": 0.20489999999999997, "parameters": 1600, "training_steps": 4999}
+
+RECENT RESULT
+hypothesis: Fixing one `fc1` bias coordinate at zero will produce 1600 learned parameters while retaining at least 99% accuracy, because all 12 nonlinear units and their input/output weights remain trainable, and the learned `ln2` affine offset can still shift the affected unit’s preactivation.
+change: Preserve the verified positional quotient and four-coordinate query bias, while representing `fc1.bias` with 11 learned coordinates and one fixed-zero trailing coordinate.
+mechanism: Single MLP hidden-bias ablation
+evidence_used: The 1601-parameter design reached 99.96%, while reductions in query bias, `ln2`, and `fc2` failed; this motivates preserving those load-bearing paths and testing the previously untouched, zero-initialized `fc1` bias with a localized one-scalar ablation.
+result: met the accuracy requirement and became an available design
+reported_values: {"accuracy": 0.9991, "parameters": 1600, "training_steps": 4999}
+
+RECENT RESULT
+hypothesis: Retaining the verified four-coordinate query bias while fixing a second trailing `fc1` bias coordinate at zero will reduce the model to 1599 learned parameters and maintain at least 99% accuracy.
+change: Use four learned query-bias coordinates and ten learned `fc1` bias coordinates, preserving all weight shapes, initialization streams, positional gauge optimization, and decoding behavior.
+mechanism: Second localized MLP hidden-bias ablation
+evidence_used: The 1600-parameter reference fixed one `fc1` bias coordinate and achieved 99.91% accuracy; this directly motivates testing one additional scalar removal in the same tolerant parameter group.
+result: did not meet the accuracy requirement
+reported_values: {"accuracy": 0.9856999999999999, "parameters": 1599, "training_steps": 4999}
+
+RECENT RESULT
+hypothesis: Tying hidden-bias coordinates 9 and 10 while retaining the verified fixed-zero coordinate 11 will produce 1599 parameters and at least 99% accuracy, because it preserves a trainable threshold for both units whereas the prior 1599 design forced both trailing thresholds to zero and narrowly missed at 98.57%.
+change: Adopt the qualified positional gauge, four-coordinate query bias, and gauge-aware optimization, then represent the 12-coordinate `fc1` bias with ten learned values, using the final learned value for coordinates 9 and 10 and fixing coordinate 11 at zero.
+mechanism: Shared-threshold pair in the MLP hidden bias
+evidence_used: The 1600-parameter design with only coordinate 11 fixed achieved 99.91%, while additionally fixing coordinate 10 reached 98.57%; replacing that second zero constraint with a shared learned threshold is a lower-distortion test in the same nearly qualified parameter group.
+result: did not meet the accuracy requirement
+reported_values: {"accuracy": 0.5196000000000001, "parameters": 1599, "training_steps": 4999}
+
+RECENT RESULT
+hypothesis: Fixing hidden-bias coordinates 0 and 11 while retaining coordinates 1–10 will produce 1599 learned parameters and at least 99% accuracy, indicating that the prior 98.57% result was specific to removing coordinate 10 rather than a general two-bias capacity limit.
+change: Preserve the qualified positional gauge, four-coordinate query bias, initialization streams, optimization, and decoding, while replacing the 11 learned `fc1` bias values with ten values mapped to coordinates 1–10 and fixing coordinates 0 and 11 at zero.
+mechanism: Alternate second hidden-bias coordinate ablation
+evidence_used: Fixing coordinate 11 alone achieved 99.91% at 1600 parameters, while additionally fixing coordinate 10 narrowly missed at 98.57%; testing a nonadjacent second coordinate is the cleanest localized test of hidden-unit-specific sensitivity.
+result: did not meet the accuracy requirement
+reported_values: {"accuracy": 0.09970000000000001, "parameters": 1599, "training_steps": 4999}
+
+RECENT RESULT
+hypothesis: Quotienting one `fc1` weight along the exact zero-mean LayerNorm input direction, while retaining unit 10’s learned threshold, will reduce the qualified design to 1599 parameters and maintain at least 99% accuracy.
+change: Use four learned query-bias coordinates, retain the qualified fixed-zero trailing `fc1` bias, and omit unit 10’s final input weight after gauge-equivalent initialization from the full baseline draw.
+mechanism: LayerNorm-hyperplane gauge for one MLP input weight
+evidence_used: The 1600-parameter design with one fixed `fc1` bias achieved 99.91%, whereas directly removing a second bias reached 98.57% and removing an `fc2` connection reached 55.04%; this motivates removing an exact LayerNorm-mediated affine redundancy while preserving every hidden unit’s usable threshold and output connection.
+result: the implementation could not be verified
+
+RECENT RESULT
+hypothesis: Removing all seven token-position translation redundancies from the verified 1600-parameter design will produce 1593 parameters and retain at least 99% accuracy because the patch preserves its initialized function, full-space gradients, AdamW moments, weight decay, and clipping norm.
+change: Adopt the qualified positional and four-query-bias reductions plus the single fixed `fc1` bias, then fix the first position’s seven represented coordinates at zero while compensating through the tied token embedding.
+mechanism: Joint token-position translation quotient with full-space-equivalent AdamW
+evidence_used: The 1600-parameter design achieved 99.91%, and the positional quotient succeeded when full-space optimizer dynamics were preserved; unlike the failed embedding-only shift quotient, this joint translation leaves every transformer input exactly unchanged and changes output logits only by a vocabulary-wide common offset.
+result: did not meet the accuracy requirement
+reported_values: {"accuracy": 0.11220000000000001, "parameters": 1593, "training_steps": 4999}
+
+RECENT RESULT
+hypothesis: Fixing hidden-bias coordinates 9 and 11 while retaining coordinate 10 will reduce the qualified model to 1599 learned parameters and maintain at least 99% accuracy, indicating that the prior 98.57% result was specific to removing coordinate 10.
+change: Represent `fc1.bias` with ten learned values mapped to coordinates 0–8 and 10, while fixing coordinates 9 and 11 at zero.
+mechanism: Alternate localized MLP hidden-bias ablation
+evidence_used: Fixing coordinate 11 alone achieved 99.91% at 1600 parameters, while additionally fixing coordinate 10 narrowly missed at 98.57% and fixing coordinate 0 failed sharply; this demonstrates hidden-unit-specific sensitivity and motivates testing the adjacent, previously unablated coordinate 9 while preserving coordinate 10.
+result: did not meet the accuracy requirement
+reported_values: {"accuracy": 0.36619999999999997, "parameters": 1599, "training_steps": 4999}
+
+RECENT RESULT
+hypothesis: Quotienting the shared-channel shift of each attention output-projection bias will reduce the qualified 1600-parameter design to 1599 parameters while retaining at least 99% accuracy, because the omitted scalar changes the residual stream only by a channel-constant offset that both downstream LayerNorms remove, and gauge-aware AdamW preserves full-space optimization dynamics.
+change: Adopt the qualified four-coordinate query bias and fixed trailing `fc1` bias, represent each eight-coordinate attention projection bias with seven learned coordinates and one fixed-zero gauge coordinate, and optimize all gauge parameters with full-space-equivalent AdamW and gradient clipping.
+mechanism: Gauge-fixed attention output bias under downstream LayerNorm shift invariance
+evidence_used: The four-query-bias design with one fixed `fc1` bias achieved 99.91% at 1600 parameters, while several direct 1599-parameter capacity ablations failed; the successful positional quotient further shows that exact invariances are promising when full-space AdamW moments and clipping norms are preserved.
+result: did not meet the accuracy requirement
+reported_values: {"accuracy": 0.9322, "parameters": 1599, "training_steps": 4999}
+
+RECENT RESULT
+hypothesis: Replacing the single width-8 block with two width-6 blocks will produce 1518 learned parameters and maintain at least 99% accuracy, because depth permits attention routing and nonlinear refinement to occur in separate learned stages while preserving two attention heads and 12 MLP units per stage.
+change: Change the default architecture from one width-8 block to two width-6 blocks, retaining two heads, the full 12-unit MLP width, training procedure, and protected decoding interface.
+mechanism: Narrow two-stage transformer
+evidence_used: Repeated 1599-parameter scalar ablations of the qualified one-block architecture failed, showing that further coordinate shaving within that computation is brittle. The 1600-parameter model nevertheless demonstrates that the task fits near this budget, motivating a different allocation: narrower token and position representations fund a second complete learned attention/MLP stage at 1518 parameters.
+result: did not meet the accuracy requirement
+reported_values: {"accuracy": 0.0001, "parameters": 1518, "training_steps": 4999}
+
+RECENT RESULT
+hypothesis: Restoring all 12 `fc1` biases while removing the redundant eight-coordinate `ln2` offset will produce 1593 learned parameters and retain at least 99% accuracy.
+change: Disable only `ln2.bias` and restore the trailing `fc1` bias, leaving LayerNorm scaling, initialization streams, attention, and training unchanged.
+mechanism: Absorb the second LayerNorm offset into full MLP hidden biases
+evidence_used: The 1600-parameter design reached 99.91% with its missing hidden bias compensated by `ln2`’s offset, while removing another hidden bias fell to 98.57%; a full `fc1` bias supplies every unit’s threshold directly, making the preceding LayerNorm offset exactly absorbable into that bias.
+result: did not meet the accuracy requirement
+reported_values: {"accuracy": 0.4268, "parameters": 1593, "training_steps": 4999}
+
+
+
+Use the available technical evidence to choose the most informative next
+change. Treat unsuccessful or malformed work as evidence when a useful
+subject-level reason is provided. Do not invent missing evidence.
+
+## Response
+
+Return these short metadata lines followed by one or more exact
+`SEARCH`/`REPLACE` blocks that together produce one implementation:
+
+`MECHANISM: <a concise free-form name for the computational idea>`
+
+`HYPOTHESIS: <a falsifiable claim grounded in the evidence above>`
+
+`INTENDED_EDIT: <what this patch changes>`
+
+`EVIDENCE: <the most relevant prior result and why it motivates this patch>`
+
+Start each block with `<<<<<<< SEARCH`, put the exact existing lines next, use a
+line containing `=======` as the divider, put the replacement lines after it,
+and finish the block with `>>>>>>> REPLACE`.
+
+Every `SEARCH` section must be nonempty and match exactly once after earlier
+blocks have been applied. All blocks must apply. They may edit either or both
+editable files, but together they must describe one implementation ready for
+verification. The mechanism name is descriptive, not chosen from a fixed list.
+Do not paste whole files, lengthy logs, or routine progress reports outside the
+patch.

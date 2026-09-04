@@ -1,0 +1,88 @@
+{
+  "artifact_path": "candidates/e61cbacecb0b4079f3239617de43d5e5a793d40c6a139d6d437108488d4cadcf",
+  "candidate_id": "e61cbacecb0b4079f3239617de43d5e5a793d40c6a139d6d437108488d4cadcf",
+  "codex_service_tier": "fast",
+  "condition": "C3",
+  "conversation_session_id": null,
+  "evaluation": {
+    "evaluator_calls": 1,
+    "evaluator_seconds": 332.4025977839992,
+    "failure_kind": null,
+    "fitness": -1.012938,
+    "metrics": {
+      "depth": 8.0,
+      "mfu_percent": 39.38,
+      "num_params_M": 50.3,
+      "num_steps": 632.0,
+      "peak_vram_mb": 45060.2,
+      "total_tokens_M": 497.0,
+      "training_seconds": 300.1,
+      "val_bpb": 1.012938
+    },
+    "valid": true
+  },
+  "evaluator_calls_cumulative": 6,
+  "evaluator_calls_increment": 1,
+  "evaluator_seconds_cumulative": 2219.467637173998,
+  "evaluator_seconds_increment": 332.4025977839992,
+  "event": "proposal_completed",
+  "evicted_candidate_id": null,
+  "evidence": "The 524K-token batch achieved 0.995558 and 497.0M tokens, whereas the 262K batch incurred more optimizer updates, processed only 393.2M tokens, and worsened to 0.998629; this indicates that further amortizing optimizer overhead is the clearest untested direction.",
+  "hypothesis": "Increasing the global batch to 786,432 tokens will amortize Muon\u2019s per-update cost, process more than 497M tokens in five minutes, and reduce val_bpb below 0.995558 despite fewer optimizer steps.",
+  "incumbent_after": "2865e528e18dc51191e4037eaeb5824cb0ea83ede79061b59b8f3caac686da6b",
+  "intended_edit": "Increase gradient accumulation from one to three 128-sequence microbatches while preserving the proven SSSL architecture, five-step Muon refinement, and linear warmdown.",
+  "mechanism": "Optimizer-overhead amortization with a three-microbatch global batch",
+  "opportunity": 6,
+  "parent_ids": [
+    "005b27c638e8ced7b681518a1df47186e926fc1a87b4dda0797371df3c14496a"
+  ],
+  "portfolio_after": [
+    "2865e528e18dc51191e4037eaeb5824cb0ea83ede79061b59b8f3caac686da6b",
+    "005b27c638e8ced7b681518a1df47186e926fc1a87b4dda0797371df3c14496a",
+    "1dfdda4e155579415df2f0419942e6ec1d5989a12399f914d7984eed7a57ffdf",
+    "4b4b8eda44d73f74c14a1179ff73edf4e434066ed7ceb8d4d058a3b6d07e3236"
+  ],
+  "prompt_hashes": {
+    "common_template_sha256": "ba85b39aa7288f4f48475376da6cff65661f39cfeb7ac7cde15b2a9a2e692fde",
+    "prompt_sha256": "1cf587a40862f3179781bea0f15e93da828d125dda7185a6323c8c2540245ea4",
+    "proposal_policy_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "search_state_sha256": "c938ac007bf70fe8d27f64661175531e51fcb16b38318c328493c32ee292e27e",
+    "treatment_skeleton_sha256": "1d295b6610ca1d69b4fbe8501b44476c99133922fb084571ad4c834143d503bf"
+  },
+  "proposal_type": "ordinary",
+  "proposals_cumulative": 6,
+  "remaining_budget": {
+    "evaluations": 194,
+    "evaluator_seconds": 717780.532362826,
+    "proposals": 194,
+    "tokens": 99759836
+  },
+  "retained": false,
+  "retention_decision": "not_strictly_better_than_selected_parent",
+  "run_id": "nanogpt-openevolve-v2-1-h100-karpathy_nanogpt_source_only_h100-openevolve-b01-c3",
+  "schema_version": "1.0",
+  "selected_parent_ids": [
+    "005b27c638e8ced7b681518a1df47186e926fc1a87b4dda0797371df3c14496a"
+  ],
+  "timestamp": "2026-08-23T14:05:47.195688+00:00",
+  "usage_cumulative": {
+    "cached_input_tokens": 72192,
+    "input_tokens": 223030,
+    "output_tokens": 17134,
+    "reasoning_output_tokens": 15228,
+    "total_tokens": 240164
+  },
+  "usage_increment": {
+    "cached_input_tokens": 12032,
+    "input_tokens": 45220,
+    "output_tokens": 837,
+    "reasoning_output_tokens": 609,
+    "total_tokens": 46057
+  },
+  "visible_candidate_ids": [
+    "2865e528e18dc51191e4037eaeb5824cb0ea83ede79061b59b8f3caac686da6b",
+    "005b27c638e8ced7b681518a1df47186e926fc1a87b4dda0797371df3c14496a",
+    "1dfdda4e155579415df2f0419942e6ec1d5989a12399f914d7984eed7a57ffdf",
+    "4b4b8eda44d73f74c14a1179ff73edf4e434066ed7ceb8d4d058a3b6d07e3236"
+  ]
+}

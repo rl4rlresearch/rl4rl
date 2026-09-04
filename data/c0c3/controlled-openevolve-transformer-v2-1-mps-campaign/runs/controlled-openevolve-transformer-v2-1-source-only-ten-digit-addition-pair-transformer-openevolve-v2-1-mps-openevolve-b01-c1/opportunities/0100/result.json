@@ -1,0 +1,79 @@
+{
+  "artifact_path": "candidates/a492f77ec3f8461ee40348152ac6efbf50168994686c9ee0417777d27e894a3b",
+  "candidate_id": "a492f77ec3f8461ee40348152ac6efbf50168994686c9ee0417777d27e894a3b",
+  "codex_service_tier": "default",
+  "condition": "C1",
+  "conversation_session_id": null,
+  "evaluation": {
+    "evaluator_calls": 1,
+    "evaluator_seconds": 270.98150229197927,
+    "failure_kind": "nonqualification",
+    "fitness": null,
+    "metrics": {
+      "accuracy": 0.9042,
+      "cases": 10010,
+      "correct": 9051,
+      "parameters": 1342,
+      "training_steps": 4999
+    },
+    "valid": false
+  },
+  "evaluator_calls_cumulative": 100,
+  "evaluator_calls_increment": 1,
+  "evaluator_seconds_cumulative": 43636.70096095512,
+  "evaluator_seconds_increment": 270.98150229197927,
+  "event": "proposal_completed",
+  "evicted_candidate_id": null,
+  "evidence": "The 1,535-parameter model reached 99.87%, while repeated removal of isolated MLP or attention coordinates caused highly brittle optimization failures. Those attempts assumed the dense per-token representation was load-bearing and targeted small downstream redundancies; this patch instead tests whether the dominant token-parameter block can learn addition through a substantially smaller shared latent vocabulary manifold.",
+  "hypothesis": "Replacing independent seven-dimensional token content vectors with a learned rank-five factorization will reduce the model from 1,535 to 1,360 parameters while retaining at least 99% accuracy, because token identities remain independently learnable and retain independent output offsets while the model learns a shared vocabulary geometry.",
+  "incumbent_after": "955acebaeb7771c3e532e1f9f1b2ab4ac446fa5d74f37db4e6fd31878936dc85",
+  "intended_edit": "Factorize the tied mean-free token embedding and output matrix into per-token rank-five coordinates and a learned map into the seven-dimensional centered model space; initialize it with the rank-five SVD of each fresh embedding draw and exempt both factors from weight decay.",
+  "mechanism": "Learned rank-five tied token manifold",
+  "opportunity": 100,
+  "parent_ids": [
+    "955acebaeb7771c3e532e1f9f1b2ab4ac446fa5d74f37db4e6fd31878936dc85"
+  ],
+  "portfolio_after": [
+    "955acebaeb7771c3e532e1f9f1b2ab4ac446fa5d74f37db4e6fd31878936dc85"
+  ],
+  "prompt_hashes": {
+    "common_template_sha256": "3f2bea6418b6969c4bf2aa1df18dcda8a3a4ac075bf20c79068c754698b6be5e",
+    "prompt_sha256": "d1645b6038f5019e8d92385a46c00883191125efeb417eb2baa64e3d126c801f",
+    "proposal_policy_sha256": "4a27c08e098e719db007f4d6b37fabe2967b41836bb9070e2513a8a24ff7ce90",
+    "search_state_sha256": "04e5eb078ae1964e4ec65bfeeeb1acd0ffa246e7d54d5e0f997f81f602da28c5",
+    "treatment_skeleton_sha256": "ffa606799b7646cbb4d6c502e1f777e37f6a4d46ebca537da1a60882e760585f"
+  },
+  "proposal_type": "assumption_changing",
+  "proposals_cumulative": 100,
+  "remaining_budget": {
+    "evaluations": 100,
+    "evaluator_seconds": 316363.2990390449,
+    "proposals": 100,
+    "tokens": 97311521
+  },
+  "retained": false,
+  "retention_decision": "invalid",
+  "run_id": "controlled-openevolve-transformer-v2-1-source-only-ten-digit-addition-pair-transformer-openevolve-v2-1-mps-openevolve-b01-c1",
+  "schema_version": "1.0",
+  "selected_parent_ids": [
+    "955acebaeb7771c3e532e1f9f1b2ab4ac446fa5d74f37db4e6fd31878936dc85"
+  ],
+  "timestamp": "2026-08-26T03:01:56.874128+00:00",
+  "usage_cumulative": {
+    "cached_input_tokens": 1031424,
+    "input_tokens": 2292213,
+    "output_tokens": 396266,
+    "reasoning_output_tokens": 320595,
+    "total_tokens": 2688479
+  },
+  "usage_increment": {
+    "cached_input_tokens": 12032,
+    "input_tokens": 24520,
+    "output_tokens": 7762,
+    "reasoning_output_tokens": 6214,
+    "total_tokens": 32282
+  },
+  "visible_candidate_ids": [
+    "955acebaeb7771c3e532e1f9f1b2ab4ac446fa5d74f37db4e6fd31878936dc85"
+  ]
+}

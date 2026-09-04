@@ -1,0 +1,29 @@
+Traceback (most recent call last):
+  File "/private/tmp/rl4rl-c0c3-openevolve-v2-1-tiny-kws-rnn/experiments/c0c3_factorial/tiny_kws_rnn.py", line 976, in <module>
+    raise SystemExit(main())
+                     ^^^^^^
+  File "/private/tmp/rl4rl-c0c3-openevolve-v2-1-tiny-kws-rnn/experiments/c0c3_factorial/tiny_kws_rnn.py", line 972, in main
+    return int(args.handler(args))
+               ^^^^^^^^^^^^^^^^^^
+  File "/private/tmp/rl4rl-c0c3-openevolve-v2-1-tiny-kws-rnn/experiments/c0c3_factorial/tiny_kws_rnn.py", line 821, in evaluate
+    contract_metrics = _recurrent_contract(model, sample)
+                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/private/tmp/rl4rl-c0c3-openevolve-v2-1-tiny-kws-rnn/experiments/c0c3_factorial/tiny_kws_rnn.py", line 682, in _recurrent_contract
+    second_from_first = model.recurrent_step(sample[:, schedule[1], :], first)
+                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/utshaho/Documents/GitHub/rl4rl/data/c0c3/tiny-kws-rnn-openevolve-v2-1-cpu-campaign/runs/tiny-kws-rnn-openevolve-v2-1-cpu-tiny_kws_rnn_source_only_cpu-openevolve-b05-c3/opportunities/0020/evaluation-workspace/train.py", line 94, in recurrent_step
+    slow_output, slow_hidden = self.slow_gru(
+                               ^^^^^^^^^^^^^^
+  File "/Users/utshaho/Documents/GitHub/rl4rl/architecture_discovery/.venv/lib/python3.12/site-packages/torch/nn/modules/module.py", line 1751, in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/utshaho/Documents/GitHub/rl4rl/architecture_discovery/.venv/lib/python3.12/site-packages/torch/nn/modules/module.py", line 1762, in _call_impl
+    return forward_call(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/utshaho/Documents/GitHub/rl4rl/architecture_discovery/.venv/lib/python3.12/site-packages/torch/nn/modules/rnn.py", line 1391, in forward
+    self.check_forward_args(input, hx, batch_sizes)
+  File "/Users/utshaho/Documents/GitHub/rl4rl/architecture_discovery/.venv/lib/python3.12/site-packages/torch/nn/modules/rnn.py", line 366, in check_forward_args
+    self.check_hidden_size(hidden, expected_hidden_size)
+  File "/Users/utshaho/Documents/GitHub/rl4rl/architecture_discovery/.venv/lib/python3.12/site-packages/torch/nn/modules/rnn.py", line 347, in check_hidden_size
+    raise RuntimeError(msg.format(expected_hidden_size, list(hx.size())))
+RuntimeError: Expected hidden size (1, 4, 40), got [4, 1, 40]

@@ -1,0 +1,88 @@
+{
+  "artifact_path": "candidates/37c7381c51035c84ef892f34ee47b38ad2d516eee36a4c172f34fab0d3327256",
+  "candidate_id": "37c7381c51035c84ef892f34ee47b38ad2d516eee36a4c172f34fab0d3327256",
+  "codex_service_tier": "fast",
+  "condition": "C3",
+  "conversation_session_id": null,
+  "evaluation": {
+    "evaluator_calls": 1,
+    "evaluator_seconds": 367.550847515,
+    "failure_kind": null,
+    "fitness": -0.989237,
+    "metrics": {
+      "depth": 8.0,
+      "mfu_percent": 37.93,
+      "num_params_M": 51.9,
+      "num_steps": 3468.0,
+      "peak_vram_mb": 23484.2,
+      "total_tokens_M": 454.6,
+      "training_seconds": 300.1,
+      "val_bpb": 0.989237
+    },
+    "valid": true
+  },
+  "evaluator_calls_cumulative": 22,
+  "evaluator_calls_increment": 1,
+  "evaluator_seconds_cumulative": 9575.06920868397,
+  "evaluator_seconds_increment": 367.550847515,
+  "event": "proposal_completed",
+  "evicted_candidate_id": "73c542bf335ae27664e40b3625d107e0e06218ee917161266a0aeb65c6518330",
+  "evidence": "Halving the global batch from 524,288 to 262,144 tokens increased updates from roughly 900 to 1,772 and improved val_bpb from 0.994296 to 0.985506 despite slightly lower token exposure, while the larger 786,432-token batch performed substantially worse.",
+  "hypothesis": "A 131,072-token global batch will preserve at least 420M-token throughput while approximately doubling the proven 1,772 optimizer updates, reducing val_bpb below 0.985506.",
+  "incumbent_after": "9e857e3ceb8a4a3b30e7e71d06b9abba205f67b78e877f601084cb54ff381c0f",
+  "intended_edit": "Restore the proven uniform 4.375\u00d7 MLP and halve both global and device batch sizes so each optimizer step processes 131,072 tokens without gradient accumulation.",
+  "mechanism": "Quarter-batch update densification",
+  "opportunity": 22,
+  "parent_ids": [
+    "73c542bf335ae27664e40b3625d107e0e06218ee917161266a0aeb65c6518330"
+  ],
+  "portfolio_after": [
+    "a8c2216800237df0c13067f6c097580fe31fc155eec60507f49f82fa3b07c485",
+    "9e857e3ceb8a4a3b30e7e71d06b9abba205f67b78e877f601084cb54ff381c0f",
+    "37c7381c51035c84ef892f34ee47b38ad2d516eee36a4c172f34fab0d3327256",
+    "da1d3f0c3ea75cde1c444690dd049b31e87399d4716c09b6d95ad5acd0ca5046"
+  ],
+  "prompt_hashes": {
+    "common_template_sha256": "ba85b39aa7288f4f48475376da6cff65661f39cfeb7ac7cde15b2a9a2e692fde",
+    "prompt_sha256": "b53d694d09d228f72a3fc49d42837318df04cae4fbaa6f068c5285435218dd7e",
+    "proposal_policy_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "search_state_sha256": "c938ac007bf70fe8d27f64661175531e51fcb16b38318c328493c32ee292e27e",
+    "treatment_skeleton_sha256": "ce4dd5bade3c6e9a8731e0da8adce62ddf2cbf648c9add9cdb4695a55ef3c926"
+  },
+  "proposal_type": "ordinary",
+  "proposals_cumulative": 22,
+  "remaining_budget": {
+    "evaluations": 178,
+    "evaluator_seconds": 710424.9307913161,
+    "proposals": 178,
+    "tokens": 98953695
+  },
+  "retained": true,
+  "retention_decision": "replaced_selected_parent_on_strict_improvement",
+  "run_id": "nanogpt-openevolve-v2-1-h100-karpathy_nanogpt_source_only_h100-openevolve-b01-c3",
+  "schema_version": "1.0",
+  "selected_parent_ids": [
+    "73c542bf335ae27664e40b3625d107e0e06218ee917161266a0aeb65c6518330"
+  ],
+  "timestamp": "2026-08-23T23:13:10.195522+00:00",
+  "usage_cumulative": {
+    "cached_input_tokens": 298496,
+    "input_tokens": 973638,
+    "output_tokens": 72667,
+    "reasoning_output_tokens": 64733,
+    "total_tokens": 1046305
+  },
+  "usage_increment": {
+    "cached_input_tokens": 12032,
+    "input_tokens": 47307,
+    "output_tokens": 1458,
+    "reasoning_output_tokens": 1034,
+    "total_tokens": 48765
+  },
+  "visible_candidate_ids": [
+    "a8c2216800237df0c13067f6c097580fe31fc155eec60507f49f82fa3b07c485",
+    "9e857e3ceb8a4a3b30e7e71d06b9abba205f67b78e877f601084cb54ff381c0f",
+    "73c542bf335ae27664e40b3625d107e0e06218ee917161266a0aeb65c6518330",
+    "da1d3f0c3ea75cde1c444690dd049b31e87399d4716c09b6d95ad5acd0ca5046"
+  ]
+}

@@ -1,0 +1,228 @@
+MECHANISM: Incremental attention value/output-bias redundancy anchoring
+
+HYPOTHESIS: Fixing a second mean-zero attention projection-bias coordinate while retaining all eight value-bias coordinates will produce a 1580-parameter model with at least 99% accuracy.
+
+INTENDED_EDIT: Apply the qualified mean-zero residual parameterization, bias-free `ln2`, and globally gauge-fixed tied embedding, then reconstruct the final two attention projection-bias coordinates as zero.
+
+EVIDENCE: The first attention projection-bias anchor achieved 99.79% with 1581 parameters, while removing a second value-bias coordinate collapsed accuracy; this motivates preserving the full value pathway and testing the smallest adjacent reduction in its redundant output bias.
+
+<<<<<<< SEARCH
+@dataclass
+class ModelConfig:
+    n_layer: int
+    d_model: int
+    n_head: int
+    d_ff: int
+    dropout: float
+    max_seq_len: int
+    vocab_size: int
+
+
+class CausalSelfAttention(nn.Module):
+=======
+@dataclass
+class ModelConfig:
+    n_layer: int
+    d_model: int
+    n_head: int
+    d_ff: int
+    dropout: float
+    max_seq_len: int
+    vocab_size: int
+
+
+def _mean_zero_basis(dim: int) -> torch.Tensor:
+    """Orthonormal basis for vectors whose coordinates sum to zero."""
+    if dim < 2:
+        raise ValueError("mean-zero features require dimension >= 2")
+    basis = torch.zeros(dim, dim - 1)
+    for col in range(dim - 1):
+        scale = 1.0 / math.sqrt((col + 1) * (col + 2))
+        basis[: col + 1, col] = scale
+        basis[col + 1, col] = -(col + 1) * scale
+    return basis
+
+
+class MeanZeroEmbedding(nn.Module):
+    """Learn an embedding modulo its LayerNorm-invisible common mode."""
+    def __init__(self, num_embeddings: int, embedding_dim: int):
+        super().__init__()
+        self.num_embeddings = num_embeddings
+        self.embedding_dim = embedding_dim
+        basis = _mean_zero_basis(embedding_dim)
+        self.register_buffer("basis", basis, persistent=False)
+
+        full_weight = torch.empty(num_embeddings, embedding_dim)
+        nn.init.normal_(full_weight)
+        self.weight = nn.Parameter(full_weight @ basis)
+
+    def forward(self, idx: torch.Tensor) -> torch.Tensor:
+        reduced = F.embedding(idx, self.weight)
+        return reduced @ self.basis.transpose(0, 1)
+
+
+class GaugeFixedEmbedding(nn.Module):
+    """Tied embedding with its global all-ones gauge fixed."""
+    def __init__(self, num_embeddings: int, embedding_dim: int):
+        super().__init__()
+        self.num_embeddings = num_embeddings
+        self.embedding_dim = embedding_dim
+        basis = _mean_zero_basis(embedding_dim)
+        self.register_buffer("basis", basis, persistent=False)
+
+        full_weight = torch.empty(num_embeddings, embedding_dim)
+        nn.init.normal_(full_weight)
+        anchor = full_weight[-1].mean()
+        gauged_weight = full_weight - anchor
+        self.weight_rows = nn.Parameter(gauged_weight[:-1])
+        self.last_weight = nn.Parameter(gauged_weight[-1] @ basis)
+
+    def reset_from_full(self, full_weight: torch.Tensor) -> None:
+        anchor = full_weight[-1].mean()
+        gauged_weight = full_weight - anchor
+        with torch.no_grad():
+            self.weight_rows.copy_(gauged_weight[:-1])
+            self.last_weight.copy_(gauged_weight[-1] @ self.basis)
+
+    @property
+    def weight(self) -> torch.Tensor:
+        last_row = self.basis @ self.last_weight
+        return torch.cat((self.weight_rows, last_row.unsqueeze(0)), dim=0)
+
+    def forward(self, idx: torch.Tensor) -> torch.Tensor:
+        return F.embedding(idx, self.weight)
+
+
+class TiedOutputLinear(nn.Module):
+    """Parameter-free output view of a gauge-fixed input embedding."""
+    def __init__(self, embedding: GaugeFixedEmbedding):
+        super().__init__()
+        object.__setattr__(self, "embedding", embedding)
+
+        discarded_weight = torch.empty(
+            embedding.num_embeddings, embedding.embedding_dim
+        )
+        nn.init.kaiming_uniform_(discarded_weight, a=math.sqrt(5))
+
+    @property
+    def weight(self) -> torch.Tensor:
+        return self.embedding.weight
+
+    def forward(self, x: torch.Tensor) -> torch.Tensor:
+        return F.linear(x, self.weight)
+
+
+class MeanZeroOutputLinear(nn.Linear):
+    """Linear map with its residual-stream common mode gauge-fixed."""
+    def __init__(self, in_features: int, out_features: int):
+        super().__init__(in_features, out_features, bias=True)
+        basis = _mean_zero_basis(out_features)
+        self.weight = nn.Parameter(basis.transpose(0, 1) @ self.weight.detach())
+        self.bias = nn.Parameter(basis.transpose(0, 1) @ self.bias.detach())
+        self.register_buffer("basis", basis, persistent=False)
+
+    def forward(self, x: torch.Tensor) -> torch.Tensor:
+        weight = self.basis @ self.weight
+        bias = self.basis @ self.bias
+        return F.linear(x, weight, bias)
+
+
+class TwiceAnchoredMeanZeroOutputLinear(MeanZeroOutputLinear):
+    """Mean-zero output map with two bias coordinates absorbed by value bias."""
+    def __init__(self, in_features: int, out_features: int):
+        super().__init__(in_features, out_features)
+        self.bias = nn.Parameter(self.bias.detach()[:-2])
+
+    def forward(self, x: torch.Tensor) -> torch.Tensor:
+        weight = self.basis @ self.weight
+        bias = self.basis @ F.pad(self.bias, (0, 2))
+        return F.linear(x, weight, bias)
+
+
+class CausalSelfAttention(nn.Module):
+>>>>>>> REPLACE
+
+<<<<<<< SEARCH
+        self.proj = nn.Linear(d_model, d_model)
+=======
+        self.proj = TwiceAnchoredMeanZeroOutputLinear(d_model, d_model)
+>>>>>>> REPLACE
+
+<<<<<<< SEARCH
+        self.fc2 = nn.Linear(d_ff, d_model)
+=======
+        self.fc2 = MeanZeroOutputLinear(d_ff, d_model)
+>>>>>>> REPLACE
+
+<<<<<<< SEARCH
+        self.ln2 = nn.LayerNorm(cfg.d_model)
+=======
+        self.ln2 = nn.LayerNorm(cfg.d_model, bias=False)
+>>>>>>> REPLACE
+
+<<<<<<< SEARCH
+        self.token_emb = nn.Embedding(cfg.vocab_size, cfg.d_model)
+        self.pos_emb = nn.Embedding(cfg.max_seq_len, cfg.d_model)
+        self.drop = nn.Dropout(cfg.dropout)
+        self.blocks = nn.ModuleList([Block(cfg) for _ in range(cfg.n_layer)])
+        self.ln_f = nn.LayerNorm(cfg.d_model)
+
+        # Weight tying with input embeddings.
+        self.lm_head = nn.Linear(cfg.d_model, cfg.vocab_size, bias=False)
+        self.lm_head.weight = self.token_emb.weight
+=======
+        self.token_emb = GaugeFixedEmbedding(cfg.vocab_size, cfg.d_model)
+        self.pos_emb = MeanZeroEmbedding(cfg.max_seq_len, cfg.d_model)
+        self.drop = nn.Dropout(cfg.dropout)
+        self.blocks = nn.ModuleList([Block(cfg) for _ in range(cfg.n_layer)])
+        self.ln_f = nn.LayerNorm(cfg.d_model)
+
+        # Weight tying with input embeddings.
+        self.lm_head = TiedOutputLinear(self.token_emb)
+>>>>>>> REPLACE
+
+<<<<<<< SEARCH
+    @staticmethod
+    def _init_weights(module: nn.Module) -> None:
+        if isinstance(module, (nn.Linear, nn.Embedding)):
+            nn.init.normal_(module.weight, mean=0.0, std=0.02)
+            if isinstance(module, nn.Linear) and module.bias is not None:
+                nn.init.zeros_(module.bias)
+=======
+    @staticmethod
+    def _init_weights(module: nn.Module) -> None:
+        if isinstance(module, GaugeFixedEmbedding):
+            full_weight = module.weight_rows.new_empty(
+                module.num_embeddings, module.embedding_dim
+            )
+            nn.init.normal_(full_weight, mean=0.0, std=0.02)
+            module.reset_from_full(full_weight)
+        elif isinstance(module, TiedOutputLinear):
+            embedding = module.embedding
+            full_weight = embedding.weight_rows.new_empty(
+                embedding.num_embeddings, embedding.embedding_dim
+            )
+            nn.init.normal_(full_weight, mean=0.0, std=0.02)
+            embedding.reset_from_full(full_weight)
+        elif isinstance(module, MeanZeroEmbedding):
+            full_weight = module.weight.new_empty(
+                module.num_embeddings, module.embedding_dim
+            )
+            nn.init.normal_(full_weight, mean=0.0, std=0.02)
+            with torch.no_grad():
+                module.weight.copy_(full_weight @ module.basis)
+        elif isinstance(module, MeanZeroOutputLinear):
+            full_weight = module.weight.new_empty(
+                module.out_features, module.in_features
+            )
+            nn.init.normal_(full_weight, mean=0.0, std=0.02)
+            with torch.no_grad():
+                module.weight.copy_(
+                    module.basis.transpose(0, 1) @ full_weight
+                )
+                module.bias.zero_()
+        elif isinstance(module, (nn.Linear, nn.Embedding)):
+            nn.init.normal_(module.weight, mean=0.0, std=0.02)
+            if isinstance(module, nn.Linear) and module.bias is not None:
+                nn.init.zeros_(module.bias)
+>>>>>>> REPLACE

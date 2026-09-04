@@ -1,0 +1,85 @@
+{
+  "artifact_path": "candidates/9a34c784bfc262b05d7678f965d42fd5412cdf2eb679193a760c13b1785097e2",
+  "candidate_id": "9a34c784bfc262b05d7678f965d42fd5412cdf2eb679193a760c13b1785097e2",
+  "codex_service_tier": "default",
+  "condition": "C2",
+  "conversation_session_id": null,
+  "evaluation": {
+    "evaluator_calls": 1,
+    "evaluator_seconds": 593.1439004170243,
+    "failure_kind": null,
+    "fitness": -1584.0,
+    "metrics": {
+      "accuracy": 0.9993000000000001,
+      "cases": 10010,
+      "correct": 10003,
+      "parameters": 1584,
+      "training_steps": 4999
+    },
+    "valid": true
+  },
+  "evaluator_calls_cumulative": 44,
+  "evaluator_calls_increment": 1,
+  "evaluator_seconds_cumulative": 18031.367321460973,
+  "evaluator_seconds_increment": 593.1439004170243,
+  "event": "proposal_completed",
+  "evicted_candidate_id": "9954cd3f202cac4b749466b07f83553b28f247c3bcd913910f5d70072297400d",
+  "evidence": "Rows 0 and 1 achieved 99.81% accuracy at 1,585 parameters, while adding row 2 fell to 95.90%; gauging row 4 tests whether the failure arose from concentrating three constrained query rows in the first head.",
+  "hypothesis": "Gauge-fixing query row 4, the first row of the second attention head, alongside verified rows 0 and 1 will produce a 1,584-parameter model with at least 99% accuracy.",
+  "incumbent_after": "9a34c784bfc262b05d7678f965d42fd5412cdf2eb679193a760c13b1785097e2",
+  "intended_edit": "Reproduce the verified five-anchor LayerNorm and two-row QKV design, then omit the final input coefficient from query row 4 to distribute the three QKV gauges across both attention heads.",
+  "mechanism": "Cross-head QKV normalized-input gauge",
+  "opportunity": 44,
+  "parent_ids": [
+    "9954cd3f202cac4b749466b07f83553b28f247c3bcd913910f5d70072297400d"
+  ],
+  "portfolio_after": [
+    "395edb34e37d5adeb2c8899bde4c8b1abf84ed412237fe2ee2386e68284a7e73",
+    "a8a5c946c36eb99958bd1b883fbf7e43441165c657fe43b3f57238fb96009950",
+    "c686e55546b70fd1f324d6986eac7be6a569fd6968c3aa6a0cc8e218428f048b",
+    "9a34c784bfc262b05d7678f965d42fd5412cdf2eb679193a760c13b1785097e2"
+  ],
+  "prompt_hashes": {
+    "common_template_sha256": "3f2bea6418b6969c4bf2aa1df18dcda8a3a4ac075bf20c79068c754698b6be5e",
+    "prompt_sha256": "a4207524da7b4facb7bfd2b6f292aecc35fd98051ee63c0de2ed285bf685f988",
+    "proposal_policy_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "search_state_sha256": "c938ac007bf70fe8d27f64661175531e51fcb16b38318c328493c32ee292e27e",
+    "treatment_skeleton_sha256": "229973199fb6c43c0ac69a3779296e8195fba61787ba9f954d75c977d5abcb8d"
+  },
+  "proposal_type": "ordinary",
+  "proposals_cumulative": 44,
+  "remaining_budget": {
+    "evaluations": 156,
+    "evaluator_seconds": 341968.632678539,
+    "proposals": 156,
+    "tokens": 98448704
+  },
+  "retained": true,
+  "retention_decision": "replaced_selected_parent_on_strict_improvement",
+  "run_id": "controlled-openevolve-transformer-v2-1-source-only-ten-digit-addition-pair-transformer-openevolve-v2-1-mps-openevolve-b01-c2",
+  "schema_version": "1.0",
+  "selected_parent_ids": [
+    "9954cd3f202cac4b749466b07f83553b28f247c3bcd913910f5d70072297400d"
+  ],
+  "timestamp": "2026-08-24T12:12:19.374360+00:00",
+  "usage_cumulative": {
+    "cached_input_tokens": 471296,
+    "input_tokens": 1423297,
+    "output_tokens": 127999,
+    "reasoning_output_tokens": 101627,
+    "total_tokens": 1551296
+  },
+  "usage_increment": {
+    "cached_input_tokens": 9984,
+    "input_tokens": 36789,
+    "output_tokens": 6788,
+    "reasoning_output_tokens": 5637,
+    "total_tokens": 43577
+  },
+  "visible_candidate_ids": [
+    "395edb34e37d5adeb2c8899bde4c8b1abf84ed412237fe2ee2386e68284a7e73",
+    "a8a5c946c36eb99958bd1b883fbf7e43441165c657fe43b3f57238fb96009950",
+    "c686e55546b70fd1f324d6986eac7be6a569fd6968c3aa6a0cc8e218428f048b",
+    "9954cd3f202cac4b749466b07f83553b28f247c3bcd913910f5d70072297400d"
+  ]
+}

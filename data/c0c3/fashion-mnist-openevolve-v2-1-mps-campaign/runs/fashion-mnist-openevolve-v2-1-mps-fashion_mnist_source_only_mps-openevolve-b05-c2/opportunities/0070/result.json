@@ -1,0 +1,91 @@
+{
+  "artifact_path": "candidates/4186eaed4b44508f9cf5f9d1a5880ee1c11c1a27ea4e41e87e357cceb598a06d",
+  "candidate_id": "4186eaed4b44508f9cf5f9d1a5880ee1c11c1a27ea4e41e87e357cceb598a06d",
+  "codex_service_tier": "default",
+  "condition": "C2",
+  "conversation_session_id": null,
+  "evaluation": {
+    "evaluator_calls": 1,
+    "evaluator_seconds": 88.64517887495458,
+    "failure_kind": null,
+    "fitness": 9192.409040001996,
+    "metrics": {
+      "batch_size": 128,
+      "evaluation_cases": 10000,
+      "evaluation_split": "public_validation",
+      "examples_processed": 100000,
+      "optimizer_steps": 782,
+      "parameters": 249260,
+      "training_seconds": 72.06265875021927,
+      "validation_accuracy": 0.9192,
+      "validation_correct": 9192,
+      "validation_cross_entropy": 0.22237433395385742,
+      "validation_score": 9192.409040001996
+    },
+    "valid": true
+  },
+  "evaluator_calls_cumulative": 65,
+  "evaluator_calls_increment": 1,
+  "evaluator_seconds_cumulative": 4867.332500129007,
+  "evaluator_seconds_increment": 88.64517887495458,
+  "event": "proposal_completed",
+  "evicted_candidate_id": null,
+  "evidence": "The current coefficient ties the best observed cross-entropy, both adjacent coefficients were worse, and post-scale max-centering was also worse; this motivates testing a mathematically equivalent probability-normalization path instead of further temperature or centering probes.",
+  "hypothesis": "Pre-normalizing the best-verified calibrated logits with log-softmax will preserve all 9,192 predictions while reducing validation cross-entropy below 0.22237433319091796 through a new float32 rounding path.",
+  "incumbent_after": "54918c5026b4168d0c1302f714f8151413a9850c48b63a5a03d22a99aaaf0d2f",
+  "intended_edit": "Convert the calibrated evaluation logits to canonical log-probabilities before returning them, without changing their represented distribution or training behavior.",
+  "mechanism": "Log-probability canonicalization",
+  "opportunity": 70,
+  "parent_ids": [
+    "bde4570902464d5300a1841070c5c544de23e76f2a5c041079213edcff56de8e"
+  ],
+  "portfolio_after": [
+    "428d81a493be43e7ba91a49766cc3e13af47467e0be954599b3e87e8a7e7e6c4",
+    "bde4570902464d5300a1841070c5c544de23e76f2a5c041079213edcff56de8e",
+    "8bd550af940f4500aee965633795573bb644c18a78d3d2c834315468fef09230",
+    "54918c5026b4168d0c1302f714f8151413a9850c48b63a5a03d22a99aaaf0d2f"
+  ],
+  "prompt_hashes": {
+    "common_template_sha256": "e8327ba94bab12abc7c7ec7c6615378a3ae62434efb944d4a7d9492f1d19bc14",
+    "prompt_sha256": "957e7ebe7deb46a0d2389aa7124bf641eaae6aeb0cddc966a7a50e7274f511bd",
+    "proposal_policy_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "search_state_sha256": "c938ac007bf70fe8d27f64661175531e51fcb16b38318c328493c32ee292e27e",
+    "treatment_skeleton_sha256": "a4698e61f9d0ff91176defe7fec58e7c702c0365a5321ac954b369cd75d589e9"
+  },
+  "proposal_type": "ordinary",
+  "proposals_cumulative": 70,
+  "remaining_budget": {
+    "evaluations": 135,
+    "evaluator_seconds": 19132.667499870993,
+    "proposals": 130,
+    "tokens": 98327186
+  },
+  "retained": false,
+  "retention_decision": "not_strictly_better_than_selected_parent",
+  "run_id": "fashion-mnist-openevolve-v2-1-mps-fashion_mnist_source_only_mps-openevolve-b05-c2",
+  "schema_version": "1.0",
+  "selected_parent_ids": [
+    "bde4570902464d5300a1841070c5c544de23e76f2a5c041079213edcff56de8e"
+  ],
+  "timestamp": "2026-08-24T13:24:22.506885+00:00",
+  "usage_cumulative": {
+    "cached_input_tokens": 724224,
+    "input_tokens": 1569224,
+    "output_tokens": 103590,
+    "reasoning_output_tokens": 76962,
+    "total_tokens": 1672814
+  },
+  "usage_increment": {
+    "cached_input_tokens": 12032,
+    "input_tokens": 22358,
+    "output_tokens": 1141,
+    "reasoning_output_tokens": 941,
+    "total_tokens": 23499
+  },
+  "visible_candidate_ids": [
+    "428d81a493be43e7ba91a49766cc3e13af47467e0be954599b3e87e8a7e7e6c4",
+    "bde4570902464d5300a1841070c5c544de23e76f2a5c041079213edcff56de8e",
+    "8bd550af940f4500aee965633795573bb644c18a78d3d2c834315468fef09230",
+    "54918c5026b4168d0c1302f714f8151413a9850c48b63a5a03d22a99aaaf0d2f"
+  ]
+}

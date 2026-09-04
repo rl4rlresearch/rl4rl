@@ -1,0 +1,88 @@
+{
+  "artifact_path": "candidates/f737cb07b1d48d33f44dc3a9a4040391eca02fe6d81ebc33d757bb9b9da814d6",
+  "candidate_id": "f737cb07b1d48d33f44dc3a9a4040391eca02fe6d81ebc33d757bb9b9da814d6",
+  "codex_service_tier": "fast",
+  "condition": "C2",
+  "conversation_session_id": null,
+  "evaluation": {
+    "evaluator_calls": 1,
+    "evaluator_seconds": 359.6851556870024,
+    "failure_kind": null,
+    "fitness": -0.997993,
+    "metrics": {
+      "depth": 8.0,
+      "mfu_percent": 30.69,
+      "num_params_M": 50.3,
+      "num_steps": 1949.0,
+      "peak_vram_mb": 33807.7,
+      "total_tokens_M": 383.2,
+      "training_seconds": 300.1,
+      "val_bpb": 0.997993
+    },
+    "valid": true
+  },
+  "evaluator_calls_cumulative": 5,
+  "evaluator_calls_increment": 1,
+  "evaluator_seconds_cumulative": 1854.7998608880016,
+  "evaluator_seconds_increment": 359.6851556870024,
+  "event": "proposal_completed",
+  "evicted_candidate_id": "d0ec96492b2bd25858ba4c893141ba9416341caf95a78956aaa11e6b213713bb",
+  "evidence": "The 262K-token single-microbatch design achieved the best val_bpb, 0.987182, at 489.7M tokens; reducing the device batch to 64 raised update frequency but collapsed throughput to 357.2M tokens and worsened val_bpb to 1.004099, motivating an intermediate 96-sequence batch.",
+  "hypothesis": "A 196,608-token single-microbatch step will lower val_bpb below 0.987182 by providing 33% more updates than the successful 262K-token design while avoiding the severe throughput loss observed with a 64-sequence device batch.",
+  "incumbent_after": "8f89c706baa430d0251c4944cdb0202c21478db30fa3dcb407aaeca3bfe23b7d",
+  "intended_edit": "Restore the proven separate Q/K/V projections and optimizer path, then train with one 96\u00d72048-token device batch per optimizer step.",
+  "mechanism": "Three-quarter-device-batch update cadence",
+  "opportunity": 5,
+  "parent_ids": [
+    "d0ec96492b2bd25858ba4c893141ba9416341caf95a78956aaa11e6b213713bb"
+  ],
+  "portfolio_after": [
+    "2865e528e18dc51191e4037eaeb5824cb0ea83ede79061b59b8f3caac686da6b",
+    "ee1f1cf686a479f175a9b2178602df52386a3561e80b0612b88ccd725e447c2e",
+    "f737cb07b1d48d33f44dc3a9a4040391eca02fe6d81ebc33d757bb9b9da814d6",
+    "8f89c706baa430d0251c4944cdb0202c21478db30fa3dcb407aaeca3bfe23b7d"
+  ],
+  "prompt_hashes": {
+    "common_template_sha256": "ba85b39aa7288f4f48475376da6cff65661f39cfeb7ac7cde15b2a9a2e692fde",
+    "prompt_sha256": "3b41f2a3ef8b321d43803a5be4a8a9ccb7d7145c1c3721e16fb938ce836b14a7",
+    "proposal_policy_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "search_state_sha256": "c938ac007bf70fe8d27f64661175531e51fcb16b38318c328493c32ee292e27e",
+    "treatment_skeleton_sha256": "ecb3b43b85cce10d4eb73f5a0e13808ad183786aa3723ea443472bdf2ee23f71"
+  },
+  "proposal_type": "ordinary",
+  "proposals_cumulative": 5,
+  "remaining_budget": {
+    "evaluations": 195,
+    "evaluator_seconds": 718145.200139112,
+    "proposals": 195,
+    "tokens": 99800515
+  },
+  "retained": true,
+  "retention_decision": "replaced_selected_parent_on_strict_improvement",
+  "run_id": "nanogpt-openevolve-v2-1-h100-karpathy_nanogpt_source_only_h100-openevolve-b02-c2",
+  "schema_version": "1.0",
+  "selected_parent_ids": [
+    "d0ec96492b2bd25858ba4c893141ba9416341caf95a78956aaa11e6b213713bb"
+  ],
+  "timestamp": "2026-08-23T19:02:22.783967+00:00",
+  "usage_cumulative": {
+    "cached_input_tokens": 43008,
+    "input_tokens": 178149,
+    "output_tokens": 21336,
+    "reasoning_output_tokens": 17882,
+    "total_tokens": 199485
+  },
+  "usage_increment": {
+    "cached_input_tokens": 12032,
+    "input_tokens": 44948,
+    "output_tokens": 3325,
+    "reasoning_output_tokens": 2070,
+    "total_tokens": 48273
+  },
+  "visible_candidate_ids": [
+    "2865e528e18dc51191e4037eaeb5824cb0ea83ede79061b59b8f3caac686da6b",
+    "ee1f1cf686a479f175a9b2178602df52386a3561e80b0612b88ccd725e447c2e",
+    "d0ec96492b2bd25858ba4c893141ba9416341caf95a78956aaa11e6b213713bb",
+    "8f89c706baa430d0251c4944cdb0202c21478db30fa3dcb407aaeca3bfe23b7d"
+  ]
+}

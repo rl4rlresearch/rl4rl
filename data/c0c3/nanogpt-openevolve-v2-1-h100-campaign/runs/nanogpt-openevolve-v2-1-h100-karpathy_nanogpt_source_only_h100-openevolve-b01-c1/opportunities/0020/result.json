@@ -1,0 +1,82 @@
+{
+  "artifact_path": "candidates/f05c4190fc5ad5e4e9bc1aa3c5c95414a7e2732a873803ec705456f3e2aa1099",
+  "candidate_id": "f05c4190fc5ad5e4e9bc1aa3c5c95414a7e2732a873803ec705456f3e2aa1099",
+  "codex_service_tier": "fast",
+  "condition": "C1",
+  "conversation_session_id": null,
+  "evaluation": {
+    "evaluator_calls": 1,
+    "evaluator_seconds": 367.7066198849998,
+    "failure_kind": null,
+    "fitness": -0.986618,
+    "metrics": {
+      "depth": 8.0,
+      "mfu_percent": 34.81,
+      "num_params_M": 50.3,
+      "num_steps": 1984.0,
+      "peak_vram_mb": 44908.2,
+      "total_tokens_M": 520.1,
+      "training_seconds": 300.1,
+      "val_bpb": 0.986618
+    },
+    "valid": true
+  },
+  "evaluator_calls_cumulative": 20,
+  "evaluator_calls_increment": 1,
+  "evaluator_seconds_cumulative": 10937.93763670808,
+  "evaluator_seconds_increment": 367.7066198849998,
+  "event": "proposal_completed",
+  "evicted_candidate_id": null,
+  "evidence": "The 262K-token batch improved val_bpb to 0.986167, while removing full-context integration regressed to 1.015479. The old design assumes one final representation must encode both immediate token-transition statistics and global context; this patch preserves global attention but gives prediction a separate learned low-rank bigram route.",
+  "hypothesis": "Adding a learned direct path from the current-token embedding to the output logits will factorize common token transitions away from the contextual stack, allowing the preserved full-context model and 262K-token update cadence to lower val_bpb below 0.986167 without meaningful throughput loss.",
+  "incumbent_after": "791aefc578828368dde765408535b767d12091e2b56582bfe18a4edc3f05d8ca",
+  "intended_edit": "Add a zero-initialized per-channel output gate that mixes the normalized input embedding into the final representation before the shared language-model head, with a dedicated conservative AdamW learning rate and complete parameter/FLOP accounting.",
+  "mechanism": "Gated low-rank bigram prediction bypass",
+  "opportunity": 20,
+  "parent_ids": [
+    "791aefc578828368dde765408535b767d12091e2b56582bfe18a4edc3f05d8ca"
+  ],
+  "portfolio_after": [
+    "791aefc578828368dde765408535b767d12091e2b56582bfe18a4edc3f05d8ca"
+  ],
+  "prompt_hashes": {
+    "common_template_sha256": "ba85b39aa7288f4f48475376da6cff65661f39cfeb7ac7cde15b2a9a2e692fde",
+    "prompt_sha256": "c7f8e8effac5e490bd340cc534d005f7dd9b3f0ce5bf41d1e45966dae91d94c2",
+    "proposal_policy_sha256": "cd7b9ba20a1cd1edd0663b5e3652baa9cd3c81925074103fe47e66c021d61a4a",
+    "search_state_sha256": "04e5eb078ae1964e4ec65bfeeeb1acd0ffa246e7d54d5e0f997f81f602da28c5",
+    "treatment_skeleton_sha256": "ea7ac4144ae609a1c8ccfdcf06c588cb167a72596ac77d5f943b92de3f82cf90"
+  },
+  "proposal_type": "assumption_changing",
+  "proposals_cumulative": 20,
+  "remaining_budget": {
+    "evaluations": 180,
+    "evaluator_seconds": 709062.062363292,
+    "proposals": 180,
+    "tokens": 99467025
+  },
+  "retained": false,
+  "retention_decision": "not_strictly_better_than_incumbent",
+  "run_id": "nanogpt-openevolve-v2-1-h100-karpathy_nanogpt_source_only_h100-openevolve-b01-c1",
+  "schema_version": "1.0",
+  "selected_parent_ids": [
+    "791aefc578828368dde765408535b767d12091e2b56582bfe18a4edc3f05d8ca"
+  ],
+  "timestamp": "2026-08-24T00:51:12.249578+00:00",
+  "usage_cumulative": {
+    "cached_input_tokens": 232704,
+    "input_tokens": 474886,
+    "output_tokens": 58089,
+    "reasoning_output_tokens": 52402,
+    "total_tokens": 532975
+  },
+  "usage_increment": {
+    "cached_input_tokens": 12032,
+    "input_tokens": 24774,
+    "output_tokens": 3659,
+    "reasoning_output_tokens": 2588,
+    "total_tokens": 28433
+  },
+  "visible_candidate_ids": [
+    "791aefc578828368dde765408535b767d12091e2b56582bfe18a4edc3f05d8ca"
+  ]
+}

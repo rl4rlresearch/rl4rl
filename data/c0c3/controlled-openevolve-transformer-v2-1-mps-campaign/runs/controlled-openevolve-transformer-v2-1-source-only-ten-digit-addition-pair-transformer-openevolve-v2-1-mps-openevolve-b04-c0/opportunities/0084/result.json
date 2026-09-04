@@ -1,0 +1,79 @@
+{
+  "artifact_path": "candidates/98394f78b5f2423dd988b2ede7fc65dc54f3204a2e7e3395cbb359e4417dd8a4",
+  "candidate_id": "98394f78b5f2423dd988b2ede7fc65dc54f3204a2e7e3395cbb359e4417dd8a4",
+  "codex_service_tier": "default",
+  "condition": "C0",
+  "conversation_session_id": null,
+  "evaluation": {
+    "evaluator_calls": 1,
+    "evaluator_seconds": 247.95542000001296,
+    "failure_kind": null,
+    "fitness": -1585.0,
+    "metrics": {
+      "accuracy": 0.9954999999999999,
+      "cases": 10010,
+      "correct": 9965,
+      "parameters": 1585,
+      "training_steps": 4999
+    },
+    "valid": true
+  },
+  "evaluator_calls_cumulative": 84,
+  "evaluator_calls_increment": 1,
+  "evaluator_seconds_cumulative": 36775.202965078526,
+  "evaluator_seconds_increment": 247.95542000001296,
+  "event": "proposal_completed",
+  "evicted_candidate_id": "1179220e3f6073988fbe8e47b734b4b56007042dd99a79771560870e47d66df1",
+  "evidence": "The 1586-parameter design achieved 99.90%, while eliminating another LayerNorm gain through detached sharing reached only 98.53%; this tests a separate attention redundancy while preserving both empirically sensitive gains.",
+  "hypothesis": "Fixing `qkv.weight[0,0]` at zero will reduce the model to 1585 parameters while retaining at least 99% accuracy, because an invertible query/key basis transformation can absorb one query-coordinate constraint without reducing the attention score functions representable by the head.",
+  "incumbent_after": "98394f78b5f2423dd988b2ede7fc65dc54f3204a2e7e3395cbb359e4417dd8a4",
+  "intended_edit": "Replace the QKV linear layer with an otherwise identical learned projection whose first query weight is fixed at zero, while preserving initialization random-number consumption and all 191 remaining learned QKV weights.",
+  "mechanism": "Query-key basis gauge anchoring",
+  "opportunity": 84,
+  "parent_ids": [
+    "1179220e3f6073988fbe8e47b734b4b56007042dd99a79771560870e47d66df1"
+  ],
+  "portfolio_after": [
+    "98394f78b5f2423dd988b2ede7fc65dc54f3204a2e7e3395cbb359e4417dd8a4"
+  ],
+  "prompt_hashes": {
+    "common_template_sha256": "3f2bea6418b6969c4bf2aa1df18dcda8a3a4ac075bf20c79068c754698b6be5e",
+    "prompt_sha256": "0e6c6dcfb20f100d68bff00dcbee5a1840568e8c5dc1db050523843dccd5f332",
+    "proposal_policy_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "search_state_sha256": "04e5eb078ae1964e4ec65bfeeeb1acd0ffa246e7d54d5e0f997f81f602da28c5",
+    "treatment_skeleton_sha256": "ba776952127080b1b42dedfc4d78c7ce69032060cc89a45700c7600380d39e52"
+  },
+  "proposal_type": "ordinary",
+  "proposals_cumulative": 84,
+  "remaining_budget": {
+    "evaluations": 116,
+    "evaluator_seconds": 323224.7970349215,
+    "proposals": 116,
+    "tokens": 97936540
+  },
+  "retained": true,
+  "retention_decision": "strict_incumbent_improvement",
+  "run_id": "controlled-openevolve-transformer-v2-1-source-only-ten-digit-addition-pair-transformer-openevolve-v2-1-mps-openevolve-b04-c0",
+  "schema_version": "1.0",
+  "selected_parent_ids": [
+    "1179220e3f6073988fbe8e47b734b4b56007042dd99a79771560870e47d66df1"
+  ],
+  "timestamp": "2026-08-25T22:58:40.522147+00:00",
+  "usage_cumulative": {
+    "cached_input_tokens": 859904,
+    "input_tokens": 1875943,
+    "output_tokens": 187517,
+    "reasoning_output_tokens": 139287,
+    "total_tokens": 2063460
+  },
+  "usage_increment": {
+    "cached_input_tokens": 2816,
+    "input_tokens": 23662,
+    "output_tokens": 4941,
+    "reasoning_output_tokens": 4360,
+    "total_tokens": 28603
+  },
+  "visible_candidate_ids": [
+    "1179220e3f6073988fbe8e47b734b4b56007042dd99a79771560870e47d66df1"
+  ]
+}

@@ -1,0 +1,181 @@
+# Improve fixed-exposure image classification
+
+You are an autonomous ML engineer improving a learned classifier for 28×28
+grayscale images in ten classes.
+
+## Goal
+
+Maximize `validation_score`. It ranks implementations first by the exact number
+of correct predictions on the fixed 10,000-image validation set, then—only when
+correct counts tie—by lower validation cross-entropy. Every verification starts
+from a fresh initialization and presents exactly 100,000 examples from the
+fixed 50,000-image training split.
+
+You may change the model architecture, optimizer, loss, augmentation, batch
+size, gradient handling, schedule, and other contents of `train.py`. The fixed
+data split, normalization, example accounting, validation calculation,
+250,000-learned-parameter ceiling, and device are not editable. The protected
+loop calls the functions already defined in `train.py`; keep that interface
+intact. The model must return one ten-class logit vector per image.
+
+## Work boundaries
+
+Maximize validation_score. No additional accuracy threshold.
+Editable source files: train.py.
+Results reported after each verification: validation_score, validation_correct, validation_accuracy, validation_cross_entropy, parameters, examples_processed, optimizer_steps, training_seconds, batch_size.
+
+Propose changes through exact SEARCH/REPLACE blocks. The patching interface applies them to the supplied editable source.
+
+The editable source and any reference source are included below. Do not access
+parent directories, home directories, shared temporary directories, global
+session history, online sources, external datasets, pretrained weights, or any
+surrounding repository. Do not run training or validation yourself and do not
+generate hidden alternatives. Return one patch for one implementation;
+verification happens after you finish.
+
+## Available designs
+
+The current editable design and the qualified reference designs below are available as technical evidence. Edit only the current workspace.
+
+CURRENT DESIGN
+verified_results: {"batch_size": 64, "examples_processed": 100000, "optimizer_steps": 1564, "parameters": 248682, "training_seconds": 61.280698999995366, "validation_accuracy": 0.9295, "validation_correct": 9295, "validation_cross_entropy": 0.2028635612487793, "validation_score": 9295.415674741598}
+prior_hypothesis: Raising the evaluation-only logit multiplier to 1.20565 will preserve exactly 9,295 correct predictions while reducing validation cross-entropy below 0.20286357192993165.
+
+REFERENCE DESIGN 1
+verified_results: {"batch_size": 64, "examples_processed": 100000, "optimizer_steps": 1564, "parameters": 248682, "training_seconds": 38.95701791602187, "validation_accuracy": 0.9295, "validation_correct": 9295, "validation_cross_entropy": 0.2028635383605957, "validation_score": 9295.415674749507}
+prior_hypothesis: Raising the evaluation-only logit multiplier to 1.20568 will preserve exactly 9,295 correct predictions while reducing validation cross-entropy below 0.2028635425567627.
+
+REFERENCE DESIGN 2
+verified_results: {"batch_size": 64, "examples_processed": 100000, "optimizer_steps": 1564, "parameters": 248682, "training_seconds": 54.081613457994536, "validation_accuracy": 0.9295, "validation_correct": 9295, "validation_cross_entropy": 0.20286352462768556, "validation_score": 9295.415674754253}
+prior_hypothesis: Raising the evaluation-only logit multiplier to 1.20569 will preserve exactly 9,295 correct predictions while reducing validation cross-entropy below 0.2028635383605957.
+
+REFERENCE DESIGN 3
+verified_results: {"batch_size": 64, "examples_processed": 100000, "optimizer_steps": 1564, "parameters": 248682, "training_seconds": 59.47058529104106, "validation_accuracy": 0.9295, "validation_correct": 9295, "validation_cross_entropy": 0.20286357192993165, "validation_score": 9295.415674737907}
+prior_hypothesis: Raising the evaluation-only logit multiplier to 1.20564 will preserve exactly 9,295 correct predictions while reducing validation cross-entropy below 0.20286358070373536.
+
+## Recent verification evidence
+
+RECENT RESULT
+hypothesis: Raising the evaluation-only logit multiplier to 1.20558 will preserve exactly 9,295 correct predictions while reducing validation cross-entropy below 0.20286364059448242.
+change: Increase only the positive inference-time logit multiplier from 1.20553 to 1.20558.
+mechanism: Argmax-preserving calibration continuation
+evidence_used: Every tested scale through 1.20557 preserved all 9,295 correct predictions and monotonically reduced cross-entropy; 1.20557 achieved the best verified loss, while positive scaling preserves argmax predictions.
+result: improved the objective and became an available design
+reported_values: {"batch_size": 64, "examples_processed": 100000, "optimizer_steps": 1564, "parameters": 248682, "training_seconds": 57.87037716712803, "validation_accuracy": 0.9295, "validation_correct": 9295, "validation_cross_entropy": 0.20286362838745117, "validation_score": 9295.415674718397}
+
+RECENT RESULT
+hypothesis: Raising the evaluation-only logit multiplier to 1.20559 will preserve exactly 9,295 correct predictions while reducing validation cross-entropy below 0.20286362838745117.
+change: Increase only the positive inference-time logit multiplier from 1.20552 to 1.20559.
+mechanism: Argmax-preserving calibration continuation
+evidence_used: Every tested scale through 1.20558 preserved all 9,295 correct predictions and monotonically reduced cross-entropy; 1.20558 achieved the best verified loss, while positive scaling preserves argmax predictions.
+result: improved the objective and became an available design
+reported_values: {"batch_size": 64, "examples_processed": 100000, "optimizer_steps": 1564, "parameters": 248682, "training_seconds": 62.680084417108446, "validation_accuracy": 0.9295, "validation_correct": 9295, "validation_cross_entropy": 0.2028636215209961, "validation_score": 9295.41567472077}
+
+RECENT RESULT
+hypothesis: Raising the evaluation-only logit multiplier to 1.20560 will preserve exactly 9,295 correct predictions while reducing validation cross-entropy below 0.2028636215209961.
+change: Increase only the positive inference-time logit multiplier from 1.20559 to 1.20560.
+mechanism: Argmax-preserving calibration continuation
+evidence_used: Every tested scale through 1.20559 preserved all 9,295 correct predictions while monotonically reducing cross-entropy; 1.20559 achieved the best verified loss, and positive scaling preserves argmax predictions.
+result: improved the objective and became an available design
+reported_values: {"batch_size": 64, "examples_processed": 100000, "optimizer_steps": 1564, "parameters": 248682, "training_seconds": 39.22900162497535, "validation_accuracy": 0.9295, "validation_correct": 9295, "validation_cross_entropy": 0.20286361045837403, "validation_score": 9295.415674724592}
+
+RECENT RESULT
+hypothesis: Raising the evaluation-only logit multiplier to 1.20561 will preserve exactly 9,295 correct predictions while reducing validation cross-entropy below 0.20286361045837403.
+change: Increase only the positive inference-time logit multiplier from 1.20558 to 1.20561.
+mechanism: Argmax-preserving calibration continuation
+evidence_used: Scale 1.20560 achieved the lowest verified cross-entropy after monotonic improvement through every tested scale; positive logit scaling preserves argmax predictions.
+result: improved the objective and became an available design
+reported_values: {"batch_size": 64, "examples_processed": 100000, "optimizer_steps": 1564, "parameters": 248682, "training_seconds": 45.63623299985193, "validation_accuracy": 0.9295, "validation_correct": 9295, "validation_cross_entropy": 0.20286360321044922, "validation_score": 9295.415674727097}
+
+RECENT RESULT
+hypothesis: Raising the evaluation-only logit multiplier to 1.20562 will preserve exactly 9,295 correct predictions while reducing validation cross-entropy below 0.20286360321044922.
+change: Increase only the positive inference-time logit multiplier from 1.20557 to 1.20562.
+mechanism: Argmax-preserving calibration continuation
+evidence_used: Scale 1.20561 produced the lowest verified cross-entropy after monotonic improvement through every tested scale from 1.20550 to 1.20561; positive logit scaling preserves argmax predictions.
+result: improved the objective and became an available design
+reported_values: {"batch_size": 64, "examples_processed": 100000, "optimizer_steps": 1564, "parameters": 248682, "training_seconds": 58.09884516708553, "validation_accuracy": 0.9295, "validation_correct": 9295, "validation_cross_entropy": 0.20286359062194825, "validation_score": 9295.415674731448}
+
+RECENT RESULT
+hypothesis: Raising the evaluation-only logit multiplier to 1.20563 will preserve exactly 9,295 correct predictions while reducing validation cross-entropy below 0.20286359062194825.
+change: Increase only the positive inference-time logit multiplier from 1.20556 to 1.20563.
+mechanism: Argmax-preserving calibration continuation
+evidence_used: Scale 1.20562 achieved the lowest verified cross-entropy after monotonic improvement through every tested scale from 1.20550 to 1.20562; positive scaling preserves argmax predictions.
+result: improved the objective and became an available design
+reported_values: {"batch_size": 64, "examples_processed": 100000, "optimizer_steps": 1564, "parameters": 248682, "training_seconds": 65.22391170891933, "validation_accuracy": 0.9295, "validation_correct": 9295, "validation_cross_entropy": 0.20286358070373536, "validation_score": 9295.415674734875}
+
+RECENT RESULT
+hypothesis: Raising the evaluation-only logit multiplier to 1.20564 will preserve exactly 9,295 correct predictions while reducing validation cross-entropy below 0.20286358070373536.
+change: Increase only the positive inference-time logit multiplier from 1.20563 to 1.20564.
+mechanism: Argmax-preserving calibration continuation
+evidence_used: Every tested scale through 1.20563 preserved all 9,295 correct predictions while monotonically reducing cross-entropy; 1.20563 achieved the lowest verified loss, and positive scaling preserves argmax predictions.
+result: improved the objective and became an available design
+reported_values: {"batch_size": 64, "examples_processed": 100000, "optimizer_steps": 1564, "parameters": 248682, "training_seconds": 59.47058529104106, "validation_accuracy": 0.9295, "validation_correct": 9295, "validation_cross_entropy": 0.20286357192993165, "validation_score": 9295.415674737907}
+
+RECENT RESULT
+hypothesis: Raising the evaluation-only logit multiplier to 1.20565 will preserve exactly 9,295 correct predictions while reducing validation cross-entropy below 0.20286357192993165.
+change: Increase only the positive inference-time logit multiplier from 1.20562 to 1.20565.
+mechanism: Argmax-preserving calibration continuation
+evidence_used: Every tested scale through 1.20564 preserved all 9,295 correct predictions while monotonically reducing cross-entropy; 1.20564 achieved the lowest verified loss, and positive scaling preserves argmax predictions.
+result: improved the objective and became an available design
+reported_values: {"batch_size": 64, "examples_processed": 100000, "optimizer_steps": 1564, "parameters": 248682, "training_seconds": 61.280698999995366, "validation_accuracy": 0.9295, "validation_correct": 9295, "validation_cross_entropy": 0.2028635612487793, "validation_score": 9295.415674741598}
+
+RECENT RESULT
+hypothesis: Raising the evaluation-only logit multiplier to 1.20566 will preserve exactly 9,295 correct predictions while reducing validation cross-entropy below 0.2028635612487793.
+change: Increase only the positive inference-time logit multiplier from 1.20561 to 1.20566.
+mechanism: Argmax-preserving calibration continuation
+evidence_used: Every tested scale through 1.20565 preserved all 9,295 correct predictions while monotonically reducing cross-entropy; 1.20565 achieved the lowest verified loss, and positive scaling preserves argmax predictions.
+result: improved the objective and became an available design
+reported_values: {"batch_size": 64, "examples_processed": 100000, "optimizer_steps": 1564, "parameters": 248682, "training_seconds": 68.93328458280303, "validation_accuracy": 0.9295, "validation_correct": 9295, "validation_cross_entropy": 0.2028635513305664, "validation_score": 9295.415674745025}
+
+RECENT RESULT
+hypothesis: Raising the evaluation-only logit multiplier to 1.20567 will preserve exactly 9,295 correct predictions while reducing validation cross-entropy below 0.2028635513305664.
+change: Increase only the positive inference-time logit multiplier from 1.20560 to 1.20567.
+mechanism: Argmax-preserving calibration continuation
+evidence_used: Scale 1.20566 achieved the lowest verified cross-entropy after monotonic improvement through every tested scale up to 1.20566; positive logit scaling preserves argmax predictions.
+result: improved the objective and became an available design
+reported_values: {"batch_size": 64, "examples_processed": 100000, "optimizer_steps": 1564, "parameters": 248682, "training_seconds": 49.88121212506667, "validation_accuracy": 0.9295, "validation_correct": 9295, "validation_cross_entropy": 0.2028635425567627, "validation_score": 9295.415674748057}
+
+RECENT RESULT
+hypothesis: Raising the evaluation-only logit multiplier to 1.20568 will preserve exactly 9,295 correct predictions while reducing validation cross-entropy below 0.2028635425567627.
+change: Increase only the positive inference-time logit multiplier from 1.20567 to 1.20568.
+mechanism: Argmax-preserving calibration continuation
+evidence_used: Every tested scale through 1.20567 preserved all 9,295 correct predictions while monotonically reducing cross-entropy; 1.20567 achieved the lowest verified loss, and positive scaling preserves argmax predictions.
+result: improved the objective and became an available design
+reported_values: {"batch_size": 64, "examples_processed": 100000, "optimizer_steps": 1564, "parameters": 248682, "training_seconds": 38.95701791602187, "validation_accuracy": 0.9295, "validation_correct": 9295, "validation_cross_entropy": 0.2028635383605957, "validation_score": 9295.415674749507}
+
+RECENT RESULT
+hypothesis: Raising the evaluation-only logit multiplier to 1.20569 will preserve exactly 9,295 correct predictions while reducing validation cross-entropy below 0.2028635383605957.
+change: Increase only the positive inference-time logit multiplier from 1.20566 to 1.20569.
+mechanism: Argmax-preserving calibration continuation
+evidence_used: Every tested scale through 1.20568 preserved all 9,295 correct predictions while monotonically reducing cross-entropy; 1.20568 achieved the lowest verified loss, and positive scaling preserves argmax predictions.
+result: improved the objective and became an available design
+reported_values: {"batch_size": 64, "examples_processed": 100000, "optimizer_steps": 1564, "parameters": 248682, "training_seconds": 54.081613457994536, "validation_accuracy": 0.9295, "validation_correct": 9295, "validation_cross_entropy": 0.20286352462768556, "validation_score": 9295.415674754253}
+
+
+
+Use the available technical evidence to choose the most informative next
+change. Treat unsuccessful or malformed work as evidence when a useful
+subject-level reason is provided. Do not invent missing evidence.
+
+## Response
+
+Return these short metadata lines followed by one or more exact
+`SEARCH`/`REPLACE` blocks that together produce one implementation:
+
+`MECHANISM: <a concise free-form name for the computational idea>`
+
+`HYPOTHESIS: <a falsifiable claim grounded in the evidence above>`
+
+`INTENDED_EDIT: <what this patch changes>`
+
+`EVIDENCE: <the most relevant prior result and why it motivates this patch>`
+
+Start each block with `<<<<<<< SEARCH`, put the exact existing lines next, use a
+line containing `=======` as the divider, put the replacement lines after it,
+and finish the block with `>>>>>>> REPLACE`.
+
+Every `SEARCH` section must be nonempty and match exactly once after earlier
+blocks have been applied. All blocks must apply. Together they must describe
+one implementation ready for verification. The mechanism name is descriptive,
+not chosen from a fixed list. Do not paste whole files, lengthy logs, or routine
+progress reports outside the patch.

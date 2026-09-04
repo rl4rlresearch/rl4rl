@@ -1,0 +1,99 @@
+{
+  "artifact_path": "candidates/831606b15ba060ab1f95d4a396a3c10ca4822c9b53b65495b3a14c60488d2d67",
+  "candidate_id": "831606b15ba060ab1f95d4a396a3c10ca4822c9b53b65495b3a14c60488d2d67",
+  "codex_service_tier": "default",
+  "condition": "C1",
+  "conversation_session_id": null,
+  "evaluation": {
+    "evaluator_calls": 1,
+    "evaluator_seconds": 126.83744949987158,
+    "failure_kind": "nonqualification",
+    "fitness": null,
+    "metrics": {
+      "batch_size": 128,
+      "evaluation_cases": 815,
+      "evaluation_split": "public_speaker_disjoint_validation",
+      "examples_processed": 50000,
+      "inference_cost": 2336316459170982440,
+      "maximum_recurrent_steps": 29,
+      "mean_recurrent_steps": 29.0,
+      "median_recurrent_steps": 29,
+      "optimizer_steps": 397,
+      "p95_recurrent_steps": 29,
+      "parameters": 20040,
+      "peak_hidden_elements": 122368,
+      "recurrent_logit_effect": 0.05667746067047119,
+      "recurrent_macs": 447221470,
+      "recurrent_steps": 23635,
+      "state_dependence_effect": 0.32711732387542725,
+      "state_update_effect": 0.3384724259376526,
+      "total_inference_macs": 447900365,
+      "trained_recurrent_logit_effect": 0.6792147755622864,
+      "trained_state_dependence_effect": 0.3695939779281616,
+      "trained_state_update_effect": 0.37986117601394653,
+      "training_seconds": 105.49562495900318,
+      "validation_accuracy": 0.8478527607361963,
+      "validation_correct": 691,
+      "validation_cross_entropy": 0.46414298777199964
+    },
+    "valid": false
+  },
+  "evaluator_calls_cumulative": 28,
+  "evaluator_calls_increment": 1,
+  "evaluator_seconds_cumulative": 3258.497812914662,
+  "evaluator_seconds_increment": 126.83744949987158,
+  "event": "proposal_completed",
+  "evicted_candidate_id": null,
+  "evidence": "The 100+100 ungated tanh RNN fell to 71.78% while the 60+59 GRU reached 85.40%, indicating gating is load-bearing. A coupled forget cell retains learned elementwise gating and recurrent dependence while removing one third of the GRU\u2019s dense gate computation.",
+  "hypothesis": "Replacing each three-gate GRU with a width-matched coupled forget cell will retain at least 85% validation accuracy while reducing recurrent MACs by exactly one third, from 670,832,205 to 447,221,470, with the same 29 recurrent steps.",
+  "incumbent_after": "186cd8dd3ab2fd44fab9e9b07e22f9ef7908d1a859e6e5876422d869ca1eac41",
+  "intended_edit": "Preserve the verified 60+59 hidden widths, causal mean summary, frame schedule, and orthonormal classifier, but replace each GRU with a two-output-per-hidden-unit `nn.Linear` recurrent cell.",
+  "mechanism": "Coupled single-gate recurrent cells",
+  "opportunity": 28,
+  "parent_ids": [
+    "186cd8dd3ab2fd44fab9e9b07e22f9ef7908d1a859e6e5876422d869ca1eac41"
+  ],
+  "portfolio_after": [
+    "186cd8dd3ab2fd44fab9e9b07e22f9ef7908d1a859e6e5876422d869ca1eac41"
+  ],
+  "prompt_hashes": {
+    "common_template_sha256": "dee04faf4c430276c1036ba97f5705a339857dbdf19117dac88952a5a3a47e9d",
+    "prompt_sha256": "c23f655d0d4b87b30643e5a18df71ea56e6e8b4bea42442d9c1609ebbf12ca32",
+    "proposal_policy_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "search_state_sha256": "04e5eb078ae1964e4ec65bfeeeb1acd0ffa246e7d54d5e0f997f81f602da28c5",
+    "treatment_skeleton_sha256": "ba9bf14a4623d87c81c88533644da55174884733ad39efa2a3cd3f05ece51d16"
+  },
+  "proposal_type": "ordinary",
+  "proposals_cumulative": 28,
+  "remaining_budget": {
+    "evaluations": 172,
+    "evaluator_seconds": 56741.50218708534,
+    "proposals": 172,
+    "tokens": 99380351
+  },
+  "retained": false,
+  "retention_decision": "invalid",
+  "run_id": "tiny-kws-rnn-openevolve-v2-1-cpu-tiny_kws_rnn_source_only_cpu-openevolve-b02-c1",
+  "schema_version": "1.0",
+  "selected_parent_ids": [
+    "186cd8dd3ab2fd44fab9e9b07e22f9ef7908d1a859e6e5876422d869ca1eac41"
+  ],
+  "timestamp": "2026-09-04T04:25:21.911492+00:00",
+  "usage_cumulative": {
+    "cached_input_tokens": 301056,
+    "input_tokens": 539967,
+    "output_tokens": 79682,
+    "reasoning_output_tokens": 65975,
+    "total_tokens": 619649
+  },
+  "usage_increment": {
+    "cached_input_tokens": 10752,
+    "input_tokens": 20597,
+    "output_tokens": 7556,
+    "reasoning_output_tokens": 5784,
+    "total_tokens": 28153
+  },
+  "visible_candidate_ids": [
+    "186cd8dd3ab2fd44fab9e9b07e22f9ef7908d1a859e6e5876422d869ca1eac41"
+  ]
+}

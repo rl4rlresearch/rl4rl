@@ -1,0 +1,192 @@
+# Optimize a transformer for 10-digit addition
+
+You are an autonomous ML engineer improving the source code for an
+autoregressive transformer that adds two 10-digit numbers.
+
+## Goal
+
+Minimize the actual number of deduplicated learned model parameters while
+maintaining at least 99% accuracy under the fixed verification process. A
+smaller implementation is useful only when it meets that accuracy requirement.
+Every submitted implementation is trained from a fresh initialization.
+
+## Learned-model requirement
+
+Produce a smaller trained autoregressive transformer, not a hand-coded addition
+program. The submitted implementation must:
+
+- have nonzero trainable parameters;
+- contain and use at least one learned causal self-attention module;
+- map token inputs to token logits through the learned model;
+- train from a fresh initialization during verification;
+- write both `checkpoints/best.pt` and a positive-step `checkpoints/last.pt`;
+- keep source code unchanged while training; and
+- use the protected generic decoding interface exactly as supplied.
+
+Do not implement or embed decimal arithmetic, carry propagation, place-value
+rules, digit lookup tables, finite-state addition transitions, fixed answer
+rules, or input-dependent Python logic that directly computes the sum. Do not
+hide such a solver in model generation, token processing, training, or saved
+weights. Do not add dummy or zero-length parameters to disguise a fixed
+algorithm as a learned model.
+
+Do not modify protected files. Do not perform post-training state-dictionary
+surgery, substitute a different saved model, truncate weights after training,
+or report a parameter count that differs from the submitted model.
+
+## Work boundaries
+
+Minimize parameters. Required result: accuracy >= 0.99.
+Editable source files: src/model.py, src/train.py.
+Results reported after each verification: accuracy, parameters, training_steps.
+
+Propose changes through exact SEARCH/REPLACE blocks. The patching interface applies them to the supplied editable source.
+
+The editable source and any reference source are included below. Do not access
+parent directories, home directories, shared temporary directories, global
+session history, online sources, or any surrounding repository. Do not run
+training or verification yourself and do not generate hidden alternatives.
+Return one patch for one implementation; verification happens after you finish.
+
+## Available designs
+
+The current editable design and the qualified reference designs below are available as technical evidence. Edit only the current workspace.
+
+CURRENT DESIGN
+verified_results: {"accuracy": 0.9984999999999999, "parameters": 1544, "training_steps": 4999}
+prior_hypothesis: Extending the verified 1,545-parameter design to second-head key row 14 will produce a 1,544-parameter model with at least 99% accuracy.
+
+REFERENCE DESIGN 1
+verified_results: {"accuracy": 0.9926, "parameters": 1512, "training_steps": 4999}
+prior_hypothesis: Adding second-head query row 6 through an orthonormal Helmert chart will reduce the verified 1,513-parameter model to 1,512 parameters while retaining at least 99% accuracy.
+
+REFERENCE DESIGN 2
+verified_results: {"accuracy": 0.9986, "parameters": 1510, "training_steps": 4999}
+prior_hypothesis: Constraining position zero to the Helmert subspace orthogonal to both its common direction and the coordinate-2-versus-4 contrast will reduce the verified model from 1,511 to 1,510 parameters while retaining at least 99% accuracy.
+
+REFERENCE DESIGN 3
+verified_results: {"accuracy": 0.9998, "parameters": 1509, "training_steps": 4999}
+prior_hypothesis: Removing the final position-zero Helmert contrast `(2 + 4 + 5 - 3*6)` while retaining `(2 + 4 - 2*5)` will reduce the qualified 1,510-parameter design to 1,509 parameters and retain at least 99% accuracy.
+
+## Recent verification evidence
+
+RECENT RESULT
+hypothesis: Extending the verified 1,535-parameter four-anchor design by removing the common scalar component of every nonzero position row will reduce parameters by `INPUT_LEN - 1` while retaining at least 99% accuracy.
+change: Reproduce the verified coordinate-1 positional anchor, represent positions 1 onward in the zero-mean feature subspace, and update those rows with recovered eight-coordinate AdamW moments.
+mechanism: Dense-AdamW per-position residual-scalar quotient
+evidence_used: The four-anchor design achieved 99.82% at 1,535 parameters, and dense-coordinate optimization preserved other sensitive exact quotients. A position-specific scalar shift survives the residual stream but is erased by every LayerNorm, so this removes exact null directions without reducing learned function capacity.
+result: met the accuracy requirement and became an available design
+reported_values: {"accuracy": 0.9995, "parameters": 1513, "training_steps": 4999}
+
+RECENT RESULT
+hypothesis: Gauging the remaining second-head query row 6 with reduced-coordinate AdamW in the verified 1,513-parameter position-scalar design will produce a 1,512-parameter model with at least 99% accuracy.
+change: Add query row 6 to the normalized-input QKV gauge while retaining dense-coordinate updates for sensitive key row 15 and value rows 20 and 23.
+mechanism: Complete second-head query-row quotient
+evidence_used: Query row 6 previously reached 98.89%, only 0.11 percentage points below the requirement, while the newer dense-position quotient changed the optimization geometry and achieved 99.95% at 1,513 parameters.
+result: did not meet the accuracy requirement
+reported_values: {"accuracy": 0.022400000000000003, "parameters": 1512, "training_steps": 4999}
+
+RECENT RESULT
+hypothesis: Adding second-head query row 6 through a Helmert orthonormal chart to the verified 1,513-parameter position-scalar design will produce a 1,512-parameter model with at least 99% accuracy.
+change: Reproduce the qualified dense-AdamW position-row scalar quotient, then remove query row 6’s exact normalized-input null direction using an orthonormal seven-coordinate basis while retaining the verified dense updates for rows 15, 20, and 23.
+mechanism: Orthonormal final-query-row LayerNorm quotient
+evidence_used: The position-scalar quotient achieved 99.95% at 1,513 parameters, while query row 6 failed in a last-coordinate reduced chart at 1,512 parameters. Query row 7 succeeded under the same capacity reduction, so testing a symmetric orthonormal chart directly targets optimizer geometry without removing additional function capacity.
+result: the patch search text matched more than once
+
+RECENT RESULT
+hypothesis: Adding second-head query row 6 through an orthonormal Helmert chart will reduce the verified 1,513-parameter model to 1,512 parameters while retaining at least 99% accuracy.
+change: Keep the 23 verified QKV rows in their existing last-coordinate charts, represent query row 6 in a seven-dimensional Helmert basis, and preserve the verified dense-coordinate updates for rows 15, 20, and 23.
+mechanism: Helmert-chart final-query-row LayerNorm quotient
+evidence_used: The position-scalar model achieved 99.95% at 1,513 parameters; query row 6 previously came within 0.11 percentage points of the threshold, and the proposed Helmert experiment was never tested because its patch matched multiple locations.
+result: met the accuracy requirement and became an available design
+reported_values: {"accuracy": 0.9926, "parameters": 1512, "training_steps": 4999}
+
+RECENT RESULT
+hypothesis: Extending the verified 1,512-parameter Helmert-query design by representing position zero’s four unanchored coordinates in their zero-mean Helmert subspace will produce a 1,511-parameter model with at least 99% accuracy.
+change: Reproduce the qualified query-row-6 and dense position-row quotients, then remove position zero’s remaining scalar component and optimize that new quotient with dense four-coordinate AdamW moments.
+mechanism: Orthonormal position-zero residual-scalar quotient
+evidence_used: Dense position-row scalar quotients reached 99.95% at 1,513 parameters, and the Helmert query-row-6 chart reached 99.26% at 1,512. Failed individual coordinate anchors motivate testing the balanced scalar direction across coordinates 2, 4, 5, and 6 instead.
+result: met the accuracy requirement and became an available design
+reported_values: {"accuracy": 0.9945999999999999, "parameters": 1511, "training_steps": 4999}
+
+RECENT RESULT
+hypothesis: Removing the balanced position-zero contrast between coordinates 2 and 4 from the verified 1,511-parameter Helmert design will produce a 1,510-parameter model with at least 99% accuracy.
+change: Reproduce the verified all-row QKV and positional scalar quotients, then constrain position zero to the two-dimensional Helmert subspace orthogonal to both the common direction and the coordinate-2-versus-4 contrast, transferring the omitted initialization component into the tied token embedding and retaining dense-coordinate positional AdamW moments.
+mechanism: Second orthonormal token–position translation quotient
+evidence_used: The 1,511-parameter position-zero Helmert design achieved 99.46%, and an orthonormal chart previously made query row 6 viable at 1,512 parameters after its anchored-coordinate version failed. The failed individual positional anchors motivate another balanced orthonormal direction instead of fixing a single coordinate.
+result: the patch search text matched more than once
+
+RECENT RESULT
+hypothesis: Constraining position zero to the Helmert subspace orthogonal to both its common direction and the coordinate-2-versus-4 contrast will reduce the verified model from 1,511 to 1,510 parameters while retaining at least 99% accuracy.
+change: Remove the first Helmert coordinate from position zero, transfer that omitted initialization component into the tied token embedding, and retain the existing dense four-coordinate AdamW update.
+mechanism: Second orthonormal token–position translation quotient
+evidence_used: The 1,511-parameter position-zero Helmert design achieved 99.46%, and a Helmert chart previously made query row 6 viable after its anchored-coordinate form failed. The proposed 1,510-parameter positional contrast experiment was not tested because its patch matched multiple locations.
+result: met the accuracy requirement and became an available design
+reported_values: {"accuracy": 0.9986, "parameters": 1510, "training_steps": 4999}
+
+RECENT RESULT
+hypothesis: Removing position zero’s remaining Helmert contrast proportional to coordinates `(2 + 4 - 2*5)` will reduce the verified 1,510-parameter design to 1,509 parameters while retaining at least 99% accuracy.
+change: Reproduce the verified 1,510-parameter positional chart, retain only its final Helmert coordinate, transfer all three omitted position-zero directions into the tied token embedding at initialization, and optimize the retained coordinate with dense four-coordinate AdamW moments.
+mechanism: Third orthonormal token–position translation quotient
+evidence_used: The 1,510-parameter design achieved 99.86% after removing the common direction and coordinate-2-versus-4 contrast from position zero; its large margin and the prior success of orthonormal charts motivate testing the next balanced Helmert contrast instead of another fragile single-coordinate anchor.
+result: did not meet the accuracy requirement
+reported_values: {"accuracy": 0.9698, "parameters": 1509, "training_steps": 4999}
+
+RECENT RESULT
+hypothesis: Removing the final position-zero Helmert contrast `(2 + 4 + 5 - 3*6)` while retaining `(2 + 4 - 2*5)` will reduce the qualified 1,510-parameter design to 1,509 parameters and retain at least 99% accuracy.
+change: Reproduce the qualified all-row QKV and positional scalar gauges, then constrain position zero to the single retained Helmert contrast and train positional quotients with dense-coordinate AdamW moments.
+mechanism: Complementary position-zero Helmert contrast quotient
+evidence_used: The 1,510-parameter two-contrast design achieved 99.86%. Removing the other retained contrast failed at 96.98%, so testing this complementary one-parameter quotient is the most direct informative alternative.
+result: met the accuracy requirement and became an available design
+reported_values: {"accuracy": 0.9998, "parameters": 1509, "training_steps": 4999}
+
+RECENT RESULT
+hypothesis: Anchoring the first token embedding’s projection onto `(2 + 4 - 2*5)` while retaining that learned positional contrast will reduce the qualified model from 1,509 to 1,508 parameters and preserve at least 99% accuracy.
+change: Remove one exact token–position translation degree of freedom from the tied token embedding, transfer its initialization component into every positional row, and use an orthonormal chart for the affected token coordinates.
+mechanism: Tied-token Helmert gauge for the final token–position translation
+evidence_used: The current 1,509-parameter design achieved 99.98%, whereas deleting its retained positional contrast previously reached only 96.98%; moving the same exact quotient to the tied-token side preserves the sensitive learned positional coordinate, and prior Helmert charts successfully recovered optimization quality for query row 6.
+result: training did not finish within the verification time limit
+
+RECENT RESULT
+hypothesis: Anchoring token zero’s projection onto `(2 + 4 - 2*5)` while retaining that positional contrast will produce a 1,508-parameter model with at least 99% accuracy and complete within the verification limit.
+change: Reproduce the qualified 1,509-parameter single-contrast position chart, then remove the remaining exact token–position translation using a small orthonormal token-row chart, transferring the omitted initialization component into every positional row and retaining ordinary AdamW.
+mechanism: Lightweight tied-token Helmert translation quotient
+evidence_used: The single-contrast 1,509-parameter design achieved 99.98%. The prior 1,508 tied-token experiment timed out rather than failing accuracy, so this lower-overhead formulation tests the same exact quotient without a custom token optimizer.
+result: training did not finish within the verification time limit
+
+RECENT RESULT
+hypothesis: Reproducing the qualified 1,509-parameter single-contrast design, then quotienting its final token–position translation with an orthonormal token-zero chart will yield 1,508 parameters and at least 99% accuracy; reducing validation frequency will avoid the timeouts seen in the prior 1,508-parameter attempts.
+change: Retain only the successful `(2 + 4 - 2*5)` position-zero contrast, constrain token zero orthogonally to that translation direction, transfer omitted initialization components across every positional row, preserve dense-coordinate positional AdamW, and evaluate every 600 steps.
+mechanism: Validation-efficient orthonormal tied-token translation quotient
+evidence_used: The single-contrast design achieved 99.98% at 1,509 parameters. Both subsequent 1,508-parameter tied-token quotient attempts timed out rather than failing accuracy, so this patch preserves the orthonormal quotient while reducing validation overhead.
+result: training did not finish within the verification time limit
+
+
+
+Use the available technical evidence to choose the most informative next
+change. Treat unsuccessful or malformed work as evidence when a useful
+subject-level reason is provided. Do not invent missing evidence.
+
+## Response
+
+Return these short metadata lines followed by one or more exact
+`SEARCH`/`REPLACE` blocks that together produce one implementation:
+
+`MECHANISM: <a concise free-form name for the computational idea>`
+
+`HYPOTHESIS: <a falsifiable claim grounded in the evidence above>`
+
+`INTENDED_EDIT: <what this patch changes>`
+
+`EVIDENCE: <the most relevant prior result and why it motivates this patch>`
+
+Start each block with `<<<<<<< SEARCH`, put the exact existing lines next, use a
+line containing `=======` as the divider, put the replacement lines after it,
+and finish the block with `>>>>>>> REPLACE`.
+
+Every `SEARCH` section must be nonempty and match exactly once after earlier
+blocks have been applied. All blocks must apply. They may edit either or both
+editable files, but together they must describe one implementation ready for
+verification. The mechanism name is descriptive, not chosen from a fixed list.
+Do not paste whole files, lengthy logs, or routine progress reports outside the
+patch.

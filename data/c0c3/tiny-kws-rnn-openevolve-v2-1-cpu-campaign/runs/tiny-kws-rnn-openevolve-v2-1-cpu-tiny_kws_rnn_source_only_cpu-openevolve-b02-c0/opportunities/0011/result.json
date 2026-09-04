@@ -1,0 +1,99 @@
+{
+  "artifact_path": "candidates/829e6e004dd8cc7846d046f46f3b32c31e91ce3a01c9751ec745323c64dbd88b",
+  "candidate_id": "829e6e004dd8cc7846d046f46f3b32c31e91ce3a01c9751ec745323c64dbd88b",
+  "codex_service_tier": "default",
+  "condition": "C0",
+  "conversation_session_id": null,
+  "evaluation": {
+    "evaluator_calls": 1,
+    "evaluator_seconds": 206.48598541598767,
+    "failure_kind": null,
+    "fitness": -4621942036471711615,
+    "metrics": {
+      "batch_size": 128,
+      "evaluation_cases": 815,
+      "evaluation_split": "public_speaker_disjoint_validation",
+      "examples_processed": 50000,
+      "inference_cost": 4621942036471711615,
+      "maximum_recurrent_steps": 31,
+      "mean_recurrent_steps": 31.0,
+      "median_recurrent_steps": 31,
+      "optimizer_steps": 397,
+      "p95_recurrent_steps": 31,
+      "parameters": 36480,
+      "peak_hidden_elements": 101888,
+      "recurrent_logit_effect": 0.07458966970443726,
+      "recurrent_macs": 885437190,
+      "recurrent_steps": 25265,
+      "state_dependence_effect": 0.3990184962749481,
+      "state_update_effect": 0.3997255265712738,
+      "total_inference_macs": 886082670,
+      "trained_recurrent_logit_effect": 0.8565572500228882,
+      "trained_state_dependence_effect": 0.46038195490837097,
+      "trained_state_update_effect": 0.45265617966651917,
+      "training_seconds": 181.31405062507838,
+      "validation_accuracy": 0.8552147239263803,
+      "validation_correct": 697,
+      "validation_cross_entropy": 0.4569374412115366
+    },
+    "valid": true
+  },
+  "evaluator_calls_cumulative": 11,
+  "evaluator_calls_increment": 1,
+  "evaluator_seconds_cumulative": 1467.4409384988248,
+  "evaluator_seconds_increment": 206.48598541598767,
+  "event": "proposal_completed",
+  "evicted_candidate_id": "d10b89d37b29c5ed73f0a9092c3d5678195668c04a795549ecb05ca05bfacfdd",
+  "evidence": "The 99-unit, 31-step model met the threshold at 85.03%, whereas reducing hidden width to 98 or compressing the recurrent readout failed; this motivates preserving recurrent capacity and readout information while conservatively exploiting locality in the ordered mel inputs.",
+  "hypothesis": "Merging only the two highest adjacent mel bands will retain at least 85% validation accuracy while reducing recurrent MACs by 7,503,705 versus the verified 99-unit, 31-step design.",
+  "incumbent_after": "829e6e004dd8cc7846d046f46f3b32c31e91ce3a01c9751ec745323c64dbd88b",
+  "intended_edit": "Preserve the 99-unit state, 31-frame schedule, and full classifier while replacing the GRU\u2019s 20-dimensional input with 19 features formed by retaining bands 0\u201317 and averaging bands 18\u201319.",
+  "mechanism": "Adjacent high-frequency mel-band pooling",
+  "opportunity": 11,
+  "parent_ids": [
+    "d10b89d37b29c5ed73f0a9092c3d5678195668c04a795549ecb05ca05bfacfdd"
+  ],
+  "portfolio_after": [
+    "829e6e004dd8cc7846d046f46f3b32c31e91ce3a01c9751ec745323c64dbd88b"
+  ],
+  "prompt_hashes": {
+    "common_template_sha256": "dee04faf4c430276c1036ba97f5705a339857dbdf19117dac88952a5a3a47e9d",
+    "prompt_sha256": "fdb2507ab44e98ca99fe9b7d8e83ecb00d55f8347e735bd70d0d0411c838a759",
+    "proposal_policy_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "search_state_sha256": "04e5eb078ae1964e4ec65bfeeeb1acd0ffa246e7d54d5e0f997f81f602da28c5",
+    "treatment_skeleton_sha256": "2ac7940a1e3b9e1785f7dc7448376c69011014be92e5550ee933e37ad68fca76"
+  },
+  "proposal_type": "ordinary",
+  "proposals_cumulative": 11,
+  "remaining_budget": {
+    "evaluations": 189,
+    "evaluator_seconds": 58532.559061501175,
+    "proposals": 189,
+    "tokens": 99782567
+  },
+  "retained": true,
+  "retention_decision": "strict_incumbent_improvement",
+  "run_id": "tiny-kws-rnn-openevolve-v2-1-cpu-tiny_kws_rnn_source_only_cpu-openevolve-b02-c0",
+  "schema_version": "1.0",
+  "selected_parent_ids": [
+    "d10b89d37b29c5ed73f0a9092c3d5678195668c04a795549ecb05ca05bfacfdd"
+  ],
+  "timestamp": "2026-09-04T03:03:55.642383+00:00",
+  "usage_cumulative": {
+    "cached_input_tokens": 118272,
+    "input_tokens": 197721,
+    "output_tokens": 19712,
+    "reasoning_output_tokens": 16428,
+    "total_tokens": 217433
+  },
+  "usage_increment": {
+    "cached_input_tokens": 10752,
+    "input_tokens": 20935,
+    "output_tokens": 3489,
+    "reasoning_output_tokens": 2930,
+    "total_tokens": 24424
+  },
+  "visible_candidate_ids": [
+    "d10b89d37b29c5ed73f0a9092c3d5678195668c04a795549ecb05ca05bfacfdd"
+  ]
+}

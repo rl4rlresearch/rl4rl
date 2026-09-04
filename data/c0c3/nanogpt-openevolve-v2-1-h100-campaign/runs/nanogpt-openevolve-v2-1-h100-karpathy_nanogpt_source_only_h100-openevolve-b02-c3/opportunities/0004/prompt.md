@@ -1,0 +1,106 @@
+# Improve fixed-time language-model pretraining
+
+You are an autonomous ML engineer improving the source code for single-GPU
+language-model pretraining.
+
+## Goal
+
+Minimize validation bits per byte (`val_bpb`) after a fixed five-minute training
+window on the supplied H100 worker. Lower is better. Startup, compilation, and
+final validation are outside the measured training window, and every submitted
+version starts from a fresh initialization.
+
+You may change the architecture, optimizer, schedules, batching, numerical
+implementation, or other contents of `train.py`. The fixed data preparation,
+tokenizer, validation procedure, hardware class, and time accounting are not
+editable. A useful change must produce a complete trainable implementation and
+finish with the required summary metrics.
+
+## Work boundaries
+
+Minimize val_bpb. No additional accuracy threshold.
+Editable source files: train.py.
+Results reported after each verification: val_bpb, training_seconds, peak_vram_mb, mfu_percent, total_tokens_M, num_steps, num_params_M, depth.
+
+Propose changes through exact SEARCH/REPLACE blocks. The patching interface applies them to the supplied editable source.
+
+The editable source and any reference source are included below. Do not access
+parent directories, home directories, shared temporary directories, global
+session history, online sources, or any surrounding repository. Do not run
+training or validation yourself and do not generate hidden alternatives.
+Return one patch for one implementation; verification happens after you finish.
+
+## Available designs
+
+The current editable design and the qualified reference designs below are available as technical evidence. Edit only the current workspace.
+
+CURRENT DESIGN
+verified_results: {"depth": 8.0, "mfu_percent": 37.67, "num_params_M": 50.3, "num_steps": 979.0, "peak_vram_mb": 45060.2, "total_tokens_M": 513.3, "training_seconds": 300.2, "val_bpb": 0.993287}
+prior_hypothesis: Reducing the six short-attention layers from 1024 to 512 tokens will increase throughput beyond 497M tokens while the two full-context layers preserve enough long-range modeling to beat 0.995558 val_bpb.
+
+REFERENCE DESIGN 1
+verified_results: {"depth": 8.0, "mfu_percent": 39.58, "num_params_M": 50.3, "num_steps": 948.0, "peak_vram_mb": 45060.2, "total_tokens_M": 497.0, "training_seconds": 300.2, "val_bpb": 0.995558}
+prior_hypothesis: starting design
+
+REFERENCE DESIGN 2
+verified_results: {"depth": 8.0, "mfu_percent": 28.55, "num_params_M": 50.3, "num_steps": 778.0, "peak_vram_mb": 45060.2, "total_tokens_M": 407.9, "training_seconds": 300.4, "val_bpb": 1.009565}
+prior_hypothesis: Reducing the six short-attention layers from 512 to 256 tokens will raise throughput beyond 513.3M tokens while the two full-context layers retain enough global modeling to beat 0.993287 val_bpb.
+
+REFERENCE DESIGN 3
+verified_results: {"depth": 8.0, "mfu_percent": 32.58, "num_params_M": 50.3, "num_steps": 814.0, "peak_vram_mb": 45060.2, "total_tokens_M": 426.8, "training_seconds": 300.3, "val_bpb": 1.00495}
+prior_hypothesis: A 768-token short window will retain more context than 512 while processing more than 497M tokens, reducing val_bpb below 0.993287.
+
+## Recent verification evidence
+
+RECENT RESULT
+hypothesis: Reducing the six short-attention layers from 1024 to 512 tokens will increase throughput beyond 497M tokens while the two full-context layers preserve enough long-range modeling to beat 0.995558 val_bpb.
+change: Change short attention windows from half-context to quarter-context, retaining the existing SSSL pattern and forced full-context final layer.
+mechanism: Denser local attention with periodic global layers
+evidence_used: The starting design reaches 0.995558 val_bpb at 497M tokens and 39.58% MFU; attention-window compute is therefore a direct opportunity to train on more data within the fixed 300-second window.
+result: improved the objective and became an available design
+reported_values: {"depth": 8.0, "mfu_percent": 37.67, "num_params_M": 50.3, "num_steps": 979.0, "peak_vram_mb": 45060.2, "total_tokens_M": 513.3, "training_seconds": 300.2, "val_bpb": 0.993287}
+
+RECENT RESULT
+hypothesis: Reducing the six short-attention layers from 512 to 256 tokens will raise throughput beyond 513.3M tokens while the two full-context layers retain enough global modeling to beat 0.993287 val_bpb.
+change: Set short attention to one-eighth of the 2048-token sequence, preserving the SSSL pattern and forced full-context final layer.
+mechanism: More aggressive local-attention compression
+evidence_used: Reducing short windows from 1024 to 512 increased training tokens from 497.0M to 513.3M and improved val_bpb from 0.995558 to 0.993287, motivating the next factor-of-two test.
+result: improved the objective and became an available design
+reported_values: {"depth": 8.0, "mfu_percent": 28.55, "num_params_M": 50.3, "num_steps": 778.0, "peak_vram_mb": 45060.2, "total_tokens_M": 407.9, "training_seconds": 300.4, "val_bpb": 1.009565}
+
+RECENT RESULT
+hypothesis: A 768-token short window will retain more context than 512 while processing more than 497M tokens, reducing val_bpb below 0.993287.
+change: Set the six short-attention layers to three-eighths of the 2048-token context.
+mechanism: Intermediate local-attention window interpolation
+evidence_used: Moving from 1024 to 512 tokens improved val_bpb from 0.995558 to 0.993287, while 256 tokens regressed to 1.009565 with a throughput cliff; testing the midpoint isolates the favorable window range.
+result: improved the objective and became an available design
+reported_values: {"depth": 8.0, "mfu_percent": 32.58, "num_params_M": 50.3, "num_steps": 814.0, "peak_vram_mb": 45060.2, "total_tokens_M": 426.8, "training_seconds": 300.3, "val_bpb": 1.00495}
+
+
+
+Use the available technical evidence to choose the most informative next
+change. Treat unsuccessful or malformed work as evidence when a useful
+subject-level reason is provided. Do not invent missing evidence.
+
+## Response
+
+Return these short metadata lines followed by one or more exact
+`SEARCH`/`REPLACE` blocks that together produce one implementation:
+
+`MECHANISM: <a concise free-form name for the computational idea>`
+
+`HYPOTHESIS: <a falsifiable claim grounded in the evidence above>`
+
+`INTENDED_EDIT: <what this patch changes>`
+
+`EVIDENCE: <the most relevant prior result and why it motivates this patch>`
+
+Start each block with `<<<<<<< SEARCH`, put the exact existing lines next, use a
+line containing `=======` as the divider, put the replacement lines after it,
+and finish the block with `>>>>>>> REPLACE`.
+
+Every `SEARCH` section must be nonempty and match exactly once after earlier
+blocks have been applied. All blocks must apply. Together they must describe
+one implementation ready for verification. The mechanism name is descriptive,
+not chosen from a fixed list. Do not paste whole files, lengthy logs, or routine
+progress reports outside the patch.

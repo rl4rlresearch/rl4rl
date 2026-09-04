@@ -1,0 +1,82 @@
+{
+  "artifact_path": "candidates/63626e9de16ca55873e4e458dfc0f32dbbe3c167fbc627b12de4da3274356ee6",
+  "candidate_id": "63626e9de16ca55873e4e458dfc0f32dbbe3c167fbc627b12de4da3274356ee6",
+  "codex_service_tier": "default",
+  "condition": "C0",
+  "conversation_session_id": null,
+  "evaluation": {
+    "evaluator_calls": 1,
+    "evaluator_seconds": 420.806774536999,
+    "failure_kind": null,
+    "fitness": -0.982585,
+    "metrics": {
+      "depth": 8.0,
+      "mfu_percent": 36.37,
+      "num_params_M": 50.3,
+      "num_steps": 3161.0,
+      "peak_vram_mb": 28254.4,
+      "total_tokens_M": 517.9,
+      "training_seconds": 300.1,
+      "val_bpb": 0.982585
+    },
+    "valid": true
+  },
+  "evaluator_calls_cumulative": 40,
+  "evaluator_calls_increment": 1,
+  "evaluator_seconds_cumulative": 21949.65021235293,
+  "evaluator_seconds_increment": 420.806774536999,
+  "event": "proposal_completed",
+  "evicted_candidate_id": null,
+  "evidence": "Expanding only the first pre-global window from 256 to 512 tokens improved `val_bpb` from `0.982234` to `0.982068`, whereas expanding it to 1,024 regressed to `0.983064`; this motivates distributing additional early context into the preceding layer instead of further enlarging the boundary window.",
+  "hypothesis": "Using a 256-token window in the layer preceding the existing 512-token first pre-global layer will achieve `val_bpb < 0.982068` by improving early contextual aggregation at modest compute cost.",
+  "incumbent_after": "3ec9b9aabcb7248455b38d2664925e59a660e0e1900234e1b71e825b54611157",
+  "intended_edit": "Retain the 512-token first pre-global window and 128-token default local windows, but expand the immediately preceding local layer to 256 tokens.",
+  "mechanism": "Staged early local-to-global context funnel",
+  "opportunity": 40,
+  "parent_ids": [
+    "3ec9b9aabcb7248455b38d2664925e59a660e0e1900234e1b71e825b54611157"
+  ],
+  "portfolio_after": [
+    "3ec9b9aabcb7248455b38d2664925e59a660e0e1900234e1b71e825b54611157"
+  ],
+  "prompt_hashes": {
+    "common_template_sha256": "ba85b39aa7288f4f48475376da6cff65661f39cfeb7ac7cde15b2a9a2e692fde",
+    "prompt_sha256": "8c94ca903fa305fe1b4dc7e0c14fc40369bb21e5a1747a3679224e096a2ea1be",
+    "proposal_policy_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "search_state_sha256": "04e5eb078ae1964e4ec65bfeeeb1acd0ffa246e7d54d5e0f997f81f602da28c5",
+    "treatment_skeleton_sha256": "92dc9641f0690f986b254a1b98286e8cb6bc03fc0f7484cca2947ec987579304"
+  },
+  "proposal_type": "ordinary",
+  "proposals_cumulative": 40,
+  "remaining_budget": {
+    "evaluations": 160,
+    "evaluator_seconds": 698050.349787647,
+    "proposals": 160,
+    "tokens": 98946972
+  },
+  "retained": false,
+  "retention_decision": "not_strictly_better_than_incumbent",
+  "run_id": "nanogpt-openevolve-v2-1-h100-karpathy_nanogpt_source_only_h100-openevolve-b03-c0",
+  "schema_version": "1.0",
+  "selected_parent_ids": [
+    "3ec9b9aabcb7248455b38d2664925e59a660e0e1900234e1b71e825b54611157"
+  ],
+  "timestamp": "2026-08-24T09:19:40.755908+00:00",
+  "usage_cumulative": {
+    "cached_input_tokens": 439808,
+    "input_tokens": 974336,
+    "output_tokens": 78692,
+    "reasoning_output_tokens": 67791,
+    "total_tokens": 1053028
+  },
+  "usage_increment": {
+    "cached_input_tokens": 12032,
+    "input_tokens": 25043,
+    "output_tokens": 943,
+    "reasoning_output_tokens": 576,
+    "total_tokens": 25986
+  },
+  "visible_candidate_ids": [
+    "3ec9b9aabcb7248455b38d2664925e59a660e0e1900234e1b71e825b54611157"
+  ]
+}

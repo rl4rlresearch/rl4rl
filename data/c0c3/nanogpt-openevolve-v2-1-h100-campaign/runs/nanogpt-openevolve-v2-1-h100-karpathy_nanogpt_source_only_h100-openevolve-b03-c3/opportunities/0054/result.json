@@ -1,0 +1,88 @@
+{
+  "artifact_path": "candidates/8391b57bb847aa7b0dacbb46d5cf594f66c39e22fe861abdb707ab9f528ed792",
+  "candidate_id": "8391b57bb847aa7b0dacbb46d5cf594f66c39e22fe861abdb707ab9f528ed792",
+  "codex_service_tier": "default",
+  "condition": "C3",
+  "conversation_session_id": null,
+  "evaluation": {
+    "evaluator_calls": 1,
+    "evaluator_seconds": 374.1512432460004,
+    "failure_kind": null,
+    "fitness": -0.991622,
+    "metrics": {
+      "depth": 8.0,
+      "mfu_percent": 37.51,
+      "num_params_M": 50.3,
+      "num_steps": 899.0,
+      "peak_vram_mb": 47380.5,
+      "total_tokens_M": 471.3,
+      "training_seconds": 300.3,
+      "val_bpb": 0.991622
+    },
+    "valid": true
+  },
+  "evaluator_calls_cumulative": 54,
+  "evaluator_calls_increment": 1,
+  "evaluator_seconds_cumulative": 19732.051630452996,
+  "evaluator_seconds_increment": 374.1512432460004,
+  "event": "proposal_completed",
+  "evicted_candidate_id": null,
+  "evidence": "Dedicated AdamW for four output gates achieved the best observed 0.991177, whereas moving value-residual gates to AdamW regressed to 0.992169 and changing output-gate bias or input width also regressed; this motivates extending the successful gate form by attention-layer coverage without altering its parameterization or optimizer.",
+  "hypothesis": "Extending the proven 32-channel output gate to all eight attention layers, while retaining dedicated AdamW at 0.0115 and leaving value-residual gates on Muon, will lower val_bpb below 0.991177 while retaining at least 470M trained tokens.",
+  "incumbent_after": "0a6bacd34756636ca41cdd0973f5c21d309d5f764ac99212b352903a65b40cea",
+  "intended_edit": "Replace handoff-only output gating with neutral-initialized output gating on every attention branch; the existing optimizer discovery automatically places all eight output-gate matrices in the dedicated AdamW group.",
+  "mechanism": "Universal adaptive attention-output gating",
+  "opportunity": 54,
+  "parent_ids": [
+    "981b844585e17d25d1a50d2ac2673b3a7f76519c3b170ad8030a328a91cba2cf"
+  ],
+  "portfolio_after": [
+    "69a781d3c501ec298e2ac042b4908eea0334d1eefe548cab394e7d3affbd52bd",
+    "0a6bacd34756636ca41cdd0973f5c21d309d5f764ac99212b352903a65b40cea",
+    "04acca2a31436c6e41bcd89d8ecde70af7c0f3140ea24c9e64238ab1b018e4ca",
+    "981b844585e17d25d1a50d2ac2673b3a7f76519c3b170ad8030a328a91cba2cf"
+  ],
+  "prompt_hashes": {
+    "common_template_sha256": "ba85b39aa7288f4f48475376da6cff65661f39cfeb7ac7cde15b2a9a2e692fde",
+    "prompt_sha256": "eff32f8d0edd41e44bd2235d728b098fbc12815603ea01351a5be85368a81cca",
+    "proposal_policy_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "search_state_sha256": "c938ac007bf70fe8d27f64661175531e51fcb16b38318c328493c32ee292e27e",
+    "treatment_skeleton_sha256": "cee833f01fd9fe3253a5a1225bec2a91f3715039a5373fe8b249270648901060"
+  },
+  "proposal_type": "ordinary",
+  "proposals_cumulative": 54,
+  "remaining_budget": {
+    "evaluations": 146,
+    "evaluator_seconds": 700267.948369547,
+    "proposals": 146,
+    "tokens": 97292670
+  },
+  "retained": false,
+  "retention_decision": "not_strictly_better_than_selected_parent",
+  "run_id": "nanogpt-openevolve-v2-1-h100-karpathy_nanogpt_source_only_h100-openevolve-b03-c3",
+  "schema_version": "1.0",
+  "selected_parent_ids": [
+    "981b844585e17d25d1a50d2ac2673b3a7f76519c3b170ad8030a328a91cba2cf"
+  ],
+  "timestamp": "2026-08-24T12:03:05.517746+00:00",
+  "usage_cumulative": {
+    "cached_input_tokens": 620544,
+    "input_tokens": 2543470,
+    "output_tokens": 163860,
+    "reasoning_output_tokens": 131178,
+    "total_tokens": 2707330
+  },
+  "usage_increment": {
+    "cached_input_tokens": 6912,
+    "input_tokens": 49515,
+    "output_tokens": 1382,
+    "reasoning_output_tokens": 1034,
+    "total_tokens": 50897
+  },
+  "visible_candidate_ids": [
+    "69a781d3c501ec298e2ac042b4908eea0334d1eefe548cab394e7d3affbd52bd",
+    "0a6bacd34756636ca41cdd0973f5c21d309d5f764ac99212b352903a65b40cea",
+    "04acca2a31436c6e41bcd89d8ecde70af7c0f3140ea24c9e64238ab1b018e4ca",
+    "981b844585e17d25d1a50d2ac2673b3a7f76519c3b170ad8030a328a91cba2cf"
+  ]
+}

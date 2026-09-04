@@ -1,0 +1,79 @@
+{
+  "artifact_path": "candidates/70305a6023a70af08c91245bdcc37e5e5c5da8b082c5f467d9c7dda37d6fd0cd",
+  "candidate_id": "70305a6023a70af08c91245bdcc37e5e5c5da8b082c5f467d9c7dda37d6fd0cd",
+  "codex_service_tier": "default",
+  "condition": "C0",
+  "conversation_session_id": null,
+  "evaluation": {
+    "evaluator_calls": 1,
+    "evaluator_seconds": 569.2853847078513,
+    "failure_kind": null,
+    "fitness": -1631.0,
+    "metrics": {
+      "accuracy": 0.9993000000000001,
+      "cases": 10010,
+      "correct": 10003,
+      "parameters": 1631,
+      "training_steps": 4999
+    },
+    "valid": true
+  },
+  "evaluator_calls_cumulative": 30,
+  "evaluator_calls_increment": 1,
+  "evaluator_seconds_cumulative": 11371.292408165988,
+  "evaluator_seconds_increment": 569.2853847078513,
+  "event": "proposal_completed",
+  "evicted_candidate_id": "b0dda14034378905e743d505e559f3c5ed613be7f000ed52660fc3ce73278d41",
+  "evidence": "The current design reaches 99.84% at 1,632 parameters, and final-MLP common-mode bias anchoring previously retained 99.95%; this tests the same normalization gauge at a single positional row, minimizing the optimization disturbance that likely caused the attention-projection anchor failure.",
+  "hypothesis": "Anchoring one coordinate of the final positional embedding row at zero will reduce the model from 1,632 to 1,631 parameters while retaining at least 99% accuracy, because a position-specific all-coordinate offset propagates only through residual streams and is removed by every downstream LayerNorm.",
+  "incumbent_after": "70305a6023a70af08c91245bdcc37e5e5c5da8b082c5f467d9c7dda37d6fd0cd",
+  "intended_edit": "Replace the positional embedding with an initialization-preserving embedding that stores one fewer scalar and reconstructs the final coordinate as zero.",
+  "mechanism": "Single-position embedding common-mode gauge anchoring",
+  "opportunity": 30,
+  "parent_ids": [
+    "b0dda14034378905e743d505e559f3c5ed613be7f000ed52660fc3ce73278d41"
+  ],
+  "portfolio_after": [
+    "70305a6023a70af08c91245bdcc37e5e5c5da8b082c5f467d9c7dda37d6fd0cd"
+  ],
+  "prompt_hashes": {
+    "common_template_sha256": "3f2bea6418b6969c4bf2aa1df18dcda8a3a4ac075bf20c79068c754698b6be5e",
+    "prompt_sha256": "9891fdb171d99212437c826c1dd310ce1489196faae74a1d31ebb673b16d4835",
+    "proposal_policy_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "search_state_sha256": "04e5eb078ae1964e4ec65bfeeeb1acd0ffa246e7d54d5e0f997f81f602da28c5",
+    "treatment_skeleton_sha256": "966b740afd8034dee665c8c26f717d1fbf22e47faee08e91427cbdb86e2bcae2"
+  },
+  "proposal_type": "ordinary",
+  "proposals_cumulative": 30,
+  "remaining_budget": {
+    "evaluations": 170,
+    "evaluator_seconds": 348628.707591834,
+    "proposals": 170,
+    "tokens": 99316285
+  },
+  "retained": true,
+  "retention_decision": "strict_incumbent_improvement",
+  "run_id": "controlled-openevolve-transformer-v2-1-source-only-ten-digit-addition-pair-transformer-openevolve-v2-1-mps-openevolve-b02-c0",
+  "schema_version": "1.0",
+  "selected_parent_ids": [
+    "b0dda14034378905e743d505e559f3c5ed613be7f000ed52660fc3ce73278d41"
+  ],
+  "timestamp": "2026-08-24T03:49:13.760187+00:00",
+  "usage_cumulative": {
+    "cached_input_tokens": 337664,
+    "input_tokens": 624505,
+    "output_tokens": 59210,
+    "reasoning_output_tokens": 47328,
+    "total_tokens": 683715
+  },
+  "usage_increment": {
+    "cached_input_tokens": 12032,
+    "input_tokens": 21596,
+    "output_tokens": 7119,
+    "reasoning_output_tokens": 6530,
+    "total_tokens": 28715
+  },
+  "visible_candidate_ids": [
+    "b0dda14034378905e743d505e559f3c5ed613be7f000ed52660fc3ce73278d41"
+  ]
+}

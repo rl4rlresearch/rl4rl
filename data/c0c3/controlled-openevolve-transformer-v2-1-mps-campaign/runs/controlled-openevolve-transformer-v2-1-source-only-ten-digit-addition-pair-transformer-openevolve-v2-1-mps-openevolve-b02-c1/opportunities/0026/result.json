@@ -1,0 +1,79 @@
+{
+  "artifact_path": "candidates/c60aff08420e89f1e2de439a585291c7399f835487049ffb65442e2fa146fd5d",
+  "candidate_id": "c60aff08420e89f1e2de439a585291c7399f835487049ffb65442e2fa146fd5d",
+  "codex_service_tier": "fast",
+  "condition": "C1",
+  "conversation_session_id": null,
+  "evaluation": {
+    "evaluator_calls": 1,
+    "evaluator_seconds": 459.43437479203567,
+    "failure_kind": null,
+    "fitness": -1406.0,
+    "metrics": {
+      "accuracy": 0.9998999999999999,
+      "cases": 10010,
+      "correct": 10009,
+      "parameters": 1406,
+      "training_steps": 4999
+    },
+    "valid": true
+  },
+  "evaluator_calls_cumulative": 26,
+  "evaluator_calls_increment": 1,
+  "evaluator_seconds_cumulative": 8419.079785206355,
+  "evaluator_seconds_increment": 459.43437479203567,
+  "event": "proposal_completed",
+  "evicted_candidate_id": "771cad800771e295223337768cf55255c514226fdf9acfdf12f4f135316bcc85",
+  "evidence": "Directly fixing one `ln1` scale coordinate fell to 74.8%, while optimizer-preserving query and key LayerNorm quotients reached 99.98% and 99.95%; this motivates quotienting the remaining value-only affine parameters without directly changing their AdamW dynamics.",
+  "hypothesis": "Collapsing the affine first LayerNorm and full value projection into 56 zero-mean-coordinate weights plus an 8-coordinate value constant will reduce the model from 1,422 to 1,406 parameters while maintaining at least 99% accuracy, because virtual full-width AdamW updates preserve the successful value-path optimization geometry.",
+  "incumbent_after": "c60aff08420e89f1e2de439a585291c7399f835487049ffb65442e2fa146fd5d",
+  "intended_edit": "Replace the affine value pathway with its exact composite representation, retain the shared value/output bias, and train the compressed value parameters through virtual full value weights and LayerNorm scale/shift states.",
+  "mechanism": "Optimizer-preserving value/LayerNorm composite quotient",
+  "opportunity": 26,
+  "parent_ids": [
+    "771cad800771e295223337768cf55255c514226fdf9acfdf12f4f135316bcc85"
+  ],
+  "portfolio_after": [
+    "c60aff08420e89f1e2de439a585291c7399f835487049ffb65442e2fa146fd5d"
+  ],
+  "prompt_hashes": {
+    "common_template_sha256": "3f2bea6418b6969c4bf2aa1df18dcda8a3a4ac075bf20c79068c754698b6be5e",
+    "prompt_sha256": "d0e6a64f42c076c9c1ca800250ef1953c775e03043c78a058ef8d8f00b5f0e4d",
+    "proposal_policy_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "search_state_sha256": "04e5eb078ae1964e4ec65bfeeeb1acd0ffa246e7d54d5e0f997f81f602da28c5",
+    "treatment_skeleton_sha256": "0aaf7127d3a6ccbc764da557ebd20c7fa801f8c731620fd7199ccac180a2f82d"
+  },
+  "proposal_type": "ordinary",
+  "proposals_cumulative": 26,
+  "remaining_budget": {
+    "evaluations": 174,
+    "evaluator_seconds": 351580.92021479364,
+    "proposals": 174,
+    "tokens": 99315578
+  },
+  "retained": true,
+  "retention_decision": "strict_incumbent_improvement",
+  "run_id": "controlled-openevolve-transformer-v2-1-source-only-ten-digit-addition-pair-transformer-openevolve-v2-1-mps-openevolve-b02-c1",
+  "schema_version": "1.0",
+  "selected_parent_ids": [
+    "771cad800771e295223337768cf55255c514226fdf9acfdf12f4f135316bcc85"
+  ],
+  "timestamp": "2026-08-23T21:01:37.830412+00:00",
+  "usage_cumulative": {
+    "cached_input_tokens": 233728,
+    "input_tokens": 555977,
+    "output_tokens": 128445,
+    "reasoning_output_tokens": 109941,
+    "total_tokens": 684422
+  },
+  "usage_increment": {
+    "cached_input_tokens": 12032,
+    "input_tokens": 23932,
+    "output_tokens": 16266,
+    "reasoning_output_tokens": 12796,
+    "total_tokens": 40198
+  },
+  "visible_candidate_ids": [
+    "771cad800771e295223337768cf55255c514226fdf9acfdf12f4f135316bcc85"
+  ]
+}

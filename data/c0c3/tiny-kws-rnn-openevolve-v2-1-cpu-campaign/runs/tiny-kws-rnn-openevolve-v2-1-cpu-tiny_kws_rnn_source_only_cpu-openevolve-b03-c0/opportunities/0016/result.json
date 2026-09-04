@@ -1,0 +1,99 @@
+{
+  "artifact_path": "candidates/69c7cc9d169f5fda2e2667ea00d0b9ddb08f0394b4cf072165c37c5fbbc539e5",
+  "candidate_id": "69c7cc9d169f5fda2e2667ea00d0b9ddb08f0394b4cf072165c37c5fbbc539e5",
+  "codex_service_tier": "default",
+  "condition": "C0",
+  "conversation_session_id": null,
+  "evaluation": {
+    "evaluator_calls": 1,
+    "evaluator_seconds": 153.3140808751341,
+    "failure_kind": "nonqualification",
+    "fitness": null,
+    "metrics": {
+      "batch_size": 128,
+      "evaluation_cases": 815,
+      "evaluation_split": "public_speaker_disjoint_validation",
+      "examples_processed": 50000,
+      "inference_cost": 4682742184241608696,
+      "maximum_recurrent_steps": 32,
+      "mean_recurrent_steps": 32.0,
+      "median_recurrent_steps": 32,
+      "optimizer_steps": 397,
+      "p95_recurrent_steps": 32,
+      "parameters": 35816,
+      "peak_hidden_elements": 100864,
+      "recurrent_logit_effect": 0.06653515994548798,
+      "recurrent_macs": 897099840,
+      "recurrent_steps": 26080,
+      "state_dependence_effect": 0.4029029309749603,
+      "state_update_effect": 0.40396347641944885,
+      "total_inference_macs": 897738800,
+      "trained_recurrent_logit_effect": 0.5775595903396606,
+      "trained_state_dependence_effect": 0.454072505235672,
+      "trained_state_update_effect": 0.43595704436302185,
+      "training_seconds": 126.76342004095204,
+      "validation_accuracy": 0.849079754601227,
+      "validation_correct": 692,
+      "validation_cross_entropy": 0.46272703767554163
+    },
+    "valid": false
+  },
+  "evaluator_calls_cumulative": 16,
+  "evaluator_calls_increment": 1,
+  "evaluator_seconds_cumulative": 2482.6331344575156,
+  "evaluator_seconds_increment": 153.3140808751341,
+  "event": "proposal_completed",
+  "evicted_candidate_id": null,
+  "evidence": "Averaging the two highest bands reduced inference MACs by 0.85% and narrowly missed accuracy at 84.91% with better cross-entropy than the passing baseline; temporal multiplexing tests whether retaining their distinct values avoids the information loss from averaging.",
+  "hypothesis": "Alternating the final GRU input between mel bands 18 and 19 will preserve their distinct spectral cues and achieve at least 85% accuracy while retaining the 19-input model\u2019s lower 897,738,800-MAC inference cost.",
+  "incumbent_after": "66cc6e1a66c9b7b46d0027da3b420cd37413acda3e54418b8d75485527dd30a6",
+  "intended_edit": "Keep the passing 98-unit, 32-step architecture, reduce its GRU input to 19 features, and alternate which of the two highest mel bands occupies the final input channel at each causal step.",
+  "mechanism": "Temporal multiplexing of adjacent high-frequency mel bands",
+  "opportunity": 16,
+  "parent_ids": [
+    "66cc6e1a66c9b7b46d0027da3b420cd37413acda3e54418b8d75485527dd30a6"
+  ],
+  "portfolio_after": [
+    "66cc6e1a66c9b7b46d0027da3b420cd37413acda3e54418b8d75485527dd30a6"
+  ],
+  "prompt_hashes": {
+    "common_template_sha256": "dee04faf4c430276c1036ba97f5705a339857dbdf19117dac88952a5a3a47e9d",
+    "prompt_sha256": "4b394f106d1f11a0e935552ae2cedf39eb1e3204cfbb769d8df7eeb2f4b43fec",
+    "proposal_policy_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "search_state_sha256": "04e5eb078ae1964e4ec65bfeeeb1acd0ffa246e7d54d5e0f997f81f602da28c5",
+    "treatment_skeleton_sha256": "80155956666f6e39056014e20d88b36fe367905cc74ccf5cd01815b5a9239b21"
+  },
+  "proposal_type": "ordinary",
+  "proposals_cumulative": 16,
+  "remaining_budget": {
+    "evaluations": 184,
+    "evaluator_seconds": 57517.366865542484,
+    "proposals": 184,
+    "tokens": 99670213
+  },
+  "retained": false,
+  "retention_decision": "invalid",
+  "run_id": "tiny-kws-rnn-openevolve-v2-1-cpu-tiny_kws_rnn_source_only_cpu-openevolve-b03-c0",
+  "schema_version": "1.0",
+  "selected_parent_ids": [
+    "66cc6e1a66c9b7b46d0027da3b420cd37413acda3e54418b8d75485527dd30a6"
+  ],
+  "timestamp": "2026-09-04T03:37:36.921345+00:00",
+  "usage_cumulative": {
+    "cached_input_tokens": 172032,
+    "input_tokens": 296398,
+    "output_tokens": 33389,
+    "reasoning_output_tokens": 27874,
+    "total_tokens": 329787
+  },
+  "usage_increment": {
+    "cached_input_tokens": 10752,
+    "input_tokens": 19919,
+    "output_tokens": 2806,
+    "reasoning_output_tokens": 2070,
+    "total_tokens": 22725
+  },
+  "visible_candidate_ids": [
+    "66cc6e1a66c9b7b46d0027da3b420cd37413acda3e54418b8d75485527dd30a6"
+  ]
+}

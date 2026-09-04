@@ -1,0 +1,79 @@
+{
+  "artifact_path": "candidates/356bc3474761d46f8469a1819c2396b701ba4be98de14b7ba092180614b86743",
+  "candidate_id": "356bc3474761d46f8469a1819c2396b701ba4be98de14b7ba092180614b86743",
+  "codex_service_tier": "default",
+  "condition": "C0",
+  "conversation_session_id": null,
+  "evaluation": {
+    "evaluator_calls": 1,
+    "evaluator_seconds": 213.02937658294104,
+    "failure_kind": null,
+    "fitness": -1587.0,
+    "metrics": {
+      "accuracy": 0.9963,
+      "cases": 10010,
+      "correct": 9973,
+      "parameters": 1587,
+      "training_steps": 4999
+    },
+    "valid": true
+  },
+  "evaluator_calls_cumulative": 78,
+  "evaluator_calls_increment": 1,
+  "evaluator_seconds_cumulative": 35409.71495945251,
+  "evaluator_seconds_increment": 213.02937658294104,
+  "event": "proposal_completed",
+  "evicted_candidate_id": "107bce4f90de49ea8e03d01ba0a0bef454212092d6b4b064d5ca24328d2d03d0",
+  "evidence": "The current design achieved 99.90% with gain coordinates 0, 2, 4, and 6 fixed; prior results also showed strong coordinate sensitivity, including `fc2.bias[0]` failing at 2.79% while coordinate 1 achieved 99.93%, so the next untested gain coordinate cannot be inferred solely from failures at coordinates 1 and 3.",
+  "hypothesis": "Fixing `ln1.weight[5]` alongside coordinates 0, 2, 4, and 6 will reduce the model from 1588 to 1587 parameters while retaining at least 99% accuracy, because its scale is absorbable by QKV column 5 and coordinate-specific outcomes leave untested coordinate 5 informative despite earlier failures at odd coordinates 1 and 3.",
+  "incumbent_after": "356bc3474761d46f8469a1819c2396b701ba4be98de14b7ba092180614b86743",
+  "intended_edit": "Store three learned first-LayerNorm gains and reconstruct gain coordinates 0, 2, 4, 5, and 6 as fixed ones, while continuing to fix shift coordinate 3.",
+  "mechanism": "Fifth attention-input gain anchoring",
+  "opportunity": 78,
+  "parent_ids": [
+    "107bce4f90de49ea8e03d01ba0a0bef454212092d6b4b064d5ca24328d2d03d0"
+  ],
+  "portfolio_after": [
+    "356bc3474761d46f8469a1819c2396b701ba4be98de14b7ba092180614b86743"
+  ],
+  "prompt_hashes": {
+    "common_template_sha256": "3f2bea6418b6969c4bf2aa1df18dcda8a3a4ac075bf20c79068c754698b6be5e",
+    "prompt_sha256": "9d43a2c23a8539a065585acd30d48ac786287cfc4d3586f4c263886c88147dcf",
+    "proposal_policy_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "search_state_sha256": "04e5eb078ae1964e4ec65bfeeeb1acd0ffa246e7d54d5e0f997f81f602da28c5",
+    "treatment_skeleton_sha256": "f4e18045227a57e3462621c22834389850c89680e075887df5669e0fd776e5de"
+  },
+  "proposal_type": "ordinary",
+  "proposals_cumulative": 78,
+  "remaining_budget": {
+    "evaluations": 122,
+    "evaluator_seconds": 324590.2850405475,
+    "proposals": 122,
+    "tokens": 98095490
+  },
+  "retained": true,
+  "retention_decision": "strict_incumbent_improvement",
+  "run_id": "controlled-openevolve-transformer-v2-1-source-only-ten-digit-addition-pair-transformer-openevolve-v2-1-mps-openevolve-b04-c0",
+  "schema_version": "1.0",
+  "selected_parent_ids": [
+    "107bce4f90de49ea8e03d01ba0a0bef454212092d6b4b064d5ca24328d2d03d0"
+  ],
+  "timestamp": "2026-08-25T19:00:07.567261+00:00",
+  "usage_cumulative": {
+    "cached_input_tokens": 811264,
+    "input_tokens": 1735211,
+    "output_tokens": 169299,
+    "reasoning_output_tokens": 124430,
+    "total_tokens": 1904510
+  },
+  "usage_increment": {
+    "cached_input_tokens": 12032,
+    "input_tokens": 23285,
+    "output_tokens": 1676,
+    "reasoning_output_tokens": 1034,
+    "total_tokens": 24961
+  },
+  "visible_candidate_ids": [
+    "107bce4f90de49ea8e03d01ba0a0bef454212092d6b4b064d5ca24328d2d03d0"
+  ]
+}

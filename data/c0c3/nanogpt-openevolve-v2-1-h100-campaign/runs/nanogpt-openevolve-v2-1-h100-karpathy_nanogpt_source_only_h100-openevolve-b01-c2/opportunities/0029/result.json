@@ -1,0 +1,88 @@
+{
+  "artifact_path": "candidates/5bcd2f397879ff0bd4d2690020704a515034fad3a5ec45256793c70aa466001f",
+  "candidate_id": "5bcd2f397879ff0bd4d2690020704a515034fad3a5ec45256793c70aa466001f",
+  "codex_service_tier": "default",
+  "condition": "C2",
+  "conversation_session_id": null,
+  "evaluation": {
+    "evaluator_calls": 1,
+    "evaluator_seconds": 335.05769979400065,
+    "failure_kind": null,
+    "fitness": -0.993193,
+    "metrics": {
+      "depth": 8.0,
+      "mfu_percent": 35.11,
+      "num_params_M": 50.3,
+      "num_steps": 1006.0,
+      "peak_vram_mb": 45060.2,
+      "total_tokens_M": 527.4,
+      "training_seconds": 300.2,
+      "val_bpb": 0.993193
+    },
+    "valid": true
+  },
+  "evaluator_calls_cumulative": 29,
+  "evaluator_calls_increment": 1,
+  "evaluator_seconds_cumulative": 10984.027836809993,
+  "evaluator_seconds_increment": 335.05769979400065,
+  "event": "proposal_completed",
+  "evicted_candidate_id": null,
+  "evidence": "Extending linear warmdown from 50% to 60% improved val_bpb from 0.992854 to 0.992358 without reducing throughput, whereas cosine decay regressed to 0.995509; this directly tests whether the beneficial earlier linear decay trend continues.",
+  "hypothesis": "Extending linear warmdown from 60% to 70% of training will retain roughly 528M tokens while lowering val_bpb below 0.992358.",
+  "incumbent_after": "235c521c044eaa4ada371b88b135b0092aa1e41541694faaa5f35466281ef22a",
+  "intended_edit": "Preserve the current architecture, optimizer, and batching while starting linear LR decay at 30% instead of 40% of the training window.",
+  "mechanism": "Earlier linear warmdown on the proven 256-token attention baseline",
+  "opportunity": 29,
+  "parent_ids": [
+    "235c521c044eaa4ada371b88b135b0092aa1e41541694faaa5f35466281ef22a"
+  ],
+  "portfolio_after": [
+    "dacd086c63445c1798b319b5b83ff4a5fe9149916d5f7346fa856f4507cd8f05",
+    "59ab778813f4c2b498d1b067494630c0cefa7cfabb91c412f1a94a0d688c49f5",
+    "235c521c044eaa4ada371b88b135b0092aa1e41541694faaa5f35466281ef22a",
+    "91e19d23f1f4cd145bd6b8f924db969ef735a7c4dc53132e8f7f4dc6790478c8"
+  ],
+  "prompt_hashes": {
+    "common_template_sha256": "ba85b39aa7288f4f48475376da6cff65661f39cfeb7ac7cde15b2a9a2e692fde",
+    "prompt_sha256": "a355117d1b4e7c3bf4be8e0fd346998a743b39cddfc7013b268aafc2cce2146c",
+    "proposal_policy_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "search_state_sha256": "c938ac007bf70fe8d27f64661175531e51fcb16b38318c328493c32ee292e27e",
+    "treatment_skeleton_sha256": "21ca154639c8f8bbf6f530a478ebcef91a017ff3db176f0724598b8d5bdcc7dd"
+  },
+  "proposal_type": "ordinary",
+  "proposals_cumulative": 29,
+  "remaining_budget": {
+    "evaluations": 171,
+    "evaluator_seconds": 709015.97216319,
+    "proposals": 171,
+    "tokens": 98616823
+  },
+  "retained": false,
+  "retention_decision": "not_strictly_better_than_selected_parent",
+  "run_id": "nanogpt-openevolve-v2-1-h100-karpathy_nanogpt_source_only_h100-openevolve-b01-c2",
+  "schema_version": "1.0",
+  "selected_parent_ids": [
+    "235c521c044eaa4ada371b88b135b0092aa1e41541694faaa5f35466281ef22a"
+  ],
+  "timestamp": "2026-08-24T03:54:02.106217+00:00",
+  "usage_cumulative": {
+    "cached_input_tokens": 309504,
+    "input_tokens": 1301417,
+    "output_tokens": 81760,
+    "reasoning_output_tokens": 71711,
+    "total_tokens": 1383177
+  },
+  "usage_increment": {
+    "cached_input_tokens": 12032,
+    "input_tokens": 46918,
+    "output_tokens": 584,
+    "reasoning_output_tokens": 294,
+    "total_tokens": 47502
+  },
+  "visible_candidate_ids": [
+    "dacd086c63445c1798b319b5b83ff4a5fe9149916d5f7346fa856f4507cd8f05",
+    "59ab778813f4c2b498d1b067494630c0cefa7cfabb91c412f1a94a0d688c49f5",
+    "235c521c044eaa4ada371b88b135b0092aa1e41541694faaa5f35466281ef22a",
+    "91e19d23f1f4cd145bd6b8f924db969ef735a7c4dc53132e8f7f4dc6790478c8"
+  ]
+}

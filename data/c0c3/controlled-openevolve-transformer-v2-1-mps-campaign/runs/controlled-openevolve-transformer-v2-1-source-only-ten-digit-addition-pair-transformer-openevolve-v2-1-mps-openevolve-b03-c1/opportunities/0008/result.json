@@ -1,0 +1,79 @@
+{
+  "artifact_path": "candidates/79c35a51a501610b15676fbdb6973fa06ad7b08ff1b2576017af02f501918df8",
+  "candidate_id": "79c35a51a501610b15676fbdb6973fa06ad7b08ff1b2576017af02f501918df8",
+  "codex_service_tier": "fast",
+  "condition": "C1",
+  "conversation_session_id": null,
+  "evaluation": {
+    "evaluator_calls": 1,
+    "evaluator_seconds": 240.03504625009373,
+    "failure_kind": null,
+    "fitness": -1620.0,
+    "metrics": {
+      "accuracy": 0.9995999999999999,
+      "cases": 10010,
+      "correct": 10006,
+      "parameters": 1620,
+      "training_steps": 4999
+    },
+    "valid": true
+  },
+  "evaluator_calls_cumulative": 8,
+  "evaluator_calls_increment": 1,
+  "evaluator_seconds_cumulative": 1808.1707681230037,
+  "evaluator_seconds_increment": 240.03504625009373,
+  "event": "proposal_completed",
+  "evicted_candidate_id": "471d0d820c2eed68fea4ad349f32dbad349e58cd25ce123412a9e81f7ea95cc4",
+  "evidence": "The current 1,628-parameter model reached 99.77% after successfully removing `ln2` bias, while reducing feed-forward width failed badly; removing the remaining mathematically absorbable `ln2` scale tests a redundant parameterization without reducing MLP width.",
+  "hypothesis": "Removing the eight learned `ln2` scale parameters will reduce the model from 1,628 to 1,620 parameters while retaining at least 99% accuracy, because with no `ln2` bias its elementwise scale can be represented exactly by rescaling the columns of `fc1.weight`.",
+  "incumbent_after": "79c35a51a501610b15676fbdb6973fa06ad7b08ff1b2576017af02f501918df8",
+  "intended_edit": "Disable all affine parameters in `ln2` while preserving the full `d_ff=12` MLP, attention architecture, initialization RNG stream, and training procedure.",
+  "mechanism": "Absorb pre-MLP normalization scale into the first linear projection",
+  "opportunity": 8,
+  "parent_ids": [
+    "471d0d820c2eed68fea4ad349f32dbad349e58cd25ce123412a9e81f7ea95cc4"
+  ],
+  "portfolio_after": [
+    "79c35a51a501610b15676fbdb6973fa06ad7b08ff1b2576017af02f501918df8"
+  ],
+  "prompt_hashes": {
+    "common_template_sha256": "3f2bea6418b6969c4bf2aa1df18dcda8a3a4ac075bf20c79068c754698b6be5e",
+    "prompt_sha256": "7dec4305b2f4252422cce731d3600de8f7f1630d2fb155fbb20d029089535f68",
+    "proposal_policy_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "search_state_sha256": "04e5eb078ae1964e4ec65bfeeeb1acd0ffa246e7d54d5e0f997f81f602da28c5",
+    "treatment_skeleton_sha256": "45f6c44347568de4bf81c4a8d83fce4c13a8a5d080b38b9926b9e54c1c983a74"
+  },
+  "proposal_type": "ordinary",
+  "proposals_cumulative": 8,
+  "remaining_budget": {
+    "evaluations": 192,
+    "evaluator_seconds": 358191.829231877,
+    "proposals": 192,
+    "tokens": 99830095
+  },
+  "retained": true,
+  "retention_decision": "strict_incumbent_improvement",
+  "run_id": "controlled-openevolve-transformer-v2-1-source-only-ten-digit-addition-pair-transformer-openevolve-v2-1-mps-openevolve-b03-c1",
+  "schema_version": "1.0",
+  "selected_parent_ids": [
+    "471d0d820c2eed68fea4ad349f32dbad349e58cd25ce123412a9e81f7ea95cc4"
+  ],
+  "timestamp": "2026-08-23T11:10:13.139279+00:00",
+  "usage_cumulative": {
+    "cached_input_tokens": 94208,
+    "input_tokens": 154672,
+    "output_tokens": 15233,
+    "reasoning_output_tokens": 13025,
+    "total_tokens": 169905
+  },
+  "usage_increment": {
+    "cached_input_tokens": 12032,
+    "input_tokens": 20020,
+    "output_tokens": 1262,
+    "reasoning_output_tokens": 1034,
+    "total_tokens": 21282
+  },
+  "visible_candidate_ids": [
+    "471d0d820c2eed68fea4ad349f32dbad349e58cd25ce123412a9e81f7ea95cc4"
+  ]
+}

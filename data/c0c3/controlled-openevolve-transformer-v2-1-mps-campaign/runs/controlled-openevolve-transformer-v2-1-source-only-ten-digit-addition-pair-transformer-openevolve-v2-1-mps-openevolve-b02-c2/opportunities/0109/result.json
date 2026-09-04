@@ -1,0 +1,85 @@
+{
+  "artifact_path": "candidates/9130c3a415d4b3bb862d29cda6a32fc97be79a1793435d528f2db68e4395e624",
+  "candidate_id": "9130c3a415d4b3bb862d29cda6a32fc97be79a1793435d528f2db68e4395e624",
+  "codex_service_tier": "default",
+  "condition": "C2",
+  "conversation_session_id": null,
+  "evaluation": {
+    "evaluator_calls": 1,
+    "evaluator_seconds": 419.0332260001451,
+    "failure_kind": null,
+    "fitness": -1588.0,
+    "metrics": {
+      "accuracy": 0.9998999999999999,
+      "cases": 10010,
+      "correct": 10009,
+      "parameters": 1588,
+      "training_steps": 4999
+    },
+    "valid": true
+  },
+  "evaluator_calls_cumulative": 108,
+  "evaluator_calls_increment": 1,
+  "evaluator_seconds_cumulative": 42577.80708871118,
+  "evaluator_seconds_increment": 419.0332260001451,
+  "event": "proposal_completed",
+  "evicted_candidate_id": "17e2e379071aba507a4182446d5bf20f86ff8207db38a0317605b32b08081d9a",
+  "evidence": "Fixing one trailing `ln2` scale achieved 99.96% accuracy at 1,589 parameters, while fixing the two trailing scales reached 98.79%; selecting a nonadjacent second coordinate with trainable `ln2` bias tests whether that failure was specific to the adjacent fully bias-fixed coordinates.",
+  "hypothesis": "Fixing the first and last `ln2` scale coordinates will yield 1,588 parameters with at least 99% accuracy because `fc1` can absorb both scales, while retaining trainable bias on the newly fixed leading coordinate may avoid the conditioning failure of fixing the last two adjacent scales.",
+  "incumbent_after": "9130c3a415d4b3bb862d29cda6a32fc97be79a1793435d528f2db68e4395e624",
+  "intended_edit": "Preserve the verified final-coordinate scale anchor, add a leading-coordinate anchor, and reconstruct the full scale consistently in `ln2` and the compact first MLP row.",
+  "mechanism": "Nonadjacent downstream LayerNorm scale gauge quotient",
+  "opportunity": 109,
+  "parent_ids": [
+    "17e2e379071aba507a4182446d5bf20f86ff8207db38a0317605b32b08081d9a"
+  ],
+  "portfolio_after": [
+    "c822199cb83dbfd594eeca0d89343936b72003a524cec86d07719a6c021ceb0a",
+    "79c3afdbd90ad8b6e17a0d14c76a1646b0308129068098ccb918e7fc10e56cdd",
+    "96034088fa9539e9e489c29b717fc327156b46062b7739c1eb7d3358aa5bd32e",
+    "9130c3a415d4b3bb862d29cda6a32fc97be79a1793435d528f2db68e4395e624"
+  ],
+  "prompt_hashes": {
+    "common_template_sha256": "3f2bea6418b6969c4bf2aa1df18dcda8a3a4ac075bf20c79068c754698b6be5e",
+    "prompt_sha256": "54ac7f868812572ffa70fe7b7e06d5ca1f04b7529c090b06f51659f3248b5a5a",
+    "proposal_policy_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "search_state_sha256": "c938ac007bf70fe8d27f64661175531e51fcb16b38318c328493c32ee292e27e",
+    "treatment_skeleton_sha256": "c8ea0997fdeb25511ea4c371fbed4a35fe5321bf3097be38037f1abb4fccd1dc"
+  },
+  "proposal_type": "ordinary",
+  "proposals_cumulative": 109,
+  "remaining_budget": {
+    "evaluations": 92,
+    "evaluator_seconds": 317422.1929112888,
+    "proposals": 91,
+    "tokens": 95578462
+  },
+  "retained": true,
+  "retention_decision": "replaced_selected_parent_on_strict_improvement",
+  "run_id": "controlled-openevolve-transformer-v2-1-source-only-ten-digit-addition-pair-transformer-openevolve-v2-1-mps-openevolve-b02-c2",
+  "schema_version": "1.0",
+  "selected_parent_ids": [
+    "17e2e379071aba507a4182446d5bf20f86ff8207db38a0317605b32b08081d9a"
+  ],
+  "timestamp": "2026-09-03T09:35:52.496670+00:00",
+  "usage_cumulative": {
+    "cached_input_tokens": 1178368,
+    "input_tokens": 4002359,
+    "output_tokens": 419179,
+    "reasoning_output_tokens": 305937,
+    "total_tokens": 4421538
+  },
+  "usage_increment": {
+    "cached_input_tokens": 10752,
+    "input_tokens": 44867,
+    "output_tokens": 6584,
+    "reasoning_output_tokens": 5953,
+    "total_tokens": 51451
+  },
+  "visible_candidate_ids": [
+    "c822199cb83dbfd594eeca0d89343936b72003a524cec86d07719a6c021ceb0a",
+    "79c3afdbd90ad8b6e17a0d14c76a1646b0308129068098ccb918e7fc10e56cdd",
+    "96034088fa9539e9e489c29b717fc327156b46062b7739c1eb7d3358aa5bd32e",
+    "17e2e379071aba507a4182446d5bf20f86ff8207db38a0317605b32b08081d9a"
+  ]
+}

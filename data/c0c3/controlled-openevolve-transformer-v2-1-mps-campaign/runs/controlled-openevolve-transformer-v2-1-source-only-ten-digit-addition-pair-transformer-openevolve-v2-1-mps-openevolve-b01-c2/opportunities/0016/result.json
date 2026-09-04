@@ -1,0 +1,85 @@
+{
+  "artifact_path": "candidates/f6bd01e50a54f7c4c1f032dfc037f1305b6e3cabb3a02143ba52d3630b13b010",
+  "candidate_id": "f6bd01e50a54f7c4c1f032dfc037f1305b6e3cabb3a02143ba52d3630b13b010",
+  "codex_service_tier": "fast",
+  "condition": "C2",
+  "conversation_session_id": null,
+  "evaluation": {
+    "evaluator_calls": 1,
+    "evaluator_seconds": 361.43398395809345,
+    "failure_kind": "nonqualification",
+    "fitness": null,
+    "metrics": {
+      "accuracy": 0.6092,
+      "cases": 10010,
+      "correct": 6098,
+      "parameters": 1609,
+      "training_steps": 4999
+    },
+    "valid": false
+  },
+  "evaluator_calls_cumulative": 16,
+  "evaluator_calls_increment": 1,
+  "evaluator_seconds_cumulative": 4983.919336623279,
+  "evaluator_seconds_increment": 361.43398395809345,
+  "event": "proposal_completed",
+  "evicted_candidate_id": null,
+  "evidence": "Distributed LayerNorm anchoring achieved 99.97% with 1,610 parameters. The failed 1,609-parameter `fc2` bias anchor targeted the residual pathway; this instead removes an independently redundant attention-head basis coordinate while preserving its zero-initialized value.",
+  "hypothesis": "Combining the verified distributed LayerNorm anchors with one fixed-zero query-bias coordinate will yield a 1,609-parameter model with at least 99% accuracy, because an invertible query/key basis change within the affected attention head can eliminate that bias coordinate without changing attention logits.",
+  "incumbent_after": "be84cd77b2b0cf38685e6ff2e32f2f50f76df6076da200f85a75791e9b039dfb",
+  "intended_edit": "Anchor one scale coordinate in `ln1` as in the qualified 1,610-parameter design, then retain seven learned query-bias coordinates and synthesize the eighth as zero.",
+  "mechanism": "Single-coordinate query-bias head-basis gauge fixing",
+  "opportunity": 16,
+  "parent_ids": [
+    "a224b654c3699b400b1466b0c55800c8bea3a40fcf541016f1e303623507be3c"
+  ],
+  "portfolio_after": [
+    "2b9cea175ed60b009337ac54f6e8ad23bf2c014eb4080237777bfb70bfd9fd5b",
+    "a224b654c3699b400b1466b0c55800c8bea3a40fcf541016f1e303623507be3c",
+    "be84cd77b2b0cf38685e6ff2e32f2f50f76df6076da200f85a75791e9b039dfb",
+    "580a5574f2b9daf4dac13dbb4d00adf565e2c04f2221a3efdfb49e9aaffde9ac"
+  ],
+  "prompt_hashes": {
+    "common_template_sha256": "3f2bea6418b6969c4bf2aa1df18dcda8a3a4ac075bf20c79068c754698b6be5e",
+    "prompt_sha256": "bf44d9fde3ac62396bf97de810cbd137307ada7b73a1532fddf6ea31ccea7144",
+    "proposal_policy_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "search_state_sha256": "c938ac007bf70fe8d27f64661175531e51fcb16b38318c328493c32ee292e27e",
+    "treatment_skeleton_sha256": "2310e598389738e1bc8117c7851b429a32bb18fd4e09d94afd3db4d31b6efdbf"
+  },
+  "proposal_type": "ordinary",
+  "proposals_cumulative": 16,
+  "remaining_budget": {
+    "evaluations": 184,
+    "evaluator_seconds": 355016.0806633767,
+    "proposals": 184,
+    "tokens": 99528912
+  },
+  "retained": false,
+  "retention_decision": "invalid",
+  "run_id": "controlled-openevolve-transformer-v2-1-source-only-ten-digit-addition-pair-transformer-openevolve-v2-1-mps-openevolve-b01-c2",
+  "schema_version": "1.0",
+  "selected_parent_ids": [
+    "a224b654c3699b400b1466b0c55800c8bea3a40fcf541016f1e303623507be3c"
+  ],
+  "timestamp": "2026-08-23T16:11:49.666026+00:00",
+  "usage_cumulative": {
+    "cached_input_tokens": 176128,
+    "input_tokens": 431618,
+    "output_tokens": 39470,
+    "reasoning_output_tokens": 32810,
+    "total_tokens": 471088
+  },
+  "usage_increment": {
+    "cached_input_tokens": 12032,
+    "input_tokens": 33701,
+    "output_tokens": 4481,
+    "reasoning_output_tokens": 3997,
+    "total_tokens": 38182
+  },
+  "visible_candidate_ids": [
+    "2b9cea175ed60b009337ac54f6e8ad23bf2c014eb4080237777bfb70bfd9fd5b",
+    "a224b654c3699b400b1466b0c55800c8bea3a40fcf541016f1e303623507be3c",
+    "be84cd77b2b0cf38685e6ff2e32f2f50f76df6076da200f85a75791e9b039dfb",
+    "580a5574f2b9daf4dac13dbb4d00adf565e2c04f2221a3efdfb49e9aaffde9ac"
+  ]
+}

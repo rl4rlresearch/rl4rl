@@ -1,0 +1,82 @@
+{
+  "artifact_path": "candidates/8c96a38e5adb9999d768b3036f2a957a699d7454c806e51f8038e55283acc275",
+  "candidate_id": "8c96a38e5adb9999d768b3036f2a957a699d7454c806e51f8038e55283acc275",
+  "codex_service_tier": "default",
+  "condition": "C0",
+  "conversation_session_id": null,
+  "evaluation": {
+    "evaluator_calls": 1,
+    "evaluator_seconds": 358.5495242830002,
+    "failure_kind": null,
+    "fitness": -0.985611,
+    "metrics": {
+      "depth": 8.0,
+      "mfu_percent": 35.7,
+      "num_params_M": 50.3,
+      "num_steps": 1929.0,
+      "peak_vram_mb": 44908.2,
+      "total_tokens_M": 505.7,
+      "training_seconds": 300.1,
+      "val_bpb": 0.985611
+    },
+    "valid": true
+  },
+  "evaluator_calls_cumulative": 29,
+  "evaluator_calls_increment": 1,
+  "evaluator_seconds_cumulative": 10755.831343709964,
+  "evaluator_seconds_increment": 358.5495242830002,
+  "event": "proposal_completed",
+  "evicted_candidate_id": null,
+  "evidence": "The best run processed 506.2M tokens, while lower-throughput neighboring runs processed 500.2M and 500.7M and regressed; since max-autotune could not be verified, removing the intermediate full-attention layer is a directly verifiable throughput test.",
+  "hypothesis": "Using local attention in all patterned layers while retaining the forced final full-attention layer will beat 0.984313 val_bpb by increasing token throughput without eliminating full-sequence aggregation.",
+  "incumbent_after": "4103c8368d4fbf25376f9ba1dba597df47069937cfecdffd8bd76b66ea765873",
+  "intended_edit": "Change `WINDOW_PATTERN` from `SSSL` to `SSSS`, reducing depth-8 full-attention layers from two to one; `_compute_window_sizes` still forces the final layer to full context.",
+  "mechanism": "Redundant mid-stack full-attention removal",
+  "opportunity": 29,
+  "parent_ids": [
+    "4103c8368d4fbf25376f9ba1dba597df47069937cfecdffd8bd76b66ea765873"
+  ],
+  "portfolio_after": [
+    "4103c8368d4fbf25376f9ba1dba597df47069937cfecdffd8bd76b66ea765873"
+  ],
+  "prompt_hashes": {
+    "common_template_sha256": "ba85b39aa7288f4f48475376da6cff65661f39cfeb7ac7cde15b2a9a2e692fde",
+    "prompt_sha256": "b71a67580bc3d71072c12bbef5bc148bec3b77ea1548e15bdc54b49a8265f952",
+    "proposal_policy_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "search_state_sha256": "04e5eb078ae1964e4ec65bfeeeb1acd0ffa246e7d54d5e0f997f81f602da28c5",
+    "treatment_skeleton_sha256": "6a60199fc1fb488a8473f2ef0a7b9634b0f132582b638d728c5611981ba06509"
+  },
+  "proposal_type": "ordinary",
+  "proposals_cumulative": 29,
+  "remaining_budget": {
+    "evaluations": 171,
+    "evaluator_seconds": 709244.16865629,
+    "proposals": 171,
+    "tokens": 99246624
+  },
+  "retained": false,
+  "retention_decision": "not_strictly_better_than_incumbent",
+  "run_id": "nanogpt-openevolve-v2-1-h100-karpathy_nanogpt_source_only_h100-openevolve-b01-c0",
+  "schema_version": "1.0",
+  "selected_parent_ids": [
+    "4103c8368d4fbf25376f9ba1dba597df47069937cfecdffd8bd76b66ea765873"
+  ],
+  "timestamp": "2026-08-24T04:06:45.828346+00:00",
+  "usage_cumulative": {
+    "cached_input_tokens": 332544,
+    "input_tokens": 698720,
+    "output_tokens": 54656,
+    "reasoning_output_tokens": 48054,
+    "total_tokens": 753376
+  },
+  "usage_increment": {
+    "cached_input_tokens": 12032,
+    "input_tokens": 24684,
+    "output_tokens": 2089,
+    "reasoning_output_tokens": 1872,
+    "total_tokens": 26773
+  },
+  "visible_candidate_ids": [
+    "4103c8368d4fbf25376f9ba1dba597df47069937cfecdffd8bd76b66ea765873"
+  ]
+}

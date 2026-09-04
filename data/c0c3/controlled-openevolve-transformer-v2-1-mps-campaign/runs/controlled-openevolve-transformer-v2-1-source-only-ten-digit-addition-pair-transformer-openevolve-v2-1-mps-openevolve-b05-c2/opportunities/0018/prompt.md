@@ -1,0 +1,197 @@
+# Optimize a transformer for 10-digit addition
+
+You are an autonomous ML engineer improving the source code for an
+autoregressive transformer that adds two 10-digit numbers.
+
+## Goal
+
+Minimize the actual number of deduplicated learned model parameters while
+maintaining at least 99% accuracy under the fixed verification process. A
+smaller implementation is useful only when it meets that accuracy requirement.
+Every submitted implementation is trained from a fresh initialization.
+
+## Learned-model requirement
+
+Produce a smaller trained autoregressive transformer, not a hand-coded addition
+program. The submitted implementation must:
+
+- have nonzero trainable parameters;
+- contain and use at least one learned causal self-attention module;
+- map token inputs to token logits through the learned model;
+- train from a fresh initialization during verification;
+- write both `checkpoints/best.pt` and a positive-step `checkpoints/last.pt`;
+- keep source code unchanged while training; and
+- use the protected generic decoding interface exactly as supplied.
+
+Do not implement or embed decimal arithmetic, carry propagation, place-value
+rules, digit lookup tables, finite-state addition transitions, fixed answer
+rules, or input-dependent Python logic that directly computes the sum. Do not
+hide such a solver in model generation, token processing, training, or saved
+weights. Do not add dummy or zero-length parameters to disguise a fixed
+algorithm as a learned model.
+
+Do not modify protected files. Do not perform post-training state-dictionary
+surgery, substitute a different saved model, truncate weights after training,
+or report a parameter count that differs from the submitted model.
+
+## Work boundaries
+
+Minimize parameters. Required result: accuracy >= 0.99.
+Editable source files: src/model.py, src/train.py.
+Results reported after each verification: accuracy, parameters, training_steps.
+
+Propose changes through exact SEARCH/REPLACE blocks. The patching interface applies them to the supplied editable source.
+
+The editable source and any reference source are included below. Do not access
+parent directories, home directories, shared temporary directories, global
+session history, online sources, or any surrounding repository. Do not run
+training or verification yourself and do not generate hidden alternatives.
+Return one patch for one implementation; verification happens after you finish.
+
+## Available designs
+
+The current editable design and the qualified reference designs below are available as technical evidence. Edit only the current workspace.
+
+CURRENT DESIGN
+verified_results: {"accuracy": 0.9997, "parameters": 1579, "training_steps": 4999}
+prior_hypothesis: Adding one exactly compensated mean-zero token/position gauge constraint to the qualified 1580-parameter two-anchor model will retain at least 99% accuracy with 1579 parameters.
+
+REFERENCE DESIGN 1
+verified_results: {"accuracy": 0.9995999999999999, "parameters": 1644, "training_steps": 4999}
+prior_hypothesis: starting design
+
+REFERENCE DESIGN 2
+verified_results: {"accuracy": 0.9997, "parameters": 1580, "training_steps": 4999}
+prior_hypothesis: Fixing a second mean-zero attention projection-bias coordinate while retaining all eight value-bias coordinates will produce a 1580-parameter model with at least 99% accuracy.
+
+REFERENCE DESIGN 3
+verified_results: {"accuracy": 0.9979, "parameters": 1581, "training_steps": 4999}
+prior_hypothesis: Restoring the qualified 1582-parameter design’s full value bias while fixing one attention output-projection bias coordinate will retain at least 99% accuracy with 1581 parameters, because the missing mean-zero output bias component can be represented through the learned value bias.
+
+## Recent verification evidence
+
+RECENT RESULT
+hypothesis: Retaining six of eight learned value-bias coordinates will reduce the model to 1589 parameters while maintaining at least 99% accuracy.
+change: Fix a second value-bias coordinate to zero, preserving all attention weights, mean-zero residual parameterizations, MLP capacity, training, and decoding behavior.
+mechanism: Incremental value-bias coordinate anchoring
+evidence_used: The current seven-coordinate design achieved 99.94% accuracy with 1590 parameters, while removing all value-bias coordinates failed; this motivates the smallest incremental ablation.
+result: did not meet the accuracy requirement
+reported_values: {"accuracy": 0.7006999999999999, "parameters": 1589, "training_steps": 4999}
+
+RECENT RESULT
+hypothesis: Removing the 8-parameter `ln2` bias will reduce the model from 1591 to 1583 parameters while retaining at least 99% accuracy, because its contribution is exactly absorbable by the existing `fc1` bias without reducing MLP width.
+change: Disable only the second LayerNorm’s learned bias while preserving all attention value-bias coordinates, weight matrices, training settings, and decoding behavior.
+mechanism: Pre-MLP LayerNorm offset absorption
+evidence_used: The 1591-parameter design achieved 99.96%, while removing a second value-bias coordinate collapsed accuracy to 70.07%; this motivates preserving the sensitive value-bias pathway and instead removing an algebraically redundant pre-MLP offset.
+result: met the accuracy requirement and became an available design
+reported_values: {"accuracy": 0.9995999999999999, "parameters": 1583, "training_steps": 4999}
+
+RECENT RESULT
+hypothesis: Mean-zero parameterization plus removal of both LayerNorm biases will reduce the model from 1636 to 1575 parameters while retaining at least 99% accuracy; `ln1` offsets are absorbable into query/value biases, while their induced key offset cancels under softmax.
+change: Apply the qualified mean-zero positional and residual-output parameterization, disable the already-qualified `ln2` bias, and additionally disable the algebraically redundant `ln1` bias.
+mechanism: LayerNorm-invariant residual gauge compression with pre-attention offset absorption
+evidence_used: The mean-zero design with `ln2` bias removed achieved 99.96% accuracy at 1583 parameters. Key-bias removal also retained 99.84%, supporting the exact invariance used to absorb `ln1`’s key-path offset without reducing MLP or attention width.
+result: did not meet the accuracy requirement
+reported_values: {"accuracy": 0.721, "parameters": 1575, "training_steps": 4999}
+
+RECENT RESULT
+hypothesis: Combining the qualified seven-coordinate value bias with the qualified bias-free `ln2` will reduce the model from 1583 to 1582 parameters while retaining at least 99% accuracy.
+change: Replace the 16-parameter query/value bias tensor with an 8-parameter query bias and 7-parameter value bias, reconstructing the final value coordinate as zero.
+mechanism: LayerNorm-offset removal with one-coordinate value-bias anchoring
+evidence_used: Seven value-bias coordinates achieved 99.94% accuracy at 1590 parameters, and independently removing `ln2` bias achieved 99.96% at 1583; the failures at six value coordinates and without `ln1` bias favor this conservative combination of qualified reductions.
+result: did not meet the accuracy requirement
+reported_values: {"accuracy": 0.9856, "parameters": 1582, "training_steps": 4999}
+
+RECENT RESULT
+hypothesis: Fixing one `ln2` scale coordinate will reduce the qualified 1583-parameter design to 1582 parameters while retaining at least 99% accuracy, because that scale is exactly absorbable into the corresponding `fc1` input column without constraining the MLP function.
+change: Restore all eight learned value-bias coordinates, remove `ln2` bias as in Reference Design 3, and represent its scale with seven learned coordinates plus one fixed unit coordinate.
+mechanism: One-coordinate pre-MLP LayerNorm scale anchoring
+evidence_used: The full-value-bias, bias-free-`ln2` design achieved 99.96% accuracy with 1583 parameters, whereas the prior 1582-parameter combination failed after removing a sensitive value-bias coordinate; this instead removes an algebraically redundant LayerNorm scale coordinate.
+result: did not meet the accuracy requirement
+reported_values: {"accuracy": 0.7484000000000001, "parameters": 1582, "training_steps": 4999}
+
+RECENT RESULT
+hypothesis: Centering the tied token/output embeddings across vocabulary will reduce the qualified 1583-parameter design to 1575 parameters while retaining at least 99% accuracy, because the removed vector produces only a common logit shift and its input-side effect is absorbable by positional embeddings up to LayerNorm-invisible common mode.
+change: Apply the qualified mean-zero residual parameterization and bias-free `ln2`, then represent tied token/output embeddings in an orthonormal vocabulary-centered basis while preserving the qualified model’s initial function.
+mechanism: Vocabulary-common-mode gauge compression
+evidence_used: The 1583-parameter mean-zero, bias-free-`ln2` design achieved 99.96%; prior smaller failures altered sensitive value-bias or LayerNorm-scale paths, whereas this patch removes a distinct exact tied-embedding/softmax gauge without reducing attention, MLP, or normalization capacity.
+result: did not meet the accuracy requirement
+reported_values: {"accuracy": 0.7145999999999999, "parameters": 1575, "training_steps": 4999}
+
+RECENT RESULT
+hypothesis: Removing the single global all-ones component of the tied token/output embedding will reduce the qualified model from 1583 to 1582 parameters while retaining at least 99% accuracy, because it only shifts residual streams by a LayerNorm-invisible constant and shifts every output logit equally.
+change: Replace the tied embedding with a gauge-fixed parameterization in which the final token vector is mean-zero, using the exact global shift symmetry to remove one scalar while preserving initialization and weight tying.
+mechanism: Global tied-embedding common-mode anchoring
+evidence_used: The current 1583-parameter model achieved 99.96%. Full eight-dimensional vocabulary centering failed at 71.46%, motivating this narrower one-dimensional gauge that requires no positional-embedding compensation and leaves all other token coordinates directly parameterized.
+result: met the accuracy requirement and became an available design
+reported_values: {"accuracy": 0.9998999999999999, "parameters": 1582, "training_steps": 4999}
+
+RECENT RESULT
+hypothesis: Restoring the qualified 1582-parameter design’s full value bias while fixing one attention output-projection bias coordinate will retain at least 99% accuracy with 1581 parameters, because the missing mean-zero output bias component can be represented through the learned value bias.
+change: Adopt the qualified bias-free-ln2 and globally gauge-fixed tied embedding, restore all eight value-bias coordinates, and remove one coordinate only from the attention projection bias.
+mechanism: Attention value/output-bias redundancy anchoring
+evidence_used: Reference Design 3 reached 99.99% with 1582 parameters and full value bias; the seven-value-bias combination fell to 98.56%, so this patch preserves that sensitive pathway and instead removes one redundant projection-bias coordinate.
+result: met the accuracy requirement and became an available design
+reported_values: {"accuracy": 0.9979, "parameters": 1581, "training_steps": 4999}
+
+RECENT RESULT
+hypothesis: Fixing a second mean-zero attention projection-bias coordinate while retaining all eight value-bias coordinates will produce a 1580-parameter model with at least 99% accuracy.
+change: Apply the qualified mean-zero residual parameterization, bias-free `ln2`, and globally gauge-fixed tied embedding, then reconstruct the final two attention projection-bias coordinates as zero.
+mechanism: Incremental attention value/output-bias redundancy anchoring
+evidence_used: The first attention projection-bias anchor achieved 99.79% with 1581 parameters, while removing a second value-bias coordinate collapsed accuracy; this motivates preserving the full value pathway and testing the smallest adjacent reduction in its redundant output bias.
+result: met the accuracy requirement and became an available design
+reported_values: {"accuracy": 0.9997, "parameters": 1580, "training_steps": 4999}
+
+RECENT RESULT
+hypothesis: Fixing a third mean-zero attention projection-bias coordinate while retaining all eight value-bias coordinates will produce a 1579-parameter model with at least 99% accuracy.
+change: Reduce the attention output projection’s learned mean-zero bias from five coordinates to four, reconstructing the final three coordinates as zero.
+mechanism: Incremental attention value/output-bias redundancy anchoring
+evidence_used: Two projection-bias anchors achieved 99.97% accuracy with 1580 parameters, improving on the one-anchor model’s 99.79%; this supports testing one additional coordinate without disturbing the sensitive value-bias pathway.
+result: did not meet the accuracy requirement
+reported_values: {"accuracy": 0.7433, "parameters": 1579, "training_steps": 4999}
+
+RECENT RESULT
+hypothesis: Reconstructing the third anchored projection-bias coordinate from an existing value-bias scalar will yield a 1579-parameter model with at least 99% accuracy, because it preserves a trainable direct output offset while removing its redundant independent parameter.
+change: Retain four independent mean-zero attention projection-bias coordinates, derive the fifth from the aligned learned value-bias coordinate, and keep the two already-qualified coordinates fixed at zero.
+mechanism: Value-tied attention output-bias anchoring
+evidence_used: The 1580-parameter two-anchor design achieved 99.97%, while fixing the third coordinate to zero collapsed accuracy to 74.33%; tying that sensitive coordinate to the full learned value-bias pathway tests whether its trainability—not an independent degree of freedom—is required.
+result: did not meet the accuracy requirement
+reported_values: {"accuracy": 0.7177, "parameters": 1579, "training_steps": 4999}
+
+RECENT RESULT
+hypothesis: Adding one exactly compensated mean-zero token/position gauge constraint to the qualified 1580-parameter two-anchor model will retain at least 99% accuracy with 1579 parameters.
+change: Use the qualified twice-anchored attention projection, then remove one coordinate from the final token embedding row while transferring its initialized contribution into every positional embedding.
+mechanism: Single-coordinate token/position shift-gauge anchoring
+evidence_used: The two-projection-bias-anchor design achieved 99.97% at 1580 parameters; the one-dimensional global embedding gauge also retained 99.99%, whereas removing all vocabulary-common modes collapsed accuracy, motivating a single compensated gauge reduction rather than a third projection-bias anchor.
+result: met the accuracy requirement and became an available design
+reported_values: {"accuracy": 0.9997, "parameters": 1579, "training_steps": 4999}
+
+
+
+Use the available technical evidence to choose the most informative next
+change. Treat unsuccessful or malformed work as evidence when a useful
+subject-level reason is provided. Do not invent missing evidence.
+
+## Response
+
+Return these short metadata lines followed by one or more exact
+`SEARCH`/`REPLACE` blocks that together produce one implementation:
+
+`MECHANISM: <a concise free-form name for the computational idea>`
+
+`HYPOTHESIS: <a falsifiable claim grounded in the evidence above>`
+
+`INTENDED_EDIT: <what this patch changes>`
+
+`EVIDENCE: <the most relevant prior result and why it motivates this patch>`
+
+Start each block with `<<<<<<< SEARCH`, put the exact existing lines next, use a
+line containing `=======` as the divider, put the replacement lines after it,
+and finish the block with `>>>>>>> REPLACE`.
+
+Every `SEARCH` section must be nonempty and match exactly once after earlier
+blocks have been applied. All blocks must apply. They may edit either or both
+editable files, but together they must describe one implementation ready for
+verification. The mechanism name is descriptive, not chosen from a fixed list.
+Do not paste whole files, lengthy logs, or routine progress reports outside the
+patch.

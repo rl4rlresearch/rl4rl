@@ -1,0 +1,105 @@
+{
+  "artifact_path": "candidates/aff0e261c617f6ee247484a83a029084b0ef6392bbc95306adf10be1771897e0",
+  "candidate_id": "aff0e261c617f6ee247484a83a029084b0ef6392bbc95306adf10be1771897e0",
+  "codex_service_tier": "default",
+  "condition": "C3",
+  "conversation_session_id": null,
+  "evaluation": {
+    "evaluator_calls": 1,
+    "evaluator_seconds": 156.69136154092848,
+    "failure_kind": null,
+    "fitness": -1789706040713466960,
+    "metrics": {
+      "batch_size": 64,
+      "evaluation_cases": 815,
+      "evaluation_split": "public_speaker_disjoint_validation",
+      "examples_processed": 50000,
+      "inference_cost": 1789706040713466960,
+      "maximum_recurrent_steps": 16,
+      "mean_recurrent_steps": 16.0,
+      "median_recurrent_steps": 16,
+      "optimizer_steps": 786,
+      "p95_recurrent_steps": 16,
+      "parameters": 28640,
+      "peak_hidden_elements": 107008,
+      "recurrent_logit_effect": 0.17527011036872864,
+      "recurrent_macs": 341752320,
+      "recurrent_steps": 13040,
+      "state_dependence_effect": 0.47909268736839294,
+      "state_update_effect": 0.4820549786090851,
+      "total_inference_macs": 343108480,
+      "trained_recurrent_logit_effect": 0.5340147018432617,
+      "trained_state_dependence_effect": 0.4592323303222656,
+      "trained_state_update_effect": 0.44399628043174744,
+      "training_seconds": 133.4293375830166,
+      "validation_accuracy": 0.8552147239263803,
+      "validation_correct": 697,
+      "validation_cross_entropy": 0.4200194938051189
+    },
+    "valid": true
+  },
+  "evaluator_calls_cumulative": 29,
+  "evaluator_calls_increment": 1,
+  "evaluator_seconds_cumulative": 3200.1136653714348,
+  "evaluator_seconds_increment": 156.69136154092848,
+  "event": "proposal_completed",
+  "evicted_candidate_id": "c66d2a2d9f4d35bdd8f720200bf1306dd1d22f1b30f71df8cb280a7a840bf95f",
+  "evidence": "The 93-unit dense GRU reached 86.258% accuracy, whereas the ungated stacked tanh RNN reached only 80.368%. This suggests gating is load-bearing, but does not establish that every gate needs full-rank hidden-to-hidden feedback; the patch preserves gating while directly testing that shared assumption.",
+  "hypothesis": "A 104-unit gated state using independent 32-unit recurrent bottlenecks will retain at least 85% accuracy while reducing estimated total inference MACs from 412,324,800 to approximately 343,108,480.",
+  "incumbent_after": "aff0e261c617f6ee247484a83a029084b0ef6392bbc95306adf10be1771897e0",
+  "intended_edit": "Replace the dense GRU with a custom GRU-style update whose reset, update, and candidate feedback each pass through a structurally reduced nonlinear bottleneck; retain the proven 16-frame schedule and mean/final-state readout.",
+  "mechanism": "Gate-specific nonlinear bottleneck recurrence",
+  "opportunity": 30,
+  "parent_ids": [
+    "c66d2a2d9f4d35bdd8f720200bf1306dd1d22f1b30f71df8cb280a7a840bf95f"
+  ],
+  "portfolio_after": [
+    "2dbf0846e683887868530c6b62fd058d2552c314e2af7094daab5f7c93a94871",
+    "aff0e261c617f6ee247484a83a029084b0ef6392bbc95306adf10be1771897e0",
+    "de1a5a9172cddf69a396683460dd74209fbbedc5a6ee21e016775b07b17cc517",
+    "0580783741e5d60c72e070546496aee5caa37eeb7f23ff09a6e60d904dff7a03"
+  ],
+  "prompt_hashes": {
+    "common_template_sha256": "dee04faf4c430276c1036ba97f5705a339857dbdf19117dac88952a5a3a47e9d",
+    "prompt_sha256": "435bdeccce81a59483c91374b05d9c60d72ba6b0555d72d2ea27d9c01122395a",
+    "proposal_policy_sha256": "f3e935f1a3cb6334e7f39b20b1b6b601cd727de9c5f0c3630206a91f08e358c9",
+    "search_state_sha256": "c938ac007bf70fe8d27f64661175531e51fcb16b38318c328493c32ee292e27e",
+    "treatment_skeleton_sha256": "a797e5dc669a109a65d94c67485449803216120753f8dbc4ee5ebaebe8db8515"
+  },
+  "proposal_type": "assumption_changing",
+  "proposals_cumulative": 30,
+  "remaining_budget": {
+    "evaluations": 171,
+    "evaluator_seconds": 56799.886334628565,
+    "proposals": 170,
+    "tokens": 99266428
+  },
+  "retained": true,
+  "retention_decision": "replaced_selected_parent_on_strict_improvement",
+  "run_id": "tiny-kws-rnn-openevolve-v2-1-cpu-tiny_kws_rnn_source_only_cpu-openevolve-b01-c3",
+  "schema_version": "1.0",
+  "selected_parent_ids": [
+    "c66d2a2d9f4d35bdd8f720200bf1306dd1d22f1b30f71df8cb280a7a840bf95f"
+  ],
+  "timestamp": "2026-09-04T04:17:28.263894+00:00",
+  "usage_cumulative": {
+    "cached_input_tokens": 322560,
+    "input_tokens": 663945,
+    "output_tokens": 69627,
+    "reasoning_output_tokens": 56015,
+    "total_tokens": 733572
+  },
+  "usage_increment": {
+    "cached_input_tokens": 10752,
+    "input_tokens": 23922,
+    "output_tokens": 8552,
+    "reasoning_output_tokens": 7224,
+    "total_tokens": 32474
+  },
+  "visible_candidate_ids": [
+    "2dbf0846e683887868530c6b62fd058d2552c314e2af7094daab5f7c93a94871",
+    "c66d2a2d9f4d35bdd8f720200bf1306dd1d22f1b30f71df8cb280a7a840bf95f",
+    "de1a5a9172cddf69a396683460dd74209fbbedc5a6ee21e016775b07b17cc517",
+    "0580783741e5d60c72e070546496aee5caa37eeb7f23ff09a6e60d904dff7a03"
+  ]
+}
