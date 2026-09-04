@@ -21,6 +21,8 @@ from .neutral_task import (
     SUBJECT_NEUTRAL_PROMPT_PROFILES,
     TINY_ADDERBOARD_SOURCE_ONLY_SEED_PATHS,
     TINY_ADDERBOARD_TASK_ADAPTER,
+    TINY_KWS_RNN_SOURCE_ONLY_SEED_PATHS,
+    TINY_KWS_RNN_TASK_ADAPTER,
     validate_v15_pairing,
 )
 from .prompts import (
@@ -44,6 +46,7 @@ from .spec import (
     FactorialSpec,
     FrameworkSpec,
     TaskSpec,
+    conditions_for_protocol,
     framework_hash_payload,
     sha256_json,
     task_hash_payload,
@@ -66,7 +69,7 @@ def neutral_source_disclosure_terms(source: str) -> tuple[str, ...]:
     return tuple(
         term
         for term in neutral_disclosure_terms(source)
-        if term not in {"c0", "c1", "c2", "c3"}
+        if term not in {"c0", "c1", "c2", "c3", "c4"}
     )
 
 
@@ -155,8 +158,14 @@ def validate_campaign(
     for block in range(1, spec.blocks + 1):
         rows = [row for row in schedule if int(row["block"]) == block]
         factorial = [row["condition"] for row in rows if row["condition"] != "N0"]
-        if sorted(factorial) != sorted(condition.value for condition in Condition):
-            errors.append(f"block {block} does not contain C0-C3 exactly once")
+        expected_conditions = conditions_for_protocol(spec.protocol_version)
+        if sorted(factorial) != sorted(
+            condition.value for condition in expected_conditions
+        ):
+            errors.append(
+                f"block {block} does not contain every configured condition "
+                "exactly once"
+            )
         if len({row["run_seed"] for row in rows}) != 1:
             errors.append(f"block {block} is not seed paired")
         expected_orders = list(range(1, len(rows) + 1))
@@ -203,6 +212,7 @@ def validate_campaign(
         NANOGPT_TASK_ADAPTER,
         FASHION_MNIST_TASK_ADAPTER,
         TINY_ADDERBOARD_TASK_ADAPTER,
+        TINY_KWS_RNN_TASK_ADAPTER,
     }:
         if task.adapter == NANOGPT_TASK_ADAPTER:
             sanitized_paths = NANOGPT_SOURCE_ONLY_SEED_PATHS
@@ -210,6 +220,8 @@ def validate_campaign(
             sanitized_paths = FASHION_MNIST_SOURCE_ONLY_SEED_PATHS
         elif task.adapter == TINY_ADDERBOARD_TASK_ADAPTER:
             sanitized_paths = TINY_ADDERBOARD_SOURCE_ONLY_SEED_PATHS
+        elif task.adapter == TINY_KWS_RNN_TASK_ADAPTER:
+            sanitized_paths = TINY_KWS_RNN_SOURCE_ONLY_SEED_PATHS
         elif task.adapter == NEUTRAL_TASK_ADAPTER:
             sanitized_paths = SANITIZED_SEED_PATHS
         elif task.adapter == PAIR_TOKEN_TASK_ADAPTER_V3:
@@ -221,6 +233,7 @@ def validate_campaign(
             NANOGPT_TASK_ADAPTER,
             FASHION_MNIST_TASK_ADAPTER,
             TINY_ADDERBOARD_TASK_ADAPTER,
+            TINY_KWS_RNN_TASK_ADAPTER,
         }:
             expected_subject_files.add("submission.py")
         actual_subject_files = {
@@ -275,7 +288,7 @@ def validate_campaign(
     )
     for opportunity in range(1, spec.budget.proposals + 1):
         prompts = {}
-        for condition in Condition:
+        for condition in conditions_for_protocol(spec.protocol_version):
             context = PromptContext(
                 condition=condition,
                 opportunity=opportunity,

@@ -34,6 +34,7 @@ from http import HTTPStatus
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
 from typing import Any, TextIO
+from urllib.parse import parse_qs, urlsplit
 
 try:
     from experiments.campaign_lifecycle_control import (
@@ -104,6 +105,9 @@ DEFAULT_AUTORESEARCH_V17_FASHION_MNIST = (
 )
 DEFAULT_OPENEVOLVE_V21_FASHION_MNIST = (
     REPO_ROOT / "data/c0c3/fashion-mnist-openevolve-v2-1-mps-campaign"
+)
+DEFAULT_OPENEVOLVE_V21_TINY_KWS_RNN = (
+    REPO_ROOT / "data/c0c3/tiny-kws-rnn-openevolve-v2-1-cpu-campaign"
 )
 DEFAULT_SEMANTIC_V4_FASHION_MNIST = (
     REPO_ROOT / "data/c0c3/semantic-interventions-v4-fashion-openevolve-campaign"
@@ -2088,6 +2092,8 @@ def campaign_data(
     task = task if isinstance(task, dict) else {}
     framework = read_json(campaign / "inputs/framework.json", {})
     framework = framework if isinstance(framework, dict) else {}
+    protocol = read_json(campaign / "inputs/protocol.json", {})
+    protocol = protocol if isinstance(protocol, dict) else {}
     framework_id = str(framework.get("framework_id", "unknown"))
     framework_label = {
         "karpathy_autoresearch": "Autoresearch",
@@ -2161,7 +2167,7 @@ def campaign_data(
         run
         for run in runs
         if run is not None
-        and (semantic or run["condition"] in {"C0", "C1", "C2", "C3"})
+        and (semantic or run["condition"] in {"C0", "C1", "C2", "C3", "C4"})
     ]
     observed_metrics = sorted(
         {
@@ -2346,6 +2352,15 @@ def campaign_data(
         "task_display_name": str(task.get("display_name", task.get("task_id", "Task"))),
         "framework_id": framework_id,
         "framework_label": framework_label,
+        "protocol_version": str(protocol.get("protocol_version", "unknown")),
+        "protocol_study_id": str(
+            protocol.get("study_id", campaign_manifest.get("study_id", "unknown"))
+        ),
+        "transition_opportunities": [
+            value
+            for value in protocol.get("transition_opportunities", [])
+            if isinstance(value, int) and not isinstance(value, bool)
+        ],
         "axis_catalog": axis_catalog,
         "observed_metrics": observed_metrics,
         "modal_usage": modal_summary,
@@ -2396,15 +2411,290 @@ def dashboard_data(
     return payload
 
 
+def transcript_index_payload(dashboard_snapshot: dict[str, Any]) -> dict[str, Any]:
+    """Return a lightweight campaign/run roster for the transcript browser."""
+
+    rows: list[dict[str, Any]] = []
+    campaigns = dashboard_snapshot.get("campaigns", {})
+    if not isinstance(campaigns, dict):
+        campaigns = {}
+    for campaign_id, payload in campaigns.items():
+        if not isinstance(payload, dict) or not payload.get("available"):
+            continue
+        runs = payload.get("runs", [])
+        if not isinstance(runs, list):
+            runs = []
+        run_rows = []
+        for run in runs:
+            if not isinstance(run, dict) or not isinstance(run.get("run_id"), str):
+                continue
+            run_rows.append(
+                {
+                    "run_id": run["run_id"],
+                    "label": run.get("label", run["run_id"]),
+                    "condition": run.get("condition"),
+                    "condition_label": run.get("condition_label"),
+                    "condition_family": run.get("condition_family"),
+                    "replicate": run.get("replicate"),
+                    "status": run.get("status"),
+                    "proposals_used": run.get("proposals_used", 0),
+                }
+            )
+        rows.append(
+            {
+                "campaign_id": campaign_id,
+                "campaign": payload.get("campaign"),
+                "task_display_name": payload.get("task_display_name"),
+                "framework_label": payload.get("framework_label"),
+                "protocol_version": payload.get("protocol_version"),
+                "semantic": bool(payload.get("semantic")),
+                "runs": run_rows,
+            }
+        )
+    return {
+        "schema_version": "1.0",
+        "generated_at": dashboard_snapshot.get("generated_at"),
+        "campaigns": rows,
+    }
+
+
+def _read_text(path: Path) -> str | None:
+    try:
+        return path.read_text(encoding="utf-8")
+    except (FileNotFoundError, OSError, UnicodeDecodeError):
+        return None
+
+
+def _agent_messages(opportunity_dir: Path) -> list[dict[str, Any]]:
+    """Read public Codex agent-message items without exposing reasoning records."""
+
+    messages: list[dict[str, Any]] = []
+    seen: set[tuple[str, str]] = set()
+    for path in sorted((opportunity_dir / "codex").glob("*.jsonl")):
+        for record in iter_jsonl(path):
+            if record.get("type") != "item.completed":
+                continue
+            item = record.get("item", {})
+            if not isinstance(item, dict) or item.get("type") != "agent_message":
+                continue
+            text = item.get("text")
+            if not isinstance(text, str):
+                content = item.get("content")
+                if isinstance(content, list):
+                    parts = [
+                        part.get("text")
+                        for part in content
+                        if isinstance(part, dict)
+                        and isinstance(part.get("text"), str)
+                    ]
+                    text = "\n".join(parts)
+            if not isinstance(text, str) or not text.strip():
+                continue
+            message_id = str(item.get("id", ""))
+            identity = (message_id, text)
+            if identity in seen:
+                continue
+            seen.add(identity)
+            messages.append(
+                {
+                    "id": message_id or None,
+                    "text": text,
+                    "source": path.name,
+                }
+            )
+    return messages
+
+
+def _proposal_prompt(opportunity_dir: Path) -> str | None:
+    prompt_paths = sorted((opportunity_dir / "codex").glob("*.prompt.md"))
+    prompt_paths.append(opportunity_dir / "prompt.md")
+    for path in prompt_paths:
+        text = _read_text(path)
+        if text is not None:
+            return text
+    return None
+
+
+def _fallback_last_message(opportunity_dir: Path) -> str | None:
+    for path in sorted((opportunity_dir / "codex").glob("*.last-message.md")):
+        text = _read_text(path)
+        if text and text.strip():
+            return text
+    return None
+
+
+def _mechanism_family(result: dict[str, Any], messages: list[dict[str, Any]]) -> str:
+    for message in reversed(messages):
+        text = message.get("text")
+        if not isinstance(text, str):
+            continue
+        match = re.search(r"(?mi)^MECHANISM:\s*(.+)$", text)
+        if match:
+            return match.group(1).strip()
+    mechanism = result.get("mechanism")
+    if isinstance(mechanism, str) and substantive_claim(mechanism):
+        return mechanism.strip()
+    return "[not recorded]"
+
+
+def run_transcript_payload(
+    campaign_id: str,
+    campaign: Path,
+    run_id: str,
+    *,
+    run_summary: dict[str, Any] | None = None,
+) -> dict[str, Any]:
+    """Load all public agent messages and resulting metrics for one run."""
+
+    runs_root = (campaign / "runs").resolve()
+    run_dir = (runs_root / run_id).resolve()
+    if run_dir.parent != runs_root or not run_dir.is_dir():
+        raise FileNotFoundError(run_id)
+
+    events = iter_jsonl(run_dir / "events.jsonl")
+    started = {
+        event["opportunity"]: event
+        for event in events
+        if event.get("event") == "proposal_started"
+        and isinstance(event.get("opportunity"), int)
+    }
+    completed = {
+        event["opportunity"]: event
+        for event in events
+        if event.get("event") == "proposal_completed"
+        and isinstance(event.get("opportunity"), int)
+    }
+    opportunity_numbers = {
+        int(path.name)
+        for path in (run_dir / "opportunities").glob("[0-9][0-9][0-9][0-9]")
+        if path.is_dir()
+    }
+    opportunity_numbers.update(started)
+    opportunity_numbers.update(completed)
+    proposals: list[dict[str, Any]] = []
+    for opportunity in sorted(opportunity_numbers):
+        opportunity_dir = run_dir / "opportunities" / f"{opportunity:04d}"
+        completed_result = completed.get(opportunity, {})
+        completed_result = (
+            completed_result if isinstance(completed_result, dict) else {}
+        )
+        file_result = read_json(opportunity_dir / "result.json", {})
+        file_result = file_result if isinstance(file_result, dict) else {}
+        result = {**completed_result, **file_result}
+        provenance = read_json(opportunity_dir / "candidate-provenance.json", {})
+        provenance = provenance if isinstance(provenance, dict) else {}
+        claims = provenance.get("agent_claims", {})
+        claims = claims if isinstance(claims, dict) else {}
+        for claim_key in ("hypothesis", "intended_edit", "mechanism", "evidence"):
+            if not substantive_claim(result.get(claim_key)) and substantive_claim(
+                claims.get(claim_key)
+            ):
+                result[claim_key] = claims[claim_key]
+        start_event = started.get(opportunity, {})
+        messages = _agent_messages(opportunity_dir)
+        prompt = _proposal_prompt(opportunity_dir)
+        message_source_run_id: str | None = None
+        shared_source = result.get("shared_prefix_source_run_id")
+        if (
+            not messages
+            and isinstance(shared_source, str)
+            and shared_source != run_id
+        ):
+            source_dir = (runs_root / shared_source).resolve()
+            if source_dir.parent == runs_root and source_dir.is_dir():
+                source_opportunity = (
+                    source_dir / "opportunities" / f"{opportunity:04d}"
+                )
+                messages = _agent_messages(source_opportunity)
+                prompt = prompt or _proposal_prompt(source_opportunity)
+                if messages:
+                    message_source_run_id = shared_source
+        if not messages:
+            fallback = _fallback_last_message(opportunity_dir)
+            if fallback:
+                messages = [
+                    {
+                        "id": None,
+                        "text": fallback,
+                        "source": "last-message fallback",
+                    }
+                ]
+        evaluation = result.get("evaluation", {})
+        if not isinstance(evaluation, dict):
+            evaluation = {}
+        metrics = evaluation.get("metrics", {})
+        if not isinstance(metrics, dict):
+            metrics = {}
+        usage = result.get("usage_increment", {})
+        if not isinstance(usage, dict):
+            usage = {}
+        proposals.append(
+            {
+                "opportunity": opportunity,
+                "proposal_type": result.get(
+                    "proposal_type", start_event.get("proposal_type")
+                ),
+                "started_at": start_event.get("timestamp"),
+                "completed_at": result.get("timestamp"),
+                "messages": messages,
+                "message_source_run_id": message_source_run_id,
+                "prompt": prompt,
+                "mechanism_family": _mechanism_family(result, messages),
+                "hypothesis": result.get("hypothesis"),
+                "intended_edit": result.get("intended_edit"),
+                "evidence": result.get("evidence"),
+                "candidate_id": result.get("candidate_id"),
+                "parent_ids": result.get("parent_ids", []),
+                "retained": result.get("retained"),
+                "retention_decision": result.get("retention_decision"),
+                "evaluation": {
+                    "available": bool(evaluation),
+                    "valid": evaluation.get("valid"),
+                    "fitness": evaluation.get("fitness"),
+                    "failure_kind": evaluation.get("failure_kind"),
+                    "metrics": metrics,
+                    "evaluator_calls": result.get("evaluator_calls_increment"),
+                    "evaluator_seconds": result.get("evaluator_seconds_increment"),
+                },
+                "usage": usage,
+            }
+        )
+
+    manifest = read_json(run_dir / "manifest.json", {})
+    manifest = manifest if isinstance(manifest, dict) else {}
+    summary = run_summary if isinstance(run_summary, dict) else {}
+    assignment = manifest.get("assignment", {})
+    assignment = assignment if isinstance(assignment, dict) else {}
+    return {
+        "schema_version": "1.0",
+        "generated_at": datetime.now().astimezone().isoformat(),
+        "campaign_id": campaign_id,
+        "campaign": str(campaign),
+        "run": {
+            "run_id": run_id,
+            "label": summary.get("label", run_id),
+            "condition": summary.get("condition", assignment.get("condition")),
+            "condition_label": summary.get("condition_label"),
+            "condition_family": summary.get("condition_family"),
+            "replicate": summary.get("replicate", assignment.get("block")),
+            "status": summary.get("status"),
+            "proposals_used": summary.get("proposals_used", len(completed)),
+        },
+        "proposals": proposals,
+    }
+
+
 # Keep the interactive client in a standalone file so browser behavior can be
 # linted and tested independently of the read-only Python log server.
 PYTHON_SOURCE_PATH = Path(__file__).resolve()
 PAGE_PATH = PYTHON_SOURCE_PATH.with_name("live_trajectory_dashboard.html")
 SCIENCE_PAGE_PATH = PYTHON_SOURCE_PATH.with_name("scientific_process_dashboard.html")
 CONTROLLER_PAGE_PATH = PYTHON_SOURCE_PATH.with_name("controller_dashboard.html")
+TRANSCRIPT_PAGE_PATH = PYTHON_SOURCE_PATH.with_name("run_transcript_dashboard.html")
 PAGE = PAGE_PATH.read_text(encoding="utf-8")
 SCIENCE_PAGE = SCIENCE_PAGE_PATH.read_text(encoding="utf-8")
 CONTROLLER_PAGE = CONTROLLER_PAGE_PATH.read_text(encoding="utf-8")
+TRANSCRIPT_PAGE = TRANSCRIPT_PAGE_PATH.read_text(encoding="utf-8")
 
 
 def read_dashboard_page() -> str:
@@ -2435,6 +2725,15 @@ def read_controller_page() -> str:
         return CONTROLLER_PAGE
 
 
+def read_transcript_page() -> str:
+    """Read the run transcript page without requiring a server restart."""
+
+    try:
+        return TRANSCRIPT_PAGE_PATH.read_text(encoding="utf-8")
+    except OSError:
+        return TRANSCRIPT_PAGE
+
+
 def dashboard_revision(paths: tuple[Path, ...] | None = None) -> str:
     """Return a content revision for browser and server hot reload checks."""
     digest = hashlib.sha256()
@@ -2443,6 +2742,7 @@ def dashboard_revision(paths: tuple[Path, ...] | None = None) -> str:
         PAGE_PATH,
         SCIENCE_PAGE_PATH,
         CONTROLLER_PAGE_PATH,
+        TRANSCRIPT_PAGE_PATH,
     ):
         digest.update(str(path).encode("utf-8"))
         try:
@@ -3645,6 +3945,39 @@ def make_handler(
     payload_cache = DashboardPayloadCache(build_dashboard_payload)
     payload_cache.prewarm()
 
+    def latest_dashboard_snapshot() -> dict[str, Any]:
+        body = payload_cache.latest()
+        if body is None:
+            body = build_dashboard_payload()
+        try:
+            value = json.loads(body)
+        except (TypeError, json.JSONDecodeError):
+            return {"campaigns": {}}
+        return value if isinstance(value, dict) else {"campaigns": {}}
+
+    def build_run_transcript(campaign_id: str, run_id: str) -> dict[str, Any]:
+        if campaign_id not in configured_campaigns:
+            raise KeyError(campaign_id)
+        snapshot = latest_dashboard_snapshot()
+        campaign_snapshot = snapshot.get("campaigns", {}).get(campaign_id, {})
+        campaign_snapshot = (
+            campaign_snapshot if isinstance(campaign_snapshot, dict) else {}
+        )
+        run_summary = next(
+            (
+                run
+                for run in campaign_snapshot.get("runs", [])
+                if isinstance(run, dict) and run.get("run_id") == run_id
+            ),
+            None,
+        )
+        return run_transcript_payload(
+            campaign_id,
+            configured_campaigns[campaign_id],
+            run_id,
+            run_summary=run_summary,
+        )
+
     def build_controller_payload() -> dict[str, Any]:
         dashboard_body = payload_cache.latest()
         dashboard_snapshot = (
@@ -3705,27 +4038,34 @@ def make_handler(
                 self.wfile.write(body)
 
         def do_GET(self) -> None:  # noqa: N802
-            if self.path in {"/", "/index.html"}:
+            request = urlsplit(self.path)
+            request_path = request.path
+            if request_path in {"/", "/index.html"}:
                 self.send_payload(
                     read_dashboard_page().encode("utf-8"),
                     "text/html; charset=utf-8",
                 )
-            elif self.path in {"/science", "/science.html"}:
+            elif request_path in {"/science", "/science.html"}:
                 self.send_payload(
                     read_science_page().encode("utf-8"),
                     "text/html; charset=utf-8",
                 )
-            elif self.path in {"/controller", "/controller.html"}:
+            elif request_path in {"/controller", "/controller.html"}:
                 self.send_payload(
                     read_controller_page().encode("utf-8"),
                     "text/html; charset=utf-8",
                 )
-            elif self.path == "/api/revision":
+            elif request_path in {"/transcripts", "/transcripts.html"}:
+                self.send_payload(
+                    read_transcript_page().encode("utf-8"),
+                    "text/html; charset=utf-8",
+                )
+            elif request_path == "/api/revision":
                 payload = json.dumps(
                     {"revision": dashboard_revision()}, separators=(",", ":")
                 ).encode("utf-8")
                 self.send_payload(payload, "application/json; charset=utf-8")
-            elif self.path == "/api/data":
+            elif request_path == "/api/data":
                 payload, content_encoding = payload_cache.response(
                     self.headers.get("Accept-Encoding", "")
                 )
@@ -3734,7 +4074,37 @@ def make_handler(
                     "application/json; charset=utf-8",
                     content_encoding=content_encoding,
                 )
-            elif self.path == "/api/controller":
+            elif request_path == "/api/transcripts":
+                payload = transcript_index_payload(latest_dashboard_snapshot())
+                self.send_payload(
+                    json.dumps(payload, separators=(",", ":")).encode("utf-8"),
+                    "application/json; charset=utf-8",
+                )
+            elif request_path == "/api/transcript":
+                params = parse_qs(request.query)
+                campaign_id = params.get("campaign", [None])[0]
+                run_id = params.get("run", [None])[0]
+                if not isinstance(campaign_id, str) or not isinstance(run_id, str):
+                    self.send_payload(
+                        b'{"error":"campaign and run are required"}',
+                        "application/json; charset=utf-8",
+                        status=HTTPStatus.BAD_REQUEST,
+                    )
+                    return
+                try:
+                    payload = build_run_transcript(campaign_id, run_id)
+                except (KeyError, FileNotFoundError):
+                    self.send_payload(
+                        b'{"error":"unknown campaign or run"}',
+                        "application/json; charset=utf-8",
+                        status=HTTPStatus.NOT_FOUND,
+                    )
+                    return
+                self.send_payload(
+                    json.dumps(payload, separators=(",", ":")).encode("utf-8"),
+                    "application/json; charset=utf-8",
+                )
+            elif request_path == "/api/controller":
                 self.send_payload(
                     json.dumps(
                         build_controller_payload(), separators=(",", ":")
@@ -3914,6 +4284,11 @@ def parse_args() -> argparse.Namespace:
         default=DEFAULT_OPENEVOLVE_V21_FASHION_MNIST,
     )
     parser.add_argument(
+        "--openevolve-v21-tiny-kws-rnn-campaign",
+        type=Path,
+        default=DEFAULT_OPENEVOLVE_V21_TINY_KWS_RNN,
+    )
+    parser.add_argument(
         "--semantic-v4-fashion-mnist-campaign",
         type=Path,
         default=DEFAULT_SEMANTIC_V4_FASHION_MNIST,
@@ -3997,6 +4372,9 @@ def main() -> None:
             args.autoresearch_v17_fashion_mnist_campaign
         ),
         "openevolve_v21_fashion_mnist": (args.openevolve_v21_fashion_mnist_campaign),
+        "openevolve_v21_tiny_kws_rnn": (
+            args.openevolve_v21_tiny_kws_rnn_campaign
+        ),
         "semantic_v4_fashion_mnist": args.semantic_v4_fashion_mnist_campaign,
         "semantic_v4_fashion_mnist_native": (
             args.semantic_v4_fashion_mnist_native_campaign
@@ -4047,6 +4425,10 @@ def main() -> None:
     print(
         "Greedy OpenEvolve v2.1 Fashion-MNIST: "
         f"{args.openevolve_v21_fashion_mnist_campaign}"
+    )
+    print(
+        "Greedy OpenEvolve v2.1 TinyKWS-RNN: "
+        f"{args.openevolve_v21_tiny_kws_rnn_campaign}"
     )
     print(f"Semantic v4 Fashion-MNIST: {args.semantic_v4_fashion_mnist_campaign}")
     print(

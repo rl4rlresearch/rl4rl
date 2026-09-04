@@ -6,20 +6,24 @@ from types import SimpleNamespace
 
 import experiments.c0c3_overnight as overnight
 from experiments.c0c3_overnight import (
+    CAMPAIGN_LOCAL_EVALUATOR_CAPACITY_ENV,
     RUNTIME_CLI_BOOTSTRAP,
     SHARED_LOCAL_EVALUATOR_CAPACITY,
     SHARED_LOCAL_EVALUATOR_CAPACITY_ENV,
     CampaignPlan,
     Job,
     automatic_pause_reason,
+    campaign_run_identity,
     command_environment,
     command_for,
+    command_status,
     expand_jobs,
     paired_prefix_peer_owner,
     plans,
     progress_for,
     required_local_accelerator,
     select_jobs,
+    status_jobs,
 )
 
 
@@ -39,6 +43,48 @@ def test_screen_running_requires_an_exact_session_name(monkeypatch) -> None:
         ),
     )
     assert overnight.screen_running() is False
+
+
+def test_c4_plan_uses_separate_schedule_and_extension_controller(
+    tmp_path: Path,
+) -> None:
+    campaign = tmp_path / "campaign"
+    run_id = "study-task-openevolve-b01-c4"
+    _write_json(
+        campaign / "v2-1-c4-schedule.json",
+        [
+            {
+                "block": 1,
+                "order": 5,
+                "condition": "C4",
+                "run_seed": 42,
+                "run_id": run_id,
+            }
+        ],
+    )
+    _write_json(
+        campaign / "runs" / run_id / "state.json",
+        {"proposals_used": 0},
+    )
+    plan = CampaignPlan(
+        key="v21-c4",
+        runtime_root=tmp_path,
+        campaign=campaign,
+        mode="c4-individual-trajectories",
+        blocks=(1,),
+        schedule_file="v2-1-c4-schedule.json",
+    )
+    jobs = expand_jobs((plan,))
+    assert len(jobs) == 1
+    assert jobs[0].key == "v21-c4:b01-c4"
+    command = command_for(jobs[0])
+    extension_controller = (
+        overnight.REPO_ROOT / "experiments/c0c3_extension_controller.py"
+    )
+    assert str(extension_controller) in command
+    assert command[command.index("--schedule-file") + 1] == (
+        "v2-1-c4-schedule.json"
+    )
 
 
 def test_screen_running_accepts_the_exact_numbered_session(monkeypatch) -> None:
@@ -70,6 +116,18 @@ def test_supervisor_metadata_registers_campaigns_for_future_dashboard_control(
         mode="individual-trajectories",
         run_id="b01-c0",
     )
+    _write_json(
+        job.campaign / "inputs/task.json",
+        {"task_id": "toy", "display_name": "Toy compression"},
+    )
+    _write_json(
+        job.campaign / "inputs/framework.json",
+        {"framework_id": "karpathy_autoresearch"},
+    )
+    _write_json(
+        job.campaign / "inputs/protocol.json",
+        {"protocol_version": "1.7", "study_id": "toy-v17"},
+    )
 
     overnight.write_supervisor_metadata([job])
 
@@ -78,6 +136,119 @@ def test_supervisor_metadata_registers_campaigns_for_future_dashboard_control(
     assert payload["screen_session"] == "rl4rl-c0c3-future"
     assert payload["jobs"][job.key]["campaign"] == str(job.campaign)
     assert payload["jobs"][job.key]["run_id"] == "b01-c0"
+    assert payload["jobs"][job.key]["task_display_name"] == "Toy compression"
+    assert payload["jobs"][job.key]["research_architecture_label"] == "Autoresearch"
+    assert payload["jobs"][job.key]["protocol_version"] == "1.7"
+
+
+def test_campaign_run_identity_falls_back_for_legacy_campaigns(tmp_path: Path) -> None:
+    assert campaign_run_identity(tmp_path / "missing-campaign") == {
+        "task_id": "unknown",
+        "task_display_name": "unknown",
+        "research_architecture": "unknown",
+        "research_architecture_label": "unknown",
+        "protocol_version": "unknown",
+        "protocol_study_id": "unknown",
+    }
+
+
+def test_status_table_includes_task_architecture_and_protocol(
+    tmp_path: Path, monkeypatch, capsys
+) -> None:
+    campaign = tmp_path / "campaign"
+    run_id = "b01-c0"
+    _write_json(
+        campaign / "schedule.json",
+        [{"block": 1, "condition": "C0", "run_id": run_id}],
+    )
+    _write_json(
+        campaign / "runs" / run_id / "state.json",
+        {"status": "running", "active": None, "proposals_used": 3, "usage": {}},
+    )
+    _write_json(
+        campaign / "inputs/task.json",
+        {"task_id": "toy", "display_name": "Toy compression"},
+    )
+    _write_json(campaign / "inputs/framework.json", {"framework_id": "openevolve"})
+    _write_json(campaign / "inputs/protocol.json", {"protocol_version": "2.1"})
+    job = Job(
+        key="toy:b01-c0",
+        group="toy",
+        runtime_root=tmp_path,
+        campaign=campaign,
+        mode="individual-trajectories",
+        run_id=run_id,
+        blocks=(1,),
+    )
+    monkeypatch.setattr(overnight, "status_jobs", lambda: ([job], []))
+    monkeypatch.setattr(overnight, "DESIRED_PATH", tmp_path / "desired.json")
+    monkeypatch.setattr(overnight, "STATUS_PATH", tmp_path / "status.json")
+    monkeypatch.setattr(overnight, "screen_running", lambda: False)
+    monkeypatch.setattr(overnight, "process_alive", lambda _pid: False)
+    monkeypatch.setattr(
+        overnight,
+        "shared_local_evaluator_status",
+        lambda capacity: {
+            "occupied": 0,
+            "capacity": capacity,
+            "available": capacity,
+            "root": str(tmp_path / "evaluators"),
+        },
+    )
+    monkeypatch.setattr(
+        overnight,
+        "shared_agent_worker_status",
+        lambda: {
+            "occupied": 0,
+            "capacity": 1,
+            "available": 1,
+            "synchronization_barrier": False,
+            "root": str(tmp_path / "workers"),
+        },
+    )
+
+    assert command_status(object()) == 0
+
+    output = capsys.readouterr().out
+    assert "job\ttask\tarchitecture\tprotocol\t" in output
+    assert "toy:b01-c0\tToy compression\tGreedy OpenEvolve\t2.1\t" in output
+
+
+def test_status_job_expansion_skips_missing_stale_plans(
+    tmp_path: Path, monkeypatch
+) -> None:
+    good = tmp_path / "good"
+    missing = tmp_path / "missing"
+    _write_json(
+        good / "schedule.json",
+        [{"block": 1, "condition": "C0", "run_id": "b01-c0"}],
+    )
+    monkeypatch.setattr(
+        overnight,
+        "plans",
+        lambda: (
+            CampaignPlan(
+                key="good",
+                runtime_root=tmp_path,
+                campaign=good,
+                mode="individual-trajectories",
+                blocks=(1,),
+            ),
+            CampaignPlan(
+                key="missing",
+                runtime_root=tmp_path,
+                campaign=missing,
+                mode="individual-trajectories",
+                blocks=(1,),
+            ),
+        ),
+    )
+
+    jobs, warnings = status_jobs()
+
+    assert [job.key for job in jobs] == ["good:b01-c0"]
+    assert len(warnings) == 1
+    assert "missing" in warnings[0]
 
 
 def test_default_roster_excludes_autoresearch_v14() -> None:
@@ -219,7 +390,14 @@ def test_artifact_clean_profiles_declare_all_primary_blocks() -> None:
         assert roster[0].blocks == blocks
 
 
-def test_artifact_clean_jobs_receive_main_operator_prompt_root(tmp_path: Path) -> None:
+def test_artifact_clean_jobs_receive_main_operator_prompt_root(
+    tmp_path: Path, monkeypatch
+) -> None:
+    monkeypatch.setattr(
+        overnight,
+        "shared_local_evaluator_status",
+        lambda capacity: {"capacity": capacity},
+    )
     for group in (
         "autoresearch-v1.7",
         "autoresearch-v1.7-nanogpt",
@@ -266,6 +444,56 @@ def test_operational_runtime_bootstrap_raises_host_scheduler_to_twelve() -> None
     assert "SHARED_LOCAL_EVALUATOR_CAPACITY" in RUNTIME_CLI_BOOTSTRAP
 
 
+def test_child_environment_applies_live_campaign_evaluator_capacity(
+    tmp_path: Path, monkeypatch
+) -> None:
+    campaign = tmp_path / "campaign"
+    _write_json(
+        campaign / "capacity-control.json",
+        {"schema_version": "1.0", "local_evaluators": 10},
+    )
+    job = Job(
+        key="openevolve-v2.1:b01-c0",
+        group="openevolve-v2.1",
+        runtime_root=tmp_path,
+        campaign=campaign,
+        mode="individual-trajectories",
+        run_id="b01-c0",
+    )
+    monkeypatch.setattr(
+        overnight,
+        "shared_local_evaluator_status",
+        lambda capacity: {"capacity": capacity},
+    )
+
+    environment = command_environment(job)
+
+    assert environment[CAMPAIGN_LOCAL_EVALUATOR_CAPACITY_ENV] == "10"
+    assert "max_parallel_evaluators" in RUNTIME_CLI_BOOTSTRAP
+
+
+def test_child_environment_uses_the_live_expanded_scheduler_capacity(
+    tmp_path: Path, monkeypatch
+) -> None:
+    job = Job(
+        key="v3:b01-c0",
+        group="unified-v3-adderboard-greedy",
+        runtime_root=tmp_path,
+        campaign=tmp_path / "campaign",
+        mode="individual-trajectories",
+        run_id="b01-c0",
+    )
+    monkeypatch.setattr(
+        overnight,
+        "shared_local_evaluator_status",
+        lambda capacity: {"capacity": 20},
+    )
+
+    environment = command_environment(job)
+
+    assert environment[SHARED_LOCAL_EVALUATOR_CAPACITY_ENV] == "20"
+
+
 def test_recovery_and_pause_subprocesses_receive_scheduler_capacity(
     tmp_path: Path, monkeypatch
 ) -> None:
@@ -285,6 +513,11 @@ def test_recovery_and_pause_subprocesses_receive_scheduler_capacity(
 
     monkeypatch.setattr(overnight, "CONTROL_ROOT", tmp_path / "control")
     monkeypatch.setattr(overnight, "active_run_ids", lambda _job: ["b01-c0"])
+    monkeypatch.setattr(
+        overnight,
+        "shared_local_evaluator_status",
+        lambda capacity: {"capacity": capacity},
+    )
     monkeypatch.setattr(overnight.subprocess, "run", fake_run)
     supervisor = overnight.Supervisor([job], recover_interrupted=True)
 

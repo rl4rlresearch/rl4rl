@@ -154,6 +154,10 @@ Future coding agents must also follow [AGENTS.md](AGENTS.md).
   100,000 presented training examples, and the sealed official test set. See
   [FASHION_MNIST.md](FASHION_MNIST.md); setup does not download, calibrate, or
   launch this task automatically.
+- `configs/protocols/tiny_kws_rnn_openevolve_v2_1.toml` defines a five-block
+  Mini Speech Commands causal-recurrence stratum with exact executed-MAC
+  minimization, speaker-disjoint validation/Layer C, and a task-isolated
+  ten-slot CPU evaluator pool. See [TINY_KWS_RNN.md](TINY_KWS_RNN.md).
 - `configs/protocols/unified_v3.toml` is the single successor protocol for
   Autoresearch, Greedy OpenEvolve, Native OpenEvolve, plugin frameworks, and
   plugin tasks. Its supplied

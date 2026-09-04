@@ -552,7 +552,9 @@ class CommandEvaluator:
             and isinstance(objective, int | float)
             and not isinstance(objective, bool)
         ):
-            fitness = float(objective)
+            # Preserve exact integer objectives (for example operation counts)
+            # instead of rounding them through IEEE-754 before retention.
+            fitness = objective
             if self.task.objective_direction is ObjectiveDirection.MINIMIZE:
                 fitness = -fitness
         else:

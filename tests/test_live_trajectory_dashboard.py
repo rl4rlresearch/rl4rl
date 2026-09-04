@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import gzip
 import json
+import re
 from datetime import datetime
 from pathlib import Path
 
@@ -11,6 +12,8 @@ from experiments.live_trajectory_dashboard import (
     CONTROLLER_PAGE,
     DEFAULT_MODAL_H100_PRICE_PER_SECOND,
     PAGE,
+    SCIENCE_PAGE,
+    TRANSCRIPT_PAGE,
     CapacityController,
     DashboardPayloadCache,
     _macos_cpu_percentages,
@@ -29,12 +32,28 @@ from experiments.live_trajectory_dashboard import (
     local_codex_token_usage,
     projected_remaining_percent,
     projected_zero_crossing_time,
+    run_transcript_payload,
     set_task_evaluator_capacity,
     task_evaluator_capacity_payload,
+    transcript_index_payload,
     weighted_cost,
 )
 
 PRICES = {"input": 1.75, "cached_input": 0.175, "output": 14.0}
+
+
+def test_semantic_intervention_colors_cover_every_arm_without_collisions() -> None:
+    colors_match = re.search(r"const semanticConditionColors=\{([^}]*)\};", PAGE)
+    order_match = re.search(r"const semanticConditionOrder=\[([^]]*)\];", PAGE)
+    assert colors_match is not None
+    assert order_match is not None
+
+    colors = dict(re.findall(r"([a-z0-9_]+):'([^']+)'", colors_match.group(1)))
+    order = re.findall(r"'([^']+)'", order_match.group(1))
+
+    assert set(colors) == set(order)
+    assert len(colors) == 23
+    assert len(set(colors.values())) == len(colors)
 
 
 def _write_json(path: Path, value: object) -> None:
@@ -48,6 +67,209 @@ def _write_jsonl(path: Path, values: list[dict[str, object]]) -> None:
         "\n".join(json.dumps(value) for value in values) + "\n",
         encoding="utf-8",
     )
+
+
+def test_transcript_index_keeps_only_available_campaign_runs() -> None:
+    payload = transcript_index_payload(
+        {
+            "generated_at": "2026-09-03T12:00:00+00:00",
+            "campaigns": {
+                "available": {
+                    "available": True,
+                    "campaign": "campaign-a",
+                    "task_display_name": "Ten-digit addition",
+                    "framework_label": "Continuous Autoresearch",
+                    "protocol_version": "1.7",
+                    "runs": [
+                        {
+                            "run_id": "run-a",
+                            "label": "Run A",
+                            "condition": "C1",
+                            "condition_family": "epistemic",
+                            "proposals_used": 7,
+                        }
+                    ],
+                },
+                "missing": {"available": False, "runs": []},
+            },
+        }
+    )
+
+    assert payload["generated_at"] == "2026-09-03T12:00:00+00:00"
+    assert [campaign["campaign_id"] for campaign in payload["campaigns"]] == [
+        "available"
+    ]
+    assert payload["campaigns"][0]["runs"][0] == {
+        "run_id": "run-a",
+        "label": "Run A",
+        "condition": "C1",
+        "condition_label": None,
+        "condition_family": "epistemic",
+        "replicate": None,
+        "status": None,
+        "proposals_used": 7,
+    }
+
+
+def test_run_transcript_includes_every_public_message_metrics_and_mechanism(
+    tmp_path: Path,
+) -> None:
+    campaign = tmp_path / "campaign"
+    run_id = "run-a"
+    run = campaign / "runs" / run_id
+    opportunity = run / "opportunities" / "0001"
+    _write_json(
+        run / "manifest.json",
+        {"assignment": {"condition": "C1", "block": 2}},
+    )
+    _write_jsonl(
+        run / "events.jsonl",
+        [
+            {
+                "event": "proposal_started",
+                "opportunity": 1,
+                "timestamp": "2026-09-03T12:00:00+00:00",
+                "proposal_type": "assumption_changing",
+            },
+            {
+                "event": "proposal_completed",
+                "opportunity": 1,
+                "timestamp": "2026-09-03T12:05:00+00:00",
+            },
+        ],
+    )
+    _write_jsonl(
+        opportunity / "codex" / "proposal-1.jsonl",
+        [
+            {
+                "type": "item.completed",
+                "item": {
+                    "id": "message-1",
+                    "type": "agent_message",
+                    "text": "I will test a sparse carry path.",
+                },
+            },
+            {
+                "type": "item.completed",
+                "item": {
+                    "id": "message-2",
+                    "type": "agent_message",
+                    "text": (
+                        "MECHANISM: sparse carry routing\n"
+                        "HYPOTHESIS: carries need fewer channels."
+                    ),
+                },
+            },
+            {
+                "type": "item.completed",
+                "item": {"id": "private", "type": "reasoning", "text": "hidden"},
+            },
+        ],
+    )
+    (opportunity / "codex" / "proposal-1.prompt.md").write_text(
+        "Improve the model.", encoding="utf-8"
+    )
+    _write_json(
+        opportunity / "result.json",
+        {
+            "timestamp": "2026-09-03T12:05:00+00:00",
+            "proposal_type": "assumption_changing",
+            "mechanism": (
+                "A long fallback hypothesis that should not replace the family"
+            ),
+            "hypothesis": "Carries need fewer channels.",
+            "intended_edit": "Add a sparse carry path.",
+            "retained": True,
+            "retention_decision": "strict_incumbent_improvement",
+            "evaluation": {
+                "valid": True,
+                "fitness": -88.0,
+                "metrics": {
+                    "parameters": 88,
+                    "accuracy": 0.997,
+                    "stages": {"generalization": "pass"},
+                },
+            },
+            "usage_increment": {
+                "input_tokens": 1000,
+                "cached_input_tokens": 700,
+                "output_tokens": 80,
+            },
+            "evaluator_calls_increment": 1,
+            "evaluator_seconds_increment": 27.5,
+        },
+    )
+
+    payload = run_transcript_payload(
+        "campaign-a",
+        campaign,
+        run_id,
+        run_summary={
+            "label": "Run A",
+            "condition": "C1",
+            "condition_family": "epistemic",
+            "status": "running",
+        },
+    )
+
+    assert payload["campaign_id"] == "campaign-a"
+    assert payload["run"]["run_id"] == run_id
+    assert len(payload["proposals"]) == 1
+    proposal = payload["proposals"][0]
+    assert [message["text"] for message in proposal["messages"]] == [
+        "I will test a sparse carry path.",
+        "MECHANISM: sparse carry routing\nHYPOTHESIS: carries need fewer channels.",
+    ]
+    assert proposal["mechanism_family"] == "sparse carry routing"
+    assert proposal["evaluation"]["metrics"] == {
+        "parameters": 88,
+        "accuracy": 0.997,
+        "stages": {"generalization": "pass"},
+    }
+    assert proposal["usage"]["cached_input_tokens"] == 700
+    assert proposal["prompt"] == "Improve the model."
+
+
+def test_run_transcript_reuses_shared_prefix_messages(tmp_path: Path) -> None:
+    campaign = tmp_path / "campaign"
+    source = campaign / "runs" / "source-run" / "opportunities" / "0005"
+    target = campaign / "runs" / "target-run" / "opportunities" / "0005"
+    _write_jsonl(
+        source / "codex" / "proposal-5.jsonl",
+        [
+            {
+                "type": "item.completed",
+                "item": {
+                    "id": "shared-message",
+                    "type": "agent_message",
+                    "text": "MECHANISM: shared prefix mechanism",
+                },
+            }
+        ],
+    )
+    _write_json(
+        target / "result.json",
+        {
+            "timestamp": "2026-09-03T12:00:00+00:00",
+            "shared_prefix_source_run_id": "source-run",
+            "evaluation": {"valid": True, "metrics": {"score": 1}},
+        },
+    )
+
+    payload = run_transcript_payload("campaign-a", campaign, "target-run")
+
+    proposal = payload["proposals"][0]
+    assert proposal["message_source_run_id"] == "source-run"
+    assert proposal["messages"][0]["text"] == "MECHANISM: shared prefix mechanism"
+    assert proposal["mechanism_family"] == "shared prefix mechanism"
+
+
+def test_run_transcript_rejects_run_paths_outside_campaign(tmp_path: Path) -> None:
+    campaign = tmp_path / "campaign"
+    (campaign / "runs").mkdir(parents=True)
+
+    with pytest.raises(FileNotFoundError):
+        run_transcript_payload("campaign-a", campaign, "../outside")
 
 
 def _example_run(tmp_path: Path) -> Path:
@@ -756,6 +978,22 @@ def test_semantic_campaign_uses_arm_labels_and_charges_shared_prefix_once(
     assert campaign["condition_catalog"][0]["id"] == "assumption_challenge"
 
 
+def test_transcript_page_exposes_messages_metrics_and_mechanism_families() -> None:
+    assert 'href="/transcripts"' in PAGE
+    assert 'href="/transcripts"' in SCIENCE_PAGE
+    assert 'href="/transcripts"' in CONTROLLER_PAGE
+    assert "Run transcripts" in TRANSCRIPT_PAGE
+    assert 'id="campaign"' in TRANSCRIPT_PAGE
+    assert 'id="run"' in TRANSCRIPT_PAGE
+    assert "/api/transcripts" in TRANSCRIPT_PAGE
+    assert "/api/transcript" in TRANSCRIPT_PAGE
+    assert "Agent messages" in TRANSCRIPT_PAGE
+    assert "Resulting proposal metrics" in TRANSCRIPT_PAGE
+    assert "Mechanism family" in TRANSCRIPT_PAGE
+    assert "Prompt sent to the agent" in TRANSCRIPT_PAGE
+    assert "sequence===requestSequence" in TRANSCRIPT_PAGE
+
+
 def test_page_contains_live_controls_and_raw_outcome_overlay() -> None:
     assert "Refresh now" in PAGE
     assert "Auto-refresh" in PAGE
@@ -763,6 +1001,37 @@ def test_page_contains_live_controls_and_raw_outcome_overlay() -> None:
     assert 'href="/controller"' in PAGE
     assert "seriesMode:'runs'" in PAGE
     assert 'id="campaign-select"' in PAGE
+    assert "openevolve_v21_tiny_kws_rnn" in PAGE
+    assert "All semantic interventions · normalized" in PAGE
+    assert "function combinedSemanticCampaign(data)" in PAGE
+    assert "campaign_normalized_improvement_percent" in PAGE
+    assert "default_y_metric:normalizedImprovementKey" in PAGE
+    assert "function normalizationRanges(payload,state)" in PAGE
+    assert "function equalCampaignAggregate(" in PAGE
+    assert "weight every campaign once" in PAGE
+    assert "source_campaign_key" in PAGE
+    assert "Trajectory view" in PAGE
+    assert "Intervention windows" in PAGE
+    assert "Follow-up proposals (X)" in PAGE
+    assert "function interventionStarts(payload)" in PAGE
+    assert "new Set([...configured,...observed])" in PAGE
+    assert "function interventionCandidates(run,state,payload)" in PAGE
+    assert "for(const interventionStart of interventionStarts(payload))" in PAGE
+    assert "function isInterventionPoint(point)" in PAGE
+    assert "point.proposal_type==='assumption_changing'" in PAGE
+    assert "function hasInterventions(payload)" in PAGE
+    assert "function interventionCadence(payload)" in PAGE
+    assert "Intervention cadence" in PAGE
+    assert "windowPoints.length===windowSize+1" in PAGE
+    assert "function interventionWindows(payload,state,runs,normalizers)" in PAGE
+    assert "function interventionAggregateDataset(" in PAGE
+    assert "intervention_start:candidate.interventionStart" in PAGE
+    assert "intervention_baseline:true" in PAGE
+    assert "const data=[{x:0,y:0" in PAGE
+    assert "Step 1 is the first proposal produced with the intervention prompt" in PAGE
+    assert "Overlapping windows remain separate observations" in PAGE
+    assert "A window is included only when that run has every response proposal" in PAGE
+    assert "state.seriesMode='conditionMean'" in PAGE
     assert "semantic_v4_tiny_adderboard" in PAGE
     assert "Semantic interventions v4 · Tiny AdderBoard Greedy OpenEvolve" in PAGE
     assert "autoresearch_v16" not in PAGE
@@ -770,6 +1039,15 @@ def test_page_contains_live_controls_and_raw_outcome_overlay() -> None:
     assert "function syncCampaignSelector(sections)" in PAGE
     assert "shownSections=selected?[selected]:[]" in PAGE
     assert "Raw outcome overlay" in PAGE
+    assert 'class="trajectory-options"' in PAGE
+    assert "Chart controls and summary" in PAGE
+    assert "optionsOpen:true" in PAGE
+    assert "state.optionsOpen=options.open" in PAGE
+    assert 'class="run-legend"' in PAGE
+    assert 'data-legend-details' in PAGE
+    assert "legendOpen:false" in PAGE
+    assert "state.legendOpen=legendDetails.open" in PAGE
+    assert "Run legend · ${payload.runs.length} runs" in PAGE
     assert "Live stage" in PAGE
     assert "operational_stage_label" in PAGE
     assert "function summaryCellTitle(run,key)" in PAGE
@@ -801,6 +1079,7 @@ def test_page_contains_live_controls_and_raw_outcome_overlay() -> None:
     assert "Proposal start" in PAGE
     assert "Proposal end" in PAGE
     assert "function baselineObjective(run,state)" in PAGE
+    assert "return baseline??earliest" in PAGE
     assert "improvement from proposal ${proposalBounds(state).start}" in PAGE
     assert "if(proposal<start||(end!==null&&proposal>end))return false" in PAGE
     assert "beginAtZero:yScale==='zero'" in PAGE
@@ -815,8 +1094,15 @@ def test_page_contains_live_controls_and_raw_outcome_overlay() -> None:
     assert "Greedy OpenEvolve v2.1" in PAGE
     assert "Intervention families" not in PAGE
     assert "const semanticConditionColors=" in PAGE
+    assert "periodic_full_refresh:'#C7D2DE'" in PAGE
+    assert "restrictive_assumption_challenge:'#FF8C42'" in PAGE
+    assert "memory_control:['#c7d2de']" in PAGE
+    assert "prompt_philosophy:['#ff8c42']" in PAGE
     assert "const semanticCompactLabels=" in PAGE
     assert "function semanticRunLegend(payload,state,catalog)" in PAGE
+    assert "function interventionType(item)" in PAGE
+    assert 'class="intervention-type"' in PAGE
+    assert "${html(interventionType(item))}" in PAGE
     assert "members.map(run=>runLegendButton(state,run,true))" in PAGE
     assert "function orderedRuns(payload,runs=payload.runs)" in PAGE
     assert "borderDash:role==='raw'?[]:replicateDash(run)" in PAGE
@@ -862,6 +1148,8 @@ def test_controller_page_contains_capacity_compute_and_codex_panels() -> None:
     assert "No pause or restart occurred" in CONTROLLER_PAGE
     assert "runs:draft.runs" in CONTROLLER_PAGE
     assert "Campaign lifecycle" in CONTROLLER_PAGE
+    assert "protocol v${protocolVersion}" in CONTROLLER_PAGE
+    assert "research_architecture_label" in CONTROLLER_PAGE
     assert "Safely pause" in CONTROLLER_PAGE
     assert "Future campaign directories are discovered automatically" in CONTROLLER_PAGE
     assert "/api/controller/campaign-lifecycle" in CONTROLLER_PAGE
@@ -1187,12 +1475,23 @@ def test_dashboard_labels_native_and_legacy_openevolve_architectures(
         campaign / "inputs/framework.json",
         {"framework_id": "native_openevolve"},
     )
+    _write_json(
+        campaign / "inputs/protocol.json",
+        {
+            "protocol_version": "3.0",
+            "study_id": "toy-v3",
+            "transition_opportunities": [10, 20],
+        },
+    )
 
     payload = campaign_data(campaign, PRICES)
 
     assert payload["framework_id"] == "native_openevolve"
     assert payload["framework_label"] == "Native OpenEvolve"
     assert payload["task_display_name"] == "Toy task"
+    assert payload["protocol_version"] == "3.0"
+    assert payload["protocol_study_id"] == "toy-v3"
+    assert payload["transition_opportunities"] == [10, 20]
 
 
 def test_dashboard_revision_changes_with_source_content(tmp_path: Path) -> None:

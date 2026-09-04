@@ -22,6 +22,18 @@ def _overnight_fixture(tmp_path: Path, *, supervisor_pid: int) -> tuple[Path, Pa
     campaign = tmp_path / "data/c0c3/future-campaign"
     _write_json(campaign / "campaign.json", {"study_id": "future-study"})
     _write_json(
+        campaign / "inputs/task.json",
+        {"task_id": "future-task", "display_name": "Future task"},
+    )
+    _write_json(
+        campaign / "inputs/framework.json",
+        {"framework_id": "native_openevolve"},
+    )
+    _write_json(
+        campaign / "inputs/protocol.json",
+        {"protocol_version": "3.0", "study_id": "future-protocol"},
+    )
+    _write_json(
         campaign / "runs/b01-c0/state.json",
         {"status": "running", "active": None},
     )
@@ -75,6 +87,9 @@ def test_overnight_campaign_pause_updates_only_matching_trajectory_jobs(
     assert before["backend"] == "overnight_supervisor"
     assert before["actual"] == "running"
     assert before["active_opportunities"] == 1
+    assert before["task_display_name"] == "Future task"
+    assert before["research_architecture_label"] == "Native OpenEvolve"
+    assert before["protocol_version"] == "3.0"
 
     receipt = set_campaign_lifecycle(
         campaigns,

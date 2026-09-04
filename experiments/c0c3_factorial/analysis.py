@@ -7,7 +7,7 @@ import json
 from dataclasses import dataclass
 from pathlib import Path
 
-from .spec import Condition
+from .spec import C4_CONDITION, Condition
 
 
 @dataclass(frozen=True)
@@ -31,13 +31,14 @@ def estimate(outcomes: list[RunOutcome]) -> dict[str, object]:
     block_cells = [(row.block, row.condition) for row in outcomes]
     if len(block_cells) != len(set(block_cells)):
         raise ValueError("factorial outcomes contain duplicate block-condition cells")
+    base_conditions = tuple(Condition)
     cells = {
         condition: [
             float(row.qualified_mechanism_clusters)
             for row in outcomes
             if row.condition is condition
         ]
-        for condition in Condition
+        for condition in base_conditions
     }
     counts = {condition: len(values) for condition, values in cells.items()}
     if len(set(counts.values())) != 1 or 0 in counts.values():
@@ -57,10 +58,12 @@ def estimate(outcomes: list[RunOutcome]) -> dict[str, object]:
         blocks.setdefault(outcome.block, set()).add(outcome.condition)
     incomplete = {
         block: sorted(
-            condition.value for condition in Condition if condition not in cells
+            condition.value
+            for condition in base_conditions
+            if condition not in cells
         )
         for block, cells in blocks.items()
-        if cells != set(Condition)
+        if not set(base_conditions).issubset(cells)
     }
     if incomplete:
         raise ValueError(f"incomplete randomized blocks: {incomplete}")
@@ -86,7 +89,12 @@ def estimate(outcomes: list[RunOutcome]) -> dict[str, object]:
                 - (values[Condition.C1] - values[Condition.C0]),
             }
         )
-    return {
+    c4_values = [
+        float(row.qualified_mechanism_clusters)
+        for row in outcomes
+        if row.condition == C4_CONDITION
+    ]
+    result = {
         "estimand": "distinct Layer-B-qualified mechanism clusters per run",
         "cell_means": {key.value: value for key, value in means.items()},
         "cell_counts": {key.value: value for key, value in counts.items()},
@@ -95,6 +103,15 @@ def estimate(outcomes: list[RunOutcome]) -> dict[str, object]:
         "interaction": interaction,
         "block_contrasts": block_contrasts,
     }
+    if c4_values:
+        c4_blocks = {row.block for row in outcomes if row.condition == C4_CONDITION}
+        if c4_blocks != set(blocks):
+            raise ValueError(
+                "C4 must be present exactly once in every randomized block"
+            )
+        result["c4_periodic_full_refresh_mean"] = _mean(c4_values)
+        result["c4_periodic_full_refresh_count"] = len(c4_values)
+    return result
 
 
 def read_outcomes(path: str | Path) -> list[RunOutcome]:

@@ -37,8 +37,28 @@ class Condition(StrEnum):
     C2 = "C2"
     C3 = "C3"
 
+    @classmethod
+    def _missing_(cls, value: object) -> Condition | None:
+        """Load the v2.1 C4 amendment without changing legacy enum iteration.
+
+        Existing C0-C3 protocols and their analyses intentionally continue to
+        see four members when iterating ``Condition``.  Protocol 2.1 opts into
+        the additional memory-control arm explicitly through
+        :func:`conditions_for_protocol`.
+        """
+
+        if value != "C4":
+            return None
+        member = str.__new__(cls, "C4")
+        member._name_ = "C4"
+        member._value_ = "C4"
+        cls._value2member_map_["C4"] = member
+        return member
+
     @property
     def search_state(self) -> SearchState:
+        if self.value == "C4":
+            return SearchState.SINGLE
         return {
             Condition.C0: SearchState.SINGLE,
             Condition.C1: SearchState.SINGLE,
@@ -48,6 +68,8 @@ class Condition(StrEnum):
 
     @property
     def proposal_policy(self) -> ProposalPolicy:
+        if self.value == "C4":
+            return ProposalPolicy.ORDINARY
         return {
             Condition.C0: ProposalPolicy.ORDINARY,
             Condition.C1: ProposalPolicy.SCHEDULED,
@@ -64,6 +86,18 @@ class Condition(StrEnum):
             self.proposal_policy is ProposalPolicy.SCHEDULED
             and opportunity in frozenset(schedule)
         )
+
+
+C4_CONDITION = Condition("C4")
+
+
+def conditions_for_protocol(protocol_version: str) -> tuple[Condition, ...]:
+    """Return the scheduled search arms for one protocol version."""
+
+    legacy = tuple(Condition)
+    if protocol_version == "2.1":
+        return (*legacy, C4_CONDITION)
+    return legacy
 
 
 class ObjectiveDirection(StrEnum):
@@ -556,7 +590,7 @@ def make_assignments(
             ).digest()[:8],
             "big",
         )
-        conditions = list(Condition)
+        conditions = list(conditions_for_protocol(spec.protocol_version))
         random.Random(run_seed).shuffle(conditions)
         for order, condition in enumerate(conditions, start=1):
             assignments.append(

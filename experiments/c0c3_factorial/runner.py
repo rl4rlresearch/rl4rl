@@ -45,6 +45,7 @@ from .neutral_task import (
     PAIR_TOKEN_TASK_ADAPTER_V3,
     SUBJECT_NEUTRAL_PROMPT_PROFILES,
     TINY_ADDERBOARD_TASK_ADAPTER,
+    TINY_KWS_RNN_TASK_ADAPTER,
 )
 from .periodic_refresh import (
     REFRESH_INCUMBENT,
@@ -69,6 +70,7 @@ from .spec import (
 from .state import Evaluation, SearchController
 from .task_evaluators import preflight_candidate_source
 from .tiny_adderboard import preflight_candidate_source as preflight_tiny_adderboard
+from .tiny_kws_rnn import preflight_candidate_source as preflight_tiny_kws_rnn
 from .training_ladder import assess_developmental_value, evaluate_training_ladder
 from .v3 import load_runtime_options, prompt_renderer_paths
 from .v3_analysis import record_candidate_provenance, write_manipulation_packet
@@ -76,6 +78,54 @@ from .v3_analysis import record_candidate_provenance, write_manipulation_packet
 
 class RunLockedError(RuntimeError):
     """Another process already owns this run's mutation boundary."""
+
+
+@contextmanager
+def _opaque_subject_workspace(workspace: Path, *, enabled: bool):
+    """Hide physical opportunity numbering from a memory-refresh subject."""
+
+    if not enabled:
+        yield workspace
+        return
+    with tempfile.TemporaryDirectory(prefix="transformer-design-cycle-") as temporary:
+        opaque = Path(temporary) / "workspace"
+        shutil.copytree(workspace, opaque)
+        try:
+            yield opaque
+        finally:
+            _make_tree_owner_writable(workspace)
+            shutil.rmtree(workspace)
+            shutil.copytree(opaque, workspace)
+
+
+def _epoch_accounting(run_dir: Path, *, minimum_opportunity: int) -> dict[str, float]:
+    """Return private physical usage since the current visible C4 epoch began."""
+
+    totals = {
+        "evaluations": 0.0,
+        "tokens": 0.0,
+        "evaluator_seconds": 0.0,
+    }
+    events = run_dir / "events.jsonl"
+    if not events.is_file():
+        return totals
+    for line in events.read_text(encoding="utf-8", errors="replace").splitlines():
+        try:
+            record = json.loads(line)
+        except json.JSONDecodeError:
+            continue
+        if record.get("event") != "proposal_completed":
+            continue
+        if int(record.get("opportunity", 0)) < minimum_opportunity:
+            continue
+        totals["evaluations"] += float(record.get("evaluator_calls_increment", 0))
+        totals["evaluator_seconds"] += float(
+            record.get("evaluator_seconds_increment", 0.0)
+        )
+        usage = record.get("usage_increment")
+        if isinstance(usage, dict):
+            totals["tokens"] += float(usage.get("total_tokens", 0))
+    return totals
 
 
 @contextmanager
@@ -324,6 +374,39 @@ def _recent_outcomes(
     return tuple(outcomes[-limit:])
 
 
+def _evaluated_candidate_ids(run_dir: Path) -> set[str]:
+    """Return content hashes whose source has already entered the evaluator.
+
+    Invalid evaluations are deliberately absent from ``state.candidates``
+    because that mapping is the selectable search population.  They are still
+    evaluated candidates for the protocol's exact-content duplicate rule.  Use
+    the immutable artifact path recorded in completed events so an identical
+    broken or nonqualifying source cannot consume another evaluator call.
+    """
+
+    events = run_dir / "events.jsonl"
+    if not events.is_file():
+        return set()
+    candidate_ids: set[str] = set()
+    for line in events.read_text(encoding="utf-8", errors="replace").splitlines():
+        try:
+            record = json.loads(line)
+        except json.JSONDecodeError:
+            continue
+        if record.get("event") != "proposal_completed":
+            continue
+        evaluation = record.get("evaluation")
+        if not isinstance(evaluation, dict) or evaluation.get("evaluator_calls") != 1:
+            continue
+        artifact_path = record.get("artifact_path")
+        if not isinstance(artifact_path, str):
+            continue
+        candidate_id = Path(artifact_path).name
+        if candidate_id:
+            candidate_ids.add(candidate_id)
+    return candidate_ids
+
+
 def _informative_outcomes(
     run_dir: Path,
     *,
@@ -519,21 +602,45 @@ def _run_one_opportunity_unlocked(
             "run has an active opportunity; inspect its logs before explicit recovery"
         )
     semantic = run_manifest.get("semantic_intervention")
+    c4_refresh = run_manifest.get("periodic_full_refresh")
     state_policy = (
         str(semantic.get("state_policy", "preserve"))
         if isinstance(semantic, dict)
         else "preserve"
     )
     next_opportunity = controller.state.next_opportunity
+    c4_interval = (
+        int(c4_refresh.get("interval_proposals", 10))
+        if isinstance(c4_refresh, dict)
+        else None
+    )
+    c4_refresh_due = (
+        c4_interval is not None
+        and c4_interval > 0
+        and next_opportunity > 1
+        and (next_opportunity - 1) % c4_interval == 0
+    )
     if (
         state_policy == REFRESH_INCUMBENT
         and next_opportunity in spec.transition_opportunities
-    ):
+    ) or c4_refresh_due:
+        interval = c4_interval or 5
         refreshed = apply_periodic_refresh(
             run_dir,
             controller=controller,
             base_seed=run_seed,
             opportunity=next_opportunity,
+            interval_proposals=interval,
+            seed_namespace=(
+                "greedy-openevolve-v2.1-c4-refresh"
+                if c4_refresh_due
+                else "semantic-periodic-refresh"
+            ),
+            reason=(
+                "configured ten-proposal C4 full search refresh"
+                if c4_refresh_due
+                else "configured five-proposal full search refresh"
+            ),
         )
         if is_native_openevolve(framework):
             reset_native_population_from_incumbent(
@@ -708,15 +815,42 @@ def _run_one_opportunity_unlocked(
             "terminal budget, and applies the same official success and retention "
             "rules regardless of the intermediate ladder."
         )
+    c4_subject = isinstance(c4_refresh, dict)
+    visible_opportunity = active.index
+    visible_remaining_proposals = int(remaining["proposals"])
+    visible_remaining_evaluations = int(remaining["evaluations"])
+    visible_remaining_tokens = int(remaining["tokens"])
+    visible_remaining_evaluator_seconds = float(remaining["evaluator_seconds"])
+    if c4_subject:
+        visible_opportunity = active.index - history_start_opportunity + 1
+        epoch = _epoch_accounting(
+            run_dir,
+            minimum_opportunity=history_start_opportunity,
+        )
+        visible_remaining_proposals = max(
+            0, spec.budget.proposals - visible_opportunity + 1
+        )
+        visible_remaining_evaluations = max(
+            0,
+            spec.budget.candidate_evaluations - int(epoch["evaluations"]),
+        )
+        visible_remaining_tokens = max(
+            0,
+            spec.budget.max_total_tokens - int(epoch["tokens"]),
+        )
+        visible_remaining_evaluator_seconds = max(
+            0.0,
+            spec.budget.max_evaluator_seconds - epoch["evaluator_seconds"],
+        )
     prompt_context = PromptContext(
         condition=controller.condition,
-        opportunity=active.index,
+        opportunity=visible_opportunity,
         selected_parent_id=active.selected_parent_id,
         visible_candidates=tuple(visible_candidates),
-        remaining_proposals=int(remaining["proposals"]),
-        remaining_evaluations=int(remaining["evaluations"]),
-        remaining_tokens=int(remaining["tokens"]),
-        remaining_evaluator_seconds=float(remaining["evaluator_seconds"]),
+        remaining_proposals=visible_remaining_proposals,
+        remaining_evaluations=visible_remaining_evaluations,
+        remaining_tokens=visible_remaining_tokens,
+        remaining_evaluator_seconds=visible_remaining_evaluator_seconds,
         hide_token_budget=after_token_threshold,
         token_budget_continuation_notice=show_token_continuation_notice,
         no_search=controller.state.no_search,
@@ -838,28 +972,32 @@ def _run_one_opportunity_unlocked(
         controller.state.conversation_session_id if continuous else None
     )
     try:
-        proposal = adapter.propose(
-            rendered=rendered,
-            workspace=codex_workspace,
-            model=spec.model,
-            log_root=opportunity_root / "codex",
-            call_id=f"proposal-{active.index}",
-            timeout_seconds=codex_timeout_seconds,
-            task=task,
-            visible_workspaces=tuple(visible_workspaces),
-            selected_parent_id=active.selected_parent_id,
-            visible_records=tuple(visible_records),
-            run_seed=search_seed,
-            resume_session_id=requested_session_id,
-            persist_session=continuous,
-            neutral_subject=neutral_subject,
-            artifact_clean_subject=artifact_clean_subject,
-            native_prompt_context=(
-                native_selection.prompt_context()
-                if native_selection is not None
-                else None
-            ),
-        )
+        with _opaque_subject_workspace(
+            codex_workspace,
+            enabled=c4_subject,
+        ) as subject_workspace:
+            proposal = adapter.propose(
+                rendered=rendered,
+                workspace=subject_workspace,
+                model=spec.model,
+                log_root=opportunity_root / "codex",
+                call_id=f"proposal-{visible_opportunity}",
+                timeout_seconds=codex_timeout_seconds,
+                task=task,
+                visible_workspaces=tuple(visible_workspaces),
+                selected_parent_id=active.selected_parent_id,
+                visible_records=tuple(visible_records),
+                run_seed=search_seed,
+                resume_session_id=requested_session_id,
+                persist_session=continuous,
+                neutral_subject=neutral_subject,
+                artifact_clean_subject=artifact_clean_subject,
+                native_prompt_context=(
+                    native_selection.prompt_context()
+                    if native_selection is not None
+                    else None
+                ),
+            )
     finally:
         # The thirty-worker ceiling controls concurrent subject agents. Local
         # and remote evaluators use their independent task/host schedulers.
@@ -913,8 +1051,13 @@ def _run_one_opportunity_unlocked(
     if candidate_id != child_hash:
         raise RuntimeError("candidate changed while being snapshotted")
     recorded_candidate_id = candidate_id
-    if candidate_id in controller.state.candidates:
-        adapter_error = adapter_error or "proposal reproduced an evaluated candidate"
+    population_duplicate = candidate_id in controller.state.candidates
+    duplicate_candidate = adapter_error is None and (
+        population_duplicate or candidate_id in _evaluated_candidate_ids(run_dir)
+    )
+    if duplicate_candidate:
+        adapter_error = "proposal reproduced an evaluated candidate"
+    if population_duplicate or duplicate_candidate:
         recorded_candidate_id = hashlib.sha256(
             (
                 f"duplicate:{candidate_id}:{controller.state.run_id}:{active.index}"
@@ -939,6 +1082,12 @@ def _run_one_opportunity_unlocked(
         and task.adapter == TINY_ADDERBOARD_TASK_ADAPTER
     ):
         preflight_error = preflight_tiny_adderboard(workspace)
+    elif (
+        proposal.codex.returncode == 0
+        and adapter_error is None
+        and task.adapter == TINY_KWS_RNN_TASK_ADAPTER
+    ):
+        preflight_error = preflight_tiny_kws_rnn(workspace)
     if proposal.codex.returncode != 0 or adapter_error or preflight_error:
         failure_kind = (
             "provider"
@@ -946,7 +1095,11 @@ def _run_one_opportunity_unlocked(
             else (
                 "source_preflight"
                 if preflight_error is not None
-                else proposal.adapter_failure_kind or "invalid_candidate"
+                else (
+                    "duplicate"
+                    if duplicate_candidate
+                    else proposal.adapter_failure_kind or "invalid_candidate"
+                )
             )
         )
         evaluation = Evaluation(
@@ -964,12 +1117,16 @@ def _run_one_opportunity_unlocked(
         )
     else:
         max_parallel_evaluators = (
-            int(dict(v3_options.get("evaluation", {})).get("task_pool_capacity", 1))
-            if v3_options is not None
+            10
+            if task.adapter == TINY_KWS_RNN_TASK_ADAPTER
             else (
-                spec.blocks
-                if spec.protocol_version in {"1.7", "2.1"}
-                else EVALUATOR_CONCURRENCY_BY_PROTOCOL.get(spec.protocol_version)
+                int(dict(v3_options.get("evaluation", {})).get("task_pool_capacity", 1))
+                if v3_options is not None
+                else (
+                    spec.blocks
+                    if spec.protocol_version in {"1.7", "2.1"}
+                    else EVALUATOR_CONCURRENCY_BY_PROTOCOL.get(spec.protocol_version)
+                )
             )
         )
         slot_root = (
@@ -983,6 +1140,11 @@ def _run_one_opportunity_unlocked(
         )
 
         def evaluator_for(stage_task: TaskSpec):
+            isolated_pool = (
+                task_local_evaluator_root(task.task_id) / "isolated-host"
+                if task.adapter == TINY_KWS_RNN_TASK_ADAPTER
+                else None
+            )
             return make_command_evaluator(
                 task=stage_task,
                 support_source=support_source,
@@ -990,6 +1152,8 @@ def _run_one_opportunity_unlocked(
                 python_bin=python_bin,
                 slot_root=slot_root,
                 max_parallel_evaluators=max_parallel_evaluators,
+                shared_slot_root=isolated_pool,
+                max_shared_parallel_evaluators=(10 if isolated_pool else None),
                 capacity_campaign=(
                     run_dir.parent.parent if spec.protocol_version == "3.0" else None
                 ),

@@ -111,6 +111,40 @@ def _campaign_states(campaign: Path) -> list[dict[str, Any]]:
     ]
 
 
+RESEARCH_ARCHITECTURE_LABELS = {
+    "karpathy_autoresearch": "Autoresearch",
+    "openevolve": "Greedy OpenEvolve",
+    "native_openevolve": "Native OpenEvolve",
+}
+
+
+def campaign_run_identity(campaign: Path) -> dict[str, str]:
+    task = read_json(campaign / "inputs/task.json", {})
+    task = task if isinstance(task, dict) else {}
+    framework = read_json(campaign / "inputs/framework.json", {})
+    framework = framework if isinstance(framework, dict) else {}
+    protocol = read_json(campaign / "inputs/protocol.json", {})
+    protocol = protocol if isinstance(protocol, dict) else {}
+    manifest = read_json(campaign / "campaign.json", {})
+    manifest = manifest if isinstance(manifest, dict) else {}
+
+    architecture = str(framework.get("framework_id") or "unknown")
+    protocol_version = str(protocol.get("protocol_version") or "unknown")
+    task_id = str(task.get("task_id") or "unknown")
+    return {
+        "task_id": task_id,
+        "task_display_name": str(task.get("display_name") or task_id),
+        "research_architecture": architecture,
+        "research_architecture_label": RESEARCH_ARCHITECTURE_LABELS.get(
+            architecture, architecture
+        ),
+        "protocol_version": protocol_version,
+        "protocol_study_id": str(
+            protocol.get("study_id") or manifest.get("study_id") or "unknown"
+        ),
+    }
+
+
 def _semantic_binding(
     campaign_id: str,
     campaign: Path,
@@ -350,14 +384,18 @@ def campaign_lifecycle_payload(
                 }
         dashboard_row = snapshot_campaigns.get(campaign_id, {})
         manifest = read_json(campaign / "campaign.json", {})
+        identity = campaign_run_identity(campaign)
         label = dashboard_row.get("label") or dashboard_row.get("task_display_name")
         if not label:
+            label = identity["task_display_name"]
+        if label == "unknown":
             label = manifest.get("study_id") or campaign.name
         row.update(
             {
                 "id": campaign_id,
                 "label": str(label),
                 "path": str(campaign),
+                **identity,
                 "can_pause": bool(
                     row["supported"]
                     and not row["completed"]

@@ -31,6 +31,7 @@ from experiments.c0c3_factorial.spec import (  # noqa: E402
     Condition,
     FrameworkSpec,
     TaskSpec,
+    conditions_for_protocol,
     make_assignments,
     sha256_json,
 )
@@ -80,7 +81,8 @@ def _block_rows(
         )
         if assignment.block == block
     ]
-    if len(rows) != len(Condition):
+    expected_conditions = conditions_for_protocol(spec.protocol_version)  # type: ignore[attr-defined]
+    if len(rows) != len(expected_conditions):
         raise ValueError(
             f"deterministic assignment generation failed for block {block}"
         )
@@ -175,6 +177,15 @@ def _verify_or_create_run(
     destination_candidate = run_dir / "candidates" / seed_candidate_id
     destination_candidate.parent.mkdir(parents=True, exist_ok=True)
     shutil.copytree(source_candidate, destination_candidate)
+    condition_specific: dict[str, object] = {}
+    if condition.value == "C4":
+        from experiments.c0c3_v21_c4 import C4_POLICY, _guard_hash
+
+        condition_specific = {
+            "periodic_full_refresh": C4_POLICY,
+            "protocol_amendment": "greedy_openevolve_v2_1_c4",
+            "c4_guard_sha256": _guard_hash(),
+        }
     atomic_json(
         run_dir / "manifest.json",
         {
@@ -186,6 +197,7 @@ def _verify_or_create_run(
             "scientific_runtime_hash": campaign_manifest["scientific_runtime_hash"],
             "baseline": baseline,
             "repo_revision": reference_manifest.get("repo_revision", "unavailable"),
+            **condition_specific,
         },
     )
 

@@ -33,6 +33,7 @@ from .spec import (
     FactorialSpec,
     FrameworkSpec,
     TaskSpec,
+    conditions_for_protocol,
 )
 from .state import SearchController, append_jsonl, atomic_json, utc_now
 from .v3 import (
@@ -358,7 +359,11 @@ def _staged_stage_assignments(
             "outputs are unsealed"
         )
 
-    expected_count = 4 if stage == FACTORIAL_STAGE else 1
+    expected_count = (
+        len(conditions_for_protocol(spec.protocol_version))
+        if stage == FACTORIAL_STAGE
+        else 1
+    )
     if len(selected) != expected_count:
         raise ValueError(
             f"block {block} stage {stage!r} requires {expected_count} scheduled "

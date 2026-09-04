@@ -21,6 +21,7 @@ from .neutral_task import (
     OPERATOR_PROMPT_ROOT_ENV,
     SUBJECT_NEUTRAL_PROMPT_PROFILES,
     TINY_ADDERBOARD_OPENEVOLVE_V4_PROMPT_PROFILE,
+    TINY_KWS_RNN_OPENEVOLVE_V21_PROMPT_PROFILE,
 )
 from .neutral_task import NEUTRAL_PROMPT_PROFILE as _NEUTRAL_PROMPT_PROFILE
 from .spec import (
@@ -289,6 +290,17 @@ class PromptRenderer:
             .read_text(encoding="utf-8")
             .strip()
         )
+        tiny_kws_openevolve_root = root / "tiny_kws_rnn_openevolve_v2_1"
+        self.tiny_kws_openevolve_v21_common_template = (
+            tiny_kws_openevolve_root / "PROGRAM.md"
+        ).read_text(encoding="utf-8")
+        self.tiny_kws_openevolve_v21_transition = (
+            override_text
+            if override_text is not None
+            else (tiny_kws_openevolve_root / "assumption_changing.md")
+            .read_text(encoding="utf-8")
+            .strip()
+        )
         self._require_tokens(
             self.common_template,
             {
@@ -419,6 +431,16 @@ class PromptRenderer:
         )
         self._require_tokens(
             self.tiny_adderboard_openevolve_v4_common_template,
+            {
+                "{task_contract}",
+                "{framework_contract}",
+                "{design_context}",
+                "{recent_outcomes}",
+                "{proposal_guidance_section}",
+            },
+        )
+        self._require_tokens(
+            self.tiny_kws_openevolve_v21_common_template,
             {
                 "{task_contract}",
                 "{framework_contract}",
@@ -824,6 +846,9 @@ class PromptRenderer:
         tiny_adderboard_openevolve_v4 = (
             framework.prompt_profile == TINY_ADDERBOARD_OPENEVOLVE_V4_PROMPT_PROFILE
         )
+        tiny_kws_openevolve_v21 = (
+            framework.prompt_profile == TINY_KWS_RNN_OPENEVOLVE_V21_PROMPT_PROFILE
+        )
         transition_active = (
             False
             if context.no_search
@@ -884,15 +909,19 @@ class PromptRenderer:
                                         self.tiny_adderboard_openevolve_v4_transition
                                         if tiny_adderboard_openevolve_v4
                                         else (
-                                            self.autoresearch_v17_transition
-                                            if autoresearch_v17
+                                            self.tiny_kws_openevolve_v21_transition
+                                            if tiny_kws_openevolve_v21
                                             else (
-                                                self.openevolve_v21_transition
-                                                if openevolve_v21
+                                                self.autoresearch_v17_transition
+                                                if autoresearch_v17
                                                 else (
-                                                    self.openevolve_v2_transition
-                                                    if openevolve_v2
-                                                    else self.neutral_transition
+                                                    self.openevolve_v21_transition
+                                                    if openevolve_v21
+                                                    else (
+                                                        self.openevolve_v2_transition
+                                                        if openevolve_v2
+                                                        else self.neutral_transition
+                                                    )
                                                 )
                                             )
                                         )
@@ -950,6 +979,8 @@ class PromptRenderer:
                 common_template = self.fashion_openevolve_v21_common_template
             elif tiny_adderboard_openevolve_v4:
                 common_template = self.tiny_adderboard_openevolve_v4_common_template
+            elif tiny_kws_openevolve_v21:
+                common_template = self.tiny_kws_openevolve_v21_common_template
             else:
                 common_template = self.openevolve_v21_common_template
             values = {

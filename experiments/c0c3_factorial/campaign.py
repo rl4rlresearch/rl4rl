@@ -307,6 +307,31 @@ def create_campaign(
                 "scientific_runtime_hash": runtime_hash,
                 "baseline": calibration,
                 "repo_revision": _repo_revision(repo_root),
+                **(
+                    {
+                        "periodic_full_refresh": {
+                            "schema_version": "1.0",
+                            "interval_proposals": 10,
+                            "first_refresh_opportunity": 11,
+                            "preserve": [
+                                "incumbent_artifact",
+                                "private_cumulative_accounting",
+                                "private_audit_history",
+                                "evaluator_seed",
+                            ],
+                            "clear": [
+                                "subject_visible_outcomes",
+                                "mechanism_history",
+                                "candidate_population",
+                                "parent_history",
+                                "conversation_binding",
+                                "search_seed",
+                            ],
+                        }
+                    }
+                    if condition_label == "C4"
+                    else {}
+                ),
             },
         )
     inputs = output / "inputs"
@@ -348,6 +373,18 @@ def create_campaign(
             "run_count": len(schedule),
             "primary_run_ids": primary_run_ids if staged else all_run_ids,
             "optional_run_ids": optional_run_ids if staged else [],
+            **(
+                {
+                    "v2_1_c4": {
+                        "condition": "C4",
+                        "policy": "incumbent_preserving_full_search_refresh",
+                        "interval_proposals": 10,
+                        "first_refresh_opportunity": 11,
+                    }
+                }
+                if spec.protocol_version == "2.1"
+                else {}
+            ),
         },
     )
     if spec.protocol_version == "3.0":

@@ -48,7 +48,7 @@ def append_jsonl(path: Path, value: object) -> None:
 class Candidate:
     candidate_id: str
     parent_ids: list[str]
-    fitness: float
+    fitness: int | float
     metrics: dict[str, float | int | str | bool | None]
     artifact_path: str
     hypothesis: str
@@ -135,7 +135,7 @@ class RunState:
 @dataclass(frozen=True)
 class Evaluation:
     valid: bool
-    fitness: float | None
+    fitness: int | float | None
     metrics: dict[str, float | int | str | bool | None]
     evaluator_seconds: float
     evaluator_calls: int = 1
@@ -603,7 +603,7 @@ class SearchController:
             candidate = Candidate(
                 candidate_id=candidate_id,
                 parent_ids=[active.selected_parent_id],
-                fitness=float(evaluation.fitness),
+                fitness=evaluation.fitness,
                 metrics=evaluation.metrics,
                 artifact_path=artifact_path,
                 hypothesis=hypothesis,

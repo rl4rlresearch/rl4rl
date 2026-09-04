@@ -35,6 +35,9 @@ from experiments.c0c3_factorial.evaluator import (  # noqa: E402
     shared_local_evaluator_status,
 )
 from experiments.c0c3_factorial.fashion_mnist import verify_dataset  # noqa: E402
+from experiments.c0c3_factorial.tiny_kws_rnn import (  # noqa: E402
+    verify_dataset as verify_tiny_kws_dataset,
+)
 
 PYTHON_BIN = REPO_ROOT / "architecture_discovery/.venv/bin/python"
 PROFILE = os.environ.get("RL4RL_OVERNIGHT_PROFILE", "primary")
@@ -61,6 +64,11 @@ elif PROFILE == "autoresearch-v1.7":
 elif PROFILE == "openevolve-v2.1":
     DEFAULT_CONTROL_ROOT = REPO_ROOT / "data/c0c3/overnight-control-openevolve-v2-1"
     DEFAULT_SCREEN_SESSION = "rl4rl-c0c3-openevolve-v2-1"
+elif PROFILE == "openevolve-v2.1-c4":
+    DEFAULT_CONTROL_ROOT = (
+        REPO_ROOT / "data/c0c3/overnight-control-openevolve-v2-1-c4"
+    )
+    DEFAULT_SCREEN_SESSION = "rl4rl-c0c3-openevolve-v2-1-c4"
 elif PROFILE == "autoresearch-v1.7-nanogpt":
     DEFAULT_CONTROL_ROOT = (
         REPO_ROOT / "data/c0c3/overnight-control-autoresearch-v1-7-nanogpt"
@@ -71,6 +79,11 @@ elif PROFILE == "openevolve-v2.1-nanogpt":
         REPO_ROOT / "data/c0c3/overnight-control-openevolve-v2-1-nanogpt"
     )
     DEFAULT_SCREEN_SESSION = "rl4rl-c0c3-openevolve-v2-1-nanogpt"
+elif PROFILE == "openevolve-v2.1-nanogpt-c4":
+    DEFAULT_CONTROL_ROOT = (
+        REPO_ROOT / "data/c0c3/overnight-control-openevolve-v2-1-nanogpt-c4"
+    )
+    DEFAULT_SCREEN_SESSION = "rl4rl-c0c3-openevolve-v2-1-nanogpt-c4"
 elif PROFILE == "autoresearch-v1.7-fashion-mnist":
     DEFAULT_CONTROL_ROOT = (
         REPO_ROOT / "data/c0c3/overnight-control-autoresearch-v1-7-fashion-mnist"
@@ -81,12 +94,28 @@ elif PROFILE == "openevolve-v2.1-fashion-mnist":
         REPO_ROOT / "data/c0c3/overnight-control-openevolve-v2-1-fashion-mnist"
     )
     DEFAULT_SCREEN_SESSION = "rl4rl-c0c3-openevolve-v2-1-fashion-mnist"
+elif PROFILE == "openevolve-v2.1-fashion-mnist-c4":
+    DEFAULT_CONTROL_ROOT = (
+        REPO_ROOT
+        / "data/c0c3/overnight-control-openevolve-v2-1-fashion-mnist-c4"
+    )
+    DEFAULT_SCREEN_SESSION = "rl4rl-c0c3-openevolve-v2-1-fashion-mnist-c4"
 elif PROFILE == "openevolve-v2.1-fashion-mnist-extension":
     DEFAULT_CONTROL_ROOT = (
         REPO_ROOT
         / "data/c0c3/overnight-control-openevolve-v2-1-fashion-mnist-extension"
     )
     DEFAULT_SCREEN_SESSION = "rl4rl-c0c3-openevolve-v2-1-fashion-mnist-extension"
+elif PROFILE == "openevolve-v2.1-tiny-kws-rnn":
+    DEFAULT_CONTROL_ROOT = (
+        REPO_ROOT / "data/c0c3/overnight-control-openevolve-v2-1-tiny-kws-rnn"
+    )
+    DEFAULT_SCREEN_SESSION = "rl4rl-c0c3-openevolve-v2-1-tiny-kws-rnn"
+elif PROFILE == "openevolve-v2.1-tiny-kws-rnn-c4":
+    DEFAULT_CONTROL_ROOT = (
+        REPO_ROOT / "data/c0c3/overnight-control-openevolve-v2-1-tiny-kws-rnn-c4"
+    )
+    DEFAULT_SCREEN_SESSION = "rl4rl-c0c3-openevolve-v2-1-tiny-kws-rnn-c4"
 elif PROFILE == "unified-v3-adderboard-greedy":
     DEFAULT_CONTROL_ROOT = (
         REPO_ROOT / "data/c0c3/overnight-control-unified-v3-adderboard-greedy"
@@ -116,19 +145,65 @@ SCHEMA_VERSION = "1.0"
 POLL_SECONDS = 2.0
 MAX_BACKOFF_SECONDS = 30 * 60
 SHARED_LOCAL_EVALUATOR_CAPACITY_ENV = "RL4RL_SHARED_LOCAL_EVALUATOR_CAPACITY"
+CAMPAIGN_LOCAL_EVALUATOR_CAPACITY_ENV = (
+    "RL4RL_CAMPAIGN_LOCAL_EVALUATOR_CAPACITY"
+)
 SHARED_LOCAL_EVALUATOR_CAPACITY = int(
     os.environ.get(SHARED_LOCAL_EVALUATOR_CAPACITY_ENV, "12")
 )
 if SHARED_LOCAL_EVALUATOR_CAPACITY < 1:
     raise RuntimeError(f"{SHARED_LOCAL_EVALUATOR_CAPACITY_ENV} must be positive")
-RUNTIME_CLI_BOOTSTRAP = (
-    "import os;"
-    "from experiments.c0c3_factorial import evaluator;"
-    "evaluator.SHARED_LOCAL_EVALUATOR_CAPACITY="
-    f"int(os.environ[{SHARED_LOCAL_EVALUATOR_CAPACITY_ENV!r}]);"
-    "from experiments.c0c3_factorial.cli import main;"
-    "raise SystemExit(main())"
+RUNTIME_CLI_BOOTSTRAP = f"""
+import importlib.util
+import os
+from pathlib import Path
+
+from experiments.c0c3_factorial import codex_cli, evaluator, runner, state
+
+_provider_guard_path = Path({str(REPO_ROOT / "experiments/c0c3_provider_guard.py")!r})
+_provider_guard_spec = importlib.util.spec_from_file_location(
+    "rl4rl_c0c3_provider_guard", _provider_guard_path
 )
+if _provider_guard_spec is None or _provider_guard_spec.loader is None:
+    raise RuntimeError(f"cannot load provider guard: {{_provider_guard_path}}")
+_provider_guard = importlib.util.module_from_spec(_provider_guard_spec)
+_provider_guard_spec.loader.exec_module(_provider_guard)
+_provider_guard.install_provider_retry_guard(codex_cli)
+
+_duplicate_guard_path = Path({str(REPO_ROOT / "experiments/c0c3_duplicate_guard.py")!r})
+_duplicate_guard_spec = importlib.util.spec_from_file_location(
+    "rl4rl_c0c3_duplicate_guard", _duplicate_guard_path
+)
+if _duplicate_guard_spec is None or _duplicate_guard_spec.loader is None:
+    raise RuntimeError(f"cannot load duplicate guard: {{_duplicate_guard_path}}")
+_duplicate_guard = importlib.util.module_from_spec(_duplicate_guard_spec)
+_duplicate_guard_spec.loader.exec_module(_duplicate_guard)
+_duplicate_guard.install_duplicate_guard(runner, state, evaluator)
+
+_c4_guard_path = Path({str(REPO_ROOT / "experiments/c0c3_v21_c4_guard.py")!r})
+_c4_guard_spec = importlib.util.spec_from_file_location(
+    "rl4rl_c0c3_v21_c4_guard", _c4_guard_path
+)
+if _c4_guard_spec is None or _c4_guard_spec.loader is None:
+    raise RuntimeError(f"cannot load C4 guard: {{_c4_guard_path}}")
+_c4_guard = importlib.util.module_from_spec(_c4_guard_spec)
+_c4_guard_spec.loader.exec_module(_c4_guard)
+_c4_guard.install_v21_c4_guard(runner, state)
+
+evaluator.SHARED_LOCAL_EVALUATOR_CAPACITY = int(
+    os.environ[{SHARED_LOCAL_EVALUATOR_CAPACITY_ENV!r}]
+)
+_campaign_capacity = os.environ.get({CAMPAIGN_LOCAL_EVALUATOR_CAPACITY_ENV!r})
+if _campaign_capacity is not None:
+    _original_make_command_evaluator = runner.make_command_evaluator
+    runner.make_command_evaluator = lambda **kwargs: _original_make_command_evaluator(
+        **(kwargs | {{"max_parallel_evaluators": int(_campaign_capacity)}})
+    )
+
+from experiments.c0c3_factorial.cli import main
+
+raise SystemExit(main())
+"""
 
 
 @dataclasses.dataclass(frozen=True)
@@ -139,6 +214,7 @@ class CampaignPlan:
     mode: str
     blocks: tuple[int, ...] = ()
     pause_after_proposals: int | None = None
+    schedule_file: str = "schedule.json"
 
 
 @dataclasses.dataclass(frozen=True)
@@ -151,6 +227,7 @@ class Job:
     run_id: str | None = None
     blocks: tuple[int, ...] = ()
     pause_after_proposals: int | None = None
+    schedule_file: str = "schedule.json"
 
 
 class PairedPrefixOwnedByPeer(RuntimeError):
@@ -278,6 +355,24 @@ def plans(profile: str | None = None) -> tuple[CampaignPlan, ...]:
                 blocks=(1, 2, 3, 4, 5),
             ),
         )
+    if selected_profile == "openevolve-v2.1-c4":
+        return (
+            CampaignPlan(
+                key="openevolve-v2.1-c4",
+                runtime_root=_env_path(
+                    "RL4RL_OPENEVOLVE_V21_RUNTIME",
+                    Path("/private/tmp/rl4rl-c0c3-openevolve-v2-1"),
+                ),
+                campaign=_env_path(
+                    "RL4RL_OPENEVOLVE_V21_CAMPAIGN",
+                    REPO_ROOT
+                    / "data/c0c3/controlled-openevolve-transformer-v2-1-mps-campaign",
+                ),
+                mode="c4-individual-trajectories",
+                blocks=(1, 2, 3, 4, 5),
+                schedule_file="v2-1-c4-schedule.json",
+            ),
+        )
     if selected_profile == "autoresearch-v1.7-nanogpt":
         return (
             CampaignPlan(
@@ -310,6 +405,23 @@ def plans(profile: str | None = None) -> tuple[CampaignPlan, ...]:
                 ),
                 mode="individual-trajectories",
                 blocks=(1, 2, 3),
+            ),
+        )
+    if selected_profile == "openevolve-v2.1-nanogpt-c4":
+        return (
+            CampaignPlan(
+                key="openevolve-v2.1-nanogpt-c4",
+                runtime_root=_env_path(
+                    "RL4RL_OPENEVOLVE_V21_NANOGPT_RUNTIME",
+                    Path("/private/tmp/rl4rl-c0c3-openevolve-v2-1-nanogpt"),
+                ),
+                campaign=_env_path(
+                    "RL4RL_OPENEVOLVE_V21_NANOGPT_CAMPAIGN",
+                    REPO_ROOT / "data/c0c3/nanogpt-openevolve-v2-1-h100-campaign",
+                ),
+                mode="c4-individual-trajectories",
+                blocks=(1, 2, 3),
+                schedule_file="v2-1-c4-schedule.json",
             ),
         )
     if selected_profile == "autoresearch-v1.7-fashion-mnist":
@@ -346,6 +458,24 @@ def plans(profile: str | None = None) -> tuple[CampaignPlan, ...]:
                 blocks=(1, 2, 3),
             ),
         )
+    if selected_profile == "openevolve-v2.1-fashion-mnist-c4":
+        return (
+            CampaignPlan(
+                key="openevolve-v2.1-fashion-mnist-c4",
+                runtime_root=_env_path(
+                    "RL4RL_OPENEVOLVE_V21_FASHION_MNIST_RUNTIME",
+                    Path("/private/tmp/rl4rl-c0c3-openevolve-v2-1-fashion-mnist"),
+                ),
+                campaign=_env_path(
+                    "RL4RL_OPENEVOLVE_V21_FASHION_MNIST_CAMPAIGN",
+                    REPO_ROOT
+                    / "data/c0c3/fashion-mnist-openevolve-v2-1-mps-campaign",
+                ),
+                mode="c4-individual-trajectories",
+                blocks=(1, 2, 3, 4, 5),
+                schedule_file="v2-1-c4-schedule.json",
+            ),
+        )
     if selected_profile == "openevolve-v2.1-fashion-mnist-extension":
         return (
             CampaignPlan(
@@ -361,6 +491,40 @@ def plans(profile: str | None = None) -> tuple[CampaignPlan, ...]:
                 ),
                 mode="extension-individual-trajectories",
                 blocks=(4, 5),
+            ),
+        )
+    if selected_profile == "openevolve-v2.1-tiny-kws-rnn":
+        return (
+            CampaignPlan(
+                key="openevolve-v2.1-tiny-kws-rnn",
+                runtime_root=_env_path(
+                    "RL4RL_OPENEVOLVE_V21_TINY_KWS_RUNTIME",
+                    Path("/private/tmp/rl4rl-c0c3-openevolve-v2-1-tiny-kws-rnn"),
+                ),
+                campaign=_env_path(
+                    "RL4RL_OPENEVOLVE_V21_TINY_KWS_CAMPAIGN",
+                    REPO_ROOT
+                    / "data/c0c3/tiny-kws-rnn-openevolve-v2-1-cpu-campaign",
+                ),
+                mode="individual-trajectories",
+                blocks=(1, 2, 3, 4, 5),
+            ),
+        )
+    if selected_profile == "openevolve-v2.1-tiny-kws-rnn-c4":
+        return (
+            CampaignPlan(
+                key="openevolve-v2.1-tiny-kws-rnn-c4",
+                runtime_root=_env_path(
+                    "RL4RL_OPENEVOLVE_V21_TINY_KWS_RUNTIME",
+                    Path("/private/tmp/rl4rl-c0c3-openevolve-v2-1-tiny-kws-rnn"),
+                ),
+                campaign=_env_path(
+                    "RL4RL_OPENEVOLVE_V21_TINY_KWS_CAMPAIGN",
+                    REPO_ROOT
+                    / "data/c0c3/tiny-kws-rnn-openevolve-v2-1-cpu-campaign",
+                ),
+                mode="c4-individual-trajectories",
+                blocks=(1, 2, 3, 4, 5),
             ),
         )
     if selected_profile == "unified-v3-adderboard-greedy":
@@ -461,6 +625,42 @@ def read_json(path: Path, default: Any = None) -> Any:
         return default
 
 
+RESEARCH_ARCHITECTURE_LABELS = {
+    "karpathy_autoresearch": "Autoresearch",
+    "openevolve": "Greedy OpenEvolve",
+    "native_openevolve": "Native OpenEvolve",
+}
+
+
+def campaign_run_identity(campaign: Path) -> dict[str, str]:
+    """Return stable human-facing labels for a supervised campaign."""
+
+    task = read_json(campaign / "inputs/task.json", {})
+    task = task if isinstance(task, dict) else {}
+    framework = read_json(campaign / "inputs/framework.json", {})
+    framework = framework if isinstance(framework, dict) else {}
+    protocol = read_json(campaign / "inputs/protocol.json", {})
+    protocol = protocol if isinstance(protocol, dict) else {}
+    manifest = read_json(campaign / "campaign.json", {})
+    manifest = manifest if isinstance(manifest, dict) else {}
+
+    architecture = str(framework.get("framework_id") or "unknown")
+    protocol_version = str(protocol.get("protocol_version") or "unknown")
+    task_id = str(task.get("task_id") or "unknown")
+    return {
+        "task_id": task_id,
+        "task_display_name": str(task.get("display_name") or task_id),
+        "research_architecture": architecture,
+        "research_architecture_label": RESEARCH_ARCHITECTURE_LABELS.get(
+            architecture, architecture
+        ),
+        "protocol_version": protocol_version,
+        "protocol_study_id": str(
+            protocol.get("study_id") or manifest.get("study_id") or "unknown"
+        ),
+    }
+
+
 def atomic_json(path: Path, value: Any) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
     temporary = path.with_name(f".{path.name}.{os.getpid()}.tmp")
@@ -473,6 +673,9 @@ def atomic_json(path: Path, value: Any) -> None:
 def write_supervisor_metadata(jobs: list[Job]) -> None:
     """Register campaign ownership for generic dashboard lifecycle controls."""
 
+    identities = {
+        str(job.campaign.resolve()): campaign_run_identity(job.campaign) for job in jobs
+    }
     atomic_json(
         SUPERVISOR_METADATA_PATH,
         {
@@ -489,6 +692,8 @@ def write_supervisor_metadata(jobs: list[Job]) -> None:
                     "runtime_root": str(job.runtime_root.resolve()),
                     "mode": job.mode,
                     "run_id": job.run_id,
+                    "schedule_file": job.schedule_file,
+                    **identities[str(job.campaign.resolve())],
                 }
                 for job in jobs
             },
@@ -507,10 +712,14 @@ def file_lock(path: Path):
             fcntl.flock(handle.fileno(), fcntl.LOCK_UN)
 
 
-def load_schedule(campaign: Path) -> list[dict[str, Any]]:
-    value = read_json(campaign / "schedule.json")
+def load_schedule(
+    campaign: Path, schedule_file: str = "schedule.json"
+) -> list[dict[str, Any]]:
+    value = read_json(campaign / schedule_file)
     if not isinstance(value, list):
-        raise RuntimeError(f"campaign schedule is missing or invalid: {campaign}")
+        raise RuntimeError(
+            f"campaign schedule is missing or invalid: {campaign / schedule_file}"
+        )
     return value
 
 
@@ -520,6 +729,7 @@ def expand_jobs(campaign_plans: tuple[CampaignPlan, ...] | None = None) -> list[
         if plan.mode not in {
             "individual-trajectories",
             "extension-individual-trajectories",
+            "c4-individual-trajectories",
         }:
             expanded.append(
                 Job(
@@ -530,13 +740,19 @@ def expand_jobs(campaign_plans: tuple[CampaignPlan, ...] | None = None) -> list[
                     mode=plan.mode,
                     blocks=plan.blocks,
                     pause_after_proposals=plan.pause_after_proposals,
+                    schedule_file=plan.schedule_file,
                 )
             )
             continue
-        for assignment in load_schedule(plan.campaign):
+        for assignment in load_schedule(plan.campaign, plan.schedule_file):
             block = int(assignment["block"])
             condition = str(assignment["condition"])
-            if block not in plan.blocks or condition not in {"C0", "C1", "C2", "C3"}:
+            allowed = (
+                {"C4"}
+                if plan.mode == "c4-individual-trajectories"
+                else {"C0", "C1", "C2", "C3"}
+            )
+            if block not in plan.blocks or condition not in allowed:
                 continue
             run_id = str(assignment["run_id"])
             expanded.append(
@@ -549,13 +765,27 @@ def expand_jobs(campaign_plans: tuple[CampaignPlan, ...] | None = None) -> list[
                     run_id=run_id,
                     blocks=(block,),
                     pause_after_proposals=plan.pause_after_proposals,
+                    schedule_file=plan.schedule_file,
                 )
             )
     return expanded
 
 
+def status_jobs() -> tuple[list[Job], list[str]]:
+    """Expand jobs for read-only status while tolerating missing stale plans."""
+
+    jobs: list[Job] = []
+    warnings: list[str] = []
+    for plan in plans():
+        try:
+            jobs.extend(expand_jobs((plan,)))
+        except RuntimeError as error:
+            warnings.append(f"{plan.key}: {error}")
+    return jobs, warnings
+
+
 def targeted_run_dirs(job: Job) -> list[Path]:
-    assignments = load_schedule(job.campaign)
+    assignments = load_schedule(job.campaign, job.schedule_file)
     selected: list[Path] = []
     for assignment in assignments:
         run_id = str(assignment["run_id"])
@@ -727,7 +957,10 @@ def command_for(job: Job) -> list[str]:
             else "resume-staged-trajectory"
         )
         return cli_prefix(job) + [action, *common, "--run-id", str(job.run_id)]
-    if job.mode == "extension-individual-trajectories":
+    if job.mode in {
+        "extension-individual-trajectories",
+        "c4-individual-trajectories",
+    }:
         state = state_for(job.campaign / "runs" / str(job.run_id))
         command = [
             str(PYTHON_BIN),
@@ -742,6 +975,8 @@ def command_for(job: Job) -> list[str]:
             str(PYTHON_BIN),
             "--codex-binary",
             shutil.which("codex") or "codex",
+            "--schedule-file",
+            job.schedule_file,
         ]
         if int(state.get("proposals_used", 0)) != 0:
             command.append("--resume")
@@ -749,19 +984,49 @@ def command_for(job: Job) -> list[str]:
     raise RuntimeError(f"unknown job mode: {job.mode}")
 
 
+def effective_shared_local_evaluator_capacity() -> int:
+    """Pass the live host scheduler ceiling to every child controller.
+
+    A supervisor may be running an older, hash-pinned scientific runtime while
+    the host-wide scheduler is expanded by the operator.  The scheduler ceiling
+    is operational rather than scientific state, so child controllers must use
+    its currently effective capacity instead of this supervisor's start-time
+    default.  That keeps historical runtimes compatible with a monotonic host
+    expansion and avoids turning an evaluation into an infrastructure failure.
+    """
+
+    status = shared_local_evaluator_status(
+        capacity=SHARED_LOCAL_EVALUATOR_CAPACITY
+    )
+    configured = status.get("capacity")
+    if isinstance(configured, int) and not isinstance(configured, bool):
+        return max(SHARED_LOCAL_EVALUATOR_CAPACITY, configured)
+    return SHARED_LOCAL_EVALUATOR_CAPACITY
+
+
 def command_environment(job: Job) -> dict[str, str]:
     environment = os.environ.copy()
     environment[SHARED_LOCAL_EVALUATOR_CAPACITY_ENV] = str(
-        SHARED_LOCAL_EVALUATOR_CAPACITY
+        effective_shared_local_evaluator_capacity()
     )
+    capacity = read_json(job.campaign / "capacity-control.json", {}).get(
+        "local_evaluators"
+    )
+    if isinstance(capacity, int) and not isinstance(capacity, bool) and capacity > 0:
+        environment[CAMPAIGN_LOCAL_EVALUATOR_CAPACITY_ENV] = str(capacity)
     if job.group in {
         "autoresearch-v1.7",
         "autoresearch-v1.7-nanogpt",
         "autoresearch-v1.7-fashion-mnist",
         "openevolve-v2.1",
+        "openevolve-v2.1-c4",
         "openevolve-v2.1-nanogpt",
+        "openevolve-v2.1-nanogpt-c4",
         "openevolve-v2.1-fashion-mnist",
+        "openevolve-v2.1-fashion-mnist-c4",
         "openevolve-v2.1-fashion-mnist-extension",
+        "openevolve-v2.1-tiny-kws-rnn",
+        "openevolve-v2.1-tiny-kws-rnn-c4",
         "unified-v3-adderboard-greedy",
         "unified-v3-tiny-adderboard-greedy",
         "unified-v3-tiny-adderboard-native",
@@ -773,12 +1038,23 @@ def command_environment(job: Job) -> dict[str, str]:
     if job.group in {
         "autoresearch-v1.7-fashion-mnist",
         "openevolve-v2.1-fashion-mnist",
+        "openevolve-v2.1-fashion-mnist-c4",
         "openevolve-v2.1-fashion-mnist-extension",
     }:
         environment["RL4RL_FASHION_MNIST_DATA_ROOT"] = str(
             _env_path(
                 "RL4RL_FASHION_MNIST_DATA_ROOT",
                 REPO_ROOT / "data/raw/fashion-mnist",
+            )
+        )
+    if job.group in {
+        "openevolve-v2.1-tiny-kws-rnn",
+        "openevolve-v2.1-tiny-kws-rnn-c4",
+    }:
+        environment["RL4RL_TINY_KWS_DATA_ROOT"] = str(
+            _env_path(
+                "RL4RL_TINY_KWS_DATA_ROOT",
+                REPO_ROOT / "data/raw/tiny-kws-rnn",
             )
         )
     return environment
@@ -798,9 +1074,14 @@ def ensure_service_tier_control() -> None:
         "autoresearch-v1.7-nanogpt",
         "autoresearch-v1.7-fashion-mnist",
         "openevolve-v2.1",
+        "openevolve-v2.1-c4",
         "openevolve-v2.1-nanogpt",
+        "openevolve-v2.1-nanogpt-c4",
         "openevolve-v2.1-fashion-mnist",
+        "openevolve-v2.1-fashion-mnist-c4",
         "openevolve-v2.1-fashion-mnist-extension",
+        "openevolve-v2.1-tiny-kws-rnn",
+        "openevolve-v2.1-tiny-kws-rnn-c4",
         "unified-v3-adderboard-greedy",
         "unified-v3-tiny-adderboard",
     }:
@@ -833,8 +1114,28 @@ def pause_command(job: Job, reason: str) -> list[str]:
     if job.mode not in {
         "individual-trajectories",
         "extension-individual-trajectories",
+        "c4-individual-trajectories",
     } or job.run_id is None:
         raise RuntimeError("cooperative pause exists only for v1.5 trajectories")
+    if job.mode in {
+        "extension-individual-trajectories",
+        "c4-individual-trajectories",
+    }:
+        return [
+            str(PYTHON_BIN),
+            str(REPO_ROOT / "experiments/c0c3_extension_controller.py"),
+            "--campaign",
+            str(job.campaign),
+            "--runtime-root",
+            str(job.runtime_root),
+            "--run-id",
+            job.run_id,
+            "--schedule-file",
+            job.schedule_file,
+            "--pause",
+            "--reason",
+            reason,
+        ]
     return cli_prefix(job) + [
         "pause-staged-trajectory",
         "--campaign",
@@ -959,6 +1260,7 @@ def preflight(jobs: list[Job], *, allow_active: bool) -> list[str]:
 
     checked: set[tuple[Path, Path]] = set()
     checked_fashion_data: set[Path] = set()
+    checked_tiny_kws_data: set[Path] = set()
     for job in jobs:
         if not job.runtime_root.is_dir():
             errors.append(
@@ -981,6 +1283,20 @@ def preflight(jobs: list[Job], *, allow_active: bool) -> list[str]:
                 checked_fashion_data.add(fashion_root)
                 try:
                     verify_dataset(fashion_root)
+                except (OSError, RuntimeError, ValueError) as error:
+                    errors.append(str(error))
+        if job.group in {
+            "openevolve-v2.1-tiny-kws-rnn",
+            "openevolve-v2.1-tiny-kws-rnn-c4",
+        }:
+            tiny_kws_root = _env_path(
+                "RL4RL_TINY_KWS_DATA_ROOT",
+                REPO_ROOT / "data/raw/tiny-kws-rnn",
+            )
+            if tiny_kws_root not in checked_tiny_kws_data:
+                checked_tiny_kws_data.add(tiny_kws_root)
+                try:
+                    verify_tiny_kws_dataset(tiny_kws_root)
                 except (OSError, RuntimeError, ValueError) as error:
                     errors.append(str(error))
         pair = (job.runtime_root, job.campaign)
@@ -1201,6 +1517,7 @@ class Supervisor:
                     if job.mode in {
                         "individual-trajectories",
                         "extension-individual-trajectories",
+                        "c4-individual-trajectories",
                     }:
                         if not pause_sent:
                             try:
@@ -1324,6 +1641,7 @@ class Supervisor:
                     "runtime_root": str(job.runtime_root.resolve()),
                     "mode": job.mode,
                     "run_id": job.run_id,
+                    **campaign_run_identity(job.campaign),
                 }
             )
             try:
@@ -1487,7 +1805,7 @@ def command_control(args: argparse.Namespace) -> int:
 
 
 def command_status(_args: argparse.Namespace) -> int:
-    jobs = expand_jobs()
+    jobs, warnings = status_jobs()
     stored = read_json(STATUS_PATH, {})
     heartbeat = stored.get("heartbeat_at") if isinstance(stored, dict) else None
     supervisor_pid = stored.get("supervisor_pid") if isinstance(stored, dict) else None
@@ -1504,6 +1822,8 @@ def command_status(_args: argparse.Namespace) -> int:
         "openevolve-v2.1-nanogpt",
         "openevolve-v2.1-fashion-mnist",
         "openevolve-v2.1-fashion-mnist-extension",
+        "openevolve-v2.1-tiny-kws-rnn",
+        "openevolve-v2.1-tiny-kws-rnn-c4",
     }:
         print(f"codex_service_tier={service_tier()}")
     scheduler = shared_local_evaluator_status(
@@ -1522,16 +1842,23 @@ def command_status(_args: argparse.Namespace) -> int:
         f"barrier={agent_workers['synchronization_barrier']} "
         f"root={agent_workers['root']}"
     )
-    print("job\tdesired\tactual\tpid\tproposals\ttokens\tlowest_params\tactive")
+    print(
+        "job\ttask\tarchitecture\tprotocol\tdesired\tactual\tpid\t"
+        "proposals\ttokens\tlowest_params\tactive"
+    )
     desired = load_desired(jobs)
     runtime = stored.get("jobs", {}) if isinstance(stored, dict) else {}
     for job in jobs:
         progress = progress_for(job)
         item = runtime.get(job.key, {})
+        identity = campaign_run_identity(job.campaign)
         print(
             "\t".join(
                 (
                     job.key,
+                    identity["task_display_name"],
+                    identity["research_architecture_label"],
+                    identity["protocol_version"],
                     str(desired["jobs"][job.key]["desired"]),
                     str(item.get("actual", "not-running")),
                     str(item.get("child_pid") or "-"),
@@ -1546,6 +1873,8 @@ def command_status(_args: argparse.Namespace) -> int:
                 )
             )
         )
+    for warning in warnings:
+        print(f"warning: skipped unavailable plan {warning}", file=sys.stderr)
     return 0
 
 
@@ -1569,6 +1898,8 @@ def command_fast_mode(args: argparse.Namespace) -> int:
         "openevolve-v2.1-nanogpt",
         "openevolve-v2.1-fashion-mnist",
         "openevolve-v2.1-fashion-mnist-extension",
+        "openevolve-v2.1-tiny-kws-rnn",
+        "openevolve-v2.1-tiny-kws-rnn-c4",
     }:
         raise SystemExit("fast-mode control is available for v1.7 and v2.1 profiles")
     CONTROL_ROOT.mkdir(parents=True, exist_ok=True)

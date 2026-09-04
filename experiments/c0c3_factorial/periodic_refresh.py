@@ -15,8 +15,13 @@ POLICIES = frozenset({PRESERVE, REFRESH_INCUMBENT})
 MEMORY_STATE = Path("subject-memory.json")
 
 
-def phase_search_seed(base_seed: int, opportunity: int) -> int:
-    payload = f"semantic-periodic-refresh\0{base_seed}\0{opportunity}".encode()
+def phase_search_seed(
+    base_seed: int,
+    opportunity: int,
+    *,
+    namespace: str = "semantic-periodic-refresh",
+) -> int:
+    payload = f"{namespace}\0{base_seed}\0{opportunity}".encode()
     return int.from_bytes(hashlib.sha256(payload).digest()[:8], "big")
 
 
@@ -40,6 +45,9 @@ def apply_periodic_refresh(
     controller: SearchController,
     base_seed: int,
     opportunity: int,
+    interval_proposals: int = 5,
+    seed_namespace: str = "semantic-periodic-refresh",
+    reason: str = "configured five-proposal full search refresh",
 ) -> dict[str, Any]:
     """Apply one idempotent refresh immediately before a phase begins."""
 
@@ -47,7 +55,13 @@ def apply_periodic_refresh(
     current = memory_state(run_dir, base_seed=base_seed)
     if int(current.get("history_start_opportunity", 1)) == opportunity:
         return current
-    seed = phase_search_seed(base_seed, opportunity)
+    if interval_proposals < 1:
+        raise ValueError("refresh interval must be positive")
+    seed = phase_search_seed(
+        base_seed,
+        opportunity,
+        namespace=seed_namespace,
+    )
     archive_path = run_dir / "developmental-archive.json"
     if archive_path.is_file():
         archive = json.loads(archive_path.read_text(encoding="utf-8"))
@@ -64,7 +78,7 @@ def apply_periodic_refresh(
     controller.refresh_from_incumbent(
         opportunity=opportunity,
         search_seed=seed,
-        reason="configured five-proposal full search refresh",
+        reason=reason,
     )
     atomic_json(
         archive_path,
@@ -79,7 +93,8 @@ def apply_periodic_refresh(
         "policy": REFRESH_INCUMBENT,
         "history_start_opportunity": opportunity,
         "search_seed": seed,
-        "phase": 1 + (opportunity - 1) // 5,
+        "phase": 1 + (opportunity - 1) // interval_proposals,
+        "interval_proposals": interval_proposals,
         "incumbent_id": controller.state.incumbent_id,
         "updated_at": utc_now(),
     }

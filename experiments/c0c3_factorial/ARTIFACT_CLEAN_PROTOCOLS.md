@@ -57,6 +57,10 @@ V2.1 retains a fresh ephemeral Codex call for every proposal and therefore
 supplies a bounded recent-result window. Each result contains only public
 metrics and a subject-level outcome explanation. Mechanism information appears
 once in this result history; the duplicate mechanism ledger is removed.
+An exact source snapshot that has already entered the evaluator is rejected
+before any repeated evaluator call, including when its first evaluation was
+invalid, and the result window identifies it with the sanitized duplicate
+explanation.
 
 The OpenEvolve prompt sampler supplies current and reference source once.
 Metrics and hypotheses appear once in the common design summary. The response

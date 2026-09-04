@@ -594,9 +594,9 @@ def test_campaign_block_expansion_preserves_prior_fashion_factorial_runs(
     schedule = json.loads((campaign / "schedule.json").read_text())
     assert result["status"] == "expanded"
     assert result["effective_blocks"] == 5
-    assert len(result["added_run_ids"]) == 8
-    assert len(schedule) == 20
-    assert schedule[:12] == before_schedule
+    assert len(result["added_run_ids"]) == 10
+    assert len(schedule) == 25
+    assert schedule[:15] == before_schedule
     assert {row["block"] for row in schedule} == {1, 2, 3, 4, 5}
     assert all(
         (campaign / "runs" / run_id / "state.json").read_bytes() == state
@@ -619,7 +619,7 @@ def test_campaign_block_expansion_preserves_prior_fashion_factorial_runs(
         reason="same operator request is already applied",
     )
     assert repeated["status"] == "already-expanded"
-    assert len(json.loads((campaign / "schedule.json").read_text())) == 20
+    assert len(json.loads((campaign / "schedule.json").read_text())) == 25
     amendments = (campaign / "campaign-amendments.jsonl").read_text().splitlines()
     assert len(amendments) == 1
 

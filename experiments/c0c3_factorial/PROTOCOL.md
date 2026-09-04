@@ -511,6 +511,13 @@ execution, and nonqualification failures are recorded and never retained. A
 proposal opportunity is always consumed after it starts. An evaluator call is
 consumed only if evaluation started.
 
+The duplicate rule is exact-content based and covers every source snapshot
+that has already entered the evaluator, regardless of whether that evaluation
+qualified, failed during execution, timed out, or was otherwise invalid. Such
+source is rejected before another evaluator call and is recorded with
+`failure_kind=duplicate`, so artifact-clean subjects receive the corresponding
+sanitized duplicate explanation rather than a generic unverifiable result.
+
 An infrastructure interruption can leave `state.active` populated. The only
 valid continuation is `recover-active`, which logs the reason, recovers any
 available Codex usage, records a zero-evaluator infrastructure failure, consumes
@@ -559,8 +566,9 @@ are excluded. The operator must activate any optional extension before Layer
 B/C is created, after which the runner forbids more collection.
 For protocol 1.6 the frozen factorial scope is all twelve C0–C3 runs across its
 three prospectively declared blocks; dormant N0 assignments remain excluded.
-For protocols 1.7, 2.0, and 2.1 the frozen scope is every campaign-declared
-C0–C3 run and no dormant N0 assignment exists.
+For protocols 1.7 and 2.0 the frozen scope is every campaign-declared C0–C3 run
+and no dormant N0 assignment exists. Protocol 2.1 retains that primary 2×2
+scope and adds the separately identified C4 memory-control arm described below.
 Every valid proposal becomes an opaque packet containing parent and candidate
 source plus the stated hypothesis/edit. Condition, run, opportunity, and Layer
 A scores are hidden. Independent reviewers decide whether the delta is a
@@ -601,6 +609,19 @@ sizes, raw blocks, and compatibility intervals rather than binary significance.
 Any pooled synthesis across tasks/frameworks should be hierarchical or a
 clearly labeled descriptive meta-analysis, not a replacement for stratum-level
 results.
+
+### Protocol 2.1 C4 amendment
+
+Every Greedy OpenEvolve v2.1 block additionally includes C4. C4 uses the C0
+single-incumbent ordinary-proposal policy, but after each ten completed
+physical proposals it retains the incumbent as a new starting model and clears
+all subject-visible evidence that an earlier epoch occurred. Subject-visible
+proposal/accounting counters restart at one/full budget, and its actual Codex
+workspace path does not contain the physical opportunity number. Private
+append-only history and cumulative resource accounting remain authoritative,
+and the controller still stops at 200 physical proposals. C4 is reported as a
+memory-control comparison and does not alter the original C0–C3 factorial
+contrasts.
 
 Protocols 1.3–1.5 primary stages have one trajectory per cell. Their cell values and
 three factorial contrasts are descriptive: there is no between-block sampling

@@ -28,6 +28,8 @@ from .neutral_task import (
     SANITIZED_SEED_PATHS,
     TINY_ADDERBOARD_SOURCE_ONLY_SEED_PATHS,
     TINY_ADDERBOARD_TASK_ADAPTER,
+    TINY_KWS_RNN_SOURCE_ONLY_SEED_PATHS,
+    TINY_KWS_RNN_TASK_ADAPTER,
 )
 from .spec import FrameworkKind, FrameworkSpec, TaskSpec, canonical_json, sha256_json
 
@@ -99,6 +101,7 @@ def prepare_seed_workspace(
         NANOGPT_TASK_ADAPTER,
         FASHION_MNIST_TASK_ADAPTER,
         TINY_ADDERBOARD_TASK_ADAPTER,
+        TINY_KWS_RNN_TASK_ADAPTER,
     }:
         destination.mkdir(parents=True, exist_ok=False)
         if task.adapter == NANOGPT_TASK_ADAPTER:
@@ -109,6 +112,9 @@ def prepare_seed_workspace(
             submission_wrapper = None
         elif task.adapter == TINY_ADDERBOARD_TASK_ADAPTER:
             sanitized_paths = TINY_ADDERBOARD_SOURCE_ONLY_SEED_PATHS
+            submission_wrapper = None
+        elif task.adapter == TINY_KWS_RNN_TASK_ADAPTER:
+            sanitized_paths = TINY_KWS_RNN_SOURCE_ONLY_SEED_PATHS
             submission_wrapper = None
         elif task.adapter == NEUTRAL_TASK_ADAPTER:
             sanitized_paths = SANITIZED_SEED_PATHS
