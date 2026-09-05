@@ -5,6 +5,28 @@ import pytest
 from experiments import resume_trajectory_to_target as bounded
 
 
+def test_legacy_nanogpt_payload_omits_only_unused_extensions():
+    from dataclasses import dataclass, field
+
+    @dataclass
+    class Task:
+        adapter: str = bounded.hybrid_evaluator.NANOGPT_TASK_ADAPTER
+        extension_module: str | None = None
+        extension_options: dict = field(default_factory=dict)
+        task_id: str = "original-task"
+
+    assert bounded.legacy_nanogpt_task_payload(Task()) == {
+        "adapter": bounded.hybrid_evaluator.NANOGPT_TASK_ADAPTER,
+        "task_id": "original-task",
+    }
+    other = bounded.legacy_nanogpt_task_payload(Task(adapter="other"))
+    assert "extension_module" in other and "extension_options" in other
+    with pytest.raises(ValueError, match="cannot execute task extensions"):
+        bounded.legacy_nanogpt_task_payload(Task(extension_module="required"))
+    with pytest.raises(ValueError, match="cannot execute task extensions"):
+        bounded.legacy_nanogpt_task_payload(Task(extension_options={"required": 1}))
+
+
 @pytest.mark.parametrize("legacy", [False, True])
 def test_exact_pause_is_requested_before_next_opportunity(
     monkeypatch, tmp_path, legacy

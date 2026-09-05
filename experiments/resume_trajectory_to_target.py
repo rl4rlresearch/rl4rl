@@ -4,11 +4,23 @@ from __future__ import annotations
 
 import argparse
 import json
+from dataclasses import asdict
 from pathlib import Path
 
-from experiments.c0c3_factorial import orchestration
+from experiments.c0c3_factorial import hybrid_evaluator, orchestration
 from experiments.c0c3_factorial.cli import _load_campaign
 from experiments.c0c3_factorial.state import SearchController
+
+
+def legacy_nanogpt_task_payload(task):
+    """Omit unused extension defaults unsupported by the deployed H100 service."""
+    payload = asdict(task)
+    if payload.get("adapter") == hybrid_evaluator.NANOGPT_TASK_ADAPTER:
+        if payload.get("extension_module") or payload.get("extension_options"):
+            raise ValueError("Legacy nanoGPT service cannot execute task extensions")
+        payload.pop("extension_module", None)
+        payload.pop("extension_options", None)
+    return payload
 
 
 def resume_to_target(campaign, run_id, target, *, repo_root, python_bin, codex_binary):
@@ -57,6 +69,8 @@ def resume_to_target(campaign, run_id, target, *, repo_root, python_bin, codex_b
         return result
 
     orchestration.run_one_opportunity = bounded_opportunity
+    original_serializer = hybrid_evaluator.asdict
+    hybrid_evaluator.asdict = legacy_nanogpt_task_payload
     try:
         return orchestration.run_staged_individual_trajectory(
             campaign,
@@ -72,6 +86,7 @@ def resume_to_target(campaign, run_id, target, *, repo_root, python_bin, codex_b
     finally:
         orchestration.run_one_opportunity = original
         orchestration.conditions_for_protocol = original_conditions
+        hybrid_evaluator.asdict = original_serializer
 
 
 if __name__ == "__main__":
