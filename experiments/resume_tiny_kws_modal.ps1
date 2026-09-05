@@ -3,7 +3,8 @@ $ErrorActionPreference = 'Stop'
 $Repo = (Resolve-Path "$PSScriptRoot/..").Path
 Set-Location -LiteralPath $Repo
 $Python = (Resolve-Path 'outputs/tiny-seed-search/venv/Scripts/python.exe').Path
-$Campaign = '\\?\' + (Resolve-Path -LiteralPath $Campaign).Path
+$Campaign = (Resolve-Path -LiteralPath $Campaign).Path
+$PythonCampaign = '\\?\' + $Campaign
 $Codex = (Get-Command codex -ErrorAction Stop).Source
 $env:PYTHONPATH = $Repo
 $env:PYTHONUTF8 = '1'
@@ -28,7 +29,7 @@ foreach ($Row in $Rows) {
     if ($State.active) { throw "Unrecovered active proposal in $($Row.run_id)" }
     $Log = "$LogRoot/b$('{0:d2}' -f [int]$Row.block)-$($Row.condition)-$Stamp"
     $Arguments = @('-u', '-m', 'experiments.c0c3_factorial.cli', 'resume-staged-trajectory',
-        '--campaign', ('"'+$Campaign+'"'), '--run-id', $Row.run_id,
+        '--campaign', ('"'+$PythonCampaign+'"'), '--run-id', $Row.run_id,
         '--python-bin', ('"'+$Python+'"'), '--codex-binary', ('"'+$Codex+'"'))
     $Worker = Start-Process -FilePath $Python -ArgumentList $Arguments -WorkingDirectory $Repo -WindowStyle Hidden -PassThru -RedirectStandardOutput "$Log.stdout.log" -RedirectStandardError "$Log.stderr.log"
     $Workers += [pscustomobject]@{run_id=$Row.run_id;pid=$Worker.Id;starting_proposals=$State.proposals_used;log_prefix=$Log;started_at=(Get-Date).ToUniversalTime().ToString('o')}
