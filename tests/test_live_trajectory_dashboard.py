@@ -1067,6 +1067,8 @@ def test_page_contains_live_controls_and_raw_outcome_overlay() -> None:
     assert "Condition median" in PAGE
     assert "Condition mean" in PAGE
     assert "function legendActions(state)" in PAGE
+    assert "function defaultConditions(payload){return allConditions(payload).filter(condition=>condition!=='C4');}" in PAGE
+    assert "conditions:payload?defaultConditions(payload):['C0','C1','C2','C3']" in PAGE
     assert 'data-legend-action="show-all"' in PAGE
     assert "data-condition-toggle" in PAGE
     assert "data-aggregate-condition" not in PAGE
@@ -1546,3 +1548,32 @@ def test_dashboard_payload_cache_latest_never_blocks_on_cold_build() -> None:
     assert cache.latest() is None
     assert cache.response("")[0] == b"snapshot"
     assert cache.latest() == b"snapshot"
+
+
+def test_cleaned_run_counts_completed_records_without_rewriting_accounting(tmp_path):
+    run_dir = _example_run(tmp_path)
+    state_before = (run_dir / "state.json").read_bytes()
+    events_path = run_dir / "events.jsonl"
+    events = [
+        json.loads(line)
+        for line in events_path.read_text(encoding="utf-8").splitlines()
+    ]
+    completed = [
+        event for event in events if event.get("event") == "proposal_completed"
+    ]
+    removed = completed[-1]["opportunity"]
+    _write_jsonl(
+        events_path,
+        [event for event in events if event.get("opportunity") != removed],
+    )
+    _write_json(run_dir / "cleanup.json", {
+        "event": "operator_authorized_backup_cleanup",
+        "removed_completed_placeholders": [removed],
+    })
+    run = build_run(
+        run_dir, PRICES, objective_metric="parameters", objective_direction="minimize"
+    )
+    assert run["proposals_used"] == len(completed) - 1
+    assert run["proposal_slots_used"] == json.loads(state_before)["proposals_used"]
+    assert run["discarded_proposals"] == 1
+    assert (run_dir / "state.json").read_bytes() == state_before

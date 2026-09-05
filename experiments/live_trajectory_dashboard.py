@@ -13,10 +13,10 @@ from __future__ import annotations
 
 import argparse
 import ctypes
-import fcntl
 import gzip
 import hashlib
 import json
+import math
 import os
 import re
 import select
@@ -36,55 +36,71 @@ from pathlib import Path
 from typing import Any, TextIO
 from urllib.parse import parse_qs, urlsplit
 
-try:
-    from experiments.campaign_lifecycle_control import (
-        campaign_lifecycle_payload,
-        discover_campaigns,
-        set_campaign_lifecycle,
-    )
-except ModuleNotFoundError:  # Direct ``python experiments/...py`` launch.
-    from campaign_lifecycle_control import (  # type: ignore[no-redef]
-        campaign_lifecycle_payload,
-        discover_campaigns,
-        set_campaign_lifecycle,
-    )
+# Restored campaigns can be viewed on Windows; process controls require POSIX.
+WINDOWS_VIEW_ONLY = os.name == "nt"
+if not WINDOWS_VIEW_ONLY:
+    import fcntl
 
-try:
-    from experiments.c0c3_factorial.capacity_control import (
-        MAX_SUBJECT_WORKERS,
-        campaign_evaluator_status,
-        load_campaign_capacity,
-        set_campaign_capacity,
-    )
-    from experiments.c0c3_factorial.state import (
-        append_jsonl,
-        atomic_json,
-        utc_now,
-    )
-    from experiments.c0c3_factorial.v3 import (
-        campaign_metadata_lock,
-        load_runtime_options,
-        update_runtime_options,
-    )
-except ModuleNotFoundError:  # Direct ``python experiments/...py`` launch.
-    from c0c3_factorial.capacity_control import (  # type: ignore[no-redef]
-        MAX_SUBJECT_WORKERS,
-        campaign_evaluator_status,
-        load_campaign_capacity,
-        set_campaign_capacity,
-    )
-    from c0c3_factorial.state import (  # type: ignore[no-redef]
-        append_jsonl,
-        atomic_json,
-        utc_now,
-    )
-    from c0c3_factorial.v3 import (  # type: ignore[no-redef]
-        campaign_metadata_lock,
-        load_runtime_options,
-        update_runtime_options,
-    )
+    try:
+        from experiments.campaign_lifecycle_control import (
+            campaign_lifecycle_payload,
+            discover_campaigns,
+            set_campaign_lifecycle,
+        )
+    except ModuleNotFoundError:  # Direct ``python experiments/...py`` launch.
+        from campaign_lifecycle_control import (  # type: ignore[no-redef]
+            campaign_lifecycle_payload,
+            discover_campaigns,
+            set_campaign_lifecycle,
+        )
 
-REPO_ROOT = Path(__file__).resolve().parents[1]
+    try:
+        from experiments.c0c3_factorial.capacity_control import (
+            MAX_SUBJECT_WORKERS,
+            campaign_evaluator_status,
+            load_campaign_capacity,
+            set_campaign_capacity,
+        )
+        from experiments.c0c3_factorial.state import (
+            append_jsonl,
+            atomic_json,
+            utc_now,
+        )
+        from experiments.c0c3_factorial.v3 import (
+            campaign_metadata_lock,
+            load_runtime_options,
+            update_runtime_options,
+        )
+    except ModuleNotFoundError:  # Direct ``python experiments/...py`` launch.
+        from c0c3_factorial.capacity_control import (  # type: ignore[no-redef]
+            MAX_SUBJECT_WORKERS,
+            campaign_evaluator_status,
+            load_campaign_capacity,
+            set_campaign_capacity,
+        )
+        from c0c3_factorial.state import (  # type: ignore[no-redef]
+            append_jsonl,
+            atomic_json,
+            utc_now,
+        )
+        from c0c3_factorial.v3 import (  # type: ignore[no-redef]
+            campaign_metadata_lock,
+            load_runtime_options,
+            update_runtime_options,
+        )
+
+def local_path(path: Path) -> Path:
+    """Support the deep campaign artifact paths restored from macOS."""
+    path = path.resolve()
+    if os.name == "nt" and not str(path).startswith("\\\\?\\"):
+        value = str(path)
+        if value.startswith("\\\\"):
+            return Path("\\\\?\\UNC\\" + value[2:])
+        return Path("\\\\?\\" + value)
+    return path
+
+
+REPO_ROOT = local_path(Path(__file__).resolve().parents[1])
 DEFAULT_OPENEVOLVE = (
     REPO_ROOT / "data/c0c3/controlled-openevolve-transformer-v2-mps-campaign"
 )
@@ -94,6 +110,7 @@ DEFAULT_AUTORESEARCH_V17 = (
 DEFAULT_OPENEVOLVE_V21 = (
     REPO_ROOT / "data/c0c3/controlled-openevolve-transformer-v2-1-mps-campaign"
 )
+DEFAULT_TINY_ADDERBOARD_V21 = REPO_ROOT / "data/c0c3/tiny-v21"
 DEFAULT_UCI_HAR_V21 = REPO_ROOT / "data/c0c3/uci-har-pareto-v21"
 DEFAULT_AUTORESEARCH_V17_NANOGPT = (
     REPO_ROOT / "data/c0c3/nanogpt-autoresearch-v1-7-h100-campaign"
@@ -1126,10 +1143,16 @@ def modal_usage_index(
     completed_calls = 0
     failed_calls = 0
     unpriced_records = 0
+    cpu_worker_seconds = 0.0
+    gpu_records = 0
     for record in records:
         run_id = record.get("run_id")
         opportunity = record.get("opportunity")
         seconds = numeric(record.get("worker_seconds"))
+        if str(record.get("gpu_name", "")).startswith("CPU"):
+            cpu_worker_seconds += seconds or 0.0
+            continue  # CPU receipts must never be multiplied by a GPU price.
+        gpu_records += 1
         if record.get("status") == "completed":
             completed_calls += 1
         elif record.get("status") == "failed":
@@ -1141,7 +1164,8 @@ def modal_usage_index(
         if isinstance(run_id, str) and isinstance(opportunity, int):
             by_run.setdefault(run_id, {}).setdefault(opportunity, []).append(record)
     return by_run, {
-        "available": ledger_path.is_file(),
+        "available": ledger_path.is_file() and (gpu_records > 0 or cpu_worker_seconds == 0),
+        "cpu_worker_seconds": round(cpu_worker_seconds, 6),
         "worker_seconds": round(worker_seconds, 6),
         "gpu_cost": round(worker_seconds * h100_price_per_second, 6),
         "completed_calls": completed_calls,
@@ -1293,6 +1317,35 @@ def _locked_json(path: Path) -> dict[str, Any] | None:
 def runtime_activity_snapshot(campaigns: Iterable[Path]) -> dict[str, Any]:
     """Capture live Codex, evaluator, and controller ownership read-only."""
 
+    if WINDOWS_VIEW_ONLY:
+        try:
+            from experiments.c0c3_factorial import file_lock as portable_lock
+        except ModuleNotFoundError:
+            from c0c3_factorial import file_lock as portable_lock
+        live_runs = set()
+        for campaign in campaigns:
+            for path in (Path(campaign) / "runs").glob("*/.trajectory-controller.lock"):
+                try:
+                    with path.open("r+", encoding="utf-8") as handle:
+                        try:
+                            portable_lock.flock(handle.fileno(), portable_lock.LOCK_EX | portable_lock.LOCK_NB)
+                        except BlockingIOError:
+                            live_runs.add(path.parent.name)
+                        else:
+                            portable_lock.flock(handle.fileno(), portable_lock.LOCK_UN)
+                except OSError:
+                    continue
+        return {
+            "view_only": True,
+            "agent_holders": [],
+            "agent_capacity": SHARED_AGENT_WORKER_CAPACITY,
+            "evaluator_holders": [],
+            "shared_evaluator_occupied": 0,
+            "shared_evaluator_capacity": SHARED_LOCAL_EVALUATOR_CAPACITY,
+            "campaign_controllers": set(),
+            "run_controllers": live_runs,
+        }
+
     campaign_paths = tuple(Path(path).resolve() for path in campaigns)
     agent_holders: list[dict[str, Any]] = []
     for path in sorted(shared_agent_worker_root().glob("slot-*.lock")):
@@ -1420,6 +1473,24 @@ def operational_stage(
             "detail": detail,
             "opportunity": opportunity,
         }
+
+    if activity.get("view_only"):
+        if run_id in activity.get("run_controllers", set()):
+            if opportunity is not None:
+                current_root = run_dir / "opportunities" / f"{opportunity:04d}"
+                remote = read_json(current_root / "remote-dispatch.json", {})
+                if remote.get("status") == "dispatched":
+                    return result("evaluating", f"Evaluating · Modal CPU · P{opportunity}",
+                                  "A live Windows worker is waiting for this Modal CPU evaluation.")
+                return result("active", f"Running · P{opportunity}",
+                              "Confirmed by a currently held Windows trajectory process lock.")
+            return result("active", "Running", "A Windows trajectory process holds the live run lock.")
+        return result(
+            "snapshot",
+            "Inactive · saved snapshot",
+            f"Saved status: {status}. This viewer has no live campaign controller; "
+            "saved in-progress artifacts do not indicate current execution.",
+        )
 
     if active is not None and opportunity is not None:
         agent_holders = activity.get("agent_holders", [])
@@ -1923,6 +1994,15 @@ def build_run(
             },
         )
     usage = normalized_usage(state.get("usage"))
+    proposal_slots_used = state.get("proposals_used", 0)
+    cleanup = read_json(run_dir / "cleanup.json", {})
+    cleaned = isinstance(cleanup, dict) and cleanup.get("event") == "operator_authorized_backup_cleanup"
+    completed_proposals = (
+        len({event["opportunity"] for event in events
+             if event.get("event") == "proposal_completed"
+             and isinstance(event.get("opportunity"), int)})
+        if cleaned else proposal_slots_used
+    )
     scientific_status = state.get("status", "unknown")
     status = display_status(run_dir, scientific_status)
     if scientific_status == "running" and desired_state in {"paused", "stopped"}:
@@ -1986,11 +2066,14 @@ def build_run(
         "semantic_prefix_role": semantic_prefix_role,
         "shared_prefix_through": shared_prefix_through,
         "desired": desired_state,
-        "status": status,
+        "status": f"saved: {status}" if stage.get("kind") == "snapshot" else status,
+        "saved_status": status,
         "scientific_status": scientific_status,
         "operational_stage": stage,
         "operational_stage_label": stage["label"],
-        "proposals_used": state.get("proposals_used", 0),
+        "proposals_used": completed_proposals,
+        "proposal_slots_used": proposal_slots_used,
+        "discarded_proposals": len(cleanup.get("removed_completed_placeholders", [])) if cleaned else 0,
         "total_tokens": usage["total_tokens"],
         "token_cost": round(weighted_cost(usage, prices), 6),
         "accounted_total_tokens": max(
@@ -2432,6 +2515,7 @@ def dashboard_data(
     }
     payload = {
         "schema_version": "3.1",
+        "read_only": WINDOWS_VIEW_ONLY,
         "generated_at": datetime.now().astimezone().isoformat(),
         "price_per_million": prices,
         "modal_h100_price_per_second": modal_h100_price_per_second,
@@ -3944,6 +4028,20 @@ def campaign_capacity_payload(
     }
 
 
+def browser_json(value: Any, **kwargs: Any) -> str:
+    """Use JSON null for non-finite saved metrics without changing artifacts."""
+    def finite(item: Any) -> Any:
+        if isinstance(item, float) and not math.isfinite(item):
+            return None
+        if isinstance(item, dict):
+            return {key: finite(child) for key, child in item.items()}
+        if isinstance(item, (list, tuple)):
+            return [finite(child) for child in item]
+        return item
+
+    return json.dumps(finite(value), allow_nan=False, **kwargs)
+
+
 def make_handler(
     campaigns: dict[str, Path],
     prices: dict[str, float],
@@ -3957,7 +4055,8 @@ def make_handler(
     campaign_discovery_roots: Iterable[Path] = (REPO_ROOT / "data/c0c3",),
 ):
     codex_token_campaign_roots = tuple(codex_token_campaign_roots)
-    capacity_controller = capacity_controller or CapacityController()
+    if not WINDOWS_VIEW_ONLY:
+        capacity_controller = capacity_controller or CapacityController()
     compute_monitor = compute_monitor or MacComputeMonitor()
     configured_campaigns = dict(campaigns)
 
@@ -3968,7 +4067,7 @@ def make_handler(
         )
 
     def build_dashboard_payload() -> bytes:
-        return json.dumps(
+        return browser_json(
             dashboard_data(
                 configured_campaigns,
                 prices,
@@ -4017,6 +4116,12 @@ def make_handler(
         )
 
     def build_controller_payload() -> dict[str, Any]:
+        if WINDOWS_VIEW_ONLY:
+            return {
+                "available": False,
+                "read_only": True,
+                "error": "Windows viewing mode: campaign process controls require POSIX.",
+            }
         dashboard_body = payload_cache.latest()
         dashboard_snapshot = (
             json.loads(dashboard_body)
@@ -4089,6 +4194,21 @@ def make_handler(
                     "text/html; charset=utf-8",
                 )
             elif request_path in {"/controller", "/controller.html"}:
+                if WINDOWS_VIEW_ONLY:
+                    self.send_payload(
+                        ("<!doctype html><html><head><title>Campaign controls</title>"
+                         "</head><body style='font:18px system-ui;padding:3rem'>"
+                         "<h1>Windows viewing mode</h1>"
+                         "<p>Restored campaign data is available for browsing. "
+                         "Live campaign controls and Mac host telemetry require "
+                         "the original POSIX runtime.</p>"
+                         "<a href='/'>Trajectory explorer</a> · "
+                         "<a href='/science'>Scientific process</a> · "
+                         "<a href='/transcripts'>Run transcripts</a>"
+                         "</body></html>").encode(),
+                        "text/html; charset=utf-8",
+                    )
+                    return
                 self.send_payload(
                     read_controller_page().encode("utf-8"),
                     "text/html; charset=utf-8",
@@ -4099,7 +4219,7 @@ def make_handler(
                     "text/html; charset=utf-8",
                 )
             elif request_path == "/api/revision":
-                payload = json.dumps(
+                payload = browser_json(
                     {"revision": dashboard_revision()}, separators=(",", ":")
                 ).encode("utf-8")
                 self.send_payload(payload, "application/json; charset=utf-8")
@@ -4115,7 +4235,7 @@ def make_handler(
             elif request_path == "/api/transcripts":
                 payload = transcript_index_payload(latest_dashboard_snapshot())
                 self.send_payload(
-                    json.dumps(payload, separators=(",", ":")).encode("utf-8"),
+                    browser_json(payload, separators=(",", ":")).encode("utf-8"),
                     "application/json; charset=utf-8",
                 )
             elif request_path == "/api/transcript":
@@ -4139,12 +4259,12 @@ def make_handler(
                     )
                     return
                 self.send_payload(
-                    json.dumps(payload, separators=(",", ":")).encode("utf-8"),
+                    browser_json(payload, separators=(",", ":")).encode("utf-8"),
                     "application/json; charset=utf-8",
                 )
             elif request_path == "/api/controller":
                 self.send_payload(
-                    json.dumps(
+                    browser_json(
                         build_controller_payload(), separators=(",", ":")
                     ).encode("utf-8"),
                     "application/json; charset=utf-8",
@@ -4164,6 +4284,13 @@ def make_handler(
             self.send_payload(b"", "text/plain; charset=utf-8")
 
         def do_POST(self) -> None:  # noqa: N802
+            if WINDOWS_VIEW_ONLY:
+                self.send_payload(
+                    b'{"error":"Windows dashboard is read-only"}',
+                    "application/json; charset=utf-8",
+                    status=HTTPStatus.FORBIDDEN,
+                )
+                return
             if self.path not in {
                 "/api/controller/limits",
                 "/api/controller/task-limits",
@@ -4270,7 +4397,7 @@ def make_handler(
                 tomllib.TOMLDecodeError,
             ) as exc:
                 self.send_payload(
-                    json.dumps({"error": str(exc)}, separators=(",", ":")).encode(
+                    browser_json({"error": str(exc)}, separators=(",", ":")).encode(
                         "utf-8"
                     ),
                     "application/json; charset=utf-8",
@@ -4278,7 +4405,7 @@ def make_handler(
                 )
                 return
             self.send_payload(
-                json.dumps(payload, separators=(",", ":")).encode("utf-8"),
+                browser_json(payload, separators=(",", ":")).encode("utf-8"),
                 "application/json; charset=utf-8",
             )
 
@@ -4404,6 +4531,7 @@ def main() -> None:
         "openevolve_v2": args.openevolve_campaign,
         "autoresearch_v17": args.autoresearch_v17_campaign,
         "openevolve_v21": args.openevolve_v21_campaign,
+        "tiny_adderboard_v21": DEFAULT_TINY_ADDERBOARD_V21,
         "uci_har_pareto_v21": DEFAULT_UCI_HAR_V21,
         "autoresearch_v17_nanogpt": args.autoresearch_v17_nanogpt_campaign,
         "openevolve_v21_nanogpt": args.openevolve_v21_nanogpt_campaign,
@@ -4430,6 +4558,7 @@ def main() -> None:
             args.unified_v3_tiny_adderboard_native_campaign
         ),
     }
+    campaigns = {key: local_path(path) for key, path in campaigns.items()}
     token_campaign_roots = dashboard_campaign_roots(campaigns)
     server = ThreadingHTTPServer(
         (args.host, args.port),
@@ -4444,11 +4573,12 @@ def main() -> None:
             codex_token_campaign_roots=token_campaign_roots,
         ),
     )
-    start_codex_rate_limit_sampler(
-        args.codex_rate_limit_history,
-        sample_seconds=args.codex_rate_limit_sample_seconds,
-        token_campaign_roots=token_campaign_roots,
-    )
+    if not WINDOWS_VIEW_ONLY:
+        start_codex_rate_limit_sampler(
+            args.codex_rate_limit_history,
+            sample_seconds=args.codex_rate_limit_sample_seconds,
+            token_campaign_roots=token_campaign_roots,
+        )
     start_python_hot_reloader()
     print("Hot reload: watching dashboard HTML and Python")
     print(f"Dashboard: http://{args.host}:{args.port}")
@@ -4494,11 +4624,14 @@ def main() -> None:
         "Unified v3 Tiny AdderBoard Native OpenEvolve: "
         f"{args.unified_v3_tiny_adderboard_native_campaign}"
     )
-    print(
-        "Codex quota burn-rate history: "
-        f"{args.codex_rate_limit_history} "
-        f"(every {max(30.0, args.codex_rate_limit_sample_seconds):g} seconds)"
-    )
+    if WINDOWS_VIEW_ONLY:
+        print("Windows viewing mode: saved campaign logs; live controls disabled")
+    else:
+        print(
+            "Codex quota burn-rate history: "
+            f"{args.codex_rate_limit_history} "
+            f"(every {max(30.0, args.codex_rate_limit_sample_seconds):g} seconds)"
+        )
     try:
         server.serve_forever()
     except KeyboardInterrupt:
