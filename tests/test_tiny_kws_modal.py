@@ -1,6 +1,7 @@
 import ast
 from pathlib import Path
 
+from experiments.c0c3_factorial.evaluator import windows_evaluator_root
 from experiments.c0c3_factorial.spec import TaskSpec
 from experiments.c0c3_factorial.tiny_v21_runtime import ModalFallbackEvaluator
 
@@ -34,4 +35,4 @@ def test_kws_uses_shared_three_slot_fallback(tmp_path):
         options={"modal_app": "rl4rl-tiny-kws-cpu", "local_evaluator_capacity": 3},
     )
     assert evaluator.local_capacity == 3
-    assert evaluator.fallback_root == tmp_path / "data/c0c3/.tiny-v21-local-evaluators"
+    assert evaluator.fallback_root == windows_evaluator_root()

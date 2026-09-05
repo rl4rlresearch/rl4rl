@@ -12,6 +12,7 @@ from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
 
+from . import pareto
 from .spec import Condition, FactorialSpec
 
 
@@ -490,6 +491,11 @@ class SearchController:
             ).candidate_id
         if not self.condition.has_portfolio:
             return self.state.incumbent_id
+        if self.spec.parent_selection_rule == pareto.PARENT_RULE:
+            return min(
+                (self.state.candidates[key] for key in visible),
+                key=lambda c: (c.selected_count, c.retained_order, c.candidate_id),
+            ).candidate_id
         if len(self.state.portfolio_ids) < self.spec.portfolio_capacity:
             # Create distinct initial branches from the same frozen seed. This
             # prevents a newly filled zero-count slot from immediately turning
@@ -614,6 +620,12 @@ class SearchController:
             raise RuntimeError("no opportunity is active")
         if candidate_id in self.state.candidates:
             raise ValueError("candidate ID has already been evaluated")
+        is_pareto = self.spec.retention_rule == pareto.PORTFOLIO_RULE
+        if is_pareto and evaluation.valid:
+            pareto.point(evaluation.metrics)
+        pareto_before = (
+            pareto.summary(self.state.candidates.values()) if is_pareto else None
+        )
         self.state.usage.add(usage)
         self.state.proposals_used += 1
         self.state.evaluations_used += evaluation.evaluator_calls
@@ -647,6 +659,8 @@ class SearchController:
                 self.state.portfolio_ids = [incumbent_id]
             elif self.state.no_search:
                 decision = "independent_not_retained"
+            elif is_pareto:
+                retained, decision, evicted_id = pareto.retain(self, candidate, parent)
             elif not self.condition.has_portfolio:
                 if candidate.fitness > parent.fitness:
                     retained = True
@@ -672,7 +686,11 @@ class SearchController:
                 decision = "replaced_selected_parent_on_strict_improvement"
             else:
                 decision = "not_strictly_better_than_selected_parent"
-            if self.condition.has_portfolio and not self.state.no_search:
+            if (
+                self.condition.has_portfolio
+                and not self.state.no_search
+                and not is_pareto
+            ):
                 self.state.incumbent_id = max(
                     self.state.portfolio_ids,
                     key=lambda identifier: (
@@ -724,6 +742,11 @@ class SearchController:
         }
         if external_search is not None:
             record["external_search"] = external_search
+        if is_pareto:
+            record["pareto"] = pareto.summary(self.state.candidates.values())
+            record["pareto"]["hypervolume_increment"] = (
+                record["pareto"]["hypervolume"] - pareto_before["hypervolume"]
+            )
         append_jsonl(self.events_path, record)
         self.state.active = None
         self.state.next_opportunity += 1

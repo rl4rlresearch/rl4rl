@@ -34,6 +34,11 @@ SHARED_LOCAL_EVALUATOR_ROOT_ENV = "RL4RL_SHARED_LOCAL_EVALUATOR_ROOT"
 TASK_LOCAL_EVALUATOR_ROOT_ENV = "RL4RL_TASK_LOCAL_EVALUATOR_ROOT"
 
 
+def windows_evaluator_root() -> Path:
+    """One hard three-slot Windows pool, independent of campaign and checkout."""
+    return shared_local_evaluator_root() / "windows-three-slot-fallback"
+
+
 def shared_local_evaluator_root() -> Path:
     """Return one host-wide lock root shared by detached campaign runtimes."""
 
@@ -305,9 +310,7 @@ class CommandEvaluator:
             max_shared_parallel_evaluators = SHARED_LOCAL_EVALUATOR_CAPACITY
         self.shared_slot_root = shared_slot_root
         self.max_shared_parallel_evaluators = max_shared_parallel_evaluators
-        if (capacity_campaign is None) != (
-            default_campaign_evaluator_capacity is None
-        ):
+        if (capacity_campaign is None) != (default_campaign_evaluator_capacity is None):
             raise ValueError(
                 "capacity_campaign and default_campaign_evaluator_capacity must "
                 "be configured together"
@@ -330,6 +333,43 @@ class CommandEvaluator:
 
     @contextlib.contextmanager
     def _evaluation_slot(
+        self, opportunity_root: Path, *, include_shared_local_pool: bool = True
+    ):
+        lease = None
+        if os.name == "nt" and include_shared_local_pool:
+            root = windows_evaluator_root()
+            root.mkdir(parents=True, exist_ok=True)
+            queued = time.monotonic()
+            while lease is None:
+                lease = _try_acquire_slot(
+                    root=root,
+                    capacity=3,
+                    first=0,
+                    opportunity_root=opportunity_root,
+                    scope="windows_shared_host",
+                )
+                if lease is None:
+                    time.sleep(0.5)
+            (opportunity_root / "windows-evaluator-slot.json").write_text(
+                json.dumps(
+                    {
+                        "capacity": 3,
+                        "slot": str(lease.path),
+                        "wait_seconds": time.monotonic() - queued,
+                    }
+                ),
+                encoding="utf-8",
+            )
+        try:
+            with self._legacy_evaluation_slot(
+                opportunity_root, include_shared_local_pool=include_shared_local_pool
+            ):
+                yield
+        finally:
+            _release_slot(lease)
+
+    @contextlib.contextmanager
+    def _legacy_evaluation_slot(
         self, opportunity_root: Path, *, include_shared_local_pool: bool = True
     ):
         """Limit concurrent trainers within a campaign and across the host.
@@ -356,9 +396,7 @@ class CommandEvaluator:
         if shared_root is not None and shared_capacity is not None:
             if shared_root == campaign_root:
                 raise ValueError("campaign and shared evaluator slot roots must differ")
-            shared_capacity = _ensure_shared_scheduler(
-                shared_root, shared_capacity
-            )
+            shared_capacity = _ensure_shared_scheduler(shared_root, shared_capacity)
 
         campaign_lease: _SlotLease | None = None
         shared_lease: _SlotLease | None = None
@@ -598,9 +636,7 @@ def make_command_evaluator(
         "shared_slot_root": shared_slot_root,
         "max_shared_parallel_evaluators": max_shared_parallel_evaluators,
         "capacity_campaign": capacity_campaign,
-        "default_campaign_evaluator_capacity": (
-            default_campaign_evaluator_capacity
-        ),
+        "default_campaign_evaluator_capacity": (default_campaign_evaluator_capacity),
     }
     if task.extension_module is not None:
         extension = importlib.import_module(task.extension_module)

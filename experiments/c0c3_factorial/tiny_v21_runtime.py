@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import contextlib
 import hashlib
 import io
 import shutil
@@ -15,6 +16,7 @@ from .evaluator import (
     EvaluationArtifacts,
     _release_slot,
     _try_acquire_slot,
+    windows_evaluator_root,
 )
 from .hybrid_evaluator import (
     MAX_ARCHIVE_BYTES,
@@ -85,10 +87,16 @@ class ModalFallbackEvaluator(CommandEvaluator):
         }
         super().__init__(**clean)
         self.options = options
-        self.fallback_root = self.repo_root / "data/c0c3/.tiny-v21-local-evaluators"
+        self.fallback_root = windows_evaluator_root()
         self.local_capacity = int(options.get("local_evaluator_capacity", 3))
         if self.local_capacity != 3:
             raise ValueError("this campaign freezes Windows fallback capacity at three")
+
+    @contextlib.contextmanager
+    def _evaluation_slot(self, opportunity_root, **kwargs):
+        # evaluate() already holds the shared Windows lease before local work.
+        # Modal dispatch never enters a local scheduler.
+        yield
 
     def _remote(
         self, *, candidate_snapshot, opportunity_root, timeout_seconds, run_seed
@@ -112,11 +120,22 @@ class ModalFallbackEvaluator(CommandEvaluator):
             "payload_sha256": hashlib.sha256(payload).hexdigest(),
         }
         try:
+            task_payload = asdict(self.task)
+            if self.task.adapter == "uci_har_source_only_v1":
+                expected = hashlib.sha256(
+                    (
+                        self.repo_root / "experiments/c0c3_factorial/uci_har.py"
+                    ).read_bytes()
+                ).hexdigest()
+                task_payload["extension_options"]["expected_evaluator_sha256"] = (
+                    expected
+                )
+                receipt["expected_evaluator_sha256"] = expected
             function = modal.Function.from_name(
                 self.options.get("modal_app", APP_NAME), "evaluate_candidate"
             )
             call = function.spawn(
-                payload, asdict(self.task), timeout_seconds, run_seed, call_id
+                payload, task_payload, timeout_seconds, run_seed, call_id
             )
             receipt["modal_function_call_id"] = call.object_id
             receipt["status"] = "dispatched"

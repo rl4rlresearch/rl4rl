@@ -1,6 +1,7 @@
 from dataclasses import asdict, replace
 from pathlib import Path
 
+import pytest
 import torch
 
 from experiments.c0c3_factorial import tiny_adderboard_v21 as evaluator
@@ -21,6 +22,11 @@ from experiments.c0c3_factorial.tiny_v21_runtime import ModalFallbackEvaluator
 ROOT = Path(__file__).resolve().parents[1]
 PACKAGE = ROOT / "experiments/c0c3_factorial"
 TASK = TaskSpec.from_toml(PACKAGE / "configs/tasks/tiny_adderboard_v2_1_modal.toml")
+
+
+@pytest.fixture(autouse=True)
+def isolated_host_pool(tmp_path, monkeypatch):
+    monkeypatch.setenv("RL4RL_SHARED_LOCAL_EVALUATOR_ROOT", str(tmp_path / "host"))
 
 
 def test_twenty_trajectories_without_altering_legacy_hashes():

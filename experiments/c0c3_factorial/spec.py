@@ -12,6 +12,8 @@ from enum import StrEnum
 from pathlib import Path
 from typing import Any
 
+from . import pareto
+
 
 class SearchState(StrEnum):
     SINGLE = "single_incumbent"
@@ -313,12 +315,30 @@ class FactorialSpec:
         _positive_int(self.blocks, "blocks")
         if self.portfolio_capacity < 2:
             raise ValueError("portfolio_capacity must be at least two")
-        if self.retention_rule != PORTFOLIO_RETENTION_RULE:
+        if self.retention_rule not in {PORTFOLIO_RETENTION_RULE, pareto.PORTFOLIO_RULE}:
             raise ValueError("unknown portfolio retention rule")
-        if self.parent_selection_rule != PARENT_SELECTION_RULE:
+        if self.parent_selection_rule not in {
+            PARENT_SELECTION_RULE,
+            pareto.PARENT_RULE,
+        }:
             raise ValueError("unknown parent selection rule")
-        if self.single_retention_rule != SINGLE_RETENTION_RULE:
+        if self.single_retention_rule not in {
+            SINGLE_RETENTION_RULE,
+            pareto.SINGLE_RULE,
+        }:
             raise ValueError("unknown single-incumbent retention rule")
+        pareto_rules = (
+            self.retention_rule == pareto.PORTFOLIO_RULE,
+            self.parent_selection_rule == pareto.PARENT_RULE,
+            self.single_retention_rule == pareto.SINGLE_RULE,
+        )
+        if any(pareto_rules) and (
+            not all(pareto_rules)
+            or self.protocol_version != "2.1"
+            or self.include_c4 is not False
+            or self.include_no_search
+        ):
+            raise ValueError("Pareto rules require a complete C0-C3-only v2.1 preset")
         if self.failure_rule != FAILURE_RULE:
             raise ValueError("unknown failure rule")
         if not isinstance(self.include_no_search, bool):

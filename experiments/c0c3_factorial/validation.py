@@ -84,6 +84,12 @@ def validate_campaign(
     campaign = Path(campaign_dir).resolve()
     manifest = json.loads((campaign / "campaign.json").read_text(encoding="utf-8"))
     errors: list[str] = []
+    from .pareto import PORTFOLIO_RULE
+
+    if (spec.retention_rule == PORTFOLIO_RULE) != (
+        task.adapter == "uci_har_source_only_v1"
+    ):
+        errors.append("HAR requires the matched accuracy/MAC Pareto protocol")
     try:
         validate_v15_pairing(
             protocol_version=spec.protocol_version,
@@ -216,12 +222,17 @@ def validate_campaign(
         TINY_ADDERBOARD_TASK_ADAPTER,
         TINY_KWS_RNN_TASK_ADAPTER,
         "tiny_adderboard_v21",
+        "uci_har_source_only_v1",
     }:
         if task.adapter == NANOGPT_TASK_ADAPTER:
             sanitized_paths = NANOGPT_SOURCE_ONLY_SEED_PATHS
         elif task.adapter == FASHION_MNIST_TASK_ADAPTER:
             sanitized_paths = FASHION_MNIST_SOURCE_ONLY_SEED_PATHS
-        elif task.adapter in {TINY_ADDERBOARD_TASK_ADAPTER, "tiny_adderboard_v21"}:
+        elif task.adapter in {
+            TINY_ADDERBOARD_TASK_ADAPTER,
+            "tiny_adderboard_v21",
+            "uci_har_source_only_v1",
+        }:
             sanitized_paths = TINY_ADDERBOARD_SOURCE_ONLY_SEED_PATHS
         elif task.adapter == TINY_KWS_RNN_TASK_ADAPTER:
             sanitized_paths = TINY_KWS_RNN_SOURCE_ONLY_SEED_PATHS
@@ -238,6 +249,7 @@ def validate_campaign(
             TINY_ADDERBOARD_TASK_ADAPTER,
             TINY_KWS_RNN_TASK_ADAPTER,
             "tiny_adderboard_v21",
+            "uci_har_source_only_v1",
         }:
             expected_subject_files.add("submission.py")
         actual_subject_files = {

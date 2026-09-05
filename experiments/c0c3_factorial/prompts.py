@@ -23,6 +23,7 @@ from .neutral_task import (
     TINY_ADDERBOARD_OPENEVOLVE_V4_PROMPT_PROFILE,
     TINY_ADDERBOARD_V21_PROMPT_PROFILE,
     TINY_KWS_RNN_OPENEVOLVE_V21_PROMPT_PROFILE,
+    UCI_HAR_PROMPT_PROFILE,
 )
 from .neutral_task import NEUTRAL_PROMPT_PROFILE as _NEUTRAL_PROMPT_PROFILE
 from .spec import (
@@ -178,6 +179,15 @@ class PromptRenderer:
             else None
         )
         self.common_template = (root / "common.md").read_text(encoding="utf-8")
+        self.uci_har_common_template = (
+            root / "uci_har_openevolve_v2_1/PROGRAM.md"
+        ).read_text(encoding="utf-8")
+        self.uci_har_transition = (
+            override_text
+            or (root / "uci_har_openevolve_v2_1/assumption_changing.md")
+            .read_text(encoding="utf-8")
+            .strip()
+        )
         self.tiny_adderboard_v21_common_template = (
             root / "tiny_adderboard_openevolve_v2_1/PROGRAM.md"
         ).read_text(encoding="utf-8")
@@ -482,6 +492,14 @@ class PromptRenderer:
 
     @staticmethod
     def _neutral_task_contract(task: TaskSpec) -> str:
+        if task.adapter == "uci_har_source_only_v1":
+            return (
+                "Maximize validation_accuracy and minimize inference_macs "
+                "using Pareto retention.\n"
+                f"Editable source files: {', '.join(task.editable_paths)}.\n"
+                "Results reported after verification: "
+                f"{', '.join(task.public_feedback_metrics)}."
+            )
         qualification = (
             "No additional accuracy threshold."
             if task.qualification_metric is None
@@ -835,7 +853,8 @@ class PromptRenderer:
         autoresearch_v17 = framework.prompt_profile == AUTORESEARCH_V17_PROMPT_PROFILE
         openevolve_v2 = framework.prompt_profile == OPENEVOLVE_V2_PROMPT_PROFILE
         openevolve_v21 = framework.prompt_profile in {
-            OPENEVOLVE_V21_PROMPT_PROFILE, TINY_ADDERBOARD_V21_PROMPT_PROFILE
+            OPENEVOLVE_V21_PROMPT_PROFILE,
+            TINY_ADDERBOARD_V21_PROMPT_PROFILE,
         }
         nanogpt_autoresearch_v17 = (
             framework.prompt_profile == NANOGPT_AUTORESEARCH_V17_PROMPT_PROFILE
@@ -947,6 +966,8 @@ class PromptRenderer:
                 proposal_policy = "" if neutral else self.ordinary
             if transition_active and context.proposal_policy_override is not None:
                 proposal_policy = context.proposal_policy_override.strip()
+        if transition_active and framework.prompt_profile == UCI_HAR_PROMPT_PROFILE:
+            proposal_policy = self.uci_har_transition
         treatment_skeleton_sha256 = ""
         if artifact_clean:
             include_source_paths = (
@@ -961,7 +982,9 @@ class PromptRenderer:
             guidance_section = (
                 f"## Direction\n\n{proposal_policy}" if proposal_policy else ""
             )
-            if framework.prompt_profile == TINY_ADDERBOARD_V21_PROMPT_PROFILE:
+            if framework.prompt_profile == UCI_HAR_PROMPT_PROFILE:
+                common_template = self.uci_har_common_template
+            elif framework.prompt_profile == TINY_ADDERBOARD_V21_PROMPT_PROFILE:
                 common_template = self.tiny_adderboard_v21_common_template
             elif nanogpt_autoresearch_v17:
                 common_template = (
@@ -992,9 +1015,7 @@ class PromptRenderer:
             else:
                 common_template = self.openevolve_v21_common_template
             values = {
-                "task_contract": self._neutral_task_contract_with_policy(
-                    task, context
-                ),
+                "task_contract": self._neutral_task_contract_with_policy(task, context),
                 "framework_contract": self._neutral_framework_contract(framework),
                 "conversation_contract": self._neutral_conversation_contract(
                     spec, phased_session=context.phased_session

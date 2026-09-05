@@ -1,0 +1,30 @@
+task_id = "uci-har-pareto"
+display_name = "Person-disjoint activity recognition: accuracy and inference MACs"
+adapter = "uci_har_source_only_v1"
+seed_source = "experiments/c0c3_factorial/task_sources/uci_har"
+editable_paths = ["train.py"]
+evaluator_command = [
+  "{python}", "{repo_root}/experiments/c0c3_factorial/uci_har.py", "evaluate",
+  "--workspace", "{workspace}", "--repo-root", "{repo_root}", "--output", "{output}",
+  "--training-examples", "50000", "--max-parameters", "100000",
+]
+# Compatibility field only: Pareto rules never compare scalar fitness.
+objective_metric = "validation_accuracy"
+objective_direction = "maximize"
+public_feedback_metrics = ["validation_accuracy", "inference_macs", "validation_macro_f1", "validation_cross_entropy", "parameters", "examples_processed", "optimizer_steps", "training_seconds", "batch_size"]
+final_holdout_command = [
+  "{python}", "{repo_root}/experiments/c0c3_factorial/uci_har.py", "evaluate",
+  "--workspace", "{workspace}", "--repo-root", "{repo_root}", "--output", "{output}",
+  "--training-examples", "50000", "--max-parameters", "100000", "--holdout",
+]
+preferred_backend = "hybrid_modal"
+extension_module = "experiments.c0c3_factorial.tiny_v21_runtime"
+
+[extension_options]
+unlimited_subject_workers = true
+local_evaluator_capacity = 3
+modal_app = "rl4rl-uci-har-v21"
+modal_retry_seconds = 30
+dashboard_objective = "hypervolume"
+
+[metric_patterns]

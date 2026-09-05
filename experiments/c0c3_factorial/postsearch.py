@@ -331,6 +331,58 @@ def _run_layer_c_unlocked(
         raise FileExistsError("Layer C output already exists")
     output.mkdir()
     final_task = replace(task, evaluator_command=task.final_holdout_command)
+    from . import pareto
+
+    if spec.retention_rule == pareto.PORTFOLIO_RULE:
+        summaries = []
+        for assignment, controller in runs:
+            run_dir = campaign / "runs" / controller.state.run_id
+            selected = pareto.frontier(controller.state.candidates.values())
+            evaluated, records = [], []
+            evaluator = make_command_evaluator(
+                task=final_task,
+                support_source=run_dir / "task-support",
+                repo_root=repo_root,
+                python_bin=python_bin,
+            )
+            for candidate in selected:
+                artifacts = evaluator.evaluate(
+                    candidate_snapshot=run_dir / "candidates" / candidate.candidate_id,
+                    opportunity_root=output
+                    / controller.state.run_id
+                    / candidate.candidate_id,
+                    timeout_seconds=spec.budget.evaluator_timeout_seconds,
+                    run_seed=int(assignment["run_seed"]),
+                )
+                records.append(
+                    {
+                        "selected_by_layer_a_candidate_id": candidate.candidate_id,
+                        "layer_c_evaluation": asdict(artifacts.evaluation),
+                    }
+                )
+                if artifacts.evaluation.valid:
+                    evaluated.append(
+                        replace(candidate, metrics=artifacts.evaluation.metrics)
+                    )
+            summaries.append(
+                {
+                    "run_id": controller.state.run_id,
+                    "block": assignment["block"],
+                    "condition": assignment["condition"],
+                    "selection_rule": (
+                        "entire_validation_archive_frontier_including_nonretained"
+                    ),
+                    "candidates": records,
+                    "holdout_hypervolume": pareto.hypervolume(evaluated)
+                    if len(evaluated) == len(selected)
+                    else None,
+                    "complete": len(evaluated) == len(selected),
+                }
+            )
+        (output / "summary.json").write_text(
+            json.dumps(summaries, indent=2) + "\n", encoding="utf-8"
+        )
+        return output
     summary = []
     for assignment, controller in runs:
         run_dir = campaign / "runs" / controller.state.run_id

@@ -650,9 +650,7 @@ def _run_one_opportunity_unlocked(
                 search_seed=int(refreshed["search_seed"]),
             )
     subject_memory = memory_state(run_dir, base_seed=run_seed)
-    history_start_opportunity = int(
-        subject_memory.get("history_start_opportunity", 1)
-    )
+    history_start_opportunity = int(subject_memory.get("history_start_opportunity", 1))
     search_seed = int(subject_memory.get("search_seed", run_seed))
     native_selection = None
     if is_native_openevolve(framework):
@@ -912,9 +910,7 @@ def _run_one_opportunity_unlocked(
                     ],
                     "original_outcome_count": max(
                         0,
-                        controller.state.proposals_used
-                        - history_start_opportunity
-                        + 1,
+                        controller.state.proposals_used - history_start_opportunity + 1,
                     ),
                     "rendered_outcome_count": len(recent_outcomes),
                     "rendered_evidence_characters": sum(
@@ -1095,6 +1091,10 @@ def _run_one_opportunity_unlocked(
         and task.adapter == TINY_KWS_RNN_TASK_ADAPTER
     ):
         preflight_error = preflight_tiny_kws_rnn(workspace)
+    if preflight_error is None and task.adapter == "uci_har_source_only_v1":
+        from .uci_har import preflight_candidate_source as preflight_har
+
+        preflight_error = preflight_har(workspace)
     if proposal.codex.returncode != 0 or adapter_error or preflight_error:
         failure_kind = (
             "provider"
@@ -1165,9 +1165,7 @@ def _run_one_opportunity_unlocked(
                     run_dir.parent.parent if spec.protocol_version == "3.0" else None
                 ),
                 default_campaign_evaluator_capacity=(
-                    max_parallel_evaluators
-                    if spec.protocol_version == "3.0"
-                    else None
+                    max_parallel_evaluators if spec.protocol_version == "3.0" else None
                 ),
             )
 

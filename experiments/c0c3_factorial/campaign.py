@@ -208,6 +208,12 @@ def create_campaign(
     repo_root: Path,
     include_no_search: bool | None = None,
 ) -> Path:
+    from .pareto import PORTFOLIO_RULE
+
+    if (spec.retention_rule == PORTFOLIO_RULE) != (
+        task.adapter == "uci_har_source_only_v1"
+    ):
+        raise ValueError("HAR requires the matched accuracy/MAC Pareto protocol")
     validate_v15_pairing(
         protocol_version=spec.protocol_version,
         task_adapter=task.adapter,
