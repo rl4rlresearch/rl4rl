@@ -5,6 +5,7 @@ const html = fs.readFileSync('experiments/live_trajectory_dashboard.html', 'utf8
 const scripts = [...html.matchAll(/<script(?:\s[^>]*)?>([\s\S]*?)<\/script>/g)];
 for (const [, script] of scripts) new vm.Script(script);
 const context = {
+  finite: value => value == null || !Number.isFinite(Number(value)) ? null : Number(value),
   proposalBounds: s => ({start: Number(s.proposalStart || 0), end: s.proposalEnd == null ? null : Number(s.proposalEnd)}),
   interventionWindowSize: s => Number(s.interventionWindow),
   interventionStarts: p => p.transition_opportunities,
@@ -44,3 +45,33 @@ assert.equal(aggregate.data[2].y,null);
 assert.ok(html.includes('includeFirstWindow:false'));
 assert.ok(html.includes('data-control="includeFirstWindow"'));
 console.log('PASS: initial-window opt-in, complete interval, seed requirement, bounds, and stable aggregate cohort.');
+
+const nanoPayload = {...payload, objective_metric:'val_bpb'};
+const thresholdState = {...state, nanogptWindowPhase:'reached'};
+const nanoRun = {points:run.points.map(p=>({...p,best_objective:p.proposal<10?0.99:0.988}))};
+assert.deepEqual(Array.from(context.interventionCandidates(nanoRun,thresholdState,nanoPayload),w=>w.interventionStart),[20]);
+// Equality qualifies before the intervention, but crossing during it does not.
+nanoRun.points[9].best_objective=0.988;
+assert.deepEqual(Array.from(context.interventionCandidates(nanoRun,thresholdState,nanoPayload),w=>w.interventionStart),[10,20]);
+nanoRun.points[0].best_objective=0.987;
+assert.equal(context.interventionCandidates(nanoRun,thresholdState,nanoPayload)[0].initial,true);
+nanoRun.points[9].best_objective=null;
+assert.deepEqual(Array.from(context.interventionCandidates(nanoRun,thresholdState,nanoPayload),w=>w.interventionStart),[1,20]);
+assert.equal(context.interventionCandidates(nanoRun,{...thresholdState,nanogptWindowPhase:'all'},nanoPayload).length,3);
+assert.equal(context.interventionCandidates(nanoRun,thresholdState,payload).length,3);
+assert.ok(html.includes("nanogptWindowPhase:'all'"));
+console.log('PASS: nanoGPT baseline BPB threshold, equality, no look-ahead, seed, missing metric, opt-out, other tasks.');
+
+const crossingRun = {points:run.points.map(p=>({...p,best_objective:p.proposal<12?0.99:0.988}))};
+const noCrossing={...state,nanogptWindowPhase:'noCrossing'};
+// Initial window 1–8 is before the crossing; P10–17 crosses; P20–27 is after.
+assert.deepEqual(Array.from(context.interventionCandidates(crossingRun,noCrossing,nanoPayload),w=>w.interventionStart),[1,20]);
+// Overlapping initial windows that contain the crossing are excluded too.
+assert.equal(context.interventionCandidates(crossingRun,{...noCrossing,interventionWindow:12},nanoPayload).length,0);
+const edgeRun = {points:run.points.map(p=>({...p,best_objective:p.proposal<17?0.99:0.988}))};
+assert.deepEqual(Array.from(context.interventionCandidates(edgeRun,noCrossing,nanoPayload),w=>w.interventionStart),[1,20]);
+const beforeRun = {points:run.points.map(p=>({...p,best_objective:p.proposal<9?0.99:0.988}))};
+assert.equal(context.interventionCandidates(beforeRun,noCrossing,nanoPayload).length,3);
+const neverCrosses = {points:run.points.map(p=>({...p,best_objective:0.99}))};
+assert.equal(context.interventionCandidates(neverCrosses,noCrossing,nanoPayload).length,3);
+console.log('PASS: exclude crossing windows only, retain windows before/after, equality, endpoint and overlapping-window crossings.');
