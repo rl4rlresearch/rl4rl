@@ -22,7 +22,7 @@ manifests, states, events, and quarantined attempts remain preserved. Continuati
 uses the already-cleaned state, including its previously cleared unfinished tails.
 
 Prepare data with the existing `tiny_kws_rnn prepare --repo-root .` command, then
-deploy with `python -m modal deploy experiments/modal_tiny_kws_app.py`. After the
+deploy with `python -m modal deploy -m experiments.modal_tiny_kws_app`. After the
 campaign amendment and isolated Modal smoke evaluation have been verified, run
 `./experiments/resume_tiny_kws_modal.ps1`. Inspect its timestamped worker receipt,
 per-worker logs, live controller locks, and new `remote-dispatch.json` receipts.

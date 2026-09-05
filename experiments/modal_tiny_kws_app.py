@@ -30,6 +30,11 @@ image = (
         copy=True,
         ignore=["extracted/**", "*.partial-*"],
     )
+    .add_local_file(
+        str(Path(__file__).resolve()),
+        "/opt/rl4rl/experiments/modal_tiny_kws_app.py",
+        copy=True,
+    )
     .env({"OMP_NUM_THREADS": "2", "MKL_NUM_THREADS": "2", "OPENBLAS_NUM_THREADS": "2"})
     .workdir("/opt/rl4rl")
 )

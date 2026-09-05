@@ -19,6 +19,7 @@ def test_kws_modal_resources_and_data_image():
         k.arg == "max_containers" for k in function.decorator_list[0].keywords
     )
     assert "/opt/rl4rl/data/raw/tiny-kws-rnn" in source
+    assert "/opt/rl4rl/experiments/modal_tiny_kws_app.py" in source
 
 
 def test_kws_uses_shared_three_slot_fallback(tmp_path):
