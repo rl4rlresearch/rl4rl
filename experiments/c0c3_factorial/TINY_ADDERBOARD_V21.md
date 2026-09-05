@@ -101,3 +101,15 @@ still have POSIX-only imports and legacy suites have Windows fixture failures.
 The Mac `architecture_discovery/.venv/bin/python` interpreter is absent here.
 These limitations are recorded rather than calling the full suite green.
 Raw verification logs and calibration bundles are under `outputs/tiny-v21/`.
+# Windows recovery amendment (2026-09-05)
+
+The operator authorized safe recovery and resumption of all twenty trajectories.
+Windows state reads and atomic replacements now retry sharing/access errors for
+up to five seconds, using the same saved payload rather than repeating a proposal.
+Other errors still fail. Recovery snapshots, old/new runtime hashes, and exact
+run boundaries are retained in the campaign's `recovery-20260905` directory and
+`campaign-amendments.jsonl`. Existing Modal responses are retrieved using their
+saved function-call IDs and checked against payload hashes and candidate identity;
+completed evaluations enter the ordinary retention/accounting transition once.
+Only a proposal without completed recoverable work uses charged interruption
+recovery. The evaluator, training, prompts, conditions, and budgets are unchanged.

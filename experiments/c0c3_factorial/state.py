@@ -6,6 +6,7 @@ import json
 import math
 import os
 import tempfile
+import time
 from dataclasses import asdict, dataclass
 from datetime import UTC, datetime
 from pathlib import Path
@@ -27,7 +28,19 @@ def atomic_json(path: Path, value: object) -> None:
             handle.write("\n")
             handle.flush()
             os.fsync(handle.fileno())
-        os.replace(temporary, path)
+        # Windows readers can briefly prevent replacement of an existing file.
+        # Retry the same durable payload, never the scientific operation.
+        for attempt in range(101):
+            try:
+                os.replace(temporary, path)
+                break
+            except PermissionError as error:
+                if (
+                    getattr(error, "winerror", None) not in {5, 32, 33}
+                    or attempt == 100
+                ):
+                    raise
+                time.sleep(0.05)
     finally:
         Path(temporary).unlink(missing_ok=True)
 
@@ -222,9 +235,18 @@ class SearchController:
     @classmethod
     def load(cls, run_dir: str | Path, spec: FactorialSpec) -> SearchController:
         destination = Path(run_dir).resolve()
-        state = RunState.from_dict(
-            json.loads((destination / "state.json").read_text(encoding="utf-8"))
-        )
+        for attempt in range(101):
+            try:
+                payload = (destination / "state.json").read_text(encoding="utf-8")
+                break
+            except PermissionError as error:
+                if (
+                    getattr(error, "winerror", None) not in {5, 32, 33}
+                    or attempt == 100
+                ):
+                    raise
+                time.sleep(0.05)
+        state = RunState.from_dict(json.loads(payload))
         return cls(destination, spec, state)
 
     @property
