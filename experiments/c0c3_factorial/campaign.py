@@ -382,7 +382,7 @@ def create_campaign(
                         "first_refresh_opportunity": 11,
                     }
                 }
-                if spec.protocol_version == "2.1"
+                if spec.protocol_version == "2.1" and spec.include_c4 is not False
                 else {}
             ),
         },

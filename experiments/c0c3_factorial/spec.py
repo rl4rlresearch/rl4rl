@@ -91,11 +91,13 @@ class Condition(StrEnum):
 C4_CONDITION = Condition("C4")
 
 
-def conditions_for_protocol(protocol_version: str) -> tuple[Condition, ...]:
+def conditions_for_protocol(
+    protocol_version: str, include_c4: bool | None = None
+) -> tuple[Condition, ...]:
     """Return the scheduled search arms for one protocol version."""
 
     legacy = tuple(Condition)
-    if protocol_version == "2.1":
+    if protocol_version == "2.1" and include_c4 is not False:
         return (*legacy, C4_CONDITION)
     return legacy
 
@@ -269,6 +271,7 @@ class FactorialSpec:
     failure_rule: str = FAILURE_RULE
     execution_rule: str = EXECUTION_RULE
     include_no_search: bool = True
+    include_c4: bool | None = None
 
     @property
     def continues_after_token_threshold(self) -> bool:
@@ -320,6 +323,8 @@ class FactorialSpec:
             raise ValueError("unknown failure rule")
         if not isinstance(self.include_no_search, bool):
             raise ValueError("include_no_search must be boolean")
+        if self.include_c4 is not None and not isinstance(self.include_c4, bool):
+            raise ValueError("include_c4 must be boolean or omitted")
         expected_execution_rule = PROTOCOL_EXECUTION_RULES[self.protocol_version]
         if self.execution_rule != expected_execution_rule:
             raise ValueError(
@@ -371,13 +376,17 @@ class FactorialSpec:
 
     @property
     def protocol_hash(self) -> str:
-        return sha256_json(asdict(self))
+        payload = asdict(self)
+        if self.include_c4 is None:
+            payload.pop("include_c4")
+        return sha256_json(payload)
 
     @classmethod
     def from_toml(cls, path: str | Path) -> FactorialSpec:
         payload = tomllib.loads(Path(path).read_text(encoding="utf-8"))
         payload.setdefault("conversation_mode", ConversationMode.EPHEMERAL.value)
         payload.setdefault("include_no_search", True)
+        payload.setdefault("include_c4", None)
         _strict_keys(
             payload,
             {
@@ -394,6 +403,7 @@ class FactorialSpec:
                 "failure_rule",
                 "execution_rule",
                 "include_no_search",
+                "include_c4",
                 "model",
                 "budget",
             },
@@ -590,7 +600,9 @@ def make_assignments(
             ).digest()[:8],
             "big",
         )
-        conditions = list(conditions_for_protocol(spec.protocol_version))
+        conditions = list(
+            conditions_for_protocol(spec.protocol_version, spec.include_c4)
+        )
         random.Random(run_seed).shuffle(conditions)
         for order, condition in enumerate(conditions, start=1):
             assignments.append(

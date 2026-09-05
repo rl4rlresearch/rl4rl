@@ -158,7 +158,9 @@ def validate_campaign(
     for block in range(1, spec.blocks + 1):
         rows = [row for row in schedule if int(row["block"]) == block]
         factorial = [row["condition"] for row in rows if row["condition"] != "N0"]
-        expected_conditions = conditions_for_protocol(spec.protocol_version)
+        expected_conditions = conditions_for_protocol(
+            spec.protocol_version, spec.include_c4
+        )
         if sorted(factorial) != sorted(
             condition.value for condition in expected_conditions
         ):
@@ -213,12 +215,13 @@ def validate_campaign(
         FASHION_MNIST_TASK_ADAPTER,
         TINY_ADDERBOARD_TASK_ADAPTER,
         TINY_KWS_RNN_TASK_ADAPTER,
+        "tiny_adderboard_v21",
     }:
         if task.adapter == NANOGPT_TASK_ADAPTER:
             sanitized_paths = NANOGPT_SOURCE_ONLY_SEED_PATHS
         elif task.adapter == FASHION_MNIST_TASK_ADAPTER:
             sanitized_paths = FASHION_MNIST_SOURCE_ONLY_SEED_PATHS
-        elif task.adapter == TINY_ADDERBOARD_TASK_ADAPTER:
+        elif task.adapter in {TINY_ADDERBOARD_TASK_ADAPTER, "tiny_adderboard_v21"}:
             sanitized_paths = TINY_ADDERBOARD_SOURCE_ONLY_SEED_PATHS
         elif task.adapter == TINY_KWS_RNN_TASK_ADAPTER:
             sanitized_paths = TINY_KWS_RNN_SOURCE_ONLY_SEED_PATHS
@@ -234,6 +237,7 @@ def validate_campaign(
             FASHION_MNIST_TASK_ADAPTER,
             TINY_ADDERBOARD_TASK_ADAPTER,
             TINY_KWS_RNN_TASK_ADAPTER,
+            "tiny_adderboard_v21",
         }:
             expected_subject_files.add("submission.py")
         actual_subject_files = {
@@ -288,7 +292,9 @@ def validate_campaign(
     )
     for opportunity in range(1, spec.budget.proposals + 1):
         prompts = {}
-        for condition in conditions_for_protocol(spec.protocol_version):
+        for condition in conditions_for_protocol(
+            spec.protocol_version, spec.include_c4
+        ):
             context = PromptContext(
                 condition=condition,
                 opportunity=opportunity,

@@ -24,8 +24,8 @@ APP_NAME = "rl4rl-c0c3-factorial"
 VOLUME_NAME = "rl4rl-c0c3-campaigns"
 AUTORESEARCH_CACHE_VOLUME_NAME = "rl4rl-autoresearch-cache"
 SECRET_NAME = "rl4rl-codex"
-REMOTE_REPO = Path("/opt/rl4rl")
-REMOTE_CAMPAIGNS = Path("/campaigns")
+REMOTE_REPO = PurePosixPath("/opt/rl4rl")
+REMOTE_CAMPAIGNS = PurePosixPath("/campaigns")
 LOCAL_REPO = Path(__file__).resolve().parents[2]
 
 

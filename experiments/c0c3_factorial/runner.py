@@ -2,7 +2,6 @@
 
 from __future__ import annotations
 
-import fcntl
 import hashlib
 import json
 import os
@@ -14,6 +13,7 @@ from contextlib import contextmanager
 from datetime import UTC, datetime
 from pathlib import Path
 
+from . import file_lock as fcntl
 from .agent_scheduler import (
     AgentWorkerLease,
     acquire_agent_worker_slot,
@@ -70,6 +70,7 @@ from .spec import (
 from .state import Evaluation, SearchController
 from .task_evaluators import preflight_candidate_source
 from .tiny_adderboard import preflight_candidate_source as preflight_tiny_adderboard
+from .tiny_adderboard_v21 import preflight_candidate_source as preflight_tiny_v21
 from .tiny_kws_rnn import preflight_candidate_source as preflight_tiny_kws_rnn
 from .training_ladder import assess_developmental_value, evaluate_training_ladder
 from .v3 import load_runtime_options, prompt_renderer_paths
@@ -1085,6 +1086,12 @@ def _run_one_opportunity_unlocked(
     elif (
         proposal.codex.returncode == 0
         and adapter_error is None
+        and task.adapter == "tiny_adderboard_v21"
+    ):
+        preflight_error = preflight_tiny_v21(workspace)
+    elif (
+        proposal.codex.returncode == 0
+        and adapter_error is None
         and task.adapter == TINY_KWS_RNN_TASK_ADAPTER
     ):
         preflight_error = preflight_tiny_kws_rnn(workspace)
@@ -1385,7 +1392,9 @@ def run_one_opportunity(
     resolved = Path(run_dir).resolve()
     next_opportunity = SearchController.load(resolved, spec).state.next_opportunity
     lease = agent_worker_lease
-    if lease is None:
+    if lease is None and not task.extension_options.get(
+        "unlimited_subject_workers", False
+    ):
         lease = acquire_agent_worker_slot(
             worker_id=f"{resolved}:{next_opportunity}",
             metadata={

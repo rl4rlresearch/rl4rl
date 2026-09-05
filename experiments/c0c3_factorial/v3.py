@@ -9,7 +9,6 @@ not require another hard-coded protocol family.
 
 from __future__ import annotations
 
-import fcntl
 import hashlib
 import json
 import os
@@ -22,6 +21,7 @@ from contextlib import contextmanager
 from pathlib import Path
 from typing import Any
 
+from . import file_lock as fcntl
 from .artifacts import scientific_runtime_hash, tree_hash
 from .neutral_task import ARTIFACT_CLEAN_ASSUMPTION_PROMPT_PATHS
 from .spec import (

@@ -10,7 +10,7 @@ rewriting any previously recorded trajectory artifact.
 from __future__ import annotations
 
 import argparse
-import fcntl
+from experiments.c0c3_factorial import file_lock as fcntl
 import hashlib
 import json
 import shutil

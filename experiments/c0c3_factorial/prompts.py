@@ -21,6 +21,7 @@ from .neutral_task import (
     OPERATOR_PROMPT_ROOT_ENV,
     SUBJECT_NEUTRAL_PROMPT_PROFILES,
     TINY_ADDERBOARD_OPENEVOLVE_V4_PROMPT_PROFILE,
+    TINY_ADDERBOARD_V21_PROMPT_PROFILE,
     TINY_KWS_RNN_OPENEVOLVE_V21_PROMPT_PROFILE,
 )
 from .neutral_task import NEUTRAL_PROMPT_PROFILE as _NEUTRAL_PROMPT_PROFILE
@@ -177,6 +178,9 @@ class PromptRenderer:
             else None
         )
         self.common_template = (root / "common.md").read_text(encoding="utf-8")
+        self.tiny_adderboard_v21_common_template = (
+            root / "tiny_adderboard_openevolve_v2_1/PROGRAM.md"
+        ).read_text(encoding="utf-8")
         self.ordinary = (root / "ordinary.md").read_text(encoding="utf-8").strip()
         self.transition = (
             (root / "assumption_changing.md").read_text(encoding="utf-8").strip()
@@ -830,7 +834,9 @@ class PromptRenderer:
         artifact_clean = framework.prompt_profile in ARTIFACT_CLEAN_PROMPT_PROFILES
         autoresearch_v17 = framework.prompt_profile == AUTORESEARCH_V17_PROMPT_PROFILE
         openevolve_v2 = framework.prompt_profile == OPENEVOLVE_V2_PROMPT_PROFILE
-        openevolve_v21 = framework.prompt_profile == OPENEVOLVE_V21_PROMPT_PROFILE
+        openevolve_v21 = framework.prompt_profile in {
+            OPENEVOLVE_V21_PROMPT_PROFILE, TINY_ADDERBOARD_V21_PROMPT_PROFILE
+        }
         nanogpt_autoresearch_v17 = (
             framework.prompt_profile == NANOGPT_AUTORESEARCH_V17_PROMPT_PROFILE
         )
@@ -955,7 +961,9 @@ class PromptRenderer:
             guidance_section = (
                 f"## Direction\n\n{proposal_policy}" if proposal_policy else ""
             )
-            if nanogpt_autoresearch_v17:
+            if framework.prompt_profile == TINY_ADDERBOARD_V21_PROMPT_PROFILE:
+                common_template = self.tiny_adderboard_v21_common_template
+            elif nanogpt_autoresearch_v17:
                 common_template = (
                     self.nanogpt_autoresearch_v17_initial_template
                     if context.opportunity == 1

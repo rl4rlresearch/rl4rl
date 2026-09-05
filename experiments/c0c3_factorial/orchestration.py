@@ -2,7 +2,6 @@
 
 from __future__ import annotations
 
-import fcntl
 import hashlib
 import json
 import os
@@ -15,6 +14,7 @@ from dataclasses import dataclass
 from datetime import UTC, datetime
 from pathlib import Path
 
+from . import file_lock as fcntl
 from .agent_scheduler import WorkerQueueCancelled
 from .prompts import (
     FROZEN_ASSUMPTION_PROMPT,
@@ -360,7 +360,7 @@ def _staged_stage_assignments(
         )
 
     expected_count = (
-        len(conditions_for_protocol(spec.protocol_version))
+        len(conditions_for_protocol(spec.protocol_version, spec.include_c4))
         if stage == FACTORIAL_STAGE
         else 1
     )

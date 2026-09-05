@@ -3,7 +3,6 @@
 from __future__ import annotations
 
 import contextlib
-import fcntl
 import hashlib
 import importlib
 import json
@@ -17,6 +16,7 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import TextIO
 
+from . import file_lock as fcntl
 from .artifacts import materialize_candidate
 from .capacity_control import (
     CampaignEvaluatorLease,
@@ -42,7 +42,7 @@ def shared_local_evaluator_root() -> Path:
         return Path(configured).expanduser().resolve()
     stable_tmp = Path("/private/tmp")
     base = stable_tmp if stable_tmp.is_dir() else Path(tempfile.gettempdir())
-    return base / f"rl4rl-c0c3-local-evaluators-{os.getuid()}-v1"
+    return base / f"rl4rl-c0c3-local-evaluators-{fcntl.user_key()}-v1"
 
 
 def task_local_evaluator_root(task_id: str) -> Path:
@@ -54,7 +54,7 @@ def task_local_evaluator_root(task_id: str) -> Path:
     else:
         stable_tmp = Path("/private/tmp")
         temporary = stable_tmp if stable_tmp.is_dir() else Path(tempfile.gettempdir())
-        base = temporary / f"rl4rl-c0c3-task-evaluators-{os.getuid()}-v1"
+        base = temporary / f"rl4rl-c0c3-task-evaluators-{fcntl.user_key()}-v1"
     return base / task_id
 
 
@@ -320,7 +320,7 @@ class CommandEvaluator:
             if default_campaign_evaluator_capacity is not None
             else None
         )
-        if "/" in python_bin:
+        if "/" in python_bin or "\\" in python_bin:
             # Make relative paths safe for the evaluator's temporary cwd without
             # dereferencing a virtual-environment interpreter symlink. Resolving
             # that symlink can bypass pyvenv.cfg and silently drop dependencies.

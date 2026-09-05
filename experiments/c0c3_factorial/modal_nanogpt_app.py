@@ -11,7 +11,7 @@ import tempfile
 import time
 import zipfile
 from dataclasses import asdict
-from pathlib import Path
+from pathlib import Path, PurePosixPath
 
 try:
     import modal
@@ -25,8 +25,8 @@ from .hybrid_evaluator import (
     NANOGPT_APP_NAME,
 )
 
-REMOTE_REPO = Path("/opt/rl4rl")
-REMOTE_AUTORESEARCH = Path("/opt/autoresearch")
+REMOTE_REPO = PurePosixPath("/opt/rl4rl")
+REMOTE_AUTORESEARCH = PurePosixPath("/opt/autoresearch")
 LOCAL_REPO = Path(__file__).resolve().parents[2]
 CACHE_VOLUME_NAME = "rl4rl-autoresearch-cache"
 NANOGPT_BASE_IMAGE = "ubuntu:22.04"

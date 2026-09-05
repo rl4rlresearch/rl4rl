@@ -2,6 +2,9 @@
 
 from __future__ import annotations
 
+TINY_ADDERBOARD_V21_TASK_ADAPTER = "tiny_adderboard_v21"
+TINY_ADDERBOARD_V21_PROMPT_PROFILE = "tiny_adderboard_openevolve_v2_1"
+
 NEUTRAL_TASK_ADAPTER = "ten_digit_addition_transformer_v1"
 PAIR_TOKEN_TASK_ADAPTER = "ten_digit_addition_pair_transformer_v1"
 PAIR_TOKEN_TASK_ADAPTER_V2 = "ten_digit_addition_pair_transformer_v2"
@@ -25,6 +28,7 @@ SUBJECT_NEUTRAL_PROTOCOL_VERSIONS = frozenset(
 )
 SUBJECT_NEUTRAL_PROMPT_PROFILES = frozenset(
     {
+        TINY_ADDERBOARD_V21_PROMPT_PROFILE,
         NEUTRAL_PROMPT_PROFILE,
         OPENEVOLVE_V2_PROMPT_PROFILE,
         AUTORESEARCH_V17_PROMPT_PROFILE,
@@ -39,6 +43,7 @@ SUBJECT_NEUTRAL_PROMPT_PROFILES = frozenset(
 )
 SUBJECT_NEUTRAL_TASK_ADAPTERS = frozenset(
     {
+        TINY_ADDERBOARD_V21_TASK_ADAPTER,
         NEUTRAL_TASK_ADAPTER,
         PAIR_TOKEN_TASK_ADAPTER,
         PAIR_TOKEN_TASK_ADAPTER_V2,
@@ -52,6 +57,7 @@ SUBJECT_NEUTRAL_TASK_ADAPTERS = frozenset(
 ARTIFACT_CLEAN_PROTOCOL_VERSIONS = frozenset({"1.7", "2.1", "3.0"})
 ARTIFACT_CLEAN_PROMPT_PROFILES = frozenset(
     {
+        TINY_ADDERBOARD_V21_PROMPT_PROFILE,
         AUTORESEARCH_V17_PROMPT_PROFILE,
         OPENEVOLVE_V21_PROMPT_PROFILE,
         NANOGPT_AUTORESEARCH_V17_PROMPT_PROFILE,
@@ -63,6 +69,9 @@ ARTIFACT_CLEAN_PROMPT_PROFILES = frozenset(
     }
 )
 ARTIFACT_CLEAN_ASSUMPTION_PROMPT_PATHS = {
+    TINY_ADDERBOARD_V21_PROMPT_PROFILE: (
+        "tiny_adderboard_openevolve_v2_1/assumption_changing.md"
+    ),
     AUTORESEARCH_V17_PROMPT_PROFILE: (
         "transformer_optimizer_v1_7/assumption_changing.md"
     ),
@@ -146,6 +155,7 @@ def validate_v15_pairing(
         },
         "2.0": {PAIR_TOKEN_TASK_ADAPTER_V2},
         "2.1": {
+            TINY_ADDERBOARD_V21_TASK_ADAPTER,
             PAIR_TOKEN_TASK_ADAPTER_V3,
             NANOGPT_TASK_ADAPTER,
             FASHION_MNIST_TASK_ADAPTER,
@@ -197,6 +207,7 @@ def validate_v15_pairing(
             )
         return
     expected_profile = {
+        ("2.1", TINY_ADDERBOARD_V21_TASK_ADAPTER): TINY_ADDERBOARD_V21_PROMPT_PROFILE,
         ("1.7", PAIR_TOKEN_TASK_ADAPTER_V3): AUTORESEARCH_V17_PROMPT_PROFILE,
         (
             "1.7",

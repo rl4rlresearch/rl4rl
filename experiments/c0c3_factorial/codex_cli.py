@@ -218,6 +218,7 @@ class CodexCli:
                         command,
                         input=prompt,
                         text=True,
+                        encoding="utf-8",
                         stdout=stdout_handle,
                         stderr=stderr_handle,
                         env=(

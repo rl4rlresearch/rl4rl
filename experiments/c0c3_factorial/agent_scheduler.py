@@ -9,7 +9,6 @@ process crash while leaving campaigns free to advance independently.
 
 from __future__ import annotations
 
-import fcntl
 import hashlib
 import json
 import os
@@ -18,6 +17,8 @@ import time
 from dataclasses import dataclass
 from pathlib import Path
 from typing import TextIO
+
+from . import file_lock as fcntl
 
 SHARED_AGENT_WORKER_CAPACITY = 30
 OPERATOR_CAPACITY_FILENAME = "operator-capacity.json"
@@ -36,7 +37,7 @@ def shared_agent_worker_root() -> Path:
         return Path(configured).expanduser().resolve()
     stable_tmp = Path("/private/tmp")
     base = stable_tmp if stable_tmp.is_dir() else Path(tempfile.gettempdir())
-    return base / f"rl4rl-c0c3-agent-workers-{os.getuid()}-v1"
+    return base / f"rl4rl-c0c3-agent-workers-{fcntl.user_key()}-v1"
 
 
 @dataclass

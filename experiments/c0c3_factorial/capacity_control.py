@@ -8,7 +8,6 @@ Writing these controls never changes a campaign's running/paused lifecycle.
 
 from __future__ import annotations
 
-import fcntl
 import hashlib
 import json
 import os
@@ -19,6 +18,7 @@ from dataclasses import asdict, dataclass
 from pathlib import Path
 from typing import TextIO
 
+from . import file_lock as fcntl
 from .state import atomic_json, utc_now
 
 CAMPAIGN_CAPACITY_CONTROL = Path("capacity-control.json")
@@ -138,7 +138,7 @@ def campaign_evaluator_slot_root(campaign: str | Path) -> Path:
     else:
         stable_tmp = Path("/private/tmp")
         temporary = stable_tmp if stable_tmp.is_dir() else Path(tempfile.gettempdir())
-        base = temporary / f"rl4rl-c0c3-campaign-evaluators-{os.getuid()}-v1"
+        base = temporary / f"rl4rl-c0c3-campaign-evaluators-{fcntl.user_key()}-v1"
     identifier = hashlib.sha256(str(root).encode()).hexdigest()[:16]
     return base / identifier
 

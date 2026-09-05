@@ -1,0 +1,28 @@
+task_id = "four-digit"
+display_name = "learned transformer for exact four-digit addition"
+adapter = "tiny_adderboard_v21"
+seed_source = "experiments/c0c3_factorial/task_sources/tiny_adderboard_v21"
+editable_paths = ["train.py"]
+evaluator_command = [
+  "{python}", "{repo_root}/experiments/c0c3_factorial/tiny_adderboard_v21.py",
+  "--workspace", "{workspace}", "--output", "{output}", "--device", "cpu",
+]
+objective_metric = "parameters"
+objective_direction = "minimize"
+qualification_metric = "accuracy"
+qualification_minimum = 0.99
+public_feedback_metrics = ["accuracy", "parameters", "training_steps", "training_seconds", "attention_ablation_accuracy"]
+final_holdout_command = [
+  "{python}", "{repo_root}/experiments/c0c3_factorial/tiny_adderboard_v21.py",
+  "--workspace", "{workspace}", "--output", "{output}", "--device", "cpu", "--layer", "C",
+]
+preferred_backend = "hybrid_modal"
+extension_module = "experiments.c0c3_factorial.tiny_v21_runtime"
+
+[extension_options]
+unlimited_subject_workers = true
+local_evaluator_capacity = 3
+modal_app = "rl4rl-tiny-adderboard-v21"
+modal_retry_seconds = 30
+
+[metric_patterns]

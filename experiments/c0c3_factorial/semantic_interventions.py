@@ -10,7 +10,6 @@ the phase-boundary direction or an explicitly declared search-memory policy.
 
 from __future__ import annotations
 
-import fcntl
 import hashlib
 import json
 import os
@@ -26,6 +25,7 @@ from dataclasses import asdict, dataclass, replace
 from pathlib import Path
 from typing import Any
 
+from . import file_lock as fcntl
 from .agent_scheduler import (
     AgentWorkerLease,
     release_agent_worker_slot,
