@@ -21,6 +21,25 @@ def resume_to_target(campaign, run_id, target, *, repo_root, python_bin, codex_b
     if not state.proposals_used < target < spec.budget.proposals:
         raise ValueError("Target must exceed current count and precede campaign end")
     original = orchestration.run_one_opportunity
+    original_conditions = orchestration.conditions_for_protocol
+    legacy_schedule = (
+        getattr(spec, "protocol_version", None) == "2.1" and spec.include_c4 is None
+    )
+    if legacy_schedule:
+        rows = json.loads((campaign / "schedule.json").read_text(encoding="utf-8"))
+        # Older campaigns keep C4 in a separate schedule. Validate the complete
+        # original factorial schedule before adapting only the stage-size gate.
+        for block in range(1, spec.blocks + 1):
+            conditions = [r["condition"] for r in rows if r["block"] == block]
+            if sorted(conditions) != ["C0", "C1", "C2", "C3"]:
+                raise ValueError(
+                    "Legacy continuation requires four C0-C3 arms per block"
+                )
+        orchestration.conditions_for_protocol = lambda version, include_c4=None: (
+            original_conditions(version, False)
+            if version == "2.1" and include_c4 is None
+            else original_conditions(version, include_c4)
+        )
 
     def bounded_opportunity(run_dir, **kwargs):
         current = SearchController.load(run_dir, spec).state
@@ -52,6 +71,7 @@ def resume_to_target(campaign, run_id, target, *, repo_root, python_bin, codex_b
         )
     finally:
         orchestration.run_one_opportunity = original
+        orchestration.conditions_for_protocol = original_conditions
 
 
 if __name__ == "__main__":

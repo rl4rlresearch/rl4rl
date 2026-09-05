@@ -5,9 +5,26 @@ import pytest
 from experiments import resume_trajectory_to_target as bounded
 
 
-def test_exact_pause_is_requested_before_next_opportunity(monkeypatch, tmp_path):
+@pytest.mark.parametrize("legacy", [False, True])
+def test_exact_pause_is_requested_before_next_opportunity(
+    monkeypatch, tmp_path, legacy
+):
     state = SimpleNamespace(condition="C0", active=None, proposals_used=48)
     spec = SimpleNamespace(budget=SimpleNamespace(proposals=200))
+    if legacy:
+        import json
+
+        spec.protocol_version = "2.1"
+        spec.include_c4 = None
+        spec.blocks = 1
+        (tmp_path / "schedule.json").write_text(
+            json.dumps(
+                [
+                    {"block": 1, "condition": condition}
+                    for condition in ("C0", "C1", "C2", "C3")
+                ]
+            )
+        )
     monkeypatch.setattr(bounded, "_load_campaign", lambda _: (spec, None, None))
     monkeypatch.setattr(
         bounded.SearchController, "load", lambda *a: SimpleNamespace(state=state)
@@ -27,6 +44,8 @@ def test_exact_pause_is_requested_before_next_opportunity(monkeypatch, tmp_path)
     )
 
     def loop(*a, **k):
+        if legacy:
+            assert len(bounded.orchestration.conditions_for_protocol("2.1", None)) == 4
         bounded.orchestration.run_one_opportunity(tmp_path)
         assert trace == [49]
         bounded.orchestration.run_one_opportunity(tmp_path)
