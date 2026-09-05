@@ -94,6 +94,7 @@ DEFAULT_AUTORESEARCH_V17 = (
 DEFAULT_OPENEVOLVE_V21 = (
     REPO_ROOT / "data/c0c3/controlled-openevolve-transformer-v2-1-mps-campaign"
 )
+DEFAULT_UCI_HAR_V21 = REPO_ROOT / "data/c0c3/uci-har-pareto-v21"
 DEFAULT_AUTORESEARCH_V17_NANOGPT = (
     REPO_ROOT / "data/c0c3/nanogpt-autoresearch-v1-7-h100-campaign"
 )
@@ -1634,6 +1635,15 @@ def build_run(
     started: dict[int, datetime] = {}
     elapsed_seconds = 0.0
     seed_objective = metric_at_seed(state, objective_metric)
+    if objective_metric == "hypervolume":
+        seed_metrics = (seed_candidate(state) or {}).get("metrics", {})
+        accuracy = numeric(seed_metrics.get("validation_accuracy"))
+        macs = numeric(seed_metrics.get("inference_macs"))
+        seed_objective = (
+            accuracy * (1 - macs / 2_000_000)
+            if accuracy is not None and macs is not None
+            else None
+        )
     best_objective = seed_objective
     points: list[dict[str, Any]] = []
     latest_event_at: str | None = None
@@ -1677,6 +1687,12 @@ def build_run(
         raw_metrics = raw_metrics if isinstance(raw_metrics, dict) else {}
         metrics = numeric_metrics(raw_metrics)
         objective = numeric(metrics.get(objective_metric))
+        if objective_metric == "hypervolume":
+            objective = numeric(event.get("pareto", {}).get("hypervolume"))
+            metrics["hypervolume"] = objective
+            metrics["hypervolume_increment"] = numeric(
+                event.get("pareto", {}).get("hypervolume_increment")
+            )
         valid = bool(isinstance(evaluation, dict) and evaluation.get("valid"))
         retained = bool(event.get("retained"))
         if valid:
@@ -1848,6 +1864,8 @@ def build_run(
     if seed_objective is not None:
         candidate = seed_candidate(state) or {}
         seed_metrics = numeric_metrics(candidate.get("metrics"))
+        if objective_metric == "hypervolume":
+            seed_metrics.update(hypervolume=seed_objective, hypervolume_increment=0.0)
         points.insert(
             0,
             {
@@ -2100,7 +2118,11 @@ def campaign_data(
         "openevolve": "Greedy OpenEvolve",
         "native_openevolve": "Native OpenEvolve",
     }.get(framework_id, framework_id)
-    objective_metric = str(task.get("objective_metric", "parameters"))
+    objective_metric = str(
+        task.get("extension_options", {}).get(
+            "dashboard_objective", task.get("objective_metric", "parameters")
+        )
+    )
     objective_direction = str(task.get("objective_direction", "minimize"))
     evaluator_backend = str(task.get("preferred_backend", "local"))
     semantic_control = read_json(campaign / "semantic-control.json", {})
@@ -2221,10 +2243,26 @@ def campaign_data(
             "modal_worker_seconds",
         ):
             metric_labels.pop(key)
+    if objective_metric == "hypervolume":
+        metric_labels.update(
+            best_objective="Pareto archive hypervolume",
+            raw_objective="Pareto archive hypervolume after proposal",
+            objective_improvement="Archive hypervolume gain from selected start",
+            objective_improvement_percent="Archive hypervolume gain from selected start (%)",
+        )
+    objective_labels = {
+        "hypervolume": "Pareto archive hypervolume",
+        "hypervolume_increment": "Archive hypervolume gained this proposal",
+        "inference_macs": "Inference MACs per example",
+        "validation_accuracy": "Validation accuracy",
+    }
     axis_catalog = [
         {"key": key, "label": label} for key, label in metric_labels.items()
     ] + [
-        {"key": f"metric:{metric}", "label": f"Proposal metric · {metric}"}
+        {
+            "key": f"metric:{metric}",
+            "label": objective_labels.get(metric, f"Proposal metric · {metric}"),
+        }
         for metric in observed_metrics
     ]
     condition_catalog = []
@@ -4366,6 +4404,7 @@ def main() -> None:
         "openevolve_v2": args.openevolve_campaign,
         "autoresearch_v17": args.autoresearch_v17_campaign,
         "openevolve_v21": args.openevolve_v21_campaign,
+        "uci_har_pareto_v21": DEFAULT_UCI_HAR_V21,
         "autoresearch_v17_nanogpt": args.autoresearch_v17_nanogpt_campaign,
         "openevolve_v21_nanogpt": args.openevolve_v21_nanogpt_campaign,
         "autoresearch_v17_fashion_mnist": (
