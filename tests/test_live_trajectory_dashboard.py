@@ -1016,13 +1016,13 @@ def test_page_contains_live_controls_and_raw_outcome_overlay() -> None:
     assert "function interventionStarts(payload)" in PAGE
     assert "new Set([...configured,...observed])" in PAGE
     assert "function interventionCandidates(run,state,payload)" in PAGE
-    assert "for(const interventionStart of interventionStarts(payload))" in PAGE
+    assert "for(const interventionStart of starts)" in PAGE
     assert "function isInterventionPoint(point)" in PAGE
     assert "point.proposal_type==='assumption_changing'" in PAGE
     assert "function hasInterventions(payload)" in PAGE
     assert "function interventionCadence(payload)" in PAGE
     assert "Intervention cadence" in PAGE
-    assert "windowPoints.length===windowSize+1" in PAGE
+    assert "windowPoints.length===responseCount" in PAGE
     assert "function interventionWindows(payload,state,runs,normalizers)" in PAGE
     assert "function interventionAggregateDataset(" in PAGE
     assert "intervention_start:candidate.interventionStart" in PAGE

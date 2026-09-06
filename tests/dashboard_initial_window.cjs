@@ -64,7 +64,7 @@ console.log('PASS: nanoGPT baseline BPB threshold, equality, no look-ahead, seed
 
 const crossingRun = {points:run.points.map(p=>({...p,best_objective:p.proposal<12?0.99:0.988}))};
 const noCrossing={...state,nanogptWindowPhase:'noCrossing'};
-// Initial window 1–8 is before the crossing; P10–17 crosses; P20–27 is after.
+// Initial window 1â€“8 is before the crossing; P10â€“17 crosses; P20â€“27 is after.
 assert.deepEqual(Array.from(context.interventionCandidates(crossingRun,noCrossing,nanoPayload),w=>w.interventionStart),[1,20]);
 // Overlapping initial windows that contain the crossing are excluded too.
 assert.equal(context.interventionCandidates(crossingRun,{...noCrossing,interventionWindow:12},nanoPayload).length,0);
@@ -75,3 +75,22 @@ assert.equal(context.interventionCandidates(beforeRun,noCrossing,nanoPayload).le
 const neverCrosses = {points:run.points.map(p=>({...p,best_objective:0.99}))};
 assert.equal(context.interventionCandidates(neverCrosses,noCrossing,nanoPayload).length,3);
 console.log('PASS: exclude crossing windows only, retain windows before/after, equality, endpoint and overlapping-window crossings.');
+
+const rollingState={...state,overlappingControls:true};
+for(const condition of ['C0','C2']){
+ const controlRun={...run,condition};
+ const candidates=context.interventionCandidates(controlRun,rollingState,payload);
+ assert.equal(candidates.length,19);
+ assert.deepEqual(Array.from(candidates,c=>c.interventionStart),Array.from({length:19},(_,i)=>i+1));
+ assert.ok(candidates.every(c=>c.points.length===10&&c.before.proposal===c.interventionStart-1));
+ assert.equal(context.interventionCandidates(controlRun,{...rollingState,includeFirstWindow:false},payload).length,19);
+ assert.equal(context.interventionCandidates(controlRun,{...rollingState,overlappingControls:false},payload).length,3);
+}
+for(const condition of ['C1','C3','C4'])assert.equal(context.interventionCandidates({...run,condition},rollingState,payload).length,3);
+assert.deepEqual(Array.from(context.interventionCandidates({...run,condition:'C0'},{...rollingState,proposalStart:3,proposalEnd:5},payload),c=>c.interventionStart),[3,4,5]);
+const rollingNano={...crossingRun,condition:'C2'};
+assert.deepEqual(Array.from(context.interventionCandidates(rollingNano,{...rollingState,nanogptWindowPhase:'reached'},nanoPayload),c=>c.interventionStart),[13,14,15,16,17,18,19]);
+assert.deepEqual(Array.from(context.interventionCandidates(rollingNano,{...rollingState,nanogptWindowPhase:'noCrossing'},nanoPayload),c=>c.interventionStart),[1,2,13,14,15,16,17,18,19]);
+const gapRun={condition:'C0',points:run.points.filter(p=>p.proposal!==5)};
+assert.equal(context.interventionCandidates(gapRun,rollingState,payload)[0].interventionStart,7);
+console.log('PASS: overlapping control windows, fixed length, no duplicates, unchanged treatments, gaps, bounds and off-cadence BPB filters.');
