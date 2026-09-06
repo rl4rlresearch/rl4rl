@@ -22,3 +22,9 @@ untouched runs, the original-seed T4 verification, and launch receipts.
 These local campaign artifacts remain gitignored. Recovery should retrieve
 existing results from the dedicated Modal result dictionary before charging
 an interrupted proposal; never blindly replay an evaluation.
+
+The original seed probe completed training and protected verification on Tesla
+T4 in 180.65 worker seconds, but qualified only 7,434/10,010 cases (74.27%).
+It is recorded as nonqualification, not a passing calibration. CUDA continuation
+retains the 99% gate and original historical seed/incumbent fitness; this probe
+is evidence of backend sensitivity, and must accompany comparisons with MPS.
