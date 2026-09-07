@@ -1,0 +1,2502 @@
+{
+  "version": "direct-addition-pair-review-10",
+  "references": [
+    {
+      "campaign_key": "openevolve_v21",
+      "before_sha256": "2b7ba23d30288385dcf4f1a423edf7ed16cda5b3ad38cdd9014ed98e8fd77232",
+      "after_sha256": "b402ef89524f2733c4beee64b7268242e9fd51d17d874aac4efb254ddda15dce",
+      "run_id": "controlled-openevolve-transformer-v2-1-source-only-ten-digit-addition-pair-transformer-openevolve-v2-1-mps-openevolve-b01-c1",
+      "proposal": 40,
+      "candidate_id": "82234056357b1a4467516e6cf9cfe7a7e7c38d38177cd96405ffa3b5dfbf24c0",
+      "rationale": "Q/K projections use a fixed full-rank anchor basis and learned free columns, with an inverse-transformed key basis; value/output paths remain learned affine. Per-head list/stack assembly changes storage coordinates of the same content-QK attention.",
+      "result": {
+        "classification": "preserving",
+        "fingerprint": {
+          "input_units": "operand-pair and generated decimal-digit tokens",
+          "input_transform": "ordered base-10 digit-column packing; token alphabet/delimiters are coordinates",
+          "embedding": "token lookup table",
+          "position": "additive position features",
+          "mixing": "causal transformer attention",
+          "routing": "content-dependent softmax QK scores; lower-triangular causal routing",
+          "state": "feedforward hidden activations; no persistent recurrent state in traced methods",
+          "feedforward": "ungated pointwise MLP",
+          "parameter_construction": "Q/K affine coordinates reconstructed from fixed full-rank anchor columns and learned free columns; inverse-transformed key coordinates; learned affine values and readout",
+          "sharing": "shared embedding module reference",
+          "normalization": "QuotientFinalLayerNorm, TwoPrunedBiasLayerNorm, layer_norm",
+          "connectivity": "residual attention and pointwise transformation paths",
+          "aggregation": "per-position attention-mixed features for token prediction",
+          "output": "affine vocabulary readout",
+          "symmetry": "ordered operand representation; no explicit min/max quotient in the embedding path",
+          "conditional_compute": "fixed forward computation; no persistent-state writes or untraced dynamic branch",
+          "activation": "gelu",
+          "stochasticity": "dropout modules (rate is a setting)",
+          "bottleneck": "no separate sequential factor bottleneck",
+          "iteration": "fixed forward block stack; autoregressive token iteration is inference",
+          "other": "all runtime operations are accounted for by the source-traced signal/coordinate graph",
+          "operand_encoding": "ordered base-10 digit-column pair tokens",
+          "digit_order": "least-significant column first; unchanged input order",
+          "carry_representation": "implicit in attention/hidden features; no explicit persistent carry register",
+          "attention_scores": "content-dependent softmax QK scores; lower-triangular causal routing",
+          "projection_relations": "per-head Q/K affine maps with anchored query submatrices and compensating key basis; ordinary learned V/output maps",
+          "output_factorization": "autoregressive decimal-digit token logits; optional constant termination token"
+        },
+        "fingerprint_complete": true,
+        "family_signature": {
+          "operand_representation": "ordered base-10 operand-pair token sequence; unchanged incoming digit order",
+          "embedding": "token lookup table",
+          "position": "additive",
+          "relative_scores": false,
+          "attention": "content-dependent softmax QK scores",
+          "feedforward": "ungated pointwise MLP",
+          "parameter_generator": [],
+          "attention_kernel": []
+        },
+        "changed_components": [
+          "parameter_construction",
+          "projection_relations"
+        ],
+        "notes": "Direct exact-source review under the original handoff: Q/K projections use a fixed full-rank anchor basis and learned free columns, with an inverse-transformed key basis; value/output paths remain learned affine. Per-head list/stack assembly changes storage coordinates of the same content-QK attention.",
+        "evidence": [
+          {
+            "file": "src/model.py",
+            "line": 186,
+            "scope": "GaugeFixedQKV.forward",
+            "kind": "directly source-adjudicated exact-pair mechanism",
+            "code": "def forward(self, x: torch.Tensor) -> Tuple[torch.Tensor, torch.Tensor, torch.Tensor]:\n    q_heads = []\n    k_heads = []\n    for head in range(self.n_head):\n        anchored = x.index_select(-1, self.anchor_idx[head])\n        free = x.index_select(-1, self.free_idx[head])\n        q_heads.append(self.q_scale * anchored + F.linear(free, self.q_free[head], self.q_bias[head]))\n        k_heads.append(F.linear(x, self.k_weight[head]))\n    q = torch.stack(q_heads, dim=2).transpose(1, 2)\n    k = torch.stack(k_heads, dim=2).transpose(1, 2)\n    v = F.linear(x, self.v_weight, self.v_bias)\n    v = v.view(x.size(0), x.size(1), self.n_head, self.head_dim).transpose(1, 2)\n    return (q, k, v)"
+          }
+        ],
+        "reviewer": "addition-source-pair-adjudication-v1"
+      }
+    },
+    {
+      "campaign_key": "openevolve_v21",
+      "before_sha256": "c39b65f6bd4de9f7c24b18ce1acbab31976c8017d6a00ec1fbf15c767d072a72",
+      "after_sha256": "6fe2c44b22572ba02d5beae0900bd964255988f556a8b35a6e2addd77fe91a94",
+      "run_id": "controlled-openevolve-transformer-v2-1-source-only-ten-digit-addition-pair-transformer-openevolve-v2-1-mps-openevolve-b02-c1",
+      "proposal": 75,
+      "candidate_id": "3136d8e8d3a99e9a8787251d3424cda529b5ac4802556d874d1cc0ffd3320632",
+      "rationale": "One head loses one score coordinate. Independent ParameterList entries and a head loop replace packed tensors; each score is still a scaled dot product of affine Q/K and the value path is unchanged. This is head width/rank reduction and coordinate storage, preserving under the handoff.",
+      "result": {
+        "classification": "preserving",
+        "fingerprint": {
+          "input_units": "operand-pair and generated decimal-digit tokens",
+          "input_transform": "ordered base-10 digit-column packing; token alphabet/delimiters are coordinates",
+          "embedding": "token lookup table",
+          "position": "no separate additive position path",
+          "mixing": "causal transformer attention",
+          "routing": "content-dependent softmax QK scores; lower-triangular causal routing",
+          "state": "feedforward hidden activations; no persistent recurrent state in traced methods",
+          "feedforward": "ungated pointwise MLP",
+          "parameter_construction": "per-head ParameterList Q/K coordinates with fixed identity key prefixes and learned tails; reduced head-specific score widths",
+          "sharing": "shared embedding module reference",
+          "normalization": "GaugeFixedFinalLayerNorm, LayerNorm, layer_norm",
+          "connectivity": "residual attention and pointwise transformation paths",
+          "aggregation": "per-position attention-mixed features for token prediction",
+          "output": "affine vocabulary readout",
+          "symmetry": "ordered operand representation; no explicit min/max quotient in the embedding path",
+          "conditional_compute": "fixed forward computation; no persistent-state writes or untraced dynamic branch",
+          "activation": "gelu",
+          "stochasticity": "dropout modules (rate is a setting)",
+          "bottleneck": "no separate sequential factor bottleneck",
+          "iteration": "fixed forward block stack; autoregressive token iteration is inference",
+          "other": "all runtime operations are accounted for by the source-traced signal/coordinate graph",
+          "operand_encoding": "ordered base-10 digit-column pair tokens",
+          "digit_order": "least-significant column first; unchanged input order",
+          "carry_representation": "implicit in attention/hidden features; no explicit persistent carry register",
+          "attention_scores": "content-dependent softmax QK scores; lower-triangular causal routing",
+          "projection_relations": "head-specific affine Q/K score widths with identity-prefix key gauges; ordinary value projections",
+          "output_factorization": "autoregressive decimal-digit token logits; optional constant termination token"
+        },
+        "fingerprint_complete": true,
+        "family_signature": {
+          "operand_representation": "ordered base-10 operand-pair token sequence; unchanged incoming digit order",
+          "embedding": "token lookup table",
+          "position": "none",
+          "relative_scores": false,
+          "attention": "content-dependent softmax QK scores",
+          "feedforward": "ungated pointwise MLP",
+          "parameter_generator": [],
+          "attention_kernel": []
+        },
+        "changed_components": [
+          "parameter_construction",
+          "projection_relations"
+        ],
+        "notes": "Direct exact-source review under the original handoff: One head loses one score coordinate. Independent ParameterList entries and a head loop replace packed tensors; each score is still a scaled dot product of affine Q/K and the value path is unchanged. This is head width/rank reduction and coordinate storage, preserving under the handoff.",
+        "evidence": [
+          {
+            "file": "src/model.py",
+            "line": 267,
+            "scope": "GaugeFixedQKV.forward",
+            "kind": "directly source-adjudicated exact-pair mechanism",
+            "code": "def forward(self, normalized_x: torch.Tensor) -> Tuple[torch.Tensor, torch.Tensor]:\n    reduced_x = normalized_x[..., :-1]\n    score_heads = []\n    for score_dim, query_weight, key_tail, query_bias in zip(self.score_dims, self.query_weight, self.key_tail, self.query_bias):\n        key_prefix = torch.eye(score_dim, device=reduced_x.device, dtype=reduced_x.dtype).unsqueeze(0)\n        key_weight = torch.cat([key_prefix, key_tail], dim=-1)\n        q = torch.einsum('btf,hdf->bhtd', reduced_x, query_weight)\n        q = q + query_bias.unsqueeze(0).unsqueeze(2)\n        k = torch.einsum('bsf,hdf->bhsd', reduced_x, key_weight)\n        score_heads.append(torch.einsum('bhtd,bhsd->bhts', q, k).squeeze(1) / math.sqrt(score_dim))\n    att = torch.stack(score_heads, dim=1)\n    value_prefix = torch.eye(self.head_dim, device=reduced_x.device, dtype=reduced_x.dtype).expand(self.n_head, -1, -1)\n    value_weight = torch.cat([value_prefix, self.value_tail], dim=-1).reshape(self.d_model, self.d_model - 1)\n    v = F.linear(reduced_x, value_weight)\n    return (att, v)"
+          }
+        ],
+        "reviewer": "addition-source-pair-adjudication-v1"
+      }
+    },
+    {
+      "campaign_key": "openevolve_v21",
+      "before_sha256": "780263c6de0942b1a7bd8f0c5ce818817a09941973eebbeba397024624b1944c",
+      "after_sha256": "287422d2870558e7541bb1c3e214b9c432e8353002e90005f89bcaa1bcb4dd9b",
+      "run_id": "controlled-openevolve-transformer-v2-1-source-only-ten-digit-addition-pair-transformer-openevolve-v2-1-mps-openevolve-b01-c4",
+      "proposal": 28,
+      "candidate_id": "f6e2c0ba4c696a7e13f6279c2ee1b90f00918bb84063f50356afe1396cc53cf4",
+      "rationale": "The materialized fused QKV weight is exactly the concatenation already used by the affine forward. retain_grad and a private coefficient-cache attribute expose its gradient to training; neither changes input-dependent prediction computation.",
+      "result": {
+        "classification": "preserving",
+        "fingerprint": {
+          "input_units": "operand-pair and generated decimal-digit tokens",
+          "input_transform": "ordered base-10 digit-column packing; token alphabet/delimiters are coordinates",
+          "embedding": "token lookup table",
+          "position": "additive position features",
+          "mixing": "causal transformer attention",
+          "routing": "content-dependent softmax QK scores; lower-triangular causal routing",
+          "state": "feedforward activations; a recomputed coefficient/gradient cache supports optimization and does not feed recurrent prediction state",
+          "feedforward": "ungated pointwise MLP",
+          "parameter_construction": "fused learned Q/K/V affine coefficient matrix assembled by concatenation, with anchored channel-scale coordinates",
+          "sharing": "no explicit input/output weight alias; repeated module calls retain their module parameters",
+          "normalization": "DownstreamBiasGaugeLayerNorm, LayerNorm",
+          "connectivity": "residual attention and pointwise transformation paths",
+          "aggregation": "per-position attention-mixed features for token prediction",
+          "output": "affine vocabulary readout",
+          "symmetry": "ordered operand representation; no explicit min/max quotient in the embedding path",
+          "conditional_compute": "fixed forward computation; no persistent-state writes or untraced dynamic branch",
+          "activation": "gelu",
+          "stochasticity": "dropout modules (rate is a setting)",
+          "bottleneck": "no separate sequential factor bottleneck",
+          "iteration": "fixed forward block stack; autoregressive token iteration is inference",
+          "other": "all runtime operations are accounted for by the source-traced signal/coordinate graph",
+          "operand_encoding": "ordered base-10 digit-column pair tokens",
+          "digit_order": "least-significant column first; unchanged input order",
+          "carry_representation": "implicit in attention/hidden features; no explicit persistent carry register",
+          "attention_scores": "content-dependent softmax QK scores; lower-triangular causal routing",
+          "projection_relations": "learned affine value/output maps and Q/K maps; stored-coordinate constraints recorded separately",
+          "output_factorization": "autoregressive decimal-digit token logits; optional constant termination token"
+        },
+        "fingerprint_complete": true,
+        "family_signature": {
+          "operand_representation": "ordered base-10 operand-pair token sequence; unchanged incoming digit order",
+          "embedding": "token lookup table",
+          "position": "additive",
+          "relative_scores": false,
+          "attention": "content-dependent softmax QK scores",
+          "feedforward": "ungated pointwise MLP",
+          "parameter_generator": [],
+          "attention_kernel": []
+        },
+        "changed_components": [
+          "state",
+          "parameter_construction"
+        ],
+        "notes": "Direct exact-source review under the original handoff: The materialized fused QKV weight is exactly the concatenation already used by the affine forward. retain_grad and a private coefficient-cache attribute expose its gradient to training; neither changes input-dependent prediction computation.",
+        "evidence": [
+          {
+            "file": "src/model.py",
+            "line": 97,
+            "scope": "AttentionChannelScaleGaugeQKV.forward",
+            "kind": "directly source-adjudicated exact-pair mechanism",
+            "code": "def forward(self, x: torch.Tensor) -> torch.Tensor:\n    key_weight = self.full_key_weight()\n    fused_weight = torch.cat((self.query_weight, key_weight, self.value_weight), dim=0)\n    if self.training and torch.is_grad_enabled():\n        fused_weight.retain_grad()\n        object.__setattr__(self, '_materialized_weight', fused_weight)\n    zero_bias = self.bias.new_zeros(self.d_model)\n    fused_bias = torch.cat((self.bias, zero_bias, zero_bias))\n    return F.linear(x, fused_weight, fused_bias)"
+          }
+        ],
+        "reviewer": "addition-source-pair-adjudication-v1"
+      }
+    },
+    {
+      "campaign_key": "openevolve_v21",
+      "before_sha256": "acd23ef4f3c002a34ea82d87b8814aa4bfd20893a4be39f85a03e3700e162595",
+      "after_sha256": "f101f5e4de4b1f8d7dc536374b5b89cd80a9ae5cd29196b790b6db0a0fca959d",
+      "run_id": "controlled-openevolve-transformer-v2-1-source-only-ten-digit-addition-pair-transformer-openevolve-v2-1-mps-openevolve-b05-c4",
+      "proposal": 18,
+      "candidate_id": "c5b8540968164648bbf0495670d11df5ee76093e4683fd85452819f54644dc4e",
+      "rationale": "The MLP output bias stores zero-sum contrast coordinates and reconstructs its final entry as minus their sum. retain_grad and the saved materialized bias support the quotient optimizer. The same pointwise GELU MLP and affine output remain.",
+      "result": {
+        "classification": "preserving",
+        "fingerprint": {
+          "input_units": "operand-pair and generated decimal-digit tokens",
+          "input_transform": "ordered base-10 digit-column packing; token alphabet/delimiters are coordinates",
+          "embedding": "token lookup table",
+          "position": "additive position features",
+          "mixing": "causal transformer attention",
+          "routing": "content-dependent softmax QK scores; lower-triangular causal routing",
+          "state": "feedforward activations; recomputed output-bias tensor retained only for training-gradient bookkeeping",
+          "feedforward": "ungated pointwise MLP",
+          "parameter_construction": "learned affine coefficients; MLP output bias reconstructed from zero-sum contrast coordinates",
+          "sharing": "self.lm_head.weight = self.token_emb.weight",
+          "normalization": "LayerNorm",
+          "connectivity": "residual attention and pointwise transformation paths",
+          "aggregation": "per-position attention-mixed features for token prediction",
+          "output": "affine vocabulary readout",
+          "symmetry": "ordered operand representation; no explicit min/max quotient in the embedding path",
+          "conditional_compute": "fixed forward computation; no persistent-state writes or untraced dynamic branch",
+          "activation": "gelu",
+          "stochasticity": "dropout modules (rate is a setting)",
+          "bottleneck": "no separate sequential factor bottleneck",
+          "iteration": "fixed forward block stack; autoregressive token iteration is inference",
+          "other": "all runtime operations are accounted for by the source-traced signal/coordinate graph",
+          "operand_encoding": "ordered base-10 digit-column pair tokens",
+          "digit_order": "least-significant column first; unchanged input order",
+          "carry_representation": "implicit in attention/hidden features; no explicit persistent carry register",
+          "attention_scores": "content-dependent softmax QK scores; lower-triangular causal routing",
+          "projection_relations": "learned affine value/output maps and Q/K maps; stored-coordinate constraints recorded separately",
+          "output_factorization": "autoregressive decimal-digit token logits; optional constant termination token"
+        },
+        "fingerprint_complete": true,
+        "family_signature": {
+          "operand_representation": "ordered base-10 operand-pair token sequence; unchanged incoming digit order",
+          "embedding": "token lookup table",
+          "position": "additive",
+          "relative_scores": false,
+          "attention": "content-dependent softmax QK scores",
+          "feedforward": "ungated pointwise MLP",
+          "parameter_generator": [],
+          "attention_kernel": []
+        },
+        "changed_components": [
+          "state",
+          "parameter_construction"
+        ],
+        "notes": "Direct exact-source review under the original handoff: The MLP output bias stores zero-sum contrast coordinates and reconstructs its final entry as minus their sum. retain_grad and the saved materialized bias support the quotient optimizer. The same pointwise GELU MLP and affine output remain.",
+        "evidence": [
+          {
+            "file": "src/model.py",
+            "line": 92,
+            "scope": "MLP.forward",
+            "kind": "directly source-adjudicated exact-pair mechanism",
+            "code": "def forward(self, x: torch.Tensor) -> torch.Tensor:\n    gauge_bias = self.fc2.gauge_bias\n    full_bias = torch.cat((gauge_bias, -gauge_bias.sum().reshape(1)), dim=0)\n    if full_bias.requires_grad:\n        full_bias.retain_grad()\n    self._full_fc2_bias = full_bias\n    y = F.linear(F.gelu(self.fc1(x)), self.fc2.weight, full_bias)\n    return self.drop(y)"
+          }
+        ],
+        "reviewer": "addition-source-pair-adjudication-v1"
+      }
+    },
+    {
+      "campaign_key": "openevolve_v21",
+      "before_sha256": "acd23ef4f3c002a34ea82d87b8814aa4bfd20893a4be39f85a03e3700e162595",
+      "after_sha256": "986f24493459d8112de3a5fd4f0414934253485925a4fc048dfc9e91a3ece672",
+      "run_id": "controlled-openevolve-transformer-v2-1-source-only-ten-digit-addition-pair-transformer-openevolve-v2-1-mps-openevolve-b05-c4",
+      "proposal": 19,
+      "candidate_id": "8b0c886b42376e398cca08bf9e03b63b29666518ff8614e18e995c9ae09a6fbf",
+      "rationale": "GaugeLinear reconstructs the final affine bias coordinate with zero padding. Its hook records a detached bias gradient without changing returned logits. The extra attribute is training bookkeeping, and the optimizer handles virtual coordinates.",
+      "result": {
+        "classification": "preserving",
+        "fingerprint": {
+          "input_units": "operand-pair and generated decimal-digit tokens",
+          "input_transform": "ordered base-10 digit-column packing; token alphabet/delimiters are coordinates",
+          "embedding": "token lookup table",
+          "position": "additive position features",
+          "mixing": "causal transformer attention",
+          "routing": "content-dependent softmax QK scores; lower-triangular causal routing",
+          "state": "feedforward activations; detached bias-gradient capture for the optimizer, without recurrent prediction feedback",
+          "feedforward": "ungated pointwise MLP",
+          "parameter_construction": "learned affine weights and gauge bias coordinates reconstructed by final-coordinate zero padding",
+          "sharing": "self.lm_head.weight = self.token_emb.weight",
+          "normalization": "LayerNorm",
+          "connectivity": "residual attention and pointwise transformation paths",
+          "aggregation": "per-position attention-mixed features for token prediction",
+          "output": "affine vocabulary readout",
+          "symmetry": "ordered operand representation; no explicit min/max quotient in the embedding path",
+          "conditional_compute": "fixed forward computation; no persistent-state writes or untraced dynamic branch",
+          "activation": "gelu",
+          "stochasticity": "dropout modules (rate is a setting)",
+          "bottleneck": "no separate sequential factor bottleneck",
+          "iteration": "fixed forward block stack; autoregressive token iteration is inference",
+          "other": "all runtime operations are accounted for by the source-traced signal/coordinate graph",
+          "operand_encoding": "ordered base-10 digit-column pair tokens",
+          "digit_order": "least-significant column first; unchanged input order",
+          "carry_representation": "implicit in attention/hidden features; no explicit persistent carry register",
+          "attention_scores": "content-dependent softmax QK scores; lower-triangular causal routing",
+          "projection_relations": "learned affine value/output maps and Q/K maps; stored-coordinate constraints recorded separately",
+          "output_factorization": "autoregressive decimal-digit token logits; optional constant termination token"
+        },
+        "fingerprint_complete": true,
+        "family_signature": {
+          "operand_representation": "ordered base-10 operand-pair token sequence; unchanged incoming digit order",
+          "embedding": "token lookup table",
+          "position": "additive",
+          "relative_scores": false,
+          "attention": "content-dependent softmax QK scores",
+          "feedforward": "ungated pointwise MLP",
+          "parameter_generator": [],
+          "attention_kernel": []
+        },
+        "changed_components": [
+          "state",
+          "parameter_construction"
+        ],
+        "notes": "Direct exact-source review under the original handoff: GaugeLinear reconstructs the final affine bias coordinate with zero padding. Its hook records a detached bias gradient without changing returned logits. The extra attribute is training bookkeeping, and the optimizer handles virtual coordinates.",
+        "evidence": [
+          {
+            "file": "src/model.py",
+            "line": 36,
+            "scope": "GaugeLinear._capture_full_bias_grad",
+            "kind": "directly source-adjudicated exact-pair mechanism",
+            "code": "def _capture_full_bias_grad(self, grad: torch.Tensor) -> None:\n    self._full_bias_grad = grad.detach()"
+          },
+          {
+            "file": "src/model.py",
+            "line": 39,
+            "scope": "GaugeLinear.forward",
+            "kind": "directly source-adjudicated exact-pair mechanism",
+            "code": "def forward(self, x: torch.Tensor) -> torch.Tensor:\n    bias = F.pad(self.bias_gauge, (0, 1))\n    self._full_bias_grad = None\n    if torch.is_grad_enabled():\n        bias.register_hook(self._capture_full_bias_grad)\n    return F.linear(x, self.weight, bias)"
+          }
+        ],
+        "reviewer": "addition-source-pair-adjudication-v1"
+      }
+    },
+    {
+      "campaign_key": "openevolve_v21",
+      "before_sha256": "acd23ef4f3c002a34ea82d87b8814aa4bfd20893a4be39f85a03e3700e162595",
+      "after_sha256": "30d974606a511eff0858cc81d289a5f8f369cb776fefee6e385bbdd22ee0d4e7",
+      "run_id": "controlled-openevolve-transformer-v2-1-source-only-ten-digit-addition-pair-transformer-openevolve-v2-1-mps-openevolve-b05-c4",
+      "proposal": 20,
+      "candidate_id": "19f87d1d8a26c89693c2cecdbd8d698de23ce0c7b8b3f3d3b6db3a559f6a86bb",
+      "rationale": "Attention still computes scaled content QK, the same causal masked softmax and weighted V. The output bias pins one coordinate and reconstructs the rest; the hook returns the original gradient after recording the omitted-coordinate gradient for the quotient optimizer.",
+      "result": {
+        "classification": "preserving",
+        "fingerprint": {
+          "input_units": "operand-pair and generated decimal-digit tokens",
+          "input_transform": "ordered base-10 digit-column packing; token alphabet/delimiters are coordinates",
+          "embedding": "token lookup table",
+          "position": "additive position features",
+          "mixing": "causal transformer attention",
+          "routing": "content-dependent softmax QK scores; lower-triangular causal routing",
+          "state": "feedforward activations; omitted output-bias gradient captured for optimizer correction, without recurrent prediction feedback",
+          "feedforward": "ungated pointwise MLP",
+          "parameter_construction": "learned affine projections; attention output bias reconstructed from identifiable differences with one pinned coordinate",
+          "sharing": "self.lm_head.weight = self.token_emb.weight",
+          "normalization": "LayerNorm",
+          "connectivity": "residual attention and pointwise transformation paths",
+          "aggregation": "per-position attention-mixed features for token prediction",
+          "output": "affine vocabulary readout",
+          "symmetry": "ordered operand representation; no explicit min/max quotient in the embedding path",
+          "conditional_compute": "fixed forward computation; no persistent-state writes or untraced dynamic branch",
+          "activation": "gelu",
+          "stochasticity": "dropout modules (rate is a setting)",
+          "bottleneck": "no separate sequential factor bottleneck",
+          "iteration": "fixed forward block stack; autoregressive token iteration is inference",
+          "other": "all runtime operations are accounted for by the source-traced signal/coordinate graph",
+          "operand_encoding": "ordered base-10 digit-column pair tokens",
+          "digit_order": "least-significant column first; unchanged input order",
+          "carry_representation": "implicit in attention/hidden features; no explicit persistent carry register",
+          "attention_scores": "content-dependent softmax QK scores; lower-triangular causal routing",
+          "projection_relations": "learned affine value/output maps and Q/K maps; stored-coordinate constraints recorded separately",
+          "output_factorization": "autoregressive decimal-digit token logits; optional constant termination token"
+        },
+        "fingerprint_complete": true,
+        "family_signature": {
+          "operand_representation": "ordered base-10 operand-pair token sequence; unchanged incoming digit order",
+          "embedding": "token lookup table",
+          "position": "additive",
+          "relative_scores": false,
+          "attention": "content-dependent softmax QK scores",
+          "feedforward": "ungated pointwise MLP",
+          "parameter_generator": [],
+          "attention_kernel": []
+        },
+        "changed_components": [
+          "state",
+          "parameter_construction"
+        ],
+        "notes": "Direct exact-source review under the original handoff: Attention still computes scaled content QK, the same causal masked softmax and weighted V. The output bias pins one coordinate and reconstructs the rest; the hook returns the original gradient after recording the omitted-coordinate gradient for the quotient optimizer.",
+        "evidence": [
+          {
+            "file": "src/model.py",
+            "line": 55,
+            "scope": "CausalSelfAttention._capture_omitted_bias_grad",
+            "kind": "directly source-adjudicated exact-pair mechanism",
+            "code": "def _capture_omitted_bias_grad(self, grad: torch.Tensor) -> torch.Tensor:\n    self._omitted_proj_bias_grad = grad[..., -1].sum().detach()\n    return grad"
+          },
+          {
+            "file": "src/model.py",
+            "line": 61,
+            "scope": "CausalSelfAttention.forward",
+            "kind": "directly source-adjudicated exact-pair mechanism",
+            "code": "def forward(self, x: torch.Tensor) -> torch.Tensor:\n    bsz, seqlen, d_model = x.shape\n    qv_bias = self.qkv.qv_bias\n    packed_bias = torch.cat((qv_bias[:d_model], qv_bias.new_zeros(d_model), qv_bias[d_model:]), dim=0)\n    qkv = F.linear(x, self.qkv.weight, packed_bias)\n    q, k, v = qkv.chunk(3, dim=-1)\n    q = q.view(bsz, seqlen, self.n_head, self.head_dim).transpose(1, 2)\n    k = k.view(bsz, seqlen, self.n_head, self.head_dim).transpose(1, 2)\n    v = v.view(bsz, seqlen, self.n_head, self.head_dim).transpose(1, 2)\n    att = q @ k.transpose(-2, -1) / math.sqrt(self.head_dim)\n    causal = self.mask[:seqlen, :seqlen]\n    att = att.masked_fill(~causal, float('-inf'))\n    att = F.softmax(att, dim=-1)\n    att = self.attn_drop(att)\n    y = att @ v\n    y = y.transpose(1, 2).contiguous().view(bsz, seqlen, d_model)\n    proj_bias = torch.cat((self.proj.bias_free, self.proj.bias_free.new_zeros(1)), dim=0)\n    y = F.linear(y, self.proj.weight, proj_bias)\n    if y.requires_grad:\n        self._omitted_proj_bias_grad = None\n        y.register_hook(self._capture_omitted_bias_grad)\n    y = self.resid_drop(y)\n    return y"
+          }
+        ],
+        "reviewer": "addition-source-pair-adjudication-v1"
+      }
+    },
+    {
+      "campaign_key": "openevolve_v21",
+      "before_sha256": "0b893e177b5918d08ca78f3f538789b020976d6d3c6cc5f9d7481267c9eb348a",
+      "after_sha256": "0aed87328957b1ed2b89581a3a111fda2660b90426b8085f37e1768dc40db299",
+      "run_id": "controlled-openevolve-transformer-v2-1-source-only-ten-digit-addition-pair-transformer-openevolve-v2-1-mps-openevolve-b04-c3",
+      "proposal": 111,
+      "candidate_id": "b86a3d4ff17a05ebf4b4b932b5098bdb2dbe7cc4824cd99ab8b49fa9428f58db",
+      "rationale": "The explicit scaled QK, lower-triangular mask, softmax, dropout and weighted V are replaced by the equivalent causal scaled_dot_product_attention call with the same training dropout. Sinusoidal additive positions are precomputed into a buffer; one ordinary MLP synthesis coefficient is pinned. These are implementation/cache and affine-coordinate edits under the handoff.",
+      "result": {
+        "classification": "preserving",
+        "fingerprint": {
+          "input_units": "operand-pair and generated decimal-digit tokens",
+          "input_transform": "ordered base-10 digit-column packing; token alphabet/delimiters are coordinates",
+          "embedding": "token lookup table",
+          "position": "additive sinusoidal position features with a learned affine mixing map; sinusoidal table precomputed at construction",
+          "mixing": "causal transformer attention through the fused scaled-dot-product implementation",
+          "routing": "content-dependent softmax QK scores; lower-triangular causal routing",
+          "state": "feedforward hidden activations; no persistent recurrent state in traced methods",
+          "feedforward": "ungated pointwise MLP",
+          "parameter_construction": "learned affine coefficients with fixed trailing synthesis coordinates; cached fixed sinusoidal additive-position basis",
+          "sharing": "no explicit input/output weight alias; repeated module calls retain their module parameters",
+          "normalization": "RMSNorm",
+          "connectivity": "residual attention and pointwise transformation paths",
+          "aggregation": "per-position attention-mixed features for token prediction",
+          "output": "affine vocabulary readout",
+          "symmetry": "ordered operand representation; no explicit min/max quotient in the embedding path",
+          "conditional_compute": "fixed forward computation; no persistent-state writes or untraced dynamic branch",
+          "activation": "gelu",
+          "stochasticity": "dropout modules (rate is a setting)",
+          "bottleneck": "no separate sequential factor bottleneck",
+          "iteration": "fixed forward block stack; autoregressive token iteration is inference",
+          "other": "all runtime operations are accounted for by the source-traced signal/coordinate graph",
+          "operand_encoding": "ordered base-10 digit-column pair tokens",
+          "digit_order": "least-significant column first; unchanged input order",
+          "carry_representation": "implicit in attention/hidden features; no explicit persistent carry register",
+          "attention_scores": "scaled content-QK softmax with an equivalent causal mask and attention dropout",
+          "projection_relations": "learned affine value/output maps and Q/K maps; stored-coordinate constraints recorded separately",
+          "output_factorization": "autoregressive decimal-digit token logits; optional constant termination token"
+        },
+        "fingerprint_complete": true,
+        "family_signature": {
+          "operand_representation": "ordered base-10 operand-pair token sequence; unchanged incoming digit order",
+          "embedding": "token lookup table",
+          "position": "additive",
+          "relative_scores": false,
+          "attention": "content-dependent softmax QK scores",
+          "feedforward": "ungated pointwise MLP",
+          "parameter_generator": [
+            [
+              "fixed algebraic generator",
+              [
+                "exp",
+                "log"
+              ]
+            ]
+          ],
+          "attention_kernel": []
+        },
+        "changed_components": [
+          "position",
+          "mixing",
+          "parameter_construction",
+          "attention_scores"
+        ],
+        "notes": "Direct exact-source review under the original handoff: The explicit scaled QK, lower-triangular mask, softmax, dropout and weighted V are replaced by the equivalent causal scaled_dot_product_attention call with the same training dropout. Sinusoidal additive positions are precomputed into a buffer; one ordinary MLP synthesis coefficient is pinned. These are implementation/cache and affine-coordinate edits under the handoff.",
+        "evidence": [
+          {
+            "file": "src/model.py",
+            "line": 63,
+            "scope": "CausalSelfAttention.forward",
+            "kind": "directly source-adjudicated exact-pair mechanism",
+            "code": "def forward(self, x: torch.Tensor) -> torch.Tensor:\n    bsz, seqlen, d_model = x.shape\n    shared_query_bias = F.pad(self.qkv.bias, (0, 1))\n    query_bias = shared_query_bias.repeat(self.n_head)\n    query_weight_size = d_model * d_model - self.qkv.query_weight_trim\n    kv_weight_size = self.head_dim * d_model\n    query_weight, key_weight, value_weight = torch.split(self.qkv.weight, (query_weight_size, kv_weight_size, kv_weight_size - self.qkv.shared_value_weight_trim))\n    query_weight = F.pad(query_weight, (self.qkv.query_weight_trim, 0)).view(d_model, d_model)\n    key_weight = key_weight.view(self.head_dim, d_model)\n    value_weight = F.pad(value_weight, (0, self.qkv.shared_value_weight_trim)).view(self.head_dim, d_model)\n    q = F.linear(x, query_weight, query_bias)\n    shared_kv = F.linear(x, torch.cat((key_weight, value_weight), dim=0))\n    k, v = shared_kv.chunk(2, dim=-1)\n    k = k.repeat(1, 1, self.n_head)\n    v = v.repeat(1, 1, self.n_head)\n    q = q.view(bsz, seqlen, self.n_head, self.head_dim).transpose(1, 2)\n    k = k.view(bsz, seqlen, self.n_head, self.head_dim).transpose(1, 2)\n    v = v.view(bsz, seqlen, self.n_head, self.head_dim).transpose(1, 2)\n    y = F.scaled_dot_product_attention(q, k, v, dropout_p=self.attn_drop.p if self.training else 0.0, is_causal=True)\n    y = y.transpose(1, 2).contiguous().view(bsz, seqlen, d_model)\n    proj_weight = F.pad(self.proj.weight, (0, 3)).view(d_model, d_model)\n    proj_bias = F.pad(self.proj.bias, (0, 2))\n    y = F.linear(y, proj_weight, proj_bias)\n    y = self.resid_drop(y)\n    return y"
+          }
+        ],
+        "reviewer": "addition-source-pair-adjudication-v1"
+      }
+    },
+    {
+      "campaign_key": "openevolve_v21",
+      "before_sha256": "0c328bfc0fe1e48196def0fcc69e1dbcb1a9acf811b31a7363bb81b517b67b7b",
+      "after_sha256": "60a050f2a16353fa3298883d2a614229b4a871608577c0731b8e4419113e0887",
+      "run_id": "controlled-openevolve-transformer-v2-1-source-only-ten-digit-addition-pair-transformer-openevolve-v2-1-mps-openevolve-b05-c3",
+      "proposal": 150,
+      "candidate_id": "aebab30821672bd724e47e82df5f6a60de569de8bb474ed651716501d476a7de",
+      "rationale": "Direct source review: both models construct relative-distance kernels with the same fixed complex phase buffer and the same causal lag lookup, softmax, value and output paths. The child stores free real/imaginary Fourier coefficients, pads unused bins with zero, and applies the same fixed inverse Fourier map. This is an affine basis/subspace and coefficient-count change, preserving under the handoff parameterization/width rubric. The phase has no learned shift: unlike the earlier learned-phase generator introduction, no new nonlinear parameter coupling or input/lag primitive is introduced.",
+      "result": {
+        "classification": "preserving",
+        "fingerprint": {
+          "input_units": "operand-pair and generated decimal-digit tokens",
+          "input_transform": "ordered base-10 digit-column packing; token alphabet/delimiters are coordinates",
+          "embedding": "token lookup table",
+          "position": "no separate additive position path + input-independent attention-score bias path; relative-distance score table",
+          "mixing": "causal transformer attention",
+          "routing": "position-only learned softmax scores; lower-triangular causal routing",
+          "state": "feedforward hidden activations; no persistent recurrent state in traced methods",
+          "feedforward": "ungated pointwise MLP",
+          "parameter_construction": "learned affine coefficients and lookup coordinates; stored coordinates assembled by indexing/concatenation/padding; centering or linear coordinate/basis reconstruction; fixed algebraic generator / ('exp',); free real/imaginary frequency coordinates, fixed phase-shifted inverse-Fourier basis and zero unused bins",
+          "sharing": "block.ln1.share_scale(self.ln_f); self.proj.share_value(self.value)",
+          "normalization": "GaugeFixedMLPScaleLayerNorm, GaugeFixedScaleLayerNorm, TiedFinalScaleLayerNorm, layer_norm",
+          "connectivity": "residual attention and pointwise transformation paths",
+          "aggregation": "per-position attention-mixed features for token prediction",
+          "output": "affine vocabulary readout",
+          "symmetry": "ordered operand representation; no explicit min/max quotient in the embedding path",
+          "conditional_compute": "fixed forward computation; no persistent-state writes or untraced dynamic branch",
+          "activation": "gelu",
+          "stochasticity": "dropout modules (rate is a setting)",
+          "bottleneck": "no separate sequential factor bottleneck",
+          "iteration": "fixed forward block stack; autoregressive token iteration is inference",
+          "other": "all runtime operations are accounted for by the source-traced signal/coordinate graph",
+          "operand_encoding": "ordered base-10 digit-column pair tokens",
+          "digit_order": "least-significant column first; unchanged input order",
+          "carry_representation": "implicit in attention/hidden features; no explicit persistent carry register",
+          "attention_scores": "position-only learned softmax scores; lower-triangular causal routing; relative-distance score table; fixed phase-shifted shared relative-distance basis, unchanged causal mask and softmax",
+          "projection_relations": "learned affine value/output maps; no content Q/K score path; stored-coordinate constraints recorded separately; existing shared value/projection coordinate construction unchanged",
+          "output_factorization": "autoregressive decimal-digit token logits; optional constant termination token"
+        },
+        "fingerprint_complete": true,
+        "notes": "Direct source review: both models construct relative-distance kernels with the same fixed complex phase buffer and the same causal lag lookup, softmax, value and output paths. The child stores free real/imaginary Fourier coefficients, pads unused bins with zero, and applies the same fixed inverse Fourier map. This is an affine basis/subspace and coefficient-count change, preserving under the handoff parameterization/width rubric. The phase has no learned shift: unlike the earlier learned-phase generator introduction, no new nonlinear parameter coupling or input/lag primitive is introduced.",
+        "changed_components": [
+          "parameter_construction"
+        ],
+        "evidence": [
+          {
+            "file": "src/model.py",
+            "line": 33,
+            "scope": "GaugeFixedEmbedding.full_weight",
+            "kind": "symbolically followed runtime method",
+            "code": "def full_weight(self) -> torch.Tensor:"
+          },
+          {
+            "file": "src/model.py",
+            "line": 42,
+            "scope": "GaugeFixedEmbedding.forward",
+            "kind": "symbolically followed runtime method",
+            "code": "def forward(self, idx: torch.Tensor) -> torch.Tensor:"
+          },
+          {
+            "file": "src/model.py",
+            "line": 90,
+            "scope": "TiedFinalScaleLayerNorm.full_weight",
+            "kind": "symbolically followed runtime method",
+            "code": "def full_weight(self) -> torch.Tensor:"
+          },
+          {
+            "file": "src/model.py",
+            "line": 67,
+            "scope": "GaugeFixedScaleLayerNorm.full_weight",
+            "kind": "symbolically followed runtime method",
+            "code": "def full_weight(self) -> torch.Tensor:"
+          },
+          {
+            "file": "src/model.py",
+            "line": 72,
+            "scope": "GaugeFixedScaleLayerNorm.forward",
+            "kind": "symbolically followed runtime method",
+            "code": "def forward(self, x: torch.Tensor) -> torch.Tensor:"
+          },
+          {
+            "file": "src/model.py",
+            "line": 155,
+            "scope": "GaugeFixedValueLinear.full_weight",
+            "kind": "symbolically followed runtime method",
+            "code": "def full_weight(self) -> torch.Tensor:"
+          },
+          {
+            "file": "src/model.py",
+            "line": 161,
+            "scope": "GaugeFixedValueLinear.forward",
+            "kind": "symbolically followed runtime method",
+            "code": "def forward(self, x: torch.Tensor) -> torch.Tensor:"
+          },
+          {
+            "file": "src/model.py",
+            "line": 206,
+            "scope": "GaugeFixedProjectionLinear.full_weight",
+            "kind": "symbolically followed runtime method",
+            "code": "def full_weight(self) -> torch.Tensor:"
+          },
+          {
+            "file": "src/model.py",
+            "line": 304,
+            "scope": "CausalSelfAttention.forward",
+            "kind": "symbolically followed runtime method",
+            "code": "def forward(self, x: torch.Tensor) -> torch.Tensor:"
+          },
+          {
+            "file": "src/model.py",
+            "line": 112,
+            "scope": "GaugeFixedMLPScaleLayerNorm.full_weight",
+            "kind": "symbolically followed runtime method",
+            "code": "def full_weight(self) -> torch.Tensor:"
+          },
+          {
+            "file": "src/model.py",
+            "line": 115,
+            "scope": "GaugeFixedMLPScaleLayerNorm.forward",
+            "kind": "symbolically followed runtime method",
+            "code": "def forward(self, x: torch.Tensor) -> torch.Tensor:"
+          },
+          {
+            "file": "src/model.py",
+            "line": 134,
+            "scope": "GaugeFixedFC1Linear.full_weight",
+            "kind": "symbolically followed runtime method",
+            "code": "def full_weight(self) -> torch.Tensor:"
+          },
+          {
+            "file": "src/model.py",
+            "line": 140,
+            "scope": "GaugeFixedFC1Linear.forward",
+            "kind": "symbolically followed runtime method",
+            "code": "def forward(self, x: torch.Tensor) -> torch.Tensor:"
+          },
+          {
+            "file": "src/model.py",
+            "line": 236,
+            "scope": "GaugeFixedMLPProjectionLinear.full_weight",
+            "kind": "symbolically followed runtime method",
+            "code": "def full_weight(self) -> torch.Tensor:"
+          },
+          {
+            "file": "src/model.py",
+            "line": 360,
+            "scope": "MLP.forward",
+            "kind": "symbolically followed runtime method",
+            "code": "def forward(self, x: torch.Tensor) -> torch.Tensor:"
+          },
+          {
+            "file": "src/model.py",
+            "line": 379,
+            "scope": "Block.forward",
+            "kind": "symbolically followed runtime method",
+            "code": "def forward(self, x: torch.Tensor) -> torch.Tensor:"
+          },
+          {
+            "file": "src/model.py",
+            "line": 90,
+            "scope": "TiedFinalScaleLayerNorm.full_weight",
+            "kind": "symbolically followed runtime method",
+            "code": "def full_weight(self) -> torch.Tensor:"
+          },
+          {
+            "file": "src/model.py",
+            "line": 93,
+            "scope": "TiedFinalScaleLayerNorm.forward",
+            "kind": "symbolically followed runtime method",
+            "code": "def forward(self, x: torch.Tensor) -> torch.Tensor:"
+          },
+          {
+            "file": "src/model.py",
+            "line": 33,
+            "scope": "GaugeFixedEmbedding.full_weight",
+            "kind": "symbolically followed runtime method",
+            "code": "def full_weight(self) -> torch.Tensor:"
+          },
+          {
+            "file": "src/model.py",
+            "line": 178,
+            "scope": "GaugeTiedHead.forward",
+            "kind": "symbolically followed runtime method",
+            "code": "def forward(self, x: torch.Tensor) -> torch.Tensor:"
+          },
+          {
+            "file": "src/model.py",
+            "line": 628,
+            "scope": "TinyDecoderLM.forward",
+            "kind": "symbolically followed runtime method",
+            "code": "def forward(self, idx: torch.Tensor, targets: torch.Tensor=None) -> Tuple[torch.Tensor, torch.Tensor]:"
+          },
+          {
+            "file": "src/model.py",
+            "line": 284,
+            "scope": "CausalSelfAttention.__init__",
+            "kind": "fixed buffer construction follows exp",
+            "code": "self.register_buffer('relative_phase', torch.exp(-2j * math.pi * head_shift[:, None] * frequency[None, :] / max_seq_len), persistent=False)"
+          },
+          {
+            "file": "src/model.py",
+            "line": 246,
+            "scope": "before:CausalSelfAttention",
+            "kind": "complete manually reviewed kernel construction and forward source",
+            "code": "class CausalSelfAttention(nn.Module):\n\n    def __init__(self, d_model: int, n_head: int, dropout: float, max_seq_len: int):\n        super().__init__()\n        if d_model % n_head != 0:\n            raise ValueError('d_model must be divisible by n_head')\n        self.n_head = n_head\n        self.head_dim = d_model // n_head\n        self.value = GaugeFixedValueLinear(d_model)\n        self.proj = GaugeFixedProjectionLinear(d_model)\n        self.proj.share_value(self.value)\n        self.proj.bias = nn.Parameter(torch.empty(d_model - 1))\n        self.attn_drop = nn.Dropout(dropout)\n        self.resid_drop = nn.Dropout(dropout)\n        self.relative_bias = nn.Parameter(torch.zeros(max_seq_len - 9))\n        self.register_buffer('relative_shift', torch.arange(1, n_head, dtype=torch.float32) * (max_seq_len / n_head))\n        frequency = torch.arange(max_seq_len // 2 + 1, dtype=torch.float32)\n        head_shift = torch.cat((self.relative_shift.new_zeros(1), self.relative_shift))\n        self.register_buffer('relative_phase', torch.exp(-2j * math.pi * head_shift[:, None] * frequency[None, :] / max_seq_len), persistent=False)\n        positions = torch.arange(max_seq_len)\n        self.register_buffer('lag_index', (positions[:, None] - positions[None, :]).clamp_min(0), persistent=False)\n        mask = torch.tril(torch.ones(max_seq_len, max_seq_len, dtype=torch.bool))\n        self.register_buffer('mask', mask, persistent=False)\n\n    def forward(self, x: torch.Tensor) -> torch.Tensor:\n        bsz, seqlen, d_model = x.shape\n        v = self.value(x)\n        v = v.view(bsz, seqlen, self.n_head, self.head_dim).transpose(1, 2)\n        lag = self.lag_index[:seqlen, :seqlen]\n        base_bias = torch.cat((self.relative_bias, self.relative_bias.new_zeros(9)))\n        phase = self.relative_phase\n        lag_bias = torch.fft.irfft(torch.fft.rfft(base_bias).unsqueeze(0) * phase, n=base_bias.numel(), dim=-1)\n        lag_bias = lag_bias - lag_bias[:, -1:]\n        att = lag_bias[:, lag].unsqueeze(0)\n        causal = self.mask[:seqlen, :seqlen]\n        att = att.masked_fill(~causal, float('-inf'))\n        att = F.softmax(att, dim=-1)\n        att = self.attn_drop(att)\n        y = att @ v\n        y = y.transpose(1, 2).contiguous().view(bsz, seqlen, d_model)\n        output_bias = torch.cat((self.proj.bias, self.proj.bias.new_zeros(1)))\n        y = F.linear(y, self.proj.full_weight(), output_bias)\n        y = self.resid_drop(y)\n        return y"
+          },
+          {
+            "file": "src/model.py",
+            "line": 246,
+            "scope": "after:CausalSelfAttention",
+            "kind": "complete manually reviewed kernel construction and forward source",
+            "code": "class CausalSelfAttention(nn.Module):\n\n    def __init__(self, d_model: int, n_head: int, dropout: float, max_seq_len: int):\n        super().__init__()\n        if d_model % n_head != 0:\n            raise ValueError('d_model must be divisible by n_head')\n        self.n_head = n_head\n        self.head_dim = d_model // n_head\n        self.value = GaugeFixedValueLinear(d_model)\n        self.proj = GaugeFixedProjectionLinear(d_model)\n        self.proj.share_value(self.value)\n        self.proj.bias = nn.Parameter(torch.empty(d_model - 1))\n        self.attn_drop = nn.Dropout(dropout)\n        self.resid_drop = nn.Dropout(dropout)\n        self.relative_frequency_count = min(8, max_seq_len // 2 - 1)\n        self.relative_spectrum = nn.Parameter(torch.zeros(self.relative_frequency_count, 2))\n        self.register_buffer('relative_shift', torch.arange(1, n_head, dtype=torch.float32) * (max_seq_len / n_head))\n        frequency = torch.arange(max_seq_len // 2 + 1, dtype=torch.float32)\n        head_shift = torch.cat((self.relative_shift.new_zeros(1), self.relative_shift))\n        self.register_buffer('relative_phase', torch.exp(-2j * math.pi * head_shift[:, None] * frequency[None, :] / max_seq_len), persistent=False)\n        positions = torch.arange(max_seq_len)\n        self.register_buffer('lag_index', (positions[:, None] - positions[None, :]).clamp_min(0), persistent=False)\n        mask = torch.tril(torch.ones(max_seq_len, max_seq_len, dtype=torch.bool))\n        self.register_buffer('mask', mask, persistent=False)\n\n    def forward(self, x: torch.Tensor) -> torch.Tensor:\n        bsz, seqlen, d_model = x.shape\n        v = self.value(x)\n        v = v.view(bsz, seqlen, self.n_head, self.head_dim).transpose(1, 2)\n        lag = self.lag_index[:seqlen, :seqlen]\n        learned_spectrum = torch.complex(self.relative_spectrum[:, 0], self.relative_spectrum[:, 1])\n        zero_bins = self.relative_phase.size(-1) - 1 - self.relative_frequency_count\n        spectrum = torch.cat((learned_spectrum.new_zeros(1), learned_spectrum, learned_spectrum.new_zeros(zero_bins)))\n        spectrum = spectrum * (0.5 * self.mask.size(0))\n        phase = self.relative_phase\n        lag_bias = torch.fft.irfft(spectrum.unsqueeze(0) * phase, n=self.mask.size(0), dim=-1)\n        lag_bias = lag_bias - lag_bias[:, -1:]\n        att = lag_bias[:, lag].unsqueeze(0)\n        causal = self.mask[:seqlen, :seqlen]\n        att = att.masked_fill(~causal, float('-inf'))\n        att = F.softmax(att, dim=-1)\n        att = self.attn_drop(att)\n        y = att @ v\n        y = y.transpose(1, 2).contiguous().view(bsz, seqlen, d_model)\n        output_bias = torch.cat((self.proj.bias, self.proj.bias.new_zeros(1)))\n        y = F.linear(y, self.proj.full_weight(), output_bias)\n        y = self.resid_drop(y)\n        return y"
+          }
+        ],
+        "family_signature": {
+          "operand_representation": "ordered base-10 operand-pair token sequence; unchanged incoming digit order",
+          "embedding": "token lookup table",
+          "position": "none",
+          "relative_scores": true,
+          "attention": "position-only learned softmax scores",
+          "feedforward": "ungated pointwise MLP",
+          "parameter_generator": [
+            [
+              "fixed algebraic generator",
+              [
+                "exp"
+              ]
+            ]
+          ],
+          "attention_kernel": [],
+          "score_bias": "relative-distance score table"
+        },
+        "reviewer": "addition-source-bound-semantic-review-v1"
+      }
+    },
+    {
+      "campaign_key": "openevolve_v21",
+      "before_sha256": "4cd55fa8d6f295b965ad46c529de2a49ccde19aa5eb0c557f8de17f140e330e4",
+      "after_sha256": "de332afbcca4f7e8f864593bf8d3ceb58af741273928608a8afc141a7cef08f3",
+      "run_id": "controlled-openevolve-transformer-v2-1-source-only-ten-digit-addition-pair-transformer-openevolve-v2-1-mps-openevolve-b03-c2",
+      "proposal": 91,
+      "candidate_id": "fc099ed2f61caf3ae8c9a4c7539c29dc507f4eb160ddef9377dd5a1a6bf6c2e3",
+      "rationale": "Compensated Q/K coordinate gauge: normalized pivot/orthogonal query charts coexist with compensating free key transforms; the source retains ordinary q @ k.T, causal masking and softmax with no intervening Q/K nonlinearity. This is a parameterization/normalization change under the handoff rubric. Query biases remain free; initialized-output/checkpoint equivalence is not claimed. Pivot/chart singularities are coordinate conditions.",
+      "result": {
+        "classification": "preserving",
+        "fingerprint": {
+          "input_units": "operand-pair and generated decimal-digit tokens",
+          "input_transform": "ordered base-10 digit-column packing; token alphabet/delimiters are coordinates",
+          "embedding": "token lookup table",
+          "position": "additive position features",
+          "mixing": "causal transformer attention",
+          "routing": "content-dependent softmax QK scores; lower-triangular causal routing",
+          "state": "feedforward hidden activations; no persistent recurrent state in traced methods",
+          "feedforward": "ungated pointwise MLP",
+          "parameter_construction": "learned affine coefficients and lookup coordinates; stored coordinates assembled by indexing/concatenation/padding; centering or linear coordinate/basis reconstruction; composed learned coefficient factors; nonlinear learned-coefficient operations: square; normalized pivot and Gram\u2013Schmidt query coordinates with compensating free-key transforms",
+          "sharing": "self.lm_head.weight = self.token_emb.weight",
+          "normalization": "LayerNorm",
+          "connectivity": "residual attention and pointwise transformation paths",
+          "aggregation": "per-position attention-mixed features for token prediction",
+          "output": "affine vocabulary readout",
+          "symmetry": "ordered operand representation; no explicit min/max quotient in the embedding path",
+          "conditional_compute": "fixed forward computation; no persistent-state writes or untraced dynamic branch",
+          "activation": "gelu",
+          "stochasticity": "dropout modules (rate is a setting)",
+          "bottleneck": "no separate sequential factor bottleneck",
+          "iteration": "fixed forward block stack; autoregressive token iteration is inference",
+          "other": "all runtime operations are accounted for by the source-traced signal/coordinate graph",
+          "operand_encoding": "ordered base-10 digit-column pair tokens",
+          "digit_order": "least-significant column first; unchanged input order",
+          "carry_representation": "implicit in attention/hidden features; no explicit persistent carry register",
+          "attention_scores": "content-dependent softmax QK scores; lower-triangular causal routing",
+          "projection_relations": "learned affine value/output maps and Q/K maps; stored-coordinate constraints recorded separately; compensated coupled Q/K coordinates; no new Q/K activation",
+          "output_factorization": "autoregressive decimal-digit token logits; optional constant termination token"
+        },
+        "fingerprint_complete": true,
+        "notes": "Compensated Q/K coordinate gauge: normalized pivot/orthogonal query charts coexist with compensating free key transforms; the source retains ordinary q @ k.T, causal masking and softmax with no intervening Q/K nonlinearity. This is a parameterization/normalization change under the handoff rubric. Query biases remain free; initialized-output/checkpoint equivalence is not claimed. Pivot/chart singularities are coordinate conditions.",
+        "changed_components": [
+          "parameter_construction",
+          "projection_relations"
+        ],
+        "evidence": [
+          {
+            "file": "src/model.py",
+            "line": 111,
+            "scope": "CausalSelfAttention.forward",
+            "kind": "symbolically followed runtime method",
+            "code": "def forward(self, x: torch.Tensor) -> torch.Tensor:"
+          },
+          {
+            "file": "src/model.py",
+            "line": 359,
+            "scope": "MLP.forward",
+            "kind": "symbolically followed runtime method",
+            "code": "def forward(self, x: torch.Tensor) -> torch.Tensor:"
+          },
+          {
+            "file": "src/model.py",
+            "line": 407,
+            "scope": "Block.forward",
+            "kind": "symbolically followed runtime method",
+            "code": "def forward(self, x: torch.Tensor) -> torch.Tensor:"
+          },
+          {
+            "file": "src/model.py",
+            "line": 934,
+            "scope": "TinyDecoderLM.forward",
+            "kind": "symbolically followed runtime method",
+            "code": "def forward(self, idx: torch.Tensor, targets: torch.Tensor=None) -> Tuple[torch.Tensor, torch.Tensor]:"
+          },
+          {
+            "file": "src/model.py",
+            "line": 23,
+            "scope": "before:CausalSelfAttention",
+            "kind": "complete class source reviewed for coupled Q/K coordinate compensation",
+            "code": "class CausalSelfAttention(nn.Module):\n\n    def __init__(self, d_model: int, n_head: int, dropout: float, max_seq_len: int):\n        super().__init__()\n        if d_model % n_head != 0:\n            raise ValueError('d_model must be divisible by n_head')\n        self.n_head = n_head\n        self.head_dim = d_model // n_head\n        self.qkv = nn.Linear(d_model, 3 * d_model)\n        self.qkv.bias = nn.Parameter(torch.empty(d_model - 4))\n        self.q_anchor_weight = nn.Parameter(torch.empty(d_model - 2))\n        self.q_shear_weight = nn.Parameter(torch.empty(d_model - 3))\n        self.q_penultimate_weight = nn.Parameter(torch.empty(d_model - 3))\n        self.q_target_weight = nn.Parameter(torch.empty(d_model - 3))\n        self.register_buffer('q_anchor_pivot', torch.zeros((), dtype=torch.long))\n        self.register_buffer('q_penultimate_pivot', torch.zeros((), dtype=torch.long))\n        self.register_buffer('q_target_pivot', torch.zeros((), dtype=torch.long))\n        self.proj = nn.Linear(d_model, d_model)\n        self.proj.bias = nn.Parameter(torch.empty(d_model - 1))\n        self.proj_head_weight = nn.Parameter(torch.empty(d_model - 4))\n        self.proj_last_weight = nn.Parameter(torch.empty(d_model - 4))\n        self.register_buffer('proj_head_pivot', torch.zeros((), dtype=torch.long))\n        self.register_buffer('proj_last_pivot', torch.zeros((), dtype=torch.long))\n        self.attn_drop = nn.Dropout(dropout)\n        self.resid_drop = nn.Dropout(dropout)\n        mask = torch.tril(torch.ones(max_seq_len, max_seq_len, dtype=torch.bool))\n        self.register_buffer('mask', mask, persistent=False)\n\n    def forward(self, x: torch.Tensor) -> torch.Tensor:\n        bsz, seqlen, d_model = x.shape\n        bias_split = self.head_dim - 2\n        query_bias = torch.cat((self.qkv.bias[:bias_split], self.qkv.bias.new_zeros(2), self.qkv.bias[bias_split:], self.qkv.bias.new_zeros(2)))\n        value_bias = self.qkv.bias.new_zeros(d_model)\n        qkv_bias = torch.cat((query_bias, query_bias.mean().expand(d_model), value_bias))\n        q_anchor_pivot = int(self.q_anchor_pivot.item())\n        q_penultimate_pivot = int(self.q_penultimate_pivot.item())\n        q_target_pivot = int(self.q_target_pivot.item())\n        query_free = [coordinate for coordinate in range(d_model - 1) if coordinate not in (q_penultimate_pivot, q_target_pivot)]\n        q_penultimate_chart = self.q_penultimate_weight.new_zeros(d_model - 1)\n        q_penultimate_chart[q_penultimate_pivot] = 1.0\n        q_penultimate_chart[query_free] = self.q_penultimate_weight\n        q_penultimate_relative = q_penultimate_chart * (0.02 * math.sqrt(d_model - 1) / q_penultimate_chart.norm())\n        q_target_chart = self.q_target_weight.new_zeros(d_model - 1)\n        q_target_chart[q_target_pivot] = 1.0\n        q_target_chart[query_free] = self.q_target_weight\n        q_target_relative = q_target_chart * (0.02 * math.sqrt(d_model - 1) / q_target_chart.norm())\n        q_shear_relative = self.q_shear_weight.new_zeros(d_model - 1)\n        q_shear_relative[query_free] = self.q_shear_weight\n        q_anchor_relative = torch.cat((self.q_anchor_weight[:q_anchor_pivot], self.q_anchor_weight.new_zeros(1), self.q_anchor_weight[q_anchor_pivot:]))\n        q_anchor_row = d_model - 4\n        qkv_rows = torch.cat((self.qkv.weight[:q_anchor_row], q_anchor_relative.unsqueeze(0), q_shear_relative.unsqueeze(0), q_penultimate_relative.unsqueeze(0), q_target_relative.unsqueeze(0), self.qkv.weight[q_anchor_row:]), dim=0)\n        qkv_weight_relative = torch.cat((qkv_rows, qkv_rows.new_zeros((qkv_rows.size(0), 1))), dim=-1)\n        qkv_weight = qkv_weight_relative + qkv_rows.mean(dim=-1, keepdim=True)\n        qkv = F.linear(x, qkv_weight, qkv_bias)\n        q, k, v = qkv.chunk(3, dim=-1)\n        q = q.view(bsz, seqlen, self.n_head, self.head_dim).transpose(1, 2)\n        k = k.view(bsz, seqlen, self.n_head, self.head_dim).transpose(1, 2)\n        v = v.view(bsz, seqlen, self.n_head, self.head_dim).transpose(1, 2)\n        att = q @ k.transpose(-2, -1) / math.sqrt(self.head_dim)\n        causal = self.mask[:seqlen, :seqlen]\n        att = att.masked_fill(~causal, float('-inf'))\n        att = F.softmax(att, dim=-1)\n        att = self.attn_drop(att)\n        y = att @ v\n        y = y.transpose(1, 2).contiguous().view(bsz, seqlen, d_model)\n        head_pivot = int(self.proj_head_pivot.item())\n        head_chart = torch.cat((self.proj_head_weight[:head_pivot], self.proj_head_weight.new_full((1,), 1.0), self.proj_head_weight[head_pivot:]))\n        head_free = head_chart * (0.02 * math.sqrt(d_model - 3) / head_chart.norm())\n        last_pivot = int(self.proj_last_pivot.item())\n        last_chart = torch.cat((self.proj_last_weight[:last_pivot], self.proj_last_weight.new_full((1,), 1.0), self.proj_last_weight[last_pivot:]))\n        last_free = last_chart * (0.02 * math.sqrt(d_model - 3) / last_chart.norm())\n        head_relative = torch.cat((head_free, head_free.new_zeros(2)))\n        last_relative = torch.cat((last_free, last_free.new_zeros(2)))\n        split = self.head_dim - 1\n        weight_rows = torch.cat((self.proj.weight[:split], head_relative.unsqueeze(0), self.proj.weight[split:], last_relative.unsqueeze(0)), dim=0)\n        weight_relative = torch.cat((weight_rows, weight_rows.new_zeros((weight_rows.size(0), 1))), dim=-1)\n        proj_weight = (weight_relative + weight_rows.mean(dim=-1, keepdim=True)).transpose(0, 1)\n        relative_bias = torch.cat((self.proj.bias, self.proj.bias.new_zeros(1)))\n        proj_bias = relative_bias + self.proj.bias.mean()\n        y = F.linear(y, proj_weight, proj_bias)\n        y = self.resid_drop(y)\n        return y"
+          },
+          {
+            "file": "src/model.py",
+            "line": 23,
+            "scope": "after:CausalSelfAttention",
+            "kind": "complete class source reviewed for coupled Q/K coordinate compensation",
+            "code": "class CausalSelfAttention(nn.Module):\n\n    def __init__(self, d_model: int, n_head: int, dropout: float, max_seq_len: int):\n        super().__init__()\n        if d_model % n_head != 0:\n            raise ValueError('d_model must be divisible by n_head')\n        self.n_head = n_head\n        self.head_dim = d_model // n_head\n        self.qkv = nn.Linear(d_model, 3 * d_model)\n        self.qkv.bias = nn.Parameter(torch.empty(d_model - 4))\n        self.q_biased_weight = nn.Parameter(torch.empty(d_model - 2))\n        self.q_first_weight = nn.Parameter(torch.empty(d_model - 3))\n        self.q_neighbor_weight = nn.Parameter(torch.empty(d_model - 3))\n        self.q_anchor_weight = nn.Parameter(torch.empty(d_model - 2))\n        self.q_shear_weight = nn.Parameter(torch.empty(d_model - 3))\n        self.q_penultimate_weight = nn.Parameter(torch.empty(d_model - 3))\n        self.q_target_weight = nn.Parameter(torch.empty(d_model - 3))\n        self.register_buffer('q_biased_pivot', torch.zeros((), dtype=torch.long))\n        self.register_buffer('q_first_pivot', torch.zeros((), dtype=torch.long))\n        self.register_buffer('q_first_shear_pivot', torch.zeros((), dtype=torch.long))\n        self.register_buffer('q_neighbor_pivot', torch.zeros((), dtype=torch.long))\n        self.register_buffer('q_anchor_pivot', torch.zeros((), dtype=torch.long))\n        self.register_buffer('q_penultimate_pivot', torch.zeros((), dtype=torch.long))\n        self.register_buffer('q_target_pivot', torch.zeros((), dtype=torch.long))\n        self.proj = nn.Linear(d_model, d_model)\n        self.proj.bias = nn.Parameter(torch.empty(d_model - 1))\n        self.proj_head_weight = nn.Parameter(torch.empty(d_model - 4))\n        self.proj_last_weight = nn.Parameter(torch.empty(d_model - 4))\n        self.register_buffer('proj_head_pivot', torch.zeros((), dtype=torch.long))\n        self.register_buffer('proj_last_pivot', torch.zeros((), dtype=torch.long))\n        self.attn_drop = nn.Dropout(dropout)\n        self.resid_drop = nn.Dropout(dropout)\n        mask = torch.tril(torch.ones(max_seq_len, max_seq_len, dtype=torch.bool))\n        self.register_buffer('mask', mask, persistent=False)\n\n    def forward(self, x: torch.Tensor) -> torch.Tensor:\n        bsz, seqlen, d_model = x.shape\n        bias_split = self.head_dim - 2\n        query_bias = torch.cat((self.qkv.bias[:bias_split], self.qkv.bias.new_zeros(2), self.qkv.bias[bias_split:], self.qkv.bias.new_zeros(2)))\n        value_bias = self.qkv.bias.new_zeros(d_model)\n        qkv_bias = torch.cat((query_bias, query_bias.mean().expand(d_model), value_bias))\n        q_biased_pivot = int(self.q_biased_pivot.item())\n        q_first_pivot = int(self.q_first_pivot.item())\n        q_first_shear_pivot = int(self.q_first_shear_pivot.item())\n        q_neighbor_pivot = int(self.q_neighbor_pivot.item())\n        q_anchor_pivot = int(self.q_anchor_pivot.item())\n        q_penultimate_pivot = int(self.q_penultimate_pivot.item())\n        q_target_pivot = int(self.q_target_pivot.item())\n        query_free = [coordinate for coordinate in range(d_model - 1) if coordinate not in (q_penultimate_pivot, q_target_pivot)]\n        q_penultimate_chart = self.q_penultimate_weight.new_zeros(d_model - 1)\n        q_penultimate_chart[q_penultimate_pivot] = 1.0\n        q_penultimate_chart[query_free] = self.q_penultimate_weight\n        q_penultimate_relative = q_penultimate_chart * (0.02 * math.sqrt(d_model - 1) / q_penultimate_chart.norm())\n        q_target_chart = self.q_target_weight.new_zeros(d_model - 1)\n        q_target_chart[q_target_pivot] = 1.0\n        q_target_chart[query_free] = self.q_target_weight\n        q_target_relative = q_target_chart * (0.02 * math.sqrt(d_model - 1) / q_target_chart.norm())\n        q_first_free = [coordinate for coordinate in range(d_model - 1) if coordinate not in (q_first_pivot, q_first_shear_pivot)]\n        q_first_chart = self.q_first_weight.new_zeros(d_model - 1)\n        q_first_chart[q_first_pivot] = 1.0\n        q_first_chart[q_first_free] = self.q_first_weight\n        q_first_relative = q_first_chart * (0.02 * math.sqrt(d_model - 1) / q_first_chart.norm())\n        q_neighbor_free = [coordinate for coordinate in range(d_model - 1) if coordinate not in (q_first_pivot, q_neighbor_pivot)]\n        q_neighbor_chart = self.q_neighbor_weight.new_zeros(d_model - 1)\n        q_neighbor_chart[q_neighbor_pivot] = 1.0\n        q_neighbor_chart[q_neighbor_free] = self.q_neighbor_weight\n        q_neighbor_coordinates = [coordinate for coordinate in range(d_model - 1) if coordinate != q_first_pivot]\n        q_neighbor_chart[q_first_pivot] = -(q_neighbor_chart[q_neighbor_coordinates] * q_first_relative[q_neighbor_coordinates]).sum() / q_first_relative[q_first_pivot]\n        q_neighbor_relative = q_neighbor_chart * (0.02 * math.sqrt(d_model - 1) / q_neighbor_chart.norm())\n        q_biased_first = self.head_dim - 4\n        q_biased_second = self.head_dim - 3\n        q_biased_reference = self.qkv.weight[q_biased_first]\n        q_biased_coordinates = [coordinate for coordinate in range(d_model - 1) if coordinate != q_biased_pivot]\n        q_biased_lift = self.q_biased_weight.new_zeros(d_model - 1)\n        q_biased_lift[q_biased_coordinates] = self.q_biased_weight\n        q_biased_relative = q_biased_lift - q_biased_reference * ((q_biased_lift * q_biased_reference).sum() / q_biased_reference.square().sum())\n        q_shear_relative = self.q_shear_weight.new_zeros(d_model - 1)\n        q_shear_relative[query_free] = self.q_shear_weight\n        q_anchor_relative = torch.cat((self.q_anchor_weight[:q_anchor_pivot], self.q_anchor_weight.new_zeros(1), self.q_anchor_weight[q_anchor_pivot:]))\n        q_first_neighbor = self.head_dim - 2\n        qkv_rows = torch.cat((self.qkv.weight[:q_biased_second], q_biased_relative.unsqueeze(0), q_neighbor_relative.unsqueeze(0), q_first_relative.unsqueeze(0), q_anchor_relative.unsqueeze(0), q_shear_relative.unsqueeze(0), q_penultimate_relative.unsqueeze(0), q_target_relative.unsqueeze(0), self.qkv.weight[q_biased_second:]), dim=0)\n        qkv_weight_relative = torch.cat((qkv_rows, qkv_rows.new_zeros((qkv_rows.size(0), 1))), dim=-1)\n        qkv_weight = qkv_weight_relative + qkv_rows.mean(dim=-1, keepdim=True)\n        qkv = F.linear(x, qkv_weight, qkv_bias)\n        q, k, v = qkv.chunk(3, dim=-1)\n        q = q.view(bsz, seqlen, self.n_head, self.head_dim).transpose(1, 2)\n        k = k.view(bsz, seqlen, self.n_head, self.head_dim).transpose(1, 2)\n        v = v.view(bsz, seqlen, self.n_head, self.head_dim).transpose(1, 2)\n        att = q @ k.transpose(-2, -1) / math.sqrt(self.head_dim)\n        causal = self.mask[:seqlen, :seqlen]\n        att = att.masked_fill(~causal, float('-inf'))\n        att = F.softmax(att, dim=-1)\n        att = self.attn_drop(att)\n        y = att @ v\n        y = y.transpose(1, 2).contiguous().view(bsz, seqlen, d_model)\n        head_pivot = int(self.proj_head_pivot.item())\n        head_chart = torch.cat((self.proj_head_weight[:head_pivot], self.proj_head_weight.new_full((1,), 1.0), self.proj_head_weight[head_pivot:]))\n        head_free = head_chart * (0.02 * math.sqrt(d_model - 3) / head_chart.norm())\n        last_pivot = int(self.proj_last_pivot.item())\n        last_chart = torch.cat((self.proj_last_weight[:last_pivot], self.proj_last_weight.new_full((1,), 1.0), self.proj_last_weight[last_pivot:]))\n        last_free = last_chart * (0.02 * math.sqrt(d_model - 3) / last_chart.norm())\n        head_relative = torch.cat((head_free, head_free.new_zeros(2)))\n        last_relative = torch.cat((last_free, last_free.new_zeros(2)))\n        split = self.head_dim - 1\n        weight_rows = torch.cat((self.proj.weight[:split], head_relative.unsqueeze(0), self.proj.weight[split:], last_relative.unsqueeze(0)), dim=0)\n        weight_relative = torch.cat((weight_rows, weight_rows.new_zeros((weight_rows.size(0), 1))), dim=-1)\n        proj_weight = (weight_relative + weight_rows.mean(dim=-1, keepdim=True)).transpose(0, 1)\n        relative_bias = torch.cat((self.proj.bias, self.proj.bias.new_zeros(1)))\n        proj_bias = relative_bias + self.proj.bias.mean()\n        y = F.linear(y, proj_weight, proj_bias)\n        y = self.resid_drop(y)\n        return y"
+          }
+        ],
+        "family_signature": {
+          "operand_representation": "ordered base-10 operand-pair token sequence; unchanged incoming digit order",
+          "embedding": "token lookup table",
+          "position": "additive",
+          "relative_scores": false,
+          "attention": "content-dependent softmax QK scores",
+          "feedforward": "ungated pointwise MLP",
+          "parameter_generator": [],
+          "attention_kernel": [],
+          "score_bias": "none"
+        },
+        "reviewer": "addition-source-bound-semantic-review-v1"
+      }
+    },
+    {
+      "campaign_key": "openevolve_v21",
+      "before_sha256": "35320f1af9ef678dedc049ff57f38d23488b9cdc08dd522c9705599e0551be80",
+      "after_sha256": "cae797f340bba38bc918037ff7be7b57412e5c17a7d51e31a4d12350b0a7883e",
+      "run_id": "controlled-openevolve-transformer-v2-1-source-only-ten-digit-addition-pair-transformer-openevolve-v2-1-mps-openevolve-b04-c0",
+      "proposal": 101,
+      "candidate_id": "6e23f2ea545e31a6ec6441a814545f4155ecde801d0ba89d8e264171eb3c2061",
+      "rationale": "Compensated Q/K coordinate gauge: a stereographic unit key direction is scaled to the query-row norm while reciprocal scaling preserves the Q/K outer-product representation. The same affine value/output paths, causal score masking and softmax remain. This is a normalization/parameterization change. Query biases remain free; initialized-output/checkpoint equivalence is not claimed. Chart singularities remain coordinate conditions.",
+      "result": {
+        "classification": "preserving",
+        "fingerprint": {
+          "input_units": "operand-pair and generated decimal-digit tokens",
+          "input_transform": "ordered base-10 digit-column packing; token alphabet/delimiters are coordinates",
+          "embedding": "token lookup table",
+          "position": "additive position features",
+          "mixing": "causal transformer attention",
+          "routing": "content-dependent softmax QK scores; lower-triangular causal routing",
+          "state": "feedforward hidden activations; no persistent recurrent state in traced methods",
+          "feedforward": "ungated pointwise MLP",
+          "parameter_construction": "learned affine coefficients and lookup coordinates; stored coordinates assembled by indexing/concatenation/padding; centering or linear coordinate/basis reconstruction; composed learned coefficient factors; nonlinear learned-coefficient operations: square; stereographic key direction with Q/K norm balancing and reciprocal scale gauge",
+          "sharing": "no explicit input/output weight alias; repeated module calls retain their module parameters",
+          "normalization": "AttentionAnchoredLayerNorm, LayerNorm, MLPAnchoredLayerNorm, layer_norm",
+          "connectivity": "residual attention and pointwise transformation paths",
+          "aggregation": "per-position attention-mixed features for token prediction",
+          "output": "affine vocabulary readout",
+          "symmetry": "ordered operand representation; no explicit min/max quotient in the embedding path",
+          "conditional_compute": "fixed forward computation; no persistent-state writes or untraced dynamic branch",
+          "activation": "gelu",
+          "stochasticity": "dropout modules (rate is a setting)",
+          "bottleneck": "no separate sequential factor bottleneck",
+          "iteration": "fixed forward block stack; autoregressive token iteration is inference",
+          "other": "all runtime operations are accounted for by the source-traced signal/coordinate graph",
+          "operand_encoding": "ordered base-10 digit-column pair tokens",
+          "digit_order": "least-significant column first; unchanged input order",
+          "carry_representation": "implicit in attention/hidden features; no explicit persistent carry register",
+          "attention_scores": "content-dependent softmax QK scores; lower-triangular causal routing",
+          "projection_relations": "learned affine value/output maps and Q/K maps; stored-coordinate constraints recorded separately; compensated coupled Q/K coordinates; no new Q/K activation",
+          "output_factorization": "autoregressive decimal-digit token logits; optional constant termination token"
+        },
+        "fingerprint_complete": true,
+        "notes": "Compensated Q/K coordinate gauge: a stereographic unit key direction is scaled to the query-row norm while reciprocal scaling preserves the Q/K outer-product representation. The same affine value/output paths, causal score masking and softmax remain. This is a normalization/parameterization change. Query biases remain free; initialized-output/checkpoint equivalence is not claimed. Chart singularities remain coordinate conditions.",
+        "changed_components": [
+          "parameter_construction",
+          "projection_relations"
+        ],
+        "evidence": [
+          {
+            "file": "src/model.py",
+            "line": 39,
+            "scope": "SharedAnchorEmbeddings.token_weight",
+            "kind": "symbolically followed runtime method",
+            "code": "def token_weight(self) -> torch.Tensor:"
+          },
+          {
+            "file": "src/model.py",
+            "line": 74,
+            "scope": "SharedAnchorEmbeddings.token",
+            "kind": "symbolically followed runtime method",
+            "code": "def token(self, idx: torch.Tensor) -> torch.Tensor:"
+          },
+          {
+            "file": "src/model.py",
+            "line": 68,
+            "scope": "SharedAnchorEmbeddings.pos_weight",
+            "kind": "symbolically followed runtime method",
+            "code": "def pos_weight(self) -> torch.Tensor:"
+          },
+          {
+            "file": "src/model.py",
+            "line": 77,
+            "scope": "SharedAnchorEmbeddings.position",
+            "kind": "symbolically followed runtime method",
+            "code": "def position(self, idx: torch.Tensor) -> torch.Tensor:"
+          },
+          {
+            "file": "src/model.py",
+            "line": 231,
+            "scope": "AttentionAnchoredLayerNorm.forward",
+            "kind": "symbolically followed runtime method",
+            "code": "def forward(self, x: torch.Tensor) -> torch.Tensor:"
+          },
+          {
+            "file": "src/model.py",
+            "line": 93,
+            "scope": "AttentionWeightAnchoredLinear.weight_tensor",
+            "kind": "symbolically followed runtime method",
+            "code": "def weight_tensor(self) -> torch.Tensor:"
+          },
+          {
+            "file": "src/model.py",
+            "line": 132,
+            "scope": "AttentionWeightAnchoredLinear.forward",
+            "kind": "symbolically followed runtime method",
+            "code": "def forward(self, x: torch.Tensor) -> torch.Tensor:"
+          },
+          {
+            "file": "src/model.py",
+            "line": 155,
+            "scope": "CausalSelfAttention.forward",
+            "kind": "symbolically followed runtime method",
+            "code": "def forward(self, x: torch.Tensor) -> torch.Tensor:"
+          },
+          {
+            "file": "src/model.py",
+            "line": 260,
+            "scope": "MLPAnchoredLayerNorm.forward",
+            "kind": "symbolically followed runtime method",
+            "code": "def forward(self, x: torch.Tensor) -> torch.Tensor:"
+          },
+          {
+            "file": "src/model.py",
+            "line": 189,
+            "scope": "BiasAnchoredLinear.forward",
+            "kind": "symbolically followed runtime method",
+            "code": "def forward(self, x: torch.Tensor) -> torch.Tensor:"
+          },
+          {
+            "file": "src/model.py",
+            "line": 204,
+            "scope": "FinalBiasAnchoredLinear.forward",
+            "kind": "symbolically followed runtime method",
+            "code": "def forward(self, x: torch.Tensor) -> torch.Tensor:"
+          },
+          {
+            "file": "src/model.py",
+            "line": 217,
+            "scope": "MLP.forward",
+            "kind": "symbolically followed runtime method",
+            "code": "def forward(self, x: torch.Tensor) -> torch.Tensor:"
+          },
+          {
+            "file": "src/model.py",
+            "line": 278,
+            "scope": "Block.forward",
+            "kind": "symbolically followed runtime method",
+            "code": "def forward(self, x: torch.Tensor) -> torch.Tensor:"
+          },
+          {
+            "file": "src/model.py",
+            "line": 39,
+            "scope": "SharedAnchorEmbeddings.token_weight",
+            "kind": "symbolically followed runtime method",
+            "code": "def token_weight(self) -> torch.Tensor:"
+          },
+          {
+            "file": "src/model.py",
+            "line": 437,
+            "scope": "TinyDecoderLM.forward",
+            "kind": "symbolically followed runtime method",
+            "code": "def forward(self, idx: torch.Tensor, targets: torch.Tensor=None) -> Tuple[torch.Tensor, torch.Tensor]:"
+          },
+          {
+            "file": "src/model.py",
+            "line": 81,
+            "scope": "before:AttentionWeightAnchoredLinear",
+            "kind": "complete class source reviewed for coupled Q/K coordinate compensation",
+            "code": "class AttentionWeightAnchoredLinear(nn.Module):\n    \"\"\"QKV projection with two zero anchors and seven query scale anchors.\"\"\"\n\n    def __init__(self, in_features: int, out_features: int):\n        super().__init__()\n        self.in_features = in_features\n        self.out_features = out_features\n        nn.Linear(in_features, out_features, bias=False)\n        self.weight_rest = nn.Parameter(torch.empty(out_features * in_features - 9))\n\n    def weight_tensor(self) -> torch.Tensor:\n        zero = self.weight_rest.new_zeros(1)\n        fixed = self.weight_rest.new_full((1,), 0.02)\n        return torch.cat((zero, self.weight_rest[:1], zero, self.weight_rest[1:2], fixed, self.weight_rest[2:5], fixed, self.weight_rest[5:12], fixed, self.weight_rest[12:27], fixed, self.weight_rest[27:34], fixed, self.weight_rest[34:41], fixed, self.weight_rest[41:48], fixed, self.weight_rest[48:])).view(self.out_features, self.in_features)\n\n    def forward(self, x: torch.Tensor) -> torch.Tensor:\n        return F.linear(x, self.weight_tensor())"
+          },
+          {
+            "file": "src/model.py",
+            "line": 123,
+            "scope": "before:CausalSelfAttention",
+            "kind": "complete class source reviewed for coupled Q/K coordinate compensation",
+            "code": "class CausalSelfAttention(nn.Module):\n\n    def __init__(self, d_model: int, n_head: int, dropout: float, max_seq_len: int):\n        super().__init__()\n        if d_model % n_head != 0:\n            raise ValueError('d_model must be divisible by n_head')\n        self.n_head = n_head\n        self.head_dim = d_model // n_head\n        self.qkv = AttentionWeightAnchoredLinear(d_model, 3 * d_model)\n        self.q_bias_rest = nn.Parameter(torch.zeros(d_model - 3))\n        self.v_bias = nn.Parameter(torch.zeros(d_model))\n        self.proj = nn.Linear(d_model, d_model)\n        self.proj.bias = self.v_bias\n        self.attn_drop = nn.Dropout(dropout)\n        self.resid_drop = nn.Dropout(dropout)\n        mask = torch.tril(torch.ones(max_seq_len, max_seq_len, dtype=torch.bool))\n        self.register_buffer('mask', mask, persistent=False)\n\n    def forward(self, x: torch.Tensor) -> torch.Tensor:\n        bsz, seqlen, d_model = x.shape\n        qkv = self.qkv(x)\n        q, k, v = qkv.chunk(3, dim=-1)\n        q_bias = torch.cat((self.q_bias_rest.new_zeros(3), self.q_bias_rest))\n        q = q + q_bias\n        v = v + self.v_bias\n        q = q.view(bsz, seqlen, self.n_head, self.head_dim).transpose(1, 2)\n        k = k.view(bsz, seqlen, self.n_head, self.head_dim).transpose(1, 2)\n        v = v.view(bsz, seqlen, self.n_head, self.head_dim).transpose(1, 2)\n        att = q @ k.transpose(-2, -1) / math.sqrt(self.head_dim)\n        causal = self.mask[:seqlen, :seqlen]\n        att = att.masked_fill(~causal, float('-inf'))\n        att = F.softmax(att, dim=-1)\n        att = self.attn_drop(att)\n        y = att @ v\n        y = y.transpose(1, 2).contiguous().view(bsz, seqlen, d_model)\n        y = self.proj(y)\n        y = self.resid_drop(y)\n        return y"
+          },
+          {
+            "file": "src/model.py",
+            "line": 81,
+            "scope": "after:AttentionWeightAnchoredLinear",
+            "kind": "complete class source reviewed for coupled Q/K coordinate compensation",
+            "code": "class AttentionWeightAnchoredLinear(nn.Module):\n    \"\"\"QKV projection with coefficient anchors and one balanced Q/K norm gauge.\"\"\"\n\n    def __init__(self, in_features: int, out_features: int):\n        super().__init__()\n        self.in_features = in_features\n        self.out_features = out_features\n        nn.Linear(in_features, out_features, bias=False)\n        self.weight_rest = nn.Parameter(torch.empty(out_features * in_features - 10))\n\n    def weight_tensor(self) -> torch.Tensor:\n        zero = self.weight_rest.new_zeros(1)\n        one = self.weight_rest.new_ones(1)\n        fixed = self.weight_rest.new_full((1,), 0.02)\n        q3 = self.weight_rest[19:27]\n        stereo = self.weight_rest[79:86]\n        stereo_sq = stereo.square().sum().unsqueeze(0)\n        key3_unit = torch.cat((2.0 * stereo, one - stereo_sq))\n        key3_unit = key3_unit / (one + stereo_sq)\n        key3 = key3_unit * q3.norm()\n        return torch.cat((zero, self.weight_rest[:1], zero, self.weight_rest[1:2], fixed, self.weight_rest[2:5], fixed, self.weight_rest[5:12], fixed, self.weight_rest[12:27], fixed, self.weight_rest[27:34], fixed, self.weight_rest[34:41], fixed, self.weight_rest[41:48], fixed, self.weight_rest[48:79], key3, self.weight_rest[86:])).view(self.out_features, self.in_features)\n\n    def forward(self, x: torch.Tensor) -> torch.Tensor:\n        return F.linear(x, self.weight_tensor())"
+          },
+          {
+            "file": "src/model.py",
+            "line": 136,
+            "scope": "after:CausalSelfAttention",
+            "kind": "complete class source reviewed for coupled Q/K coordinate compensation",
+            "code": "class CausalSelfAttention(nn.Module):\n\n    def __init__(self, d_model: int, n_head: int, dropout: float, max_seq_len: int):\n        super().__init__()\n        if d_model % n_head != 0:\n            raise ValueError('d_model must be divisible by n_head')\n        self.n_head = n_head\n        self.head_dim = d_model // n_head\n        self.qkv = AttentionWeightAnchoredLinear(d_model, 3 * d_model)\n        self.q_bias_rest = nn.Parameter(torch.zeros(d_model - 3))\n        self.v_bias = nn.Parameter(torch.zeros(d_model))\n        self.proj = nn.Linear(d_model, d_model)\n        self.proj.bias = self.v_bias\n        self.attn_drop = nn.Dropout(dropout)\n        self.resid_drop = nn.Dropout(dropout)\n        mask = torch.tril(torch.ones(max_seq_len, max_seq_len, dtype=torch.bool))\n        self.register_buffer('mask', mask, persistent=False)\n\n    def forward(self, x: torch.Tensor) -> torch.Tensor:\n        bsz, seqlen, d_model = x.shape\n        qkv = self.qkv(x)\n        q, k, v = qkv.chunk(3, dim=-1)\n        q_bias = torch.cat((self.q_bias_rest.new_zeros(3), self.q_bias_rest))\n        q = q + q_bias\n        v = v + self.v_bias\n        q = q.view(bsz, seqlen, self.n_head, self.head_dim).transpose(1, 2)\n        k = k.view(bsz, seqlen, self.n_head, self.head_dim).transpose(1, 2)\n        v = v.view(bsz, seqlen, self.n_head, self.head_dim).transpose(1, 2)\n        att = q @ k.transpose(-2, -1) / math.sqrt(self.head_dim)\n        causal = self.mask[:seqlen, :seqlen]\n        att = att.masked_fill(~causal, float('-inf'))\n        att = F.softmax(att, dim=-1)\n        att = self.attn_drop(att)\n        y = att @ v\n        y = y.transpose(1, 2).contiguous().view(bsz, seqlen, d_model)\n        y = self.proj(y)\n        y = self.resid_drop(y)\n        return y"
+          }
+        ],
+        "family_signature": {
+          "operand_representation": "ordered base-10 operand-pair token sequence; unchanged incoming digit order",
+          "embedding": "token lookup table",
+          "position": "additive",
+          "relative_scores": false,
+          "attention": "content-dependent softmax QK scores",
+          "feedforward": "ungated pointwise MLP",
+          "parameter_generator": [],
+          "attention_kernel": [],
+          "score_bias": "none"
+        },
+        "reviewer": "addition-source-bound-semantic-review-v1"
+      }
+    },
+    {
+      "campaign_key": "tiny_adderboard_v21",
+      "before_sha256": "cfd70242b1a80f63656bcfb06afeb9806fe7bad7925208782ecb384ba00cfa24",
+      "after_sha256": "8cd5b1b05277b5a362a9e1bb349afb51b3620c0a79fc6dd501a86724e10e8177",
+      "run_id": "tiny-v21-four-digit-openevolve-b05-c3",
+      "proposal": 77,
+      "candidate_id": "14588d0a10ecc375c3f393bb757540dc2c01a93da46d4bbff5fcbc840a1506f2",
+      "rationale": "The submitted source calls TwoColumnsCenteredLinear(3, width) in the reached model constructor, but this name is neither defined nor imported in the source. The campaign independently records an execution failure for this exact candidate. No executable architecture is specified for this proposal; the similarly named OneColumnCenteredLinear/ThreeColumnsCenteredLinear classes do not supply the missing definition.",
+      "result": {
+        "classification": "invalid_source",
+        "invalid_kind": "undefined_constructor",
+        "implemented": false,
+        "executable": false,
+        "fingerprint": {},
+        "fingerprint_complete": false,
+        "notes": "The submitted source calls TwoColumnsCenteredLinear(3, width) in the reached model constructor, but this name is neither defined nor imported in the source. The campaign independently records an execution failure for this exact candidate. No executable architecture is specified for this proposal; the similarly named OneColumnCenteredLinear/ThreeColumnsCenteredLinear classes do not supply the missing definition.",
+        "changed_components": [],
+        "missing_symbols": [
+          "TwoColumnsCenteredLinear"
+        ],
+        "evidence": [
+          {
+            "file": "train.py",
+            "line": 271,
+            "scope": "TinyAdditionTransformer.__init__",
+            "kind": "undefined reached constructor",
+            "symbol": "TwoColumnsCenteredLinear",
+            "code": "TwoColumnsCenteredLinear(3, width)",
+            "top_level_declared_names": [
+              "BATCH_SIZE",
+              "CausalSelfAttention",
+              "CenteredEmbedding",
+              "CenteredRelativeBias",
+              "F",
+              "FirstBiasGaugePairEncoder",
+              "FourInputRowsCenteredLinear",
+              "GRAD_CLIP_NORM",
+              "LR_SCHEDULE_STEPS",
+              "OUTPUT_TOKENS",
+              "OneColumnCenteredLinear",
+              "SixBiaslessInputRowsCenteredLinear",
+              "TRAINING_STEPS",
+              "ThreeColumnsCenteredLinear",
+              "TinyAdditionTransformer",
+              "TransformerBlock",
+              "TwoRowsCenteredProjection",
+              "after_optimizer_step",
+              "annotations",
+              "build_model",
+              "build_optimizer",
+              "decode_targets",
+              "encode_inputs",
+              "encode_targets",
+              "math",
+              "nn",
+              "torch",
+              "training_loss"
+            ]
+          },
+          {
+            "file": "data\\c0c3\\tiny-v21\\runs\\tiny-v21-four-digit-openevolve-b05-c3\\events.jsonl",
+            "line": 155,
+            "kind": "independent campaign execution failure",
+            "candidate_id": "14588d0a10ecc375c3f393bb757540dc2c01a93da46d4bbff5fcbc840a1506f2",
+            "evaluation": {
+              "evaluator_calls": 1,
+              "evaluator_seconds": 3.6582006440000043,
+              "failure_kind": "execution",
+              "fitness": null,
+              "metrics": {},
+              "valid": false
+            }
+          }
+        ],
+        "reviewer": "addition-source-bound-semantic-review-v1"
+      }
+    },
+    {
+      "campaign_key": "openevolve_v21",
+      "before_sha256": "8eaa0daee166a96e219bce3441ee8b1b18167defb08d297b0dcd3df7abbc1fea",
+      "after_sha256": "558cf96c3e122309e7d0832d1266bfa4acafce6607d7ccd299da7e61ea087611",
+      "run_id": "controlled-openevolve-transformer-v2-1-source-only-ten-digit-addition-pair-transformer-openevolve-v2-1-mps-openevolve-b01-c0",
+      "proposal": 25,
+      "candidate_id": "1dad56814abb25b4469a808b0160f10b633cbdf43080ef2f42985b9b9f7bcf59",
+      "rationale": "The edit adds a fourth centered positional-embedding coordinate. Its eliminated position-wide mean is transferred into the matching token-embedding feature during the same initialization path, so every token-plus-position input vector is unchanged. The tied token readout, attention, MLP, causal mask, and target codec retain their prior signal roles.",
+      "result": {
+        "classification": "preserving",
+        "fingerprint": {
+          "input_units": "operand-pair and generated decimal-digit tokens",
+          "input_transform": "ordered base-10 digit-column packing; token alphabet/delimiters are coordinates",
+          "embedding": "token lookup table with four centered token-feature coordinates",
+          "position": "additive position features; fourth positional coordinate is centered and its removed global mean is transferred to the matching token feature",
+          "mixing": "causal transformer attention",
+          "routing": "content-dependent softmax QK scores; lower-triangular causal routing",
+          "state": "feedforward hidden activations; no persistent recurrent state in traced methods",
+          "feedforward": "ungated pointwise MLP",
+          "parameter_construction": "learned affine and lookup coordinates; token columns one through three and positional column four use anchored centered coordinates, with the positional global shift compensated in the token embedding",
+          "sharing": "tied input token embedding and affine vocabulary readout",
+          "normalization": "CenteredBiasLayerNorm, ReducedBiasLayerNorm, LayerNorm, layer_norm",
+          "connectivity": "residual attention and pointwise transformation paths",
+          "aggregation": "per-position attention-mixed features for token prediction",
+          "output": "affine vocabulary readout tied to token lookup coordinates",
+          "symmetry": "ordered operand representation; no explicit min/max quotient in the embedding path",
+          "conditional_compute": "fixed forward computation; no persistent-state writes or untraced dynamic branch",
+          "activation": "gelu",
+          "stochasticity": "dropout modules (rate is a setting)",
+          "bottleneck": "no separate sequential factor bottleneck",
+          "iteration": "fixed forward block stack; autoregressive token iteration is inference",
+          "other": "all runtime operations are accounted for by the source-traced signal/coordinate graph",
+          "operand_encoding": "ordered base-10 digit-column pair tokens",
+          "digit_order": "least-significant column first; unchanged input order",
+          "carry_representation": "implicit in attention/hidden features; no explicit persistent carry register",
+          "attention_scores": "content-dependent softmax QK scores; lower-triangular causal routing",
+          "projection_relations": "learned affine Q/K/V/output maps; centered embedding coordinates are compensated before the transformer input",
+          "output_factorization": "autoregressive decimal-digit token logits; optional constant termination token"
+        },
+        "fingerprint_complete": true,
+        "family_signature": {
+          "operand_representation": "ordered base-10 operand-pair token sequence; unchanged incoming digit order",
+          "embedding": "token lookup table",
+          "position": "additive",
+          "relative_scores": false,
+          "attention": "content-dependent softmax QK scores",
+          "feedforward": "ungated pointwise MLP",
+          "parameter_generator": [],
+          "attention_kernel": [],
+          "score_bias": "none"
+        },
+        "changed_components": [
+          "embedding",
+          "position",
+          "parameter_construction",
+          "sharing",
+          "output"
+        ],
+        "notes": "Direct exact-source review: CenteredPositionalEmbedding._set_from_full stores the fourth positional column as contrasts plus its mean. TinyDecoderLM.__init__ adds that removed mean to full_token_weight[:, 3] before CenteredTokenEmbedding._set_from_full. The forward path adds those reconstructed token and positional tables, preserving their sum at every token and position.",
+        "evidence": [
+          {
+            "file": "src/model.py",
+            "line": 175,
+            "scope": "CenteredPositionalEmbedding._set_from_full",
+            "kind": "directly source-adjudicated coordinate compensation",
+            "code": "self.fourth_column.copy_(fourth_column[:-1] - fourth_column[-1]); self.fourth_column_shift.copy_(fourth_column.mean())"
+          },
+          {
+            "file": "src/model.py",
+            "line": 248,
+            "scope": "TinyDecoderLM.__init__",
+            "kind": "directly source-adjudicated coordinate compensation",
+            "code": "full_token_weight[:, 3].add_(self.pos_emb.fourth_column_shift); self.token_emb._set_from_full(full_token_weight)"
+          },
+          {
+            "file": "src/model.py",
+            "line": 294,
+            "scope": "TinyDecoderLM.forward",
+            "kind": "directly source-adjudicated signal use",
+            "code": "x = self.token_emb(idx) + self.pos_emb(pos)"
+          }
+        ],
+        "reviewer": "addition-source-pair-adjudication-v2"
+      }
+    },
+    {
+      "campaign_key": "openevolve_v21",
+      "before_sha256": "583ca995d2a46bb294e023312129c6399e2eb097bb426001ec06b7d0f6af1f01",
+      "after_sha256": "157cb16173b94b57643d691d2ea7eadd42b5851ce8b0487ae863560b4caec79f",
+      "run_id": "controlled-openevolve-transformer-v2-1-source-only-ten-digit-addition-pair-transformer-openevolve-v2-1-mps-openevolve-b04-c3",
+      "proposal": 25,
+      "candidate_id": "32361ba4ad394ef6bc7824bd8387606dd0f4007d89149538fd310a264a19b3ab",
+      "rationale": "The learned additive-position gain is replaced by the fourth root of the ratio of mean squared learned Q and K weights. The source retains additive sinusoidal positions, ordinary causal QK softmax attention, a query-only packed QKV bias, and an output bias. This changes coefficient construction without adding a task representation, routing, state, or output-factorization primitive.",
+      "result": {
+        "classification": "preserving",
+        "fingerprint": {
+          "input_units": "operand-pair and generated decimal-digit tokens",
+          "input_transform": "ordered base-10 digit-column packing; token alphabet/delimiters are coordinates",
+          "embedding": "token lookup table",
+          "position": "additive fixed sinusoidal position features, scaled by the fourth-root Q/K learned-weight energy ratio",
+          "mixing": "causal transformer attention",
+          "routing": "content-dependent softmax QK scores; lower-triangular causal routing",
+          "state": "feedforward hidden activations; no persistent recurrent state in traced methods",
+          "feedforward": "ungated pointwise MLP",
+          "parameter_construction": "learned affine coefficients and lookup coordinates; additive sinusoidal position buffer has amplitude (mean(Q_weight squared)/mean(K_weight squared)) to the one-quarter power",
+          "sharing": "self.lm_head.weight = self.token_emb.weight",
+          "normalization": "RMSNorm",
+          "connectivity": "residual attention and pointwise transformation paths",
+          "aggregation": "per-position attention-mixed features for token prediction",
+          "output": "affine vocabulary readout",
+          "symmetry": "ordered operand representation; no explicit min/max quotient in the embedding path",
+          "conditional_compute": "fixed forward computation; no persistent-state writes or untraced dynamic branch",
+          "activation": "gelu",
+          "stochasticity": "dropout modules (rate is a setting)",
+          "bottleneck": "no separate sequential factor bottleneck",
+          "iteration": "fixed forward block stack; autoregressive token iteration is inference",
+          "other": "all runtime operations are accounted for by the source-traced signal/coordinate graph",
+          "operand_encoding": "ordered base-10 digit-column pair tokens",
+          "digit_order": "least-significant column first; unchanged input order",
+          "carry_representation": "implicit in attention/hidden features; no explicit persistent carry register",
+          "attention_scores": "content-dependent softmax QK scores; lower-triangular causal routing",
+          "projection_relations": "ordinary learned affine Q/K/V/output maps; only query bias is stored in packed QKV while key/value biases are omitted and learned output bias remains",
+          "output_factorization": "autoregressive decimal-digit token logits; optional constant termination token"
+        },
+        "fingerprint_complete": true,
+        "family_signature": {
+          "operand_representation": "ordered base-10 operand-pair token sequence; unchanged incoming digit order",
+          "embedding": "token lookup table",
+          "position": "additive",
+          "relative_scores": false,
+          "attention": "content-dependent softmax QK scores",
+          "feedforward": "ungated pointwise MLP",
+          "parameter_generator": [],
+          "attention_kernel": [],
+          "score_bias": "none"
+        },
+        "changed_components": [
+          "position",
+          "parameter_construction",
+          "projection_relations"
+        ],
+        "notes": "Direct complete-source review: learned additive position table becomes fixed sinusoidal additive features, with amplitude (mean(Q_weight squared)/mean(K_weight squared)) to the one-quarter power. The handoff treats additive-position changes and normalization as preserving. Query/key/value bias storage changes within ordinary affine/softmax parameterization, while the QK product, causal mask, softmax, and value mixing remain unchanged.",
+        "evidence": [
+          {
+            "file": "src/model.py",
+            "line": 123,
+            "scope": "TinyDecoderLM.__init__",
+            "kind": "directly source-adjudicated fixed position construction",
+            "code": "self.register_buffer('pos_encoding', 0.02 * pos_encoding, persistent=False)"
+          },
+          {
+            "file": "src/model.py",
+            "line": 141,
+            "scope": "TinyDecoderLM.forward",
+            "kind": "directly source-adjudicated Q/K energy normalization",
+            "code": "pos_scale = (q_energy / k_energy).pow(0.25); x = self.token_emb(idx) + pos_scale * self.pos_encoding[:seqlen].unsqueeze(0)"
+          },
+          {
+            "file": "src/model.py",
+            "line": 43,
+            "scope": "CausalSelfAttention.forward",
+            "kind": "directly source-adjudicated attention and QKV bias storage",
+            "code": "qkv = F.linear(x, self.qkv.weight, fused_bias); q, k, v = qkv.chunk(3, dim=-1); att = F.softmax((q @ k.transpose(-2, -1)) / math.sqrt(self.head_dim), dim=-1)"
+          }
+        ],
+        "reviewer": "addition-source-pair-adjudication-v3"
+      }
+    },
+    {
+      "campaign_key": "openevolve_v21",
+      "before_sha256": "d196903d89fd3e8d628d836fa16a42c646296d1ca247cdbf55ccd85c86d140e0",
+      "after_sha256": "9d3d5f4c64266fe6b1f39f16865ecd275517790d12a3a0fd8b705fc092082424",
+      "run_id": "controlled-openevolve-transformer-v2-1-source-only-ten-digit-addition-pair-transformer-openevolve-v2-1-mps-openevolve-b01-c3",
+      "proposal": 78,
+      "candidate_id": "38e640a7983127bd750530ad9e560e8462915dda84995853f836f379b06eff89",
+      "rationale": "The child replaces four independently learned affine bias coordinates with one learned scalar and its square, then repeats a nonlinear quartet across the MLP output. That learned squaring operation generates a new coefficient relation in the executed signal path, so it is ontology-changing.",
+      "result": {
+        "classification": "changing",
+        "fingerprint": {
+          "input_units": "operand-pair and generated decimal-digit tokens",
+          "input_transform": "ordered base-10 digit-column packing; token alphabet/delimiters are coordinates",
+          "embedding": "token lookup table",
+          "position": "no separate additive position path",
+          "mixing": "causal transformer attention",
+          "routing": "content-dependent softmax QK scores; lower-triangular causal routing",
+          "state": "feedforward hidden activations; no persistent recurrent state in traced methods",
+          "feedforward": "ungated pointwise MLP with quadratically generated repeated fc1 bias quartet",
+          "parameter_construction": "one learned MLP bias scalar is squared and combined with itself to construct a four-value quartet, repeated across twelve output coordinates",
+          "sharing": "shared embedding module reference",
+          "normalization": "AnchoredScaleLayerNorm, LayerNorm, layer_norm",
+          "connectivity": "residual attention and pointwise transformation paths",
+          "aggregation": "per-position attention-mixed features for token prediction",
+          "output": "affine vocabulary readout",
+          "symmetry": "ordered operand representation; no explicit min/max quotient in the embedding path",
+          "conditional_compute": "fixed forward computation; no persistent-state writes or untraced dynamic branch",
+          "activation": "gelu",
+          "stochasticity": "dropout modules (rate is a setting)",
+          "bottleneck": "no separate sequential factor bottleneck",
+          "iteration": "fixed forward block stack; autoregressive token iteration is inference",
+          "other": "learned squaring in the MLP bias construction is an input-independent parameter generator that changes the architecture's coefficient mechanism",
+          "operand_encoding": "ordered base-10 digit-column pair tokens",
+          "digit_order": "least-significant column first; unchanged input order",
+          "carry_representation": "implicit in attention/hidden features; no explicit persistent carry register",
+          "attention_scores": "content-dependent softmax QK scores; lower-triangular causal routing",
+          "projection_relations": "ordinary learned affine Q/K/V/output maps; MLP fc1 bias is quadratically generated rather than an affine coordinate reconstruction",
+          "output_factorization": "autoregressive decimal-digit token logits; optional constant termination token"
+        },
+        "fingerprint_complete": true,
+        "family_signature": {
+          "operand_representation": "ordered base-10 operand-pair token sequence; unchanged incoming digit order",
+          "embedding": "token lookup table",
+          "position": "none",
+          "relative_scores": false,
+          "attention": "content-dependent softmax QK scores",
+          "feedforward": "ungated pointwise MLP with nonlinear learned bias generator",
+          "parameter_generator": [
+            [
+              "learned nonlinear coefficient generator",
+              [
+                "square"
+              ]
+            ]
+          ],
+          "attention_kernel": [],
+          "score_bias": "none"
+        },
+        "changed_components": [
+          "feedforward",
+          "parameter_construction",
+          "projection_relations",
+          "other"
+        ],
+        "notes": "Direct complete-source review: PairwiseTiedBiasLinear.forward computes common=free_bias.square(), constructs the quartet [common+free_bias, common-0.5*free_bias, common-0.5*free_bias], and repeat-interleaves it as the executed fc1 bias. This is not an affine coordinate or width-only edit.",
+        "evidence": [
+          {
+            "file": "src/model.py",
+            "line": 162,
+            "scope": "before:PairwiseTiedBiasLinear.forward",
+            "kind": "directly source-adjudicated affine predecessor",
+            "code": "bias = self.free_bias.repeat_interleave(4); return F.linear(x, self.weight, bias)"
+          },
+          {
+            "file": "src/model.py",
+            "line": 164,
+            "scope": "after:PairwiseTiedBiasLinear.forward",
+            "kind": "directly source-adjudicated learned nonlinear coefficient generator",
+            "code": "common = contrast.square(); quartet_bias = torch.cat((common + contrast, (common - 0.5 * contrast).expand(2))); bias = quartet_bias.repeat_interleave(4); return F.linear(x, self.weight, bias)"
+          }
+        ],
+        "reviewer": "addition-source-pair-adjudication-v4"
+      }
+    },
+    {
+      "campaign_key": "openevolve_v21",
+      "before_sha256": "271a44874d2591610ee5feb4fb1e12e872597058c13a143e86a183f16a04e120",
+      "after_sha256": "02a00311a4917693a933e2468283168b1dabbad263b8fe215970c2d37e831e54",
+      "run_id": "controlled-openevolve-transformer-v2-1-source-only-ten-digit-addition-pair-transformer-openevolve-v2-1-mps-openevolve-b01-c3",
+      "proposal": 95,
+      "candidate_id": "346398f888c5e300ac66be838954083a9dacecbcb4bd69412d19ac629d94725a",
+      "rationale": "The child reduces each Q/K score to one learned-scaled hidden coordinate and explicitly replicates that coordinate over the head axis. It still forms causal, content-dependent scaled QK dot products followed by the same softmax and learned value path. The project handoff treats attention projection simplification and head coordinate sharing as ontology-preserving when no new routing primitive is introduced.",
+      "result": {
+        "classification": "preserving",
+        "fingerprint": {
+          "input_units": "operand-pair and generated decimal-digit tokens",
+          "input_transform": "ordered base-10 digit-column packing; token alphabet/delimiters are coordinates",
+          "embedding": "token lookup table",
+          "position": "no separate additive position path",
+          "mixing": "causal transformer attention",
+          "routing": "content-dependent softmax QK scores from a single learned-scaled hidden coordinate, replicated over attention heads; lower-triangular causal routing",
+          "state": "feedforward hidden activations; no persistent recurrent state in traced methods",
+          "feedforward": "ungated pointwise MLP",
+          "parameter_construction": "one learned scalar scales the first hidden feature for both Q and K score coordinates; learned affine values and output remain",
+          "sharing": "the scalar Q/K address is copied only across the explicit head axis with unsqueeze(2).expand(-1,-1,n_head,-1); batch, token, and feature axes are unchanged",
+          "normalization": "AnchoredScaleLayerNorm, LayerNorm, layer_norm",
+          "connectivity": "residual attention and pointwise transformation paths",
+          "aggregation": "per-position attention-mixed features for token prediction",
+          "output": "affine vocabulary readout",
+          "symmetry": "ordered operand representation; no explicit min/max quotient in the embedding path",
+          "conditional_compute": "fixed forward computation; no persistent-state writes or untraced dynamic branch",
+          "activation": "gelu",
+          "stochasticity": "dropout modules (rate is a setting)",
+          "bottleneck": "head-specific Q/K score width is reduced to one coordinate",
+          "iteration": "fixed forward block stack; autoregressive token iteration is inference",
+          "other": "the score path remains QK dot-product attention; no position-only, recurrent, or learned-kernel routing path is introduced",
+          "operand_encoding": "ordered base-10 digit-column pair tokens",
+          "digit_order": "least-significant column first; unchanged input order",
+          "carry_representation": "implicit in attention/hidden features; no explicit persistent carry register",
+          "attention_scores": "scaled dot product of replicated learned-scaled first-feature Q and K coordinates; lower-triangular causal mask and softmax",
+          "projection_relations": "Q and K share the same learned-scaled first hidden feature; learned affine V and output maps remain",
+          "output_factorization": "autoregressive decimal-digit token logits; optional constant termination token"
+        },
+        "fingerprint_complete": true,
+        "family_signature": {
+          "operand_representation": "ordered base-10 operand-pair token sequence; unchanged incoming digit order",
+          "embedding": "token lookup table",
+          "position": "none",
+          "relative_scores": false,
+          "attention": "content-dependent softmax QK scores",
+          "feedforward": "ungated pointwise MLP",
+          "parameter_generator": [],
+          "attention_kernel": [],
+          "score_bias": "none"
+        },
+        "changed_components": [
+          "routing",
+          "parameter_construction",
+          "sharing",
+          "bottleneck",
+          "attention_scores",
+          "projection_relations"
+        ],
+        "notes": "Direct complete-source review: qk=Linear(d_model,2*n_head*query_dim) is replaced by address=address_scale*x[..., :1], then q and k each receive address.unsqueeze(2).expand(-1,-1,n_head,-1). Both forms execute scaled content QK dot products, the unchanged causal mask, softmax, and learned V path. This is projection rank reduction and head-coordinate sharing, covered by the handoff's attention-projection simplification allowance.",
+        "evidence": [
+          {
+            "file": "src/model.py",
+            "line": 105,
+            "scope": "before:CausalSelfAttention.__init__",
+            "kind": "directly source-adjudicated projection predecessor",
+            "code": "self.query_dim = max(1, self.head_dim // 2); self.qk = nn.Linear(d_model, 2 * n_head * self.query_dim, bias=False)"
+          },
+          {
+            "file": "src/model.py",
+            "line": 120,
+            "scope": "after:CausalSelfAttention.forward",
+            "kind": "directly source-adjudicated head-axis projection simplification",
+            "code": "address = self.address_scale * x[..., :1]; q = address.unsqueeze(2).expand(-1, -1, self.n_head, -1); k = address.unsqueeze(2).expand(-1, -1, self.n_head, -1)"
+          },
+          {
+            "file": "src/model.py",
+            "line": 131,
+            "scope": "after:CausalSelfAttention.forward",
+            "kind": "directly source-adjudicated preserved routing",
+            "code": "att = (q @ k.transpose(-2, -1)) / math.sqrt(self.query_dim); att = att.masked_fill(~causal, float('-inf')); att = F.softmax(att, dim=-1)"
+          }
+        ],
+        "reviewer": "addition-source-pair-adjudication-v5"
+      }
+    },
+    {
+      "campaign_key": "openevolve_v21",
+      "before_sha256": "6970c95f1d5964401bbf0fe470a1e8500442e26bd1dffcac274ac84f595c8183",
+      "after_sha256": "3b9e5c50db7591e4a46e9e026d09ae09e0276575d7c0f977a33791dbe2dcaee8",
+      "run_id": "controlled-openevolve-transformer-v2-1-source-only-ten-digit-addition-pair-transformer-openevolve-v2-1-mps-openevolve-b01-c3",
+      "proposal": 96,
+      "candidate_id": "c0a09408ef7b8f9d8ab52dd7613d276f83e8f2f75e6c2730e7b416e5d8b92701",
+      "rationale": "Although the Q/K rank reduction is an allowed attention-projection simplification, the learned relative-distance score table changes its terminal shared bucket from distances at least 14 to distances at least 11. That alters which relative positions receive the same learned routing score, an input-dependent routing change.",
+      "result": {
+        "classification": "changing",
+        "fingerprint": {
+          "input_units": "operand-pair and generated decimal-digit tokens",
+          "input_transform": "ordered base-10 digit-column packing; token alphabet/delimiters are coordinates",
+          "embedding": "token lookup table",
+          "position": "no separate additive position path; learned relative-distance attention-score bias with terminal bucket beginning at distance 11",
+          "mixing": "causal transformer attention",
+          "routing": "content-dependent softmax QK scores plus a learned relative-distance score table; distances 11 and above share the terminal bias bucket",
+          "state": "feedforward hidden activations; no persistent recurrent state in traced methods",
+          "feedforward": "ungated pointwise MLP",
+          "parameter_construction": "rank-one Q/K address is shared across heads; learned relative score table has 11 explicit far-distance coordinates instead of 14",
+          "sharing": "Q/K address is replicated across explicit heads; relative-distance bias shares all distances at or above 11",
+          "normalization": "AnchoredScaleLayerNorm, LayerNorm, layer_norm",
+          "connectivity": "residual attention and pointwise transformation paths",
+          "aggregation": "per-position attention-mixed features for token prediction",
+          "output": "affine vocabulary readout",
+          "symmetry": "ordered operand representation; no explicit min/max quotient in the embedding path",
+          "conditional_compute": "fixed forward computation; no persistent-state writes or untraced dynamic branch",
+          "activation": "gelu",
+          "stochasticity": "dropout modules (rate is a setting)",
+          "bottleneck": "Q/K score width is reduced to one coordinate; relative score table has a shorter explicit-distance region",
+          "iteration": "fixed forward block stack; autoregressive token iteration is inference",
+          "other": "the relative-distance lookup changes routing geometry because the terminal bucket begins at a different input distance",
+          "operand_encoding": "ordered base-10 digit-column pair tokens",
+          "digit_order": "least-significant column first; unchanged input order",
+          "carry_representation": "implicit in attention/hidden features; no explicit persistent carry register",
+          "attention_scores": "scaled content QK scores plus learned relative-distance bias indexed by clamped token distance; causal mask and softmax",
+          "projection_relations": "rank-one shared Q/K address and learned affine V/output maps; relative-bias lookup boundary is changed",
+          "output_factorization": "autoregressive decimal-digit token logits; optional constant termination token"
+        },
+        "fingerprint_complete": true,
+        "family_signature": {
+          "operand_representation": "ordered base-10 operand-pair token sequence; unchanged incoming digit order",
+          "embedding": "token lookup table",
+          "position": "relative-distance score bias with terminal bucket at distance 11",
+          "relative_scores": true,
+          "attention": "content-dependent softmax QK scores plus learned relative-distance bias",
+          "feedforward": "ungated pointwise MLP",
+          "parameter_generator": [],
+          "attention_kernel": [],
+          "score_bias": "relative-distance score table; terminal bucket starts at 11"
+        },
+        "changed_components": [
+          "position",
+          "routing",
+          "parameter_construction",
+          "sharing",
+          "bottleneck",
+          "other",
+          "attention_scores",
+          "projection_relations"
+        ],
+        "notes": "Direct complete-source review: the source continues to compute relative_distance=(positions[:,None]-positions[None,:]).clamp_min(0), then indexes a learned bias vector. Before, far_rel_bias.expand(n_head,14) made distances 14 and above share the terminal learned score; after, far_rel_bias.expand(n_head,11) makes distances 11 and above share it. This modifies input-dependent routing geometry, so the pair is changing despite the otherwise preserving Q/K projection simplification.",
+        "evidence": [
+          {
+            "file": "src/model.py",
+            "line": 107,
+            "scope": "before:CausalSelfAttention.__init__",
+            "kind": "directly source-adjudicated relative routing predecessor",
+            "code": "self.rel_bias = nn.Parameter(torch.zeros(n_head, max_seq_len - 15)); self.far_rel_bias = nn.Parameter(torch.zeros(14))"
+          },
+          {
+            "file": "src/model.py",
+            "line": 109,
+            "scope": "after:CausalSelfAttention.__init__",
+            "kind": "directly source-adjudicated relative routing change",
+            "code": "self.rel_bias = nn.Parameter(torch.zeros(n_head, max_seq_len - 12)); self.far_rel_bias = nn.Parameter(torch.zeros(11))"
+          },
+          {
+            "file": "src/model.py",
+            "line": 131,
+            "scope": "CausalSelfAttention.forward",
+            "kind": "directly source-adjudicated input-dependent bucket lookup",
+            "code": "relative_distance = (positions[:, None] - positions[None, :]).clamp_min(0); learned_bias = torch.cat((self.rel_bias, self.far_rel_bias.expand(self.n_head, 11)), dim=1); att = att + learned_bias[:, relative_distance]"
+          }
+        ],
+        "reviewer": "addition-source-pair-adjudication-v6",
+        "parent_family_signature": {
+          "operand_representation": "ordered base-10 operand-pair token sequence; unchanged incoming digit order",
+          "embedding": "token lookup table",
+          "position": "relative-distance score bias with terminal bucket at distance 14",
+          "relative_scores": true,
+          "attention": "content-dependent softmax QK scores plus learned relative-distance bias",
+          "feedforward": "ungated pointwise MLP",
+          "parameter_generator": [],
+          "attention_kernel": [],
+          "score_bias": "relative-distance score table; terminal bucket starts at 14"
+        }
+      }
+    },
+    {
+      "campaign_key": "openevolve_v21",
+      "before_sha256": "02a00311a4917693a933e2468283168b1dabbad263b8fe215970c2d37e831e54",
+      "after_sha256": "438f59181110b058748a05ad313ea63eb234bc246f0035f06143761ed4af66f1",
+      "run_id": "controlled-openevolve-transformer-v2-1-source-only-ten-digit-addition-pair-transformer-openevolve-v2-1-mps-openevolve-b01-c3",
+      "proposal": 98,
+      "candidate_id": "420a617f87abf846987f99973661610f9c864c344d9cfb0796a87ff4faf9c630",
+      "rationale": "The child changes attention aggregation from concatenating per-head values followed by a learned output projection to summing heads and applying a fixed mean-zero output basis. It also removes the repeated-bias MLP first layer. These are new signal and component mechanisms, so the edit is ontology-changing.",
+      "result": {
+        "classification": "changing",
+        "fingerprint": {
+          "input_units": "operand-pair and generated decimal-digit tokens",
+          "input_transform": "ordered base-10 digit-column packing; token alphabet/delimiters are coordinates",
+          "embedding": "token lookup table",
+          "position": "no separate additive position path; learned relative-distance attention-score bias with terminal bucket beginning at distance 11",
+          "mixing": "causal transformer attention with sum-over-head aggregation",
+          "routing": "content-dependent softmax QK scores plus learned relative-distance score table; lower-triangular causal routing",
+          "state": "feedforward hidden activations; no persistent recurrent state in traced methods",
+          "feedforward": "ungated pointwise MLP; first layer is bias-free rather than using repeated learned quartet bias",
+          "parameter_construction": "head-specific learned value maps produce d_model-1 channels; summed head output receives a learned repeated-coordinate bias and a fixed mean-zero basis map",
+          "sharing": "Q/K address is replicated across explicit heads; head outputs are then summed rather than concatenated",
+          "normalization": "AnchoredScaleLayerNorm, LayerNorm, layer_norm",
+          "connectivity": "residual attention and pointwise transformation paths",
+          "aggregation": "attention heads are summed along dim=1 before the fixed mean-zero output-basis map",
+          "output": "fixed mean-zero attention output basis followed by affine vocabulary readout",
+          "symmetry": "ordered operand representation; no explicit min/max quotient in the embedding path",
+          "conditional_compute": "fixed forward computation; no persistent-state writes or untraced dynamic branch",
+          "activation": "gelu",
+          "stochasticity": "dropout modules (rate is a setting)",
+          "bottleneck": "attention value channels are d_model-1 per head; head identity is collapsed by sum",
+          "iteration": "fixed forward block stack; autoregressive token iteration is inference",
+          "other": "the fixed mean-zero basis and removed repeated-bias MLP layer are separate architectural changes from the head aggregation",
+          "operand_encoding": "ordered base-10 digit-column pair tokens",
+          "digit_order": "least-significant column first; unchanged input order",
+          "carry_representation": "implicit in attention/hidden features; no explicit persistent carry register",
+          "attention_scores": "scaled content QK scores plus learned relative-distance bias; causal mask and softmax",
+          "projection_relations": "learned V is followed by sum-over-head aggregation and fixed mean-zero output basis, replacing concatenation and learned output projection",
+          "output_factorization": "autoregressive decimal-digit token logits; optional constant termination token"
+        },
+        "fingerprint_complete": true,
+        "family_signature": {
+          "operand_representation": "ordered base-10 operand-pair token sequence; unchanged incoming digit order",
+          "embedding": "token lookup table",
+          "position": "relative-distance score bias with terminal bucket at distance 11",
+          "relative_scores": true,
+          "attention": "content-dependent softmax QK scores plus learned relative-distance bias with sum-over-head aggregation",
+          "feedforward": "ungated pointwise MLP with bias-free first layer",
+          "parameter_generator": [],
+          "attention_kernel": [],
+          "score_bias": "relative-distance score table; terminal bucket starts at 11"
+        },
+        "changed_components": [
+          "mixing",
+          "feedforward",
+          "parameter_construction",
+          "sharing",
+          "aggregation",
+          "output",
+          "bottleneck",
+          "other",
+          "projection_relations"
+        ],
+        "notes": "Direct complete-source review: the parent transposes and concatenates per-head values into d_model channels before PairTiedBiasMeanZeroLinear. The child executes y=y.sum(dim=1), adds a repeated-coordinate output bias, and maps with fixed mean_zero_basis(d_model). It independently replaces PairwiseTiedBiasLinear with bias-free nn.Linear in MLP.fc1. These changes alter signal aggregation and component construction.",
+        "evidence": [
+          {
+            "file": "src/model.py",
+            "line": 149,
+            "scope": "before:CausalSelfAttention.forward",
+            "kind": "directly source-adjudicated learned output projection predecessor",
+            "code": "y = y.transpose(1, 2).contiguous().view(bsz, seqlen, d_model); y = self.proj(y)"
+          },
+          {
+            "file": "src/model.py",
+            "line": 155,
+            "scope": "after:CausalSelfAttention.forward",
+            "kind": "directly source-adjudicated sum-over-head aggregation and fixed basis",
+            "code": "y = y.sum(dim=1); bias = torch.cat((self.output_bias[:-1], self.output_bias[-1:].expand(2))); y = (y + bias) @ self.output_basis.transpose(0, 1)"
+          },
+          {
+            "file": "src/model.py",
+            "line": 180,
+            "scope": "after:MLP.__init__",
+            "kind": "directly source-adjudicated removed repeated-bias layer",
+            "code": "self.fc1 = nn.Linear(d_model, d_ff, bias=False)"
+          }
+        ],
+        "reviewer": "addition-source-pair-adjudication-v7"
+      }
+    },
+    {
+      "campaign_key": "openevolve_v21",
+      "before_sha256": "5ff850b8a136fd71edc57cbda1e2b8501d998e51a4828e45bec16e1aebc1b467",
+      "after_sha256": "43802302ed0c23c2bfa31b208a84d9d9940d31d3434fe2633eca31d818f73bda",
+      "run_id": "controlled-openevolve-transformer-v2-1-source-only-ten-digit-addition-pair-transformer-openevolve-v2-1-mps-openevolve-b01-c3",
+      "proposal": 99,
+      "candidate_id": "20a5c3bfbf04aa80b96f17343a77f8831e6c5f4c41c01d279f005f3028872399",
+      "rationale": "The child replaces an affine learned attention address, concatenated heads, and learned projection with a learned-scaled selected feature, sum-over-head aggregation, and fixed mean-zero output basis. It also changes both MLP affine-bias constructions. These distinct executed mechanisms change the ontology.",
+      "result": {
+        "classification": "changing",
+        "fingerprint": {
+          "input_units": "operand-pair and generated decimal-digit tokens",
+          "input_transform": "ordered base-10 digit-column packing; token alphabet/delimiters are coordinates",
+          "embedding": "token lookup table",
+          "position": "no separate additive position path; learned relative-distance attention-score bias with terminal bucket beginning at distance 11",
+          "mixing": "causal transformer attention with sum-over-head aggregation",
+          "routing": "content-dependent softmax QK scores plus learned relative-distance score table; lower-triangular causal routing",
+          "state": "feedforward hidden activations; no persistent recurrent state in traced methods",
+          "feedforward": "ungated pointwise MLP with bias-free fc1 and tied-bias fc2",
+          "parameter_construction": "learned scalar scales selected first hidden feature for Q/K; summed head output uses learned repeated-coordinate bias and fixed mean-zero output basis",
+          "sharing": "Q/K address is copied across explicit heads and head outputs are summed",
+          "normalization": "AnchoredScaleLayerNorm, LayerNorm, layer_norm",
+          "connectivity": "residual attention and pointwise transformation paths",
+          "aggregation": "attention heads are summed along dim=1 before fixed mean-zero output-basis map",
+          "output": "fixed mean-zero attention output basis followed by affine vocabulary readout",
+          "symmetry": "ordered operand representation; no explicit min/max quotient in the embedding path",
+          "conditional_compute": "fixed forward computation; no persistent-state writes or untraced dynamic branch",
+          "activation": "gelu",
+          "stochasticity": "dropout modules (rate is a setting)",
+          "bottleneck": "head identity is collapsed by sum after d_model-1 value channels per head",
+          "iteration": "fixed forward block stack; autoregressive token iteration is inference",
+          "other": "the change combines new head aggregation, fixed output basis, and distinct MLP bias placement",
+          "operand_encoding": "ordered base-10 digit-column pair tokens",
+          "digit_order": "least-significant column first; unchanged input order",
+          "carry_representation": "implicit in attention/hidden features; no explicit persistent carry register",
+          "attention_scores": "scaled content QK scores plus learned relative-distance bias; causal mask and softmax",
+          "projection_relations": "learned-scaled selected feature supplies shared Q/K; learned V is summed across heads and fixed-basis mapped",
+          "output_factorization": "autoregressive decimal-digit token logits; optional constant termination token"
+        },
+        "fingerprint_complete": true,
+        "family_signature": {
+          "operand_representation": "ordered base-10 operand-pair token sequence; unchanged incoming digit order",
+          "embedding": "token lookup table",
+          "position": "relative-distance score bias with terminal bucket at distance 11",
+          "relative_scores": true,
+          "attention": "content-dependent softmax QK scores plus learned relative-distance bias with sum-over-head aggregation",
+          "feedforward": "ungated pointwise MLP with bias-free first layer and tied-bias second layer",
+          "parameter_generator": [],
+          "attention_kernel": [],
+          "score_bias": "relative-distance score table; terminal bucket starts at 11"
+        },
+        "changed_components": [
+          "mixing",
+          "feedforward",
+          "parameter_construction",
+          "sharing",
+          "aggregation",
+          "output",
+          "bottleneck",
+          "other",
+          "projection_relations"
+        ],
+        "notes": "Direct complete-source review: the parent applies self.address(x), concatenates per-head values, and uses PairTiedBiasMeanZeroLinear. The child uses address_scale*x[..., :1], sums heads, applies a fixed mean_zero_basis, makes fc1 bias-free, and changes fc2 to PairTiedBiasMeanZeroLinear. These are signal and component changes, independently of P98.",
+        "evidence": [
+          {
+            "file": "src/model.py",
+            "line": 104,
+            "scope": "before:CausalSelfAttention.__init__",
+            "kind": "directly source-adjudicated affine-address predecessor",
+            "code": "self.address = nn.Linear(d_model, self.query_dim, bias=False); self.proj = PairTiedBiasMeanZeroLinear(d_model, d_model)"
+          },
+          {
+            "file": "src/model.py",
+            "line": 123,
+            "scope": "after:CausalSelfAttention.forward",
+            "kind": "directly source-adjudicated selected-feature address",
+            "code": "address = self.address_scale * x[..., :1]"
+          },
+          {
+            "file": "src/model.py",
+            "line": 152,
+            "scope": "after:CausalSelfAttention.forward",
+            "kind": "directly source-adjudicated head sum and fixed output basis",
+            "code": "y = y.sum(dim=1); y = (y + bias) @ self.output_basis.transpose(0, 1)"
+          },
+          {
+            "file": "src/model.py",
+            "line": 177,
+            "scope": "after:MLP.__init__",
+            "kind": "directly source-adjudicated MLP bias-placement change",
+            "code": "self.fc1 = nn.Linear(d_model, d_ff, bias=False); self.fc2 = PairTiedBiasMeanZeroLinear(d_ff, d_model)"
+          }
+        ],
+        "reviewer": "addition-source-pair-adjudication-v8"
+      }
+    },
+    {
+      "campaign_key": "openevolve_v21",
+      "before_sha256": "cf29c502fa94b8f43a5e72c44abedeb91f9571b7288a143ca6e0db73298806ed",
+      "after_sha256": "abfc843e58615d029bbea0cb33c2078995a33d8c0b614a288a13ecd84a07b854",
+      "run_id": "controlled-openevolve-transformer-v2-1-source-only-ten-digit-addition-pair-transformer-openevolve-v2-1-mps-openevolve-b04-c3",
+      "proposal": 70,
+      "candidate_id": "73b1707b741420fb539e47422d8999af35d6f458988fb70de112238ccd420cdc",
+      "rationale": "The exact sources replace the learned positional lookup with a fixed exp/log Fourier coordinate buffer, sin/cos features, and a learned position mix. This changes the active position representation; concurrent Q/K zero-coordinate storage edits are not used as the transition witness.",
+      "result": {
+        "classification": "changing",
+        "fingerprint": {
+          "input_units": "operand-pair and generated decimal-digit tokens",
+          "input_transform": "ordered base-10 digit-column packing; token alphabet/delimiters are coordinates",
+          "embedding": "token lookup table",
+          "position": "additive position features",
+          "mixing": "causal transformer attention",
+          "routing": "content-dependent softmax QK scores; lower-triangular causal routing",
+          "state": "feedforward hidden activations; no persistent recurrent state in traced methods",
+          "feedforward": "ungated pointwise MLP",
+          "parameter_construction": "learned affine coefficients and lookup coordinates; stored coordinates assembled by indexing/concatenation/padding; composed learned coefficient factors; fixed algebraic generator / ('exp', 'log')",
+          "sharing": "no explicit input/output weight alias; repeated module calls retain their module parameters",
+          "normalization": "RMSNorm",
+          "connectivity": "residual attention and pointwise transformation paths",
+          "aggregation": "per-position attention-mixed features for token prediction",
+          "output": "affine vocabulary readout",
+          "symmetry": "ordered operand representation; no explicit min/max quotient in the embedding path",
+          "conditional_compute": "fixed forward computation; no persistent-state writes or untraced dynamic branch",
+          "activation": "gelu",
+          "stochasticity": "dropout modules (rate is a setting)",
+          "bottleneck": "no separate sequential factor bottleneck",
+          "iteration": "fixed forward block stack; autoregressive token iteration is inference",
+          "other": "all runtime operations are accounted for by the source-traced signal/coordinate graph",
+          "operand_encoding": "ordered base-10 digit-column pair tokens",
+          "digit_order": "least-significant column first; unchanged input order",
+          "carry_representation": "implicit in attention/hidden features; no explicit persistent carry register",
+          "attention_scores": "content-dependent softmax QK scores; lower-triangular causal routing",
+          "projection_relations": "learned affine value/output maps and Q/K maps; stored-coordinate constraints recorded separately",
+          "output_factorization": "autoregressive decimal-digit token logits; optional constant termination token"
+        },
+        "fingerprint_complete": true,
+        "notes": "Direct complete-source review: the learned `pos_emb` lookup is replaced by a fixed Fourier coordinate buffer (exp/log frequency construction, then sin/cos features) and a learned `pos_mix` map. This changes the active positional representation; the simultaneous Q/K zero-coordinate storage edit does not erase that witness.",
+        "changed_components": [
+          "parameter_construction",
+          "position"
+        ],
+        "evidence": [
+          {
+            "file": "src/model.py",
+            "line": 99,
+            "scope": "RMSNorm.forward",
+            "kind": "symbolically followed runtime method",
+            "code": "def forward(self, x: torch.Tensor) -> torch.Tensor:"
+          },
+          {
+            "file": "src/model.py",
+            "line": 49,
+            "scope": "CausalSelfAttention.forward",
+            "kind": "symbolically followed runtime method",
+            "code": "def forward(self, x: torch.Tensor) -> torch.Tensor:"
+          },
+          {
+            "file": "src/model.py",
+            "line": 99,
+            "scope": "RMSNorm.forward",
+            "kind": "symbolically followed runtime method",
+            "code": "def forward(self, x: torch.Tensor) -> torch.Tensor:"
+          },
+          {
+            "file": "src/model.py",
+            "line": 88,
+            "scope": "MLP.forward",
+            "kind": "symbolically followed runtime method",
+            "code": "def forward(self, x: torch.Tensor) -> torch.Tensor:"
+          },
+          {
+            "file": "src/model.py",
+            "line": 111,
+            "scope": "Block.forward",
+            "kind": "symbolically followed runtime method",
+            "code": "def forward(self, x: torch.Tensor) -> torch.Tensor:"
+          },
+          {
+            "file": "src/model.py",
+            "line": 99,
+            "scope": "RMSNorm.forward",
+            "kind": "symbolically followed runtime method",
+            "code": "def forward(self, x: torch.Tensor) -> torch.Tensor:"
+          },
+          {
+            "file": "src/model.py",
+            "line": 164,
+            "scope": "TinyDecoderLM.forward",
+            "kind": "symbolically followed runtime method",
+            "code": "def forward(self, idx: torch.Tensor, targets: torch.Tensor=None) -> Tuple[torch.Tensor, torch.Tensor]:"
+          },
+          {
+            "file": "src/model.py",
+            "line": 139,
+            "scope": "TinyDecoderLM.__init__",
+            "kind": "fixed buffer construction follows exp,log",
+            "code": "self.register_buffer('pos_inv_freq', pos_inv_freq, persistent=False)"
+          },
+          {
+            "file": "src/model.py",
+            "line": 175,
+            "scope": "TinyDecoderLM.forward",
+            "kind": "directly source-adjudicated fixed Fourier position representation",
+            "code": "angles = pos.to(self.pos_inv_freq.dtype).unsqueeze(-1) * self.pos_inv_freq; pos_features = torch.stack((angles.sin(), angles.cos()), dim=-1).flatten(-2); pos_x = self.pos_mix(pos_features.to(token_x.dtype))"
+          }
+        ],
+        "family_signature": {
+          "operand_representation": "ordered base-10 operand-pair token sequence; unchanged incoming digit order",
+          "target_representation": [
+            "decimal-digit token targets",
+            "direct decimal-digit output"
+          ],
+          "embedding": "token lookup table",
+          "position": "additive",
+          "relative_scores": false,
+          "attention": "content-dependent softmax QK scores",
+          "feedforward": "ungated pointwise MLP",
+          "normalization_modules": [
+            "RMSNorm"
+          ],
+          "relative_score_layout": null,
+          "parameter_generator": [
+            [
+              "fixed algebraic generator",
+              [
+                "exp",
+                "log"
+              ]
+            ]
+          ],
+          "attention_kernel": [],
+          "score_bias": "none"
+        },
+        "reviewer": "addition-source-pair-adjudication-v1",
+        "semantic_signature": "3bb98ce4d98617c58ff10ad54e9fed01cdff8f1e7d1a497148af2d84631a3f36"
+      }
+    },
+    {
+      "campaign_key": "openevolve_v21",
+      "before_sha256": "dc3ecd15bc7ab56333437a5cde2aab99bc65e4c37c0f6ce3e03f50e99f16de5b",
+      "after_sha256": "0b893e177b5918d08ca78f3f538789b020976d6d3c6cc5f9d7481267c9eb348a",
+      "run_id": "controlled-openevolve-transformer-v2-1-source-only-ten-digit-addition-pair-transformer-openevolve-v2-1-mps-openevolve-b04-c3",
+      "proposal": 96,
+      "candidate_id": "a2a219255e4f1f39f10f43db9a6bdfd0f0145a44cfc2131cb663c0756ecec8d4",
+      "rationale": "The exact source pair retains one shared K/V head replicated across every attention head and the same content-QK causal softmax. It only compacts the projection calculation and fixes affine coordinate storage.",
+      "result": {
+        "classification": "preserving",
+        "fingerprint": {
+          "input_units": "operand-pair and generated decimal-digit tokens",
+          "input_transform": "ordered base-10 digit-column packing; token alphabet/delimiters are coordinates",
+          "embedding": "token lookup table",
+          "position": "additive position features",
+          "mixing": "causal transformer attention",
+          "routing": "content-dependent softmax QK scores; lower-triangular causal routing",
+          "state": "feedforward hidden activations; no persistent recurrent state in traced methods",
+          "feedforward": "ungated pointwise MLP",
+          "parameter_construction": "learned affine coefficients and lookup coordinates; stored coordinates assembled by indexing/concatenation/padding; composed learned coefficient factors; fixed algebraic generator / ('exp', 'log')",
+          "sharing": "no explicit input/output weight alias; repeated module calls retain their module parameters",
+          "normalization": "RMSNorm",
+          "connectivity": "residual attention and pointwise transformation paths",
+          "aggregation": "per-position attention-mixed features for token prediction",
+          "output": "affine vocabulary readout",
+          "symmetry": "ordered operand representation; no explicit min/max quotient in the embedding path",
+          "conditional_compute": "fixed forward computation; no persistent-state writes or untraced dynamic branch",
+          "activation": "gelu",
+          "stochasticity": "dropout modules (rate is a setting)",
+          "bottleneck": "no separate sequential factor bottleneck",
+          "iteration": "fixed forward block stack; autoregressive token iteration is inference",
+          "other": "all runtime operations are accounted for by the source-traced signal/coordinate graph",
+          "operand_encoding": "ordered base-10 digit-column pair tokens",
+          "digit_order": "least-significant column first; unchanged input order",
+          "carry_representation": "implicit in attention/hidden features; no explicit persistent carry register",
+          "attention_scores": "content-dependent softmax QK scores; lower-triangular causal routing",
+          "projection_relations": "learned affine value/output maps and Q/K maps; stored-coordinate constraints recorded separately",
+          "output_factorization": "autoregressive decimal-digit token logits; optional constant termination token"
+        },
+        "fingerprint_complete": true,
+        "notes": "Direct complete-source review: the parent assembles repeated shared K/V rows into a packed QKV projection. The child computes the query and one K/V head separately (or as a compact Q/K/V projection), then repeats K and V across the same head axis. Both exact sources retain causal content-QK softmax attention; changes to fixed trailing affine coordinates are storage/gauge constraints.",
+        "changed_components": [],
+        "evidence": [
+          {
+            "file": "src/model.py",
+            "line": 78,
+            "scope": "CausalSelfAttention.forward",
+            "kind": "directly source-adjudicated shared K/V compaction",
+            "code": "q = F.linear(x, query_weight, query_bias); shared_kv = F.linear(x, torch.cat((key_weight, value_weight), dim=0)); k, v = shared_kv.chunk(2, dim=-1); k = k.repeat(1, 1, self.n_head); v = v.repeat(1, 1, self.n_head)"
+          }
+        ],
+        "family_signature": {
+          "operand_representation": "ordered base-10 operand-pair token sequence; unchanged incoming digit order",
+          "target_representation": [
+            "decimal-digit token targets",
+            "direct decimal-digit output"
+          ],
+          "embedding": "token lookup table",
+          "position": "additive",
+          "relative_scores": false,
+          "attention": "content-dependent softmax QK scores",
+          "feedforward": "ungated pointwise MLP",
+          "normalization_modules": [
+            "RMSNorm"
+          ],
+          "relative_score_layout": null,
+          "parameter_generator": [
+            [
+              "fixed algebraic generator",
+              [
+                "exp",
+                "log"
+              ]
+            ]
+          ],
+          "attention_kernel": [],
+          "score_bias": "none"
+        },
+        "reviewer": "addition-source-pair-adjudication-v1",
+        "semantic_signature": "a7f09109c4720e1bbeb66dbadda33bb3d547c727869bdfb7a4376b2c9832503b"
+      }
+    },
+    {
+      "campaign_key": "openevolve_v21",
+      "before_sha256": "2d453b148089c19aa62c8e9146a22fea136b70b346caec8b48471a9bd0bdf2e2",
+      "after_sha256": "5b2595d615786c00e5b740a53e576450ff58661dd3c249a11d9da73ed1eb08c3",
+      "run_id": "controlled-openevolve-transformer-v2-1-source-only-ten-digit-addition-pair-transformer-openevolve-v2-1-mps-openevolve-b04-c3",
+      "proposal": 97,
+      "candidate_id": "52f2bc3008a6ef859a5252af1fe858bf24cc4fb9994f4486cc7c58ba24d73b07",
+      "rationale": "The exact source pair retains one shared K/V head replicated across every attention head and the same content-QK causal softmax. It only compacts the projection calculation and fixes affine coordinate storage.",
+      "result": {
+        "classification": "preserving",
+        "fingerprint": {
+          "input_units": "operand-pair and generated decimal-digit tokens",
+          "input_transform": "ordered base-10 digit-column packing; token alphabet/delimiters are coordinates",
+          "embedding": "token lookup table",
+          "position": "additive position features",
+          "mixing": "causal transformer attention",
+          "routing": "content-dependent softmax QK scores; lower-triangular causal routing",
+          "state": "feedforward hidden activations; no persistent recurrent state in traced methods",
+          "feedforward": "ungated pointwise MLP",
+          "parameter_construction": "learned affine coefficients and lookup coordinates; stored coordinates assembled by indexing/concatenation/padding; composed learned coefficient factors; fixed algebraic generator / ('exp', 'log')",
+          "sharing": "no explicit input/output weight alias; repeated module calls retain their module parameters",
+          "normalization": "RMSNorm",
+          "connectivity": "residual attention and pointwise transformation paths",
+          "aggregation": "per-position attention-mixed features for token prediction",
+          "output": "affine vocabulary readout",
+          "symmetry": "ordered operand representation; no explicit min/max quotient in the embedding path",
+          "conditional_compute": "fixed forward computation; no persistent-state writes or untraced dynamic branch",
+          "activation": "gelu",
+          "stochasticity": "dropout modules (rate is a setting)",
+          "bottleneck": "no separate sequential factor bottleneck",
+          "iteration": "fixed forward block stack; autoregressive token iteration is inference",
+          "other": "all runtime operations are accounted for by the source-traced signal/coordinate graph",
+          "operand_encoding": "ordered base-10 digit-column pair tokens",
+          "digit_order": "least-significant column first; unchanged input order",
+          "carry_representation": "implicit in attention/hidden features; no explicit persistent carry register",
+          "attention_scores": "content-dependent softmax QK scores; lower-triangular causal routing",
+          "projection_relations": "learned affine value/output maps and Q/K maps; stored-coordinate constraints recorded separately",
+          "output_factorization": "autoregressive decimal-digit token logits; optional constant termination token"
+        },
+        "fingerprint_complete": true,
+        "notes": "Direct complete-source review: the parent assembles repeated shared K/V rows into a packed QKV projection. The child computes the query and one K/V head separately (or as a compact Q/K/V projection), then repeats K and V across the same head axis. Both exact sources retain causal content-QK softmax attention; changes to fixed trailing affine coordinates are storage/gauge constraints.",
+        "changed_components": [],
+        "evidence": [
+          {
+            "file": "src/model.py",
+            "line": 78,
+            "scope": "CausalSelfAttention.forward",
+            "kind": "directly source-adjudicated shared K/V compaction",
+            "code": "q = F.linear(x, query_weight, query_bias); shared_kv = F.linear(x, torch.cat((key_weight, value_weight), dim=0)); k, v = shared_kv.chunk(2, dim=-1); k = k.repeat(1, 1, self.n_head); v = v.repeat(1, 1, self.n_head)"
+          }
+        ],
+        "family_signature": {
+          "operand_representation": "ordered base-10 operand-pair token sequence; unchanged incoming digit order",
+          "target_representation": [
+            "decimal-digit token targets",
+            "direct decimal-digit output"
+          ],
+          "embedding": "token lookup table",
+          "position": "additive",
+          "relative_scores": false,
+          "attention": "content-dependent softmax QK scores",
+          "feedforward": "ungated pointwise MLP",
+          "normalization_modules": [
+            "RMSNorm"
+          ],
+          "relative_score_layout": null,
+          "parameter_generator": [
+            [
+              "fixed algebraic generator",
+              [
+                "exp",
+                "log"
+              ]
+            ]
+          ],
+          "attention_kernel": [],
+          "score_bias": "none"
+        },
+        "reviewer": "addition-source-pair-adjudication-v1",
+        "semantic_signature": "a7f09109c4720e1bbeb66dbadda33bb3d547c727869bdfb7a4376b2c9832503b"
+      }
+    },
+    {
+      "campaign_key": "openevolve_v21",
+      "before_sha256": "2d453b148089c19aa62c8e9146a22fea136b70b346caec8b48471a9bd0bdf2e2",
+      "after_sha256": "c4531ecdd2db19b30c7530b33577ad9d5baa0695699cca4e02bc5e633c8ab850",
+      "run_id": "controlled-openevolve-transformer-v2-1-source-only-ten-digit-addition-pair-transformer-openevolve-v2-1-mps-openevolve-b04-c3",
+      "proposal": 99,
+      "candidate_id": "d6a025902174dbbf0d25264e925405a69373da022b31414ca5988a0b13da0748",
+      "rationale": "The exact source pair retains one shared K/V head replicated across every attention head and the same content-QK causal softmax. It only compacts the projection calculation and fixes affine coordinate storage.",
+      "result": {
+        "classification": "preserving",
+        "fingerprint": {
+          "input_units": "operand-pair and generated decimal-digit tokens",
+          "input_transform": "ordered base-10 digit-column packing; token alphabet/delimiters are coordinates",
+          "embedding": "token lookup table",
+          "position": "additive position features",
+          "mixing": "causal transformer attention",
+          "routing": "content-dependent softmax QK scores; lower-triangular causal routing",
+          "state": "feedforward hidden activations; no persistent recurrent state in traced methods",
+          "feedforward": "ungated pointwise MLP",
+          "parameter_construction": "learned affine coefficients and lookup coordinates; stored coordinates assembled by indexing/concatenation/padding; composed learned coefficient factors; fixed algebraic generator / ('exp', 'log')",
+          "sharing": "no explicit input/output weight alias; repeated module calls retain their module parameters",
+          "normalization": "RMSNorm",
+          "connectivity": "residual attention and pointwise transformation paths",
+          "aggregation": "per-position attention-mixed features for token prediction",
+          "output": "affine vocabulary readout",
+          "symmetry": "ordered operand representation; no explicit min/max quotient in the embedding path",
+          "conditional_compute": "fixed forward computation; no persistent-state writes or untraced dynamic branch",
+          "activation": "gelu",
+          "stochasticity": "dropout modules (rate is a setting)",
+          "bottleneck": "no separate sequential factor bottleneck",
+          "iteration": "fixed forward block stack; autoregressive token iteration is inference",
+          "other": "all runtime operations are accounted for by the source-traced signal/coordinate graph",
+          "operand_encoding": "ordered base-10 digit-column pair tokens",
+          "digit_order": "least-significant column first; unchanged input order",
+          "carry_representation": "implicit in attention/hidden features; no explicit persistent carry register",
+          "attention_scores": "content-dependent softmax QK scores; lower-triangular causal routing",
+          "projection_relations": "learned affine value/output maps and Q/K maps; stored-coordinate constraints recorded separately",
+          "output_factorization": "autoregressive decimal-digit token logits; optional constant termination token"
+        },
+        "fingerprint_complete": true,
+        "notes": "Direct complete-source review: the parent assembles repeated shared K/V rows into a packed QKV projection. The child computes the query and one K/V head separately (or as a compact Q/K/V projection), then repeats K and V across the same head axis. Both exact sources retain causal content-QK softmax attention; changes to fixed trailing affine coordinates are storage/gauge constraints.",
+        "changed_components": [],
+        "evidence": [
+          {
+            "file": "src/model.py",
+            "line": 78,
+            "scope": "CausalSelfAttention.forward",
+            "kind": "directly source-adjudicated shared K/V compaction",
+            "code": "q = F.linear(x, query_weight, query_bias); shared_kv = F.linear(x, torch.cat((key_weight, value_weight), dim=0)); k, v = shared_kv.chunk(2, dim=-1); k = k.repeat(1, 1, self.n_head); v = v.repeat(1, 1, self.n_head)"
+          }
+        ],
+        "family_signature": {
+          "operand_representation": "ordered base-10 operand-pair token sequence; unchanged incoming digit order",
+          "target_representation": [
+            "decimal-digit token targets",
+            "direct decimal-digit output"
+          ],
+          "embedding": "token lookup table",
+          "position": "additive",
+          "relative_scores": false,
+          "attention": "content-dependent softmax QK scores",
+          "feedforward": "ungated pointwise MLP",
+          "normalization_modules": [
+            "RMSNorm"
+          ],
+          "relative_score_layout": null,
+          "parameter_generator": [
+            [
+              "fixed algebraic generator",
+              [
+                "exp",
+                "log"
+              ]
+            ]
+          ],
+          "attention_kernel": [],
+          "score_bias": "none"
+        },
+        "reviewer": "addition-source-pair-adjudication-v1",
+        "semantic_signature": "a7f09109c4720e1bbeb66dbadda33bb3d547c727869bdfb7a4376b2c9832503b"
+      }
+    },
+    {
+      "campaign_key": "openevolve_v21",
+      "before_sha256": "2d453b148089c19aa62c8e9146a22fea136b70b346caec8b48471a9bd0bdf2e2",
+      "after_sha256": "7ee5d20e1076ccd2c7f11a582cb5d4dde453e51f5381efa4fe3509dd1f82b113",
+      "run_id": "controlled-openevolve-transformer-v2-1-source-only-ten-digit-addition-pair-transformer-openevolve-v2-1-mps-openevolve-b04-c3",
+      "proposal": 101,
+      "candidate_id": "1071fbf2264ee68e613f7debbfb4572c65c65b50319c1affb3e79b8080e6f342",
+      "rationale": "The exact source pair retains one shared K/V head replicated across every attention head and the same content-QK causal softmax. It only compacts the projection calculation and fixes affine coordinate storage.",
+      "result": {
+        "classification": "preserving",
+        "fingerprint": {
+          "input_units": "operand-pair and generated decimal-digit tokens",
+          "input_transform": "ordered base-10 digit-column packing; token alphabet/delimiters are coordinates",
+          "embedding": "token lookup table",
+          "position": "additive position features",
+          "mixing": "causal transformer attention",
+          "routing": "content-dependent softmax QK scores; lower-triangular causal routing",
+          "state": "feedforward hidden activations; no persistent recurrent state in traced methods",
+          "feedforward": "ungated pointwise MLP",
+          "parameter_construction": "learned affine coefficients and lookup coordinates; stored coordinates assembled by indexing/concatenation/padding; composed learned coefficient factors; fixed algebraic generator / ('exp', 'log')",
+          "sharing": "no explicit input/output weight alias; repeated module calls retain their module parameters",
+          "normalization": "RMSNorm",
+          "connectivity": "residual attention and pointwise transformation paths",
+          "aggregation": "per-position attention-mixed features for token prediction",
+          "output": "affine vocabulary readout",
+          "symmetry": "ordered operand representation; no explicit min/max quotient in the embedding path",
+          "conditional_compute": "fixed forward computation; no persistent-state writes or untraced dynamic branch",
+          "activation": "gelu",
+          "stochasticity": "dropout modules (rate is a setting)",
+          "bottleneck": "no separate sequential factor bottleneck",
+          "iteration": "fixed forward block stack; autoregressive token iteration is inference",
+          "other": "all runtime operations are accounted for by the source-traced signal/coordinate graph",
+          "operand_encoding": "ordered base-10 digit-column pair tokens",
+          "digit_order": "least-significant column first; unchanged input order",
+          "carry_representation": "implicit in attention/hidden features; no explicit persistent carry register",
+          "attention_scores": "content-dependent softmax QK scores; lower-triangular causal routing",
+          "projection_relations": "learned affine value/output maps and Q/K maps; stored-coordinate constraints recorded separately",
+          "output_factorization": "autoregressive decimal-digit token logits; optional constant termination token"
+        },
+        "fingerprint_complete": true,
+        "notes": "Direct complete-source review: the parent assembles repeated shared K/V rows into a packed QKV projection. The child computes the query and one K/V head separately (or as a compact Q/K/V projection), then repeats K and V across the same head axis. Both exact sources retain causal content-QK softmax attention; changes to fixed trailing affine coordinates are storage/gauge constraints.",
+        "changed_components": [],
+        "evidence": [
+          {
+            "file": "src/model.py",
+            "line": 78,
+            "scope": "CausalSelfAttention.forward",
+            "kind": "directly source-adjudicated shared K/V compaction",
+            "code": "q = F.linear(x, query_weight, query_bias); shared_kv = F.linear(x, torch.cat((key_weight, value_weight), dim=0)); k, v = shared_kv.chunk(2, dim=-1); k = k.repeat(1, 1, self.n_head); v = v.repeat(1, 1, self.n_head)"
+          }
+        ],
+        "family_signature": {
+          "operand_representation": "ordered base-10 operand-pair token sequence; unchanged incoming digit order",
+          "target_representation": [
+            "decimal-digit token targets",
+            "direct decimal-digit output"
+          ],
+          "embedding": "token lookup table",
+          "position": "additive",
+          "relative_scores": false,
+          "attention": "content-dependent softmax QK scores",
+          "feedforward": "ungated pointwise MLP",
+          "normalization_modules": [
+            "RMSNorm"
+          ],
+          "relative_score_layout": null,
+          "parameter_generator": [
+            [
+              "fixed algebraic generator",
+              [
+                "exp",
+                "log"
+              ]
+            ]
+          ],
+          "attention_kernel": [],
+          "score_bias": "none"
+        },
+        "reviewer": "addition-source-pair-adjudication-v1",
+        "semantic_signature": "a7f09109c4720e1bbeb66dbadda33bb3d547c727869bdfb7a4376b2c9832503b"
+      }
+    }
+  ],
+  "target_encodings": [
+    {
+      "ast_sha256": "731a529afcc2deb05515db95b14be65bcbc8810909e040405803db834edbd8ae",
+      "source": "def encode_targets(answer_digits: torch.Tensor) -> torch.Tensor:\n    return torch.cat((answer_digits, torch.full_like(answer_digits[:, :1], 112)), dim=1)",
+      "descriptor": {
+        "family": "decimal-digit token targets",
+        "output_factorization": "autoregressive decimal-digit token logits followed by a constant termination token",
+        "target_units": "decimal digits",
+        "iteration": "one predicted token per decimal digit and one constant end-token position",
+        "evidence": [
+          {
+            "scope": "encode_targets",
+            "kind": "directly source-audited target codec",
+            "ast_sha256": "731a529afcc2deb05515db95b14be65bcbc8810909e040405803db834edbd8ae",
+            "source": "def encode_targets(answer_digits: torch.Tensor) -> torch.Tensor:\n    return torch.cat((answer_digits, torch.full_like(answer_digits[:, :1], 112)), dim=1)",
+            "source_example": {
+              "run_id": "tiny-v21-four-digit-openevolve-b01-c0",
+              "proposal": 4,
+              "path": "\\\\?\\C:\\Users\\hpn-w\\Documents\\GitHub\\rl4rl\\data\\c0c3\\tiny-v21\\runs\\tiny-v21-four-digit-openevolve-b01-c0\\candidates\\4c30fbbbc0a37f1baaab318ae69cf6bcf872023316318566b7b56552c3d028f7",
+              "file": "train.py"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "ast_sha256": "b387969bcf44d1a26b517ba12531e8535bb11107c10f8cf33d368f912dc16b53",
+      "source": "def decode_targets(generated: torch.Tensor) -> torch.Tensor:\n    return generated[:, :5]",
+      "descriptor": {
+        "family": "direct decimal-digit output",
+        "output_decoding": "first five generated tokens are decimal digits; later termination tokens are discarded",
+        "evidence": [
+          {
+            "scope": "decode_targets",
+            "kind": "directly source-audited target codec",
+            "ast_sha256": "b387969bcf44d1a26b517ba12531e8535bb11107c10f8cf33d368f912dc16b53",
+            "source": "def decode_targets(generated: torch.Tensor) -> torch.Tensor:\n    return generated[:, :5]",
+            "source_example": {
+              "run_id": "tiny-v21-four-digit-openevolve-b01-c0",
+              "proposal": 4,
+              "path": "\\\\?\\C:\\Users\\hpn-w\\Documents\\GitHub\\rl4rl\\data\\c0c3\\tiny-v21\\runs\\tiny-v21-four-digit-openevolve-b01-c0\\candidates\\4c30fbbbc0a37f1baaab318ae69cf6bcf872023316318566b7b56552c3d028f7",
+              "file": "train.py"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "ast_sha256": "98e6d8d86192255e2fbd153338ac36903a1a5f9a6264d5ccf66ce028237e4789",
+      "source": "def encode_targets(answer_digits: torch.Tensor) -> torch.Tensor:\n    return torch.cat((answer_digits, torch.full_like(answer_digits[:, :1], 10)), dim=1)",
+      "descriptor": {
+        "family": "decimal-digit token targets",
+        "output_factorization": "autoregressive decimal-digit token logits followed by a constant termination token",
+        "target_units": "decimal digits",
+        "iteration": "one predicted token per decimal digit and one constant end-token position",
+        "evidence": [
+          {
+            "scope": "encode_targets",
+            "kind": "directly source-audited target codec",
+            "ast_sha256": "98e6d8d86192255e2fbd153338ac36903a1a5f9a6264d5ccf66ce028237e4789",
+            "source": "def encode_targets(answer_digits: torch.Tensor) -> torch.Tensor:\n    return torch.cat((answer_digits, torch.full_like(answer_digits[:, :1], 10)), dim=1)",
+            "source_example": {
+              "run_id": "tiny-v21-four-digit-openevolve-b01-c0",
+              "proposal": 25,
+              "path": "\\\\?\\C:\\Users\\hpn-w\\Documents\\GitHub\\rl4rl\\data\\c0c3\\tiny-v21\\runs\\tiny-v21-four-digit-openevolve-b01-c0\\candidates\\c110fdb1752baf313ef4f332e1371f730c79a8270a862444ee105d5b87ffaa7f",
+              "file": "train.py"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "ast_sha256": "5927f83bfcafa26c346bbd84553019fa021ebc3989f84666f7f6a470dd439b9c",
+      "source": "def encode_targets(answer_digits: torch.Tensor) -> torch.Tensor:\n    return answer_digits",
+      "descriptor": {
+        "family": "decimal-digit token targets",
+        "output_factorization": "autoregressive decimal-digit token logits",
+        "target_units": "decimal digits",
+        "iteration": "one predicted token per decimal digit",
+        "evidence": [
+          {
+            "scope": "encode_targets",
+            "kind": "directly source-audited target codec",
+            "ast_sha256": "5927f83bfcafa26c346bbd84553019fa021ebc3989f84666f7f6a470dd439b9c",
+            "source": "def encode_targets(answer_digits: torch.Tensor) -> torch.Tensor:\n    return answer_digits",
+            "source_example": {
+              "run_id": "tiny-v21-four-digit-openevolve-b01-c0",
+              "proposal": 100,
+              "path": "\\\\?\\C:\\Users\\hpn-w\\Documents\\GitHub\\rl4rl\\data\\c0c3\\tiny-v21\\runs\\tiny-v21-four-digit-openevolve-b01-c0\\candidates\\194d3e6153adf5426c078aba7ca60acb0115ad50e25456a541c39efa1e838584",
+              "file": "train.py"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "ast_sha256": "beaa93a50f5f5cf3397a4346b64b69146c702db00bb1b68288da762fd7844d21",
+      "source": "def encode_targets(answer_digits: torch.Tensor) -> torch.Tensor:\n    high = torch.div(answer_digits, 5, rounding_mode='floor')\n    remainder = answer_digits.remainder(5) + 5\n    return torch.stack((high, remainder), dim=-1).reshape(answer_digits.shape[0], -1)",
+      "descriptor": {
+        "family": "interleaved base-5 quotient and remainder digit targets",
+        "output_factorization": "each decimal digit factorized into floor(digit/5) then remainder(digit,5)+5 tokens; +5 relabels the remainder alphabet",
+        "target_units": "base-5 quotient and remainder components of each decimal digit",
+        "iteration": "two autoregressive target positions per decimal digit, quotient before remainder",
+        "evidence": [
+          {
+            "scope": "encode_targets",
+            "kind": "directly source-audited target codec",
+            "ast_sha256": "beaa93a50f5f5cf3397a4346b64b69146c702db00bb1b68288da762fd7844d21",
+            "source": "def encode_targets(answer_digits: torch.Tensor) -> torch.Tensor:\n    high = torch.div(answer_digits, 5, rounding_mode='floor')\n    remainder = answer_digits.remainder(5) + 5\n    return torch.stack((high, remainder), dim=-1).reshape(answer_digits.shape[0], -1)",
+            "source_example": {
+              "run_id": "tiny-v21-four-digit-openevolve-b01-c1",
+              "proposal": 130,
+              "path": "\\\\?\\C:\\Users\\hpn-w\\Documents\\GitHub\\rl4rl\\data\\c0c3\\tiny-v21\\runs\\tiny-v21-four-digit-openevolve-b01-c1\\candidates\\bdad9600550eb3f580c52086dc69d4a288afdb5b2fd090e06ba7536898341ff1",
+              "file": "train.py"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "ast_sha256": "57665ebd765a87a118935ce88b8a6b88155997ad26e5733a2d3510a8fb4a9bec",
+      "source": "def decode_targets(generated: torch.Tensor) -> torch.Tensor:\n    high = generated[:, :10:2]\n    remainder = generated[:, 1:10:2] - 5\n    return high * 5 + remainder",
+      "descriptor": {
+        "family": "decimal reconstruction from interleaved base-5 components",
+        "output_decoding": "read alternating quotient and remainder tokens from the first ten positions; digit=5*quotient+(remainder_token-5)",
+        "evidence": [
+          {
+            "scope": "decode_targets",
+            "kind": "directly source-audited target codec",
+            "ast_sha256": "57665ebd765a87a118935ce88b8a6b88155997ad26e5733a2d3510a8fb4a9bec",
+            "source": "def decode_targets(generated: torch.Tensor) -> torch.Tensor:\n    high = generated[:, :10:2]\n    remainder = generated[:, 1:10:2] - 5\n    return high * 5 + remainder",
+            "source_example": {
+              "run_id": "tiny-v21-four-digit-openevolve-b01-c1",
+              "proposal": 130,
+              "path": "\\\\?\\C:\\Users\\hpn-w\\Documents\\GitHub\\rl4rl\\data\\c0c3\\tiny-v21\\runs\\tiny-v21-four-digit-openevolve-b01-c1\\candidates\\bdad9600550eb3f580c52086dc69d4a288afdb5b2fd090e06ba7536898341ff1",
+              "file": "train.py"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "ast_sha256": "e0c071442771eb7745187adf9faba616d3bb8957836a3e9f0093c4e378082df0",
+      "source": "def encode_targets(answer_digits: torch.Tensor) -> torch.Tensor:\n    return torch.cat((answer_digits, torch.full_like(answer_digits[:, :1], 110)), dim=1)",
+      "descriptor": {
+        "family": "decimal-digit token targets",
+        "output_factorization": "autoregressive decimal-digit token logits followed by a constant termination token",
+        "target_units": "decimal digits",
+        "iteration": "one predicted token per decimal digit and one constant end-token position",
+        "evidence": [
+          {
+            "scope": "encode_targets",
+            "kind": "directly source-audited target codec",
+            "ast_sha256": "e0c071442771eb7745187adf9faba616d3bb8957836a3e9f0093c4e378082df0",
+            "source": "def encode_targets(answer_digits: torch.Tensor) -> torch.Tensor:\n    return torch.cat((answer_digits, torch.full_like(answer_digits[:, :1], 110)), dim=1)",
+            "source_example": {
+              "run_id": "tiny-v21-four-digit-openevolve-b01-c2",
+              "proposal": 6,
+              "path": "\\\\?\\C:\\Users\\hpn-w\\Documents\\GitHub\\rl4rl\\data\\c0c3\\tiny-v21\\runs\\tiny-v21-four-digit-openevolve-b01-c2\\candidates\\f065e9087269b6e7c05d81c33d6e537328838f6b6445cdf64debbc97e0677d3f",
+              "file": "train.py"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "ast_sha256": "bc8ce3982a26da350b1a879a501d882d50de277e4674923b6c77408a881e591b",
+      "source": "def encode_targets(answer_digits: torch.Tensor) -> torch.Tensor:\n    phases = torch.arange(answer_digits.shape[1], device=answer_digits.device).unsqueeze(0)\n    return 112 + 10 * phases + answer_digits",
+      "descriptor": {
+        "family": "decimal-digit token targets",
+        "output_factorization": "decimal digit tokens relabelled by known output column: token=112+10*column+digit",
+        "target_units": "decimal digits with a column-specific token alphabet",
+        "iteration": "one predicted token per decimal digit; target column is fixed by position",
+        "evidence": [
+          {
+            "scope": "encode_targets",
+            "kind": "directly source-audited target codec",
+            "ast_sha256": "bc8ce3982a26da350b1a879a501d882d50de277e4674923b6c77408a881e591b",
+            "source": "def encode_targets(answer_digits: torch.Tensor) -> torch.Tensor:\n    phases = torch.arange(answer_digits.shape[1], device=answer_digits.device).unsqueeze(0)\n    return 112 + 10 * phases + answer_digits",
+            "source_example": {
+              "run_id": "tiny-v21-four-digit-openevolve-b01-c3",
+              "proposal": 100,
+              "path": "\\\\?\\C:\\Users\\hpn-w\\Documents\\GitHub\\rl4rl\\data\\c0c3\\tiny-v21\\runs\\tiny-v21-four-digit-openevolve-b01-c3\\candidates\\64184e408fceaf40a0b11e0c00e63a521c0afd6dce8fd93a41e81b08d0077796",
+              "file": "train.py"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "ast_sha256": "a5f1844d74fabe02c9ff3fb804dc0eead32330344be383f831baee40fb54f993",
+      "source": "def decode_targets(generated: torch.Tensor) -> torch.Tensor:\n    return (generated[:, :5] - 112) % 10",
+      "descriptor": {
+        "family": "direct decimal-digit output",
+        "output_decoding": "first five tokens decoded by (token-112) modulo 10, removing the known column-specific token offset",
+        "evidence": [
+          {
+            "scope": "decode_targets",
+            "kind": "directly source-audited target codec",
+            "ast_sha256": "a5f1844d74fabe02c9ff3fb804dc0eead32330344be383f831baee40fb54f993",
+            "source": "def decode_targets(generated: torch.Tensor) -> torch.Tensor:\n    return (generated[:, :5] - 112) % 10",
+            "source_example": {
+              "run_id": "tiny-v21-four-digit-openevolve-b01-c3",
+              "proposal": 100,
+              "path": "\\\\?\\C:\\Users\\hpn-w\\Documents\\GitHub\\rl4rl\\data\\c0c3\\tiny-v21\\runs\\tiny-v21-four-digit-openevolve-b01-c3\\candidates\\64184e408fceaf40a0b11e0c00e63a521c0afd6dce8fd93a41e81b08d0077796",
+              "file": "train.py"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "ast_sha256": "2a03f2a14532a8b01370a46048c2cbf16000387160b70ad1034f5b063a3e81ba",
+      "source": "def encode_targets(answer_digits: torch.Tensor) -> torch.Tensor:\n    markers = torch.full_like(answer_digits[:, :4], 10)\n    interleaved = torch.stack((answer_digits[:, :4], markers), dim=-1).flatten(1)\n    return torch.cat((interleaved, answer_digits[:, 4:5]), dim=1)",
+      "descriptor": {
+        "family": "decimal-digit token targets",
+        "output_factorization": "five decimal digit tokens with constant marker=10 positions interleaved after the first four digits",
+        "target_units": "decimal digits and fixed marker tokens",
+        "iteration": "nine autoregressive positions: five digits plus four constant markers; decoder discards marker positions",
+        "evidence": [
+          {
+            "scope": "encode_targets",
+            "kind": "directly source-audited target codec",
+            "ast_sha256": "2a03f2a14532a8b01370a46048c2cbf16000387160b70ad1034f5b063a3e81ba",
+            "source": "def encode_targets(answer_digits: torch.Tensor) -> torch.Tensor:\n    markers = torch.full_like(answer_digits[:, :4], 10)\n    interleaved = torch.stack((answer_digits[:, :4], markers), dim=-1).flatten(1)\n    return torch.cat((interleaved, answer_digits[:, 4:5]), dim=1)",
+            "source_example": {
+              "run_id": "tiny-v21-four-digit-openevolve-b02-c3",
+              "proposal": 60,
+              "path": "\\\\?\\C:\\Users\\hpn-w\\Documents\\GitHub\\rl4rl\\data\\c0c3\\tiny-v21\\runs\\tiny-v21-four-digit-openevolve-b02-c3\\candidates\\062fcc3119009b7d2e2fac08dac8576cb1e33a8bd612098a51deeded4e01888c",
+              "file": "train.py"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "ast_sha256": "4545440656cc32a60b739c3aba5f447fd4e249d30c7c2aaa8130fee1ab9433da",
+      "source": "def decode_targets(generated: torch.Tensor) -> torch.Tensor:\n    return generated[:, ::2][:, :5]",
+      "descriptor": {
+        "family": "direct decimal-digit output",
+        "output_decoding": "select every second generated token, retain first five digits, and discard marker-position values",
+        "evidence": [
+          {
+            "scope": "decode_targets",
+            "kind": "directly source-audited target codec",
+            "ast_sha256": "4545440656cc32a60b739c3aba5f447fd4e249d30c7c2aaa8130fee1ab9433da",
+            "source": "def decode_targets(generated: torch.Tensor) -> torch.Tensor:\n    return generated[:, ::2][:, :5]",
+            "source_example": {
+              "run_id": "tiny-v21-four-digit-openevolve-b02-c3",
+              "proposal": 60,
+              "path": "\\\\?\\C:\\Users\\hpn-w\\Documents\\GitHub\\rl4rl\\data\\c0c3\\tiny-v21\\runs\\tiny-v21-four-digit-openevolve-b02-c3\\candidates\\062fcc3119009b7d2e2fac08dac8576cb1e33a8bd612098a51deeded4e01888c",
+              "file": "train.py"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "ast_sha256": "2bcd3ef1a808b8ee85d292f787560371e31bdd52efd772317e337ff31392a5aa",
+      "source": "def encode_targets(answer_digits: torch.Tensor) -> torch.Tensor:\n    residues = answer_digits.remainder(4)\n    quotients = torch.div(answer_digits, 4, rounding_mode='floor')\n    return torch.cat((residues, quotients), dim=1)",
+      "descriptor": {
+        "family": "separate base-4 residue and quotient digit-target streams",
+        "output_factorization": "five digit residues modulo 4 followed by five floor(digit/4) quotient tokens",
+        "target_units": "base-4 residue and quotient components of each decimal digit",
+        "iteration": "ten autoregressive positions: complete residue stream before complete quotient stream",
+        "evidence": [
+          {
+            "scope": "encode_targets",
+            "kind": "directly source-audited target codec",
+            "ast_sha256": "2bcd3ef1a808b8ee85d292f787560371e31bdd52efd772317e337ff31392a5aa",
+            "source": "def encode_targets(answer_digits: torch.Tensor) -> torch.Tensor:\n    residues = answer_digits.remainder(4)\n    quotients = torch.div(answer_digits, 4, rounding_mode='floor')\n    return torch.cat((residues, quotients), dim=1)",
+            "source_example": {
+              "run_id": "tiny-v21-four-digit-openevolve-b02-c3",
+              "proposal": 90,
+              "path": "\\\\?\\C:\\Users\\hpn-w\\Documents\\GitHub\\rl4rl\\data\\c0c3\\tiny-v21\\runs\\tiny-v21-four-digit-openevolve-b02-c3\\candidates\\b60808db7397d9d02373dcbe20211a881b74ad473236e2f86bc4b70d3df02b3e",
+              "file": "train.py"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "ast_sha256": "c71932259fe48f06d97a8c139b46199ca00ba1a48fc79ec30002695deddece2e",
+      "source": "def decode_targets(generated: torch.Tensor) -> torch.Tensor:\n    return generated[:, :5] + 4 * generated[:, 5:10]",
+      "descriptor": {
+        "family": "decimal reconstruction from separate base-4 streams",
+        "output_decoding": "digit=generated[:,0:5]+4*generated[:,5:10]; paired residues and quotients reconstruct five decimal digits",
+        "evidence": [
+          {
+            "scope": "decode_targets",
+            "kind": "directly source-audited target codec",
+            "ast_sha256": "c71932259fe48f06d97a8c139b46199ca00ba1a48fc79ec30002695deddece2e",
+            "source": "def decode_targets(generated: torch.Tensor) -> torch.Tensor:\n    return generated[:, :5] + 4 * generated[:, 5:10]",
+            "source_example": {
+              "run_id": "tiny-v21-four-digit-openevolve-b02-c3",
+              "proposal": 90,
+              "path": "\\\\?\\C:\\Users\\hpn-w\\Documents\\GitHub\\rl4rl\\data\\c0c3\\tiny-v21\\runs\\tiny-v21-four-digit-openevolve-b02-c3\\candidates\\b60808db7397d9d02373dcbe20211a881b74ad473236e2f86bc4b70d3df02b3e",
+              "file": "train.py"
+            }
+          }
+        ]
+      }
+    }
+  ]
+}

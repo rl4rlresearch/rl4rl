@@ -1,0 +1,239 @@
+{
+  "version": "v6-b02c3-discriminated-static-families",
+  "reviewed_profiles": [
+    {
+      "source_sha256": "4202423a7bd0e0bfd2d0711f2f225a7df8afa6c78de6ae276126b0b5cc4b6212",
+      "reference_run": "fashion-mnist-openevolve-v2-1-mps-fashion_mnist_source_only_mps-openevolve-b02-c3",
+      "reference_proposal": 139,
+      "candidate_id": "768592717b905a1ee2a561e5e52add4d289134693b1600b8831dcde2142237b0",
+      "parent_candidate_id": "3a653f7becea7a2066ef729f8fac75d7c6f5e744a888e554289ab6d4035f4e6d",
+      "parent_source_sha256": "1d750b7d47f6caececbfe18e8913d22039696140e8de445c5536bcb8c4998dc1",
+      "transition_classification": "changing",
+      "changed_components": [
+        "routing",
+        "aggregation",
+        "output"
+      ],
+      "fingerprint": {
+        "input_units": "grayscale image pixels",
+        "input_transform": "identity image tensor",
+        "embedding": "not applicable: pixels enter convolution directly",
+        "position": "implicit local image neighborhoods",
+        "mixing": "dense local Conv2d with depthwise-plus-pointwise refinement",
+        "routing": "fixed convolutional flow and fixed translated/flip inference views; expands fixed cardinal crop fusion to a fixed nine-view translated ensemble",
+        "state": "no persistent recurrent state",
+        "feedforward": "no transformer feedforward block",
+        "parameter_construction": "free learned convolutional and affine parameters",
+        "sharing": "modules reused only as explicitly called",
+        "normalization": "BatchNorm2d",
+        "connectivity": "fixed sequential convolution/pooling and affine head",
+        "aggregation": "flattened spatial features plus fixed multi-view probability fusion",
+        "output": "ten-class log probabilities",
+        "symmetry": "fixed translated and horizontal-flip view ensemble",
+        "conditional_compute": "fixed architecture",
+        "activation": "GELU and sigmoid gate",
+        "stochasticity": "Dropout during training",
+        "bottleneck": "no factorized bottleneck",
+        "iteration": "fixed feedforward stages",
+        "other": "complete exact queue-bound parent/child programs directly diffed",
+        "spatial_units": "image grid",
+        "spatial_operator": "dense and depthwise local Conv2d",
+        "scale_representation": "two MaxPool2d reductions",
+        "spatial_readout": "flattened spatial affine head",
+        "channel_interaction": "depthwise-pointwise refinement and sigmoid channel gate",
+        "spatial_downsampling": "two MaxPool2d(2) operations"
+      },
+      "family_signature": {
+        "task": "fashion",
+        "mixing": "local gated convolution",
+        "routing": "fixed nine-view translated/flip probability fusion",
+        "readout": "linear weighted nine-view probability logits"
+      },
+      "family_label": "gated CNN with fixed crop-fusion inference",
+      "training": {
+        "optimizer": "AdamW (declared)"
+      },
+      "inference": {
+        "procedure": "fixed translated and horizontal-flip probability fusion"
+      },
+      "notes": "Complete exact retained parent and child train.py sources were directly read and diffed. expands fixed cardinal crop fusion to a fixed nine-view translated ensemble.",
+      "evidence": [
+        {
+          "kind": "complete exact-program queue-bound parent-child diff review",
+          "source_sha256": "4202423a7bd0e0bfd2d0711f2f225a7df8afa6c78de6ae276126b0b5cc4b6212",
+          "parent_source_sha256": "1d750b7d47f6caececbfe18e8913d22039696140e8de445c5536bcb8c4998dc1",
+          "candidate_id": "768592717b905a1ee2a561e5e52add4d289134693b1600b8831dcde2142237b0",
+          "retained_parent_candidate_id": "3a653f7becea7a2066ef729f8fac75d7c6f5e744a888e554289ab6d4035f4e6d",
+          "directed_parent_source_sha256": "1d750b7d47f6caececbfe18e8913d22039696140e8de445c5536bcb8c4998dc1",
+          "classification": "changing",
+          "changed_components": [
+            "routing",
+            "aggregation",
+            "output"
+          ],
+          "reason": "expands fixed cardinal crop fusion to a fixed nine-view translated ensemble",
+          "changed_lines": {
+            "added": 14,
+            "removed": 6
+          }
+        }
+      ]
+    },
+    {
+      "source_sha256": "0d04a185c85e5e2907691c001093b701dd96d55477881fa1c40c5f814a558882",
+      "reference_run": "fashion-mnist-openevolve-v2-1-mps-fashion_mnist_source_only_mps-openevolve-b02-c3",
+      "reference_proposal": 142,
+      "candidate_id": "a8776b0f165d101b3256e63cd0f114e835befc5ea0822e93201f2de1c4be11e6",
+      "parent_candidate_id": "768592717b905a1ee2a561e5e52add4d289134693b1600b8831dcde2142237b0",
+      "parent_source_sha256": "4202423a7bd0e0bfd2d0711f2f225a7df8afa6c78de6ae276126b0b5cc4b6212",
+      "transition_classification": "changing",
+      "changed_components": [
+        "routing",
+        "aggregation",
+        "output"
+      ],
+      "fingerprint": {
+        "input_units": "grayscale image pixels",
+        "input_transform": "identity image tensor",
+        "embedding": "not applicable: pixels enter convolution directly",
+        "position": "implicit local image neighborhoods",
+        "mixing": "dense local Conv2d with depthwise-plus-pointwise refinement",
+        "routing": "fixed convolutional flow and fixed translated/flip inference views; adds fixed diagonal views and fixed orientation-specific fusion weights",
+        "state": "no persistent recurrent state",
+        "feedforward": "no transformer feedforward block",
+        "parameter_construction": "free learned convolutional and affine parameters",
+        "sharing": "modules reused only as explicitly called",
+        "normalization": "BatchNorm2d",
+        "connectivity": "fixed sequential convolution/pooling and affine head",
+        "aggregation": "flattened spatial features plus fixed multi-view probability fusion",
+        "output": "ten-class log probabilities",
+        "symmetry": "fixed translated and horizontal-flip view ensemble",
+        "conditional_compute": "fixed architecture",
+        "activation": "GELU and sigmoid gate",
+        "stochasticity": "Dropout during training",
+        "bottleneck": "no factorized bottleneck",
+        "iteration": "fixed feedforward stages",
+        "other": "complete exact queue-bound parent/child programs directly diffed",
+        "spatial_units": "image grid",
+        "spatial_operator": "dense and depthwise local Conv2d",
+        "scale_representation": "two MaxPool2d reductions",
+        "spatial_readout": "flattened spatial affine head",
+        "channel_interaction": "depthwise-pointwise refinement and sigmoid channel gate",
+        "spatial_downsampling": "two MaxPool2d(2) operations"
+      },
+      "family_signature": {
+        "task": "fashion",
+        "mixing": "local gated convolution",
+        "routing": "fixed nine-view orientation-weighted translated/flip probability fusion",
+        "readout": "orientation-weighted nine-view probability logits"
+      },
+      "family_label": "gated CNN with fixed crop-fusion inference",
+      "training": {
+        "optimizer": "AdamW (declared)"
+      },
+      "inference": {
+        "procedure": "fixed translated and horizontal-flip probability fusion"
+      },
+      "notes": "Complete exact retained parent and child train.py sources were directly read and diffed. adds fixed diagonal views and fixed orientation-specific fusion weights.",
+      "evidence": [
+        {
+          "kind": "complete exact-program queue-bound parent-child diff review",
+          "source_sha256": "0d04a185c85e5e2907691c001093b701dd96d55477881fa1c40c5f814a558882",
+          "parent_source_sha256": "4202423a7bd0e0bfd2d0711f2f225a7df8afa6c78de6ae276126b0b5cc4b6212",
+          "candidate_id": "a8776b0f165d101b3256e63cd0f114e835befc5ea0822e93201f2de1c4be11e6",
+          "retained_parent_candidate_id": "768592717b905a1ee2a561e5e52add4d289134693b1600b8831dcde2142237b0",
+          "directed_parent_source_sha256": "4202423a7bd0e0bfd2d0711f2f225a7df8afa6c78de6ae276126b0b5cc4b6212",
+          "classification": "changing",
+          "changed_components": [
+            "routing",
+            "aggregation",
+            "output"
+          ],
+          "reason": "adds fixed diagonal views and fixed orientation-specific fusion weights",
+          "changed_lines": {
+            "added": 20,
+            "removed": 16
+          }
+        }
+      ]
+    },
+    {
+      "source_sha256": "06a37bc451d13d5529f5260d3454fab0822a1f8b0c0ce75f7e986a529a8d762f",
+      "reference_run": "fashion-mnist-openevolve-v2-1-mps-fashion_mnist_source_only_mps-openevolve-b02-c3",
+      "reference_proposal": 148,
+      "candidate_id": "98f8cbf5953445d1b2750e679f710f361adbb53618c9b73184bd6a4629242c62",
+      "parent_candidate_id": "768592717b905a1ee2a561e5e52add4d289134693b1600b8831dcde2142237b0",
+      "parent_source_sha256": "4202423a7bd0e0bfd2d0711f2f225a7df8afa6c78de6ae276126b0b5cc4b6212",
+      "transition_classification": "changing",
+      "changed_components": [
+        "routing",
+        "aggregation",
+        "output"
+      ],
+      "fingerprint": {
+        "input_units": "grayscale image pixels",
+        "input_transform": "identity image tensor",
+        "embedding": "not applicable: pixels enter convolution directly",
+        "position": "implicit local image neighborhoods",
+        "mixing": "dense local Conv2d with depthwise-plus-pointwise refinement",
+        "routing": "fixed convolutional flow and fixed translated/flip inference views; replaces linear fixed crop probability fusion with fixed powered probability fusion",
+        "state": "no persistent recurrent state",
+        "feedforward": "no transformer feedforward block",
+        "parameter_construction": "free learned convolutional and affine parameters",
+        "sharing": "modules reused only as explicitly called",
+        "normalization": "BatchNorm2d",
+        "connectivity": "fixed sequential convolution/pooling and affine head",
+        "aggregation": "flattened spatial features plus fixed multi-view probability fusion",
+        "output": "ten-class log probabilities",
+        "symmetry": "fixed translated and horizontal-flip view ensemble",
+        "conditional_compute": "fixed architecture",
+        "activation": "GELU and sigmoid gate",
+        "stochasticity": "Dropout during training",
+        "bottleneck": "no factorized bottleneck",
+        "iteration": "fixed feedforward stages",
+        "other": "complete exact queue-bound parent/child programs directly diffed",
+        "spatial_units": "image grid",
+        "spatial_operator": "dense and depthwise local Conv2d",
+        "scale_representation": "two MaxPool2d reductions",
+        "spatial_readout": "flattened spatial affine head",
+        "channel_interaction": "depthwise-pointwise refinement and sigmoid channel gate",
+        "spatial_downsampling": "two MaxPool2d(2) operations"
+      },
+      "family_signature": {
+        "task": "fashion",
+        "mixing": "local gated convolution",
+        "routing": "fixed powered translated/flip probability fusion",
+        "readout": "inverse-power fused probability logits"
+      },
+      "family_label": "gated CNN with fixed crop-fusion inference",
+      "training": {
+        "optimizer": "AdamW (declared)"
+      },
+      "inference": {
+        "procedure": "fixed translated and horizontal-flip probability fusion"
+      },
+      "notes": "Complete exact retained parent and child train.py sources were directly read and diffed. replaces linear fixed crop probability fusion with fixed powered probability fusion.",
+      "evidence": [
+        {
+          "kind": "complete exact-program queue-bound parent-child diff review",
+          "source_sha256": "06a37bc451d13d5529f5260d3454fab0822a1f8b0c0ce75f7e986a529a8d762f",
+          "parent_source_sha256": "4202423a7bd0e0bfd2d0711f2f225a7df8afa6c78de6ae276126b0b5cc4b6212",
+          "candidate_id": "98f8cbf5953445d1b2750e679f710f361adbb53618c9b73184bd6a4629242c62",
+          "retained_parent_candidate_id": "768592717b905a1ee2a561e5e52add4d289134693b1600b8831dcde2142237b0",
+          "directed_parent_source_sha256": "4202423a7bd0e0bfd2d0711f2f225a7df8afa6c78de6ae276126b0b5cc4b6212",
+          "classification": "changing",
+          "changed_components": [
+            "routing",
+            "aggregation",
+            "output"
+          ],
+          "reason": "replaces linear fixed crop probability fusion with fixed powered probability fusion",
+          "changed_lines": {
+            "added": 14,
+            "removed": 11
+          }
+        }
+      ]
+    }
+  ]
+}

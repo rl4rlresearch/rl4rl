@@ -1,0 +1,771 @@
+{
+  "version": "v4-b04c1-static-directed-pairs",
+  "reviewed_profiles": [
+    {
+      "source_sha256": "d2016695edf7fbcae46a243989a90210a430ddf7bf6035e77b81606b342f77e6",
+      "reference_run": "fashion-mnist-openevolve-v2-1-mps-fashion_mnist_source_only_mps-openevolve-b04-c1",
+      "reference_proposal": 50,
+      "candidate_id": "98aa3989c930175414538943daca0ea107bb536f4de519f7b74e547ffda96ff8",
+      "parent_candidate_id": "971307c9e125610d788d68b5c772c5b8b4870f54143b04ed40684d9c5e528437",
+      "parent_source_sha256": "ba3c2cb6958beace093d5e60af527c3a22412a0c61742ee1f4d7b0cd0f33f410",
+      "transition_classification": "preserving",
+      "changed_components": [],
+      "fingerprint": {
+        "input_units": "grayscale image pixels",
+        "input_transform": "identity image tensor input",
+        "embedding": "not applicable: continuous-valued grayscale pixels enter convolutional operators directly",
+        "position": "implicit local image neighborhoods; no explicit positional embedding",
+        "mixing": "dense Conv2d plus local depthwise near/wide context branches and 1x1 mixing",
+        "routing": "fixed original/horizontal-flip feature pairing and tensor concatenation",
+        "state": "no persistent recurrent feature state",
+        "feedforward": "no separate transformer feedforward block",
+        "parameter_construction": "free learned convolutional and affine parameters",
+        "sharing": "no explicit parameter tying beyond source-defined module reuse",
+        "normalization": "BatchNorm2d feature normalization",
+        "connectivity": "paired-view fusion feeds parallel local/dilated depthwise context branches concatenated before the affine classifier",
+        "aggregation": "flattened locally contextualized spatial grid",
+        "output": "learned affine ten-class logits",
+        "symmetry": "fixed horizontal-flip paired feature construction; no equivariant parameter construction",
+        "conditional_compute": "fixed architecture; no input-dependent early exit or experts",
+        "activation": "GELU",
+        "stochasticity": "Dropout in the affine classifier during training",
+        "bottleneck": "no separate factorized bottleneck",
+        "iteration": "fixed feedforward stages",
+        "other": "complete exact retained parent and child train.py sources were directly read and diffed",
+        "spatial_units": "image grid",
+        "spatial_operator": "dense local Conv2d plus depthwise 3x3 and dilated 3x3 local Conv2d",
+        "scale_representation": "two MaxPool2d reductions followed by a fixed-resolution convolutional grid",
+        "spatial_readout": "flattened spatial grid through an affine classifier",
+        "channel_interaction": "learned 1x1 paired-view fusion and 192-to-96 1x1 context mixing",
+        "spatial_downsampling": "two MaxPool2d(2) operations"
+      },
+      "family_signature": {
+        "task": "fashion",
+        "input": "grayscale image grid",
+        "mixing": "local dense/depthwise convolution",
+        "routing": "fixed paired-view local tensor flow",
+        "readout": "flattened spatial affine classifier"
+      },
+      "family_label": "paired-view local CNN",
+      "training": {
+        "optimizer": "AdamW (declared)",
+        "objective": "cross entropy with label smoothing (declared)",
+        "augmentation": "random horizontal flip (declared)"
+      },
+      "inference": {
+        "procedure": "fixed original/horizontal-flip paired feature fusion and positive scalar logit calibration"
+      },
+      "notes": "Complete exact queue-bound parent and child train.py sources were directly read and diffed. adds fixed local depthwise near/wide context branches before the affine head.",
+      "evidence": [
+        {
+          "kind": "complete exact-program queue-bound parent-child diff review",
+          "source_sha256": "d2016695edf7fbcae46a243989a90210a430ddf7bf6035e77b81606b342f77e6",
+          "parent_source_sha256": "ba3c2cb6958beace093d5e60af527c3a22412a0c61742ee1f4d7b0cd0f33f410",
+          "candidate_id": "98aa3989c930175414538943daca0ea107bb536f4de519f7b74e547ffda96ff8",
+          "retained_parent_candidate_id": "971307c9e125610d788d68b5c772c5b8b4870f54143b04ed40684d9c5e528437",
+          "directed_parent_source_sha256": "ba3c2cb6958beace093d5e60af527c3a22412a0c61742ee1f4d7b0cd0f33f410",
+          "classification": "preserving",
+          "changed_components": [],
+          "reason": "adds fixed local depthwise near/wide context branches before the affine head",
+          "changed_lines": {
+            "added": 31,
+            "removed": 4
+          }
+        }
+      ]
+    },
+    {
+      "source_sha256": "097a2f73ec4f766442638a9907b22d9d6a943b923e9c0bc0e065463481ab959d",
+      "reference_run": "fashion-mnist-openevolve-v2-1-mps-fashion_mnist_source_only_mps-openevolve-b04-c1",
+      "reference_proposal": 51,
+      "candidate_id": "f353893c843d6d87c6d50468849190321a86bd49126d9d72253c5029364d3b14",
+      "parent_candidate_id": "971307c9e125610d788d68b5c772c5b8b4870f54143b04ed40684d9c5e528437",
+      "parent_source_sha256": "ba3c2cb6958beace093d5e60af527c3a22412a0c61742ee1f4d7b0cd0f33f410",
+      "transition_classification": "changing",
+      "changed_components": [
+        "aggregation",
+        "spatial_readout",
+        "scale_representation"
+      ],
+      "fingerprint": {
+        "input_units": "grayscale image pixels",
+        "input_transform": "identity image tensor input",
+        "embedding": "not applicable: continuous-valued grayscale pixels enter convolutional operators directly",
+        "position": "implicit local image neighborhoods; no explicit positional embedding",
+        "mixing": "dense Conv2d backbone with learned 1x1 paired-view fusion",
+        "routing": "fixed original/horizontal-flip feature pairing and tensor concatenation",
+        "state": "no persistent recurrent feature state",
+        "feedforward": "no separate transformer feedforward block",
+        "parameter_construction": "free learned convolutional and affine parameters",
+        "sharing": "no explicit parameter tying beyond source-defined module reuse",
+        "normalization": "BatchNorm2d feature normalization",
+        "connectivity": "fixed convolutional residual stages followed by paired-view fusion and affine classification",
+        "aggregation": "flattened spatial grid plus learned adaptive-average-pooled 4x4 skip logits",
+        "output": "learned affine ten-class logits",
+        "symmetry": "fixed horizontal-flip paired feature construction; no equivariant parameter construction",
+        "conditional_compute": "fixed architecture; no input-dependent early exit or experts",
+        "activation": "GELU",
+        "stochasticity": "Dropout in the affine classifier during training",
+        "bottleneck": "no separate factorized bottleneck",
+        "iteration": "fixed feedforward stages",
+        "other": "complete exact retained parent and child train.py sources were directly read and diffed",
+        "spatial_units": "image grid",
+        "spatial_operator": "dense local Conv2d",
+        "scale_representation": "two MaxPool2d reductions plus an AdaptiveAvgPool2d(4,4) skip grid",
+        "spatial_readout": "affine flattened-grid logits summed with adaptive-average-pooled affine skip logits",
+        "channel_interaction": "learned 1x1 paired-view fusion convolution",
+        "spatial_downsampling": "two MaxPool2d(2) operations"
+      },
+      "family_signature": {
+        "task": "fashion",
+        "input": "grayscale image grid",
+        "mixing": "local convolution",
+        "routing": "fixed paired-view local tensor flow",
+        "readout": "flattened spatial affine plus adaptive-average-pooled skip logits"
+      },
+      "family_label": "paired-view local CNN",
+      "training": {
+        "optimizer": "AdamW (declared)",
+        "objective": "cross entropy with label smoothing (declared)",
+        "augmentation": "random horizontal flip (declared)"
+      },
+      "inference": {
+        "procedure": "fixed original/horizontal-flip paired feature fusion and positive scalar logit calibration"
+      },
+      "notes": "Complete exact queue-bound parent and child train.py sources were directly read and diffed. adds a learned adaptive-average-pooled spatial skip logit readout.",
+      "evidence": [
+        {
+          "kind": "complete exact-program queue-bound parent-child diff review",
+          "source_sha256": "097a2f73ec4f766442638a9907b22d9d6a943b923e9c0bc0e065463481ab959d",
+          "parent_source_sha256": "ba3c2cb6958beace093d5e60af527c3a22412a0c61742ee1f4d7b0cd0f33f410",
+          "candidate_id": "f353893c843d6d87c6d50468849190321a86bd49126d9d72253c5029364d3b14",
+          "retained_parent_candidate_id": "971307c9e125610d788d68b5c772c5b8b4870f54143b04ed40684d9c5e528437",
+          "directed_parent_source_sha256": "ba3c2cb6958beace093d5e60af527c3a22412a0c61742ee1f4d7b0cd0f33f410",
+          "classification": "changing",
+          "changed_components": [
+            "aggregation",
+            "spatial_readout",
+            "scale_representation"
+          ],
+          "reason": "adds a learned adaptive-average-pooled spatial skip logit readout",
+          "changed_lines": {
+            "added": 9,
+            "removed": 1
+          }
+        }
+      ]
+    },
+    {
+      "source_sha256": "19945e1c3924741574d95f789d70455c04e5edfbc20d5c871a26ea21f154d369",
+      "reference_run": "fashion-mnist-openevolve-v2-1-mps-fashion_mnist_source_only_mps-openevolve-b04-c1",
+      "reference_proposal": 91,
+      "candidate_id": "44a0f2eceb77ed778ddd8e8aba036ae1a936b9dd3ea77fd2a12341b26d2cdd56",
+      "parent_candidate_id": "a1ad848d0ab26566aefefe07fc7ff9c514ae70c8ad6cca9c4aea2ad3e9d39056",
+      "parent_source_sha256": "9563e71cb448a17e4514306de879d86ca4de3b15bfbab9ce86170719b17140f1",
+      "transition_classification": "changing",
+      "changed_components": [
+        "routing",
+        "aggregation",
+        "channel_interaction"
+      ],
+      "fingerprint": {
+        "input_units": "grayscale image pixels",
+        "input_transform": "identity image tensor input",
+        "embedding": "not applicable: continuous-valued grayscale pixels enter convolutional operators directly",
+        "position": "implicit local image neighborhoods; no explicit positional embedding",
+        "mixing": "dense Conv2d backbone, learned 1x1 paired-view fusion, and MLP channel gate",
+        "routing": "global average of paired invariant/disagreement channels drives a tanh channel scale",
+        "state": "no persistent recurrent feature state",
+        "feedforward": "no separate transformer feedforward block",
+        "parameter_construction": "free learned convolutional and affine parameters",
+        "sharing": "no explicit parameter tying beyond source-defined module reuse",
+        "normalization": "BatchNorm2d feature normalization",
+        "connectivity": "paired-view fusion followed by multiplicative tanh channel gating and affine classification",
+        "aggregation": "global average paired-view descriptor and flattened gated spatial grid",
+        "output": "learned affine ten-class logits",
+        "symmetry": "fixed horizontal-flip paired feature construction; no equivariant parameter construction",
+        "conditional_compute": "fixed architecture; no input-dependent early exit or experts",
+        "activation": "GELU and tanh channel gate",
+        "stochasticity": "Dropout in the affine classifier during training",
+        "bottleneck": "no separate factorized bottleneck",
+        "iteration": "fixed feedforward stages",
+        "other": "complete exact retained parent and child train.py sources were directly read and diffed",
+        "spatial_units": "image grid",
+        "spatial_operator": "dense local Conv2d",
+        "scale_representation": "two MaxPool2d reductions followed by a fixed-resolution convolutional grid",
+        "spatial_readout": "flattened spatial grid through an affine classifier",
+        "channel_interaction": "128-to-16-to-64 affine paired-view channel gate",
+        "spatial_downsampling": "two MaxPool2d(2) operations"
+      },
+      "family_signature": {
+        "task": "fashion",
+        "input": "grayscale image grid",
+        "mixing": "local convolution",
+        "routing": "input-dependent global-statistic channel gating",
+        "readout": "flattened spatial affine classifier"
+      },
+      "family_label": "paired-view local CNN",
+      "training": {
+        "optimizer": "AdamW (declared)",
+        "objective": "cross entropy with label smoothing (declared)",
+        "augmentation": "random horizontal flip (declared)"
+      },
+      "inference": {
+        "procedure": "fixed original/horizontal-flip paired feature fusion and positive scalar logit calibration"
+      },
+      "notes": "Complete exact queue-bound parent and child train.py sources were directly read and diffed. adds a global paired-view average descriptor driving a tanh channel gate.",
+      "evidence": [
+        {
+          "kind": "complete exact-program queue-bound parent-child diff review",
+          "source_sha256": "19945e1c3924741574d95f789d70455c04e5edfbc20d5c871a26ea21f154d369",
+          "parent_source_sha256": "9563e71cb448a17e4514306de879d86ca4de3b15bfbab9ce86170719b17140f1",
+          "candidate_id": "44a0f2eceb77ed778ddd8e8aba036ae1a936b9dd3ea77fd2a12341b26d2cdd56",
+          "retained_parent_candidate_id": "a1ad848d0ab26566aefefe07fc7ff9c514ae70c8ad6cca9c4aea2ad3e9d39056",
+          "directed_parent_source_sha256": "9563e71cb448a17e4514306de879d86ca4de3b15bfbab9ce86170719b17140f1",
+          "classification": "changing",
+          "changed_components": [
+            "routing",
+            "aggregation",
+            "channel_interaction"
+          ],
+          "reason": "adds a global paired-view average descriptor driving a tanh channel gate",
+          "changed_lines": {
+            "added": 17,
+            "removed": 17
+          }
+        }
+      ]
+    },
+    {
+      "source_sha256": "d05ae9c873b37373a916d18ba7fd36a7df33832881cdcf7d6003b8afc6728bd6",
+      "reference_run": "fashion-mnist-openevolve-v2-1-mps-fashion_mnist_source_only_mps-openevolve-b04-c1",
+      "reference_proposal": 120,
+      "candidate_id": "f604469fe1c1dbd196ecde4f7b9ad6e0c7319557a659272282e674cf47a784ec",
+      "parent_candidate_id": "a1ad848d0ab26566aefefe07fc7ff9c514ae70c8ad6cca9c4aea2ad3e9d39056",
+      "parent_source_sha256": "9563e71cb448a17e4514306de879d86ca4de3b15bfbab9ce86170719b17140f1",
+      "transition_classification": "changing",
+      "changed_components": [
+        "mixing",
+        "routing",
+        "aggregation",
+        "spatial_readout",
+        "channel_interaction"
+      ],
+      "fingerprint": {
+        "input_units": "grayscale image pixels",
+        "input_transform": "identity image tensor input",
+        "embedding": "not applicable: continuous-valued grayscale pixels enter convolutional operators directly",
+        "position": "implicit local image neighborhoods; no explicit positional embedding",
+        "mixing": "dense Conv2d backbone plus learned 1x1 bilinear left/right projections",
+        "routing": "fixed bilinear outer-product statistic of paired-view spatial features",
+        "state": "no persistent recurrent feature state",
+        "feedforward": "no separate transformer feedforward block",
+        "parameter_construction": "free learned convolutional and affine parameters",
+        "sharing": "no explicit parameter tying beyond source-defined module reuse",
+        "normalization": "BatchNorm2d feature normalization",
+        "connectivity": "paired-view fusion feeds both affine spatial logits and a bilinear statistic logit head",
+        "aggregation": "flattened spatial grid and signed square-root normalized bilinear channel statistic",
+        "output": "learned affine ten-class logits",
+        "symmetry": "fixed horizontal-flip paired feature construction; no equivariant parameter construction",
+        "conditional_compute": "fixed architecture; no input-dependent early exit or experts",
+        "activation": "GELU",
+        "stochasticity": "Dropout in the affine classifier during training",
+        "bottleneck": "no separate factorized bottleneck",
+        "iteration": "fixed feedforward stages",
+        "other": "complete exact retained parent and child train.py sources were directly read and diffed",
+        "spatial_units": "image grid",
+        "spatial_operator": "dense local Conv2d",
+        "scale_representation": "two MaxPool2d reductions followed by a fixed-resolution convolutional grid",
+        "spatial_readout": "affine flattened-grid logits summed with normalized bilinear-statistic logits",
+        "channel_interaction": "two learned 64-to-16 1x1 projections combined by a bilinear matrix product",
+        "spatial_downsampling": "two MaxPool2d(2) operations"
+      },
+      "family_signature": {
+        "task": "fashion",
+        "input": "grayscale image grid",
+        "mixing": "local convolution",
+        "routing": "fixed paired-view local tensor flow",
+        "readout": "flattened spatial affine plus bilinear channel-statistic logits"
+      },
+      "family_label": "paired-view local CNN",
+      "training": {
+        "optimizer": "AdamW (declared)",
+        "objective": "cross entropy with label smoothing (declared)",
+        "augmentation": "random horizontal flip (declared)"
+      },
+      "inference": {
+        "procedure": "fixed original/horizontal-flip paired feature fusion and positive scalar logit calibration"
+      },
+      "notes": "Complete exact queue-bound parent and child train.py sources were directly read and diffed. adds a signed square-root normalized bilinear spatial statistic head.",
+      "evidence": [
+        {
+          "kind": "complete exact-program queue-bound parent-child diff review",
+          "source_sha256": "d05ae9c873b37373a916d18ba7fd36a7df33832881cdcf7d6003b8afc6728bd6",
+          "parent_source_sha256": "9563e71cb448a17e4514306de879d86ca4de3b15bfbab9ce86170719b17140f1",
+          "candidate_id": "f604469fe1c1dbd196ecde4f7b9ad6e0c7319557a659272282e674cf47a784ec",
+          "retained_parent_candidate_id": "a1ad848d0ab26566aefefe07fc7ff9c514ae70c8ad6cca9c4aea2ad3e9d39056",
+          "directed_parent_source_sha256": "9563e71cb448a17e4514306de879d86ca4de3b15bfbab9ce86170719b17140f1",
+          "classification": "changing",
+          "changed_components": [
+            "mixing",
+            "routing",
+            "aggregation",
+            "spatial_readout",
+            "channel_interaction"
+          ],
+          "reason": "adds a signed square-root normalized bilinear spatial statistic head",
+          "changed_lines": {
+            "added": 20,
+            "removed": 1
+          }
+        }
+      ]
+    },
+    {
+      "source_sha256": "fba2269f217c464359f22feccd853e26e5fd92b61794b789b94ffaef24c69027",
+      "reference_run": "fashion-mnist-openevolve-v2-1-mps-fashion_mnist_source_only_mps-openevolve-b04-c1",
+      "reference_proposal": 124,
+      "candidate_id": "930c31948dac5c3547324e2c511b04e61791637c25a66e0cb1d61bfc525b4fe9",
+      "parent_candidate_id": "a1ad848d0ab26566aefefe07fc7ff9c514ae70c8ad6cca9c4aea2ad3e9d39056",
+      "parent_source_sha256": "9563e71cb448a17e4514306de879d86ca4de3b15bfbab9ce86170719b17140f1",
+      "transition_classification": "preserving",
+      "changed_components": [],
+      "fingerprint": {
+        "input_units": "grayscale image pixels",
+        "input_transform": "identity image tensor input",
+        "embedding": "not applicable: continuous-valued grayscale pixels enter convolutional operators directly",
+        "position": "implicit local image neighborhoods; no explicit positional embedding",
+        "mixing": "dense Conv2d backbone with learned 1x1 paired-view fusion",
+        "routing": "fixed original, one-pixel-up, and one-pixel-down views with horizontal flips and fixed logit weights",
+        "state": "no persistent recurrent feature state",
+        "feedforward": "no separate transformer feedforward block",
+        "parameter_construction": "free learned convolutional and affine parameters",
+        "sharing": "no explicit parameter tying beyond source-defined module reuse",
+        "normalization": "BatchNorm2d feature normalization",
+        "connectivity": "fixed convolutional residual stages followed by paired-view fusion and affine classification",
+        "aggregation": "flattened fused spatial grid",
+        "output": "learned affine ten-class logits",
+        "symmetry": "fixed horizontal-flip and vertical-translation inference ensemble; no equivariant parameter construction",
+        "conditional_compute": "fixed architecture; no input-dependent early exit or experts",
+        "activation": "GELU",
+        "stochasticity": "Dropout in the affine classifier during training",
+        "bottleneck": "no separate factorized bottleneck",
+        "iteration": "fixed feedforward stages",
+        "other": "complete exact retained parent and child train.py sources were directly read and diffed",
+        "spatial_units": "image grid",
+        "spatial_operator": "dense local Conv2d",
+        "scale_representation": "two MaxPool2d reductions followed by a fixed-resolution convolutional grid",
+        "spatial_readout": "flattened spatial grid through an affine classifier",
+        "channel_interaction": "learned 1x1 paired-view fusion convolution",
+        "spatial_downsampling": "two MaxPool2d(2) operations"
+      },
+      "family_signature": {
+        "task": "fashion",
+        "input": "grayscale image grid",
+        "mixing": "local convolution",
+        "routing": "fixed paired-view local tensor flow",
+        "readout": "flattened spatial affine classifier"
+      },
+      "family_label": "paired-view local CNN",
+      "training": {
+        "optimizer": "AdamW (declared)",
+        "objective": "cross entropy with label smoothing (declared)",
+        "augmentation": "random horizontal flip (declared)"
+      },
+      "inference": {
+        "procedure": "fixed original/up/down vertical translations and horizontal flips use fixed 0.50/0.25/0.25 logit weights"
+      },
+      "notes": "Complete exact queue-bound parent and child train.py sources were directly read and diffed. changes only the fixed vertical translation/flip inference mixture.",
+      "evidence": [
+        {
+          "kind": "complete exact-program queue-bound parent-child diff review",
+          "source_sha256": "fba2269f217c464359f22feccd853e26e5fd92b61794b789b94ffaef24c69027",
+          "parent_source_sha256": "9563e71cb448a17e4514306de879d86ca4de3b15bfbab9ce86170719b17140f1",
+          "candidate_id": "930c31948dac5c3547324e2c511b04e61791637c25a66e0cb1d61bfc525b4fe9",
+          "retained_parent_candidate_id": "a1ad848d0ab26566aefefe07fc7ff9c514ae70c8ad6cca9c4aea2ad3e9d39056",
+          "directed_parent_source_sha256": "9563e71cb448a17e4514306de879d86ca4de3b15bfbab9ce86170719b17140f1",
+          "classification": "preserving",
+          "changed_components": [],
+          "reason": "changes only the fixed vertical translation/flip inference mixture",
+          "changed_lines": {
+            "added": 28,
+            "removed": 9
+          }
+        }
+      ]
+    },
+    {
+      "source_sha256": "8dc9258e4d7db10cf57a518c9a5a4b842cfc3d421d882698f0a4be19b68e06cd",
+      "reference_run": "fashion-mnist-openevolve-v2-1-mps-fashion_mnist_source_only_mps-openevolve-b04-c1",
+      "reference_proposal": 126,
+      "candidate_id": "61d31cee5a153b46f784c609fa799f18bad71efe65c1028b3e4f25014f70e385",
+      "parent_candidate_id": "a1ad848d0ab26566aefefe07fc7ff9c514ae70c8ad6cca9c4aea2ad3e9d39056",
+      "parent_source_sha256": "9563e71cb448a17e4514306de879d86ca4de3b15bfbab9ce86170719b17140f1",
+      "transition_classification": "preserving",
+      "changed_components": [],
+      "fingerprint": {
+        "input_units": "grayscale image pixels",
+        "input_transform": "identity image tensor input",
+        "embedding": "not applicable: continuous-valued grayscale pixels enter convolutional operators directly",
+        "position": "implicit local image neighborhoods; no explicit positional embedding",
+        "mixing": "dense Conv2d backbone with learned 1x1 paired-view fusion",
+        "routing": "fixed original/horizontal-flip feature pairing and tensor concatenation",
+        "state": "no persistent recurrent feature state",
+        "feedforward": "no separate transformer feedforward block",
+        "parameter_construction": "free learned convolutional and affine parameters",
+        "sharing": "no explicit parameter tying beyond source-defined module reuse",
+        "normalization": "BatchNorm2d feature normalization",
+        "connectivity": "paired-view invariant feature grid plus a learned 1x1 fusion residual before affine classification",
+        "aggregation": "flattened fused spatial grid",
+        "output": "learned affine ten-class logits",
+        "symmetry": "fixed horizontal-flip paired feature construction; no equivariant parameter construction",
+        "conditional_compute": "fixed architecture; no input-dependent early exit or experts",
+        "activation": "GELU",
+        "stochasticity": "Dropout in the affine classifier during training",
+        "bottleneck": "no separate factorized bottleneck",
+        "iteration": "fixed feedforward stages",
+        "other": "complete exact retained parent and child train.py sources were directly read and diffed",
+        "spatial_units": "image grid",
+        "spatial_operator": "dense local Conv2d",
+        "scale_representation": "two MaxPool2d reductions followed by a fixed-resolution convolutional grid",
+        "spatial_readout": "flattened spatial grid through an affine classifier",
+        "channel_interaction": "learned 1x1 paired-view fusion convolution",
+        "spatial_downsampling": "two MaxPool2d(2) operations"
+      },
+      "family_signature": {
+        "task": "fashion",
+        "input": "grayscale image grid",
+        "mixing": "local convolution",
+        "routing": "fixed paired-view local tensor flow",
+        "readout": "flattened spatial affine classifier"
+      },
+      "family_label": "paired-view local CNN",
+      "training": {
+        "optimizer": "AdamW (declared)",
+        "objective": "cross entropy with label smoothing (declared)",
+        "augmentation": "random horizontal flip (declared)"
+      },
+      "inference": {
+        "procedure": "fixed original/horizontal-flip paired feature fusion and positive scalar logit calibration"
+      },
+      "notes": "Complete exact queue-bound parent and child train.py sources were directly read and diffed. uses the learned 1x1 view-fusion result as a fixed additive residual.",
+      "evidence": [
+        {
+          "kind": "complete exact-program queue-bound parent-child diff review",
+          "source_sha256": "8dc9258e4d7db10cf57a518c9a5a4b842cfc3d421d882698f0a4be19b68e06cd",
+          "parent_source_sha256": "9563e71cb448a17e4514306de879d86ca4de3b15bfbab9ce86170719b17140f1",
+          "candidate_id": "61d31cee5a153b46f784c609fa799f18bad71efe65c1028b3e4f25014f70e385",
+          "retained_parent_candidate_id": "a1ad848d0ab26566aefefe07fc7ff9c514ae70c8ad6cca9c4aea2ad3e9d39056",
+          "directed_parent_source_sha256": "9563e71cb448a17e4514306de879d86ca4de3b15bfbab9ce86170719b17140f1",
+          "classification": "preserving",
+          "changed_components": [],
+          "reason": "uses the learned 1x1 view-fusion result as a fixed additive residual",
+          "changed_lines": {
+            "added": 2,
+            "removed": 3
+          }
+        }
+      ]
+    },
+    {
+      "source_sha256": "aa861c7f2581337dff6b68a921f454c7a77e3fe3b5737f7b3333a2282f55f68c",
+      "reference_run": "fashion-mnist-openevolve-v2-1-mps-fashion_mnist_source_only_mps-openevolve-b04-c1",
+      "reference_proposal": 130,
+      "candidate_id": "7260b7e5b371cf204af29fa298b311d7af51bf7266b51e995a7f48cb00104fb5",
+      "parent_candidate_id": "a1ad848d0ab26566aefefe07fc7ff9c514ae70c8ad6cca9c4aea2ad3e9d39056",
+      "parent_source_sha256": "9563e71cb448a17e4514306de879d86ca4de3b15bfbab9ce86170719b17140f1",
+      "transition_classification": "changing",
+      "changed_components": [
+        "routing",
+        "aggregation",
+        "channel_interaction"
+      ],
+      "fingerprint": {
+        "input_units": "grayscale image pixels",
+        "input_transform": "identity image tensor input",
+        "embedding": "not applicable: continuous-valued grayscale pixels enter convolutional operators directly",
+        "position": "implicit local image neighborhoods; no explicit positional embedding",
+        "mixing": "dense Conv2d backbone plus a 128-to-16-to-64 affine channel-gate MLP",
+        "routing": "channel mean and variance drive a tanh channel scale before the final pool",
+        "state": "no persistent recurrent feature state",
+        "feedforward": "no separate transformer feedforward block",
+        "parameter_construction": "free learned convolutional and affine parameters",
+        "sharing": "no explicit parameter tying beyond source-defined module reuse",
+        "normalization": "BatchNorm2d feature normalization",
+        "connectivity": "convolutional residual stages followed by multiplicative channel gating, paired-view fusion, and affine classification",
+        "aggregation": "global mean-and-variance channel descriptor and flattened gated spatial grid",
+        "output": "learned affine ten-class logits",
+        "symmetry": "fixed horizontal-flip paired feature construction; no equivariant parameter construction",
+        "conditional_compute": "fixed architecture; no input-dependent early exit or experts",
+        "activation": "GELU and tanh channel gate",
+        "stochasticity": "Dropout in the affine classifier during training",
+        "bottleneck": "no separate factorized bottleneck",
+        "iteration": "fixed feedforward stages",
+        "other": "complete exact retained parent and child train.py sources were directly read and diffed",
+        "spatial_units": "image grid",
+        "spatial_operator": "dense local Conv2d",
+        "scale_representation": "two MaxPool2d reductions followed by a fixed-resolution convolutional grid",
+        "spatial_readout": "flattened spatial grid through an affine classifier",
+        "channel_interaction": "128-to-16-to-64 affine mean-and-variance channel gate",
+        "spatial_downsampling": "two MaxPool2d(2) operations"
+      },
+      "family_signature": {
+        "task": "fashion",
+        "input": "grayscale image grid",
+        "mixing": "local convolution",
+        "routing": "input-dependent global-statistic channel gating",
+        "readout": "flattened spatial affine classifier"
+      },
+      "family_label": "paired-view local CNN",
+      "training": {
+        "optimizer": "AdamW (declared)",
+        "objective": "cross entropy with label smoothing (declared)",
+        "augmentation": "random horizontal flip (declared)"
+      },
+      "inference": {
+        "procedure": "fixed original/horizontal-flip paired feature fusion and positive scalar logit calibration"
+      },
+      "notes": "Complete exact queue-bound parent and child train.py sources were directly read and diffed. adds a mean-and-variance descriptor driving a tanh channel gate.",
+      "evidence": [
+        {
+          "kind": "complete exact-program queue-bound parent-child diff review",
+          "source_sha256": "aa861c7f2581337dff6b68a921f454c7a77e3fe3b5737f7b3333a2282f55f68c",
+          "parent_source_sha256": "9563e71cb448a17e4514306de879d86ca4de3b15bfbab9ce86170719b17140f1",
+          "candidate_id": "7260b7e5b371cf204af29fa298b311d7af51bf7266b51e995a7f48cb00104fb5",
+          "retained_parent_candidate_id": "a1ad848d0ab26566aefefe07fc7ff9c514ae70c8ad6cca9c4aea2ad3e9d39056",
+          "directed_parent_source_sha256": "9563e71cb448a17e4514306de879d86ca4de3b15bfbab9ce86170719b17140f1",
+          "classification": "changing",
+          "changed_components": [
+            "routing",
+            "aggregation",
+            "channel_interaction"
+          ],
+          "reason": "adds a mean-and-variance descriptor driving a tanh channel gate",
+          "changed_lines": {
+            "added": 17,
+            "removed": 0
+          }
+        }
+      ]
+    },
+    {
+      "source_sha256": "ef1c61ff7781454794dbe3c4c92e0625d27d9803c51574c250a58a7cbd0d2617",
+      "reference_run": "fashion-mnist-openevolve-v2-1-mps-fashion_mnist_source_only_mps-openevolve-b04-c1",
+      "reference_proposal": 136,
+      "candidate_id": "ed930a1c6fcbd081620421437a98279fb9984ad76e608b92a0ceb59451bddd89",
+      "parent_candidate_id": "a1ad848d0ab26566aefefe07fc7ff9c514ae70c8ad6cca9c4aea2ad3e9d39056",
+      "parent_source_sha256": "9563e71cb448a17e4514306de879d86ca4de3b15bfbab9ce86170719b17140f1",
+      "transition_classification": "preserving",
+      "changed_components": [],
+      "fingerprint": {
+        "input_units": "grayscale image pixels",
+        "input_transform": "identity image tensor input",
+        "embedding": "not applicable: continuous-valued grayscale pixels enter convolutional operators directly",
+        "position": "implicit local image neighborhoods; no explicit positional embedding",
+        "mixing": "dense Conv2d backbone plus fixed local 1x1-3x3-1x1 residual refinement",
+        "routing": "fixed original/horizontal-flip feature pairing and tensor concatenation",
+        "state": "no persistent recurrent feature state",
+        "feedforward": "no separate transformer feedforward block",
+        "parameter_construction": "free learned convolutional and affine parameters",
+        "sharing": "no explicit parameter tying beyond source-defined module reuse",
+        "normalization": "BatchNorm2d feature normalization",
+        "connectivity": "paired-view fusion followed by local convolutional residual refinement and affine classification",
+        "aggregation": "flattened fused spatial grid",
+        "output": "learned affine ten-class logits",
+        "symmetry": "fixed horizontal-flip paired feature construction; no equivariant parameter construction",
+        "conditional_compute": "fixed architecture; no input-dependent early exit or experts",
+        "activation": "GELU",
+        "stochasticity": "Dropout in the affine classifier during training",
+        "bottleneck": "no separate factorized bottleneck",
+        "iteration": "fixed feedforward stages",
+        "other": "complete exact retained parent and child train.py sources were directly read and diffed",
+        "spatial_units": "image grid",
+        "spatial_operator": "dense local Conv2d including a 1x1-3x3-1x1 refinement block",
+        "scale_representation": "two MaxPool2d reductions followed by a fixed-resolution convolutional grid",
+        "spatial_readout": "flattened spatial grid through an affine classifier",
+        "channel_interaction": "learned 1x1 paired-view fusion convolution",
+        "spatial_downsampling": "two MaxPool2d(2) operations"
+      },
+      "family_signature": {
+        "task": "fashion",
+        "input": "grayscale image grid",
+        "mixing": "local convolution",
+        "routing": "fixed paired-view local tensor flow",
+        "readout": "flattened spatial affine classifier"
+      },
+      "family_label": "paired-view local CNN",
+      "training": {
+        "optimizer": "AdamW (declared)",
+        "objective": "cross entropy with label smoothing (declared)",
+        "augmentation": "random horizontal flip (declared)"
+      },
+      "inference": {
+        "procedure": "fixed original/horizontal-flip paired feature fusion and positive scalar logit calibration"
+      },
+      "notes": "Complete exact queue-bound parent and child train.py sources were directly read and diffed. adds a fixed local convolutional residual refinement.",
+      "evidence": [
+        {
+          "kind": "complete exact-program queue-bound parent-child diff review",
+          "source_sha256": "ef1c61ff7781454794dbe3c4c92e0625d27d9803c51574c250a58a7cbd0d2617",
+          "parent_source_sha256": "9563e71cb448a17e4514306de879d86ca4de3b15bfbab9ce86170719b17140f1",
+          "candidate_id": "ed930a1c6fcbd081620421437a98279fb9984ad76e608b92a0ceb59451bddd89",
+          "retained_parent_candidate_id": "a1ad848d0ab26566aefefe07fc7ff9c514ae70c8ad6cca9c4aea2ad3e9d39056",
+          "directed_parent_source_sha256": "9563e71cb448a17e4514306de879d86ca4de3b15bfbab9ce86170719b17140f1",
+          "classification": "preserving",
+          "changed_components": [],
+          "reason": "adds a fixed local convolutional residual refinement",
+          "changed_lines": {
+            "added": 12,
+            "removed": 0
+          }
+        }
+      ]
+    },
+    {
+      "source_sha256": "0582e944d04f821c8b4df7b55de45e00340f1d14fa0cd41465124d3d7d8167af",
+      "reference_run": "fashion-mnist-openevolve-v2-1-mps-fashion_mnist_source_only_mps-openevolve-b04-c1",
+      "reference_proposal": 192,
+      "candidate_id": "a5167208f89f90d93d3014f2290c69a92c633022a669f450e3d9d2bffe2637ec",
+      "parent_candidate_id": "cebab4c4aaa6e08136f894b855cf72a9f2f385bc5250eef5856067c31df85ab8",
+      "parent_source_sha256": "a931485e758953f60c43be8f3e17c74ec23e126c8ac3ae79dda5fe1841d2da43",
+      "transition_classification": "preserving",
+      "changed_components": [],
+      "fingerprint": {
+        "input_units": "grayscale image pixels",
+        "input_transform": "identity image tensor input",
+        "embedding": "not applicable: continuous-valued grayscale pixels enter convolutional operators directly",
+        "position": "implicit local image neighborhoods; no explicit positional embedding",
+        "mixing": "dense Conv2d backbone plus fixed local 1x1-3x3-1x1 residual refinement",
+        "routing": "fixed original/horizontal-flip feature pairing and tensor concatenation",
+        "state": "no persistent recurrent feature state",
+        "feedforward": "no separate transformer feedforward block",
+        "parameter_construction": "free learned convolutional and affine parameters",
+        "sharing": "no explicit parameter tying beyond source-defined module reuse",
+        "normalization": "BatchNorm2d feature normalization",
+        "connectivity": "paired-view fusion followed by local convolutional residual refinement and affine classification",
+        "aggregation": "flattened fused spatial grid",
+        "output": "learned affine ten-class logits",
+        "symmetry": "fixed horizontal-flip paired feature construction; no equivariant parameter construction",
+        "conditional_compute": "fixed architecture; no input-dependent early exit or experts",
+        "activation": "GELU",
+        "stochasticity": "Dropout in the affine classifier during training",
+        "bottleneck": "no separate factorized bottleneck",
+        "iteration": "fixed feedforward stages",
+        "other": "complete exact retained parent and child train.py sources were directly read and diffed",
+        "spatial_units": "image grid",
+        "spatial_operator": "dense local Conv2d including a 1x1-3x3-1x1 refinement block",
+        "scale_representation": "two MaxPool2d reductions followed by a fixed-resolution convolutional grid",
+        "spatial_readout": "flattened spatial grid through an affine classifier",
+        "channel_interaction": "learned 1x1 paired-view fusion convolution",
+        "spatial_downsampling": "two MaxPool2d(2) operations"
+      },
+      "family_signature": {
+        "task": "fashion",
+        "input": "grayscale image grid",
+        "mixing": "local convolution",
+        "routing": "fixed paired-view local tensor flow",
+        "readout": "flattened spatial affine classifier"
+      },
+      "family_label": "paired-view local CNN",
+      "training": {
+        "optimizer": "AdamW (declared)",
+        "objective": "cross entropy with label smoothing (declared)",
+        "augmentation": "random horizontal flip (declared)"
+      },
+      "inference": {
+        "procedure": "fixed original/horizontal-flip paired feature fusion and positive scalar logit calibration"
+      },
+      "notes": "Complete exact queue-bound parent and child train.py sources were directly read and diffed. adds a fixed local convolutional residual refinement and classifier EMA setting.",
+      "evidence": [
+        {
+          "kind": "complete exact-program queue-bound parent-child diff review",
+          "source_sha256": "0582e944d04f821c8b4df7b55de45e00340f1d14fa0cd41465124d3d7d8167af",
+          "parent_source_sha256": "a931485e758953f60c43be8f3e17c74ec23e126c8ac3ae79dda5fe1841d2da43",
+          "candidate_id": "a5167208f89f90d93d3014f2290c69a92c633022a669f450e3d9d2bffe2637ec",
+          "retained_parent_candidate_id": "cebab4c4aaa6e08136f894b855cf72a9f2f385bc5250eef5856067c31df85ab8",
+          "directed_parent_source_sha256": "a931485e758953f60c43be8f3e17c74ec23e126c8ac3ae79dda5fe1841d2da43",
+          "classification": "preserving",
+          "changed_components": [],
+          "reason": "adds a fixed local convolutional residual refinement and classifier EMA setting",
+          "changed_lines": {
+            "added": 11,
+            "removed": 0
+          }
+        }
+      ]
+    },
+    {
+      "source_sha256": "d137f173ce6433d23ceb7f44d65a2d973d42a09da34c1d032d168ddddf7bbc37",
+      "reference_run": "fashion-mnist-openevolve-v2-1-mps-fashion_mnist_source_only_mps-openevolve-b04-c1",
+      "reference_proposal": 196,
+      "candidate_id": "364d9fca78dc1fe99d71da1517f7dea786523e74c28d19584bc581a7c061f0f9",
+      "parent_candidate_id": "cebab4c4aaa6e08136f894b855cf72a9f2f385bc5250eef5856067c31df85ab8",
+      "parent_source_sha256": "a931485e758953f60c43be8f3e17c74ec23e126c8ac3ae79dda5fe1841d2da43",
+      "transition_classification": "preserving",
+      "changed_components": [],
+      "fingerprint": {
+        "input_units": "grayscale image pixels",
+        "input_transform": "identity image tensor input",
+        "embedding": "not applicable: continuous-valued grayscale pixels enter convolutional operators directly",
+        "position": "implicit local image neighborhoods; no explicit positional embedding",
+        "mixing": "dense Conv2d backbone with learned 1x1 paired-view fusion",
+        "routing": "fixed original/horizontal-flip feature pairing and tensor concatenation",
+        "state": "training-only paired Dropout logits are stored for the current loss call; no persistent recurrent feature state",
+        "feedforward": "no separate transformer feedforward block",
+        "parameter_construction": "free learned convolutional and affine parameters",
+        "sharing": "no explicit parameter tying beyond source-defined module reuse",
+        "normalization": "BatchNorm2d feature normalization",
+        "connectivity": "fixed convolutional residual stages followed by paired-view fusion and affine classification",
+        "aggregation": "flattened fused spatial grid",
+        "output": "learned affine ten-class logits",
+        "symmetry": "fixed horizontal-flip paired feature construction; no equivariant parameter construction",
+        "conditional_compute": "fixed architecture; no input-dependent early exit or experts",
+        "activation": "GELU",
+        "stochasticity": "Dropout in the affine classifier during training",
+        "bottleneck": "no separate factorized bottleneck",
+        "iteration": "fixed feedforward stages",
+        "other": "complete exact retained parent and child train.py sources were directly read and diffed; the paired Dropout consistency calculation is training-only",
+        "spatial_units": "image grid",
+        "spatial_operator": "dense local Conv2d",
+        "scale_representation": "two MaxPool2d reductions followed by a fixed-resolution convolutional grid",
+        "spatial_readout": "flattened spatial grid through an affine classifier",
+        "channel_interaction": "learned 1x1 paired-view fusion convolution",
+        "spatial_downsampling": "two MaxPool2d(2) operations"
+      },
+      "family_signature": {
+        "task": "fashion",
+        "input": "grayscale image grid",
+        "mixing": "local convolution",
+        "routing": "fixed paired-view local tensor flow",
+        "readout": "flattened spatial affine classifier"
+      },
+      "family_label": "paired-view local CNN",
+      "training": {
+        "optimizer": "AdamW (declared)",
+        "objective": "cross entropy with label smoothing plus symmetric paired-Dropout KL consistency (declared)",
+        "augmentation": "random horizontal flip (declared)"
+      },
+      "inference": {
+        "procedure": "fixed original/horizontal-flip paired feature fusion and positive scalar logit calibration"
+      },
+      "notes": "Complete exact queue-bound parent and child train.py sources were directly read and diffed. adds a training-only paired Dropout consistency objective without recurrent feature state.",
+      "evidence": [
+        {
+          "kind": "complete exact-program queue-bound parent-child diff review",
+          "source_sha256": "d137f173ce6433d23ceb7f44d65a2d973d42a09da34c1d032d168ddddf7bbc37",
+          "parent_source_sha256": "a931485e758953f60c43be8f3e17c74ec23e126c8ac3ae79dda5fe1841d2da43",
+          "candidate_id": "364d9fca78dc1fe99d71da1517f7dea786523e74c28d19584bc581a7c061f0f9",
+          "retained_parent_candidate_id": "cebab4c4aaa6e08136f894b855cf72a9f2f385bc5250eef5856067c31df85ab8",
+          "directed_parent_source_sha256": "a931485e758953f60c43be8f3e17c74ec23e126c8ac3ae79dda5fe1841d2da43",
+          "classification": "preserving",
+          "changed_components": [],
+          "reason": "adds a training-only paired Dropout consistency objective without recurrent feature state",
+          "changed_lines": {
+            "added": 34,
+            "removed": 6
+          }
+        }
+      ]
+    }
+  ]
+}

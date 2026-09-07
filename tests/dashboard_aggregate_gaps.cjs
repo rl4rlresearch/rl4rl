@@ -14,13 +14,31 @@ vm.createContext(context);vm.runInContext(code,context);
 const run=points=>({points:points.map(([proposal,best_objective])=>({proposal,best_objective}))});
 const a=run([[164,10],[165,10],[166,10],[168,10],[169,10]]);
 const b=run([[164,30],[166,30],[168,30]]);
-for(const method of ['mean','median']){
- const d=context.aggregateDataset('C2',[a,b],'proposal','best_objective',{connect:true},{},method,new Map());
- assert.equal(d.spanGaps,false);
- assert.deepEqual(Array.from(d.data,p=>[p.point.proposal,p.y]),[[164,20],[165,null],[166,20],[167,null],[168,20],[169,null]]);
- b.points.splice(1,0,{proposal:165,best_objective:30});
- const restored=context.aggregateDataset('C2',[a,b],'proposal','best_objective',{connect:true},{},method,new Map());
- assert.equal(restored.data.find(p=>p.point.proposal===165).y,20);
- b.points.splice(1,1);
-}
-console.log('PASS: missing interior, all-run gap, incomplete tail, restoration, mean and median.');
+const loose=context.aggregateDataset(
+ 'C2',[a,b],'proposal','best_objective',
+ {connect:true,seriesMode:'conditionMean',requireCompleteConditionMeans:false},{},'mean',new Map()
+);
+assert.equal(loose.spanGaps,false);
+assert.deepEqual(
+ Array.from(loose.data,p=>[p.point.proposal,p.y]),
+ [[164,20],[165,10],[166,20],[167,null],[168,20],[169,10]]
+);
+
+const strict=context.aggregateDataset(
+ 'C2',[a,b],'proposal','best_objective',
+ {connect:true,seriesMode:'conditionMean',requireCompleteConditionMeans:true},{},'mean',new Map()
+);
+assert.equal(strict.spanGaps,true);
+assert.deepEqual(
+ Array.from(strict.data,p=>[p.point.proposal,p.y]),
+ [[164,20],[165,null],[166,20],[167,null],[168,20],[169,null]]
+);
+
+b.points.splice(1,0,{proposal:165,best_objective:30});
+const restored=context.aggregateDataset(
+ 'C2',[a,b],'proposal','best_objective',
+ {connect:true,seriesMode:'conditionMean',requireCompleteConditionMeans:true},{},'mean',new Map()
+);
+assert.equal(restored.data.find(p=>p.point.proposal===165).y,20);
+
+console.log('PASS: available-value condition means, optional strict completeness, and bridged strict gaps.');

@@ -100,6 +100,27 @@ def local_path(path: Path) -> Path:
     return path
 
 
+# Presentation-only exclusions: never alter the underlying campaign records.
+DASHBOARD_EXCLUDED_RUN_IDS = frozenset(
+    "controlled-openevolve-transformer-v2-1-source-only-ten-digit-addition-"
+    "pair-transformer-openevolve-v2-1-mps-openevolve-" + suffix
+    for suffix in ("b03-c3", "b04-c2", "b03-c0", "b05-c1")
+)
+
+
+def dashboard_run_visible(run_id: str) -> bool:
+    return run_id not in DASHBOARD_EXCLUDED_RUN_IDS
+
+
+def dashboard_proposal_cap(run_id: str) -> int | None:
+    return 120 if "ten-digit-addition" in run_id else None
+
+
+def dashboard_events(run_id: str, events: list[dict[str, Any]]) -> list[dict[str, Any]]:
+    cap = dashboard_proposal_cap(run_id)
+    return [event for event in events if cap is None or event.get("opportunity", 0) is None or event.get("opportunity", 0) <= cap]
+
+
 REPO_ROOT = local_path(Path(__file__).resolve().parents[1])
 DEFAULT_OPENEVOLVE = (
     REPO_ROOT / "data/c0c3/controlled-openevolve-transformer-v2-mps-campaign"
@@ -659,12 +680,12 @@ def local_codex_token_usage(
         defaults = campaign_default_token_settings(campaign)
         shadows = semantic_shadow_prefixes(campaign)
         for run_dir in sorted(runs_root.glob("*")):
-            if not run_dir.is_dir():
+            if not run_dir.is_dir() or not dashboard_run_visible(run_dir.name):
                 continue
             state = read_json(run_dir / "state.json", {})
             if isinstance(state, dict) and state.get("active") is not None:
                 active_calls += 1
-            events = iter_jsonl(run_dir / "events.jsonl")
+            events = dashboard_events(run_dir.name, iter_jsonl(run_dir / "events.jsonl"))
             provenance = {
                 event["opportunity"]: event
                 for event in events
@@ -1147,7 +1168,12 @@ def modal_usage_index(
     gpu_records = 0
     for record in records:
         run_id = record.get("run_id")
+        if not dashboard_run_visible(run_id):
+            continue
         opportunity = record.get("opportunity")
+        cap = dashboard_proposal_cap(run_id or "")
+        if cap is not None and isinstance(opportunity, int) and opportunity > cap:
+            continue
         seconds = numeric(record.get("worker_seconds"))
         if str(record.get("gpu_name", "")).startswith("CPU"):
             cpu_worker_seconds += seconds or 0.0
@@ -1236,7 +1262,12 @@ def manipulation_review_index(
     fully_reviewed = 0
     for row in iter_jsonl(mapping_path):
         run_id = row.get("run_id")
+        if not dashboard_run_visible(run_id):
+            continue
         opportunity = row.get("opportunity")
+        cap = dashboard_proposal_cap(run_id or "")
+        if cap is not None and isinstance(opportunity, int) and opportunity > cap:
+            continue
         packet_id = row.get("packet_id")
         if (
             not isinstance(run_id, str)
@@ -1325,6 +1356,8 @@ def runtime_activity_snapshot(campaigns: Iterable[Path]) -> dict[str, Any]:
         live_runs = set()
         for campaign in campaigns:
             for path in (Path(campaign) / "runs").glob("*/.trajectory-controller.lock"):
+                if not dashboard_run_visible(path.parent.name):
+                    continue
                 try:
                     with path.open("r+", encoding="utf-8") as handle:
                         try:
@@ -1383,6 +1416,8 @@ def runtime_activity_snapshot(campaigns: Iterable[Path]) -> dict[str, Any]:
     run_controllers: set[str] = set()
     for campaign in campaign_paths:
         for path in (campaign / "runs").glob("*/.trajectory-controller.lock"):
+            if not dashboard_run_visible(path.parent.name):
+                continue
             if _locked_json(path) is not None:
                 run_controllers.add(path.parent.name)
 
@@ -1690,7 +1725,18 @@ def build_run(
     condition = assignment.get("condition", state.get("condition"))
     if not isinstance(run_id, str) or not isinstance(condition, str):
         return None
-    events = iter_jsonl(run_dir / "events.jsonl")
+    events = dashboard_events(run_id, iter_jsonl(run_dir / "events.jsonl"))
+    cap = dashboard_proposal_cap(run_id)
+    if cap is not None:
+        state = dict(state)
+        completed = [event for event in events if event.get("event") == "proposal_completed"]
+        last = completed[-1] if completed else {}
+        state["proposals_used"] = min(int(state.get("proposals_used", 0)), cap)
+        state["usage"] = last.get("usage_cumulative", {})
+        if state["proposals_used"] >= cap:
+            state["active"] = None
+            state["status"] = "completed"
+        modal_usage_by_opportunity = {index: rows for index, rows in (modal_usage_by_opportunity or {}).items() if index <= cap}
     assessments = {
         int(event["opportunity"]): event
         for event in events
@@ -1828,16 +1874,17 @@ def build_run(
         improvement: float | None = None
         improvement_percent: float | None = None
         if seed_objective is not None and best_objective is not None:
-            improvement = (
-                best_objective - seed_objective
-                if objective_direction == "maximize"
-                else seed_objective - best_objective
-            )
+            improvement = best_objective - seed_objective
             if seed_objective != 0:
                 improvement_percent = improvement / abs(seed_objective) * 100
         points.append(
             {
                 "proposal": opportunity,
+                "candidate_id": event.get("candidate_id"),
+                "parent_ids": event.get("parent_ids", []),
+                "portfolio_after": event.get("portfolio_after"),
+                "incumbent_after": event.get("incumbent_after"),
+                "artifact_path": event.get("artifact_path"),
                 "active_hours": round(elapsed_seconds / 3600, 6),
                 "active_seconds": round(elapsed_seconds, 6),
                 "token_cost": round(weighted_cost(usage, prices), 6),
@@ -1941,6 +1988,10 @@ def build_run(
             0,
             {
                 "proposal": 0,
+                "candidate_id": candidate.get("candidate_id"),
+                "parent_ids": [],
+                "portfolio_after": [candidate.get("candidate_id")],
+                "incumbent_after": candidate.get("candidate_id"),
                 "active_hours": 0.0,
                 "active_seconds": 0.0,
                 "token_cost": 0.0,
@@ -2020,6 +2071,9 @@ def build_run(
         campaign_active_opportunities=campaign_active_opportunities,
         semantic=semantic_campaign,
     )
+    if cap is not None and proposal_slots_used >= cap:
+        status = scientific_status = "completed"
+        stage = {"kind": "completed", "label": "Completed", "detail": "Displayed through proposal 120.", "opportunity": None}
     charged_points = [
         point for point in points if point.get("physical_resource_charge", True)
     ]
@@ -2232,7 +2286,10 @@ def campaign_data(
         configured_limit = semantic_plan.get("max_parallel_agent_calls")
         if isinstance(configured_limit, int) and configured_limit > 0:
             campaign_subject_limit = configured_limit
-    run_paths = sorted(path for path in runs_root.glob("*") if path.is_dir())
+    run_paths = sorted(
+        path for path in runs_root.glob("*")
+        if path.is_dir() and dashboard_run_visible(path.name)
+    )
     campaign_active_opportunities = sum(
         isinstance(state, dict) and isinstance(state.get("active"), dict)
         for state in (read_json(path / "state.json", {}) for path in run_paths)
@@ -2302,10 +2359,10 @@ def campaign_data(
         "incremental_total_tokens": "Total tokens this proposal",
         "input_tokens": "Cumulative input tokens",
         "objective_improvement": (
-            f"Best {objective_metric} improvement from selected proposal start"
+            f"Best {objective_metric} change from selected proposal start"
         ),
         "objective_improvement_percent": (
-            f"Best {objective_metric} improvement from selected proposal start (%)"
+            f"Best {objective_metric} change from selected proposal start (%)"
         ),
         "modal_gpu_cost": "Cumulative Modal GPU cost estimate (USD)",
         "modal_worker_seconds": "Cumulative Modal GPU worker seconds",
@@ -2330,8 +2387,8 @@ def campaign_data(
         metric_labels.update(
             best_objective="Pareto archive hypervolume",
             raw_objective="Pareto archive hypervolume after proposal",
-            objective_improvement="Archive hypervolume gain from selected start",
-            objective_improvement_percent="Archive hypervolume gain from selected start (%)",
+            objective_improvement="Archive hypervolume change from selected start",
+            objective_improvement_percent="Archive hypervolume change from selected start (%)",
         )
     objective_labels = {
         "hypervolume": "Pareto archive hypervolume",
@@ -2670,10 +2727,11 @@ def run_transcript_payload(
 
     runs_root = (campaign / "runs").resolve()
     run_dir = (runs_root / run_id).resolve()
-    if run_dir.parent != runs_root or not run_dir.is_dir():
+    if (run_dir.parent != runs_root or not run_dir.is_dir()
+            or not dashboard_run_visible(run_id)):
         raise FileNotFoundError(run_id)
 
-    events = iter_jsonl(run_dir / "events.jsonl")
+    events = dashboard_events(run_id, iter_jsonl(run_dir / "events.jsonl"))
     started = {
         event["opportunity"]: event
         for event in events
@@ -2695,6 +2753,9 @@ def run_transcript_payload(
     opportunity_numbers.update(completed)
     proposals: list[dict[str, Any]] = []
     for opportunity in sorted(opportunity_numbers):
+        cap = dashboard_proposal_cap(run_id)
+        if cap is not None and opportunity > cap:
+            continue
         opportunity_dir = run_dir / "opportunities" / f"{opportunity:04d}"
         completed_result = completed.get(opportunity, {})
         completed_result = (
@@ -2813,10 +2874,13 @@ PAGE_PATH = PYTHON_SOURCE_PATH.with_name("live_trajectory_dashboard.html")
 SCIENCE_PAGE_PATH = PYTHON_SOURCE_PATH.with_name("scientific_process_dashboard.html")
 CONTROLLER_PAGE_PATH = PYTHON_SOURCE_PATH.with_name("controller_dashboard.html")
 TRANSCRIPT_PAGE_PATH = PYTHON_SOURCE_PATH.with_name("run_transcript_dashboard.html")
+ONTOLOGY_PAGE_PATH = PYTHON_SOURCE_PATH.with_name("ontology_dashboard.html")
+STAGNATION_PAGE_PATH = PYTHON_SOURCE_PATH.with_name("stagnation_dashboard.html")
 PAGE = PAGE_PATH.read_text(encoding="utf-8")
 SCIENCE_PAGE = SCIENCE_PAGE_PATH.read_text(encoding="utf-8")
 CONTROLLER_PAGE = CONTROLLER_PAGE_PATH.read_text(encoding="utf-8")
 TRANSCRIPT_PAGE = TRANSCRIPT_PAGE_PATH.read_text(encoding="utf-8")
+STAGNATION_PAGE = STAGNATION_PAGE_PATH.read_text(encoding="utf-8")
 
 
 def read_dashboard_page() -> str:
@@ -2856,6 +2920,15 @@ def read_transcript_page() -> str:
         return TRANSCRIPT_PAGE
 
 
+def read_stagnation_page() -> str:
+    """Read the per-run progress page without requiring a server restart."""
+
+    try:
+        return STAGNATION_PAGE_PATH.read_text(encoding="utf-8")
+    except OSError:
+        return STAGNATION_PAGE
+
+
 def dashboard_revision(paths: tuple[Path, ...] | None = None) -> str:
     """Return a content revision for browser and server hot reload checks."""
     digest = hashlib.sha256()
@@ -2865,6 +2938,9 @@ def dashboard_revision(paths: tuple[Path, ...] | None = None) -> str:
         SCIENCE_PAGE_PATH,
         CONTROLLER_PAGE_PATH,
         TRANSCRIPT_PAGE_PATH,
+        ONTOLOGY_PAGE_PATH,
+        STAGNATION_PAGE_PATH,
+        PYTHON_SOURCE_PATH.with_name("ontology_dashboard.js"),
     ):
         digest.update(str(path).encode("utf-8"))
         try:
@@ -3979,7 +4055,7 @@ def campaign_capacity_payload(
             for state in (
                 read_json(run_dir / "state.json", {})
                 for run_dir in (root / "runs").glob("*")
-                if run_dir.is_dir()
+                if run_dir.is_dir() and dashboard_run_visible(run_dir.name)
             )
         )
         rows.append(
@@ -4026,6 +4102,62 @@ def campaign_capacity_payload(
         "control_poll_seconds": 0.5,
         "campaigns": rows,
     }
+
+
+def ontology_source_payload(campaign: Path, run_id: str, opportunity: int) -> dict[str, Any]:
+    """Read only source files referenced by a recorded proposal, never a caller path."""
+    import difflib
+
+    runs = local_path(campaign / "runs").resolve()
+    run = (runs / run_id).resolve()
+    if run.parent != runs or not run.is_dir() or not dashboard_run_visible(run_id):
+        raise ValueError("Unknown run")
+    cap = dashboard_proposal_cap(run_id)
+    if cap is not None and opportunity > cap:
+        raise ValueError("Unknown proposal")
+    event = next((row for row in iter_jsonl(run / "events.jsonl")
+                  if row.get("event") == "proposal_completed"
+                  and row.get("opportunity") == opportunity), None)
+    if event is None:
+        raise ValueError("Unknown proposal")
+
+    def sources(relative: str) -> dict[str, str]:
+        root = (run / relative.replace("\\", "/")).resolve()
+        candidates = (run / "candidates").resolve()
+        if (not candidates.is_relative_to(run) or root == candidates
+                or not root.is_relative_to(candidates) or not root.is_dir()):
+            return {}
+        result = {}
+        for source in sorted(root.rglob("*.py"))[:30]:
+            if source.resolve().is_relative_to(root) and source.stat().st_size <= 500_000:
+                result[str(source.relative_to(root))] = source.read_text(encoding="utf-8", errors="replace")
+        return result
+
+    child = sources(str(event.get("artifact_path", "")))
+    parents = []
+    for parent_id in event.get("parent_ids", []):
+        parent = sources("candidates/" + str(parent_id))
+        diff = "\n".join("\n".join(difflib.unified_diff(
+            parent.get(name, "").splitlines(), child.get(name, "").splitlines(),
+            fromfile="parent/" + name, tofile="candidate/" + name, lineterm=""
+        )) for name in sorted(parent.keys() | child.keys()))
+        parents.append({"candidate_id": parent_id, "source": parent, "diff": diff,
+                        "source_available": bool(parent)})
+    return {"candidate_id": event.get("candidate_id"), "source": child,
+            "source_available": bool(child), "parents": parents,
+            "note": "Python sources only; at most 30 files, each at most 500 KB. Missing source is not evidence of no change."}
+
+
+def ontology_review_response(path: Path, known_revision: str = "") -> dict[str, Any]:
+    """Cheap review refresh; atomic replacement invalidates the file revision."""
+    try:
+        stat = path.stat()
+    except FileNotFoundError:
+        return {"review": None, "revision": ""}
+    revision = f"{stat.st_mtime_ns}:{stat.st_size}"
+    if known_revision == revision:
+        return {"unchanged": True, "revision": revision}
+    return {"review": read_json(path, None), "revision": revision}
 
 
 def browser_json(value: Any, **kwargs: Any) -> str:
@@ -4193,6 +4325,41 @@ def make_handler(
                     read_science_page().encode("utf-8"),
                     "text/html; charset=utf-8",
                 )
+            elif request_path in {"/ontology", "/ontology.html"}:
+                self.send_payload(
+                    ONTOLOGY_PAGE_PATH.read_bytes(), "text/html; charset=utf-8"
+                )
+            elif request_path in {"/stagnation", "/stagnation.html"}:
+                self.send_payload(
+                    read_stagnation_page().encode("utf-8"),
+                    "text/html; charset=utf-8",
+                )
+            elif request_path == "/ontology.js":
+                self.send_payload(PYTHON_SOURCE_PATH.with_name("ontology_dashboard.js").read_bytes(),
+                                  "application/javascript; charset=utf-8")
+            elif request_path == "/api/ontology/source":
+                params = parse_qs(request.query)
+                try:
+                    campaign_id = params.get("campaign", [""])[0]
+                    run_id = params.get("run", [""])[0]
+                    opportunity = int(params.get("proposal", [""])[0])
+                    payload = ontology_source_payload(
+                        configured_campaigns[campaign_id], run_id, opportunity
+                    )
+                    self.send_payload(browser_json(payload).encode(), "application/json; charset=utf-8")
+                except (KeyError, ValueError, OSError):
+                    self.send_payload(b'{"error":"Source unavailable for this recorded proposal"}',
+                                      "application/json; charset=utf-8", status=HTTPStatus.NOT_FOUND)
+            elif request_path == "/api/ontology/reviews":
+                campaign_id = parse_qs(request.query).get("campaign", [""])[0]
+                if campaign_id not in configured_campaigns:
+                    self.send_payload(b'{"error":"Unknown campaign"}',
+                                      "application/json; charset=utf-8", status=HTTPStatus.NOT_FOUND)
+                    return
+                known_revision = parse_qs(request.query).get("revision", [""])[0]
+                review = ontology_review_response(REPO_ROOT / "outputs" / "ontology" / f"{campaign_id}.json", known_revision)
+                self.send_payload(browser_json(review).encode(),
+                                  "application/json; charset=utf-8")
             elif request_path in {"/controller", "/controller.html"}:
                 if WINDOWS_VIEW_ONLY:
                     self.send_payload(
@@ -4203,6 +4370,8 @@ def make_handler(
                          "Live campaign controls and Mac host telemetry require "
                          "the original POSIX runtime.</p>"
                          "<a href='/'>Trajectory explorer</a> · "
+                         "<a href='/ontology'>Ontology explorer</a> · "
+                         "<a href='/stagnation'>Stagnation &amp; breakthroughs</a> · "
                          "<a href='/science'>Scientific process</a> · "
                          "<a href='/transcripts'>Run transcripts</a>"
                          "</body></html>").encode(),

@@ -1,0 +1,921 @@
+{
+  "version": "fashion-candidate-source-review-v1-first-10",
+  "reviewed_profiles": [
+    {
+      "source_sha256": "b0ec22a7b1b5115767685f586ae3456bfdd525c1a284892fd5628ea085e6c28a",
+      "program_sha256": "512bbdf0af335c1b67d0a023eb44079d112248f93844101687f208ae4f44f7d2",
+      "program_parts": {
+        "ImageClassifier": "class ImageClassifier(nn.Module):\n\n    def __init__(self) -> None:\n        super().__init__()\n        self.stem = nn.Sequential(nn.Conv2d(1, 16, kernel_size=3, padding=1, bias=False), nn.BatchNorm2d(16), nn.GELU(), nn.MaxPool2d(2), nn.Conv2d(16, 32, kernel_size=3, padding=1, bias=False), nn.BatchNorm2d(32), nn.GELU(), nn.MaxPool2d(2))\n        self.residual = nn.Sequential(nn.Conv2d(32, 48, kernel_size=3, padding=1, bias=False), nn.BatchNorm2d(48), nn.GELU(), nn.Conv2d(48, 48, kernel_size=3, padding=1, bias=False), nn.BatchNorm2d(48))\n        self.shortcut = nn.Sequential(nn.Conv2d(32, 48, kernel_size=1, bias=False), nn.BatchNorm2d(48))\n        self.classifier = nn.Sequential(nn.Linear(48 * 2 * (1 + 4 + 16), 100), nn.GELU(), nn.LayerNorm(100), nn.Linear(100, 10))\n\n    def _forward_once(self, images: torch.Tensor) -> torch.Tensor:\n        features = self.stem(images)\n        features = F.gelu(self.residual(features) + self.shortcut(features))\n        pyramid = torch.cat([pooled.flatten(1) for level in (1, 2, 4) for pooled in (F.adaptive_avg_pool2d(features, level), F.adaptive_max_pool2d(features, level))], dim=1)\n        return self.classifier(pyramid)\n\n    def forward(self, images: torch.Tensor) -> torch.Tensor:\n        if self.training:\n            return self._forward_once(images)\n        padded = F.pad(images, (2, 2, 2, 2), mode='reflect')\n        logits_sum = None\n        central_logits_sum = None\n        for offset_y in range(5):\n            for offset_x in range(5):\n                view = padded[:, :, offset_y:offset_y + 28, offset_x:offset_x + 28]\n                views = torch.cat((view, view.flip(-1)), dim=0)\n                logits = self._forward_once(views)\n                original_logits, flipped_logits = logits.chunk(2, dim=0)\n                view_logits = original_logits + flipped_logits\n                if logits_sum is None:\n                    logits_sum = view_logits\n                else:\n                    logits_sum = logits_sum + view_logits\n                if 1 <= offset_y <= 3 and 1 <= offset_x <= 3:\n                    if central_logits_sum is None:\n                        central_logits_sum = view_logits\n                    else:\n                        central_logits_sum = central_logits_sum + view_logits\n        full_ensemble = logits_sum / 50.0\n        central_ensemble = central_logits_sum / 18.0\n        return 1.29834 * (0.9 * full_ensemble + 0.1 * central_ensemble)"
+      },
+      "reference_run": "fashion-mnist-openevolve-v2-1-mps-fashion_mnist_source_only_mps-openevolve-b01-c1",
+      "reference_proposal": 40,
+      "candidate_id": "a039e79897aae274c07c0df1abdb8af18e557dd8b3e2d1e098d969c75fbb7ab6",
+      "parent_candidate_id": "ec71b27e1efc2db2830416f8d1f193e18261a08b77519a8423550d8212d8d6ae",
+      "parent_source_sha256": "dd7fa12b924c3424e63fc5bb74f5c707505ef24821128bc4127ac685ebe2230a",
+      "transition_classification": "changing",
+      "changed_components": [
+        "aggregation",
+        "spatial_readout",
+        "scale_representation"
+      ],
+      "fingerprint": {
+        "input_units": "grayscale image pixels",
+        "input_transform": "identity image tensor input",
+        "embedding": "not applicable: continuous-valued grayscale pixels enter convolution/affine operators directly",
+        "position": "implicit spatial neighborhoods; no explicit positional embedding",
+        "mixing": "dense Conv2d",
+        "routing": "fixed local convolutions and fixed 1x1/2x2/4x4 average-plus-maximum pyramid",
+        "state": "no explicit persistent recurrent feature state",
+        "feedforward": "no separate transformer feedforward block",
+        "parameter_construction": "learned affine maps",
+        "sharing": "no additional explicit parameter tying beyond source-defined module reuse",
+        "normalization": "LayerNorm + BatchNorm2d",
+        "connectivity": "fixed source-defined feedforward connectivity",
+        "aggregation": "concatenated multi-scale average and maximum pooled grids",
+        "output": "learned linear readout",
+        "symmetry": "no explicit canonicalization or group-equivariant construction",
+        "conditional_compute": "fixed architecture; no input-dependent early exit or experts",
+        "activation": "GELU",
+        "stochasticity": "none",
+        "bottleneck": "no separate factorized bottleneck",
+        "iteration": "fixed feedforward stages",
+        "other": "complete train.py source and direct parent-child diff were read; exact model program is retained in program_parts",
+        "spatial_units": "image grid",
+        "spatial_operator": "dense Conv2d",
+        "scale_representation": "two MaxPool2d reductions then fixed 1x1/2x2/4x4 pyramid",
+        "spatial_readout": "1x1, 2x2 and 4x4 average/max pyramid through affine head",
+        "channel_interaction": "dense convolution",
+        "spatial_downsampling": "max pooling"
+      },
+      "family_signature": {
+        "mixing": "Conv2d",
+        "aggregation": "adaptive average pooling",
+        "spatial_operator": "dense Conv2d"
+      },
+      "family_label": "Conv2d \u00b7 44669dff",
+      "training": {
+        "optimizer": "AdamW (declared)",
+        "objective": "cross entropy declared",
+        "augmentation": "geometric transformations declared"
+      },
+      "inference": {
+        "procedure": "25 reflected translated positions, each paired with a horizontal flip; fixed full/central ensemble"
+      },
+      "settings": {
+        "BATCH_SIZE": 128
+      },
+      "notes": "Complete candidate and direct parent sources were read and diffed for this finite source-bound catalog entry. adds a dual average/maximum spatial pyramid readout.",
+      "evidence": [
+        {
+          "kind": "complete exact-program parent-child diff review",
+          "source_sha256": "b0ec22a7b1b5115767685f586ae3456bfdd525c1a284892fd5628ea085e6c28a",
+          "parent_source_sha256": "dd7fa12b924c3424e63fc5bb74f5c707505ef24821128bc4127ac685ebe2230a",
+          "program_sha256": "512bbdf0af335c1b67d0a023eb44079d112248f93844101687f208ae4f44f7d2",
+          "candidate_id": "a039e79897aae274c07c0df1abdb8af18e557dd8b3e2d1e098d969c75fbb7ab6",
+          "parent_candidate_id": "ec71b27e1efc2db2830416f8d1f193e18261a08b77519a8423550d8212d8d6ae",
+          "changed_lines": {
+            "added": 16,
+            "removed": 6
+          },
+          "classification": "changing",
+          "changed_components": [
+            "aggregation",
+            "spatial_readout",
+            "scale_representation"
+          ],
+          "reason": "adds a dual average/maximum spatial pyramid readout",
+          "source_path": "data\\c0c3\\fashion-mnist-openevolve-v2-1-mps-campaign\\runs\\fashion-mnist-openevolve-v2-1-mps-fashion_mnist_source_only_mps-openevolve-b01-c1\\candidates\\a039e79897aae274c07c0df1abdb8af18e557dd8b3e2d1e098d969c75fbb7ab6\\train.py",
+          "parent_source_path": "data\\c0c3\\fashion-mnist-openevolve-v2-1-mps-campaign\\runs\\fashion-mnist-openevolve-v2-1-mps-fashion_mnist_source_only_mps-openevolve-b01-c1\\candidates\\ec71b27e1efc2db2830416f8d1f193e18261a08b77519a8423550d8212d8d6ae\\train.py"
+        }
+      ]
+    },
+    {
+      "source_sha256": "4066a5d5e19d390a62b330476b5470487061987dd570138a41160cc882ae685b",
+      "program_sha256": "1e1235639a78eb3469bbe35b7f477c666ef93a6f6dc43ef1133843d7a94da723",
+      "program_parts": {
+        "ImageClassifier": "class ImageClassifier(nn.Module):\n\n    def __init__(self) -> None:\n        super().__init__()\n        self.stem = nn.Sequential(nn.Conv2d(1, 20, kernel_size=3, padding=1, bias=False), nn.BatchNorm2d(20), nn.GELU(), nn.PixelUnshuffle(2), nn.Conv2d(80, 20, kernel_size=1, bias=False), nn.BatchNorm2d(20), nn.GELU(), nn.Conv2d(20, 40, kernel_size=3, padding=1, bias=False), nn.BatchNorm2d(40), nn.GELU(), nn.PixelUnshuffle(2), nn.Conv2d(160, 32, kernel_size=1, bias=False), nn.BatchNorm2d(32), nn.GELU())\n        self.residual = nn.Sequential(nn.Conv2d(32, 48, kernel_size=3, padding=1, bias=False), nn.BatchNorm2d(48), nn.GELU(), nn.Conv2d(48, 48, kernel_size=3, padding=1, bias=False), nn.BatchNorm2d(48))\n        self.shortcut = nn.Sequential(nn.Conv2d(32, 48, kernel_size=1, bias=False), nn.BatchNorm2d(48))\n        self.classifier = nn.Sequential(nn.Flatten(), nn.Linear(48 * 7 * 7, 80), nn.GELU(), nn.LayerNorm(80), nn.Linear(80, 10))\n\n    def _forward_once(self, images: torch.Tensor) -> torch.Tensor:\n        features = self.stem(images)\n        features = F.gelu(self.residual(features) + self.shortcut(features))\n        return self.classifier(features)\n\n    def forward(self, images: torch.Tensor) -> torch.Tensor:\n        if self.training:\n            return self._forward_once(images)\n        padded = F.pad(images, (2, 2, 2, 2), mode='reflect')\n        logits_sum = None\n        central_logits_sum = None\n        for offset_y in range(5):\n            for offset_x in range(5):\n                view = padded[:, :, offset_y:offset_y + 28, offset_x:offset_x + 28]\n                views = torch.cat((view, view.flip(-1)), dim=0)\n                logits = self._forward_once(views)\n                original_logits, flipped_logits = logits.chunk(2, dim=0)\n                view_logits = original_logits + flipped_logits\n                if logits_sum is None:\n                    logits_sum = view_logits\n                else:\n                    logits_sum = logits_sum + view_logits\n                if 1 <= offset_y <= 3 and 1 <= offset_x <= 3:\n                    if central_logits_sum is None:\n                        central_logits_sum = view_logits\n                    else:\n                        central_logits_sum = central_logits_sum + view_logits\n        full_ensemble = logits_sum / 50.0\n        central_ensemble = central_logits_sum / 18.0\n        return 1.29834 * (0.9 * full_ensemble + 0.1 * central_ensemble)"
+      },
+      "reference_run": "fashion-mnist-openevolve-v2-1-mps-fashion_mnist_source_only_mps-openevolve-b01-c1",
+      "reference_proposal": 70,
+      "candidate_id": "6cf043a95e1f6b301d7b2a3bf0ecc653f3fe0ffb0a96be915f65ded75c13b5e5",
+      "parent_candidate_id": "291d75e5fb325014b9772e32d82e061a0ebd378bf3c6eb1882b194b3e5746e66",
+      "parent_source_sha256": "42ba08bd401e17e357f0e8736bc897b407bb0c41bf18987632fbec1f26c0533f",
+      "transition_classification": "changing",
+      "changed_components": [
+        "mixing",
+        "routing",
+        "connectivity",
+        "scale_representation",
+        "spatial_downsampling"
+      ],
+      "fingerprint": {
+        "input_units": "grayscale image pixels",
+        "input_transform": "identity image tensor input",
+        "embedding": "not applicable: continuous-valued grayscale pixels enter convolution/affine operators directly",
+        "position": "implicit spatial neighborhoods; no explicit positional embedding",
+        "mixing": "dense Conv2d plus PixelUnshuffle space-to-depth rearrangement and 1x1 learned channel mixing",
+        "routing": "fixed 2x2 PixelUnshuffle geometry followed by learned 1x1 channel mixing",
+        "state": "no explicit persistent recurrent feature state",
+        "feedforward": "no separate transformer feedforward block",
+        "parameter_construction": "learned affine maps",
+        "sharing": "no additional explicit parameter tying beyond source-defined module reuse",
+        "normalization": "LayerNorm + BatchNorm2d",
+        "connectivity": "two lossless PixelUnshuffle reductions and fixed convolution/residual stages",
+        "aggregation": "flattened spatial features",
+        "output": "learned linear readout",
+        "symmetry": "no explicit canonicalization or group-equivariant construction",
+        "conditional_compute": "fixed architecture; no input-dependent early exit or experts",
+        "activation": "GELU",
+        "stochasticity": "none",
+        "bottleneck": "no separate factorized bottleneck",
+        "iteration": "fixed feedforward stages",
+        "other": "complete train.py source and direct parent-child diff were read; exact model program is retained in program_parts",
+        "spatial_units": "image grid",
+        "spatial_operator": "dense Conv2d",
+        "scale_representation": "two 2x2 space-to-depth PixelUnshuffle stages, not pooling",
+        "spatial_readout": "flattened spatial features",
+        "channel_interaction": "dense 1x1 and 3x3 convolution",
+        "spatial_downsampling": "PixelUnshuffle(2) twice"
+      },
+      "family_signature": {
+        "mixing": "Conv2d",
+        "aggregation": "flattened spatial features",
+        "spatial_operator": "dense Conv2d"
+      },
+      "family_label": "Conv2d \u00b7 b2759fbe",
+      "training": {
+        "optimizer": "AdamW (declared)",
+        "objective": "cross entropy declared",
+        "augmentation": "geometric transformations declared"
+      },
+      "inference": {
+        "procedure": "25 reflected translated positions with paired horizontal flips and fixed full/central ensemble"
+      },
+      "settings": {
+        "BATCH_SIZE": 128
+      },
+      "notes": "Complete candidate and direct parent sources were read and diffed for this finite source-bound catalog entry. replaces pooling with phase-preserving PixelUnshuffle and learned 1x1 mixing.",
+      "evidence": [
+        {
+          "kind": "complete exact-program parent-child diff review",
+          "source_sha256": "4066a5d5e19d390a62b330476b5470487061987dd570138a41160cc882ae685b",
+          "parent_source_sha256": "42ba08bd401e17e357f0e8736bc897b407bb0c41bf18987632fbec1f26c0533f",
+          "program_sha256": "1e1235639a78eb3469bbe35b7f477c666ef93a6f6dc43ef1133843d7a94da723",
+          "candidate_id": "6cf043a95e1f6b301d7b2a3bf0ecc653f3fe0ffb0a96be915f65ded75c13b5e5",
+          "parent_candidate_id": "291d75e5fb325014b9772e32d82e061a0ebd378bf3c6eb1882b194b3e5746e66",
+          "changed_lines": {
+            "added": 12,
+            "removed": 6
+          },
+          "classification": "changing",
+          "changed_components": [
+            "mixing",
+            "routing",
+            "connectivity",
+            "scale_representation",
+            "spatial_downsampling"
+          ],
+          "reason": "replaces pooling with phase-preserving PixelUnshuffle and learned 1x1 mixing",
+          "source_path": "data\\c0c3\\fashion-mnist-openevolve-v2-1-mps-campaign\\runs\\fashion-mnist-openevolve-v2-1-mps-fashion_mnist_source_only_mps-openevolve-b01-c1\\candidates\\6cf043a95e1f6b301d7b2a3bf0ecc653f3fe0ffb0a96be915f65ded75c13b5e5\\train.py",
+          "parent_source_path": "data\\c0c3\\fashion-mnist-openevolve-v2-1-mps-campaign\\runs\\fashion-mnist-openevolve-v2-1-mps-fashion_mnist_source_only_mps-openevolve-b01-c1\\candidates\\291d75e5fb325014b9772e32d82e061a0ebd378bf3c6eb1882b194b3e5746e66\\train.py"
+        }
+      ]
+    },
+    {
+      "source_sha256": "d77c284492843baaa267153b909d3a6e5e6e90e0ccd1d6ee93953e48aca4f45c",
+      "program_sha256": "6f4c20f09280704df9b1a3883b7ec3193e2ab8e35c7809b85b407ef4fc5bb580",
+      "program_parts": {
+        "ImageClassifier": "class ImageClassifier(nn.Module):\n\n    def __init__(self) -> None:\n        super().__init__()\n        self.stem = nn.Sequential(nn.Conv2d(1, 16, kernel_size=3, padding=1, bias=False), nn.BatchNorm2d(16), nn.GELU(), nn.MaxPool2d(2), nn.Conv2d(16, 32, kernel_size=3, padding=1, bias=False), nn.BatchNorm2d(32), nn.GELU(), nn.MaxPool2d(2))\n        self.residual = nn.Sequential(nn.Conv2d(32, 48, kernel_size=3, padding=1, bias=False), nn.BatchNorm2d(48), nn.GELU(), nn.Conv2d(48, 48, kernel_size=3, padding=1, bias=False), nn.BatchNorm2d(48))\n        self.shortcut = nn.Sequential(nn.Conv2d(32, 48, kernel_size=1, bias=False), nn.BatchNorm2d(48))\n        self.classifier = nn.Sequential(nn.Flatten(), nn.Linear(48 * 7 * 7, 80), nn.GELU(), nn.LayerNorm(80), nn.Linear(80, 10))\n\n    def _forward_once(self, images: torch.Tensor) -> torch.Tensor:\n        features = self.stem(images)\n        features = F.gelu(self.residual(features) + self.shortcut(features))\n        spatial_features = features.flatten(2)\n        feature_mean = spatial_features.mean(dim=2)\n        centered_features = spatial_features - feature_mean.unsqueeze(2)\n        covariance = torch.bmm(centered_features, centered_features.transpose(1, 2)) / spatial_features.shape[2]\n        statistics = torch.cat((feature_mean, covariance.flatten(1)), dim=1)\n        statistics = torch.sign(statistics) * torch.sqrt(torch.abs(statistics) + 1e-05)\n        return self.classifier(statistics)\n\n    def forward(self, images: torch.Tensor) -> torch.Tensor:\n        if self.training:\n            return self._forward_once(images)\n        padded = F.pad(images, (2, 2, 2, 2), mode='reflect')\n        logits_sum = None\n        central_logits_sum = None\n        for offset_y in range(5):\n            for offset_x in range(5):\n                view = padded[:, :, offset_y:offset_y + 28, offset_x:offset_x + 28]\n                views = torch.cat((view, view.flip(-1)), dim=0)\n                logits = self._forward_once(views)\n                original_logits, flipped_logits = logits.chunk(2, dim=0)\n                view_logits = original_logits + flipped_logits\n                if logits_sum is None:\n                    logits_sum = view_logits\n                else:\n                    logits_sum = logits_sum + view_logits\n                if 1 <= offset_y <= 3 and 1 <= offset_x <= 3:\n                    if central_logits_sum is None:\n                        central_logits_sum = view_logits\n                    else:\n                        central_logits_sum = central_logits_sum + view_logits\n        full_ensemble = logits_sum / 50.0\n        central_ensemble = central_logits_sum / 18.0\n        return 1.29834 * (0.9 * full_ensemble + 0.1 * central_ensemble)"
+      },
+      "reference_run": "fashion-mnist-openevolve-v2-1-mps-fashion_mnist_source_only_mps-openevolve-b01-c1",
+      "reference_proposal": 80,
+      "candidate_id": "d31132a40d43dd148ef95edcd1d084deb04aa71f6c8ba1cfa2d385c4eea7366d",
+      "parent_candidate_id": "291d75e5fb325014b9772e32d82e061a0ebd378bf3c6eb1882b194b3e5746e66",
+      "parent_source_sha256": "42ba08bd401e17e357f0e8736bc897b407bb0c41bf18987632fbec1f26c0533f",
+      "transition_classification": "changing",
+      "changed_components": [
+        "mixing",
+        "routing",
+        "aggregation",
+        "spatial_readout",
+        "channel_interaction"
+      ],
+      "fingerprint": {
+        "input_units": "grayscale image pixels",
+        "input_transform": "identity image tensor input",
+        "embedding": "not applicable: continuous-valued grayscale pixels enter convolution/affine operators directly",
+        "position": "implicit spatial neighborhoods; no explicit positional embedding",
+        "mixing": "dense Conv2d plus batch matrix multiplication for channel covariance",
+        "routing": "global spatial centering and channel-by-channel covariance interaction",
+        "state": "no explicit persistent recurrent feature state",
+        "feedforward": "no separate transformer feedforward block",
+        "parameter_construction": "learned affine maps",
+        "sharing": "no additional explicit parameter tying beyond source-defined module reuse",
+        "normalization": "LayerNorm + BatchNorm2d",
+        "connectivity": "fixed source-defined feedforward connectivity",
+        "aggregation": "spatial mean concatenated with flattened covariance matrix",
+        "output": "learned linear readout",
+        "symmetry": "no explicit canonicalization or group-equivariant construction",
+        "conditional_compute": "fixed architecture; no input-dependent early exit or experts",
+        "activation": "GELU",
+        "stochasticity": "none",
+        "bottleneck": "no separate factorized bottleneck",
+        "iteration": "fixed feedforward stages",
+        "other": "signed square-root normalization of mean/covariance statistics",
+        "spatial_units": "image grid",
+        "spatial_operator": "dense Conv2d",
+        "scale_representation": "source-defined fixed-resolution/downsampling feature maps",
+        "spatial_readout": "global channel mean and full 48x48 covariance through affine head",
+        "channel_interaction": "covariance bmm between centered channel maps",
+        "spatial_downsampling": "max pooling"
+      },
+      "family_signature": {
+        "mixing": "Conv2d",
+        "aggregation": "flattened spatial features",
+        "spatial_operator": "dense Conv2d"
+      },
+      "family_label": "Conv2d \u00b7 b2759fbe",
+      "training": {
+        "optimizer": "AdamW (declared)",
+        "objective": "cross entropy declared",
+        "augmentation": "geometric transformations declared"
+      },
+      "inference": {
+        "procedure": "25 reflected translated positions with paired horizontal flips and fixed full/central ensemble"
+      },
+      "settings": {
+        "BATCH_SIZE": 128
+      },
+      "notes": "Complete candidate and direct parent sources were read and diffed for this finite source-bound catalog entry. adds a covariance representation and matrix-statistic head.",
+      "evidence": [
+        {
+          "kind": "complete exact-program parent-child diff review",
+          "source_sha256": "d77c284492843baaa267153b909d3a6e5e6e90e0ccd1d6ee93953e48aca4f45c",
+          "parent_source_sha256": "42ba08bd401e17e357f0e8736bc897b407bb0c41bf18987632fbec1f26c0533f",
+          "program_sha256": "6f4c20f09280704df9b1a3883b7ec3193e2ab8e35c7809b85b407ef4fc5bb580",
+          "candidate_id": "d31132a40d43dd148ef95edcd1d084deb04aa71f6c8ba1cfa2d385c4eea7366d",
+          "parent_candidate_id": "291d75e5fb325014b9772e32d82e061a0ebd378bf3c6eb1882b194b3e5746e66",
+          "changed_lines": {
+            "added": 15,
+            "removed": 1
+          },
+          "classification": "changing",
+          "changed_components": [
+            "mixing",
+            "routing",
+            "aggregation",
+            "spatial_readout",
+            "channel_interaction"
+          ],
+          "reason": "adds a covariance representation and matrix-statistic head",
+          "source_path": "data\\c0c3\\fashion-mnist-openevolve-v2-1-mps-campaign\\runs\\fashion-mnist-openevolve-v2-1-mps-fashion_mnist_source_only_mps-openevolve-b01-c1\\candidates\\d31132a40d43dd148ef95edcd1d084deb04aa71f6c8ba1cfa2d385c4eea7366d\\train.py",
+          "parent_source_path": "data\\c0c3\\fashion-mnist-openevolve-v2-1-mps-campaign\\runs\\fashion-mnist-openevolve-v2-1-mps-fashion_mnist_source_only_mps-openevolve-b01-c1\\candidates\\291d75e5fb325014b9772e32d82e061a0ebd378bf3c6eb1882b194b3e5746e66\\train.py"
+        }
+      ]
+    },
+    {
+      "source_sha256": "2789fc9c55f7c6a12dc3a88240ae62511f73e0273d7e19cfb0cbcd8d38984f9f",
+      "program_sha256": "2f3a21c545de049d3278038d60b71e96c434123fbef9dc544aed33229b42ef9b",
+      "program_parts": {
+        "ImageClassifier": "class ImageClassifier(nn.Module):\n\n    def __init__(self) -> None:\n        super().__init__()\n        self.stem = nn.Sequential(nn.Conv2d(1, 16, kernel_size=3, padding=1, bias=False), nn.BatchNorm2d(16), nn.GELU(), nn.MaxPool2d(2), nn.Conv2d(16, 40, kernel_size=3, padding=1, bias=False), nn.BatchNorm2d(40), nn.GELU(), nn.MaxPool2d(2))\n        self.residual = nn.Sequential(nn.Conv2d(40, 56, kernel_size=3, padding=1, bias=False), nn.BatchNorm2d(56), nn.GELU(), nn.Conv2d(56, 56, kernel_size=3, padding=1, bias=False), nn.BatchNorm2d(56))\n        self.shortcut = nn.Sequential(nn.Conv2d(40, 56, kernel_size=1, bias=False), nn.BatchNorm2d(56))\n        self.context_norm = nn.LayerNorm(56)\n        self.context_attention = nn.MultiheadAttention(embed_dim=56, num_heads=4, batch_first=True)\n        self.classifier = nn.Sequential(nn.Flatten(), nn.Linear(56 * 7 * 7, 64), nn.GELU(), nn.LayerNorm(64), nn.Linear(64, 10))\n\n    def _forward_once(self, images: torch.Tensor) -> torch.Tensor:\n        features = self.stem(images)\n        features = F.gelu(self.residual(features) + self.shortcut(features))\n        tokens = features.flatten(2).transpose(1, 2)\n        normalized_tokens = self.context_norm(tokens)\n        context, _ = self.context_attention(normalized_tokens, normalized_tokens, normalized_tokens, need_weights=False)\n        features = (tokens + context).transpose(1, 2).reshape_as(features)\n        return self.classifier(features)\n\n    def forward(self, images: torch.Tensor) -> torch.Tensor:\n        if self.training:\n            return self._forward_once(images)\n        padded = F.pad(images, (2, 2, 2, 2), mode='reflect')\n        logits_sum = None\n        central_logits_sum = None\n        for offset_y in range(5):\n            for offset_x in range(5):\n                view = padded[:, :, offset_y:offset_y + 28, offset_x:offset_x + 28]\n                views = torch.cat((view, view.flip(-1)), dim=0)\n                logits = self._forward_once(views)\n                original_logits, flipped_logits = logits.chunk(2, dim=0)\n                view_logits = original_logits + flipped_logits\n                if logits_sum is None:\n                    logits_sum = view_logits\n                else:\n                    logits_sum = logits_sum + view_logits\n                if 1 <= offset_y <= 3 and 1 <= offset_x <= 3:\n                    central_weight = (2 if offset_y == 2 else 1) * (2 if offset_x == 2 else 1)\n                    if central_logits_sum is None:\n                        central_logits_sum = central_weight * view_logits\n                    else:\n                        central_logits_sum = central_logits_sum + central_weight * view_logits\n        full_ensemble = logits_sum / 50.0\n        central_ensemble = central_logits_sum / 32.0\n        return 1.29834 * (0.9 * full_ensemble + 0.1 * central_ensemble)"
+      },
+      "reference_run": "fashion-mnist-openevolve-v2-1-mps-fashion_mnist_source_only_mps-openevolve-b01-c1",
+      "reference_proposal": 100,
+      "candidate_id": "75fa46355df0e4545bb52adcf3b267a8f72403f0dd0815ef88097cfe22c1fbca",
+      "parent_candidate_id": "6444a933104e5ff895ca1ea76cd1dc4bd9b5763e0605de91fdcbc6dfe70702ba",
+      "parent_source_sha256": "58d0c328413826c000f415dcee24334b67cef811224daf5570279a639c9e06f4",
+      "transition_classification": "changing",
+      "changed_components": [
+        "mixing",
+        "routing",
+        "connectivity",
+        "aggregation",
+        "spatial_readout",
+        "channel_interaction"
+      ],
+      "fingerprint": {
+        "input_units": "grayscale image pixels",
+        "input_transform": "identity image tensor input",
+        "embedding": "not applicable: continuous-valued grayscale pixels enter convolution/affine operators directly",
+        "position": "7x7 spatial tokens have no explicit positional embedding",
+        "mixing": "dense Conv2d plus four-head MultiheadAttention over 7x7 spatial tokens",
+        "routing": "content-dependent query-key attention routing among all spatial tokens",
+        "state": "no explicit persistent recurrent feature state",
+        "feedforward": "no separate transformer feedforward block",
+        "parameter_construction": "learned affine maps",
+        "sharing": "no additional explicit parameter tying beyond source-defined module reuse",
+        "normalization": "LayerNorm + BatchNorm2d",
+        "connectivity": "convolutional backbone followed by LayerNorm, MultiheadAttention and residual token context",
+        "aggregation": "attention-contextualized spatial tokens flattened for affine classification",
+        "output": "learned linear readout",
+        "symmetry": "no explicit canonicalization or group-equivariant construction",
+        "conditional_compute": "fixed architecture; no input-dependent early exit or experts",
+        "activation": "GELU",
+        "stochasticity": "none",
+        "bottleneck": "no separate factorized bottleneck",
+        "iteration": "fixed feedforward stages",
+        "other": "complete train.py source and direct parent-child diff were read; exact model program is retained in program_parts",
+        "spatial_units": "image grid",
+        "spatial_operator": "dense Conv2d",
+        "scale_representation": "source-defined fixed-resolution/downsampling feature maps",
+        "spatial_readout": "flattened 49 attention-contextualized 56-channel tokens",
+        "channel_interaction": "dense convolution plus learned Q/K/V and attention output projections",
+        "spatial_downsampling": "max pooling"
+      },
+      "family_signature": {
+        "mixing": "Conv2d",
+        "aggregation": "flattened spatial features",
+        "spatial_operator": "dense Conv2d"
+      },
+      "family_label": "Conv2d \u00b7 b2759fbe",
+      "training": {
+        "optimizer": "AdamW (declared)",
+        "objective": "cross entropy declared",
+        "augmentation": "geometric transformations declared"
+      },
+      "inference": {
+        "procedure": "25 reflected translated positions with paired horizontal flips and fixed full/central ensemble"
+      },
+      "settings": {
+        "BATCH_SIZE": 128
+      },
+      "notes": "Complete candidate and direct parent sources were read and diffed for this finite source-bound catalog entry. adds self-attention over spatial tokens.",
+      "evidence": [
+        {
+          "kind": "complete exact-program parent-child diff review",
+          "source_sha256": "2789fc9c55f7c6a12dc3a88240ae62511f73e0273d7e19cfb0cbcd8d38984f9f",
+          "parent_source_sha256": "58d0c328413826c000f415dcee24334b67cef811224daf5570279a639c9e06f4",
+          "program_sha256": "2f3a21c545de049d3278038d60b71e96c434123fbef9dc544aed33229b42ef9b",
+          "candidate_id": "75fa46355df0e4545bb52adcf3b267a8f72403f0dd0815ef88097cfe22c1fbca",
+          "parent_candidate_id": "6444a933104e5ff895ca1ea76cd1dc4bd9b5763e0605de91fdcbc6dfe70702ba",
+          "changed_lines": {
+            "added": 15,
+            "removed": 0
+          },
+          "classification": "changing",
+          "changed_components": [
+            "mixing",
+            "routing",
+            "connectivity",
+            "aggregation",
+            "spatial_readout",
+            "channel_interaction"
+          ],
+          "reason": "adds self-attention over spatial tokens",
+          "source_path": "data\\c0c3\\fashion-mnist-openevolve-v2-1-mps-campaign\\runs\\fashion-mnist-openevolve-v2-1-mps-fashion_mnist_source_only_mps-openevolve-b01-c1\\candidates\\75fa46355df0e4545bb52adcf3b267a8f72403f0dd0815ef88097cfe22c1fbca\\train.py",
+          "parent_source_path": "data\\c0c3\\fashion-mnist-openevolve-v2-1-mps-campaign\\runs\\fashion-mnist-openevolve-v2-1-mps-fashion_mnist_source_only_mps-openevolve-b01-c1\\candidates\\6444a933104e5ff895ca1ea76cd1dc4bd9b5763e0605de91fdcbc6dfe70702ba\\train.py"
+        }
+      ]
+    },
+    {
+      "source_sha256": "03859fe221782554850a4fde067d121508dee8273acd7ec013a00da34722ed73",
+      "program_sha256": "c3856207149001782aec68f940b655143a1420698dabffa6b09cf7f2562b1d82",
+      "program_parts": {
+        "ImageClassifier": "class ImageClassifier(nn.Module):\n\n    def __init__(self) -> None:\n        super().__init__()\n        self.features = nn.Sequential(nn.Conv2d(1, 24, kernel_size=3, padding=1, bias=False), nn.BatchNorm2d(24), nn.ReLU(inplace=True), ResidualBlock(24), nn.MaxPool2d(2), nn.Conv2d(24, 48, kernel_size=3, padding=1, bias=False), nn.BatchNorm2d(48), nn.ReLU(inplace=True), ResidualBlock(48), nn.MaxPool2d(2), nn.Conv2d(48, 80, kernel_size=3, padding=1, bias=False), nn.BatchNorm2d(80), nn.ReLU(inplace=True), ResidualBlock(80), nn.AdaptiveAvgPool2d((2, 2)))\n        self.classifier = nn.Sequential(nn.Flatten(), nn.Dropout(0.1), nn.Linear(80 * 2 * 2, 64), nn.ReLU(inplace=True), nn.Dropout(0.1), nn.Linear(64, 10))\n        for module in self.modules():\n            if isinstance(module, nn.Conv2d):\n                nn.init.kaiming_normal_(module.weight, mode='fan_out', nonlinearity='relu')\n            elif isinstance(module, nn.BatchNorm2d):\n                nn.init.ones_(module.weight)\n                nn.init.zeros_(module.bias)\n\n    def _forward_once(self, images: torch.Tensor) -> torch.Tensor:\n        return self.classifier(self.features(images))\n\n    def forward(self, images: torch.Tensor) -> torch.Tensor:\n        logits = self._forward_once(images)\n        if self.training:\n            return logits\n        flipped_logits = self._forward_once(torch.flip(images, dims=(-1,)))\n        log_probabilities = torch.stack((F.log_softmax(logits, dim=1), F.log_softmax(flipped_logits, dim=1)))\n        return torch.logsumexp(log_probabilities, dim=0) - math.log(2.0)",
+        "ResidualBlock": "class ResidualBlock(nn.Module):\n\n    def __init__(self, channels: int) -> None:\n        super().__init__()\n        self.conv1 = nn.Conv2d(channels, channels, kernel_size=3, padding=1, bias=False)\n        self.bn1 = nn.BatchNorm2d(channels)\n        self.conv2 = nn.Conv2d(channels, channels, kernel_size=3, padding=1, bias=False)\n        self.bn2 = nn.BatchNorm2d(channels)\n\n    def forward(self, inputs: torch.Tensor) -> torch.Tensor:\n        features = F.relu(self.bn1(self.conv1(inputs)), inplace=True)\n        features = self.bn2(self.conv2(features))\n        return F.relu(features + inputs, inplace=True)"
+      },
+      "reference_run": "fashion-mnist-openevolve-v2-1-mps-fashion_mnist_source_only_mps-openevolve-b01-c2",
+      "reference_proposal": 1,
+      "candidate_id": "45ca5bf93b2da3f7ba4c6b37acd6d952dbbe92b5869b50619864def605a1f207",
+      "parent_candidate_id": "1519f52d28c6c739b31c8d221690983a68a7059a34bf6272219d467f90e88386",
+      "parent_source_sha256": "3293cc25cf3643aed4e86fa4604c544efe8c380016798df71a4c2b72c620e6bc",
+      "transition_classification": "changing",
+      "changed_components": [
+        "normalization",
+        "activation",
+        "connectivity",
+        "aggregation",
+        "scale_representation",
+        "spatial_readout"
+      ],
+      "fingerprint": {
+        "input_units": "grayscale image pixels",
+        "input_transform": "identity image tensor input",
+        "embedding": "not applicable: continuous-valued grayscale pixels enter convolution/affine operators directly",
+        "position": "implicit spatial neighborhoods; no explicit positional embedding",
+        "mixing": "Conv2d",
+        "routing": "fixed source-defined tensor routing; no input-dependent expert selection",
+        "state": "no explicit persistent recurrent feature state",
+        "feedforward": "no separate transformer feedforward block",
+        "parameter_construction": "learned affine maps",
+        "sharing": "no additional explicit parameter tying beyond source-defined module reuse",
+        "normalization": "BatchNorm2d",
+        "connectivity": "three conventional fixed additive residual CNN blocks followed by AdaptiveAvgPool2d(2x2)",
+        "aggregation": "flattened 2x2 adaptive average pooled grid",
+        "output": "learned linear readout",
+        "symmetry": "no explicit canonicalization or group-equivariant construction",
+        "conditional_compute": "fixed architecture; no input-dependent early exit or experts",
+        "activation": "ReLU",
+        "stochasticity": "dropout declared (rate may be zero)",
+        "bottleneck": "no separate factorized bottleneck",
+        "iteration": "fixed feedforward stages",
+        "other": "complete train.py source and direct parent-child diff were read; exact model program is retained in program_parts",
+        "spatial_units": "image grid",
+        "spatial_operator": "dense Conv2d",
+        "scale_representation": "strided/downsampled convolution stages then 2x2 adaptive average pool",
+        "spatial_readout": "2x2 adaptive average pooled grid through affine head",
+        "channel_interaction": "source-defined convolution/affine channel interaction",
+        "spatial_downsampling": "max pooling"
+      },
+      "family_signature": {
+        "mixing": "Conv2d",
+        "aggregation": "adaptive average pooling",
+        "spatial_operator": "dense Conv2d"
+      },
+      "family_label": "Conv2d \u00b7 44669dff",
+      "training": {
+        "optimizer": "AdamW (declared)",
+        "objective": "cross entropy declared",
+        "augmentation": "geometric transformations declared"
+      },
+      "inference": {
+        "procedure": "original/flip log-softmax fusion with fixed logaddexp probability aggregation"
+      },
+      "settings": {
+        "BATCH_SIZE": 128
+      },
+      "notes": "Complete candidate and direct parent sources were read and diffed for this finite source-bound catalog entry. The replacement adds BatchNorm/ReLU residual computation and changes the spatial aggregation/readout from the seed CNN to adaptive 2x2 average pooling.",
+      "evidence": [
+        {
+          "kind": "complete exact-program parent-child diff review",
+          "source_sha256": "03859fe221782554850a4fde067d121508dee8273acd7ec013a00da34722ed73",
+          "parent_source_sha256": "3293cc25cf3643aed4e86fa4604c544efe8c380016798df71a4c2b72c620e6bc",
+          "program_sha256": "c3856207149001782aec68f940b655143a1420698dabffa6b09cf7f2562b1d82",
+          "candidate_id": "45ca5bf93b2da3f7ba4c6b37acd6d952dbbe92b5869b50619864def605a1f207",
+          "parent_candidate_id": "1519f52d28c6c739b31c8d221690983a68a7059a34bf6272219d467f90e88386",
+          "changed_lines": {
+            "added": 117,
+            "removed": 14
+          },
+          "classification": "changing",
+          "changed_components": [
+            "normalization",
+            "activation",
+            "connectivity",
+            "aggregation",
+            "scale_representation",
+            "spatial_readout"
+          ],
+          "reason": "replaces a sequential GELU CNN with unnormalized feature stages by a BatchNorm/ReLU residual CNN with adaptive-average 2x2 readout",
+          "source_path": "data\\c0c3\\fashion-mnist-openevolve-v2-1-mps-campaign\\runs\\fashion-mnist-openevolve-v2-1-mps-fashion_mnist_source_only_mps-openevolve-b01-c2\\candidates\\45ca5bf93b2da3f7ba4c6b37acd6d952dbbe92b5869b50619864def605a1f207\\train.py",
+          "parent_source_path": "data\\c0c3\\fashion-mnist-openevolve-v2-1-mps-campaign\\runs\\fashion-mnist-openevolve-v2-1-mps-fashion_mnist_source_only_mps-openevolve-b01-c2\\candidates\\1519f52d28c6c739b31c8d221690983a68a7059a34bf6272219d467f90e88386\\train.py"
+        }
+      ]
+    },
+    {
+      "source_sha256": "c52de074d05839fdd70f90ff1fba5c16194f39de6a6f678349002c4bfc28dd83",
+      "program_sha256": "36dc5a1eb6b33ea48820aae0b3bd4f9b1f56b3db02c5fa5b628aad93f357922d",
+      "program_parts": {
+        "ImageClassifier": "class ImageClassifier(nn.Module):\n\n    def __init__(self) -> None:\n        super().__init__()\n        self.stem = nn.Sequential(nn.Conv2d(1, 32, kernel_size=3, padding=1, bias=False), nn.BatchNorm2d(32), nn.GELU())\n        self.early = nn.Sequential(nn.Conv2d(32, 32, kernel_size=3, padding=1, bias=False), nn.BatchNorm2d(32), nn.GELU(), nn.Conv2d(32, 32, kernel_size=3, padding=1, bias=False), nn.BatchNorm2d(32))\n        self.pool1 = nn.MaxPool2d(2)\n        self.down1 = nn.Sequential(nn.Conv2d(32, 64, kernel_size=3, padding=1, bias=False), nn.BatchNorm2d(64), nn.GELU())\n        self.mid_context = MultiScaleBlock(64)\n        self.pool2 = nn.MaxPool2d(2)\n        self.down2 = nn.Sequential(nn.Conv2d(64, 96, kernel_size=3, padding=1, bias=False), nn.BatchNorm2d(96), nn.GELU())\n        self.late_context = MultiScaleBlock(96)\n        self.late_refinement = SpatialRefinement(96)\n        self.row_attention = nn.Parameter(torch.zeros(96, 7))\n        self.col_attention = nn.Parameter(torch.zeros(96, 7))\n        self.classifier = nn.Sequential(nn.LayerNorm(192), nn.Linear(192, 54), nn.GELU(), nn.Dropout(0.1), nn.Linear(54, 10))\n\n    def _predict(self, images: torch.Tensor) -> torch.Tensor:\n        features = self.stem(images)\n        features = F.gelu(features + self.early(features))\n        features = self.down1(self.pool1(features))\n        features = self.mid_context(features)\n        features = self.down2(self.pool2(features))\n        features = self.late_context(features)\n        features = self.late_refinement(features)\n        spatial_logits = self.row_attention.unsqueeze(2) + self.col_attention.unsqueeze(1)\n        spatial_weights = F.softmax(spatial_logits.flatten(1), dim=1).reshape(1, 96, 7, 7)\n        attended_features = (features * spatial_weights).sum(dim=(2, 3))\n        peak_features = F.adaptive_max_pool2d(features, 1).flatten(1)\n        return self.classifier(torch.cat((attended_features, peak_features), dim=1))\n\n    def forward(self, images: torch.Tensor) -> torch.Tensor:\n        if self.training:\n            return self._predict(images)\n        height, width = images.shape[-2:]\n        padded = F.pad(images, (1, 1, 1, 1), mode='replicate')\n        views = []\n        for row_offset, col_offset in ((1, 1), (0, 1), (2, 1), (1, 0), (1, 2)):\n            view = padded[:, :, row_offset:row_offset + height, col_offset:col_offset + width]\n            views.append(view)\n            views.append(view.flip(-1))\n        view_logits = self._predict(torch.cat(views, dim=0)).reshape(5, 2, images.shape[0], 10)\n        position_logits = view_logits.mean(dim=1)\n        return torch.logsumexp(F.log_softmax(position_logits, dim=-1), dim=0) - math.log(position_logits.shape[0])",
+        "MultiScaleBlock": "class MultiScaleBlock(nn.Module):\n\n    def __init__(self, channels: int) -> None:\n        super().__init__()\n        branch_channels = channels // 2\n        self.local = nn.Sequential(nn.Conv2d(channels, branch_channels, kernel_size=3, padding=1, bias=False), nn.BatchNorm2d(branch_channels), nn.GELU())\n        self.context = nn.Sequential(nn.Conv2d(channels, branch_channels, kernel_size=3, padding=2, dilation=2, bias=False), nn.BatchNorm2d(branch_channels), nn.GELU())\n        self.fuse = nn.Sequential(nn.Conv2d(channels, channels, kernel_size=1, bias=False), nn.BatchNorm2d(channels))\n\n    def forward(self, features: torch.Tensor) -> torch.Tensor:\n        mixed = torch.cat((self.local(features), self.context(features)), dim=1)\n        return F.gelu(features + self.fuse(mixed))",
+        "SpatialRefinement": "class SpatialRefinement(nn.Module):\n\n    def __init__(self, channels: int) -> None:\n        super().__init__()\n        self.refine = nn.Sequential(nn.Conv2d(channels, channels, kernel_size=3, padding=1, groups=channels, bias=False), nn.BatchNorm2d(channels), nn.GELU(), nn.Conv2d(channels, channels, kernel_size=1, bias=False), nn.BatchNorm2d(channels))\n\n    def forward(self, features: torch.Tensor) -> torch.Tensor:\n        return F.gelu(features + self.refine(features))"
+      },
+      "reference_run": "fashion-mnist-openevolve-v2-1-mps-fashion_mnist_source_only_mps-openevolve-b01-c3",
+      "reference_proposal": 31,
+      "candidate_id": "2735b63602bfbe86388f93d4c4feb53b7dc5a7709f097819e05429a37fe6cd67",
+      "parent_candidate_id": "b0b704fa191bef2004e68194674b34853313faeff0b8eafd0dcded208b20333d",
+      "parent_source_sha256": "2894d34b61fa14c5f5a88cb9f4baf7a60cf8eba41ba26a93620b219b97b8d929",
+      "transition_classification": "changing",
+      "changed_components": [
+        "routing",
+        "aggregation",
+        "spatial_readout",
+        "channel_interaction"
+      ],
+      "fingerprint": {
+        "input_units": "grayscale image pixels",
+        "input_transform": "identity image tensor input",
+        "embedding": "not applicable: continuous-valued grayscale pixels enter convolution/affine operators directly",
+        "position": "implicit spatial neighborhoods; no explicit positional embedding",
+        "mixing": "Conv2d",
+        "routing": "learned per-channel separable row-plus-column spatial logits normalized by softmax",
+        "state": "no explicit persistent recurrent feature state",
+        "feedforward": "no separate transformer feedforward block",
+        "parameter_construction": "learned affine maps",
+        "sharing": "no additional explicit parameter tying beyond source-defined module reuse",
+        "normalization": "LayerNorm + BatchNorm2d",
+        "connectivity": "fixed source-defined feedforward connectivity",
+        "aggregation": "softmax-weighted spatial sum plus global maximum",
+        "output": "learned linear readout",
+        "symmetry": "no explicit canonicalization or group-equivariant construction",
+        "conditional_compute": "fixed architecture; no input-dependent early exit or experts",
+        "activation": "GELU",
+        "stochasticity": "dropout declared (rate may be zero)",
+        "bottleneck": "no separate factorized bottleneck",
+        "iteration": "fixed feedforward stages",
+        "other": "complete train.py source and direct parent-child diff were read; exact model program is retained in program_parts",
+        "spatial_units": "image grid",
+        "spatial_operator": "grouped/depthwise Conv2d",
+        "scale_representation": "source-defined fixed-resolution/downsampling feature maps",
+        "spatial_readout": "learned 7x7 separable spatial attention and adaptive global maximum",
+        "channel_interaction": "dense and depthwise/dilated convolution branches",
+        "spatial_downsampling": "max pooling"
+      },
+      "family_signature": {
+        "mixing": "Conv2d",
+        "aggregation": "mean pooling",
+        "spatial_operator": "grouped/depthwise Conv2d"
+      },
+      "family_label": "Conv2d \u00b7 924eed25",
+      "training": {
+        "optimizer": "AdamW (declared)",
+        "objective": "cross entropy declared",
+        "augmentation": "geometric transformations declared"
+      },
+      "inference": {
+        "procedure": "fixed translated/flip TTA with log-probability aggregation"
+      },
+      "settings": {
+        "BATCH_SIZE": 128
+      },
+      "notes": "Complete candidate and direct parent sources were read and diffed for this finite source-bound catalog entry. adds learned separable spatial-attention weights.",
+      "evidence": [
+        {
+          "kind": "complete exact-program parent-child diff review",
+          "source_sha256": "c52de074d05839fdd70f90ff1fba5c16194f39de6a6f678349002c4bfc28dd83",
+          "parent_source_sha256": "2894d34b61fa14c5f5a88cb9f4baf7a60cf8eba41ba26a93620b219b97b8d929",
+          "program_sha256": "36dc5a1eb6b33ea48820aae0b3bd4f9b1f56b3db02c5fa5b628aad93f357922d",
+          "candidate_id": "2735b63602bfbe86388f93d4c4feb53b7dc5a7709f097819e05429a37fe6cd67",
+          "parent_candidate_id": "b0b704fa191bef2004e68194674b34853313faeff0b8eafd0dcded208b20333d",
+          "changed_lines": {
+            "added": 17,
+            "removed": 6
+          },
+          "classification": "changing",
+          "changed_components": [
+            "routing",
+            "aggregation",
+            "spatial_readout",
+            "channel_interaction"
+          ],
+          "reason": "adds learned separable spatial-attention weights",
+          "source_path": "data\\c0c3\\fashion-mnist-openevolve-v2-1-mps-campaign\\runs\\fashion-mnist-openevolve-v2-1-mps-fashion_mnist_source_only_mps-openevolve-b01-c3\\candidates\\2735b63602bfbe86388f93d4c4feb53b7dc5a7709f097819e05429a37fe6cd67\\train.py",
+          "parent_source_path": "data\\c0c3\\fashion-mnist-openevolve-v2-1-mps-campaign\\runs\\fashion-mnist-openevolve-v2-1-mps-fashion_mnist_source_only_mps-openevolve-b01-c3\\candidates\\b0b704fa191bef2004e68194674b34853313faeff0b8eafd0dcded208b20333d\\train.py"
+        }
+      ]
+    },
+    {
+      "source_sha256": "2f0cf3395b4861288fd2c181d351b5a907ff4ce58f5c694a2a4017b95a00bda8",
+      "program_sha256": "86fcaddddbbb33cf9771bd576e0c2827e31c71bb2b911760c617ae2cd26a2e22",
+      "program_parts": {
+        "ImageClassifier": "class ImageClassifier(nn.Module):\n\n    def __init__(self) -> None:\n        super().__init__()\n        self.stem = nn.Sequential(nn.Conv2d(1, 32, kernel_size=3, padding=1, bias=False), nn.BatchNorm2d(32), nn.GELU())\n        self.early = nn.Sequential(nn.Conv2d(32, 32, kernel_size=3, padding=1, bias=False), nn.BatchNorm2d(32), nn.GELU(), nn.Conv2d(32, 32, kernel_size=3, padding=1, bias=False), nn.BatchNorm2d(32))\n        self.pool1 = nn.MaxPool2d(2)\n        self.down1 = nn.Sequential(nn.Conv2d(32, 64, kernel_size=3, padding=1, bias=False), nn.BatchNorm2d(64), nn.GELU())\n        self.mid_context = MultiScaleBlock(64)\n        self.pool2 = nn.MaxPool2d(2)\n        self.down2 = nn.Sequential(nn.Conv2d(64, 96, kernel_size=3, padding=1, bias=False), nn.BatchNorm2d(96), nn.GELU())\n        self.late_context = MultiScaleBlock(96)\n        self.late_refinement = SpatialRefinement(96)\n        self.classifier = nn.Sequential(nn.LayerNorm(192), nn.Linear(192, 61), nn.GELU(), nn.Dropout(0.1), nn.Linear(61, 10))\n        for module in self.modules():\n            if isinstance(module, nn.BatchNorm2d):\n                module.track_running_stats = False\n                module.running_mean = None\n                module.running_var = None\n                module.num_batches_tracked = None\n\n    def _predict(self, images: torch.Tensor) -> torch.Tensor:\n        features = self.stem(images)\n        features = F.gelu(features + self.early(features))\n        features = self.down1(self.pool1(features))\n        features = self.mid_context(features)\n        features = self.down2(self.pool2(features))\n        features = self.late_context(features)\n        features = self.late_refinement(features)\n        mean_features = F.adaptive_avg_pool2d(features, 1).flatten(1)\n        peak_features = F.adaptive_max_pool2d(features, 1).flatten(1)\n        return self.classifier(torch.cat((mean_features, peak_features), dim=1))\n\n    def forward(self, images: torch.Tensor) -> torch.Tensor:\n        if self.training:\n            return self._predict(images)\n        height, width = images.shape[-2:]\n        padded = F.pad(images, (1, 1, 1, 1), mode='replicate')\n        views = []\n        for row_offset, col_offset in ((1, 1), (0, 1), (2, 1), (1, 0), (1, 2)):\n            view = padded[:, :, row_offset:row_offset + height, col_offset:col_offset + width]\n            views.append(view)\n            views.append(view.flip(-1))\n        view_logits = self._predict(torch.cat(views, dim=0)).reshape(5, 2, images.shape[0], 10)\n        position_logits = view_logits.mean(dim=1)\n        return torch.logsumexp(F.log_softmax(position_logits, dim=-1), dim=0) - math.log(position_logits.shape[0])",
+        "MultiScaleBlock": "class MultiScaleBlock(nn.Module):\n\n    def __init__(self, channels: int) -> None:\n        super().__init__()\n        branch_channels = channels // 2\n        self.local = nn.Sequential(nn.Conv2d(channels, branch_channels, kernel_size=3, padding=1, bias=False), nn.BatchNorm2d(branch_channels), nn.GELU())\n        self.context = nn.Sequential(nn.Conv2d(channels, branch_channels, kernel_size=3, padding=2, dilation=2, bias=False), nn.BatchNorm2d(branch_channels), nn.GELU())\n        self.fuse = nn.Sequential(nn.Conv2d(channels, channels, kernel_size=1, bias=False), nn.BatchNorm2d(channels))\n\n    def forward(self, features: torch.Tensor) -> torch.Tensor:\n        mixed = torch.cat((self.local(features), self.context(features)), dim=1)\n        return F.gelu(features + self.fuse(mixed))",
+        "SpatialRefinement": "class SpatialRefinement(nn.Module):\n\n    def __init__(self, channels: int) -> None:\n        super().__init__()\n        self.refine = nn.Sequential(nn.Conv2d(channels, channels, kernel_size=3, padding=1, groups=channels, bias=False), nn.BatchNorm2d(channels), nn.GELU(), nn.Conv2d(channels, channels, kernel_size=1, bias=False), nn.BatchNorm2d(channels))\n\n    def forward(self, features: torch.Tensor) -> torch.Tensor:\n        return F.gelu(features + self.refine(features))"
+      },
+      "reference_run": "fashion-mnist-openevolve-v2-1-mps-fashion_mnist_source_only_mps-openevolve-b01-c3",
+      "reference_proposal": 55,
+      "candidate_id": "5392d8bb3e669324bf3c6c802ac87a4e41ccdec148f7194aab1f8ac453de72c9",
+      "parent_candidate_id": "9af4c9e9dafd1cb542e672cb5410ab8db152c4ccc1fd4b2625a74958d08dffc8",
+      "parent_source_sha256": "e553676ea812da7b0ed7244c8b7eb8852250a8ac10e268b5174e6dcaa3381bcc",
+      "transition_classification": "preserving",
+      "changed_components": [],
+      "fingerprint": {
+        "input_units": "grayscale image pixels",
+        "input_transform": "identity image tensor input",
+        "embedding": "not applicable: continuous-valued grayscale pixels enter convolution/affine operators directly",
+        "position": "implicit spatial neighborhoods; no explicit positional embedding",
+        "mixing": "Conv2d",
+        "routing": "fixed source-defined tensor routing; no input-dependent expert selection",
+        "state": "BatchNorm running-stat buffers are explicitly disabled for tail-averaged weights; no recurrent feature state",
+        "feedforward": "no separate transformer feedforward block",
+        "parameter_construction": "learned affine maps",
+        "sharing": "no additional explicit parameter tying beyond source-defined module reuse",
+        "normalization": "LayerNorm + BatchNorm2d",
+        "connectivity": "fixed source-defined feedforward connectivity",
+        "aggregation": "global adaptive mean concatenated with global adaptive maximum",
+        "output": "learned linear readout",
+        "symmetry": "no explicit canonicalization or group-equivariant construction",
+        "conditional_compute": "fixed architecture; no input-dependent early exit or experts",
+        "activation": "GELU",
+        "stochasticity": "dropout declared (rate may be zero)",
+        "bottleneck": "no separate factorized bottleneck",
+        "iteration": "fixed feedforward stages",
+        "other": "complete train.py source and direct parent-child diff were read; exact model program is retained in program_parts",
+        "spatial_units": "image grid",
+        "spatial_operator": "grouped/depthwise Conv2d",
+        "scale_representation": "source-defined fixed-resolution/downsampling feature maps",
+        "spatial_readout": "global mean and maximum descriptors through affine head",
+        "channel_interaction": "source-defined convolution/affine channel interaction",
+        "spatial_downsampling": "max pooling"
+      },
+      "family_signature": {
+        "mixing": "Conv2d",
+        "aggregation": "adaptive average pooling",
+        "spatial_operator": "grouped/depthwise Conv2d"
+      },
+      "family_label": "Conv2d \u00b7 c99dbc0c",
+      "training": {
+        "optimizer": "AdamW (declared)",
+        "objective": "cross entropy declared",
+        "augmentation": "geometric transformations declared"
+      },
+      "inference": {
+        "procedure": "fixed translated/flip TTA with log-probability aggregation"
+      },
+      "settings": {
+        "BATCH_SIZE": 128
+      },
+      "notes": "Complete candidate and direct parent sources were read and diffed for this finite source-bound catalog entry. changes BatchNorm running-stat lifecycle without adding a feature mechanism.",
+      "evidence": [
+        {
+          "kind": "complete exact-program parent-child diff review",
+          "source_sha256": "2f0cf3395b4861288fd2c181d351b5a907ff4ce58f5c694a2a4017b95a00bda8",
+          "parent_source_sha256": "e553676ea812da7b0ed7244c8b7eb8852250a8ac10e268b5174e6dcaa3381bcc",
+          "program_sha256": "86fcaddddbbb33cf9771bd576e0c2827e31c71bb2b911760c617ae2cd26a2e22",
+          "candidate_id": "5392d8bb3e669324bf3c6c802ac87a4e41ccdec148f7194aab1f8ac453de72c9",
+          "parent_candidate_id": "9af4c9e9dafd1cb542e672cb5410ab8db152c4ccc1fd4b2625a74958d08dffc8",
+          "changed_lines": {
+            "added": 9,
+            "removed": 0
+          },
+          "classification": "preserving",
+          "changed_components": [],
+          "reason": "changes BatchNorm running-stat lifecycle without adding a feature mechanism",
+          "source_path": "data\\c0c3\\fashion-mnist-openevolve-v2-1-mps-campaign\\runs\\fashion-mnist-openevolve-v2-1-mps-fashion_mnist_source_only_mps-openevolve-b01-c3\\candidates\\5392d8bb3e669324bf3c6c802ac87a4e41ccdec148f7194aab1f8ac453de72c9\\train.py",
+          "parent_source_path": "data\\c0c3\\fashion-mnist-openevolve-v2-1-mps-campaign\\runs\\fashion-mnist-openevolve-v2-1-mps-fashion_mnist_source_only_mps-openevolve-b01-c3\\candidates\\9af4c9e9dafd1cb542e672cb5410ab8db152c4ccc1fd4b2625a74958d08dffc8\\train.py"
+        }
+      ]
+    },
+    {
+      "source_sha256": "5a6b34d1f67272b60d72b58ffa2acba7791926872e2edc9f79eb96de9ac03db4",
+      "program_sha256": "4b6c04e1c49a4f4181e481fb65f995a6e8b3cea98f1e6ce4da3a57d8d4bd4539",
+      "program_parts": {
+        "ChannelRecalibration": "class ChannelRecalibration(nn.Module):\n\n    def __init__(self) -> None:\n        super().__init__()\n        self.channel_interaction = nn.Conv1d(1, 1, kernel_size=5, padding=2, bias=False)\n        nn.init.zeros_(self.channel_interaction.weight)\n\n    def forward(self, features: torch.Tensor) -> torch.Tensor:\n        descriptor = features.mean(dim=(2, 3)).unsqueeze(1)\n        channel_scale = 2.0 * torch.sigmoid(self.channel_interaction(descriptor))\n        return features * channel_scale.squeeze(1)[:, :, None, None]",
+        "ImageClassifier": "class ImageClassifier(nn.Module):\n\n    def __init__(self) -> None:\n        super().__init__()\n        self.stem = nn.Sequential(nn.Conv2d(1, 32, kernel_size=3, padding=1, bias=False), nn.BatchNorm2d(32), nn.GELU())\n        self.early = nn.Sequential(nn.Conv2d(32, 32, kernel_size=3, padding=1, bias=False), nn.BatchNorm2d(32), nn.GELU(), nn.Conv2d(32, 32, kernel_size=3, padding=1, bias=False), nn.BatchNorm2d(32))\n        self.pool1 = nn.MaxPool2d(2)\n        self.down1 = nn.Sequential(nn.Conv2d(32, 64, kernel_size=3, padding=1, bias=False), nn.BatchNorm2d(64), nn.GELU())\n        self.mid_context = MultiScaleBlock(64)\n        self.pool2 = nn.MaxPool2d(2)\n        self.down2 = nn.Sequential(nn.Conv2d(64, 96, kernel_size=3, padding=1, bias=False), nn.BatchNorm2d(96), nn.GELU())\n        self.late_context = MultiScaleBlock(96)\n        self.late_refinement = SpatialRefinement(96)\n        self.channel_recalibration = ChannelRecalibration()\n        self.classifier = nn.Sequential(nn.LayerNorm(192), nn.Linear(192, 61), nn.GELU(), nn.Dropout(0.1), nn.Linear(61, 10))\n\n    def _predict(self, images: torch.Tensor) -> torch.Tensor:\n        features = self.stem(images)\n        features = F.gelu(features + self.early(features))\n        features = self.down1(self.pool1(features))\n        features = self.mid_context(features)\n        features = self.down2(self.pool2(features))\n        features = self.late_context(features)\n        features = self.late_refinement(features)\n        features = self.channel_recalibration(features)\n        mean_features = F.adaptive_avg_pool2d(features, 1).flatten(1)\n        peak_features = F.adaptive_max_pool2d(features, 1).flatten(1)\n        return self.classifier(torch.cat((mean_features, peak_features), dim=1))\n\n    def forward(self, images: torch.Tensor) -> torch.Tensor:\n        if self.training:\n            return self._predict(images)\n        height, width = images.shape[-2:]\n        padded = F.pad(images, (1, 1, 1, 1), mode='replicate')\n        views = []\n        for row_offset, col_offset in ((1, 1), (0, 1), (2, 1), (1, 0), (1, 2)):\n            view = padded[:, :, row_offset:row_offset + height, col_offset:col_offset + width]\n            views.append(view)\n            views.append(view.flip(-1))\n        view_logits = self._predict(torch.cat(views, dim=0)).reshape(5, 2, images.shape[0], 10)\n        offset_logits = view_logits.mean(dim=1)\n        pooled_logits = (1.552032470703125 * offset_logits[0] + offset_logits[1:].sum(dim=0)) / 5.552032470703125\n        return 1.22775 * pooled_logits",
+        "MultiScaleBlock": "class MultiScaleBlock(nn.Module):\n\n    def __init__(self, channels: int) -> None:\n        super().__init__()\n        branch_channels = channels // 2\n        self.local = nn.Sequential(nn.Conv2d(channels, branch_channels, kernel_size=3, padding=1, bias=False), nn.BatchNorm2d(branch_channels), nn.GELU())\n        self.context = nn.Sequential(nn.Conv2d(channels, branch_channels, kernel_size=3, padding=2, dilation=2, bias=False), nn.BatchNorm2d(branch_channels), nn.GELU())\n        self.fuse = nn.Sequential(nn.Conv2d(channels, channels, kernel_size=1, bias=False), nn.BatchNorm2d(channels))\n\n    def forward(self, features: torch.Tensor) -> torch.Tensor:\n        mixed = torch.cat((self.local(features), self.context(features)), dim=1)\n        return F.gelu(features + self.fuse(mixed))",
+        "SpatialRefinement": "class SpatialRefinement(nn.Module):\n\n    def __init__(self, channels: int) -> None:\n        super().__init__()\n        self.refine = nn.Sequential(nn.Conv2d(channels, channels, kernel_size=3, padding=1, groups=channels, bias=False), nn.BatchNorm2d(channels), nn.GELU(), nn.Conv2d(channels, channels, kernel_size=1, bias=False), nn.BatchNorm2d(channels))\n\n    def forward(self, features: torch.Tensor) -> torch.Tensor:\n        return F.gelu(features + self.refine(features))"
+      },
+      "reference_run": "fashion-mnist-openevolve-v2-1-mps-fashion_mnist_source_only_mps-openevolve-b01-c3",
+      "reference_proposal": 110,
+      "candidate_id": "1fd68600d8c5b1c745e5aa00cd6be3b81464e47c4c44421e94276f2aefd8245d",
+      "parent_candidate_id": "d01a853412e0e033702a5465896024a1ff186b8aa99a249e76da437029bc13da",
+      "parent_source_sha256": "d704b30cab022c3fcc2757244a4e9b78d89cf73436dc0ecdd772e5c28367260b",
+      "transition_classification": "changing",
+      "changed_components": [
+        "mixing",
+        "routing",
+        "aggregation",
+        "channel_interaction",
+        "activation"
+      ],
+      "fingerprint": {
+        "input_units": "grayscale image pixels",
+        "input_transform": "identity image tensor input",
+        "embedding": "not applicable: continuous-valued grayscale pixels enter convolution/affine operators directly",
+        "position": "implicit spatial neighborhoods; no explicit positional embedding",
+        "mixing": "dense/depthwise convolution plus 1D convolution over the global channel descriptor",
+        "routing": "input-dependent global-mean descriptor drives a sigmoid Conv1d channel recalibration",
+        "state": "no explicit persistent recurrent feature state",
+        "feedforward": "no separate transformer feedforward block",
+        "parameter_construction": "learned affine maps",
+        "sharing": "no additional explicit parameter tying beyond source-defined module reuse",
+        "normalization": "LayerNorm + BatchNorm2d",
+        "connectivity": "fixed source-defined feedforward connectivity",
+        "aggregation": "global adaptive mean and maximum after channel recalibration",
+        "output": "learned linear readout",
+        "symmetry": "no explicit canonicalization or group-equivariant construction",
+        "conditional_compute": "fixed architecture; no input-dependent early exit or experts",
+        "activation": "GELU and sigmoid channel gate",
+        "stochasticity": "dropout declared (rate may be zero)",
+        "bottleneck": "no separate factorized bottleneck",
+        "iteration": "fixed feedforward stages",
+        "other": "complete train.py source and direct parent-child diff were read; exact model program is retained in program_parts",
+        "spatial_units": "image grid",
+        "spatial_operator": "dense Conv2d",
+        "scale_representation": "source-defined fixed-resolution/downsampling feature maps",
+        "spatial_readout": "adaptive average pooling",
+        "channel_interaction": "Conv1d kernel-5 interaction across ordered channels",
+        "spatial_downsampling": "max pooling"
+      },
+      "family_signature": {
+        "mixing": "Conv1d + Conv2d",
+        "aggregation": "adaptive average pooling",
+        "spatial_operator": "dense Conv2d",
+        "channel_interaction": "input-dependent multiplicative feature gating"
+      },
+      "family_label": "Conv1d + Conv2d \u00b7 01dab64b",
+      "training": {
+        "optimizer": "AdamW (declared)",
+        "objective": "cross entropy declared",
+        "augmentation": "geometric transformations declared"
+      },
+      "inference": {
+        "procedure": "fixed translated/flip TTA with log-probability aggregation and scalar calibration"
+      },
+      "settings": {
+        "BATCH_SIZE": 128
+      },
+      "notes": "Complete candidate and direct parent sources were read and diffed for this finite source-bound catalog entry. adds signal-dependent Conv1d sigmoid channel recalibration.",
+      "evidence": [
+        {
+          "kind": "complete exact-program parent-child diff review",
+          "source_sha256": "5a6b34d1f67272b60d72b58ffa2acba7791926872e2edc9f79eb96de9ac03db4",
+          "parent_source_sha256": "d704b30cab022c3fcc2757244a4e9b78d89cf73436dc0ecdd772e5c28367260b",
+          "program_sha256": "4b6c04e1c49a4f4181e481fb65f995a6e8b3cea98f1e6ce4da3a57d8d4bd4539",
+          "candidate_id": "1fd68600d8c5b1c745e5aa00cd6be3b81464e47c4c44421e94276f2aefd8245d",
+          "parent_candidate_id": "d01a853412e0e033702a5465896024a1ff186b8aa99a249e76da437029bc13da",
+          "changed_lines": {
+            "added": 22,
+            "removed": 0
+          },
+          "classification": "changing",
+          "changed_components": [
+            "mixing",
+            "routing",
+            "aggregation",
+            "channel_interaction",
+            "activation"
+          ],
+          "reason": "adds signal-dependent Conv1d sigmoid channel recalibration",
+          "source_path": "data\\c0c3\\fashion-mnist-openevolve-v2-1-mps-campaign\\runs\\fashion-mnist-openevolve-v2-1-mps-fashion_mnist_source_only_mps-openevolve-b01-c3\\candidates\\1fd68600d8c5b1c745e5aa00cd6be3b81464e47c4c44421e94276f2aefd8245d\\train.py",
+          "parent_source_path": "data\\c0c3\\fashion-mnist-openevolve-v2-1-mps-campaign\\runs\\fashion-mnist-openevolve-v2-1-mps-fashion_mnist_source_only_mps-openevolve-b01-c3\\candidates\\d01a853412e0e033702a5465896024a1ff186b8aa99a249e76da437029bc13da\\train.py"
+        }
+      ]
+    },
+    {
+      "source_sha256": "d82bf8d2d4c4afac4cebc73415bdf4dd724b2a35c2b0dd80a3cc55b8dfdea3cd",
+      "program_sha256": "fc8b750562d64278c2f93ffe219550606d19171a8170283d740f4c63d6e4cc0e",
+      "program_parts": {
+        "ImageClassifier": "class ImageClassifier(nn.Module):\n\n    def __init__(self) -> None:\n        super().__init__()\n        self.stem = nn.Sequential(nn.Conv2d(1, 32, kernel_size=3, padding=1, bias=False), nn.BatchNorm2d(32), nn.GELU())\n        self.early = nn.Sequential(nn.Conv2d(32, 32, kernel_size=3, padding=1, bias=False), nn.BatchNorm2d(32), nn.GELU(), nn.Conv2d(32, 32, kernel_size=3, padding=1, bias=False), nn.BatchNorm2d(32))\n        self.pool1 = nn.MaxPool2d(2)\n        self.down1 = nn.Sequential(nn.Conv2d(32, 64, kernel_size=3, padding=1, bias=False), nn.BatchNorm2d(64), nn.GELU())\n        self.mid_context = MultiScaleBlock(64)\n        self.pool2 = nn.MaxPool2d(2)\n        self.down2 = nn.Sequential(nn.Conv2d(64, 96, kernel_size=3, padding=1, bias=False), nn.BatchNorm2d(96), nn.GELU())\n        self.late_context = MultiScaleBlock(96)\n        self.late_refinement = SpatialRefinement(96)\n        self.vertical_pool_logits = nn.Parameter(torch.tensor((1.0, 1.0, 1.0, 1.0, -1.0, -1.0, -1.0)))\n        self.classifier = nn.Sequential(nn.LayerNorm(288), nn.Linear(288, 41, bias=False), nn.GELU(), nn.Dropout(0.1), nn.Linear(41, 10))\n\n    def _predict(self, images: torch.Tensor) -> torch.Tensor:\n        features = self.stem(images)\n        features = F.gelu(features + self.early(features))\n        features = self.down1(self.pool1(features))\n        features = self.mid_context(features)\n        features = self.down2(self.pool2(features))\n        features = self.late_context(features)\n        features = self.late_refinement(features)\n        top_weights = self.vertical_pool_logits.softmax(dim=0)\n        vertical_weights = torch.stack((top_weights, top_weights.flip(0)), dim=1)\n        spatial_features = torch.matmul(features.mean(dim=3), vertical_weights).flatten(1)\n        peak_features = F.adaptive_max_pool2d(features, 1).flatten(1)\n        return self.classifier(torch.cat((spatial_features, peak_features), dim=1))\n\n    def forward(self, images: torch.Tensor) -> torch.Tensor:\n        if self.training:\n            return self._predict(images)\n        height, width = images.shape[-2:]\n        padded = F.pad(images, (1, 1, 1, 1), mode='replicate')\n        views = []\n        for row_offset, col_offset in ((1, 1), (0, 1), (2, 1), (1, 0), (1, 2)):\n            view = padded[:, :, row_offset:row_offset + height, col_offset:col_offset + width]\n            views.append(view)\n            views.append(view.flip(-1))\n        view_logits = self._predict(torch.cat(views, dim=0)).reshape(5, 2, images.shape[0], 10)\n        offset_logits = view_logits.mean(dim=1)\n        pooled_logits = (1.548828125 * offset_logits[0] + offset_logits[1:].sum(dim=0)) / 5.548828125\n        return 1.22775 * pooled_logits",
+        "MultiScaleBlock": "class MultiScaleBlock(nn.Module):\n\n    def __init__(self, channels: int) -> None:\n        super().__init__()\n        branch_channels = channels // 2\n        self.local = nn.Sequential(nn.Conv2d(channels, branch_channels, kernel_size=3, padding=1, bias=False), nn.BatchNorm2d(branch_channels), nn.GELU())\n        self.context = nn.Sequential(nn.Conv2d(channels, branch_channels, kernel_size=3, padding=2, dilation=2, bias=False), nn.BatchNorm2d(branch_channels), nn.GELU())\n        self.fuse = nn.Sequential(nn.Conv2d(channels, channels, kernel_size=1, bias=False), nn.BatchNorm2d(channels))\n\n    def forward(self, features: torch.Tensor) -> torch.Tensor:\n        mixed = torch.cat((self.local(features), self.context(features)), dim=1)\n        return F.gelu(features + self.fuse(mixed))",
+        "SpatialRefinement": "class SpatialRefinement(nn.Module):\n\n    def __init__(self, channels: int) -> None:\n        super().__init__()\n        self.refine = nn.Sequential(nn.Conv2d(channels, channels, kernel_size=3, padding=1, groups=channels, bias=False), nn.BatchNorm2d(channels), nn.GELU(), nn.Conv2d(channels, channels, kernel_size=1, bias=False), nn.BatchNorm2d(channels))\n\n    def forward(self, features: torch.Tensor) -> torch.Tensor:\n        return F.gelu(features + self.refine(features))"
+      },
+      "reference_run": "fashion-mnist-openevolve-v2-1-mps-fashion_mnist_source_only_mps-openevolve-b01-c3",
+      "reference_proposal": 120,
+      "candidate_id": "6260a63690ece7ff8d2f51e78361149dfbafbc092d33f48c7e757b44b1482273",
+      "parent_candidate_id": "2a05276e667cb7938320cc853a64003a0081ba1d94d4ce6caf139a596bc7b25d",
+      "parent_source_sha256": "30e5443e7f2392640a1afb8083859a28d676517e7fc9dc7a2e5363cbd8a7a921",
+      "transition_classification": "changing",
+      "changed_components": [
+        "routing",
+        "aggregation",
+        "spatial_readout",
+        "channel_interaction"
+      ],
+      "fingerprint": {
+        "input_units": "grayscale image pixels",
+        "input_transform": "identity image tensor input",
+        "embedding": "not applicable: continuous-valued grayscale pixels enter convolution/affine operators directly",
+        "position": "implicit spatial neighborhoods; no explicit positional embedding",
+        "mixing": "Conv2d",
+        "routing": "learned vertical pooling logits are softmax-normalized then paired with their reversed weights",
+        "state": "no explicit persistent recurrent feature state",
+        "feedforward": "no separate transformer feedforward block",
+        "parameter_construction": "learned affine maps",
+        "sharing": "no additional explicit parameter tying beyond source-defined module reuse",
+        "normalization": "LayerNorm + BatchNorm2d",
+        "connectivity": "fixed source-defined feedforward connectivity",
+        "aggregation": "learned vertical weighted spatial means concatenated with global maximum",
+        "output": "learned linear readout",
+        "symmetry": "no explicit canonicalization or group-equivariant construction",
+        "conditional_compute": "fixed architecture; no input-dependent early exit or experts",
+        "activation": "GELU",
+        "stochasticity": "dropout declared (rate may be zero)",
+        "bottleneck": "no separate factorized bottleneck",
+        "iteration": "fixed feedforward stages",
+        "other": "complete train.py source and direct parent-child diff were read; exact model program is retained in program_parts",
+        "spatial_units": "image grid",
+        "spatial_operator": "grouped/depthwise Conv2d",
+        "scale_representation": "source-defined fixed-resolution/downsampling feature maps",
+        "spatial_readout": "two learned vertical pooled maps plus adaptive global maximum",
+        "channel_interaction": "dense and depthwise/dilated convolution branches",
+        "spatial_downsampling": "max pooling"
+      },
+      "family_signature": {
+        "mixing": "Conv2d",
+        "aggregation": "mean pooling",
+        "spatial_operator": "grouped/depthwise Conv2d"
+      },
+      "family_label": "Conv2d \u00b7 924eed25",
+      "training": {
+        "optimizer": "AdamW (declared)",
+        "objective": "cross entropy declared",
+        "augmentation": "geometric transformations declared"
+      },
+      "inference": {
+        "procedure": "fixed translated/flip TTA with log-probability aggregation and scalar calibration"
+      },
+      "settings": {
+        "BATCH_SIZE": 128
+      },
+      "notes": "Complete candidate and direct parent sources were read and diffed for this finite source-bound catalog entry. adds learned vertical spatial pooling weights.",
+      "evidence": [
+        {
+          "kind": "complete exact-program parent-child diff review",
+          "source_sha256": "d82bf8d2d4c4afac4cebc73415bdf4dd724b2a35c2b0dd80a3cc55b8dfdea3cd",
+          "parent_source_sha256": "30e5443e7f2392640a1afb8083859a28d676517e7fc9dc7a2e5363cbd8a7a921",
+          "program_sha256": "fc8b750562d64278c2f93ffe219550606d19171a8170283d740f4c63d6e4cc0e",
+          "candidate_id": "6260a63690ece7ff8d2f51e78361149dfbafbc092d33f48c7e757b44b1482273",
+          "parent_candidate_id": "2a05276e667cb7938320cc853a64003a0081ba1d94d4ce6caf139a596bc7b25d",
+          "changed_lines": {
+            "added": 18,
+            "removed": 5
+          },
+          "classification": "changing",
+          "changed_components": [
+            "routing",
+            "aggregation",
+            "spatial_readout",
+            "channel_interaction"
+          ],
+          "reason": "adds learned vertical spatial pooling weights",
+          "source_path": "data\\c0c3\\fashion-mnist-openevolve-v2-1-mps-campaign\\runs\\fashion-mnist-openevolve-v2-1-mps-fashion_mnist_source_only_mps-openevolve-b01-c3\\candidates\\6260a63690ece7ff8d2f51e78361149dfbafbc092d33f48c7e757b44b1482273\\train.py",
+          "parent_source_path": "data\\c0c3\\fashion-mnist-openevolve-v2-1-mps-campaign\\runs\\fashion-mnist-openevolve-v2-1-mps-fashion_mnist_source_only_mps-openevolve-b01-c3\\candidates\\2a05276e667cb7938320cc853a64003a0081ba1d94d4ce6caf139a596bc7b25d\\train.py"
+        }
+      ]
+    },
+    {
+      "source_sha256": "d1e33206e83cfdc540654b49c6544e88a153e55a05b8c5d74352b4b9145134c8",
+      "program_sha256": "63169dc95b375e7e9ca431f60339384df3221568191859e085bc24f4128acb47",
+      "program_parts": {
+        "ImageClassifier": "class ImageClassifier(nn.Module):\n\n    def __init__(self) -> None:\n        super().__init__()\n        self.features = nn.Sequential(nn.Conv2d(1, 32, kernel_size=3, padding=1, bias=False), nn.BatchNorm2d(32), nn.SiLU(), nn.Conv2d(32, 32, kernel_size=3, padding=1, bias=False), nn.BatchNorm2d(32), nn.SiLU(), nn.MaxPool2d(2), nn.Conv2d(32, 64, kernel_size=3, padding=1, bias=False), nn.BatchNorm2d(64), nn.SiLU(), nn.Conv2d(64, 64, kernel_size=3, padding=1, bias=False), nn.BatchNorm2d(64), nn.SiLU(), nn.MaxPool2d(2), ResidualRefinement())\n        self.classifier = nn.Sequential(nn.Flatten(), nn.Linear(64 * 7 * 7, 56), nn.SiLU(), nn.Linear(56, 10))\n\n    def forward(self, images: torch.Tensor) -> torch.Tensor:\n        logits = self.classifier(self.features(images))\n        if self.training:\n            return logits\n        padded = F.pad(images, (1, 1, 1, 1), mode='replicate')\n        views = (images, padded[:, :, 0:28, 0:28], padded[:, :, 0:28, 1:29], padded[:, :, 0:28, 2:30], padded[:, :, 1:29, 0:28], padded[:, :, 1:29, 2:30], padded[:, :, 2:30, 0:28], padded[:, :, 2:30, 1:29], padded[:, :, 2:30, 2:30])\n        view_weights = (36.0, 1.0, 6.0, 1.0, 6.0, 6.0, 1.0, 6.0, 1.0)\n        log_probs = []\n        for view, weight in zip(views, view_weights):\n            log_weight = math.log(weight)\n            log_probs.append(F.log_softmax(self.classifier(self.features(view)), dim=1) + log_weight)\n            log_probs.append(F.log_softmax(self.classifier(self.features(view.flip(-1))), dim=1) + log_weight)\n        return torch.logsumexp(torch.stack(log_probs), dim=0) - math.log(2.0 * sum(view_weights))",
+        "ResidualRefinement": "class ResidualRefinement(nn.Module):\n\n    def __init__(self) -> None:\n        super().__init__()\n        self.branch = nn.Sequential(nn.Conv2d(64, 64, kernel_size=3, padding=1, groups=64, bias=False), nn.BatchNorm2d(64), nn.SiLU(), nn.Conv2d(64, 64, kernel_size=1, bias=False), nn.BatchNorm2d(64))\n        nn.init.zeros_(self.branch[-1].weight)\n        self.channel_gate = nn.Sequential(nn.AdaptiveAvgPool2d(1), nn.Conv2d(64, 16, kernel_size=1), nn.SiLU(), nn.Conv2d(16, 64, kernel_size=1))\n        nn.init.zeros_(self.channel_gate[-1].weight)\n        nn.init.zeros_(self.channel_gate[-1].bias)\n\n    def forward(self, features: torch.Tensor) -> torch.Tensor:\n        refined = features + self.branch(features)\n        return refined * (1.0 + torch.tanh(self.channel_gate(refined)))"
+      },
+      "reference_run": "fashion-mnist-openevolve-v2-1-mps-fashion_mnist_source_only_mps-openevolve-b01-c4",
+      "reference_proposal": 46,
+      "candidate_id": "d22677805b5695373dd001491476b544b6c42fd4fcbfe37caf138c4779c44b7a",
+      "parent_candidate_id": "1456723a0aeeaa27607ea07d80d3440ecb0c59831647b049eec26fe8071ccbc8",
+      "parent_source_sha256": "2d0a03141fd317244a91a9b023fee2b51582144adb92c4d6036a0a66817b2cbe",
+      "transition_classification": "changing",
+      "changed_components": [
+        "mixing",
+        "routing",
+        "aggregation",
+        "channel_interaction",
+        "activation"
+      ],
+      "fingerprint": {
+        "input_units": "grayscale image pixels",
+        "input_transform": "identity image tensor input",
+        "embedding": "not applicable: continuous-valued grayscale pixels enter convolution/affine operators directly",
+        "position": "implicit spatial neighborhoods; no explicit positional embedding",
+        "mixing": "dense Conv2d plus depthwise Conv2d and global-average affine tanh channel gate",
+        "routing": "input-dependent global-average channel gate scales each refined feature channel by 1+tanh(gate)",
+        "state": "no explicit persistent recurrent feature state",
+        "feedforward": "no separate transformer feedforward block",
+        "parameter_construction": "learned affine maps",
+        "sharing": "no additional explicit parameter tying beyond source-defined module reuse",
+        "normalization": "BatchNorm2d",
+        "connectivity": "fixed source-defined feedforward connectivity",
+        "aggregation": "flattened gated spatial grid",
+        "output": "learned linear readout",
+        "symmetry": "no explicit canonicalization or group-equivariant construction",
+        "conditional_compute": "fixed architecture; no input-dependent early exit or experts",
+        "activation": "GELU and tanh channel gain",
+        "stochasticity": "none",
+        "bottleneck": "no separate factorized bottleneck",
+        "iteration": "fixed feedforward stages",
+        "other": "complete train.py source and direct parent-child diff were read; exact model program is retained in program_parts",
+        "spatial_units": "image grid",
+        "spatial_operator": "grouped/depthwise Conv2d",
+        "scale_representation": "source-defined fixed-resolution/downsampling feature maps",
+        "spatial_readout": "adaptive average pooling",
+        "channel_interaction": "depthwise spatial convolution followed by pointwise convolution and affine channel gate",
+        "spatial_downsampling": "max pooling"
+      },
+      "family_signature": {
+        "mixing": "Conv2d",
+        "aggregation": "adaptive average pooling",
+        "spatial_operator": "grouped/depthwise Conv2d"
+      },
+      "family_label": "Conv2d \u00b7 c99dbc0c",
+      "training": {
+        "optimizer": "AdamW (declared)",
+        "objective": "cross entropy declared",
+        "augmentation": "geometric transformations declared"
+      },
+      "inference": {
+        "procedure": "nine replicated-padding translated positions and horizontal flips; fixed log-probability aggregation"
+      },
+      "settings": {
+        "BATCH_SIZE": 128
+      },
+      "notes": "Complete candidate and direct parent sources were read and diffed for this finite source-bound catalog entry. adds a signal-dependent tanh channel gate.",
+      "evidence": [
+        {
+          "kind": "complete exact-program parent-child diff review",
+          "source_sha256": "d1e33206e83cfdc540654b49c6544e88a153e55a05b8c5d74352b4b9145134c8",
+          "parent_source_sha256": "2d0a03141fd317244a91a9b023fee2b51582144adb92c4d6036a0a66817b2cbe",
+          "program_sha256": "63169dc95b375e7e9ca431f60339384df3221568191859e085bc24f4128acb47",
+          "candidate_id": "d22677805b5695373dd001491476b544b6c42fd4fcbfe37caf138c4779c44b7a",
+          "parent_candidate_id": "1456723a0aeeaa27607ea07d80d3440ecb0c59831647b049eec26fe8071ccbc8",
+          "changed_lines": {
+            "added": 10,
+            "removed": 1
+          },
+          "classification": "changing",
+          "changed_components": [
+            "mixing",
+            "routing",
+            "aggregation",
+            "channel_interaction",
+            "activation"
+          ],
+          "reason": "adds a signal-dependent tanh channel gate",
+          "source_path": "data\\c0c3\\fashion-mnist-openevolve-v2-1-mps-campaign\\runs\\fashion-mnist-openevolve-v2-1-mps-fashion_mnist_source_only_mps-openevolve-b01-c4\\candidates\\d22677805b5695373dd001491476b544b6c42fd4fcbfe37caf138c4779c44b7a\\train.py",
+          "parent_source_path": "data\\c0c3\\fashion-mnist-openevolve-v2-1-mps-campaign\\runs\\fashion-mnist-openevolve-v2-1-mps-fashion_mnist_source_only_mps-openevolve-b01-c4\\candidates\\1456723a0aeeaa27607ea07d80d3440ecb0c59831647b049eec26fe8071ccbc8\\train.py"
+        }
+      ]
+    }
+  ]
+}

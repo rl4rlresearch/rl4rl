@@ -1,0 +1,1105 @@
+{
+  "version": "direct-fashion-lifecycle-1",
+  "reviewed_profiles": [
+    {
+      "source_sha256": "7a2de71b2d858e16dc4f8cd3ec2f40951b71cce0356c47a94c61f5e0902b9933",
+      "program_sha256": "3e1cef1846fd96e0e28fbd5b0be6f7541ea6d9d40b80dc7db976b5ba6dcfda30",
+      "program_parts": {
+        "ImageClassifier": "class ImageClassifier(nn.Module):\n\n    def __init__(self) -> None:\n        super().__init__()\n        self.stem = nn.Sequential(nn.Conv2d(1, 24, kernel_size=3, padding=1, bias=False), nn.BatchNorm2d(24), nn.GELU(), nn.MaxPool2d(2), nn.Conv2d(24, 48, kernel_size=3, padding=1, bias=False), nn.BatchNorm2d(48), nn.GELU(), ResidualDepthwiseBlock(48), nn.MaxPool2d(2), nn.Conv2d(48, 152, kernel_size=3, stride=2, padding=1, bias=False), nn.BatchNorm2d(152), nn.GELU(), *[ResidualDepthwiseBlock(152) for _ in range(6)])\n        self.avg_pool = nn.AdaptiveAvgPool2d((2, 2))\n        self.max_pool = nn.AdaptiveMaxPool2d((1, 1))\n        self.classifier = nn.Sequential(nn.LayerNorm(152 * 5), nn.GELU(), nn.Dropout(p=0.1), nn.Linear(152 * 5, 10))\n        self._ema_state_names: list[str] = []\n        for index, (name, value) in enumerate(self.state_dict().items()):\n            self.register_buffer(f'_ema_state_{index}', value.detach().clone(), persistent=False)\n            self._ema_state_names.append(name)\n        self._ema_initialized = False\n        self._using_ema = False\n\n    @torch.no_grad()\n    def update_ema(self, decay: float) -> None:\n        live_state = self.state_dict()\n        shadows = [getattr(self, f'_ema_state_{index}') for index in range(len(self._ema_state_names))]\n        sources = [live_state[name] for name in self._ema_state_names]\n        if not self._ema_initialized:\n            for shadow, source in zip(shadows, sources):\n                shadow.copy_(source)\n            self._ema_initialized = True\n            return\n        float_shadows = []\n        float_sources = []\n        for shadow, source in zip(shadows, sources):\n            if shadow.is_floating_point():\n                float_shadows.append(shadow)\n                float_sources.append(source)\n            else:\n                shadow.copy_(source)\n        torch._foreach_lerp_(float_shadows, float_sources, 1.0 - decay)\n\n    @torch.no_grad()\n    def _swap_ema_state(self) -> None:\n        live_state = self.state_dict()\n        for index, name in enumerate(self._ema_state_names):\n            live_value = live_state[name]\n            shadow = getattr(self, f'_ema_state_{index}')\n            temporary = live_value.detach().clone()\n            live_value.copy_(shadow)\n            shadow.copy_(temporary)\n        self._using_ema = not self._using_ema\n\n    def train(self, mode: bool=True) -> ImageClassifier:\n        if mode and self._using_ema:\n            self._swap_ema_state()\n        result = super().train(mode)\n        if not mode and self._ema_initialized and (not self._using_ema):\n            self._swap_ema_state()\n        return result\n\n    def _classify(self, images: torch.Tensor) -> torch.Tensor:\n        features = self.stem(images)\n        pooled = torch.cat((self.avg_pool(features).flatten(1), self.max_pool(features).flatten(1)), dim=1)\n        return self.classifier(pooled)\n\n    def forward(self, images: torch.Tensor) -> torch.Tensor:\n        logits = self._classify(images)\n        if not self.training:\n            flipped_logits = self._classify(images.flip(-1))\n            power = 0.5831695556640625\n            ema_logits = (torch.logaddexp(power * F.log_softmax(logits, dim=1), power * F.log_softmax(flipped_logits, dim=1)) - math.log(2.0)) / power\n            if self._using_ema:\n                self._swap_ema_state()\n                try:\n                    live_logits = self._classify(images)\n                    live_flipped_logits = self._classify(images.flip(-1))\n                    live_logits = (torch.logaddexp(power * F.log_softmax(live_logits, dim=1), power * F.log_softmax(live_flipped_logits, dim=1)) - math.log(2.0)) / power\n                finally:\n                    self._swap_ema_state()\n                logits = torch.logaddexp(F.log_softmax(ema_logits, dim=1) + math.log(0.75225), F.log_softmax(live_logits, dim=1) + math.log(0.24775))\n            else:\n                logits = ema_logits\n            logits = 1.04953 * logits\n        return logits",
+        "ResidualDepthwiseBlock": "class ResidualDepthwiseBlock(nn.Module):\n\n    def __init__(self, channels: int) -> None:\n        super().__init__()\n        self.depthwise = nn.Conv2d(channels, channels, kernel_size=3, padding=1, groups=channels, bias=False)\n        self.norm1 = nn.BatchNorm2d(channels)\n        self.pointwise = nn.Conv2d(channels, channels, kernel_size=1, bias=False)\n        self.norm2 = nn.BatchNorm2d(channels)\n\n    def forward(self, inputs: torch.Tensor) -> torch.Tensor:\n        hidden = F.gelu(self.norm1(self.depthwise(inputs)))\n        hidden = self.norm2(self.pointwise(hidden))\n        return F.gelu(inputs + hidden)"
+      },
+      "reference_group": 100,
+      "reference_run": "fashion-mnist-openevolve-v2-1-mps-fashion_mnist_source_only_mps-openevolve-b04-c3",
+      "reference_proposal": 190,
+      "fingerprint": {
+        "input_units": "grayscale image pixels",
+        "input_transform": "identity model input",
+        "embedding": "not applicable: continuous-valued features enter affine/convolution operators directly",
+        "position": "implicit spatial neighborhoods; no explicit position embedding",
+        "mixing": "dense + depthwise Conv2d",
+        "routing": "fixed local convolution neighborhoods",
+        "state": "no recurrent feature state; EMA parameter/buffer copies are training/inference state, with lifecycle: registered parameter/buffer EMA shadows updated by foreach interpolation; train/eval swaps live and EMA tensors; fixed flip power means and a fixed live/EMA prediction mixture",
+        "feedforward": "no separate transformer feedforward block",
+        "parameter_construction": "free learned convolution/affine weights; standard normalization parameters",
+        "sharing": "no additional explicit parameter tying",
+        "normalization": "BatchNorm2d + LayerNorm",
+        "connectivity": "fixed additive residual/skip connections; fixed channel/feature concatenation of conventional branches",
+        "aggregation": "regional mean and global maximum feature descriptor",
+        "output": "linear class-logit readout",
+        "symmetry": "no explicit canonicalization or group-equivariant construction",
+        "conditional_compute": "fixed architecture; no input-dependent early exit or experts",
+        "activation": "GELU + gelu",
+        "stochasticity": "dropout declared; rate is a setting",
+        "bottleneck": "no separate factorized bottleneck",
+        "iteration": "fixed feedforward stages",
+        "other": "all model constructors, architecture methods and lifecycle/evaluation methods were source-read; registered parameter/buffer EMA shadows updated by foreach interpolation; train/eval swaps live and EMA tensors; fixed flip power means and a fixed live/EMA prediction mixture",
+        "spatial_units": "image grid",
+        "spatial_operator": "dense + depthwise Conv2d",
+        "scale_representation": "local convolution stages with pooling/stride downsampling; regional mean and global maximum feature descriptor",
+        "spatial_readout": "2x2 adaptive-mean grid flattened and concatenated with a1x1 global-maximum descriptor; LayerNorm/GELU then affine class head",
+        "channel_interaction": "dense + depthwise convolution channel connectivity",
+        "spatial_downsampling": "AdaptiveAvgPool2d + AdaptiveMaxPool2d + MaxPool2d"
+      },
+      "family_signature": {
+        "task": "fashion",
+        "spatial_operator": "learned local Conv2d",
+        "summary_basis": [
+          "maximum",
+          "mean"
+        ],
+        "readout": "regional mean and global maximum feature descriptor"
+      },
+      "family_label": "CNN with regional mean/max readout",
+      "inference": {
+        "procedure": "registered parameter/buffer EMA shadows updated by foreach interpolation; train/eval swaps live and EMA tensors; fixed flip power means and a fixed live/EMA prediction mixture"
+      },
+      "training": {
+        "lifecycle": "registered parameter/buffer EMA shadows updated by foreach interpolation; train/eval swaps live and EMA tensors; fixed flip power means and a fixed live/EMA prediction mixture"
+      },
+      "settings": {
+        "numeric_literals_are_not_normalized_for_this_direct_reference": true
+      },
+      "notes": "The entire specialized model and its complete difference from a previously read model were inspected. Routine EMA/folding stays separate from representational mechanisms; regional/global readout statistics are explicit. Exact source or full-program match is required.",
+      "evidence": [
+        {
+          "file": "train.py",
+          "scope": "ResidualDepthwiseBlock.__init__",
+          "line": 20,
+          "code": "def __init__(self, channels: int) -> None:"
+        },
+        {
+          "file": "train.py",
+          "scope": "ResidualDepthwiseBlock.forward",
+          "line": 34,
+          "code": "def forward(self, inputs: torch.Tensor) -> torch.Tensor:"
+        },
+        {
+          "file": "train.py",
+          "scope": "ImageClassifier.__init__",
+          "line": 41,
+          "code": "def __init__(self) -> None:"
+        },
+        {
+          "file": "train.py",
+          "scope": "ImageClassifier.update_ema",
+          "line": 86,
+          "code": "@torch.no_grad()"
+        },
+        {
+          "file": "train.py",
+          "scope": "ImageClassifier._swap_ema_state",
+          "line": 111,
+          "code": "@torch.no_grad()"
+        },
+        {
+          "file": "train.py",
+          "scope": "ImageClassifier.train",
+          "line": 121,
+          "code": "def train(self, mode: bool=True) -> ImageClassifier:"
+        },
+        {
+          "file": "train.py",
+          "scope": "ImageClassifier._classify",
+          "line": 129,
+          "code": "def _classify(self, images: torch.Tensor) -> torch.Tensor:"
+        },
+        {
+          "file": "train.py",
+          "scope": "ImageClassifier.forward",
+          "line": 140,
+          "code": "def forward(self, images: torch.Tensor) -> torch.Tensor:"
+        },
+        {
+          "kind": "complete source/program-bound lifecycle adjudication",
+          "source_sha256": "7a2de71b2d858e16dc4f8cd3ec2f40951b71cce0356c47a94c61f5e0902b9933",
+          "program_sha256": "3e1cef1846fd96e0e28fbd5b0be6f7541ea6d9d40b80dc7db976b5ba6dcfda30",
+          "residual_group": 100
+        }
+      ]
+    },
+    {
+      "source_sha256": "0843d73e8d9333b3211b4d59136cdbf804079f13f349bf06e7e3f77bafb4cea2",
+      "program_sha256": "60f7f38f4ae98a9b5ae9821d29a6746dd179d15ba8b6ba6ec58e0d5703679fd5",
+      "program_parts": {
+        "ImageClassifier": "class ImageClassifier(nn.Module):\n\n    def __init__(self) -> None:\n        super().__init__()\n        self.features = nn.Sequential(nn.Conv2d(1, 32, kernel_size=3, padding=1, bias=False), nn.BatchNorm2d(32), nn.GELU(), nn.Conv2d(32, 32, kernel_size=3, padding=1, bias=False), nn.BatchNorm2d(32), nn.GELU(), nn.MaxPool2d(2), nn.Conv2d(32, 64, kernel_size=3, padding=1, bias=False), nn.BatchNorm2d(64), nn.GELU(), nn.Conv2d(64, 64, kernel_size=3, padding=1, bias=False), nn.BatchNorm2d(64), nn.GELU(), nn.MaxPool2d(2))\n        self.refine = nn.Sequential(nn.Conv2d(64, 64, kernel_size=3, padding=1, bias=False), nn.BatchNorm2d(64), nn.GELU(), nn.Conv2d(64, 64, kernel_size=3, padding=1, bias=False), nn.BatchNorm2d(64))\n        self.classifier = nn.Sequential(nn.Flatten(), nn.Linear(64 * 7 * 7, 35), nn.LayerNorm(35), nn.GELU(), nn.Dropout(0.1), nn.Linear(35, 10))\n        self._ema_swapped = False\n\n    def train(self, mode: bool=True) -> ImageClassifier:\n        if mode and self._ema_swapped:\n            with torch.no_grad():\n                for parameter in self.parameters():\n                    online_value = getattr(parameter, '_online_value', None)\n                    if online_value is not None:\n                        parameter.copy_(online_value)\n                        delattr(parameter, '_online_value')\n            self._ema_swapped = False\n        result = super().train(mode)\n        if not mode and (not self._ema_swapped):\n            swapped = False\n            with torch.no_grad():\n                for parameter in self.parameters():\n                    ema_value = getattr(parameter, '_ema_value', None)\n                    if ema_value is not None:\n                        parameter._online_value = parameter.detach().clone()\n                        parameter.copy_(ema_value)\n                        swapped = True\n            self._ema_swapped = swapped\n        return result\n\n    def _forward_once(self, images: torch.Tensor) -> torch.Tensor:\n        features = self.features(images)\n        features = F.gelu(features + self.refine(features))\n        return self.classifier(features)\n\n    def forward(self, images: torch.Tensor) -> torch.Tensor:\n        logits = self._forward_once(images)\n        if not self.training:\n            flipped_logits = self._forward_once(torch.flip(images, dims=(-1,)))\n            logits = 1.15 * (0.5 * (logits + flipped_logits))\n        return logits"
+      },
+      "reference_group": 245,
+      "reference_run": "fashion-mnist-openevolve-v2-1-mps-fashion_mnist_source_only_mps-openevolve-b01-c2",
+      "reference_proposal": 46,
+      "fingerprint": {
+        "input_units": "grayscale image pixels",
+        "input_transform": "identity model input",
+        "embedding": "not applicable: continuous-valued features enter affine/convolution operators directly",
+        "position": "implicit spatial neighborhoods; no explicit position embedding",
+        "mixing": "dense Conv2d",
+        "routing": "fixed local convolution neighborhoods",
+        "state": "no recurrent feature state; EMA parameter/buffer copies are training/inference state, with lifecycle: parameter-attached EMA values installed on eval entry; original live values restored and temporary attributes removed on training entry; fixed flip logit mean and scalar calibration",
+        "feedforward": "no separate transformer feedforward block",
+        "parameter_construction": "free learned convolution/affine weights; standard normalization parameters",
+        "sharing": "no additional explicit parameter tying",
+        "normalization": "BatchNorm2d + LayerNorm",
+        "connectivity": "fixed additive residual/skip connections",
+        "aggregation": "flattened spatial features",
+        "output": "linear class-logit readout",
+        "symmetry": "no explicit canonicalization or group-equivariant construction",
+        "conditional_compute": "fixed architecture; no input-dependent early exit or experts",
+        "activation": "GELU + gelu",
+        "stochasticity": "dropout declared; rate is a setting",
+        "bottleneck": "no separate factorized bottleneck",
+        "iteration": "fixed feedforward stages",
+        "other": "all model constructors, architecture methods and lifecycle/evaluation methods were source-read; parameter-attached EMA values installed on eval entry; original live values restored and temporary attributes removed on training entry; fixed flip logit mean and scalar calibration",
+        "spatial_units": "image grid",
+        "spatial_operator": "dense Conv2d",
+        "scale_representation": "fixed-resolution pooling/downsampling stages",
+        "spatial_readout": "flattened grid through an affine/pointwise dense head",
+        "channel_interaction": "dense convolution channel connectivity",
+        "spatial_downsampling": "MaxPool2d"
+      },
+      "family_signature": {
+        "task": "fashion",
+        "spatial_operator": "learned local Conv2d",
+        "summary_basis": [
+          "maximum"
+        ],
+        "readout": "flattened affine/pointwise head"
+      },
+      "family_label": "CNN with standard spatial features",
+      "inference": {
+        "procedure": "parameter-attached EMA values installed on eval entry; original live values restored and temporary attributes removed on training entry; fixed flip logit mean and scalar calibration"
+      },
+      "training": {
+        "lifecycle": "parameter-attached EMA values installed on eval entry; original live values restored and temporary attributes removed on training entry; fixed flip logit mean and scalar calibration"
+      },
+      "settings": {
+        "numeric_literals_are_not_normalized_for_this_direct_reference": true
+      },
+      "notes": "The entire specialized model and its complete difference from a previously read model were inspected. Routine EMA/folding stays separate from representational mechanisms; regional/global readout statistics are explicit. Exact source or full-program match is required.",
+      "evidence": [
+        {
+          "file": "train.py",
+          "scope": "ImageClassifier.__init__",
+          "line": 20,
+          "code": "def __init__(self) -> None:"
+        },
+        {
+          "file": "train.py",
+          "scope": "ImageClassifier.train",
+          "line": 55,
+          "code": "def train(self, mode: bool=True) -> ImageClassifier:"
+        },
+        {
+          "file": "train.py",
+          "scope": "ImageClassifier._forward_once",
+          "line": 80,
+          "code": "def _forward_once(self, images: torch.Tensor) -> torch.Tensor:"
+        },
+        {
+          "file": "train.py",
+          "scope": "ImageClassifier.forward",
+          "line": 85,
+          "code": "def forward(self, images: torch.Tensor) -> torch.Tensor:"
+        },
+        {
+          "kind": "complete source/program-bound lifecycle adjudication",
+          "source_sha256": "0843d73e8d9333b3211b4d59136cdbf804079f13f349bf06e7e3f77bafb4cea2",
+          "program_sha256": "60f7f38f4ae98a9b5ae9821d29a6746dd179d15ba8b6ba6ec58e0d5703679fd5",
+          "residual_group": 245
+        }
+      ]
+    },
+    {
+      "source_sha256": "6b6f0ee86710039bb66e82ef41ec03d0dc6b1f33965cbea65acc09b61f61b2ab",
+      "program_sha256": "b965f3aa3eb08fa22bd3370c9306e4279ca90b87c213ef4831b3b2f091fbbd5c",
+      "program_parts": {
+        "ImageClassifier": "class ImageClassifier(nn.Module):\n\n    def __init__(self) -> None:\n        super().__init__()\n        self.features = nn.Sequential(nn.Conv2d(1, 32, kernel_size=3, padding=1, bias=False), nn.BatchNorm2d(32), nn.ReLU(inplace=True), nn.Conv2d(32, 32, kernel_size=3, padding=1, bias=False), nn.BatchNorm2d(32), nn.ReLU(inplace=True), nn.MaxPool2d(2), nn.Conv2d(32, 64, kernel_size=3, padding=1, bias=False), nn.BatchNorm2d(64), nn.ReLU(inplace=True), nn.Conv2d(64, 64, kernel_size=3, padding=1, bias=False), nn.BatchNorm2d(64), nn.ReLU(inplace=True), nn.MaxPool2d(2))\n        self.classifier = nn.Sequential(nn.Flatten(), nn.Linear(64 * 7 * 7, 48), nn.ReLU(inplace=True), nn.Dropout(p=0.1), nn.Linear(48, 10))\n\n    def forward(self, images: torch.Tensor) -> torch.Tensor:\n        return self.classifier(self.features(images))\n\n    def train(self, mode: bool=True) -> ImageClassifier:\n        was_training = self.training\n        super().train(mode)\n        if was_training and (not mode):\n            with torch.no_grad():\n                for parameter in self.parameters():\n                    averaged = getattr(parameter, '_validation_ema', None)\n                    if averaged is not None:\n                        parameter._pre_ema_value = parameter.detach().clone()\n                        parameter.copy_(averaged)\n        elif not was_training and mode:\n            with torch.no_grad():\n                for parameter in self.parameters():\n                    original = getattr(parameter, '_pre_ema_value', None)\n                    if original is not None:\n                        parameter.copy_(original)\n                        del parameter._pre_ema_value\n        return self"
+      },
+      "reference_group": 255,
+      "reference_run": "fashion-mnist-openevolve-v2-1-mps-fashion_mnist_source_only_mps-openevolve-b02-c4",
+      "reference_proposal": 156,
+      "fingerprint": {
+        "input_units": "grayscale image pixels",
+        "input_transform": "identity model input",
+        "embedding": "not applicable: continuous-valued features enter affine/convolution operators directly",
+        "position": "implicit spatial neighborhoods; no explicit position embedding",
+        "mixing": "dense Conv2d",
+        "routing": "fixed local convolution neighborhoods",
+        "state": "no recurrent feature state; EMA parameter/buffer copies are training/inference state, with lifecycle: parameter-attached validation EMA installed only at train-to-eval transition, with original values restored at eval-to-train transition; single-view inference",
+        "feedforward": "no separate transformer feedforward block",
+        "parameter_construction": "free learned convolution/affine weights; standard normalization parameters",
+        "sharing": "no additional explicit parameter tying",
+        "normalization": "BatchNorm2d",
+        "connectivity": "sequential convolution/pooling stages and dense head",
+        "aggregation": "flattened spatial features",
+        "output": "linear class-logit readout",
+        "symmetry": "no explicit canonicalization or group-equivariant construction",
+        "conditional_compute": "fixed architecture; no input-dependent early exit or experts",
+        "activation": "ReLU",
+        "stochasticity": "dropout declared; rate is a setting",
+        "bottleneck": "no separate factorized bottleneck",
+        "iteration": "fixed feedforward stages",
+        "other": "all model constructors, architecture methods and lifecycle/evaluation methods were source-read; parameter-attached validation EMA installed only at train-to-eval transition, with original values restored at eval-to-train transition; single-view inference",
+        "spatial_units": "image grid",
+        "spatial_operator": "dense Conv2d",
+        "scale_representation": "fixed-resolution pooling/downsampling stages",
+        "spatial_readout": "flattened grid through an affine/pointwise dense head",
+        "channel_interaction": "dense convolution channel connectivity",
+        "spatial_downsampling": "MaxPool2d"
+      },
+      "family_signature": {
+        "task": "fashion",
+        "spatial_operator": "learned local Conv2d",
+        "summary_basis": [
+          "maximum"
+        ],
+        "readout": "flattened affine/pointwise head"
+      },
+      "family_label": "CNN with standard spatial features",
+      "inference": {
+        "procedure": "parameter-attached validation EMA installed only at train-to-eval transition, with original values restored at eval-to-train transition; single-view inference"
+      },
+      "training": {
+        "lifecycle": "parameter-attached validation EMA installed only at train-to-eval transition, with original values restored at eval-to-train transition; single-view inference"
+      },
+      "settings": {
+        "numeric_literals_are_not_normalized_for_this_direct_reference": true
+      },
+      "notes": "The entire specialized model and its complete difference from a previously read model were inspected. Routine EMA/folding stays separate from representational mechanisms; regional/global readout statistics are explicit. Exact source or full-program match is required.",
+      "evidence": [
+        {
+          "file": "train.py",
+          "scope": "ImageClassifier.__init__",
+          "line": 28,
+          "code": "def __init__(self) -> None:"
+        },
+        {
+          "file": "train.py",
+          "scope": "ImageClassifier.forward",
+          "line": 54,
+          "code": "def forward(self, images: torch.Tensor) -> torch.Tensor:"
+        },
+        {
+          "file": "train.py",
+          "scope": "ImageClassifier.train",
+          "line": 57,
+          "code": "def train(self, mode: bool=True) -> ImageClassifier:"
+        },
+        {
+          "kind": "complete source/program-bound lifecycle adjudication",
+          "source_sha256": "6b6f0ee86710039bb66e82ef41ec03d0dc6b1f33965cbea65acc09b61f61b2ab",
+          "program_sha256": "b965f3aa3eb08fa22bd3370c9306e4279ca90b87c213ef4831b3b2f091fbbd5c",
+          "residual_group": 255
+        }
+      ]
+    },
+    {
+      "source_sha256": "0e6d718c301c27b412981602b4acb20bf1f87c3c60643c156fa329f52811a10f",
+      "program_sha256": "24fa61f73b4d9568414d933de416fd2005144ff366caf57d180d7bd6a09eab55",
+      "program_parts": {
+        "ImageClassifier": "class ImageClassifier(nn.Module):\n\n    def __init__(self) -> None:\n        super().__init__()\n        self.features = nn.Sequential(nn.Conv2d(1, 32, kernel_size=3, padding=1, bias=False), nn.BatchNorm2d(32), nn.SiLU(), nn.Conv2d(32, 32, kernel_size=3, padding=1, bias=False), nn.BatchNorm2d(32), nn.SiLU(), nn.MaxPool2d(2), nn.Conv2d(32, 64, kernel_size=3, padding=1, bias=False), nn.BatchNorm2d(64), nn.SiLU(), nn.Conv2d(64, 64, kernel_size=3, padding=1, bias=False), nn.BatchNorm2d(64), nn.SiLU(), nn.MaxPool2d(2), ResidualRefinement())\n        self.classifier = nn.Sequential(nn.Flatten(), nn.Linear(64 * 7 * 7, 56), nn.SiLU(), nn.Linear(56, 10))\n        self._ema_parameters: list[torch.Tensor] | None = None\n\n    def train(self, mode: bool=True) -> ImageClassifier:\n        if not mode and self._ema_parameters is not None:\n            with torch.no_grad():\n                for parameter, averaged in zip(self.parameters(), self._ema_parameters):\n                    parameter.copy_(averaged)\n        return super().train(mode)\n\n    def forward(self, images: torch.Tensor) -> torch.Tensor:\n        logits = self.classifier(self.features(images))\n        if self.training:\n            return logits\n        padded = F.pad(images, (1, 1, 1, 1), mode='replicate')\n        views = (images, padded[:, :, 0:28, 0:28], padded[:, :, 0:28, 1:29], padded[:, :, 0:28, 2:30], padded[:, :, 1:29, 0:28], padded[:, :, 1:29, 2:30], padded[:, :, 2:30, 0:28], padded[:, :, 2:30, 1:29], padded[:, :, 2:30, 2:30])\n        view_weights = (36.0, 1.0, 6.0, 1.0, 6.0, 6.0, 1.0, 6.0, 1.0)\n        log_probs = []\n        for view, weight in zip(views, view_weights):\n            log_weight = math.log(weight)\n            log_probs.append(F.log_softmax(self.classifier(self.features(view)), dim=1) + log_weight)\n            log_probs.append(F.log_softmax(self.classifier(self.features(view.flip(-1))), dim=1) + log_weight)\n        return torch.logsumexp(torch.stack(log_probs), dim=0) - math.log(2.0 * sum(view_weights))",
+        "ResidualRefinement": "class ResidualRefinement(nn.Module):\n\n    def __init__(self) -> None:\n        super().__init__()\n        self.branch = nn.Sequential(nn.Conv2d(64, 64, kernel_size=3, padding=1, groups=64, bias=False), nn.BatchNorm2d(64), nn.SiLU(), nn.Conv2d(64, 64, kernel_size=1, bias=False), nn.BatchNorm2d(64))\n        nn.init.zeros_(self.branch[-1].weight)\n\n    def forward(self, features: torch.Tensor) -> torch.Tensor:\n        return features + self.branch(features)"
+      },
+      "reference_group": 266,
+      "reference_run": "fashion-mnist-openevolve-v2-1-mps-fashion_mnist_source_only_mps-openevolve-b01-c4",
+      "reference_proposal": 148,
+      "fingerprint": {
+        "input_units": "grayscale image pixels",
+        "input_transform": "identity model input",
+        "embedding": "not applicable: continuous-valued features enter affine/convolution operators directly",
+        "position": "implicit spatial neighborhoods; no explicit position embedding",
+        "mixing": "dense + depthwise Conv2d",
+        "routing": "fixed local convolution neighborhoods",
+        "state": "no recurrent feature state; EMA parameter/buffer copies are training/inference state, with lifecycle: EMA parameter list copied into the model whenever eval mode is selected, without restoring live parameters; fixed nine-crop/flip weighted probability mixture",
+        "feedforward": "no separate transformer feedforward block",
+        "parameter_construction": "free learned convolution/affine weights; standard normalization parameters",
+        "sharing": "no additional explicit parameter tying",
+        "normalization": "BatchNorm2d",
+        "connectivity": "fixed additive residual/skip connections",
+        "aggregation": "flattened spatial features",
+        "output": "linear class-logit readout",
+        "symmetry": "no explicit canonicalization or group-equivariant construction",
+        "conditional_compute": "fixed architecture; no input-dependent early exit or experts",
+        "activation": "SiLU",
+        "stochasticity": "none",
+        "bottleneck": "no separate factorized bottleneck",
+        "iteration": "fixed feedforward stages",
+        "other": "all model constructors, architecture methods and lifecycle/evaluation methods were source-read; EMA parameter list copied into the model whenever eval mode is selected, without restoring live parameters; fixed nine-crop/flip weighted probability mixture",
+        "spatial_units": "image grid",
+        "spatial_operator": "dense + depthwise Conv2d",
+        "scale_representation": "fixed-resolution pooling/downsampling stages",
+        "spatial_readout": "flattened grid through an affine/pointwise dense head",
+        "channel_interaction": "dense + depthwise convolution channel connectivity",
+        "spatial_downsampling": "MaxPool2d"
+      },
+      "family_signature": {
+        "task": "fashion",
+        "spatial_operator": "learned local Conv2d",
+        "summary_basis": [
+          "maximum"
+        ],
+        "readout": "flattened affine/pointwise head"
+      },
+      "family_label": "CNN with standard spatial features",
+      "inference": {
+        "procedure": "EMA parameter list copied into the model whenever eval mode is selected, without restoring live parameters; fixed nine-crop/flip weighted probability mixture"
+      },
+      "training": {
+        "lifecycle": "EMA parameter list copied into the model whenever eval mode is selected, without restoring live parameters; fixed nine-crop/flip weighted probability mixture"
+      },
+      "settings": {
+        "numeric_literals_are_not_normalized_for_this_direct_reference": true
+      },
+      "notes": "The entire specialized model and its complete difference from a previously read model were inspected. Routine EMA/folding stays separate from representational mechanisms; regional/global readout statistics are explicit. Exact source or full-program match is required.",
+      "evidence": [
+        {
+          "file": "train.py",
+          "scope": "ResidualRefinement.__init__",
+          "line": 20,
+          "code": "def __init__(self) -> None:"
+        },
+        {
+          "file": "train.py",
+          "scope": "ResidualRefinement.forward",
+          "line": 33,
+          "code": "def forward(self, features: torch.Tensor) -> torch.Tensor:"
+        },
+        {
+          "file": "train.py",
+          "scope": "ImageClassifier.__init__",
+          "line": 38,
+          "code": "def __init__(self) -> None:"
+        },
+        {
+          "file": "train.py",
+          "scope": "ImageClassifier.train",
+          "line": 65,
+          "code": "def train(self, mode: bool=True) -> ImageClassifier:"
+        },
+        {
+          "file": "train.py",
+          "scope": "ImageClassifier.forward",
+          "line": 74,
+          "code": "def forward(self, images: torch.Tensor) -> torch.Tensor:"
+        },
+        {
+          "kind": "complete source/program-bound lifecycle adjudication",
+          "source_sha256": "0e6d718c301c27b412981602b4acb20bf1f87c3c60643c156fa329f52811a10f",
+          "program_sha256": "24fa61f73b4d9568414d933de416fd2005144ff366caf57d180d7bd6a09eab55",
+          "residual_group": 266
+        }
+      ]
+    },
+    {
+      "source_sha256": "549acfc8696de0903e0ad2c232b8ae005878153699af5fa059f13e29a17f97d9",
+      "program_sha256": "22d938e06eb121cfbb4d6c5df08f42f0d8a77de810de2f32ff5d41cfeebe44e1",
+      "program_parts": {
+        "ImageClassifier": "class ImageClassifier(nn.Module):\n\n    def __init__(self) -> None:\n        super().__init__()\n        self.features = nn.Sequential(nn.Conv2d(1, 32, kernel_size=3, padding=1, bias=False), nn.BatchNorm2d(32), nn.SiLU(), nn.Conv2d(32, 32, kernel_size=3, padding=1, bias=False), nn.BatchNorm2d(32), nn.SiLU(), nn.MaxPool2d(2), nn.Conv2d(32, 64, kernel_size=3, padding=1, bias=False), nn.BatchNorm2d(64), nn.SiLU(), nn.Conv2d(64, 64, kernel_size=3, padding=1, bias=False), nn.BatchNorm2d(64), nn.SiLU(), nn.MaxPool2d(2), ResidualRefinement())\n        self.classifier = nn.Sequential(nn.Flatten(), nn.Linear(64 * 7 * 7, 56), nn.SiLU(), nn.Linear(56, 10))\n        self._ema_parameters: list[torch.Tensor] | None = None\n        self._ema_live_parameters: list[torch.Tensor] | None = None\n        self._ema_applied = False\n\n    def train(self, mode: bool=True) -> ImageClassifier:\n        if mode and self._ema_applied:\n            with torch.no_grad():\n                for parameter, live in zip(self.parameters(), self._ema_live_parameters):\n                    parameter.copy_(live)\n            self._ema_live_parameters = None\n            self._ema_applied = False\n        result = super().train(mode)\n        if not mode and self._ema_parameters is not None and (not self._ema_applied):\n            self._ema_live_parameters = [parameter.detach().clone() for parameter in self.parameters()]\n            with torch.no_grad():\n                for parameter, average in zip(self.parameters(), self._ema_parameters):\n                    parameter.copy_(average)\n            self._ema_applied = True\n        return result\n\n    def forward(self, images: torch.Tensor) -> torch.Tensor:\n        logits = self.classifier(self.features(images))\n        if self.training:\n            return logits\n        padded = F.pad(images, (1, 1, 1, 1), mode='replicate')\n        views = (images, padded[:, :, 0:28, 0:28], padded[:, :, 0:28, 1:29], padded[:, :, 0:28, 2:30], padded[:, :, 1:29, 0:28], padded[:, :, 1:29, 2:30], padded[:, :, 2:30, 0:28], padded[:, :, 2:30, 1:29], padded[:, :, 2:30, 2:30])\n        view_weights = (36.0, 1.0, 6.0, 1.0, 6.0, 6.0, 1.0, 6.0, 1.0)\n        log_probs = []\n        for view, weight in zip(views, view_weights):\n            log_weight = math.log(weight)\n            log_probs.append(F.log_softmax(self.classifier(self.features(view)), dim=1) + log_weight)\n            log_probs.append(F.log_softmax(self.classifier(self.features(view.flip(-1))), dim=1) + log_weight)\n        return torch.logsumexp(torch.stack(log_probs), dim=0) - math.log(2.0 * sum(view_weights))",
+        "ResidualRefinement": "class ResidualRefinement(nn.Module):\n\n    def __init__(self) -> None:\n        super().__init__()\n        self.branch = nn.Sequential(nn.Conv2d(64, 64, kernel_size=3, padding=1, groups=64, bias=False), nn.BatchNorm2d(64), nn.SiLU(), nn.Conv2d(64, 64, kernel_size=1, bias=False), nn.BatchNorm2d(64))\n        nn.init.zeros_(self.branch[-1].weight)\n\n    def forward(self, features: torch.Tensor) -> torch.Tensor:\n        return features + self.branch(features)"
+      },
+      "reference_group": 296,
+      "reference_run": "fashion-mnist-openevolve-v2-1-mps-fashion_mnist_source_only_mps-openevolve-b01-c4",
+      "reference_proposal": 147,
+      "fingerprint": {
+        "input_units": "grayscale image pixels",
+        "input_transform": "identity model input",
+        "embedding": "not applicable: continuous-valued features enter affine/convolution operators directly",
+        "position": "implicit spatial neighborhoods; no explicit position embedding",
+        "mixing": "dense + depthwise Conv2d",
+        "routing": "fixed local convolution neighborhoods",
+        "state": "no recurrent feature state; EMA parameter/buffer copies are training/inference state, with lifecycle: EMA parameter list installed on eval entry with live copies retained, then restored on training entry; fixed nine-crop/flip weighted probability mixture",
+        "feedforward": "no separate transformer feedforward block",
+        "parameter_construction": "free learned convolution/affine weights; standard normalization parameters",
+        "sharing": "no additional explicit parameter tying",
+        "normalization": "BatchNorm2d",
+        "connectivity": "fixed additive residual/skip connections",
+        "aggregation": "flattened spatial features",
+        "output": "linear class-logit readout",
+        "symmetry": "no explicit canonicalization or group-equivariant construction",
+        "conditional_compute": "fixed architecture; no input-dependent early exit or experts",
+        "activation": "SiLU",
+        "stochasticity": "none",
+        "bottleneck": "no separate factorized bottleneck",
+        "iteration": "fixed feedforward stages",
+        "other": "all model constructors, architecture methods and lifecycle/evaluation methods were source-read; EMA parameter list installed on eval entry with live copies retained, then restored on training entry; fixed nine-crop/flip weighted probability mixture",
+        "spatial_units": "image grid",
+        "spatial_operator": "dense + depthwise Conv2d",
+        "scale_representation": "fixed-resolution pooling/downsampling stages",
+        "spatial_readout": "flattened grid through an affine/pointwise dense head",
+        "channel_interaction": "dense + depthwise convolution channel connectivity",
+        "spatial_downsampling": "MaxPool2d"
+      },
+      "family_signature": {
+        "task": "fashion",
+        "spatial_operator": "learned local Conv2d",
+        "summary_basis": [
+          "maximum"
+        ],
+        "readout": "flattened affine/pointwise head"
+      },
+      "family_label": "CNN with standard spatial features",
+      "inference": {
+        "procedure": "EMA parameter list installed on eval entry with live copies retained, then restored on training entry; fixed nine-crop/flip weighted probability mixture"
+      },
+      "training": {
+        "lifecycle": "EMA parameter list installed on eval entry with live copies retained, then restored on training entry; fixed nine-crop/flip weighted probability mixture"
+      },
+      "settings": {
+        "numeric_literals_are_not_normalized_for_this_direct_reference": true
+      },
+      "notes": "The entire specialized model and its complete difference from a previously read model were inspected. Routine EMA/folding stays separate from representational mechanisms; regional/global readout statistics are explicit. Exact source or full-program match is required.",
+      "evidence": [
+        {
+          "file": "train.py",
+          "scope": "ResidualRefinement.__init__",
+          "line": 20,
+          "code": "def __init__(self) -> None:"
+        },
+        {
+          "file": "train.py",
+          "scope": "ResidualRefinement.forward",
+          "line": 33,
+          "code": "def forward(self, features: torch.Tensor) -> torch.Tensor:"
+        },
+        {
+          "file": "train.py",
+          "scope": "ImageClassifier.__init__",
+          "line": 38,
+          "code": "def __init__(self) -> None:"
+        },
+        {
+          "file": "train.py",
+          "scope": "ImageClassifier.train",
+          "line": 67,
+          "code": "def train(self, mode: bool=True) -> ImageClassifier:"
+        },
+        {
+          "file": "train.py",
+          "scope": "ImageClassifier.forward",
+          "line": 94,
+          "code": "def forward(self, images: torch.Tensor) -> torch.Tensor:"
+        },
+        {
+          "kind": "complete source/program-bound lifecycle adjudication",
+          "source_sha256": "549acfc8696de0903e0ad2c232b8ae005878153699af5fa059f13e29a17f97d9",
+          "program_sha256": "22d938e06eb121cfbb4d6c5df08f42f0d8a77de810de2f32ff5d41cfeebe44e1",
+          "residual_group": 296
+        }
+      ]
+    },
+    {
+      "source_sha256": "c6dfe6e61342fcc68a17f7c8a5bcba3cf67e325d48754b01c8fb89c9d00f4ba7",
+      "program_sha256": "afb2482ad0231aa9cb8990788391afd76b781884536519f171a784c1972797f1",
+      "program_parts": {
+        "ImageClassifier": "class ImageClassifier(nn.Module):\n\n    def __init__(self) -> None:\n        super().__init__()\n        self.features = nn.Sequential(nn.Conv2d(1, 32, kernel_size=3, padding=1, bias=False), nn.BatchNorm2d(32), nn.GELU(), nn.Conv2d(32, 32, kernel_size=3, padding=1, bias=False), nn.BatchNorm2d(32), nn.GELU(), nn.MaxPool2d(2), nn.Conv2d(32, 64, kernel_size=3, padding=1, bias=False), nn.BatchNorm2d(64), nn.GELU(), nn.Conv2d(64, 64, kernel_size=3, padding=1, bias=False), nn.BatchNorm2d(64), nn.GELU(), nn.MaxPool2d(2))\n        self.refine = nn.Sequential(nn.Conv2d(64, 64, kernel_size=3, padding=1, bias=False), nn.BatchNorm2d(64), nn.GELU(), nn.Conv2d(64, 64, kernel_size=3, padding=1, bias=False), nn.BatchNorm2d(64))\n        self.classifier = nn.Sequential(nn.Flatten(), nn.Linear(64 * 7 * 7, 35), nn.LayerNorm(35), nn.GELU(), nn.Dropout(0.1), nn.Linear(35, 10))\n        self._ema_parameters: list[torch.Tensor] | None = None\n\n    def train(self, mode: bool=True) -> ImageClassifier:\n        if not mode and self._ema_parameters is not None:\n            with torch.no_grad():\n                for parameter, average in zip(self.parameters(), self._ema_parameters):\n                    parameter.copy_(average)\n        return super().train(mode)\n\n    def _forward_once(self, images: torch.Tensor) -> torch.Tensor:\n        features = self.features(images)\n        features = F.gelu(features + self.refine(features))\n        return self.classifier(features)\n\n    def forward(self, images: torch.Tensor) -> torch.Tensor:\n        logits = self._forward_once(images)\n        if not self.training:\n            flipped_logits = self._forward_once(torch.flip(images, dims=(-1,)))\n            logits = 1.184 * (0.5 * (logits + flipped_logits))\n        return logits"
+      },
+      "reference_group": 321,
+      "reference_run": "fashion-mnist-openevolve-v2-1-mps-fashion_mnist_source_only_mps-openevolve-b01-c2",
+      "reference_proposal": 77,
+      "fingerprint": {
+        "input_units": "grayscale image pixels",
+        "input_transform": "identity model input",
+        "embedding": "not applicable: continuous-valued features enter affine/convolution operators directly",
+        "position": "implicit spatial neighborhoods; no explicit position embedding",
+        "mixing": "dense Conv2d",
+        "routing": "fixed local convolution neighborhoods",
+        "state": "no recurrent feature state; EMA parameter/buffer copies are training/inference state, with lifecycle: EMA parameter list copied into model on eval selection without live restoration; fixed original/flip logit mean and scalar calibration",
+        "feedforward": "no separate transformer feedforward block",
+        "parameter_construction": "free learned convolution/affine weights; standard normalization parameters",
+        "sharing": "no additional explicit parameter tying",
+        "normalization": "BatchNorm2d + LayerNorm",
+        "connectivity": "fixed additive residual/skip connections",
+        "aggregation": "flattened spatial features",
+        "output": "linear class-logit readout",
+        "symmetry": "no explicit canonicalization or group-equivariant construction",
+        "conditional_compute": "fixed architecture; no input-dependent early exit or experts",
+        "activation": "GELU + gelu",
+        "stochasticity": "dropout declared; rate is a setting",
+        "bottleneck": "no separate factorized bottleneck",
+        "iteration": "fixed feedforward stages",
+        "other": "all model constructors, architecture methods and lifecycle/evaluation methods were source-read; EMA parameter list copied into model on eval selection without live restoration; fixed original/flip logit mean and scalar calibration",
+        "spatial_units": "image grid",
+        "spatial_operator": "dense Conv2d",
+        "scale_representation": "fixed-resolution pooling/downsampling stages",
+        "spatial_readout": "flattened grid through an affine/pointwise dense head",
+        "channel_interaction": "dense convolution channel connectivity",
+        "spatial_downsampling": "MaxPool2d"
+      },
+      "family_signature": {
+        "task": "fashion",
+        "spatial_operator": "learned local Conv2d",
+        "summary_basis": [
+          "maximum"
+        ],
+        "readout": "flattened affine/pointwise head"
+      },
+      "family_label": "CNN with standard spatial features",
+      "inference": {
+        "procedure": "EMA parameter list copied into model on eval selection without live restoration; fixed original/flip logit mean and scalar calibration"
+      },
+      "training": {
+        "lifecycle": "EMA parameter list copied into model on eval selection without live restoration; fixed original/flip logit mean and scalar calibration"
+      },
+      "settings": {
+        "numeric_literals_are_not_normalized_for_this_direct_reference": true
+      },
+      "notes": "The entire specialized model and its complete difference from a previously read model were inspected. Routine EMA/folding stays separate from representational mechanisms; regional/global readout statistics are explicit. Exact source or full-program match is required.",
+      "evidence": [
+        {
+          "file": "train.py",
+          "scope": "ImageClassifier.__init__",
+          "line": 20,
+          "code": "def __init__(self) -> None:"
+        },
+        {
+          "file": "train.py",
+          "scope": "ImageClassifier.train",
+          "line": 55,
+          "code": "def train(self, mode: bool=True) -> ImageClassifier:"
+        },
+        {
+          "file": "train.py",
+          "scope": "ImageClassifier._forward_once",
+          "line": 65,
+          "code": "def _forward_once(self, images: torch.Tensor) -> torch.Tensor:"
+        },
+        {
+          "file": "train.py",
+          "scope": "ImageClassifier.forward",
+          "line": 70,
+          "code": "def forward(self, images: torch.Tensor) -> torch.Tensor:"
+        },
+        {
+          "kind": "complete source/program-bound lifecycle adjudication",
+          "source_sha256": "c6dfe6e61342fcc68a17f7c8a5bcba3cf67e325d48754b01c8fb89c9d00f4ba7",
+          "program_sha256": "afb2482ad0231aa9cb8990788391afd76b781884536519f171a784c1972797f1",
+          "residual_group": 321
+        }
+      ]
+    },
+    {
+      "source_sha256": "bd10d6231dfac57bbfe18fe39925f814520a172911e06fa41010181e09ca3513",
+      "program_sha256": "0699de9721a83ad9f51dc7c3c5db4cffd7e082eb89807af06ce301bd59974dda",
+      "program_parts": {
+        "ImageClassifier": "class ImageClassifier(nn.Module):\n\n    def __init__(self) -> None:\n        super().__init__()\n        self.features = nn.Sequential(nn.Conv2d(1, 32, kernel_size=3, padding=1, bias=False), nn.BatchNorm2d(32), nn.SiLU(), nn.Conv2d(32, 32, kernel_size=3, padding=1, bias=False), nn.BatchNorm2d(32), nn.SiLU(), nn.MaxPool2d(2), nn.Conv2d(32, 64, kernel_size=3, padding=1, bias=False), nn.BatchNorm2d(64), nn.SiLU(), nn.Conv2d(64, 64, kernel_size=3, padding=1, bias=False), nn.BatchNorm2d(64), nn.SiLU(), nn.MaxPool2d(2), ResidualRefinement())\n        self.classifier = nn.Sequential(nn.Flatten(), nn.Linear(64 * 7 * 7, 56), nn.SiLU(), nn.Linear(56, 10))\n\n    def train(self, mode: bool=True) -> ImageClassifier:\n        ema_tensors = getattr(self, '_ema_tensors', None)\n        ema_applied = getattr(self, '_ema_applied', False)\n        current_tensors = list(self.parameters()) + [buffer for buffer in self.buffers() if buffer.is_floating_point()]\n        with torch.no_grad():\n            if mode and ema_applied:\n                for current, live in zip(current_tensors, self._live_tensors):\n                    current.copy_(live)\n                self._live_tensors = None\n                self._ema_applied = False\n            elif not mode and ema_tensors is not None and (not ema_applied):\n                self._live_tensors = [tensor.detach().clone() for tensor in current_tensors]\n                for current, averaged in zip(current_tensors, ema_tensors):\n                    current.copy_(averaged)\n                self._ema_applied = True\n        return super().train(mode)\n\n    def forward(self, images: torch.Tensor) -> torch.Tensor:\n        logits = self.classifier(self.features(images))\n        if self.training:\n            return logits\n        padded = F.pad(images, (1, 1, 1, 1), mode='replicate')\n        views = (images, padded[:, :, 0:28, 0:28], padded[:, :, 0:28, 1:29], padded[:, :, 0:28, 2:30], padded[:, :, 1:29, 0:28], padded[:, :, 1:29, 2:30], padded[:, :, 2:30, 0:28], padded[:, :, 2:30, 1:29], padded[:, :, 2:30, 2:30])\n        view_weights = (36.0, 1.0, 6.0, 1.0, 6.0, 6.0, 1.0, 6.0, 1.0)\n        log_probs = []\n        for view, weight in zip(views, view_weights):\n            log_weight = math.log(weight)\n            log_probs.append(F.log_softmax(self.classifier(self.features(view)), dim=1) + log_weight)\n            log_probs.append(F.log_softmax(self.classifier(self.features(view.flip(-1))), dim=1) + log_weight)\n        return torch.logsumexp(torch.stack(log_probs), dim=0) - math.log(2.0 * sum(view_weights))",
+        "ResidualRefinement": "class ResidualRefinement(nn.Module):\n\n    def __init__(self) -> None:\n        super().__init__()\n        self.branch = nn.Sequential(nn.Conv2d(64, 64, kernel_size=3, padding=1, groups=64, bias=False), nn.BatchNorm2d(64), nn.SiLU(), nn.Conv2d(64, 64, kernel_size=1, bias=False), nn.BatchNorm2d(64))\n        nn.init.zeros_(self.branch[-1].weight)\n\n    def forward(self, features: torch.Tensor) -> torch.Tensor:\n        return features + self.branch(features)"
+      },
+      "reference_group": 335,
+      "reference_run": "fashion-mnist-openevolve-v2-1-mps-fashion_mnist_source_only_mps-openevolve-b01-c4",
+      "reference_proposal": 136,
+      "fingerprint": {
+        "input_units": "grayscale image pixels",
+        "input_transform": "identity model input",
+        "embedding": "not applicable: continuous-valued features enter affine/convolution operators directly",
+        "position": "implicit spatial neighborhoods; no explicit position embedding",
+        "mixing": "dense + depthwise Conv2d",
+        "routing": "fixed local convolution neighborhoods",
+        "state": "no recurrent feature state; EMA parameter/buffer copies are training/inference state, with lifecycle: EMA list for parameters and floating buffers installed on eval entry; all live tensors restored on training entry; fixed nine-crop/flip weighted probability mixture",
+        "feedforward": "no separate transformer feedforward block",
+        "parameter_construction": "free learned convolution/affine weights; standard normalization parameters",
+        "sharing": "no additional explicit parameter tying",
+        "normalization": "BatchNorm2d",
+        "connectivity": "fixed additive residual/skip connections",
+        "aggregation": "flattened spatial features",
+        "output": "linear class-logit readout",
+        "symmetry": "no explicit canonicalization or group-equivariant construction",
+        "conditional_compute": "fixed architecture; no input-dependent early exit or experts",
+        "activation": "SiLU",
+        "stochasticity": "none",
+        "bottleneck": "no separate factorized bottleneck",
+        "iteration": "fixed feedforward stages",
+        "other": "all model constructors, architecture methods and lifecycle/evaluation methods were source-read; EMA list for parameters and floating buffers installed on eval entry; all live tensors restored on training entry; fixed nine-crop/flip weighted probability mixture",
+        "spatial_units": "image grid",
+        "spatial_operator": "dense + depthwise Conv2d",
+        "scale_representation": "fixed-resolution pooling/downsampling stages",
+        "spatial_readout": "flattened grid through an affine/pointwise dense head",
+        "channel_interaction": "dense + depthwise convolution channel connectivity",
+        "spatial_downsampling": "MaxPool2d"
+      },
+      "family_signature": {
+        "task": "fashion",
+        "spatial_operator": "learned local Conv2d",
+        "summary_basis": [
+          "maximum"
+        ],
+        "readout": "flattened affine/pointwise head"
+      },
+      "family_label": "CNN with standard spatial features",
+      "inference": {
+        "procedure": "EMA list for parameters and floating buffers installed on eval entry; all live tensors restored on training entry; fixed nine-crop/flip weighted probability mixture"
+      },
+      "training": {
+        "lifecycle": "EMA list for parameters and floating buffers installed on eval entry; all live tensors restored on training entry; fixed nine-crop/flip weighted probability mixture"
+      },
+      "settings": {
+        "numeric_literals_are_not_normalized_for_this_direct_reference": true
+      },
+      "notes": "The entire specialized model and its complete difference from a previously read model were inspected. Routine EMA/folding stays separate from representational mechanisms; regional/global readout statistics are explicit. Exact source or full-program match is required.",
+      "evidence": [
+        {
+          "file": "train.py",
+          "scope": "ResidualRefinement.__init__",
+          "line": 20,
+          "code": "def __init__(self) -> None:"
+        },
+        {
+          "file": "train.py",
+          "scope": "ResidualRefinement.forward",
+          "line": 33,
+          "code": "def forward(self, features: torch.Tensor) -> torch.Tensor:"
+        },
+        {
+          "file": "train.py",
+          "scope": "ImageClassifier.__init__",
+          "line": 38,
+          "code": "def __init__(self) -> None:"
+        },
+        {
+          "file": "train.py",
+          "scope": "ImageClassifier.train",
+          "line": 64,
+          "code": "def train(self, mode: bool=True) -> ImageClassifier:"
+        },
+        {
+          "file": "train.py",
+          "scope": "ImageClassifier.forward",
+          "line": 87,
+          "code": "def forward(self, images: torch.Tensor) -> torch.Tensor:"
+        },
+        {
+          "kind": "complete source/program-bound lifecycle adjudication",
+          "source_sha256": "bd10d6231dfac57bbfe18fe39925f814520a172911e06fa41010181e09ca3513",
+          "program_sha256": "0699de9721a83ad9f51dc7c3c5db4cffd7e082eb89807af06ce301bd59974dda",
+          "residual_group": 335
+        }
+      ]
+    },
+    {
+      "source_sha256": "7144ebe98ff7e210d21d7635960891c0701f3c5de78b8a8d026a037b0e7351c3",
+      "program_sha256": "cd9b0ded3df1e64287d23ed7281228fec8dcdedcc0f573e81fd477c06a794220",
+      "program_parts": {
+        "ImageClassifier": "class ImageClassifier(nn.Module):\n\n    def __init__(self) -> None:\n        super().__init__()\n        self.features = nn.Sequential(nn.Conv2d(1, 32, kernel_size=3, padding=1, bias=False), nn.BatchNorm2d(32), nn.GELU(), nn.Conv2d(32, 32, kernel_size=3, padding=1, bias=False), nn.BatchNorm2d(32), nn.GELU(), nn.MaxPool2d(2), nn.Conv2d(32, 64, kernel_size=3, padding=1, bias=False), nn.BatchNorm2d(64), nn.GELU(), nn.Conv2d(64, 64, kernel_size=3, padding=1, bias=False), nn.BatchNorm2d(64), nn.GELU(), nn.MaxPool2d(2))\n        self.classifier = nn.Sequential(nn.Flatten(), nn.Linear(64 * 7 * 7, 56), nn.BatchNorm1d(56), nn.GELU(), nn.Dropout(0.15), nn.Linear(56, 10))\n        self._ema_parameters: list[torch.Tensor] | None = None\n        self._ema_buffers: list[torch.Tensor] | None = None\n        self._ema_applied = False\n\n    @torch.no_grad()\n    def update_ema(self, decay: float) -> None:\n        parameters = list(self.parameters())\n        buffers = [buffer for buffer in self.buffers() if buffer.is_floating_point()]\n        if self._ema_parameters is None:\n            self._ema_parameters = [parameter.detach().clone() for parameter in parameters]\n            self._ema_buffers = [buffer.detach().clone() for buffer in buffers]\n            return\n        for average, parameter in zip(self._ema_parameters, parameters):\n            average.lerp_(parameter.detach(), 1.0 - decay)\n        for average, buffer in zip(self._ema_buffers, buffers):\n            average.lerp_(buffer.detach(), 1.0 - decay)\n\n    def train(self, mode: bool=True) -> ImageClassifier:\n        if not mode and self._ema_parameters is not None and (not self._ema_applied):\n            with torch.no_grad():\n                for parameter, average in zip(self.parameters(), self._ema_parameters):\n                    parameter.copy_(average)\n                floating_buffers = [buffer for buffer in self.buffers() if buffer.is_floating_point()]\n                for buffer, average in zip(floating_buffers, self._ema_buffers):\n                    buffer.copy_(average)\n            self._ema_applied = True\n        return super().train(mode)\n\n    def _forward_once(self, images: torch.Tensor) -> torch.Tensor:\n        return self.classifier(self.features(images))\n\n    def forward(self, images: torch.Tensor) -> torch.Tensor:\n        logits = self._forward_once(images)\n        if not self.training:\n            flipped_logits = self._forward_once(torch.flip(images, dims=(-1,)))\n            logits = 0.5 * (logits + flipped_logits)\n        return logits"
+      },
+      "reference_group": 348,
+      "reference_run": "fashion-mnist-openevolve-v2-1-mps-fashion_mnist_source_only_mps-openevolve-b05-c4",
+      "reference_proposal": 106,
+      "fingerprint": {
+        "input_units": "grayscale image pixels",
+        "input_transform": "identity model input",
+        "embedding": "not applicable: continuous-valued features enter affine/convolution operators directly",
+        "position": "implicit spatial neighborhoods; no explicit position embedding",
+        "mixing": "dense Conv2d",
+        "routing": "fixed local convolution neighborhoods",
+        "state": "no recurrent feature state; EMA parameter/buffer copies are training/inference state, with lifecycle: parameter and floating-buffer EMA lists updated by interpolation, installed once on first eval; fixed original/flip logit mean",
+        "feedforward": "no separate transformer feedforward block",
+        "parameter_construction": "free learned convolution/affine weights; standard normalization parameters",
+        "sharing": "no additional explicit parameter tying",
+        "normalization": "BatchNorm1d + BatchNorm2d",
+        "connectivity": "sequential convolution/pooling stages and dense head",
+        "aggregation": "flattened spatial features",
+        "output": "linear class-logit readout",
+        "symmetry": "no explicit canonicalization or group-equivariant construction",
+        "conditional_compute": "fixed architecture; no input-dependent early exit or experts",
+        "activation": "GELU",
+        "stochasticity": "dropout declared; rate is a setting",
+        "bottleneck": "no separate factorized bottleneck",
+        "iteration": "fixed feedforward stages",
+        "other": "all model constructors, architecture methods and lifecycle/evaluation methods were source-read; parameter and floating-buffer EMA lists updated by interpolation, installed once on first eval; fixed original/flip logit mean",
+        "spatial_units": "image grid",
+        "spatial_operator": "dense Conv2d",
+        "scale_representation": "fixed-resolution pooling/downsampling stages",
+        "spatial_readout": "flattened grid through an affine/pointwise dense head",
+        "channel_interaction": "dense convolution channel connectivity",
+        "spatial_downsampling": "MaxPool2d"
+      },
+      "family_signature": {
+        "task": "fashion",
+        "spatial_operator": "learned local Conv2d",
+        "summary_basis": [
+          "maximum"
+        ],
+        "readout": "flattened affine/pointwise head"
+      },
+      "family_label": "CNN with standard spatial features",
+      "inference": {
+        "procedure": "parameter and floating-buffer EMA lists updated by interpolation, installed once on first eval; fixed original/flip logit mean"
+      },
+      "training": {
+        "lifecycle": "parameter and floating-buffer EMA lists updated by interpolation, installed once on first eval; fixed original/flip logit mean"
+      },
+      "settings": {
+        "numeric_literals_are_not_normalized_for_this_direct_reference": true
+      },
+      "notes": "The entire specialized model and its complete difference from a previously read model were inspected. Routine EMA/folding stays separate from representational mechanisms; regional/global readout statistics are explicit. Exact source or full-program match is required.",
+      "evidence": [
+        {
+          "file": "train.py",
+          "scope": "ImageClassifier.__init__",
+          "line": 20,
+          "code": "def __init__(self) -> None:"
+        },
+        {
+          "file": "train.py",
+          "scope": "ImageClassifier.update_ema",
+          "line": 51,
+          "code": "@torch.no_grad()"
+        },
+        {
+          "file": "train.py",
+          "scope": "ImageClassifier.train",
+          "line": 65,
+          "code": "def train(self, mode: bool=True) -> ImageClassifier:"
+        },
+        {
+          "file": "train.py",
+          "scope": "ImageClassifier._forward_once",
+          "line": 80,
+          "code": "def _forward_once(self, images: torch.Tensor) -> torch.Tensor:"
+        },
+        {
+          "file": "train.py",
+          "scope": "ImageClassifier.forward",
+          "line": 83,
+          "code": "def forward(self, images: torch.Tensor) -> torch.Tensor:"
+        },
+        {
+          "kind": "complete source/program-bound lifecycle adjudication",
+          "source_sha256": "7144ebe98ff7e210d21d7635960891c0701f3c5de78b8a8d026a037b0e7351c3",
+          "program_sha256": "cd9b0ded3df1e64287d23ed7281228fec8dcdedcc0f573e81fd477c06a794220",
+          "residual_group": 348
+        }
+      ]
+    },
+    {
+      "source_sha256": "abde1b418f71e4d1860c5eadd0a2ec5630345c4675d013862dde5cd41281dbfa",
+      "program_sha256": "6c25d334c2ce2e03c3a9dc14f98be553fea04c08b520663fcb5ad70c757f51f8",
+      "program_parts": {
+        "ImageClassifier": "class ImageClassifier(nn.Module):\n\n    def __init__(self) -> None:\n        super().__init__()\n        self.stem = nn.Sequential(nn.Conv2d(1, 24, kernel_size=3, padding=1, bias=False), nn.BatchNorm2d(24), nn.GELU(), nn.MaxPool2d(2), nn.Conv2d(24, 48, kernel_size=3, padding=1, bias=False), nn.BatchNorm2d(48), nn.GELU(), ResidualDepthwiseBlock(48), nn.MaxPool2d(2), nn.Conv2d(48, 96, kernel_size=3, padding=1, bias=False), nn.BatchNorm2d(96), nn.GELU(), ResidualDepthwiseBlock(96))\n        self.classifier = nn.Sequential(nn.Flatten(), nn.Linear(96 * 7 * 7, 38), nn.LayerNorm(38), nn.GELU(), nn.Dropout(p=0.0), nn.Linear(38, 10))\n        self._ema_state_names: list[str] = []\n        for index, (name, value) in enumerate(self.state_dict().items()):\n            self.register_buffer(f'_ema_state_{index}', value.detach().clone(), persistent=False)\n            self._ema_state_names.append(name)\n        self._ema_initialized = False\n        self._using_ema = False\n\n    @torch.no_grad()\n    def update_ema(self, decay: float) -> None:\n        live_state = self.state_dict()\n        shadows = [getattr(self, f'_ema_state_{index}') for index in range(len(self._ema_state_names))]\n        sources = [live_state[name] for name in self._ema_state_names]\n        if not self._ema_initialized:\n            for shadow, source in zip(shadows, sources):\n                shadow.copy_(source)\n            self._ema_initialized = True\n            return\n        float_shadows = []\n        float_sources = []\n        for shadow, source in zip(shadows, sources):\n            if shadow.is_floating_point():\n                float_shadows.append(shadow)\n                float_sources.append(source)\n            else:\n                shadow.copy_(source)\n        torch._foreach_lerp_(float_shadows, float_sources, 1.0 - decay)\n\n    @torch.no_grad()\n    def _swap_ema_state(self) -> None:\n        live_state = self.state_dict()\n        for index, name in enumerate(self._ema_state_names):\n            live_value = live_state[name]\n            shadow = getattr(self, f'_ema_state_{index}')\n            temporary = live_value.detach().clone()\n            live_value.copy_(shadow)\n            shadow.copy_(temporary)\n        self._using_ema = not self._using_ema\n\n    def train(self, mode: bool=True) -> ImageClassifier:\n        if mode and self._using_ema:\n            self._swap_ema_state()\n        result = super().train(mode)\n        if not mode and self._ema_initialized and (not self._using_ema):\n            self._swap_ema_state()\n        return result\n\n    def _classify(self, images: torch.Tensor) -> torch.Tensor:\n        return self.classifier(self.stem(images))\n\n    def forward(self, images: torch.Tensor) -> torch.Tensor:\n        logits = self._classify(images)\n        if not self.training:\n            flipped_logits = self._classify(images.flip(-1))\n            power = 0.5831695556640625\n            logits = 1.03592 * (torch.logaddexp(power * F.log_softmax(logits, dim=1), power * F.log_softmax(flipped_logits, dim=1)) - math.log(2.0)) / power\n        return logits",
+        "ResidualDepthwiseBlock": "class ResidualDepthwiseBlock(nn.Module):\n\n    def __init__(self, channels: int) -> None:\n        super().__init__()\n        self.depthwise = nn.Conv2d(channels, channels, kernel_size=3, padding=1, groups=channels, bias=False)\n        self.norm1 = nn.BatchNorm2d(channels)\n        self.pointwise = nn.Conv2d(channels, channels, kernel_size=1, bias=False)\n        self.norm2 = nn.BatchNorm2d(channels)\n\n    def forward(self, inputs: torch.Tensor) -> torch.Tensor:\n        hidden = F.gelu(self.norm1(self.depthwise(inputs)))\n        hidden = self.norm2(self.pointwise(hidden))\n        return F.gelu(inputs + hidden)"
+      },
+      "reference_group": 374,
+      "reference_run": "fashion-mnist-openevolve-v2-1-mps-fashion_mnist_source_only_mps-openevolve-b04-c3",
+      "reference_proposal": 125,
+      "fingerprint": {
+        "input_units": "grayscale image pixels",
+        "input_transform": "identity model input",
+        "embedding": "not applicable: continuous-valued features enter affine/convolution operators directly",
+        "position": "implicit spatial neighborhoods; no explicit position embedding",
+        "mixing": "dense + depthwise Conv2d",
+        "routing": "fixed local convolution neighborhoods",
+        "state": "no recurrent feature state; EMA parameter/buffer copies are training/inference state, with lifecycle: registered EMA state updated by interpolation and swapped on train/eval transitions; fixed original/flip generalized probability mean; declared dropout is disabled",
+        "feedforward": "no separate transformer feedforward block",
+        "parameter_construction": "free learned convolution/affine weights; standard normalization parameters",
+        "sharing": "no additional explicit parameter tying",
+        "normalization": "BatchNorm2d + LayerNorm",
+        "connectivity": "fixed additive residual/skip connections",
+        "aggregation": "flattened spatial features",
+        "output": "linear class-logit readout",
+        "symmetry": "no explicit canonicalization or group-equivariant construction",
+        "conditional_compute": "fixed architecture; no input-dependent early exit or experts",
+        "activation": "GELU + gelu",
+        "stochasticity": "none: declared Dropout has p=0",
+        "bottleneck": "no separate factorized bottleneck",
+        "iteration": "fixed feedforward stages",
+        "other": "all model constructors, architecture methods and lifecycle/evaluation methods were source-read; registered EMA state updated by interpolation and swapped on train/eval transitions; fixed original/flip generalized probability mean; declared dropout is disabled",
+        "spatial_units": "image grid",
+        "spatial_operator": "dense + depthwise Conv2d",
+        "scale_representation": "fixed-resolution pooling/downsampling stages",
+        "spatial_readout": "flattened grid through an affine/pointwise dense head",
+        "channel_interaction": "dense + depthwise convolution channel connectivity",
+        "spatial_downsampling": "MaxPool2d"
+      },
+      "family_signature": {
+        "task": "fashion",
+        "spatial_operator": "learned local Conv2d",
+        "summary_basis": [
+          "maximum"
+        ],
+        "readout": "flattened affine/pointwise head"
+      },
+      "family_label": "CNN with standard spatial features",
+      "inference": {
+        "procedure": "registered EMA state updated by interpolation and swapped on train/eval transitions; fixed original/flip generalized probability mean; declared dropout is disabled"
+      },
+      "training": {
+        "lifecycle": "registered EMA state updated by interpolation and swapped on train/eval transitions; fixed original/flip generalized probability mean; declared dropout is disabled"
+      },
+      "settings": {
+        "numeric_literals_are_not_normalized_for_this_direct_reference": true
+      },
+      "notes": "The entire specialized model and its complete difference from a previously read model were inspected. Routine EMA/folding stays separate from representational mechanisms; regional/global readout statistics are explicit. Exact source or full-program match is required.",
+      "evidence": [
+        {
+          "file": "train.py",
+          "scope": "ResidualDepthwiseBlock.__init__",
+          "line": 20,
+          "code": "def __init__(self, channels: int) -> None:"
+        },
+        {
+          "file": "train.py",
+          "scope": "ResidualDepthwiseBlock.forward",
+          "line": 34,
+          "code": "def forward(self, inputs: torch.Tensor) -> torch.Tensor:"
+        },
+        {
+          "file": "train.py",
+          "scope": "ImageClassifier.__init__",
+          "line": 41,
+          "code": "def __init__(self) -> None:"
+        },
+        {
+          "file": "train.py",
+          "scope": "ImageClassifier.update_ema",
+          "line": 79,
+          "code": "@torch.no_grad()"
+        },
+        {
+          "file": "train.py",
+          "scope": "ImageClassifier._swap_ema_state",
+          "line": 104,
+          "code": "@torch.no_grad()"
+        },
+        {
+          "file": "train.py",
+          "scope": "ImageClassifier.train",
+          "line": 114,
+          "code": "def train(self, mode: bool=True) -> ImageClassifier:"
+        },
+        {
+          "file": "train.py",
+          "scope": "ImageClassifier._classify",
+          "line": 122,
+          "code": "def _classify(self, images: torch.Tensor) -> torch.Tensor:"
+        },
+        {
+          "file": "train.py",
+          "scope": "ImageClassifier.forward",
+          "line": 125,
+          "code": "def forward(self, images: torch.Tensor) -> torch.Tensor:"
+        },
+        {
+          "kind": "complete source/program-bound lifecycle adjudication",
+          "source_sha256": "abde1b418f71e4d1860c5eadd0a2ec5630345c4675d013862dde5cd41281dbfa",
+          "program_sha256": "6c25d334c2ce2e03c3a9dc14f98be553fea04c08b520663fcb5ad70c757f51f8",
+          "residual_group": 374
+        }
+      ]
+    },
+    {
+      "source_sha256": "d3d686d654ebcdafb673e9c990b5d39b19a6a913f6bb2a96d1a0dfc209b7b0f7",
+      "program_sha256": "7a304eb0b13fcfaac9ad6e5ef3f6d8c3229bd9582bf37c97b33d9ab68641b2c2",
+      "program_parts": {
+        "ImageClassifier": "class ImageClassifier(nn.Module):\n\n    def __init__(self) -> None:\n        super().__init__()\n        self.stem = nn.Sequential(nn.Conv2d(1, 24, kernel_size=3, padding=1, bias=False), nn.BatchNorm2d(24), nn.GELU(), nn.MaxPool2d(2), nn.Conv2d(24, 48, kernel_size=3, padding=1, bias=False), nn.BatchNorm2d(48), nn.GELU(), ResidualDepthwiseBlock(48), nn.MaxPool2d(2), nn.Conv2d(48, 96, kernel_size=3, padding=1, bias=False), nn.BatchNorm2d(96), nn.GELU(), ResidualDepthwiseBlock(96))\n        self.classifier = nn.Sequential(nn.Flatten(), nn.Linear(96 * 2 * 3 * 3, 105), nn.LayerNorm(105), nn.GELU(), nn.Dropout(p=0.1), nn.Linear(105, 10))\n        self._ema_state_names: list[str] = []\n        for index, (name, value) in enumerate(self.state_dict().items()):\n            self.register_buffer(f'_ema_state_{index}', value.detach().clone(), persistent=False)\n            self._ema_state_names.append(name)\n        self._ema_initialized = False\n        self._using_ema = False\n\n    @torch.no_grad()\n    def update_ema(self, decay: float) -> None:\n        live_state = self.state_dict()\n        shadows = [getattr(self, f'_ema_state_{index}') for index in range(len(self._ema_state_names))]\n        sources = [live_state[name] for name in self._ema_state_names]\n        if not self._ema_initialized:\n            for shadow, source in zip(shadows, sources):\n                shadow.copy_(source)\n            self._ema_initialized = True\n            return\n        float_shadows = []\n        float_sources = []\n        for shadow, source in zip(shadows, sources):\n            if shadow.is_floating_point():\n                float_shadows.append(shadow)\n                float_sources.append(source)\n            else:\n                shadow.copy_(source)\n        torch._foreach_lerp_(float_shadows, float_sources, 1.0 - decay)\n\n    @torch.no_grad()\n    def _swap_ema_state(self) -> None:\n        live_state = self.state_dict()\n        for index, name in enumerate(self._ema_state_names):\n            live_value = live_state[name]\n            shadow = getattr(self, f'_ema_state_{index}')\n            temporary = live_value.detach().clone()\n            live_value.copy_(shadow)\n            shadow.copy_(temporary)\n        self._using_ema = not self._using_ema\n\n    def train(self, mode: bool=True) -> ImageClassifier:\n        if mode and self._using_ema:\n            self._swap_ema_state()\n        result = super().train(mode)\n        if not mode and self._ema_initialized and (not self._using_ema):\n            self._swap_ema_state()\n        return result\n\n    def _classify(self, images: torch.Tensor) -> torch.Tensor:\n        features = self.stem(images)\n        pooled = torch.cat((F.adaptive_avg_pool2d(features, output_size=(3, 3)), F.adaptive_max_pool2d(features, output_size=(3, 3))), dim=1)\n        return self.classifier(pooled)\n\n    def _flip_ensemble(self, images: torch.Tensor) -> torch.Tensor:\n        logits = self._classify(images)\n        flipped_logits = self._classify(images.flip(-1))\n        power = 0.5831695556640625\n        return (torch.logaddexp(power * F.log_softmax(logits, dim=1), power * F.log_softmax(flipped_logits, dim=1)) - math.log(2.0)) / power\n\n    def forward(self, images: torch.Tensor) -> torch.Tensor:\n        if self.training:\n            return self._classify(images)\n        ema_logits = self._flip_ensemble(images)\n        if self._using_ema:\n            self._swap_ema_state()\n            try:\n                live_logits = self._flip_ensemble(images)\n            finally:\n                self._swap_ema_state()\n            logits = torch.logaddexp(F.log_softmax(ema_logits, dim=1) + math.log(0.75), F.log_softmax(live_logits, dim=1) + math.log(0.25))\n        else:\n            logits = ema_logits\n        return 1.03592 * logits",
+        "ResidualDepthwiseBlock": "class ResidualDepthwiseBlock(nn.Module):\n\n    def __init__(self, channels: int) -> None:\n        super().__init__()\n        self.depthwise = nn.Conv2d(channels, channels, kernel_size=3, padding=1, groups=channels, bias=False)\n        self.norm1 = nn.BatchNorm2d(channels)\n        self.pointwise = nn.Conv2d(channels, channels, kernel_size=1, bias=False)\n        self.norm2 = nn.BatchNorm2d(channels)\n\n    def forward(self, inputs: torch.Tensor) -> torch.Tensor:\n        hidden = F.gelu(self.norm1(self.depthwise(inputs)))\n        hidden = self.norm2(self.pointwise(hidden))\n        return F.gelu(inputs + hidden)"
+      },
+      "reference_group": 421,
+      "reference_run": "fashion-mnist-openevolve-v2-1-mps-fashion_mnist_source_only_mps-openevolve-b04-c3",
+      "reference_proposal": 130,
+      "fingerprint": {
+        "input_units": "grayscale image pixels",
+        "input_transform": "identity model input",
+        "embedding": "not applicable: continuous-valued features enter affine/convolution operators directly",
+        "position": "implicit spatial neighborhoods; no explicit position embedding",
+        "mixing": "dense + depthwise Conv2d",
+        "routing": "fixed local convolution neighborhoods",
+        "state": "no recurrent feature state; EMA parameter/buffer copies are training/inference state, with lifecycle: registered EMA state swapped on train/eval transitions; helper computes fixed original/flip power means and a fixed live/EMA prediction mixture",
+        "feedforward": "no separate transformer feedforward block",
+        "parameter_construction": "free learned convolution/affine weights; standard normalization parameters",
+        "sharing": "no additional explicit parameter tying",
+        "normalization": "BatchNorm2d + LayerNorm",
+        "connectivity": "fixed additive residual/skip connections; fixed channel/feature concatenation of conventional branches",
+        "aggregation": "regional mean/max feature descriptor",
+        "output": "linear class-logit readout",
+        "symmetry": "no explicit canonicalization or group-equivariant construction",
+        "conditional_compute": "fixed architecture; no input-dependent early exit or experts",
+        "activation": "GELU + gelu",
+        "stochasticity": "dropout declared; rate is a setting",
+        "bottleneck": "no separate factorized bottleneck",
+        "iteration": "fixed feedforward stages",
+        "other": "all model constructors, architecture methods and lifecycle/evaluation methods were source-read; registered EMA state swapped on train/eval transitions; helper computes fixed original/flip power means and a fixed live/EMA prediction mixture",
+        "spatial_units": "image grid",
+        "spatial_operator": "dense + depthwise Conv2d",
+        "scale_representation": "local convolution stages with pooling/stride downsampling; regional mean/max feature descriptor",
+        "spatial_readout": "concatenated3x3 adaptive-mean and adaptive-maximum grids flattened through an affine/pointwise class head",
+        "channel_interaction": "dense + depthwise convolution channel connectivity",
+        "spatial_downsampling": "MaxPool2d + adaptive_avg_pool2d + adaptive_max_pool2d"
+      },
+      "family_signature": {
+        "task": "fashion",
+        "spatial_operator": "learned local Conv2d",
+        "summary_basis": [
+          "maximum",
+          "mean"
+        ],
+        "readout": "regional mean/max feature descriptor"
+      },
+      "family_label": "CNN with regional mean/max readout",
+      "inference": {
+        "procedure": "registered EMA state swapped on train/eval transitions; helper computes fixed original/flip power means and a fixed live/EMA prediction mixture"
+      },
+      "training": {
+        "lifecycle": "registered EMA state swapped on train/eval transitions; helper computes fixed original/flip power means and a fixed live/EMA prediction mixture"
+      },
+      "settings": {
+        "numeric_literals_are_not_normalized_for_this_direct_reference": true
+      },
+      "notes": "The entire specialized model and its complete difference from a previously read model were inspected. Routine EMA/folding stays separate from representational mechanisms; regional/global readout statistics are explicit. Exact source or full-program match is required.",
+      "evidence": [
+        {
+          "file": "train.py",
+          "scope": "ResidualDepthwiseBlock.__init__",
+          "line": 20,
+          "code": "def __init__(self, channels: int) -> None:"
+        },
+        {
+          "file": "train.py",
+          "scope": "ResidualDepthwiseBlock.forward",
+          "line": 34,
+          "code": "def forward(self, inputs: torch.Tensor) -> torch.Tensor:"
+        },
+        {
+          "file": "train.py",
+          "scope": "ImageClassifier.__init__",
+          "line": 41,
+          "code": "def __init__(self) -> None:"
+        },
+        {
+          "file": "train.py",
+          "scope": "ImageClassifier.update_ema",
+          "line": 79,
+          "code": "@torch.no_grad()"
+        },
+        {
+          "file": "train.py",
+          "scope": "ImageClassifier._swap_ema_state",
+          "line": 104,
+          "code": "@torch.no_grad()"
+        },
+        {
+          "file": "train.py",
+          "scope": "ImageClassifier.train",
+          "line": 114,
+          "code": "def train(self, mode: bool=True) -> ImageClassifier:"
+        },
+        {
+          "file": "train.py",
+          "scope": "ImageClassifier._classify",
+          "line": 122,
+          "code": "def _classify(self, images: torch.Tensor) -> torch.Tensor:"
+        },
+        {
+          "file": "train.py",
+          "scope": "ImageClassifier._flip_ensemble",
+          "line": 133,
+          "code": "def _flip_ensemble(self, images: torch.Tensor) -> torch.Tensor:"
+        },
+        {
+          "file": "train.py",
+          "scope": "ImageClassifier.forward",
+          "line": 145,
+          "code": "def forward(self, images: torch.Tensor) -> torch.Tensor:"
+        },
+        {
+          "kind": "complete source/program-bound lifecycle adjudication",
+          "source_sha256": "d3d686d654ebcdafb673e9c990b5d39b19a6a913f6bb2a96d1a0dfc209b7b0f7",
+          "program_sha256": "7a304eb0b13fcfaac9ad6e5ef3f6d8c3229bd9582bf37c97b33d9ab68641b2c2",
+          "residual_group": 421
+        }
+      ]
+    },
+    {
+      "source_sha256": "16ada70378c4351d50e572de230a3de2efa5f20012f717dff1571c43d643ffaf",
+      "program_sha256": "94f15560a2970d82f4cfa9717d65091455bf6a4613b4d99fb7393c5d84ef2ac0",
+      "program_parts": {
+        "ImageClassifier": "class ImageClassifier(nn.Module):\n\n    def __init__(self) -> None:\n        super().__init__()\n        self.features = nn.Sequential(nn.Conv2d(1, 32, kernel_size=3, padding=1, bias=False), nn.BatchNorm2d(32), nn.ReLU(inplace=True), nn.Conv2d(32, 32, kernel_size=3, padding=1, bias=False), nn.BatchNorm2d(32), nn.ReLU(inplace=True), nn.MaxPool2d(2), nn.Dropout2d(0.08), nn.Conv2d(32, 64, kernel_size=3, padding=1, bias=False), nn.BatchNorm2d(64), nn.ReLU(inplace=True), nn.Conv2d(64, 64, kernel_size=3, padding=1, bias=False), nn.BatchNorm2d(64), nn.ReLU(inplace=True), nn.MaxPool2d(2), nn.Dropout2d(0.08))\n        self.classifier = nn.Sequential(nn.Flatten(), nn.Linear(64 * 7 * 7, 48), nn.BatchNorm1d(48), nn.ReLU(inplace=True), nn.Dropout(0.2), nn.Linear(48, 10))\n\n    def train(self, mode: bool=True) -> ImageClassifier:\n        if mode:\n            self._eval_fused_layers = None\n        return super().train(mode)\n\n    def _get_eval_fused_layers(self):\n        cached = getattr(self, '_eval_fused_layers', None)\n        if cached is not None:\n            return cached\n        fused_layers = []\n        with torch.no_grad():\n            for convolution_index, normalization_index in ((0, 1), (3, 4), (8, 9), (11, 12)):\n                convolution = self.features[convolution_index]\n                normalization = self.features[normalization_index]\n                scale = normalization.weight.detach() * torch.rsqrt(normalization.running_var.detach() + normalization.eps)\n                base_bias = convolution.bias.detach() if convolution.bias is not None else torch.zeros_like(normalization.running_mean)\n                fused_layers.append((convolution.weight.detach() * scale[:, None, None, None], normalization.bias.detach() + (base_bias - normalization.running_mean.detach()) * scale))\n            projection = self.classifier[1]\n            normalization = self.classifier[2]\n            scale = normalization.weight.detach() * torch.rsqrt(normalization.running_var.detach() + normalization.eps)\n            fused_layers.append((projection.weight.detach() * scale[:, None], normalization.bias.detach() + (projection.bias.detach() - normalization.running_mean.detach()) * scale))\n        self._eval_fused_layers = tuple(fused_layers)\n        return self._eval_fused_layers\n\n    def _forward_once(self, images: torch.Tensor) -> torch.Tensor:\n        if self.training:\n            return self.classifier(self.features(images))\n        conv1, conv2, conv3, conv4, projection = self._get_eval_fused_layers()\n        features = F.relu(F.conv2d(images, conv1[0], conv1[1], padding=1), inplace=True)\n        features = F.relu(F.conv2d(features, conv2[0], conv2[1], padding=1), inplace=True)\n        features = F.max_pool2d(features, 2)\n        features = F.relu(F.conv2d(features, conv3[0], conv3[1], padding=1), inplace=True)\n        features = F.relu(F.conv2d(features, conv4[0], conv4[1], padding=1), inplace=True)\n        features = F.max_pool2d(features, 2)\n        features = torch.flatten(features, 1)\n        features = F.relu(F.linear(features, projection[0], projection[1]), inplace=True)\n        return self.classifier[5](features)\n\n    def forward(self, images: torch.Tensor) -> torch.Tensor:\n        if self.training:\n            return self._forward_once(images)\n        padded = F.pad(images, (1, 1, 1, 1), mode='replicate')\n        height, width = images.shape[-2:]\n        views = (images, padded[..., :height, 1:width + 1], padded[..., 1:height + 1, :width], padded[..., 1:height + 1, 2:width + 2], padded[..., 2:height + 2, 1:width + 1])\n        log_probabilities = []\n        for view in views:\n            paired_views = torch.cat((view, view.flip(-1)), dim=0)\n            paired_log_probabilities = F.log_softmax(self._forward_once(paired_views), dim=1)\n            log_probabilities.extend(paired_log_probabilities.chunk(2, dim=0))\n        ensemble_log_probabilities = torch.logsumexp(torch.stack(log_probabilities, dim=0), dim=0) - math.log(len(log_probabilities))\n        return 1.2 * ensemble_log_probabilities"
+      },
+      "reference_group": 514,
+      "reference_run": "fashion-mnist-openevolve-v2-1-mps-fashion_mnist_source_only_mps-openevolve-b02-c0",
+      "reference_proposal": 59,
+      "fingerprint": {
+        "input_units": "grayscale image pixels",
+        "input_transform": "identity model input",
+        "embedding": "not applicable: continuous-valued features enter affine/convolution operators directly",
+        "position": "implicit spatial neighborhoods; no explicit position embedding",
+        "mixing": "dense Conv2d",
+        "routing": "fixed local convolution neighborhoods",
+        "state": "no recurrent feature state; cached folded eval coefficients are cleared on training entry",
+        "feedforward": "no separate transformer feedforward block",
+        "parameter_construction": "free learned convolution/affine and BatchNorm parameters; eval coefficients use scale=gamma/sqrt(running_var+eps), W_fused=scale*W and b_fused=beta+(b-running_mean)*scale",
+        "sharing": "no additional explicit parameter tying",
+        "normalization": "BatchNorm2d and BatchNorm1d in training; their fixed eval affine maps are folded into convolution/projection coefficients",
+        "connectivity": "sequential convolution/pooling stages and dense head",
+        "aggregation": "flattened spatial features",
+        "output": "linear class-logit readout",
+        "symmetry": "no explicit canonicalization or group-equivariant construction",
+        "conditional_compute": "fixed architecture; no input-dependent early exit or experts",
+        "activation": "ReLU",
+        "stochasticity": "dropout declared; rate is a setting",
+        "bottleneck": "no separate factorized bottleneck",
+        "iteration": "fixed feedforward stages",
+        "other": "all model constructors, architecture methods and lifecycle/evaluation methods were source-read; eval-only Conv2d/Linear plus BatchNorm affine folding into cached weights and biases; cache discarded on training entry; fixed translated/flip probability mixture",
+        "spatial_units": "image grid",
+        "spatial_operator": "dense Conv2d",
+        "scale_representation": "fixed-resolution pooling/downsampling stages",
+        "spatial_readout": "flattened grid through an affine/pointwise dense head",
+        "channel_interaction": "dense convolution channel connectivity",
+        "spatial_downsampling": "MaxPool2d"
+      },
+      "family_signature": {
+        "task": "fashion",
+        "spatial_operator": "learned local Conv2d",
+        "summary_basis": [
+          "maximum"
+        ],
+        "readout": "flattened affine/pointwise head"
+      },
+      "family_label": "CNN with standard spatial features",
+      "inference": {
+        "procedure": "eval-only Conv2d/Linear plus BatchNorm affine folding into cached weights and biases; cache discarded on training entry; fixed translated/flip probability mixture"
+      },
+      "training": {
+        "lifecycle": "eval-only Conv2d/Linear plus BatchNorm affine folding into cached weights and biases; cache discarded on training entry; fixed translated/flip probability mixture"
+      },
+      "settings": {
+        "numeric_literals_are_not_normalized_for_this_direct_reference": true
+      },
+      "notes": "The entire specialized model and its complete difference from a previously read model were inspected. Routine EMA/folding stays separate from representational mechanisms; regional/global readout statistics are explicit. Exact source or full-program match is required.",
+      "evidence": [
+        {
+          "file": "train.py",
+          "scope": "ImageClassifier.__init__",
+          "line": 20,
+          "code": "def __init__(self) -> None:"
+        },
+        {
+          "file": "train.py",
+          "scope": "ImageClassifier.train",
+          "line": 49,
+          "code": "def train(self, mode: bool=True) -> ImageClassifier:"
+        },
+        {
+          "file": "train.py",
+          "scope": "ImageClassifier._get_eval_fused_layers",
+          "line": 54,
+          "code": "def _get_eval_fused_layers(self):"
+        },
+        {
+          "file": "train.py",
+          "scope": "ImageClassifier._forward_once",
+          "line": 103,
+          "code": "def _forward_once(self, images: torch.Tensor) -> torch.Tensor:"
+        },
+        {
+          "file": "train.py",
+          "scope": "ImageClassifier.forward",
+          "line": 130,
+          "code": "def forward(self, images: torch.Tensor) -> torch.Tensor:"
+        },
+        {
+          "kind": "complete source/program-bound lifecycle adjudication",
+          "source_sha256": "16ada70378c4351d50e572de230a3de2efa5f20012f717dff1571c43d643ffaf",
+          "program_sha256": "94f15560a2970d82f4cfa9717d65091455bf6a4613b4d99fb7393c5d84ef2ac0",
+          "residual_group": 514
+        }
+      ]
+    }
+  ]
+}

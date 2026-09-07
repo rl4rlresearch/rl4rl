@@ -1,0 +1,138 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="dashboard-hot-reload" content="enabled">
+<title>RL4RL stagnation and breakthroughs</title>
+<style>
+  :root { color-scheme:dark; --bg:#0d1117; --panel:#0f151e; --panel-strong:#111821; --line:#30363d; --text:#e6edf3; --muted:#9da7b5; --blue:#58a6ff; --green:#3fb950; --orange:#f0883e; }
+  * { box-sizing:border-box; }
+  body { max-width:1700px; margin:0 auto; padding:24px; background:var(--bg); color:var(--text); font:13px/1.45 ui-sans-serif,system-ui,sans-serif; }
+  h1,h2 { margin:0; } h1 { font-size:30px; letter-spacing:-.03em; } h2 { font-size:17px; }
+  button,select,input { min-height:35px; padding:7px 10px; border:1px solid #49566b; border-radius:6px; background:#1a2332; color:inherit; font:inherit; }
+  button { cursor:pointer; } button:hover { border-color:#7d8da5; } button:disabled { cursor:wait; opacity:.62; }
+  label { color:#aab4c3; font-size:12px; } .sub,.stamp,.note { color:var(--muted); }
+  .sub { max-width:980px; margin:7px 0 14px; font-size:14px; } .stamp { font-size:12px; }
+  .page-tabs { display:flex; gap:6px; margin:0 0 20px; overflow-x:auto; border-bottom:1px solid var(--line); }
+  .page-tabs a { flex:0 0 auto; padding:9px 12px; border-bottom:2px solid transparent; color:#9aa7b7; text-decoration:none; }
+  .page-tabs a.active { border-bottom-color:var(--blue); color:#f0f6fc; }
+  .topbar,.controls { display:flex; flex-wrap:wrap; align-items:end; gap:9px 12px; }
+  .topbar { margin:14px 0 13px; } .controls { padding:12px; border:1px solid var(--line); border-radius:8px; background:var(--panel-strong); }
+  .control { display:grid; gap:4px; } .control select { min-width:240px; max-width:460px; } .control input { width:88px; }
+  .summary { display:grid; grid-template-columns:repeat(5,minmax(145px,1fr)); gap:8px; margin:13px 0; }
+  .stat { min-width:0; padding:10px 11px; border:1px solid var(--line); border-radius:7px; background:var(--panel); }
+  .stat span { display:block; color:#8b98a9; font-size:11px; } .stat b { display:block; margin-top:2px; overflow-wrap:anywhere; font-size:17px; }
+  .stat small { display:block; margin-top:2px; color:#8b98a9; font-size:10px; }
+  .grid { display:grid; grid-template-columns:minmax(0,1.45fr) minmax(310px,.55fr); gap:12px; }
+  .card { min-width:0; overflow:hidden; border:1px solid var(--line); border-radius:8px; background:var(--panel); }
+  .card-head { display:flex; justify-content:space-between; gap:12px; align-items:flex-start; padding:13px 14px 10px; border-bottom:1px solid #242d38; }
+  .card-head p { margin:4px 0 0; color:var(--muted); font-size:12px; }
+  .legend { display:flex; flex-wrap:wrap; gap:10px; justify-content:flex-end; color:var(--muted); font-size:11px; }
+  .legend span { display:inline-flex; align-items:center; gap:5px; white-space:nowrap; }.swatch { width:10px; height:10px; display:inline-block; }
+  .swatch.breakthrough { background:var(--green); transform:rotate(45deg); }.swatch.plateau { border:1px solid #a85b38; background:rgba(240,136,62,.18); }
+  .chart-box { height:430px; padding:10px 12px 13px; }.chart-box canvas { max-width:100%; }
+  .method { padding:14px; }.method h2 { font-size:15px; }.method p { margin:7px 0 0; color:var(--muted); font-size:12px; }.method strong { color:#c9d1d9; }
+  .table-wrap { overflow:auto; max-height:360px; }.events { margin-top:12px; } table { width:100%; border-collapse:collapse; font-size:12px; } th,td { padding:8px 10px; border-bottom:1px solid #28323e; text-align:left; vertical-align:top; } th { position:sticky; top:0; background:#111821; color:#9da7b5; font-weight:600; } .event { display:inline-block; padding:3px 6px; border:1px solid; border-radius:999px; font-size:10px; font-weight:650; }.event.breakthrough { border-color:#28753d; background:#132820; color:#9de2bd; }.event.plateau { border-color:#7e4e33; background:#281b16; color:#f0b184; }
+  .empty { margin-top:13px; padding:16px; border:1px dashed #3a4555; border-radius:8px; color:var(--muted); }
+  @media (max-width:1050px) { .summary { grid-template-columns:repeat(3,minmax(145px,1fr)); }.grid { grid-template-columns:1fr; } }
+  @media (max-width:620px) { body { padding:14px; }.summary { grid-template-columns:1fr 1fr; }.control,.control select { width:100%; max-width:100%; }.chart-box { height:360px; }.card-head { display:block; }.legend { justify-content:flex-start; margin-top:10px; } }
+</style>
+</head>
+<body>
+<nav class="page-tabs" aria-label="Dashboard pages"><a href="/">Trajectory explorer</a><a href="/ontology">Ontology explorer</a><a class="active" href="/stagnation">Stagnation &amp; breakthroughs</a><a href="/science">Scientific process</a><a href="/transcripts">Run transcripts</a><a href="/controller">Controller</a></nav>
+<h1>Stagnation &amp; breakthroughs</h1>
+<p class="sub">Inspect qualified objective progress within a run. A breakthrough is a valid proposal that sets a new incumbent; a plateau is a consecutive sequence of proposals without one. This page uses performance only and does not use architecture or mechanism novelty.</p>
+<div class="topbar">
+  <label>Campaign <select id="campaign" disabled><option>Loading campaigns…</option></select></label>
+  <button id="refresh">Refresh now</button>
+  <label>Auto-refresh <select id="auto-refresh"><option value="0">Off</option><option value="15">15 sec</option><option value="30" selected>30 sec</option><option value="60">1 min</option><option value="120">2 min</option></select></label>
+  <span class="stamp" id="stamp">Loading…</span>
+</div>
+<main id="content"></main>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
+<script>
+'use strict';
+const apiUrl=location.protocol==='file:'?'http://127.0.0.1:8765/api/data':'/api/data';
+const campaignControl=document.getElementById('campaign');
+const refreshButton=document.getElementById('refresh');
+const refreshControl=document.getElementById('auto-refresh');
+const content=document.getElementById('content');
+const stamp=document.getElementById('stamp');
+const requestedCampaign=new URLSearchParams(location.search).get('campaign');
+let data=null,selectedCampaign=requestedCampaign,selectedRun=null,chart=null,refreshTimer=null,refreshing=false,plateauThreshold=2;
+
+function esc(value){return String(value??'').replace(/[&<>"']/g,ch=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]));}
+function finite(value){const number=Number(value);return value===null||value===''||!Number.isFinite(number)?null:number;}
+function fmt(value){const number=finite(value);return number===null?'—':number.toLocaleString(undefined,{maximumFractionDigits:5});}
+function better(value,incumbent,direction){return direction==='maximize'?value>incumbent:value<incumbent;}
+function runName(run){return `${run.label||run.run_id} · ${run.condition_label||run.condition||'unlabeled'}${run.replicate===null||run.replicate===undefined?'':` · replicate ${run.replicate}`}`;}
+function campaignEntries(){return Object.entries(data?.campaigns||{}).filter(([,payload])=>payload?.available&&payload.runs?.length).sort(([,left],[,right])=>`${left.task_display_name||''} ${left.framework_label||''}`.localeCompare(`${right.task_display_name||''} ${right.framework_label||''}`));}
+
+function summarizeRun(run,direction){
+  const points=[...(run.points||[])].sort((left,right)=>Number(left.proposal)-Number(right.proposal));
+  let baseline=null,incumbent=null,lastImprovement=null;
+  const breakthroughs=[],plateaus=[];
+  for(const point of points){
+    const raw=finite(point.raw_objective),proposal=finite(point.proposal);
+    if(proposal===null||!point.valid||raw===null)continue;
+    if(incumbent===null){baseline=raw;incumbent=raw;lastImprovement=proposal;continue;}
+    if(better(raw,incumbent,direction)){
+      if(lastImprovement!==null&&proposal>lastImprovement+1)plateaus.push({start:lastImprovement+1,end:proposal-1,length:proposal-lastImprovement-1});
+      breakthroughs.push({proposal,previous:incumbent,current:raw});
+      incumbent=raw;lastImprovement=proposal;
+    }
+  }
+  const finalProposal=finite(points.at(-1)?.proposal);
+  if(lastImprovement!==null&&finalProposal!==null&&finalProposal>lastImprovement)plateaus.push({start:lastImprovement+1,end:finalProposal,length:finalProposal-lastImprovement});
+  const finalBest=finite(points.at(-1)?.best_objective)??incumbent;
+  const current=plateaus.at(-1)?.end===finalProposal?plateaus.at(-1)?.length||0:0;
+  return {points,baseline,finalBest,breakthroughs,plateaus,longest:Math.max(0,...plateaus.map(item=>item.length)),current};
+}
+
+function threshold(){return plateauThreshold;}
+function progressLabel(payload){return `Best valid ${payload.objective_metric||'objective'} · ${payload.objective_direction==='maximize'?'higher':'lower'} is better`;}
+function reduction(summary,direction){if(summary.baseline===null||summary.finalBest===null)return '—';const change=direction==='maximize'?summary.finalBest-summary.baseline:summary.baseline-summary.finalBest;const percent=summary.baseline===0?null:change/Math.abs(summary.baseline)*100;return `${fmt(change)}${percent===null?'':` (${percent.toFixed(1)}%)`}`;}
+
+const plateauPlugin={id:'plateauBands',beforeDatasetsDraw(instance,_args,options){const {ctx,chartArea,scales}=instance;if(!options?.plateaus?.length)return;const x=scales.x;const step=Math.max(4,(x.getPixelForValue(x.max)-x.getPixelForValue(x.min))/Math.max(1,x.max-x.min));ctx.save();for(const plateau of options.plateaus){if(plateau.length<options.threshold)continue;const left=Math.max(chartArea.left,x.getPixelForValue(plateau.start)-step/2);const right=Math.min(chartArea.right,x.getPixelForValue(plateau.end)+step/2);ctx.fillStyle='rgba(240,136,62,.14)';ctx.fillRect(left,chartArea.top,right-left,chartArea.bottom-chartArea.top);ctx.strokeStyle='rgba(240,136,62,.26)';ctx.strokeRect(left,chartArea.top,right-left,chartArea.bottom-chartArea.top);}ctx.restore();}};
+
+function drawChart(payload,summary){
+  if(chart){chart.destroy();chart=null;}const canvas=document.getElementById('progress-chart');if(!canvas||typeof Chart==='undefined')return;
+  const breakthroughs=new Set(summary.breakthroughs.map(item=>item.proposal));
+  const values=summary.points.map(point=>({x:finite(point.proposal),y:finite(point.best_objective)})).filter(point=>point.x!==null&&point.y!==null);
+  chart=new Chart(canvas,{type:'line',data:{datasets:[{label:progressLabel(payload),data:values,borderColor:'#58a6ff',borderWidth:2.5,pointRadius:context=>breakthroughs.has(context.raw.x)?6:context.raw.x===0?3:0,pointStyle:context=>breakthroughs.has(context.raw.x)?'rectRot':'circle',pointBackgroundColor:context=>breakthroughs.has(context.raw.x)?'#3fb950':'#58a6ff',pointBorderColor:'#0d1117',pointBorderWidth:2,tension:0,spanGaps:false}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},plateauBands:{plateaus:summary.plateaus,threshold:threshold()},tooltip:{callbacks:{label(context){const hit=summary.breakthroughs.find(item=>item.proposal===context.raw.x);return `${progressLabel(payload)}: ${fmt(context.raw.y)}${hit?' · new incumbent':''}`;}}}},scales:{x:{type:'linear',title:{display:true,text:'Proposal'},ticks:{precision:0}},y:{title:{display:true,text:progressLabel(payload)}}}}});
+}
+
+function eventsHtml(summary){
+  const entries=[...summary.breakthroughs.map(item=>({kind:'Breakthrough',at:item.proposal,window:String(item.proposal),detail:`${fmt(item.previous)} → ${fmt(item.current)} (${fmt(Math.abs(item.current-item.previous))} improvement)`})),...summary.plateaus.filter(item=>item.length>=threshold()).map(item=>({kind:'Plateau',at:item.end,window:`${item.start}–${item.end}`,detail:`${item.length} proposals without a new qualified incumbent`}))].sort((left,right)=>left.at-right.at);
+  if(!entries.length)return '<div class="empty">No breakthroughs or plateaus at this threshold are present for this run.</div>';
+  return `<div class="table-wrap"><table><thead><tr><th>Event</th><th>Proposal</th><th>Performance signal</th></tr></thead><tbody>${entries.map(item=>`<tr><td><span class="event ${item.kind==='Breakthrough'?'breakthrough':'plateau'}">${item.kind}</span></td><td>${item.window}</td><td>${item.detail}</td></tr>`).join('')}</tbody></table></div>`;
+}
+
+function render(){
+  const entries=campaignEntries();
+  if(!entries.length){campaignControl.disabled=true;content.innerHTML='<div class="empty">No available campaigns contain completed runs yet.</div>';return;}
+  if(!entries.some(([key])=>key===selectedCampaign))selectedCampaign=entries[0][0];
+  campaignControl.disabled=false;campaignControl.innerHTML=entries.map(([key,payload])=>`<option value="${esc(key)}"${key===selectedCampaign?' selected':''}>${esc(payload.task_display_name||key)} · ${esc(payload.framework_label||'framework')} · ${payload.runs.length} runs</option>`).join('');
+  const payload=data.campaigns[selectedCampaign],runs=payload.runs||[];
+  if(!runs.some(run=>run.run_id===selectedRun))selectedRun=runs[0]?.run_id||null;
+  const run=runs.find(item=>item.run_id===selectedRun);
+  if(!run){content.innerHTML='<div class="empty">This campaign has no run trajectories to inspect.</div>';return;}
+  const summary=summarizeRun(run,payload.objective_direction||'minimize'),objective=payload.objective_metric||'objective';
+  content.innerHTML=`<section class="controls" aria-label="Progress controls"><label class="control">Run <select id="run">${runs.map(item=>`<option value="${esc(item.run_id)}"${item.run_id===selectedRun?' selected':''}>${esc(runName(item))}</option>`).join('')}</select></label><label class="control">Plateau threshold <input id="threshold" type="number" min="1" step="1" value="${plateauThreshold}"></label><span class="note">A plateau contains this many consecutive proposals without a qualified incumbent improvement.</span></section><section class="summary" aria-label="Run progress summary"><div class="stat"><span>Breakthroughs</span><b>${summary.breakthroughs.length}</b><small>new qualified incumbents</small></div><div class="stat"><span>Longest plateau</span><b>${summary.longest}</b><small>proposals without improvement</small></div><div class="stat"><span>Current plateau</span><b>${summary.current}</b><small>since latest best</small></div><div class="stat"><span>Current best</span><b>${fmt(summary.finalBest)}</b><small>${esc(objective)}</small></div><div class="stat"><span>Incumbent improvement</span><b>${reduction(summary,payload.objective_direction||'minimize')}</b><small>from first qualified candidate</small></div></section><section class="grid"><article class="card"><div class="card-head"><div><h2>Qualified incumbent over the run</h2><p>${esc(runName(run))} · ${esc(progressLabel(payload))}</p></div><div class="legend" aria-label="Chart legend"><span><i class="swatch breakthrough"></i>Breakthrough</span><span><i class="swatch plateau"></i>${threshold()}+ proposal plateau</span></div></div><div class="chart-box">${typeof Chart==='undefined'?'<div class="empty">The chart library did not load. The event table remains available below.</div>':'<canvas id="progress-chart" aria-label="Qualified objective progress with plateaus and breakthroughs"></canvas>'}</div></article><aside class="card method"><h2>How this is measured</h2><p><strong>Breakthrough:</strong> a valid proposal whose raw objective improves the incumbent.</p><p><strong>Plateau:</strong> ${threshold()} or more consecutive proposal opportunities without a breakthrough.</p><p><strong>Scope:</strong> this view uses only the evaluation objective and validity. It does not use mechanism labels, architecture novelty, ancestry, or retention.</p></aside></section><section class="card events"><div class="card-head"><div><h2>Run events</h2><p>Qualified performance changes and sustained stagnation.</p></div></div>${eventsHtml(summary)}</section>`;
+  document.getElementById('run').addEventListener('change',event=>{selectedRun=event.target.value;render();});
+  document.getElementById('threshold').addEventListener('change',event=>{plateauThreshold=Math.max(1,Math.floor(finite(event.target.value)??2));render();});
+  drawChart(payload,summary);
+}
+
+async function refresh(){
+  if(refreshing)return;refreshing=true;refreshButton.disabled=true;refreshButton.textContent='Refreshing…';
+  try{const response=await fetch(apiUrl,{cache:'no-store'});if(!response.ok)throw new Error(`HTTP ${response.status}`);data=await response.json();render();stamp.textContent=`Updated ${new Date(data.generated_at).toLocaleString()} · ${campaignEntries().length} campaigns`;}
+  catch(error){stamp.textContent=`Refresh failed: ${error.message}`;content.innerHTML='<div class="empty">The log-backed data could not be loaded. Try refreshing again.</div>';}finally{refreshing=false;refreshButton.disabled=false;refreshButton.textContent='Refresh now';}
+}
+function setAutoRefresh(){clearInterval(refreshTimer);const seconds=Number(refreshControl.value)||0;if(seconds)refreshTimer=setInterval(refresh,seconds*1000);}
+campaignControl.addEventListener('change',event=>{selectedCampaign=event.target.value;selectedRun=null;render();});
+refreshButton.addEventListener('click',refresh);refreshControl.addEventListener('change',setAutoRefresh);setAutoRefresh();refresh();
+</script>
+</body>
+</html>

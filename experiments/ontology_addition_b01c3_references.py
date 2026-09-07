@@ -1,0 +1,22 @@
+"""Finite SHA-bound reviews for the source-readable Addition b01-c3 address-attention cohort."""
+from copy import deepcopy
+from experiments.ontology_addition_b03_references import GAUGE
+from experiments.ontology_addition_b03c1_references import result as changing_result
+
+ADDRESS = deepcopy(GAUGE)
+ADDRESS.update(
+    position='none', relative_scores=True,
+    relative_score_layout=['max_seq_len - 12', '11'],
+    score_bias='relative-distance score table; stored near/far row widths max_seq_len - 12 / 11',
+)
+
+
+def references():
+    pairs = [
+        ('393555be708de0e1d8a4452c456209f73c3ef226a7565ca479cf9029b1b6ac7c', 'e120a9beed4dbc21602953636c49f4bd5b7a8d67557bf272a1fb39f3311429bc', ['routing', 'attention_scores', 'sharing', 'aggregation', 'projection_relations', 'feedforward', 'output'], 'Learned Q/K maps become one learned-scaled first-feature address replicated over heads; values are shared and gain-weighted before a fixed output basis, while the MLP affine roles are exchanged.', 'address = self.address_scale * x[..., :1]', {'routing': 'shared learned-scaled first-feature Q/K address replicated over heads; lower-triangular causal routing', 'attention_scores': 'scaled shared-address QK scores plus learned relative-distance bias; causal mask and softmax', 'sharing': 'Q/K address and value representation are replicated over explicit heads; head values receive learned gains', 'aggregation': 'gain-weighted sum across heads before the fixed mean-zero output basis', 'projection_relations': 'shared value map and fixed mean-zero output basis replace learned Q/K and dense attention output maps', 'feedforward': 'ungated MLP with bias-free fc1 and pair-tied-bias mean-zero fc2', 'output': 'fixed mean-zero attention output basis followed by affine vocabulary readout'}),
+        ('43802302ed0c23c2bfa31b208a84d9d9940d31d3434fe2633eca31d818f73bda', '797f071a4637b2041b49933a5659bc23d6def3da15a173def61af7da3a74c7eb', ['sharing', 'aggregation', 'projection_relations', 'feedforward'], 'The value map is restricted to mean-zero input coordinates, shared across heads, gain-weighted, and summed; the MLP uses two tied output-bias pairs.', 'v = v.unsqueeze(2).expand(-1, -1, self.n_head, -1).transpose(1, 2)', {'sharing': 'head-shared mean-zero-input value map with learned secondary head gains', 'aggregation': 'gain-weighted variance-scaled sum across heads before fixed output basis', 'projection_relations': 'shared mean-zero-input value map followed by a fixed mean-zero output basis', 'feedforward': 'ungated MLP with bias-free fc1 and two-pair-tied-bias mean-zero fc2'}),
+        ('438f59181110b058748a05ad313ea63eb234bc246f0035f06143761ed4af66f1', '2144831653d176762e391cb1a6dbcd3fc0652f09f74df7800de16a266ff0f799', ['sharing', 'aggregation', 'projection_relations', 'feedforward'], 'The head-shared mean-zero-input value path is gain-weighted and summed, while both MLP maps use constrained input/output coordinates.', 'self.fc1 = MeanZeroInputLinear(d_model, d_ff)', {'sharing': 'head-shared mean-zero-input value map with learned secondary head gains', 'aggregation': 'gain-weighted variance-scaled sum across heads before fixed output basis', 'projection_relations': 'shared mean-zero-input value map followed by a fixed mean-zero output basis', 'feedforward': 'ungated MLP with mean-zero-input fc1 and two-pair-tied-bias mean-zero fc2'}),
+        ('32d5a7fcaa6d82c7bf4024b000c672eb23efab8eeb91ca6069bb4635530b4429', 'd2169b70714612fccfd863f44dd69c63b1b9c50e59627c24a6711572a6408618', ['sharing', 'aggregation', 'projection_relations', 'feedforward', 'output'], 'The value/output path changes from head concatenation and learned projection to a shared mean-zero value map, gain-weighted head sum, and fixed output basis; the MLP gains three tied output-bias pairs.', 'y = (y * value_gain.view(1, self.n_head, 1, self.output_dim)).sum(dim=1) / math.sqrt(self.n_head)', {'sharing': 'head-shared mean-zero-input value map with learned secondary head gains', 'aggregation': 'gain-weighted variance-scaled sum across heads before fixed output basis', 'projection_relations': 'shared mean-zero-input value map followed by a fixed mean-zero output basis', 'feedforward': 'ungated MLP with mean-zero-input fc1 and three-pair-tied-bias mean-zero fc2', 'output': 'fixed mean-zero attention output basis followed by affine vocabulary readout'}),
+    ]
+    return {('openevolve_v21', before, after): changing_result(ADDRESS, changed, note, code, updates) for before, after, changed, note, code, updates in pairs}
+
