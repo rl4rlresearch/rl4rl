@@ -69,3 +69,39 @@ Use these commands for corrected campaigns instead of recreating packet
 ownership or using the earlier publication scripts that skipped missing rows.
 The resulting `source-recovery/completion.json` is the source-resolution audit;
 `final.json` includes every scoped occurrence and its derived metrics.
+
+
+## Tiny AdderBoard source failures
+
+Tiny AdderBoard uses the same exact stored-source alias recovery rule. Its
+recovery command is `python -m experiments.recover_ontology_artifact_sources
+--campaign tiny_adderboard`. Nine records resolve this way. Two other records
+are actual syntax-invalid submissions: B02-C2 proposal 92 (`source source.abs()`)
+and B05-C2 proposal 98 (`basis @ @ @ torch.linalg.inv(...)`). They failed the
+original source preflight. A hypothetical repaired source is not an exact
+recovered submission and is not substituted for a source-backed classification.
+
+Tiny's partial publisher remains `outputs/ontology-categorical-v1/forks/
+tiny_adderboard/build_final.py`, followed by `source-recovery/finalize.py` in the
+same campaign output directory. These refresh the inventory, validate all
+available reviews, preserve the two invalid-source exceptions, reconcile packets
+and write the recovery audit. See the campaign handoff for complete commands.
+
+A missing fingerprint must not be silently skipped in an exact cumulative
+count. The compact dashboard view therefore suppresses all cumulative counts
+and component/family novelty values after a gap in published proposals. Known
+parent-relative marginal component and family changes remain available. A
+selected comparison also propagates missing increments into subsequent totals.
+The complete four-campaign results are unaffected by this rule.
+
+
+### Updated missing-candidate metric policy
+
+By explicit user choice, unresolved in-scope candidates contribute zero marginal
+changes and zero novelty. Dashboard totals carry forward through these records
+and continue accumulating later increments. The previous-proposal comparison
+carries the last state through an unresolved proposal. These metric-only records
+are tagged `ontology_no_change_assumed`; they have no reviewed fingerprint or
+family and do not increase classification completion. This supersedes the
+previous downstream masking policy for explicitly unresolved candidates.
+Out-of-scope data and missing comparison evidence remain unavailable.

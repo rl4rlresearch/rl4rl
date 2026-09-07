@@ -16,7 +16,7 @@ from experiments.ontology_categorical_fingerprint import (
 from experiments.ontology_categorical_inventory import _atomic_json
 
 OUTPUT = Path(__file__).resolve().parents[1] / "outputs/ontology-categorical-v1/forks"
-METRIC_VIEW_VERSION = 3
+METRIC_VIEW_VERSION = 5
 METRIC_LABELS = {
     "component_edits_marginal": "Component changes · marginal",
     "component_edits_cumulative": "Component changes · total",
@@ -50,12 +50,32 @@ def compact_document(document, source_signature):
         raise ValueError("Categorical publication version/schema mismatch")
     runs = {}
     for run_id, rows in document["runs"].items():
+        # Explicitly unresolved occurrences get metric-only zero increments.
+        # They remain unclassified: no fingerprint, family or audit is invented.
+        assumed = [
+            {**item["record"], "no_change_assumed": True, "fingerprint": None}
+            for item in document.get("unresolved_occurrences", [])
+            if item["run_id"] == run_id
+        ]
+        rows = list(rows) + assumed
         selected = []
         retained_totals = {key: 0 for key in METRICS if key.endswith("_cumulative")}
         previous_proposal = -1
+        incomplete_history = False
+        previous_values = dict.fromkeys(METRICS, 0)
         for row in sorted(rows, key=lambda row: row["proposal"]):
-            values = row["metrics"]
-            if row["candidate_id"] not in document.get("review_audits", {}):
+            assumed_zero = row.get("no_change_assumed", False)
+            values = (
+                {
+                    key: previous_values[key] if key.endswith("_cumulative") else 0
+                    for key in METRICS
+                }
+                if assumed_zero
+                else row["metrics"]
+            )
+            if not assumed_zero and row["candidate_id"] not in document.get(
+                "review_audits", {}
+            ):
                 raise ValueError("Published candidate has no source-review audit")
             if set(values) != set(METRICS) or any(
                 type(value) is not int or value < 0 for value in values.values()
@@ -68,12 +88,13 @@ def compact_document(document, source_signature):
             }
             if row["proposal"] != previous_proposal + 1:
                 retained_totals = dict.fromkeys(retained_totals)
+                incomplete_history = True
             for cumulative in retained_totals:
                 marginal = cumulative.replace("_cumulative", "_marginal")
                 retained = row.get("retained")
                 contribution = (
                     0
-                    if row["proposal"] == 0 or retained is False
+                    if assumed_zero or row["proposal"] == 0 or retained is False
                     else values[marginal]
                     if retained is True
                     else None
@@ -86,6 +107,12 @@ def compact_document(document, source_signature):
                 )
                 stage_values[f"retained:{marginal}"] = contribution
                 stage_values[f"retained:{cumulative}"] = retained_totals[cumulative]
+            if incomplete_history:
+                # A skipped unreviewed proposal can add changes or discover a
+                # state first. Counts over only reviewed rows are not exact.
+                for key in stage_values:
+                    if key.endswith("_cumulative") or ":new_" in key:
+                        stage_values[key] = None
             selected.append(
                 {
                     "proposal": row["proposal"],
@@ -94,9 +121,11 @@ def compact_document(document, source_signature):
                     "fingerprint": row.get("fingerprint"),
                     "condition": row.get("condition"),
                     "retained": row.get("retained"),
+                    "no_change_assumed": assumed_zero,
                 }
             )
             previous_proposal = row["proposal"]
+            previous_values = values
         runs[run_id] = selected
     return {
         "fingerprint_version": FINGERPRINT_VERSION,
@@ -164,7 +193,7 @@ def comparison_metrics(row, previous, parents):
     }
     result = {"condition": row.get("condition")}
     for mode, count in counts.items():
-        if row["proposal"] == 0:
+        if row["proposal"] == 0 or row.get("no_change_assumed"):
             count = 0
         result[mode] = {}
         for metric, value in (
@@ -185,12 +214,78 @@ def comparison_metrics(row, previous, parents):
     return result
 
 
+def run_comparison_metrics(history, points):
+    """Sum each comparison's own increments before any chart filtering."""
+    history = sorted(history, key=lambda row: row["proposal"])
+    by_proposal = {row["proposal"]: row for row in history}
+    # Under the explicit zero-change assumption, carry the prior state only
+    # inside comparison arithmetic; the published missing fingerprint stays null.
+    for row in history:
+        if row.get("no_change_assumed"):
+            previous = by_proposal.get(row["proposal"] - 1, {})
+            by_proposal[row["proposal"]] = {
+                **row,
+                "fingerprint": previous.get("fingerprint"),
+            }
+    by_id = {}
+    for row in history:
+        by_id.setdefault(row["candidate_id"], by_proposal[row["proposal"]])
+    events = {(point["proposal"], point.get("candidate_id")): point for point in points}
+    totals = {
+        mode: {
+            f"{stage}:{kind}_cumulative": 0
+            for stage in ("implemented", "retained")
+            for kind in ("component_edits", "family_switches")
+        }
+        for mode in ("previous", "minimum_parents")
+    }
+    result = {}
+    previous_proposal = -1
+    for row in history:
+        identity = (row["proposal"], row["candidate_id"])
+        point = events.get(identity, {})
+        parent_ids = point.get("visible_candidate_ids")
+        if not isinstance(parent_ids, list) or not all(
+            isinstance(parent, str) and parent for parent in parent_ids
+        ):
+            parent_ids = []
+        parents = [
+            by_id.get(parent)
+            if by_id.get(parent, {}).get("proposal", float("inf")) < row["proposal"]
+            else None
+            for parent in parent_ids
+        ]
+        comparisons = comparison_metrics(
+            row, by_proposal.get(row["proposal"] - 1), parents
+        )
+        for mode, values in totals.items():
+            for cumulative, total in values.items():
+                marginal = cumulative.replace("_cumulative", "_marginal")
+                increment = comparisons[mode][marginal]
+                values[cumulative] = (
+                    total + increment
+                    if total is not None
+                    and increment is not None
+                    and row["proposal"] == previous_proposal + 1
+                    else None
+                )
+                comparisons[mode][cumulative] = values[cumulative]
+        comparisons["previous_proposal"] = (
+            row["proposal"] - 1 if row["proposal"] else None
+        )
+        comparisons["parent_ids"] = list(parent_ids)
+        result[identity] = comparisons
+        previous_proposal = row["proposal"]
+    return result
+
+
 def attach_categorical_metrics(campaign, runs, output_root=OUTPUT):
     """Join by run, proposal and event identity; unreviewed points stay missing."""
     for run in runs:
         for point in run["points"]:
             point["ontology_metrics"] = None
             point["ontology_comparisons"] = None
+            point["ontology_no_change_assumed"] = False
     schema = next(
         (
             s
@@ -224,47 +319,36 @@ def attach_categorical_metrics(campaign, runs, output_root=OUTPUT):
             (row for (run_id, _, _), row in index.items() if run_id == run["run_id"]),
             key=lambda row: row["proposal"],
         )
-        by_proposal = {row["proposal"]: row for row in history}
-        by_id = {}
-        for row in history:
-            by_id.setdefault(row["candidate_id"], row)
+        comparisons = (
+            run_comparison_metrics(history, run["points"])
+            if any(row.get("condition") in ("C2", "C3") for row in history)
+            else {}
+        )
         for point in run["points"]:
             row = index.get(
                 (run["run_id"], point["proposal"], point.get("candidate_id"))
             )
             if row is None:
                 continue
-            matched += 1
+            matched += not row.get("no_change_assumed", False)
+            point["ontology_no_change_assumed"] = row.get("no_change_assumed", False)
             point["ontology_metrics"] = dict(row["metrics"])
             if row.get("condition") not in ("C2", "C3"):
                 continue
-            parent_ids = point.get("visible_candidate_ids")
-            if not isinstance(parent_ids, list) or not all(
-                isinstance(parent, str) and parent for parent in parent_ids
-            ):
-                parent_ids = []
-            parents = [
-                by_id.get(parent)
-                if by_id.get(parent, {}).get("proposal", float("inf")) < row["proposal"]
-                else None
-                for parent in parent_ids
+            point["ontology_comparisons"] = comparisons[
+                (row["proposal"], row["candidate_id"])
             ]
-            comparisons = comparison_metrics(
-                row,
-                by_proposal.get(row["proposal"] - 1),
-                parents,
-            )
-            comparisons["previous_proposal"] = (
-                row["proposal"] - 1 if row["proposal"] else None
-            )
-            comparisons["parent_ids"] = list(parent_ids)
-            point["ontology_comparisons"] = comparisons
     return {
         "available": True,
         "campaign": schema["id"],
         "schema_revision": revision,
         "matched_points": matched,
-        "published_points": len(index),
+        "published_points": sum(
+            not row.get("no_change_assumed", False) for row in index.values()
+        ),
+        "assumed_no_change_points": sum(
+            row.get("no_change_assumed", False) for row in index.values()
+        ),
     }
 
 

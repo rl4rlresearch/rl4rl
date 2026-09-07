@@ -170,6 +170,10 @@ def test_missing_retention_and_proposal_gaps_do_not_become_zero(tmp_path):
     assert rows[1]["proposal"] == 2
     assert rows[1]["metrics"]["retained:component_edits_marginal"] == 2
     assert rows[1]["metrics"]["retained:component_edits_cumulative"] is None
+    assert rows[1]["metrics"]["implemented:component_edits_cumulative"] is None
+    assert rows[1]["metrics"]["implemented:new_component_states_marginal"] is None
+    assert rows[1]["metrics"]["implemented:new_families_marginal"] is None
+    assert rows[1]["metrics"]["implemented:component_edits_marginal"] == 2
 
 
 def test_old_compact_format_is_rebuilt_without_republishing_sources(tmp_path):
@@ -282,4 +286,193 @@ def test_comparison_distances_do_not_mix_parents_and_retention_gates_results():
         value == 0
         for mode in ("previous", "minimum_parents")
         for value in seed[mode].values()
+    )
+
+
+def test_comparison_totals_sum_selected_increments_and_keep_history(tmp_path):
+    base, document, campaign = publish(tmp_path)
+    fingerprints = [
+        {"a": "x", "b": "x", "c": "x"},
+        {"a": "x", "b": "y", "c": "x"},
+        {"a": "y", "b": "x", "c": "x"},
+        {"a": "x", "b": "x", "c": "y"},
+        {"a": "y", "b": "y", "c": "y"},
+        {"a": "x", "b": "y", "c": "x"},
+    ]
+    history = document["runs"]["run"]
+    for row, fingerprint in zip(history, fingerprints, strict=True):
+        row.update(fingerprint=fingerprint, condition="C3")
+    (base / "final.json").write_text(json.dumps(document), encoding="utf-8")
+    points = [
+        {
+            "proposal": row["proposal"],
+            "candidate_id": row["candidate_id"],
+            "visible_candidate_ids": [
+                parent["candidate_id"] for parent in history[: min(row["proposal"], 4)]
+            ],
+        }
+        for row in history
+    ]
+    runs = [{"run_id": "run", "points": list(reversed(points))}]
+    assert dashboard.attach_categorical_metrics(campaign, runs, tmp_path)["available"]
+    expected = {"previous": [0, 1, 2, 2, 2, 2], "minimum_parents": [0, 1, 1, 1, 2, 0]}
+    for mode, changes in expected.items():
+        for kind in ("component_edits", "family_switches"):
+            for stage in ("implemented", "retained"):
+                increments = [
+                    (value if kind == "component_edits" else int(value > 0))
+                    if stage == "implemented" or history[i]["retained"]
+                    else 0
+                    for i, value in enumerate(changes)
+                ]
+                assert [
+                    p["ontology_comparisons"][mode][f"{stage}:{kind}_marginal"]
+                    for p in points
+                ] == increments
+                assert [
+                    p["ontology_comparisons"][mode][f"{stage}:{kind}_cumulative"]
+                    for p in points
+                ] == [sum(increments[: i + 1]) for i in range(6)]
+    # Rejected proposal 4 advances the implemented total but leaves retained flat.
+    assert (
+        points[4]["ontology_comparisons"]["previous"][
+            "implemented:component_edits_cumulative"
+        ]
+        == 7
+    )
+    assert (
+        points[4]["ontology_comparisons"]["previous"][
+            "retained:component_edits_cumulative"
+        ]
+        == 4
+    )
+    assert (
+        points[5]["ontology_comparisons"]["minimum_parents"][
+            "implemented:component_edits_cumulative"
+        ]
+        == 5
+    )
+    assert (
+        points[5]["ontology_comparisons"]["minimum_parents"][
+            "retained:component_edits_cumulative"
+        ]
+        == 2
+    )
+    # A missing portfolio makes only that comparison's future totals unknown;
+    # later marginals remain usable and the previous-proposal mode is independent.
+    points[2].pop("visible_candidate_ids")
+    dashboard.attach_categorical_metrics(campaign, runs, tmp_path)
+    assert (
+        points[1]["ontology_comparisons"]["minimum_parents"][
+            "implemented:component_edits_cumulative"
+        ]
+        == 1
+    )
+    assert (
+        points[5]["ontology_comparisons"]["minimum_parents"][
+            "implemented:component_edits_marginal"
+        ]
+        == 0
+    )
+    assert (
+        points[5]["ontology_comparisons"]["minimum_parents"][
+            "implemented:component_edits_cumulative"
+        ]
+        is None
+    )
+    assert (
+        points[5]["ontology_comparisons"]["previous"][
+            "implemented:component_edits_cumulative"
+        ]
+        == 9
+    )
+    # Missing published proposal 2 must not be silently skipped in a running sum.
+    history.pop(2)
+    (base / "final.json").write_text(json.dumps(document), encoding="utf-8")
+    dashboard.attach_categorical_metrics(campaign, runs, tmp_path)
+    assert points[2]["ontology_comparisons"] is None
+    assert (
+        points[5]["ontology_comparisons"]["previous"][
+            "implemented:component_edits_marginal"
+        ]
+        == 2
+    )
+    assert (
+        points[5]["ontology_comparisons"]["previous"][
+            "implemented:component_edits_cumulative"
+        ]
+        is None
+    )
+
+
+def test_explicit_unresolved_records_assume_zero_and_preserve_downstream_totals(
+    tmp_path,
+):
+    base, document, campaign = publish(tmp_path)
+    records = document["runs"]["run"]
+    for row, value in zip(records, ["a", "b", "c", "b", "d", "b"], strict=True):
+        row.update(condition="C2", fingerprint={"mechanism": value})
+    missing = records.pop(2)
+    document["unresolved_occurrences"] = [
+        {"run_id": "run", "record": missing, "status": "invalid_source"}
+    ]
+    for key in dashboard.METRICS:
+        if key.endswith("_cumulative"):
+            marginal = key.replace("_cumulative", "_marginal")
+            total = 0
+            for row in records:
+                total += row["metrics"][marginal]
+                row["metrics"][key] = total
+    (base / "final.json").write_text(json.dumps(document), encoding="utf-8")
+    events = sorted(records + [missing], key=lambda row: row["proposal"])
+    points = [
+        {
+            "proposal": row["proposal"],
+            "candidate_id": row["candidate_id"],
+            "visible_candidate_ids": ["p0"],
+        }
+        for row in events
+    ]
+    runs = [{"run_id": "run", "points": points}]
+    metadata = dashboard.attach_categorical_metrics(campaign, runs, tmp_path)
+    assert metadata["matched_points"] == 5
+    assert metadata["assumed_no_change_points"] == 1
+    assert points[2]["ontology_no_change_assumed"] is True
+    assert all(
+        value == 0
+        for key, value in points[2]["ontology_metrics"].items()
+        if key.endswith("_marginal")
+    )
+    for stage in ("implemented", "retained"):
+        for kind in (
+            "component_edits",
+            "family_switches",
+            "new_component_states",
+            "new_families",
+        ):
+            marginal, cumulative = (
+                f"{stage}:{kind}_marginal",
+                f"{stage}:{kind}_cumulative",
+            )
+            running = 0
+            for point in points:
+                running += point["ontology_metrics"][marginal]
+                assert point["ontology_metrics"][cumulative] == running
+        for mode in ("previous", "minimum_parents"):
+            for kind in ("component_edits", "family_switches"):
+                running = 0
+                for point in points:
+                    values = point["ontology_comparisons"][mode]
+                    running += values[f"{stage}:{kind}_marginal"]
+                    assert values[f"{stage}:{kind}_cumulative"] == running
+    assert (
+        points[3]["ontology_comparisons"]["previous"][
+            "implemented:component_edits_marginal"
+        ]
+        == 0
+    )
+    compact = dashboard.compact_document(document, [0, 0])
+    assert compact["runs"]["run"][2]["fingerprint"] is None
+    assert len(document["runs"]["run"]) == 5, (
+        "The assumption does not create a source review"
     )

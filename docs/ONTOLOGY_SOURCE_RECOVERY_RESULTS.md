@@ -18,3 +18,34 @@ The recovered Fashion rows contribute 79 component edits and 46 family switches;
 Verification: 58 regression tests passed. The final audit checks exact inventory/packet/published occurrence coverage, scope, preserved lineage, all eight marginal/cumulative metrics, current schema revisions, and removal of resolved exception cards from active queues. Historical exception cards and reports remain archived in each campaign's `source-recovery/before/` directory.
 
 See [source resolution rules and reproduction commands](ONTOLOGY_SOURCE_RESOLUTION.md) and the [machine-readable cross-campaign audit](../outputs/ontology-categorical-v1/source-recovery-audit.json).
+
+
+## Tiny AdderBoard follow-up
+
+Recovered and revalidated nine additional missing-source cases using exact
+stored snapshots. Tiny AdderBoard now has **1,985/1,987 validated candidates
+(99.8993%)** and **2,018/2,020 published occurrences** across 20 C0-C3 runs,
+through proposal 100.
+
+The remaining two are syntax-invalid original submissions: B02-C2 proposal 92
+and B05-C2 proposal 98. Their original preflight failures and malformed source
+expressions are recorded in the [Tiny recovery audit](../outputs/ontology-categorical-v1/forks/tiny_adderboard/source-recovery/completion.json).
+No hypothetical code correction or parent fingerprint was substituted.
+The handoff's incorrect proposal numbers were corrected against the event logs.
+
+Resolved exception cards, including stale cards from the original review,
+were archived. The dashboard leaves the two invalid candidates unavailable
+and suppresses totals/novelty for the ten later records whose histories cross
+those gaps. All 53 categorical dashboard/fingerprint/review tests passed.
+
+
+### Updated missing-candidate metric policy
+
+By explicit user choice, unresolved in-scope candidates contribute zero marginal
+changes and zero novelty. Dashboard totals carry forward through these records
+and continue accumulating later increments. The previous-proposal comparison
+carries the last state through an unresolved proposal. These metric-only records
+are tagged `ontology_no_change_assumed`; they have no reviewed fingerprint or
+family and do not increase classification completion. This supersedes the
+previous downstream masking policy for explicitly unresolved candidates.
+Out-of-scope data and missing comparison evidence remain unavailable.

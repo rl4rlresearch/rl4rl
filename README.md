@@ -33,6 +33,14 @@ The intervention study, its configurations, trajectory dashboard, frozen
 candidate architectures, retraining launcher, and result reports are grouped in
 [`experiments/research_process_interventions_andy/`](experiments/research_process_interventions_andy/README.md).
 
+## Published ontology results
+
+Component fingerprints, architectural family IDs, review evidence, and trajectory
+metrics for Addition, Fashion-MNIST, Speech/KWS, nanoGPT, and Tiny AdderBoard are
+available in [the categorical results publication](outputs/ontology-categorical-v1/README.md).
+The large publication files use Git LFS. UCI HAR is excluded until its review is
+finished. The publication manifest records coverage, exceptions, and checksums.
+
 ## Quick start
 
 Python 3.11 or newer and [uv](https://docs.astral.sh/uv/) are recommended.
@@ -90,7 +98,7 @@ data/raw/                Immutable source artifacts (ignored by Git)
 data/interim/            Normalized but not adjudicated events
 data/processed/          Analysis-ready, adjudicated trajectories
 docs/                    Schema and measurement documentation
-outputs/                 Generated tables and figures (ignored by Git)
+outputs/                 Generated outputs; selected ontology publications tracked
 schemas/                 Interchange JSON Schema
 src/rl4rl/               Library, adapters, CLI, metrics, and plots
 tests/                    Unit tests

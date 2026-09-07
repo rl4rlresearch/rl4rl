@@ -162,7 +162,8 @@ zero retained novelty, although its parent-relative component/family change can
 still be positive. These are not counts of distinct states first entering the
 retained population. Outcome filters never redefine either stage's history.
 
-For C2/C3 marginal **component changes** and **family changes**, both explorers
+For C2/C3 **component changes** and **family changes**, both marginal and total,
+both explorers
 provide a comparison dropdown. The default is the recorded primary parent.
 "Previous proposal" compares with proposal `t - 1` in the complete run history,
 including rejected proposals and proposals outside the displayed range.
@@ -180,9 +181,13 @@ reference fingerprint makes the comparison unavailable; it is not silently
 omitted from the minimum. The previous proposal must exist at exactly `t - 1`.
 References are joined within the same run and must precede the proposal.
 
-This dropdown changes only those marginal metrics, in both implemented and
-retained form. C0/C1, cumulative totals, and novelty metrics retain their existing
-definitions. Retained comparisons use the same event-retention gate; missing
+This dropdown controls both the marginal increments and their cumulative totals,
+in implemented and retained form. Each total sums the selected comparison's
+increments from the seed; retained totals sum only retained increments. In an
+intervention window, the selected comparison's pre-intervention total is
+subtracted from each response total. Proposal bounds and outcome filters do not
+restart accumulation. Missing increments make subsequent totals unavailable.
+C0/C1 and novelty metrics retain their existing definitions. Retained comparisons use the same event-retention gate; missing
 comparison evidence stays unavailable. The selection applies to individual
 trajectories, condition/factor summaries, and intervention response values.
 The JSON export includes the selected comparison and the reference IDs.
@@ -226,3 +231,15 @@ Exact candidate IDs can recur at later proposals. Review each unique source
 once, retain each proposal occurrence, and calculate its marginal metrics from
 that occurrence's recorded parent. A repeated ID must have the same fingerprint;
 proposal numbers remain unique within a run.
+
+
+### Updated missing-candidate metric policy
+
+By explicit user choice, unresolved in-scope candidates contribute zero marginal
+changes and zero novelty. Dashboard totals carry forward through these records
+and continue accumulating later increments. The previous-proposal comparison
+carries the last state through an unresolved proposal. These metric-only records
+are tagged `ontology_no_change_assumed`; they have no reviewed fingerprint or
+family and do not increase classification completion. This supersedes the
+previous downstream masking policy for explicitly unresolved candidates.
+Out-of-scope data and missing comparison evidence remain unavailable.

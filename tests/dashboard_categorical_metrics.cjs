@@ -71,17 +71,20 @@ for (const file of ['experiments/live_trajectory_dashboard.html','experiments/on
           'implemented:family_switches_marginal':family,
           'retained:component_edits_marginal':point.retained?changes:0,
           'retained:family_switches_marginal':point.retained?family:0,
+          ...Object.fromEntries(['implemented','retained'].flatMap(stage=>['component_edits','family_switches'].map(kind=>[
+            stage+':'+kind+'_cumulative', counts.slice(0,point.proposal+1).reduce((sum,value,i)=>sum+(stage==='retained'&&!portfolio.points[i].retained?0:kind==='family_switches'?Number(value>0):value),0)
+          ]))),
         };
       }
     }
     const portfolioPayload={...payload,runs:[portfolio]},original=JSON.stringify(portfolio);
-    for(const mode of ['parent','previous','minimum_parents'])for(const stage of ['implemented','retained'])for(const kind of ['component_edits','family_switches']){
-      const key=stage+':'+kind+'_marginal',y='ontology:'+key,s={...state,y,ontologyComparison:mode};
+    for(const mode of ['parent','previous','minimum_parents'])for(const stage of ['implemented','retained'])for(const kind of ['component_edits','family_switches'])for(const aggregation of ['marginal','cumulative']){
+      const key=stage+':'+kind+'_'+aggregation,y='ontology:'+key,s={...state,y,ontologyComparison:mode};
       const expected=portfolio.points.map(p=>mode==='parent'?p.ontology_metrics[key]:p.ontology_comparisons[mode][key]);
       const plotted=context.dataset(portfolio,portfolio.points,'proposal',y,s,portfolioPayload);
       assert.deepEqual(Array.from(plotted.data,p=>p.y),expected);
       const window=context.interventionWindows(portfolioPayload,s,[portfolio],new Map())[0];
-      assert.deepEqual(Array.from(window.data,p=>p.y),expected.slice(3));
+      assert.deepEqual(Array.from(window.data,p=>p.y),aggregation==='cumulative'?[0,...expected.slice(3).map(value=>value-expected[2])]:expected.slice(3));
       const mean=context.aggregateDataset(condition,[portfolio],'proposal',y,{...s,trajectoryMode:'full'},portfolioPayload,'mean',new Map());
       assert.deepEqual(Array.from(mean.data,p=>p.y),expected);
       assert.ok(context.ontologyComparisonControl(portfolioPayload,s).includes(`value="${mode}" selected`));
@@ -91,10 +94,10 @@ for (const file of ['experiments/live_trajectory_dashboard.html','experiments/on
       context.states.comparison={...context.defaultState(portfolioPayload),...s};
       assert.equal(context.stateFor('comparison',portfolioPayload).ontologyComparison,mode);
     }
-    for(const key of keys.filter(key=>!/(component_edits|family_switches)_marginal$/.test(key))){
+    for(const key of keys.filter(key=>!/(component_edits|family_switches)_(marginal|cumulative)$/.test(key))){
       const y='ontology:'+key,s={...state,y,ontologyComparison:'minimum_parents'};
       const plotted=context.dataset(portfolio,portfolio.points,'proposal',y,s,portfolioPayload);
-      assert.deepEqual(Array.from(plotted.data,p=>p.y),portfolio.points.map(p=>p.ontology_metrics[key]),'Totals and novelty keep their existing definitions');
+      assert.deepEqual(Array.from(plotted.data,p=>p.y),portfolio.points.map(p=>p.ontology_metrics[key]),'Novelty keeps its existing definition');
       assert.equal(context.ontologyComparisonControl(portfolioPayload,s),'');
     }
     const absent=structuredClone(portfolio);
@@ -103,6 +106,13 @@ for (const file of ['experiments/live_trajectory_dashboard.html','experiments/on
     assert.equal(context.metricInterventionCandidates(absent,absentState,portfolioPayload).length,0);
     assert.equal(context.interventionWindows(portfolioPayload,absentState,[absent],new Map()).length,0);
     assert.equal(context.interventionWindows(portfolioPayload,{...absentState,ontologyComparison:'parent'},[absent],new Map()).length,1);
+    // Cumulative windows require the selected comparison's baseline total.
+    const missingBaseline=structuredClone(portfolio);
+    missingBaseline.points[2].ontology_comparisons.previous['retained:component_edits_cumulative']=null;
+    const cumulativeState={...state,y:'ontology:retained:component_edits_cumulative',ontologyComparison:'previous'};
+    assert.equal(context.interventionWindows(portfolioPayload,cumulativeState,[missingBaseline],new Map()).length,0);
+    assert.equal(context.metricInterventionCandidates(missingBaseline,cumulativeState,portfolioPayload).length,0);
+    assert.equal(context.interventionWindows(portfolioPayload,{...cumulativeState,y:'ontology:retained:component_edits_marginal'},[missingBaseline],new Map()).length,1);
     assert.equal(JSON.stringify(portfolio),original,'Comparison selection never edits fingerprints or base metrics');
     for(const condition of ['C0','C1']){
       const control=structuredClone(portfolio);control.condition=condition;
@@ -112,6 +122,6 @@ for (const file of ['experiments/live_trajectory_dashboard.html','experiments/on
       assert.equal(context.ontologyComparisonControl({...payload,runs:[control]},s),'');
     }
   }
-  console.log('PASS:',file,'C2/C3 parent, previous and portfolio minimum comparisons; both stages, windows, means, bounds and missing references');
+  console.log('PASS:',file,'C2/C3 parent, previous and portfolio minimum comparisons; marginals and totals, both stages, window baselines, means, bounds and missing references');
   console.log('PASS:',file,'all 16 implemented/retained axes, window baselines, full-history novelty, means/medians, missing reviews and immutable data');
 }

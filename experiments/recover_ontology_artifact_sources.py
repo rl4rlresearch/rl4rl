@@ -171,7 +171,9 @@ def recover(campaign):
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument(
-        "--campaign", required=True, choices=["addition", "nanogpt", "fashion", "kws"]
+        "--campaign",
+        required=True,
+        choices=["addition", "nanogpt", "fashion", "kws", "tiny_adderboard"],
     )
     args = parser.parse_args()
     recover(args.campaign)

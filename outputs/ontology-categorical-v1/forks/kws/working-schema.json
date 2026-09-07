@@ -1,0 +1,946 @@
+{
+  "components": [
+    {
+      "absence_rule": "Use absent only after reviewing all relevant paths and establishing that this role is not instantiated. Missing evidence is never absent.",
+      "aliases": {
+        "none": "absent"
+      },
+      "description": "Acoustic features at the candidate input boundary.",
+      "excludes": "Candidate preprocessing, protected frontend implementation, feature dimension.",
+      "id": "acoustic_representation",
+      "multi_mechanism_rule": "Collapse equivalent observations. Split distinct roles or define precise structural composition in a schema extension. Never concatenate labels or pick a primary winner.",
+      "numeric_invariants": "Dimensions, widths, counts, ranks, rates, thresholds and coefficient values stay in evidence, never labels or spelled-out numbers. A change in an executed mechanism needs its own source-based role decision.",
+      "provisional_values": [],
+      "scope": "Acoustic features at the candidate input boundary.",
+      "value_definitions": {
+        "absent": "This role is not instantiated on any relevant reachable path.",
+        "learned_acoustic_features": "A learned frontend produces the acoustic representation.",
+        "log_spectral_frames": "Frames contain logarithmically transformed spectral coefficients.",
+        "raw_waveform_features": "Waveform samples provide the representation.",
+        "spectral_frames": "Frames contain spectral coefficients."
+      },
+      "values": [
+        "spectral_frames",
+        "log_spectral_frames",
+        "learned_acoustic_features",
+        "raw_waveform_features",
+        "absent"
+      ]
+    },
+    {
+      "absence_rule": "Use absent only after reviewing all relevant paths and establishing that this role is not instantiated. Missing evidence is never absent.",
+      "aliases": {
+        "none": "absent"
+      },
+      "description": "Candidate transforms before the main temporal operator.",
+      "excludes": "Fixed input representation, internal recurrent normalization.",
+      "id": "acoustic_preprocessing",
+      "multi_mechanism_rule": "Collapse equivalent observations. Split distinct roles or define precise structural composition in a schema extension. Never concatenate labels or pick a primary winner.",
+      "numeric_invariants": "Dimensions, widths, counts, ranks, rates, thresholds and coefficient values stay in evidence, never labels or spelled-out numbers. A change in an executed mechanism needs its own source-based role decision.",
+      "provisional_values": [],
+      "scope": "Candidate transforms before the main temporal operator.",
+      "value_definitions": {
+        "absent": "This role is not instantiated on any relevant reachable path.",
+        "fixed_frontend": "A candidate-owned deterministic frontend transforms acoustic input.",
+        "frequency_pooling_frontend": "Candidate-owned frequency reduction transforms acoustic input.",
+        "learned_frontend": "A candidate-owned learned frontend transforms acoustic input.",
+        "normalizing_frontend": "Candidate-owned normalization transforms acoustic input."
+      },
+      "values": [
+        "fixed_frontend",
+        "normalizing_frontend",
+        "frequency_pooling_frontend",
+        "learned_frontend",
+        "absent"
+      ]
+    },
+    {
+      "absence_rule": "Use absent only after reviewing all relevant paths and establishing that this role is not instantiated. Missing evidence is never absent.",
+      "aliases": {
+        "none": "absent"
+      },
+      "description": "Connectivity of the main sequence-processing mechanism.",
+      "excludes": "Recurrent update law, frame sampling, classifier aggregation.",
+      "id": "temporal_operator",
+      "multi_mechanism_rule": "Collapse equivalent observations. Split distinct roles or define precise structural composition in a schema extension. Never concatenate labels or pick a primary winner.",
+      "numeric_invariants": "Dimensions, widths, counts, ranks, rates, thresholds and coefficient values stay in evidence, never labels or spelled-out numbers. A change in an executed mechanism needs its own source-based role decision.",
+      "provisional_values": [],
+      "scope": "Connectivity of the main sequence-processing mechanism.",
+      "value_definitions": {
+        "absent": "This role is not instantiated on any relevant reachable path.",
+        "attention": "Attention weights mix features.",
+        "convolutional": "Temporal information passes through convolution.",
+        "fixed_temporal_pool": "A deterministic temporal reduction is the main sequence mechanism.",
+        "recurrent": "Temporal information passes through state updates.",
+        "recurrent_convolutional": "Convolution and recurrence are connected in the main temporal path."
+      },
+      "values": [
+        "recurrent",
+        "convolutional",
+        "recurrent_convolutional",
+        "attention",
+        "fixed_temporal_pool",
+        "absent"
+      ]
+    },
+    {
+      "absence_rule": "Use absent only after reviewing all relevant paths and establishing that this role is not instantiated. Missing evidence is never absent.",
+      "aliases": {
+        "nn.GRU": "gru_update",
+        "nn.GRUCell": "gru_update",
+        "nn.LSTM": "lstm_update",
+        "nn.LSTMCell": "lstm_update",
+        "none": "absent",
+        "torch.nn.GRU": "gru_update",
+        "torch.nn.GRUCell": "gru_update",
+        "torch.nn.LSTM": "lstm_update",
+        "torch.nn.LSTMCell": "lstm_update"
+      },
+      "description": "The recurrent update law, including intrinsic gates.",
+      "excludes": "Extra feature gates, state layout, initialization, standard cell nonlinearities counted again as activation.",
+      "id": "state_update",
+      "multi_mechanism_rule": "Collapse equivalent observations. Split distinct roles or define precise structural composition in a schema extension. Never concatenate labels or pick a primary winner.",
+      "numeric_invariants": "Dimensions, widths, counts, ranks, rates, thresholds and coefficient values stay in evidence, never labels or spelled-out numbers. A change in an executed mechanism needs its own source-based role decision.",
+      "provisional_values": [],
+      "scope": "The recurrent update law, including intrinsic gates.",
+      "value_definitions": {
+        "absent": "This role is not instantiated on any relevant reachable path.",
+        "gru_update": "The state update follows the GRU gating law; reset placement variants need distinct categories.",
+        "lstm_update": "The state update follows the standard LSTM cell/hidden-state law.",
+        "vanilla_recurrent_update": "Affine input/state combination and a scalar nonlinearity update recurrent state.",
+        "rnn_update": "The state update follows a vanilla recurrent neural network law with an affine input and state path and a scalar nonlinearity.",
+        "custom_recurrent_update": "A candidate-defined recurrent update law is executed instead of a standard named recurrent cell; its gates, nonlinearities and state equation are retained in evidence.",
+        "single_gate_update": "A single learned retention or interpolation gate combines prior state with a candidate state.",
+        "gru_rnn_composite_update": "A GRU update and a distinct vanilla RNN update are both active in the candidate recurrent path.",
+        "parallel_gru_update": "Multiple independent GRU updates process parallel state streams and their outputs are combined for prediction.",
+        "hierarchical_gru_update": "Distinct GRU stages are connected hierarchically, with one recurrent stage feeding another or receiving a scheduled skip path."
+      },
+      "values": [
+        "gru_update",
+        "lstm_update",
+        "vanilla_recurrent_update",
+        "absent",
+        "rnn_update",
+        "custom_recurrent_update",
+        "single_gate_update",
+        "gru_rnn_composite_update",
+        "parallel_gru_update",
+        "hierarchical_gru_update"
+      ]
+    },
+    {
+      "absence_rule": "Use absent only after reviewing all relevant paths and establishing that this role is not instantiated. Missing evidence is never absent.",
+      "aliases": {
+        "none": "absent"
+      },
+      "description": "Semantic constituents of temporal state.",
+      "excludes": "Dimensions, update law, reset policy, lifetime.",
+      "id": "state_structure",
+      "multi_mechanism_rule": "Collapse equivalent observations. Split distinct roles or define precise structural composition in a schema extension. Never concatenate labels or pick a primary winner.",
+      "numeric_invariants": "Dimensions, widths, counts, ranks, rates, thresholds and coefficient values stay in evidence, never labels or spelled-out numbers. A change in an executed mechanism needs its own source-based role decision.",
+      "provisional_values": [],
+      "scope": "Semantic constituents of temporal state.",
+      "value_definitions": {
+        "absent": "This role is not instantiated on any relevant reachable path.",
+        "cell_hidden_state": "Separate cell and hidden vectors constitute state.",
+        "external_memory_state": "Temporal state includes an external memory object.",
+        "multi_component_state": "The carried temporal state contains multiple independently stored constituents beyond a single hidden vector; their semantic use is recorded by the aggregation, history, reset and interaction roles.",
+        "single_hidden_state": "One hidden feature vector constitutes state."
+      },
+      "values": [
+        "single_hidden_state",
+        "cell_hidden_state",
+        "multi_component_state",
+        "external_memory_state",
+        "absent"
+      ]
+    },
+    {
+      "absence_rule": "Use absent only after reviewing all relevant paths and establishing that this role is not instantiated. Missing evidence is never absent.",
+      "aliases": {
+        "none": "absent"
+      },
+      "description": "Initialization/reset rule for temporal state.",
+      "excludes": "Update equation, numeric initial values, horizon.",
+      "id": "state_reset",
+      "multi_mechanism_rule": "Collapse equivalent observations. Split distinct roles or define precise structural composition in a schema extension. Never concatenate labels or pick a primary winner.",
+      "numeric_invariants": "Dimensions, widths, counts, ranks, rates, thresholds and coefficient values stay in evidence, never labels or spelled-out numbers. A change in an executed mechanism needs its own source-based role decision.",
+      "provisional_values": [],
+      "scope": "Initialization/reset rule for temporal state.",
+      "value_definitions": {
+        "absent": "This role is not instantiated on any relevant reachable path.",
+        "fixed_initial_state": "Fixed state initializes each sequence.",
+        "input_conditioned_reset": "Input content determines reset or initialization.",
+        "learned_initial_state": "Learned parameters initialize state.",
+        "periodic_reset": "A predetermined recurring schedule resets state."
+      },
+      "values": [
+        "fixed_initial_state",
+        "learned_initial_state",
+        "input_conditioned_reset",
+        "periodic_reset",
+        "absent"
+      ]
+    },
+    {
+      "absence_rule": "Use absent only after reviewing all relevant paths and establishing that this role is not instantiated. Missing evidence is never absent.",
+      "aliases": {
+        "none": "absent"
+      },
+      "description": "The policy selecting acoustic frames to process.",
+      "excludes": "Numeric stride/horizon, recurrent law, exit decisions.",
+      "id": "temporal_schedule",
+      "multi_mechanism_rule": "Collapse equivalent observations. Split distinct roles or define precise structural composition in a schema extension. Never concatenate labels or pick a primary winner.",
+      "numeric_invariants": "Dimensions, widths, counts, ranks, rates, thresholds and coefficient values stay in evidence, never labels or spelled-out numbers. A change in an executed mechanism needs its own source-based role decision.",
+      "provisional_values": [],
+      "scope": "The policy selecting acoustic frames to process.",
+      "value_definitions": {
+        "absent": "This role is not instantiated on any relevant reachable path.",
+        "adaptive_subsample": "Frame selection adapts to evolving inference state.",
+        "all_frames": "Every supplied frame is processed.",
+        "fixed_subsample": "A fixed policy selects frames independently of input content.",
+        "fixed_window": "Stages use fixed local receptive windows.",
+        "input_dependent_schedule": "Input content directly determines frame selection."
+      },
+      "values": [
+        "all_frames",
+        "fixed_subsample",
+        "adaptive_subsample",
+        "fixed_window",
+        "input_dependent_schedule",
+        "absent"
+      ]
+    },
+    {
+      "absence_rule": "Use absent only after reviewing all relevant paths and establishing that this role is not instantiated. Missing evidence is never absent.",
+      "aliases": {
+        "none": "absent"
+      },
+      "description": "The operator reducing temporal features for prediction.",
+      "excludes": "History available to that operator, accumulator implementation.",
+      "id": "temporal_aggregation",
+      "multi_mechanism_rule": "Collapse equivalent observations. Split distinct roles or define precise structural composition in a schema extension. Never concatenate labels or pick a primary winner.",
+      "numeric_invariants": "Dimensions, widths, counts, ranks, rates, thresholds and coefficient values stay in evidence, never labels or spelled-out numbers. A change in an executed mechanism needs its own source-based role decision.",
+      "provisional_values": [],
+      "scope": "The operator reducing temporal features for prediction.",
+      "value_definitions": {
+        "absent": "This role is not instantiated on any relevant reachable path.",
+        "attention_pool": "Attention weights reduce temporal features.",
+        "history_features": "An explicit transform combines history; the actual transform needs a specific role.",
+        "last_state": "Final temporal state supplies the summary.",
+        "max_pool": "Maximum reduces temporal features.",
+        "mean_pool": "Arithmetic mean reduces temporal features.",
+        "mean_max_last_state": "The readout combines arithmetic temporal mean, temporal maximum and the current final state.",
+        "mean_max_pool": "The readout combines arithmetic temporal mean and temporal maximum statistics.",
+        "summary_statistics": "The readout uses one or more running statistics beyond a single temporal mean or final state.",
+        "fixed_bin_history": "The readout concatenates statistics assigned to predetermined temporal bins.",
+        "last_state_plus_summary": "The readout combines the final state with an accumulated temporal summary."
+      },
+      "values": [
+        "last_state",
+        "mean_pool",
+        "max_pool",
+        "attention_pool",
+        "history_features",
+        "absent",
+        "mean_max_last_state",
+        "mean_max_pool",
+        "summary_statistics",
+        "fixed_bin_history",
+        "last_state_plus_summary"
+      ]
+    },
+    {
+      "absence_rule": "Use absent only after reviewing all relevant paths and establishing that this role is not instantiated. Missing evidence is never absent.",
+      "aliases": {
+        "none": "absent"
+      },
+      "description": "Extra computation across acoustic frequency coordinates.",
+      "excludes": "Protected frontend, temporal mixing, frequency-bin counts.",
+      "id": "frequency_operator",
+      "multi_mechanism_rule": "Collapse equivalent observations. Split distinct roles or define precise structural composition in a schema extension. Never concatenate labels or pick a primary winner.",
+      "numeric_invariants": "Dimensions, widths, counts, ranks, rates, thresholds and coefficient values stay in evidence, never labels or spelled-out numbers. A change in an executed mechanism needs its own source-based role decision.",
+      "provisional_values": [],
+      "scope": "Extra computation across acoustic frequency coordinates.",
+      "value_definitions": {
+        "absent": "This role is not instantiated on any relevant reachable path.",
+        "fixed_filter": "A nonlearned filter mixes coordinates.",
+        "frequency_attention": "Attention mixes frequency coordinates.",
+        "frequency_convolution": "Convolution mixes frequency coordinates.",
+        "frequency_pooling": "A reduction pools frequency coordinates."
+      },
+      "values": [
+        "frequency_pooling",
+        "frequency_convolution",
+        "frequency_attention",
+        "fixed_filter",
+        "absent"
+      ]
+    },
+    {
+      "absence_rule": "Use absent only after reviewing all relevant paths and establishing that this role is not instantiated. Missing evidence is never absent.",
+      "aliases": {
+        "none": "absent"
+      },
+      "description": "Extra interactions beyond the ordinary recurrent cell.",
+      "excludes": "Cell gates, extra feature modulation, classifier readout.",
+      "id": "feature_interaction",
+      "multi_mechanism_rule": "Collapse equivalent observations. Split distinct roles or define precise structural composition in a schema extension. Never concatenate labels or pick a primary winner.",
+      "numeric_invariants": "Dimensions, widths, counts, ranks, rates, thresholds and coefficient values stay in evidence, never labels or spelled-out numbers. A change in an executed mechanism needs its own source-based role decision.",
+      "provisional_values": [],
+      "scope": "Extra interactions beyond the ordinary recurrent cell.",
+      "value_definitions": {
+        "absent": "This role is not instantiated on any relevant reachable path.",
+        "affine_mixing": "An extra affine map mixes features.",
+        "attention_mixing": "An extra attention operator mixes features.",
+        "fixed_basis": "A deterministic basis supplies feature interactions.",
+        "multiplicative_gate": "A distinct control path supplies a feature-stream multiplier."
+      },
+      "values": [
+        "affine_mixing",
+        "multiplicative_gate",
+        "attention_mixing",
+        "fixed_basis",
+        "absent"
+      ]
+    },
+    {
+      "absence_rule": "Use absent only after reviewing all relevant paths and establishing that this role is not instantiated. Missing evidence is never absent.",
+      "aliases": {
+        "none": "absent"
+      },
+      "description": "The map from temporal features to class scores.",
+      "excludes": "History representation, temporal aggregation, output links, exit timing.",
+      "id": "readout",
+      "multi_mechanism_rule": "Collapse equivalent observations. Split distinct roles or define precise structural composition in a schema extension. Never concatenate labels or pick a primary winner.",
+      "numeric_invariants": "Dimensions, widths, counts, ranks, rates, thresholds and coefficient values stay in evidence, never labels or spelled-out numbers. A change in an executed mechanism needs its own source-based role decision.",
+      "provisional_values": [],
+      "scope": "The map from temporal features to class scores.",
+      "value_definitions": {
+        "absent": "This role is not instantiated on any relevant reachable path.",
+        "affine_classifier": "An affine map converts final features to class scores.",
+        "factorized_classifier": "A factorized map converts final features to class scores.",
+        "gated_classifier": "A head-internal gate selects or modulates prediction contributions.",
+        "prototype_classifier": "Comparisons to class prototypes produce scores."
+      },
+      "values": [
+        "affine_classifier",
+        "factorized_classifier",
+        "gated_classifier",
+        "prototype_classifier",
+        "absent"
+      ]
+    },
+    {
+      "absence_rule": "Use absent only after reviewing all relevant paths and establishing that this role is not instantiated. Missing evidence is never absent.",
+      "aliases": {
+        "none": "absent"
+      },
+      "description": "Temporal information exposed to the classifier.",
+      "excludes": "Aggregation operator and history length.",
+      "id": "readout_history",
+      "multi_mechanism_rule": "Collapse equivalent observations. Split distinct roles or define precise structural composition in a schema extension. Never concatenate labels or pick a primary winner.",
+      "numeric_invariants": "Dimensions, widths, counts, ranks, rates, thresholds and coefficient values stay in evidence, never labels or spelled-out numbers. A change in an executed mechanism needs its own source-based role decision.",
+      "provisional_values": [],
+      "scope": "Temporal information exposed to the classifier.",
+      "value_definitions": {
+        "absent": "This role is not instantiated on any relevant reachable path.",
+        "current_and_summary": "The readout combines the current temporal state with a running summary of prior processed features.",
+        "current_state": "Only current temporal state reaches the readout.",
+        "multi_stage_history": "States from distinct processing stages reach the readout.",
+        "state_history": "Stored temporal states reach the readout.",
+        "state_summary": "A running state summary reaches the readout.",
+        "summary_and_state_statistics": "The classifier receives an accumulated summary together with state statistics such as extrema.",
+        "fixed_bin_history": "The classifier receives features accumulated in predetermined temporal bins.",
+        "history_features": "The classifier receives a composed feature vector built from multiple stored temporal histories.",
+        "last_state": "Only the final recurrent state reaches the classifier."
+      },
+      "values": [
+        "current_and_summary",
+        "current_state",
+        "state_summary",
+        "state_history",
+        "multi_stage_history",
+        "absent",
+        "summary_and_state_statistics",
+        "fixed_bin_history",
+        "history_features",
+        "last_state"
+      ]
+    },
+    {
+      "absence_rule": "Use absent only after reviewing all relevant paths and establishing that this role is not instantiated. Missing evidence is never absent.",
+      "aliases": {
+        "none": "absent"
+      },
+      "description": "The rule deciding when inference returns.",
+      "excludes": "Frame subsampling, threshold values, gates that do not skip computation.",
+      "id": "exit_policy",
+      "multi_mechanism_rule": "Collapse equivalent observations. Split distinct roles or define precise structural composition in a schema extension. Never concatenate labels or pick a primary winner.",
+      "numeric_invariants": "Dimensions, widths, counts, ranks, rates, thresholds and coefficient values stay in evidence, never labels or spelled-out numbers. A change in an executed mechanism needs its own source-based role decision.",
+      "provisional_values": [],
+      "scope": "The rule deciding when inference returns.",
+      "value_definitions": {
+        "absent": "This role is not instantiated on any relevant reachable path.",
+        "confidence_exit": "Prediction confidence determines exit.",
+        "final_frame": "Inference returns at the final supplied frame.",
+        "fixed_exit": "A fixed horizon rule returns the prediction.",
+        "state_dependent_exit": "A temporal-state predicate determines exit."
+      },
+      "values": [
+        "final_frame",
+        "fixed_exit",
+        "confidence_exit",
+        "state_dependent_exit",
+        "absent"
+      ]
+    },
+    {
+      "absence_rule": "Use absent only after reviewing all relevant paths and establishing that this role is not instantiated. Missing evidence is never absent.",
+      "aliases": {
+        "BatchNorm1d": "batch_normalization",
+        "BatchNorm2d": "batch_normalization",
+        "F.batch_norm": "batch_normalization",
+        "F.layer_norm": "layer_normalization",
+        "LayerNorm": "layer_normalization",
+        "nn.BatchNorm1d": "batch_normalization",
+        "nn.BatchNorm2d": "batch_normalization",
+        "nn.LayerNorm": "layer_normalization",
+        "none": "absent",
+        "torch.nn.BatchNorm1d": "batch_normalization",
+        "torch.nn.BatchNorm2d": "batch_normalization",
+        "torch.nn.LayerNorm": "layer_normalization",
+        "torch.nn.functional.batch_norm": "batch_normalization",
+        "torch.nn.functional.layer_norm": "layer_normalization"
+      },
+      "description": "Normalization of main feature-stream activations.",
+      "excludes": "Probability links, control networks, output calibration, optimizer statistics. Distinct normalization sites require a role split if their mechanisms differ.",
+      "id": "normalization",
+      "multi_mechanism_rule": "Collapse equivalent observations. Split distinct roles or define precise structural composition in a schema extension. Never concatenate labels or pick a primary winner.",
+      "numeric_invariants": "Dimensions, widths, counts, ranks, rates, thresholds and coefficient values stay in evidence, never labels or spelled-out numbers. A change in an executed mechanism needs its own source-based role decision.",
+      "provisional_values": [],
+      "scope": "Normalization of main feature-stream activations.",
+      "value_definitions": {
+        "absent": "This role is not instantiated on any relevant reachable path.",
+        "batch_normalization": "Batch/channel statistics normalize features with running-statistic inference behavior.",
+        "explicit_centering_scaling": "A source-defined centering/scaling law; the actual law must be specified in an extension before using this category.",
+        "layer_normalization": "Features are centered and scaled over layer-normalized axes."
+      },
+      "values": [
+        "layer_normalization",
+        "batch_normalization",
+        "explicit_centering_scaling",
+        "absent"
+      ]
+    },
+    {
+      "absence_rule": "Use absent only after reviewing all relevant paths and establishing that this role is not instantiated. Missing evidence is never absent.",
+      "aliases": {
+        "F.gelu": "gelu",
+        "F.relu": "relu",
+        "F.silu": "silu",
+        "F.tanh": "tanh",
+        "nn.GELU": "gelu",
+        "nn.ReLU": "relu",
+        "nn.SiLU": "silu",
+        "nn.Tanh": "tanh",
+        "none": "absent",
+        "torch.gelu": "gelu",
+        "torch.nn.GELU": "gelu",
+        "torch.nn.ReLU": "relu",
+        "torch.nn.SiLU": "silu",
+        "torch.nn.Tanh": "tanh",
+        "torch.nn.functional.gelu": "gelu",
+        "torch.nn.functional.relu": "relu",
+        "torch.nn.functional.silu": "silu",
+        "torch.nn.functional.tanh": "tanh",
+        "torch.relu": "relu",
+        "torch.silu": "silu",
+        "torch.tanh": "tanh"
+      },
+      "description": "Scalar nonlinearity in the main feature transform.",
+      "excludes": "Gate hidden layers, gate transfer, recurrent-cell internals, readout hidden layers, output transforms. SiLU's intrinsic product is not an extra gate.",
+      "id": "activation",
+      "multi_mechanism_rule": "Collapse equivalent observations. Split distinct roles or define precise structural composition in a schema extension. Never concatenate labels or pick a primary winner.",
+      "numeric_invariants": "Dimensions, widths, counts, ranks, rates, thresholds and coefficient values stay in evidence, never labels or spelled-out numbers. A change in an executed mechanism needs its own source-based role decision.",
+      "provisional_values": [],
+      "scope": "Scalar nonlinearity in the main feature transform.",
+      "value_definitions": {
+        "absent": "This role is not instantiated on any relevant reachable path.",
+        "gelu": "Gaussian error linear unit, including its numerical approximations.",
+        "relu": "The scalar map takes the positive part of x.",
+        "silu": "The scalar map is x multiplied by sigmoid(x).",
+        "tanh": "The scalar map is hyperbolic tangent.",
+        "relu_silu_composite": "Distinct ReLU and SiLU nonlinearities transform candidate features in the same executed feature path.",
+        "silu_tanh_composite": "Distinct SiLU and tanh nonlinearities transform candidate features in the same executed feature path.",
+        "tanh_sigmoid_composite": "Distinct tanh and sigmoid nonlinearities transform candidate features outside a standard named recurrent cell.",
+        "square_transform": "A squared feature transform is executed as a candidate feature nonlinearity.",
+        "abs_square_composite": "Absolute-value and squared feature transforms are both executed in the candidate feature path."
+      },
+      "values": [
+        "relu",
+        "gelu",
+        "silu",
+        "tanh",
+        "absent",
+        "relu_silu_composite",
+        "silu_tanh_composite",
+        "tanh_sigmoid_composite",
+        "square_transform",
+        "abs_square_composite"
+      ]
+    },
+    {
+      "absence_rule": "Use absent only after reviewing all relevant paths and establishing that this role is not instantiated. Missing evidence is never absent.",
+      "aliases": {
+        "none": "absent"
+      },
+      "description": "Data-dependent selection of executed branches, operators or update indices.",
+      "excludes": "Dense gate multiplication with all branches executed; early exit has its own component.",
+      "id": "conditional_compute",
+      "multi_mechanism_rule": "Collapse equivalent observations. Split distinct roles or define precise structural composition in a schema extension. Never concatenate labels or pick a primary winner.",
+      "numeric_invariants": "Dimensions, widths, counts, ranks, rates, thresholds and coefficient values stay in evidence, never labels or spelled-out numbers. A change in an executed mechanism needs its own source-based role decision.",
+      "provisional_values": [],
+      "scope": "Data-dependent selection of executed branches, operators or update indices.",
+      "value_definitions": {
+        "absent": "This role is not instantiated on any relevant reachable path.",
+        "confidence_gate": "Confidence selects additional operators to execute.",
+        "dynamic_indexed_update": "Input-dependent indices select state entries or operators to update.",
+        "fixed_forward": "A predetermined whole-model invocation produces a prediction.",
+        "input_routing": "Input content selects the computation route that executes."
+      },
+      "values": [
+        "fixed_forward",
+        "confidence_gate",
+        "input_routing",
+        "dynamic_indexed_update",
+        "absent"
+      ]
+    },
+    {
+      "absence_rule": "Use absent only after reviewing all relevant paths and establishing that this role is not instantiated. Missing evidence is never absent.",
+      "aliases": {
+        "none": "absent"
+      },
+      "description": "Lifetime of auxiliary state across inference invocations.",
+      "excludes": "Update equation, state representation, attention-specific memory.",
+      "id": "persistent_state",
+      "multi_mechanism_rule": "Collapse equivalent observations. Split distinct roles or define precise structural composition in a schema extension. Never concatenate labels or pick a primary winner.",
+      "numeric_invariants": "Dimensions, widths, counts, ranks, rates, thresholds and coefficient values stay in evidence, never labels or spelled-out numbers. A change in an executed mechanism needs its own source-based role decision.",
+      "provisional_values": [],
+      "scope": "Lifetime of auxiliary state across inference invocations.",
+      "value_definitions": {
+        "absent": "This role is not instantiated on any relevant reachable path.",
+        "reset_per_example": "Auxiliary state resets for each independent example.",
+        "retained_across_examples": "Auxiliary state persists across independent examples."
+      },
+      "values": [
+        "reset_per_example",
+        "retained_across_examples",
+        "absent"
+      ]
+    },
+    {
+      "absence_rule": "Use absent only after reviewing all relevant paths and establishing that this role is not instantiated. Missing evidence is never absent.",
+      "aliases": {
+        "none": "absent"
+      },
+      "description": "Random operations active in evaluated training or inference paths.",
+      "excludes": "Unused declarations, initialization randomness, numeric rates. Distinct active train/inference mechanisms require a role split.",
+      "id": "stochastic_runtime",
+      "multi_mechanism_rule": "Collapse equivalent observations. Split distinct roles or define precise structural composition in a schema extension. Never concatenate labels or pick a primary winner.",
+      "numeric_invariants": "Dimensions, widths, counts, ranks, rates, thresholds and coefficient values stay in evidence, never labels or spelled-out numbers. A change in an executed mechanism needs its own source-based role decision.",
+      "provisional_values": [
+        "sampling"
+      ],
+      "scope": "Random operations active in evaluated training or inference paths.",
+      "value_definitions": {
+        "absent": "This role is not instantiated on any relevant reachable path.",
+        "dropout": "Random masks remove feature contributions on an active path.",
+        "sampling": "Random draws select values or outcomes; the sampling law needs a specific role if variable.",
+        "stochastic_routing": "Random selection determines the executed route."
+      },
+      "values": [
+        "dropout",
+        "sampling",
+        "stochastic_routing",
+        "absent"
+      ]
+    },
+    {
+      "absence_rule": "Use absent only after reviewing all relevant paths and establishing that this role is not instantiated. Missing evidence is never absent.",
+      "aliases": {
+        "none": "absent"
+      },
+      "description": "The base supervised error functional.",
+      "excludes": "Optimizer, target transformation, additional auxiliary objectives.",
+      "id": "learning_objective",
+      "multi_mechanism_rule": "Collapse equivalent observations. Split distinct roles or define precise structural composition in a schema extension. Never concatenate labels or pick a primary winner.",
+      "numeric_invariants": "Dimensions, widths, counts, ranks, rates, thresholds and coefficient values stay in evidence, never labels or spelled-out numbers. A change in an executed mechanism needs its own source-based role decision.",
+      "provisional_values": [],
+      "scope": "The base supervised error functional.",
+      "value_definitions": {
+        "absent": "This role is not instantiated on any relevant reachable path.",
+        "class_cross_entropy": "Cross entropy trains categorical class targets.",
+        "sequence_supervision": "The base task objective supervises intermediate temporal outputs."
+      },
+      "values": [
+        "class_cross_entropy",
+        "sequence_supervision",
+        "absent"
+      ]
+    },
+    {
+      "absence_rule": "Use absent only after reviewing all relevant paths and establishing that this role is not instantiated. Missing evidence is never absent.",
+      "aliases": {
+        "none": "absent"
+      },
+      "description": "Parameter update equation and retained optimizer statistics.",
+      "excludes": "Learning rates, schedules, model state and losses. Different update equations require distinct categories, even within one optimizer family.",
+      "id": "optimization_rule",
+      "multi_mechanism_rule": "Collapse equivalent observations. Split distinct roles or define precise structural composition in a schema extension. Never concatenate labels or pick a primary winner.",
+      "numeric_invariants": "Dimensions, widths, counts, ranks, rates, thresholds and coefficient values stay in evidence, never labels or spelled-out numbers. A change in an executed mechanism needs its own source-based role decision.",
+      "provisional_values": [],
+      "scope": "Parameter update equation and retained optimizer statistics.",
+      "value_definitions": {
+        "absent": "This role is not instantiated on any relevant reachable path.",
+        "adagrad": "Cumulative squared gradients scale updates.",
+        "adam": "Bias-corrected first and second gradient moments determine updates with coupled regularization when present.",
+        "adamw": "Adam moment updates with decoupled weight decay; decay magnitude is numerical evidence.",
+        "adaptive_gradient": "Per-parameter gradient statistics adapt update scaling; distinct update laws require specific categories before publication.",
+        "coordinate_descent": "Selected coordinates are optimized separately.",
+        "gradient_descent": "Current gradients determine updates without momentum or adaptation.",
+        "momentum_gradient": "A persistent momentum estimate determines updates.",
+        "nesterov_momentum": "A Nesterov look-ahead momentum update determines the step.",
+        "rmsprop": "Exponentially averaged squared gradients scale updates."
+      },
+      "values": [
+        "adaptive_gradient",
+        "momentum_gradient",
+        "gradient_descent",
+        "coordinate_descent",
+        "absent",
+        "adam",
+        "adamw",
+        "adagrad",
+        "rmsprop",
+        "nesterov_momentum"
+      ]
+    },
+    {
+      "absence_rule": "Use absent only after reviewing all relevant paths and establishing that this role is not instantiated. Missing evidence is never absent.",
+      "aliases": {
+        "none": "absent"
+      },
+      "description": "Transformations of training examples before the model boundary.",
+      "excludes": "Inference views, internal representation, numeric transform strengths.",
+      "id": "training_data_transform",
+      "multi_mechanism_rule": "Collapse equivalent observations. Split distinct roles or define precise structural composition in a schema extension. Never concatenate labels or pick a primary winner.",
+      "numeric_invariants": "Dimensions, widths, counts, ranks, rates, thresholds and coefficient values stay in evidence, never labels or spelled-out numbers. A change in an executed mechanism needs its own source-based role decision.",
+      "provisional_values": [],
+      "scope": "Transformations of training examples before the model boundary.",
+      "value_definitions": {
+        "absent": "This role is not instantiated on any relevant reachable path.",
+        "audio_augmentation": "A candidate-owned transform stochastically or deterministically alters acoustic training examples before the model boundary; the transform law is retained in evidence and this campaign category is used for additive acoustic-noise augmentation.",
+        "curriculum_selection": "A curriculum rule selects training examples.",
+        "standard_audio": "Audio examples are used without additional training transforms."
+      },
+      "values": [
+        "standard_audio",
+        "audio_augmentation",
+        "curriculum_selection",
+        "absent"
+      ]
+    },
+    {
+      "absence_rule": "Use absent only after reviewing all relevant paths and establishing that this role is not instantiated. Missing evidence is never absent.",
+      "aliases": {
+        "none": "absent"
+      },
+      "description": "An extra multiplicative control path acting on the main feature stream.",
+      "excludes": "Intrinsic SiLU product, recurrent gates, MLP gates, output transforms, branch skipping.",
+      "id": "feature_modulation",
+      "multi_mechanism_rule": "Collapse equivalent observations. Split distinct roles or define precise structural composition in a schema extension. Never concatenate labels or pick a primary winner.",
+      "numeric_invariants": "Dimensions, widths, counts, ranks, rates, thresholds and coefficient values stay in evidence, never labels or spelled-out numbers. A change in an executed mechanism needs its own source-based role decision.",
+      "provisional_values": [],
+      "scope": "An extra multiplicative control path acting on the main feature stream.",
+      "value_definitions": {
+        "absent": "This role is not instantiated on any relevant reachable path.",
+        "multiplicative_gate": "A distinct control path supplies a feature-stream multiplier."
+      },
+      "values": [
+        "multiplicative_gate",
+        "absent"
+      ]
+    },
+    {
+      "absence_rule": "Use absent only after reviewing all relevant paths and establishing that this role is not instantiated. Missing evidence is never absent.",
+      "aliases": {
+        "none": "absent"
+      },
+      "description": "Information supplying an extra feature gate's control path.",
+      "excludes": "Transfer function, hidden nonlinearity, summary dimension.",
+      "id": "modulation_source",
+      "multi_mechanism_rule": "Collapse equivalent observations. Split distinct roles or define precise structural composition in a schema extension. Never concatenate labels or pick a primary winner.",
+      "numeric_invariants": "Dimensions, widths, counts, ranks, rates, thresholds and coefficient values stay in evidence, never labels or spelled-out numbers. A change in an executed mechanism needs its own source-based role decision.",
+      "provisional_values": [],
+      "scope": "Information supplying an extra feature gate's control path.",
+      "value_definitions": {
+        "absent": "This role is not instantiated on any relevant reachable path.",
+        "external_signal": "Information outside the main stream supplies control information.",
+        "global_channel_summary": "Spatially pooled features supply channel-specific control information.",
+        "local_features": "Current local features supply control information.",
+        "temporal_summary": "A temporal summary supplies control information."
+      },
+      "values": [
+        "local_features",
+        "global_channel_summary",
+        "temporal_summary",
+        "external_signal",
+        "absent"
+      ]
+    },
+    {
+      "absence_rule": "Use absent only after reviewing all relevant paths and establishing that this role is not instantiated. Missing evidence is never absent.",
+      "aliases": {
+        "F.sigmoid": "sigmoid",
+        "F.softmax": "softmax",
+        "F.tanh": "tanh",
+        "none": "absent",
+        "torch.nn.functional.sigmoid": "sigmoid",
+        "torch.nn.functional.softmax": "softmax",
+        "torch.nn.functional.tanh": "tanh",
+        "torch.sigmoid": "sigmoid",
+        "torch.softmax": "softmax",
+        "torch.tanh": "tanh"
+      },
+      "description": "The link turning an extra feature gate score into a multiplier.",
+      "excludes": "The same function used for backbone activation, probabilities, attention or intrinsic cell gates.",
+      "id": "modulation_transfer",
+      "multi_mechanism_rule": "Collapse equivalent observations. Split distinct roles or define precise structural composition in a schema extension. Never concatenate labels or pick a primary winner.",
+      "numeric_invariants": "Dimensions, widths, counts, ranks, rates, thresholds and coefficient values stay in evidence, never labels or spelled-out numbers. A change in an executed mechanism needs its own source-based role decision.",
+      "provisional_values": [],
+      "scope": "The link turning an extra feature gate score into a multiplier.",
+      "value_definitions": {
+        "absent": "This role is not instantiated on any relevant reachable path.",
+        "identity": "The instantiated role applies an identity map.",
+        "sigmoid": "The scalar map is logistic sigmoid.",
+        "softmax": "Exponentiation and normalization produce weights summing to unity over declared axes.",
+        "tanh": "The scalar map is hyperbolic tangent."
+      },
+      "values": [
+        "sigmoid",
+        "tanh",
+        "softmax",
+        "identity",
+        "absent"
+      ]
+    },
+    {
+      "absence_rule": "Use absent only after reviewing all relevant paths and establishing that this role is not instantiated. Missing evidence is never absent.",
+      "aliases": {
+        "F.gelu": "gelu",
+        "F.relu": "relu",
+        "F.sigmoid": "sigmoid",
+        "F.silu": "silu",
+        "F.tanh": "tanh",
+        "nn.GELU": "gelu",
+        "nn.ReLU": "relu",
+        "nn.SiLU": "silu",
+        "nn.Sigmoid": "sigmoid",
+        "nn.Tanh": "tanh",
+        "none": "absent",
+        "torch.gelu": "gelu",
+        "torch.nn.GELU": "gelu",
+        "torch.nn.ReLU": "relu",
+        "torch.nn.SiLU": "silu",
+        "torch.nn.Sigmoid": "sigmoid",
+        "torch.nn.Tanh": "tanh",
+        "torch.nn.functional.gelu": "gelu",
+        "torch.nn.functional.relu": "relu",
+        "torch.nn.functional.sigmoid": "sigmoid",
+        "torch.nn.functional.silu": "silu",
+        "torch.nn.functional.tanh": "tanh",
+        "torch.relu": "relu",
+        "torch.sigmoid": "sigmoid",
+        "torch.silu": "silu",
+        "torch.tanh": "tanh"
+      },
+      "description": "Hidden scalar nonlinearity inside an extra feature gate network.",
+      "excludes": "Final gate transfer and backbone/readout nonlinearity.",
+      "id": "gate_hidden_activation",
+      "multi_mechanism_rule": "Collapse equivalent observations. Split distinct roles or define precise structural composition in a schema extension. Never concatenate labels or pick a primary winner.",
+      "numeric_invariants": "Dimensions, widths, counts, ranks, rates, thresholds and coefficient values stay in evidence, never labels or spelled-out numbers. A change in an executed mechanism needs its own source-based role decision.",
+      "provisional_values": [],
+      "scope": "Hidden scalar nonlinearity inside an extra feature gate network.",
+      "value_definitions": {
+        "absent": "This role is not instantiated on any relevant reachable path.",
+        "gelu": "Gaussian error linear unit, including its numerical approximations.",
+        "relu": "The scalar map takes the positive part of x.",
+        "sigmoid": "The scalar map is logistic sigmoid.",
+        "silu": "The scalar map is x multiplied by sigmoid(x).",
+        "tanh": "The scalar map is hyperbolic tangent."
+      },
+      "values": [
+        "relu",
+        "gelu",
+        "silu",
+        "tanh",
+        "sigmoid",
+        "absent"
+      ]
+    },
+    {
+      "absence_rule": "Use absent only after reviewing all relevant paths and establishing that this role is not instantiated. Missing evidence is never absent.",
+      "aliases": {
+        "F.gelu": "gelu",
+        "F.relu": "relu",
+        "F.sigmoid": "sigmoid",
+        "F.silu": "silu",
+        "F.tanh": "tanh",
+        "nn.GELU": "gelu",
+        "nn.ReLU": "relu",
+        "nn.SiLU": "silu",
+        "nn.Sigmoid": "sigmoid",
+        "nn.Tanh": "tanh",
+        "none": "absent",
+        "torch.gelu": "gelu",
+        "torch.nn.GELU": "gelu",
+        "torch.nn.ReLU": "relu",
+        "torch.nn.SiLU": "silu",
+        "torch.nn.Sigmoid": "sigmoid",
+        "torch.nn.Tanh": "tanh",
+        "torch.nn.functional.gelu": "gelu",
+        "torch.nn.functional.relu": "relu",
+        "torch.nn.functional.sigmoid": "sigmoid",
+        "torch.nn.functional.silu": "silu",
+        "torch.nn.functional.tanh": "tanh",
+        "torch.relu": "relu",
+        "torch.sigmoid": "sigmoid",
+        "torch.silu": "silu",
+        "torch.tanh": "tanh"
+      },
+      "description": "Hidden scalar nonlinearity of the prediction head.",
+      "excludes": "Backbone activation, final link, control networks.",
+      "id": "readout_activation",
+      "multi_mechanism_rule": "Collapse equivalent observations. Split distinct roles or define precise structural composition in a schema extension. Never concatenate labels or pick a primary winner.",
+      "numeric_invariants": "Dimensions, widths, counts, ranks, rates, thresholds and coefficient values stay in evidence, never labels or spelled-out numbers. A change in an executed mechanism needs its own source-based role decision.",
+      "provisional_values": [],
+      "scope": "Hidden scalar nonlinearity of the prediction head.",
+      "value_definitions": {
+        "absent": "This role is not instantiated on any relevant reachable path.",
+        "gelu": "Gaussian error linear unit, including its numerical approximations.",
+        "relu": "The scalar map takes the positive part of x.",
+        "sigmoid": "The scalar map is logistic sigmoid.",
+        "silu": "The scalar map is x multiplied by sigmoid(x).",
+        "tanh": "The scalar map is hyperbolic tangent."
+      },
+      "values": [
+        "relu",
+        "gelu",
+        "silu",
+        "tanh",
+        "sigmoid",
+        "absent"
+      ]
+    },
+    {
+      "absence_rule": "Use absent only after reviewing all relevant paths and establishing that this role is not instantiated. Missing evidence is never absent.",
+      "aliases": {
+        "F.log_softmax": "log_softmax",
+        "F.sigmoid": "sigmoid",
+        "F.softmax": "softmax",
+        "none": "absent",
+        "torch.log_softmax": "log_softmax",
+        "torch.nn.functional.log_softmax": "log_softmax",
+        "torch.nn.functional.sigmoid": "sigmoid",
+        "torch.nn.functional.softmax": "softmax",
+        "torch.sigmoid": "sigmoid",
+        "torch.softmax": "softmax"
+      },
+      "description": "Conversion of final scores to probabilities or log probabilities.",
+      "excludes": "Attention softmax, gate sigmoid, calibration and loss internals.",
+      "id": "output_link",
+      "multi_mechanism_rule": "Collapse equivalent observations. Split distinct roles or define precise structural composition in a schema extension. Never concatenate labels or pick a primary winner.",
+      "numeric_invariants": "Dimensions, widths, counts, ranks, rates, thresholds and coefficient values stay in evidence, never labels or spelled-out numbers. A change in an executed mechanism needs its own source-based role decision.",
+      "provisional_values": [],
+      "scope": "Conversion of final scores to probabilities or log probabilities.",
+      "value_definitions": {
+        "absent": "This role is not instantiated on any relevant reachable path.",
+        "log_softmax": "The output is the logarithm of softmax probabilities.",
+        "sigmoid": "The scalar map is logistic sigmoid.",
+        "softmax": "Exponentiation and normalization produce weights summing to unity over declared axes."
+      },
+      "values": [
+        "sigmoid",
+        "softmax",
+        "log_softmax",
+        "absent"
+      ]
+    },
+    {
+      "absence_rule": "Use absent only after reviewing all relevant paths and establishing that this role is not instantiated. Missing evidence is never absent.",
+      "aliases": {
+        "none": "absent"
+      },
+      "description": "Additional objectives beyond the base task loss.",
+      "excludes": "Base task error, scalar loss weights, optimizer.",
+      "id": "auxiliary_objective",
+      "multi_mechanism_rule": "Collapse equivalent observations. Split distinct roles or define precise structural composition in a schema extension. Never concatenate labels or pick a primary winner.",
+      "numeric_invariants": "Dimensions, widths, counts, ranks, rates, thresholds and coefficient values stay in evidence, never labels or spelled-out numbers. A change in an executed mechanism needs its own source-based role decision.",
+      "provisional_values": [],
+      "scope": "Additional objectives beyond the base task loss.",
+      "value_definitions": {
+        "absent": "This role is not instantiated on any relevant reachable path.",
+        "auxiliary_supervision": "An additional target supplies a supervised loss.",
+        "contrastive_supervision": "An additional contrastive relation supplies a loss."
+      },
+      "values": [
+        "auxiliary_supervision",
+        "contrastive_supervision",
+        "absent"
+      ]
+    },
+    {
+      "absence_rule": "Use absent only after reviewing all relevant paths and establishing that this role is not instantiated. Missing evidence is never absent.",
+      "aliases": {
+        "none": "absent"
+      },
+      "description": "Transformation of targets supplied to the base loss.",
+      "excludes": "Input augmentation and numerical smoothing strength.",
+      "id": "loss_target_transform",
+      "multi_mechanism_rule": "Collapse equivalent observations. Split distinct roles or define precise structural composition in a schema extension. Never concatenate labels or pick a primary winner.",
+      "numeric_invariants": "Dimensions, widths, counts, ranks, rates, thresholds and coefficient values stay in evidence, never labels or spelled-out numbers. A change in an executed mechanism needs its own source-based role decision.",
+      "provisional_values": [],
+      "scope": "Transformation of targets supplied to the base loss.",
+      "value_definitions": {
+        "absent": "This role is not instantiated on any relevant reachable path.",
+        "label_smoothing": "Categorical target distributions are smoothed before the loss."
+      },
+      "values": [
+        "label_smoothing",
+        "absent"
+      ]
+    }
+  ],
+  "data_directory": "tiny-kws-rnn-openevolve-v2-1-cpu-campaign",
+  "id": "kws",
+  "included_conditions": [
+    "C0",
+    "C1",
+    "C2",
+    "C3"
+  ],
+  "label": "Tiny keyword spotting RNN",
+  "review_policy": {
+    "alias_scope": "Aliases apply only after source dataflow establishes the role and operator semantics. API spelling alone is insufficient.",
+    "classification_unit": "A semantic mechanism at a specified computational role, never a bag of API names.",
+    "multiple_mechanisms": "Collapse equivalent observations. Split distinct roles or define precise structural composition in a schema extension. Never concatenate labels or pick a primary winner.",
+    "numeric_rule": "Dimensions, widths, counts, ranks, rates, thresholds and coefficient values stay in evidence, never labels or spelled-out numbers. A change in an executed mechanism needs its own source-based role decision.",
+    "ownership": "Each semantic fact has one component owner. Distinct aspects of an operation may have separate owners with separate evidence.",
+    "provisional_values": "Draft broad labels explicitly listed as provisional cannot be published. Replace with precise categories or factor out the missing semantic aspect, and reproject all candidates.",
+    "reprojection_required": true,
+    "version": "role_evidence_v1"
+  },
+  "source_campaign_key": "openevolve_v21_tiny_kws_rnn"
+}
