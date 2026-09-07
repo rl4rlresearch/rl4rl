@@ -13,6 +13,7 @@ import os
 import tempfile
 from collections.abc import Mapping
 from datetime import UTC, datetime
+from hashlib import sha256
 from pathlib import Path
 from typing import Any
 
@@ -36,7 +37,7 @@ def _readable_path(path: Path) -> Path:
 
 def _read_json(path: Path) -> dict[str, Any]:
     try:
-        value = json.loads(path.read_text(encoding="utf-8"))
+        value = json.loads(_readable_path(path).read_text(encoding="utf-8"))
     except (OSError, UnicodeDecodeError, json.JSONDecodeError) as exc:
         raise ValueError(f"Cannot read {path}: {exc}") from exc
     if not isinstance(value, dict):
@@ -47,7 +48,7 @@ def _read_json(path: Path) -> dict[str, Any]:
 def _read_events(path: Path) -> list[dict[str, Any]]:
     result: list[dict[str, Any]] = []
     try:
-        lines = path.read_text(encoding="utf-8").splitlines()
+        lines = _readable_path(path).read_text(encoding="utf-8").splitlines()
     except (OSError, UnicodeDecodeError) as exc:
         raise ValueError(f"Cannot read {path}: {exc}") from exc
     for line_number, line in enumerate(lines, start=1):
@@ -73,6 +74,125 @@ def _source_status(run_root: Path, candidate_id: str) -> tuple[str, str]:
     return "no_python", candidate_root.relative_to(run_root).as_posix()
 
 
+def _interrupted_workspace_evidence(
+    run_root: Path, event: Mapping[str, Any], artifact_id: str
+) -> dict[str, Any] | None:
+    """Prove a saved interrupted workspace equals its recorded parent snapshot."""
+    parents = event.get("parent_ids", [])
+    if not parents or parents[0] != artifact_id:
+        return None
+    workspace = (
+        run_root
+        / "opportunities"
+        / f"{event['opportunity']:04d}"
+        / "proposal-workspace"
+    )
+    artifact = run_root / "candidates" / artifact_id
+    try:
+        task = _read_json(run_root.parent.parent / "inputs/task.json")
+        editable = task.get("editable_paths")
+        if not isinstance(editable, list) or not editable:
+            return None
+        hashes = {}
+        for relative in editable:
+            if not isinstance(relative, str):
+                return None
+            parts = relative.replace("\\", "/").split("/")
+            if any(part in {"", ".", ".."} for part in parts):
+                return None
+            candidate_path = (artifact / relative).resolve()
+            workspace_path = (workspace / relative).resolve()
+            if not candidate_path.is_relative_to(
+                artifact.resolve()
+            ) or not workspace_path.is_relative_to(workspace.resolve()):
+                return None
+            before = _readable_path(candidate_path).read_bytes()
+            after = _readable_path(workspace_path).read_bytes()
+            if before != after:
+                return None
+            hashes[relative] = sha256(after).hexdigest()
+    except (OSError, ValueError):
+        return None
+    return {
+        "kind": "unchanged_editable_workspace",
+        "workspace_path": workspace.relative_to(run_root).as_posix(),
+        "editable_sha256": hashes,
+        "reason": (
+            "Every declared editable file in the saved proposal workspace is "
+            "byte-identical to the recorded primary parent"
+        ),
+    }
+
+
+def _event_source(
+    run_root: Path, event: Mapping[str, Any]
+) -> tuple[str, str, dict[str, Any]]:
+    """Resolve recorded snapshots without confusing event IDs with source IDs.
+
+    The runner gives repeated snapshots synthetic event IDs. Its artifact_path
+    still identifies the actual immutable snapshot. Interrupted-opportunity
+    recovery can instead point to a parent as a fallback: that alone is not
+    evidence of the attempted candidate and must remain unresolved.
+    """
+    candidate_id = event["candidate_id"]
+    status, path = _source_status(run_root, candidate_id)
+    resolution = {
+        "kind": "direct_candidate",
+        "recorded_candidate_id": candidate_id,
+        "source_candidate_id": candidate_id,
+    }
+    if status == "available":
+        return status, path, resolution
+    artifact = event.get("artifact_path")
+    if not isinstance(artifact, str):
+        return status, path, resolution
+    parts = artifact.replace("\\", "/").split("/")
+    if len(parts) != 2 or parts[0] != "candidates" or not parts[1].isalnum():
+        resolution.update(kind="unresolved_artifact", reason="Unsafe artifact path")
+        return status, path, resolution
+    resolved = (run_root / "candidates" / parts[1]).resolve()
+    if not resolved.is_relative_to((run_root / "candidates").resolve()):
+        resolution.update(
+            kind="unresolved_artifact", reason="Artifact leaves candidate store"
+        )
+        return status, path, resolution
+    evaluation = event.get("evaluation", {})
+    failure_kind = (
+        evaluation.get("failure_kind") if isinstance(evaluation, dict) else None
+    )
+    interruption_evidence = None
+    if failure_kind == "infrastructure_interruption":
+        interruption_evidence = _interrupted_workspace_evidence(
+            run_root, event, parts[1]
+        )
+    if failure_kind == "infrastructure_interruption" and interruption_evidence is None:
+        resolution.update(
+            kind="unresolved_recovery_fallback",
+            recorded_artifact_path=artifact,
+            reason=(
+                "Interrupted-opportunity parent reference does not identify "
+                "attempted source"
+            ),
+        )
+        return status, path, resolution
+    artifact_status, artifact_path = _source_status(run_root, parts[1])
+    if artifact_status != "available":
+        return status, path, resolution
+    parents = event.get("parent_ids", [])
+    resolution.update(
+        kind="recorded_artifact_alias",
+        source_candidate_id=parts[1],
+        recorded_artifact_path=artifact,
+        artifact_is_primary_parent=bool(parents and parts[1] == parents[0]),
+        reason=(
+            "The event records a separate identifier for an existing source snapshot"
+        ),
+    )
+    if interruption_evidence is not None:
+        resolution["interruption_evidence"] = interruption_evidence
+    return artifact_status, artifact_path, resolution
+
+
 def _record_from_event(run_root: Path, event: Mapping[str, Any]) -> dict[str, Any]:
     candidate_id = event.get("candidate_id")
     proposal = event.get("opportunity")
@@ -87,7 +207,7 @@ def _record_from_event(run_root: Path, event: Mapping[str, Any]) -> dict[str, An
         not isinstance(parent, str) or not parent for parent in parents
     ):
         raise ValueError(f"Proposal {proposal} has invalid parent_ids")
-    source_status, source_path = _source_status(run_root, candidate_id)
+    source_status, source_path, source_resolution = _event_source(run_root, event)
     return {
         "proposal": proposal,
         "candidate_id": candidate_id,
@@ -96,6 +216,7 @@ def _record_from_event(run_root: Path, event: Mapping[str, Any]) -> dict[str, An
         "artifact_path": event.get("artifact_path") or source_path,
         "source_status": source_status,
         "source_path": source_path,
+        "source_resolution": source_resolution,
         "condition": event.get("condition"),
         "retained": event.get("retained"),
         "valid": event.get("evaluation", {}).get("valid")
@@ -146,6 +267,21 @@ def build_campaign_inventory(
                 }
             )
             continue
+        if campaign_id == "addition":
+            from experiments.live_trajectory_dashboard import dashboard_run_visible
+
+            if not dashboard_run_visible(run_id):
+                excluded_runs.append(
+                    {
+                        "run_id": run_id,
+                        "condition": str(condition),
+                        "reason": (
+                            "Addition run excluded by dashboard configuration "
+                            "and operator scope"
+                        ),
+                    }
+                )
+                continue
         baseline = manifest.get("baseline", {})
         seed_id = baseline.get("candidate_id")
         if not isinstance(seed_id, str) or not seed_id:

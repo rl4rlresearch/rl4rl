@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <meta name="dashboard-hot-reload" content="enabled">
 <title>RL4RL controller</title>
+<script>try{if(localStorage.getItem('rl4rl-dashboard-theme')==='light')document.documentElement.dataset.theme='light';}catch(_error){}</script>
 <style>
   :root { color-scheme:dark; --bg:#080c12; --panel:#0d131c; --panel2:#111923; --line:#273140; --text:#e6edf3; --muted:#8d9aaa; --blue:#58a6ff; --green:#3fb950; --amber:#d29922; --red:#f85149; }
   * { box-sizing:border-box; }
@@ -98,6 +99,16 @@
   table { width:100%; border-collapse:collapse; margin-top:6px; font-size:10px; }
   th,td { padding:5px; border-bottom:1px solid #273140; text-align:left; vertical-align:top; }
   th { color:#9aa7b7; }
+  html[data-theme="light"] { color-scheme:light; --bg:#fff; --panel:#fff; --panel-strong:#fff; --panel2:#fff; --line:#d0d7de; --text:#1f2328; --muted:#57606a; background:#fff; color:#1f2328; }
+  html[data-theme="light"] body { background:#fff; color:#1f2328; }
+  html[data-theme="light"] button,html[data-theme="light"] select,html[data-theme="light"] input { background:#fff; color:#1f2328; border-color:#8c959f; }
+  html[data-theme="light"] button:hover { border-color:#0969da; }
+  html[data-theme="light"] label,html[data-theme="light"] .subtitle,html[data-theme="light"] .stamp,html[data-theme="light"] .capacity-title span,html[data-theme="light"] .capacity-note,html[data-theme="light"] .apply-status,html[data-theme="light"] .campaign-identity span,html[data-theme="light"] .campaign-field,html[data-theme="light"] .campaign-action small,html[data-theme="light"] .lifecycle-state small,html[data-theme="light"] .compute-line,html[data-theme="light"] .quota-detail { color:#57606a; }
+  html[data-theme="light"] .panel,html[data-theme="light"] .mini-stat,html[data-theme="light"] .apply-row,html[data-theme="light"] .lifecycle-state strong,html[data-theme="light"] .quota-projection { background:#fff; border-color:#d0d7de; color:#1f2328; }
+  html[data-theme="light"] .page-tabs,html[data-theme="light"] .panel-head,html[data-theme="light"] .campaign-list,html[data-theme="light"] .campaign-row,html[data-theme="light"] .capacity-control,html[data-theme="light"] .compute-card,html[data-theme="light"] th,html[data-theme="light"] td { border-color:#d0d7de; }
+  html[data-theme="light"] .page-tabs a.active { color:#1f2328; }
+  html[data-theme="light"] .page-tabs a { color:#57606a; }
+  .theme-toggle { margin-left:auto; }
   .quota-chart { height:270px; min-height:270px; position:relative; contain:layout size; overflow:hidden; }
   @media (max-width:1150px) { .compute-grid { grid-template-columns:1fr 1fr; } .compute-card:nth-child(2) { border-right:0; } .compute-card:nth-child(-n+2) { border-bottom:1px solid var(--line); } .quota { grid-template-columns:1fr; } }
   @media (max-width:900px) { .campaign-row,.task-row { grid-template-columns:1fr 1fr; } .campaign-identity,.campaign-action { grid-column:1 / -1; } }
@@ -105,7 +116,7 @@
 </style>
 </head>
 <body><main class="shell">
-  <nav class="page-tabs" aria-label="Dashboard pages"><a href="/">Trajectory explorer</a><a href="/ontology">Ontology explorer</a><a href="/stagnation">Stagnation &amp; breakthroughs</a><a href="/science">Scientific process</a><a href="/transcripts">Run transcripts</a><a class="active" href="/controller">Controller</a></nav>
+  <nav class="page-tabs" aria-label="Dashboard pages"><a href="/">Trajectory explorer</a><a href="/ontology">Ontology explorer</a><a href="/stagnation">Stagnation &amp; breakthroughs</a><a href="/science">Scientific process</a><a href="/transcripts">Run transcripts</a><a class="active" href="/controller">Controller</a><button id="theme-toggle" class="theme-toggle" type="button" aria-pressed="false">Light mode</button></nav>
   <h1>Experiment controller</h1>
   <p class="subtitle">Live host capacity, machine telemetry, and Codex usage in one place. Capacity changes are cooperative: active work finishes normally, and only future starts are throttled.</p>
   <div class="topbar">
@@ -182,6 +193,10 @@
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
 <script>
 'use strict';
+const themeToggle=document.getElementById('theme-toggle');
+function applyDashboardTheme(theme){const light=theme==='light';document.documentElement.dataset.theme=light?'light':'dark';themeToggle.textContent=light?'Dark mode':'Light mode';themeToggle.setAttribute('aria-pressed',String(light));try{localStorage.setItem('rl4rl-dashboard-theme',light?'light':'dark');}catch(_error){}}
+applyDashboardTheme(document.documentElement.dataset.theme==='light'?'light':'dark');
+themeToggle.addEventListener('click',()=>applyDashboardTheme(document.documentElement.dataset.theme==='light'?'dark':'light'));
 const apiUrl=location.protocol==='file:'?'http://127.0.0.1:8765/api/controller':'/api/controller';
 const limitsUrl=location.protocol==='file:'?'http://127.0.0.1:8765/api/controller/limits':'/api/controller/limits';
 const taskLimitsUrl=location.protocol==='file:'?'http://127.0.0.1:8765/api/controller/task-limits':'/api/controller/task-limits';

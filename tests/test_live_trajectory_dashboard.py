@@ -657,6 +657,8 @@ def test_build_run_keeps_every_raw_outcome_and_only_advances_valid_best(
     assert run["valid_proposals"] == 1
     assert run["invalid_proposals"] == 1
     assert run["retained_proposals"] == 1
+    assert [point["valid_rate"] for point in run["points"]] == [None, 0, 1]
+    assert [point["retained_rate"] for point in run["points"]] == [None, 0, 1]
 
 
 def test_build_run_excludes_the_gap_between_proposals_from_active_time(
@@ -673,6 +675,33 @@ def test_build_run_excludes_the_gap_between_proposals_from_active_time(
     assert run["active_hours"] == pytest.approx(3 / 60)
     assert run["points"][1]["active_seconds"] == 60
     assert run["points"][2]["active_seconds"] == 180
+    assert [point["incremental_active_seconds"] for point in run["points"]] == [
+        None, 60, 120
+    ]
+
+
+@pytest.mark.parametrize(
+    ("start", "end", "expected"),
+    [
+        (None, "2026-01-01T00:01:00+00:00", None),
+        ("2026-01-01T00:00:00+00:00", None, None),
+        ("2026-01-01T00:02:00+00:00", "2026-01-01T00:01:00+00:00", None),
+        ("2026-01-01T00:01:00+00:00", "2026-01-01T00:01:00+00:00", 0),
+    ],
+)
+def test_per_proposal_wall_time_distinguishes_unknown_from_zero(
+    tmp_path: Path, start: str | None, end: str | None, expected: float | None
+) -> None:
+    run_dir = _example_run(tmp_path)
+    events = [json.loads(line) for line in (run_dir / "events.jsonl").read_text().splitlines()]
+    events[0]["timestamp"] = start
+    events[1]["timestamp"] = end
+    _write_jsonl(run_dir / "events.jsonl", events)
+    run = build_run(run_dir, PRICES, objective_metric="parameters", objective_direction="minimize")
+    assert run is not None
+    assert run["points"][1]["incremental_active_seconds"] == expected
+    assert run["points"][2]["incremental_active_seconds"] == 120
+    assert run["points"][2]["active_seconds"] == 120
 
 
 def test_build_run_uses_lifecycle_status_for_cooperative_pause(tmp_path: Path) -> None:
@@ -891,6 +920,8 @@ def test_campaign_catalog_exposes_observed_metrics_for_both_axes(
         "active_hours",
     } <= keys
     assert {"metric:parameters", "metric:accuracy"} <= keys
+    assert {"valid_rate", "retained_rate"} <= keys
+    assert "incremental_active_seconds" in keys
 
 
 def test_semantic_campaign_uses_arm_labels_and_charges_shared_prefix_once(

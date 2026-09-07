@@ -106,7 +106,7 @@ def main() -> None:
         "# Component role audit",
         "",
         "Active C0-C3 inventories only; Addition stops at proposal 120. "
-        "UCI HAR and Tiny Adderboard are excluded.",
+        "UCI HAR is included; Tiny Adderboard stops at proposal 100.",
         "",
         "Legacy findings are source-review leads. They are not automatically "
         "new families or confirmed semantic equivalences.",

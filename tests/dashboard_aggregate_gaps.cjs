@@ -5,6 +5,7 @@ const html = fs.readFileSync('experiments/live_trajectory_dashboard.html','utf8'
 const code = html.slice(html.indexOf('function equalCampaignAggregate('),html.indexOf('function interventionAggregateDataset('));
 const context = {
  baselineObjective:()=>0,pointAllowed:()=>true,
+ normalizationGroupKey:()=>'__campaign__',progressImprovementMode:()=>false,
  chartPoint:(p,x,y)=>p[y]==null?null:{x:p[x],y:p[y],point:p},
  mean:v=>v.length?v.reduce((a,b)=>a+b,0)/v.length:null,
  median:v=>{v=[...v].sort((a,b)=>a-b);return v.length?(v[Math.floor((v.length-1)/2)]+v[Math.floor(v.length/2)])/2:null;},

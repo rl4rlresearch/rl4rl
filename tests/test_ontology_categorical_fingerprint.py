@@ -39,13 +39,28 @@ def test_family_is_exact_complete_categorical_vector():
     assert family_id(first, schema) != family_id(different, schema)
 
 
-def test_har_is_explicitly_out_of_scope():
+def test_all_categorical_campaigns_are_in_scope():
     contract = load_contract()
-    assert "har" not in [campaign["id"] for campaign in contract["campaigns"]]
-    assert {campaign["id"] for campaign in contract["excluded_campaigns"]} == {
+    assert {campaign["id"] for campaign in contract["campaigns"]} == {
+        "addition",
+        "nanogpt",
+        "fashion",
+        "kws",
         "har",
         "tiny_adderboard",
     }
+    har = campaign_schema("har")
+    assert har["source_campaign_key"] == "uci_har_pareto_v21"
+    assert har["data_directory"] == "uci-har-pareto-v21"
+    assert har["included_conditions"] == ["C0", "C1", "C2", "C3"]
+    assert har.get("proposal_limit") is None
+    tiny = campaign_schema("tiny_adderboard")
+    assert tiny["source_campaign_key"] == "tiny_adderboard_v21"
+    assert tiny["data_directory"] == "tiny-v21"
+    assert tiny["included_conditions"] == ["C0", "C1", "C2", "C3"]
+    assert tiny["proposal_limit"] == 100
+    assert campaign_schema("addition")["proposal_limit"] == 120
+    assert contract["excluded_campaigns"] == []
 
 
 def test_fingerprint_rejects_numeric_and_undeclared_categories():
@@ -94,7 +109,8 @@ def test_new_component_requires_absent_reprojection_of_earlier_candidates():
     assert validate_fingerprint(reprojection, extended) == reprojection
 
 
-def test_reversion_counts_as_an_edit_but_not_new_component_state_or_family():
+@pytest.mark.parametrize("return_id", ["reversion", "seed"])
+def test_reversion_counts_as_an_edit_but_not_new_component_state_or_family(return_id):
     schema = campaign_schema("addition")
     seed = addition_fingerprint(
         operand_representation="paired_decimal_digits", token_embedding="learned_lookup"
@@ -117,7 +133,7 @@ def test_reversion_counts_as_an_edit_but_not_new_component_state_or_family():
             },
             {
                 "proposal": 2,
-                "candidate_id": "reversion",
+                "candidate_id": return_id,
                 "ontology_parent_id": "first",
                 "fingerprint": reversion,
             },
@@ -209,17 +225,46 @@ def test_primary_parent_must_be_earlier_in_the_run():
         )
 
 
-def test_addition_inventory_caps_proposals_and_excludes_nothing_else(tmp_path):
+def test_reused_candidate_must_keep_its_fingerprint_and_each_proposal_is_unique():
     schema = campaign_schema("addition")
+    fp = addition_fingerprint(token_embedding="learned_lookup")
+    seed = {
+        "proposal": 0,
+        "candidate_id": "seed",
+        "ontology_parent_id": None,
+        "fingerprint": fp,
+    }
+    conflicting = {
+        "proposal": 1,
+        "candidate_id": "seed",
+        "ontology_parent_id": "seed",
+        "fingerprint": dict(fp, token_embedding="factorized_lookup"),
+    }
+    with pytest.raises(CategoricalFingerprintError, match="inconsistent fingerprints"):
+        annotate_run([seed, conflicting], schema)
+    repeated_proposal = dict(seed, candidate_id="another")
+    with pytest.raises(CategoricalFingerprintError, match="Duplicate proposal"):
+        annotate_run([seed, repeated_proposal], schema)
+
+
+@pytest.mark.parametrize(
+    ("campaign_id", "proposal_limit"),
+    [("addition", 120), ("tiny_adderboard", 100)],
+)
+def test_campaign_inventory_caps_proposals_and_excludes_nothing_else(
+    tmp_path, campaign_id, proposal_limit
+):
+    schema = campaign_schema(campaign_id)
     root = tmp_path / schema["data_directory"]
-    run_id = "addition-run"
+    run_id = f"{campaign_id}-run"
     run = root / "runs" / run_id
-    excluded_run_id = "addition-c-four-run"
+    excluded_run_id = f"{campaign_id}-c-four-run"
     excluded_run = root / "runs" / excluded_run_id
     (run / "candidates" / "seed" / "src").mkdir(parents=True)
     (run / "candidates" / "one" / "src").mkdir(parents=True)
+    (run / "candidates" / "boundary" / "src").mkdir(parents=True)
     (run / "candidates" / "late" / "src").mkdir(parents=True)
-    for candidate in ("seed", "one", "late"):
+    for candidate in ("seed", "one", "boundary", "late"):
         (run / "candidates" / candidate / "src" / "model.py").write_text(
             "x = 1\n", encoding="utf-8"
         )
@@ -257,7 +302,14 @@ def test_addition_inventory_caps_proposals_and_excludes_nothing_else(tmp_path):
                 },
                 {
                     "event": "proposal_completed",
-                    "opportunity": 121,
+                    "opportunity": proposal_limit,
+                    "candidate_id": "boundary",
+                    "parent_ids": ["one"],
+                    "evaluation": {"valid": True},
+                },
+                {
+                    "event": "proposal_completed",
+                    "opportunity": proposal_limit + 1,
                     "candidate_id": "late",
                     "parent_ids": ["one"],
                     "evaluation": {"valid": True},
@@ -266,9 +318,9 @@ def test_addition_inventory_caps_proposals_and_excludes_nothing_else(tmp_path):
         ),
         encoding="utf-8",
     )
-    inventory = build_campaign_inventory("addition", tmp_path)
+    inventory = build_campaign_inventory(campaign_id, tmp_path)
     records = inventory["runs"][0]["records"]
-    assert [record["proposal"] for record in records] == [0, 1]
+    assert [record["proposal"] for record in records] == [0, 1, proposal_limit]
     assert records[1]["ontology_parent_id"] == "seed"
     assert records[0]["canonical_seed_id"] == "seed"
     assert inventory["canonical_seeds"] == [

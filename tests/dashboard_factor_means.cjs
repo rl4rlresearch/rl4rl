@@ -4,6 +4,7 @@ const vm=require('node:vm');
 const html=fs.readFileSync('experiments/live_trajectory_dashboard.html','utf8');
 const context={};
 vm.createContext(context);
+vm.runInContext(html.slice(html.indexOf('function isRateMetric('),html.indexOf('function valueAt(')),context);
 vm.runInContext(html.slice(html.indexOf('function factorSeries('),html.indexOf('function visibleRuns(')),context);
 const state={seriesMode:'portfolioMean',conditions:['C0','C1','C2','C3','C4'],y:'best_objective',x:'proposal'};
 const groups=context.seriesGroups(state);

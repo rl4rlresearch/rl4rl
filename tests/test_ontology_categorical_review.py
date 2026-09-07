@@ -288,6 +288,56 @@ def test_conflicting_run_seed_cannot_override_the_shared_source_review():
         )
 
 
+def test_fork_working_schema_is_embedded_without_mutating_shared_registry():
+    schema, sources, fp, review = activation_review()
+    working = deepcopy(schema)
+    component(working, "activation")["scope"] += " The fork clarified this role."
+    local_review = dict(review, schema_revision=schema_revision(working))
+    runs = {
+        "run": [
+            {
+                "proposal": 0,
+                "candidate_id": "seed",
+                "ontology_parent_id": None,
+                "fingerprint": fp,
+            }
+        ]
+    }
+    result = output_document(
+        "fashion",
+        runs,
+        schema_override=working,
+        source_reviews={"seed": local_review},
+        source_bundles={"seed": sources},
+    )
+    assert result["schema"] == working
+    assert result["schema_revision"] != schema_revision(schema)
+    assert campaign_schema("fashion") == schema
+    with pytest.raises(CategoricalFingerprintError, match="revision"):
+        output_document(
+            "fashion",
+            runs,
+            schema_override=working,
+            source_reviews={"seed": review},
+            source_bundles={"seed": sources},
+        )
+
+
+@pytest.mark.parametrize(
+    "field, value",
+    [
+        ("id", "har"),
+        ("included_conditions", ["C4"]),
+        ("proposal_limit", 999),
+    ],
+)
+def test_fork_schema_cannot_expand_study_scope(field, value):
+    working = campaign_schema("fashion")
+    working[field] = value
+    with pytest.raises(CategoricalFingerprintError, match="cannot change study scope"):
+        output_document("fashion", {}, schema_override=working)
+
+
 def test_unused_function_is_accounted_for_without_changing_the_fingerprint():
     schema, sources, fp, review = activation_review()
     baseline_family = family_id(fp, schema)

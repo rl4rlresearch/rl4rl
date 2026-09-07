@@ -36,6 +36,18 @@ from pathlib import Path
 from typing import Any, TextIO
 from urllib.parse import parse_qs, urlsplit
 
+try:
+    from experiments.ontology_categorical_dashboard import (
+        AXES,
+        attach_categorical_metrics,
+    )
+except ModuleNotFoundError:  # Direct ``python experiments/...py`` launch.
+    sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
+    from experiments.ontology_categorical_dashboard import (
+        AXES,
+        attach_categorical_metrics,
+    )
+
 # Restored campaigns can be viewed on Windows; process controls require POSIX.
 WINDOWS_VIEW_ONLY = os.name == "nt"
 if not WINDOWS_VIEW_ONLY:
@@ -1793,10 +1805,12 @@ def build_run(
             continue
         if isinstance(event.get("timestamp"), str):
             latest_event_at = event["timestamp"]
+        proposal_seconds = None
         if timestamp is not None and opportunity in started:
-            elapsed_seconds += max(
-                0.0, (timestamp - started[opportunity]).total_seconds()
-            )
+            duration = (timestamp - started[opportunity]).total_seconds()
+            if duration >= 0:
+                proposal_seconds = duration
+                elapsed_seconds += duration
         evaluation = event.get("evaluation", {})
         raw_metrics = (
             evaluation.get("metrics", {}) if isinstance(evaluation, dict) else {}
@@ -1882,11 +1896,15 @@ def build_run(
                 "proposal": opportunity,
                 "candidate_id": event.get("candidate_id"),
                 "parent_ids": event.get("parent_ids", []),
+                "visible_candidate_ids": event.get("visible_candidate_ids"),
                 "portfolio_after": event.get("portfolio_after"),
                 "incumbent_after": event.get("incumbent_after"),
                 "artifact_path": event.get("artifact_path"),
                 "active_hours": round(elapsed_seconds / 3600, 6),
                 "active_seconds": round(elapsed_seconds, 6),
+                "incremental_active_seconds": (
+                    round(proposal_seconds, 6) if proposal_seconds is not None else None
+                ),
                 "token_cost": round(weighted_cost(usage, prices), 6),
                 "incremental_token_cost": round(
                     weighted_cost(usage_increment, prices), 6
@@ -1918,6 +1936,8 @@ def build_run(
                 "metrics": metrics,
                 "valid": valid,
                 "retained": retained,
+                "valid_rate": int(valid),
+                "retained_rate": int(retained),
                 "retention_decision": event.get("retention_decision"),
                 "failure_kind": evaluation.get("failure_kind")
                 if isinstance(evaluation, dict)
@@ -1994,6 +2014,7 @@ def build_run(
                 "incumbent_after": candidate.get("candidate_id"),
                 "active_hours": 0.0,
                 "active_seconds": 0.0,
+                "incremental_active_seconds": None,
                 "token_cost": 0.0,
                 "incremental_token_cost": 0.0,
                 "accounted_total_tokens": 0,
@@ -2024,6 +2045,8 @@ def build_run(
                 "metrics": seed_metrics,
                 "valid": True,
                 "retained": True,
+                "valid_rate": None,
+                "retained_rate": None,
                 "retention_decision": "frozen_seed",
                 "failure_kind": None,
                 "proposal_type": "seed",
@@ -2342,6 +2365,7 @@ def campaign_data(
     metric_labels = {
         "active_hours": "Active wall-clock time (hours)",
         "active_seconds": "Active wall-clock time (seconds)",
+        "incremental_active_seconds": "Wall-clock time per proposal (seconds)",
         "best_objective": f"Best valid {objective_metric}",
         "cached_input_tokens": "Cumulative cached input tokens",
         "evaluator_calls": "Cumulative evaluator calls",
@@ -2369,6 +2393,8 @@ def campaign_data(
         "output_tokens": "Cumulative output tokens",
         "proposal": "Proposal index",
         "raw_objective": f"Proposal {objective_metric} (all outcomes)",
+        "valid_rate": "Valid rate",
+        "retained_rate": "Retained rate",
         "reasoning_output_tokens": "Cumulative reasoning output tokens",
         "token_cost": "Cumulative price-weighted token cost (USD)",
         "total_tokens": "Cumulative total tokens",
@@ -2405,6 +2431,8 @@ def campaign_data(
         }
         for metric in observed_metrics
     ]
+    axis_catalog.extend(AXES)
+    categorical_ontology = attach_categorical_metrics(campaign, visible_runs)
     condition_catalog = []
     for condition in sorted({str(run["condition"]) for run in visible_runs}):
         members = [run for run in visible_runs if run["condition"] == condition]
@@ -2540,6 +2568,7 @@ def campaign_data(
             if isinstance(value, int) and not isinstance(value, bool)
         ],
         "axis_catalog": axis_catalog,
+        "categorical_ontology": categorical_ontology,
         "observed_metrics": observed_metrics,
         "modal_usage": modal_summary,
         "design": campaign_manifest.get("design", "c0_c3_factorial"),
@@ -2941,6 +2970,7 @@ def dashboard_revision(paths: tuple[Path, ...] | None = None) -> str:
         ONTOLOGY_PAGE_PATH,
         STAGNATION_PAGE_PATH,
         PYTHON_SOURCE_PATH.with_name("ontology_dashboard.js"),
+        PYTHON_SOURCE_PATH.with_name("ontology_categorical_dashboard.py"),
     ):
         digest.update(str(path).encode("utf-8"))
         try:
@@ -2952,12 +2982,16 @@ def dashboard_revision(paths: tuple[Path, ...] | None = None) -> str:
 
 def start_python_hot_reloader(poll_seconds: float = 1.0) -> None:
     """Re-exec this read-only server when its Python source changes."""
-    initial_revision = dashboard_revision((PYTHON_SOURCE_PATH,))
+    watched = (
+        PYTHON_SOURCE_PATH,
+        PYTHON_SOURCE_PATH.with_name("ontology_categorical_dashboard.py"),
+    )
+    initial_revision = dashboard_revision(watched)
 
     def watch() -> None:
         while True:
             time.sleep(poll_seconds)
-            if dashboard_revision((PYTHON_SOURCE_PATH,)) == initial_revision:
+            if dashboard_revision(watched) == initial_revision:
                 continue
             print("Dashboard Python changed; hot-restarting server...", flush=True)
             os.execv(sys.executable, [sys.executable, *sys.argv])

@@ -259,11 +259,19 @@ def annotate_run(
     seen_families: set[str] = set()
     totals = {name: 0 for name in METRICS if name.endswith("_cumulative")}
     annotated: list[dict[str, Any]] = []
+    seen_proposals: set[int] = set()
 
-    for original, candidate_id, _proposal, parent_id, fingerprint in prepared:
-        if candidate_id in by_id:
+    for original, candidate_id, proposal, parent_id, fingerprint in prepared:
+        if proposal in seen_proposals:
+            raise CategoricalFingerprintError(f"Duplicate proposal in run: {proposal}")
+        seen_proposals.add(proposal)
+        if not annotated and (proposal != 0 or parent_id is not None):
             raise CategoricalFingerprintError(
-                f"Duplicate candidate_id in run: {candidate_id}"
+                "A run must start with its proposal-zero seed"
+            )
+        if candidate_id in by_id and by_id[candidate_id][1] != fingerprint:
+            raise CategoricalFingerprintError(
+                f"Repeated candidate_id has inconsistent fingerprints: {candidate_id}"
             )
         family_key = _canonical_json(fingerprint)
         if parent_id is None:
@@ -380,6 +388,7 @@ def output_document(
     canonical_seed_fingerprints: Mapping[str, Mapping[str, object]] | None = None,
     source_reviews: Mapping[str, Mapping[str, Any]] | None = None,
     source_bundles: Mapping[str, Mapping[str, str]] | None = None,
+    schema_override: Mapping[str, Any] | None = None,
 ) -> dict[str, Any]:
     """Build a self-contained, revision-bound campaign output document.
 
@@ -389,6 +398,8 @@ def output_document(
     run solely for trajectory calculation. Every unique candidate requires a
     source-bound role review; the low-level metric functions are not a
     publication path. Seeds and other identical candidate IDs are reviewed once.
+    A campaign fork may supply its own evolving schema without changing the
+    shared registry. Its campaign identity and study scope must remain identical.
     """
     from experiments.ontology_categorical_review import (
         REVIEW_VERSION,
@@ -397,12 +408,32 @@ def output_document(
     )
 
     schema = campaign_schema(campaign_id)
+    if schema_override is not None:
+        for field in (
+            "id",
+            "source_campaign_key",
+            "data_directory",
+            "included_conditions",
+            "proposal_limit",
+        ):
+            if schema_override.get(field) != schema.get(field):
+                raise CategoricalFingerprintError(
+                    f"Campaign schema override cannot change study scope: {field}"
+                )
+        schema = deepcopy(dict(schema_override))
     validate_review_schema(schema)
     materialized_runs, used_seed_fingerprints = (
         _materialize_canonical_seed_fingerprints(
             runs, schema, canonical_seed_fingerprints
         )
     )
+    if campaign_id == "addition":
+        from experiments.live_trajectory_dashboard import dashboard_run_visible
+
+        if any(not dashboard_run_visible(run_id) for run_id in materialized_runs):
+            raise CategoricalFingerprintError(
+                "Addition run is excluded by dashboard configuration and study scope"
+            )
     unique_fingerprints: dict[str, dict[str, str]] = {}
     for records in materialized_runs.values():
         for record in records:

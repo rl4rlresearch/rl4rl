@@ -159,9 +159,9 @@ function prepareOntologyLayout(id){
   if(!root)return;
   const trajectory=root.nextElementSibling;
   if(trajectory?.classList.contains('charts')){
-    const note=trajectory.nextElementSibling;
-    root.before(trajectory);
-    if(note?.classList.contains('note'))root.before(note);
+    const notes=[];
+    for(let node=trajectory.nextElementSibling;node?.classList.contains('note');node=node.nextElementSibling)notes.push(node);
+    root.before(trajectory,...notes);
   }
   if(!document.getElementById(`${id}-ontology-family-key`)){
     const key=document.createElement('div');key.id=`${id}-ontology-family-key`;key.className='ontology-family-key';
