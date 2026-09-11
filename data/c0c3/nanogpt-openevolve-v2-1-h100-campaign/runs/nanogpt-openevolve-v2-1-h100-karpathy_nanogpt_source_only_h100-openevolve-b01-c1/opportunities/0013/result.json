@@ -1,0 +1,82 @@
+{
+  "artifact_path": "candidates/f9d2d5d533c4afcc69709ed8e0fa8ca6703288a07b821ec66784a573d8249063",
+  "candidate_id": "f9d2d5d533c4afcc69709ed8e0fa8ca6703288a07b821ec66784a573d8249063",
+  "codex_service_tier": "fast",
+  "condition": "C1",
+  "conversation_session_id": null,
+  "evaluation": {
+    "evaluator_calls": 1,
+    "evaluator_seconds": 360.2910593639999,
+    "failure_kind": null,
+    "fitness": -0.997238,
+    "metrics": {
+      "depth": 8.0,
+      "mfu_percent": 35.36,
+      "num_params_M": 50.3,
+      "num_steps": 1013.0,
+      "peak_vram_mb": 45060.2,
+      "total_tokens_M": 531.1,
+      "training_seconds": 300.3,
+      "val_bpb": 0.997238
+    },
+    "valid": true
+  },
+  "evaluator_calls_cumulative": 13,
+  "evaluator_calls_increment": 1,
+  "evaluator_seconds_cumulative": 8427.538058575079,
+  "evaluator_seconds_increment": 360.2910593639999,
+  "event": "proposal_completed",
+  "evicted_candidate_id": null,
+  "evidence": "Removing the sole global layer regressed val_bpb from 0.992286 to 1.015479 despite higher throughput, proving that global integration is essential; moving rather than removing it isolates whether its final-layer placement is optimal at equal compute and parameter count.",
+  "hypothesis": "Moving the sole full-context attention layer from the final block to the penultimate block will preserve global information while giving the final local block an opportunity to refine globally integrated representations, lowering val_bpb below 0.992286 without changing attention compute.",
+  "incumbent_after": "a1a9234027b48bc7b7b3915b2e809e849b6afedfe79a9a211f23947b1f8adec9",
+  "intended_edit": "Keep seven 256-token local layers and one 2048-token global layer, but place the global layer at depth 7 and make the final layer local.",
+  "mechanism": "Penultimate global integration with local refinement",
+  "opportunity": 13,
+  "parent_ids": [
+    "a1a9234027b48bc7b7b3915b2e809e849b6afedfe79a9a211f23947b1f8adec9"
+  ],
+  "portfolio_after": [
+    "a1a9234027b48bc7b7b3915b2e809e849b6afedfe79a9a211f23947b1f8adec9"
+  ],
+  "prompt_hashes": {
+    "common_template_sha256": "ba85b39aa7288f4f48475376da6cff65661f39cfeb7ac7cde15b2a9a2e692fde",
+    "prompt_sha256": "82234b743a6bbc94ddc5893a0e73c9380cd66096e32818881af7e93979d8e37b",
+    "proposal_policy_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "search_state_sha256": "04e5eb078ae1964e4ec65bfeeeb1acd0ffa246e7d54d5e0f997f81f602da28c5",
+    "treatment_skeleton_sha256": "fc0325101e208a9ac01aa75a1561225520c3301b5a2d03de24f8104af5329f27"
+  },
+  "proposal_type": "ordinary",
+  "proposals_cumulative": 13,
+  "remaining_budget": {
+    "evaluations": 187,
+    "evaluator_seconds": 711572.4619414249,
+    "proposals": 187,
+    "tokens": 99659225
+  },
+  "retained": false,
+  "retention_decision": "not_strictly_better_than_incumbent",
+  "run_id": "nanogpt-openevolve-v2-1-h100-karpathy_nanogpt_source_only_h100-openevolve-b01-c1",
+  "schema_version": "1.0",
+  "selected_parent_ids": [
+    "a1a9234027b48bc7b7b3915b2e809e849b6afedfe79a9a211f23947b1f8adec9"
+  ],
+  "timestamp": "2026-08-23T21:01:56.003762+00:00",
+  "usage_cumulative": {
+    "cached_input_tokens": 148480,
+    "input_tokens": 302837,
+    "output_tokens": 37938,
+    "reasoning_output_tokens": 34488,
+    "total_tokens": 340775
+  },
+  "usage_increment": {
+    "cached_input_tokens": 12032,
+    "input_tokens": 24613,
+    "output_tokens": 2255,
+    "reasoning_output_tokens": 1969,
+    "total_tokens": 26868
+  },
+  "visible_candidate_ids": [
+    "a1a9234027b48bc7b7b3915b2e809e849b6afedfe79a9a211f23947b1f8adec9"
+  ]
+}

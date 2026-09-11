@@ -1,0 +1,82 @@
+{
+  "artifact_path": "candidates/2063b1479395f9d81448f097673a77dee080372425931faf6769520e6804bd34",
+  "candidate_id": "2063b1479395f9d81448f097673a77dee080372425931faf6769520e6804bd34",
+  "codex_service_tier": "default",
+  "condition": "C0",
+  "conversation_session_id": null,
+  "evaluation": {
+    "evaluator_calls": 1,
+    "evaluator_seconds": 366.84521190700025,
+    "failure_kind": null,
+    "fitness": -0.984413,
+    "metrics": {
+      "depth": 8.0,
+      "mfu_percent": 37.12,
+      "num_params_M": 50.3,
+      "num_steps": 1902.0,
+      "peak_vram_mb": 44908.2,
+      "total_tokens_M": 498.6,
+      "training_seconds": 300.0,
+      "val_bpb": 0.984413
+    },
+    "valid": true
+  },
+  "evaluator_calls_cumulative": 54,
+  "evaluator_calls_increment": 1,
+  "evaluator_seconds_cumulative": 19531.201995916774,
+  "evaluator_seconds_increment": 366.84521190700025,
+  "event": "proposal_completed",
+  "evicted_candidate_id": null,
+  "evidence": "Layer 5 performed best at 256 tokens with 0.983955 val_bpb; 384 tokens was only 0.000091 worse, whereas 128 tokens regressed by 0.000342. This asymmetric neighborhood motivates testing the aligned 320-token midpoint on the higher-context side.",
+  "hypothesis": "A 320-token layer-5 attention window will beat 0.983955 val_bpb by recovering some context from the narrowly inferior 384-token design while retaining most of the throughput benefit of 256-token attention.",
+  "incumbent_after": "435239c3d95e6534d6b3936e31f83d777983a959de018cdd9426c4e205f934d4",
+  "intended_edit": "Increase only layer 5\u2019s attention window from 256 to 320 tokens; retain full attention at layers 4 and 8, 1024-token attention at layer 6, and 512-token attention elsewhere.",
+  "mechanism": "Fine-grained post-global context interpolation",
+  "opportunity": 55,
+  "parent_ids": [
+    "435239c3d95e6534d6b3936e31f83d777983a959de018cdd9426c4e205f934d4"
+  ],
+  "portfolio_after": [
+    "435239c3d95e6534d6b3936e31f83d777983a959de018cdd9426c4e205f934d4"
+  ],
+  "prompt_hashes": {
+    "common_template_sha256": "ba85b39aa7288f4f48475376da6cff65661f39cfeb7ac7cde15b2a9a2e692fde",
+    "prompt_sha256": "c85f483998b082eaf3441b8e471826830817689ed6dc016a94cbebb7a8ac905b",
+    "proposal_policy_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "search_state_sha256": "04e5eb078ae1964e4ec65bfeeeb1acd0ffa246e7d54d5e0f997f81f602da28c5",
+    "treatment_skeleton_sha256": "836dccd198ccbda0ca331dd6cb4585e24e83824ba7e020c35ad25f935f804a98"
+  },
+  "proposal_type": "ordinary",
+  "proposals_cumulative": 55,
+  "remaining_budget": {
+    "evaluations": 146,
+    "evaluator_seconds": 700468.7980040832,
+    "proposals": 145,
+    "tokens": 98580584
+  },
+  "retained": false,
+  "retention_decision": "not_strictly_better_than_incumbent",
+  "run_id": "nanogpt-openevolve-v2-1-h100-karpathy_nanogpt_source_only_h100-openevolve-b01-c0",
+  "schema_version": "1.0",
+  "selected_parent_ids": [
+    "435239c3d95e6534d6b3936e31f83d777983a959de018cdd9426c4e205f934d4"
+  ],
+  "timestamp": "2026-08-24T13:24:54.218358+00:00",
+  "usage_cumulative": {
+    "cached_input_tokens": 599552,
+    "input_tokens": 1319249,
+    "output_tokens": 100167,
+    "reasoning_output_tokens": 85793,
+    "total_tokens": 1419416
+  },
+  "usage_increment": {
+    "cached_input_tokens": 12032,
+    "input_tokens": 24786,
+    "output_tokens": 821,
+    "reasoning_output_tokens": 511,
+    "total_tokens": 25607
+  },
+  "visible_candidate_ids": [
+    "435239c3d95e6534d6b3936e31f83d777983a959de018cdd9426c4e205f934d4"
+  ]
+}

@@ -1,0 +1,105 @@
+{
+  "artifact_path": "candidates/36fd4841b85b4c71c8c08cf25a95156638b914186beda447f6588b6c6ec4e9b1",
+  "candidate_id": "36fd4841b85b4c71c8c08cf25a95156638b914186beda447f6588b6c6ec4e9b1",
+  "codex_service_tier": "default",
+  "condition": "C2",
+  "conversation_session_id": null,
+  "evaluation": {
+    "evaluator_calls": 1,
+    "evaluator_seconds": 51.375379709061235,
+    "failure_kind": "nonqualification",
+    "fitness": null,
+    "metrics": {
+      "batch_size": 128,
+      "evaluation_cases": 815,
+      "evaluation_split": "public_speaker_disjoint_validation",
+      "examples_processed": 50000,
+      "inference_cost": 1535745754580988790,
+      "maximum_recurrent_steps": 25,
+      "mean_recurrent_steps": 25.0,
+      "median_recurrent_steps": 25,
+      "optimizer_steps": 397,
+      "p95_recurrent_steps": 25,
+      "parameters": 16020,
+      "peak_hidden_elements": 92672,
+      "recurrent_logit_effect": 0.08028405904769897,
+      "recurrent_macs": 293400000,
+      "recurrent_steps": 20375,
+      "state_dependence_effect": 0.3413655757904053,
+      "state_update_effect": 0.5692995190620422,
+      "total_inference_macs": 294421195,
+      "trained_recurrent_logit_effect": 0.5616876482963562,
+      "trained_state_dependence_effect": 0.39542338252067566,
+      "trained_state_update_effect": 0.581346869468689,
+      "training_seconds": 34.450375667074695,
+      "validation_accuracy": 0.8233128834355828,
+      "validation_correct": 671,
+      "validation_cross_entropy": 0.4895681275911858
+    },
+    "valid": false
+  },
+  "evaluator_calls_cumulative": 28,
+  "evaluator_calls_increment": 1,
+  "evaluator_seconds_cumulative": 2784.469790835399,
+  "evaluator_seconds_increment": 51.375379709061235,
+  "event": "proposal_completed",
+  "evicted_candidate_id": null,
+  "evidence": "The current design qualifies at 85.03%, while reducing recurrent width to 59 or input rank to 17 failed substantially; pruning one classifier coordinate is a smaller structural reduction, and that hidden coordinate remains represented through both mean and maximum summaries.",
+  "hypothesis": "Removing one final-state coordinate from the classifier input will retain at least 85% validation accuracy while reducing total inference MACs by 5,705 and learned parameters by 7.",
+  "incumbent_after": "3c5edd494270bed3d9e054a6c812d052a9608cc31de01b84366cdd2a00582b85",
+  "intended_edit": "Keep the proven 60-unit GRU, 25-frame schedule, temporal summaries, and seven-logit head, but reduce the classifier input from 180 to 179 features by omitting one final-state coordinate.",
+  "mechanism": "Single-coordinate classifier-feature pruning",
+  "opportunity": 29,
+  "parent_ids": [
+    "3c5edd494270bed3d9e054a6c812d052a9608cc31de01b84366cdd2a00582b85"
+  ],
+  "portfolio_after": [
+    "e75a8f47dcdb9bafbd1add5a66723fc8f1ef898a762fcb6dda4c26d81d7f9a69",
+    "3c5edd494270bed3d9e054a6c812d052a9608cc31de01b84366cdd2a00582b85",
+    "e77876702bd53dc741ab7ef8f33b57d93bd02b9054773207af15947f741dfd97",
+    "5d7fe142ec7134d76a09f3c46d165b7784074f4e250430c14ad60379af9bf48e"
+  ],
+  "prompt_hashes": {
+    "common_template_sha256": "dee04faf4c430276c1036ba97f5705a339857dbdf19117dac88952a5a3a47e9d",
+    "prompt_sha256": "08f75a1ab3602742dcbe0f7c26470c142625440db78c4b380f267f30a27822d3",
+    "proposal_policy_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "search_state_sha256": "c938ac007bf70fe8d27f64661175531e51fcb16b38318c328493c32ee292e27e",
+    "treatment_skeleton_sha256": "ec08b3babfaa9537d2f799eb93e9e923eeaf30f3669702f45ecaadc3f05b9959"
+  },
+  "proposal_type": "ordinary",
+  "proposals_cumulative": 29,
+  "remaining_budget": {
+    "evaluations": 172,
+    "evaluator_seconds": 57215.5302091646,
+    "proposals": 171,
+    "tokens": 99287217
+  },
+  "retained": false,
+  "retention_decision": "invalid",
+  "run_id": "tiny-kws-rnn-openevolve-v2-1-cpu-tiny_kws_rnn_source_only_cpu-openevolve-b01-c2",
+  "schema_version": "1.0",
+  "selected_parent_ids": [
+    "3c5edd494270bed3d9e054a6c812d052a9608cc31de01b84366cdd2a00582b85"
+  ],
+  "timestamp": "2026-09-04T04:01:46.633290+00:00",
+  "usage_cumulative": {
+    "cached_input_tokens": 311808,
+    "input_tokens": 657587,
+    "output_tokens": 55196,
+    "reasoning_output_tokens": 43591,
+    "total_tokens": 712783
+  },
+  "usage_increment": {
+    "cached_input_tokens": 10752,
+    "input_tokens": 24339,
+    "output_tokens": 1776,
+    "reasoning_output_tokens": 1496,
+    "total_tokens": 26115
+  },
+  "visible_candidate_ids": [
+    "e75a8f47dcdb9bafbd1add5a66723fc8f1ef898a762fcb6dda4c26d81d7f9a69",
+    "3c5edd494270bed3d9e054a6c812d052a9608cc31de01b84366cdd2a00582b85",
+    "e77876702bd53dc741ab7ef8f33b57d93bd02b9054773207af15947f741dfd97",
+    "5d7fe142ec7134d76a09f3c46d165b7784074f4e250430c14ad60379af9bf48e"
+  ]
+}

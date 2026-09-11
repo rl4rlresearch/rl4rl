@@ -1,0 +1,82 @@
+{
+  "artifact_path": "candidates/fd6e079751e0182aac54880d124a8f60ddaf4b147da603bf82a152c75430a870",
+  "candidate_id": "fd6e079751e0182aac54880d124a8f60ddaf4b147da603bf82a152c75430a870",
+  "codex_service_tier": "default",
+  "condition": "C0",
+  "conversation_session_id": null,
+  "evaluation": {
+    "evaluator_calls": 1,
+    "evaluator_seconds": 361.4483232390012,
+    "failure_kind": null,
+    "fitness": -0.984461,
+    "metrics": {
+      "depth": 8.0,
+      "mfu_percent": 35.66,
+      "num_params_M": 50.3,
+      "num_steps": 1948.0,
+      "peak_vram_mb": 44908.2,
+      "total_tokens_M": 510.7,
+      "training_seconds": 300.1,
+      "val_bpb": 0.984461
+    },
+    "valid": true
+  },
+  "evaluator_calls_cumulative": 36,
+  "evaluator_calls_increment": 1,
+  "evaluator_seconds_cumulative": 12114.010318434002,
+  "evaluator_seconds_increment": 361.4483232390012,
+  "event": "proposal_completed",
+  "evicted_candidate_id": null,
+  "evidence": "Reducing short attention from 512 to 256 tokens improved val_bpb from 0.984293 to 0.983919, but reducing it further to 128 tokens regressed to 0.984000; 192 tokens directly refines the bracket around the current optimum.",
+  "hypothesis": "A 192-token short window will reduce val_bpb below 0.983919 by preserving more local context than the regressing 128-token design while retaining most of the compute savings achieved at 256 tokens.",
+  "incumbent_after": "e95cc52eb77928c836fe1d83ae9c64ea118582d3ce07aa8b7d482a8b59c737bb",
+  "intended_edit": "Change the six short-attention layers from 256-token to 192-token windows; preserve the two full-context layers and all other architecture, optimizer, and schedule settings.",
+  "mechanism": "Bracketed short-attention window refinement",
+  "opportunity": 36,
+  "parent_ids": [
+    "e95cc52eb77928c836fe1d83ae9c64ea118582d3ce07aa8b7d482a8b59c737bb"
+  ],
+  "portfolio_after": [
+    "e95cc52eb77928c836fe1d83ae9c64ea118582d3ce07aa8b7d482a8b59c737bb"
+  ],
+  "prompt_hashes": {
+    "common_template_sha256": "ba85b39aa7288f4f48475376da6cff65661f39cfeb7ac7cde15b2a9a2e692fde",
+    "prompt_sha256": "fd6d453ec24a29460e45543aa187c4fe3e6ec435606d13c886dbcdb894b593e8",
+    "proposal_policy_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "search_state_sha256": "04e5eb078ae1964e4ec65bfeeeb1acd0ffa246e7d54d5e0f997f81f602da28c5",
+    "treatment_skeleton_sha256": "176d8f99016de264bbd0c39e903f5c23a8411b2855ea4c8d2f3652ba686a4a96"
+  },
+  "proposal_type": "ordinary",
+  "proposals_cumulative": 36,
+  "remaining_budget": {
+    "evaluations": 164,
+    "evaluator_seconds": 707885.989681566,
+    "proposals": 164,
+    "tokens": 99059259
+  },
+  "retained": false,
+  "retention_decision": "not_strictly_better_than_incumbent",
+  "run_id": "nanogpt-openevolve-v2-1-h100-karpathy_nanogpt_source_only_h100-openevolve-b02-c0",
+  "schema_version": "1.0",
+  "selected_parent_ids": [
+    "e95cc52eb77928c836fe1d83ae9c64ea118582d3ce07aa8b7d482a8b59c737bb"
+  ],
+  "timestamp": "2026-08-24T05:24:17.679775+00:00",
+  "usage_cumulative": {
+    "cached_input_tokens": 407552,
+    "input_tokens": 873538,
+    "output_tokens": 67203,
+    "reasoning_output_tokens": 58209,
+    "total_tokens": 940741
+  },
+  "usage_increment": {
+    "cached_input_tokens": 12032,
+    "input_tokens": 24850,
+    "output_tokens": 510,
+    "reasoning_output_tokens": 313,
+    "total_tokens": 25360
+  },
+  "visible_candidate_ids": [
+    "e95cc52eb77928c836fe1d83ae9c64ea118582d3ce07aa8b7d482a8b59c737bb"
+  ]
+}

@@ -1,0 +1,197 @@
+# Optimize a transformer for 10-digit addition
+
+You are an autonomous ML engineer improving the source code for an
+autoregressive transformer that adds two 10-digit numbers.
+
+## Goal
+
+Minimize the actual number of deduplicated learned model parameters while
+maintaining at least 99% accuracy under the fixed verification process. A
+smaller implementation is useful only when it meets that accuracy requirement.
+Every submitted implementation is trained from a fresh initialization.
+
+## Learned-model requirement
+
+Produce a smaller trained autoregressive transformer, not a hand-coded addition
+program. The submitted implementation must:
+
+- have nonzero trainable parameters;
+- contain and use at least one learned causal self-attention module;
+- map token inputs to token logits through the learned model;
+- train from a fresh initialization during verification;
+- write both `checkpoints/best.pt` and a positive-step `checkpoints/last.pt`;
+- keep source code unchanged while training; and
+- use the protected generic decoding interface exactly as supplied.
+
+Do not implement or embed decimal arithmetic, carry propagation, place-value
+rules, digit lookup tables, finite-state addition transitions, fixed answer
+rules, or input-dependent Python logic that directly computes the sum. Do not
+hide such a solver in model generation, token processing, training, or saved
+weights. Do not add dummy or zero-length parameters to disguise a fixed
+algorithm as a learned model.
+
+Do not modify protected files. Do not perform post-training state-dictionary
+surgery, substitute a different saved model, truncate weights after training,
+or report a parameter count that differs from the submitted model.
+
+## Work boundaries
+
+Minimize parameters. Required result: accuracy >= 0.99.
+Editable source files: src/model.py, src/train.py.
+Results reported after each verification: accuracy, parameters, training_steps.
+
+Propose changes through exact SEARCH/REPLACE blocks. The patching interface applies them to the supplied editable source.
+
+The editable source and any reference source are included below. Do not access
+parent directories, home directories, shared temporary directories, global
+session history, online sources, or any surrounding repository. Do not run
+training or verification yourself and do not generate hidden alternatives.
+Return one patch for one implementation; verification happens after you finish.
+
+## Available designs
+
+The current editable design and the qualified reference designs below are available as technical evidence. Edit only the current workspace.
+
+CURRENT DESIGN
+verified_results: {"accuracy": 0.9995, "parameters": 1626, "training_steps": 4999}
+prior_hypothesis: Gauge-fixing the first positional embedding and terminal MLP output bias while reproducing both full eight-coordinate AdamW updates will achieve at least 99% accuracy with 1,626 parameters.
+
+REFERENCE DESIGN 1
+verified_results: {"accuracy": 0.9995999999999999, "parameters": 1644, "training_steps": 4999}
+prior_hypothesis: starting design
+
+REFERENCE DESIGN 2
+verified_results: {"accuracy": 1.0, "parameters": 1555, "training_steps": 4999}
+prior_hypothesis: Replacing the two independent key/value heads with one shared four-dimensional learned key/value head will retain at least 99% accuracy while reducing the current model from 1,623 to 1,555 parameters, because separate query heads still provide two operand-routing patterns while addition tokens can share a common content representation.
+
+REFERENCE DESIGN 3
+verified_results: {"accuracy": 0.9995999999999999, "parameters": 1622, "training_steps": 4999}
+prior_hypothesis: Extending the verified three-column terminal gauge to four `fc2` weight columns will reduce the model to 1,622 parameters while retaining at least 99% accuracy, because the additional all-ones output component is erased by the final LayerNorm and its full eight-coordinate AdamW dynamics are preserved.
+
+## Recent verification evidence
+
+RECENT RESULT
+hypothesis: Gauge-fixing the attention output-projection bias’s all-ones component in addition to the two successful gauges will achieve at least 99% accuracy with 1,625 parameters, because this scalar is erased by the downstream LayerNorms while ambient-coordinate AdamW preserves all eight original optimization directions.
+change: Reproduce the qualified 1,626-parameter positional and terminal-bias gauges, then represent each attention output bias with seven learned differences and update all three gauge groups using full eight-coordinate AdamW moments and clipping.
+mechanism: Triple ambient-Adam gauge fixing
+evidence_used: Dual ambient-Adam gauge fixing achieved 99.95% accuracy with 1,626 parameters, whereas deleting the entire attention output bias collapsed accuracy to 4.18%; this motivates removing only its exact scalar gauge while retaining its seven functional coordinates and ambient optimizer geometry.
+result: did not meet the accuracy requirement
+reported_values: {"accuracy": 0.5821999999999999, "parameters": 1625, "training_steps": 4999}
+
+RECENT RESULT
+hypothesis: Replacing the full-rank tied 114-by-8 token embedding with a learned rank-seven factorization will reduce the model from 1,626 to 1,568 parameters while retaining at least 99% accuracy, because it preserves seven adaptable lexical features and the entire proven attention/MLP computation.
+change: Factor the shared input/output embedding into learned vocabulary codes and a learned orthonormal-initialized feature basis, using the same factors for token lookup and logit projection.
+mechanism: Rank-seven learned token-logit factorization
+evidence_used: The 1,626-parameter design reached 99.95%, while repeated one-parameter gauge extensions were brittle and the gated-MLP alternative reached only 70.49%; this preserves every load-bearing transformer-block parameter and instead challenges the untested assumption that the tied lexical interface needs eight independent dimensions.
+result: did not meet the accuracy requirement
+reported_values: {"accuracy": 0.037599999999999995, "parameters": 1568, "training_steps": 4999}
+
+RECENT RESULT
+hypothesis: Adding a global scalar gauge to the qualified positional and terminal-bias gauges will produce a 1,625-parameter model with at least 99% accuracy, because a uniform shift of the tied embedding is removed from inputs by LayerNorm and contributes only a common output-logit shift, while ambient AdamW preserves the original coordinate-wise optimization dynamics.
+change: Gauge-fix one global coordinate of the tied token embedding, add the qualified terminal MLP-bias gauge, and manually optimize all three gauge groups through their full ambient-coordinate AdamW moments and clipping.
+mechanism: Global tied-embedding gauge with ambient AdamW
+evidence_used: The positional-plus-terminal-bias ambient gauge achieved 99.95% accuracy at 1,626 parameters, whereas extending the attention-output bias gauge failed at 58.22%; this tests a different exact invariance whose output effect is softmax-invariant.
+result: did not meet the accuracy requirement
+reported_values: {"accuracy": 0.9876, "parameters": 1625, "training_steps": 4999}
+
+RECENT RESULT
+hypothesis: Making both pre-norm LayerNorms bias-free while retaining learned query and value biases will achieve at least 99% accuracy with 1,620 parameters, because the removed `ln1` offset can be absorbed into those projection biases while its induced key offset is softmax-invariant.
+change: Remove the eight learned `ln1` bias parameters and the already-qualified eight `ln2` bias parameters, preserving both LayerNorm scales, all nonlinear channels, and the critical query/value attention biases.
+mechanism: Direct attention-bias absorption of the first LayerNorm offset
+evidence_used: The `ln2`-bias-free 1,628-parameter design reached 99.95%. Removing query bias instead collapsed accuracy to 48.92%, motivating the complementary reparameterization: retain direct query/value biases and remove the redundant upstream normalization offset.
+result: did not meet the accuracy requirement
+reported_values: {"accuracy": 0.4456, "parameters": 1620, "training_steps": 4999}
+
+RECENT RESULT
+hypothesis: Representing the tied token embedding in a globally mean-zero gauge while preserving all 912 ambient AdamW moments will achieve at least 99% accuracy with 1,625 parameters, because centering avoids the large common offsets and numerical sensitivity of the prior anchor-coordinate gauge that reached 98.76%.
+change: Remove one exact global scalar from the tied token embedding, reuse one reconstructed weight tensor for lookup and logits, preserve initialization RNG order, and optimize its full ambient coordinates alongside the two qualified gauges.
+mechanism: Mean-centered tied-embedding gauge with ambient AdamW
+evidence_used: The current dual-gauge model achieved 99.95% at 1,626 parameters, and the prior anchored tied-embedding gauge reached 98.76% at 1,625; its near miss motivates changing the gauge representative to the minimum-offset mean-zero form rather than removing another functional parameter.
+result: did not meet the accuracy requirement
+reported_values: {"accuracy": 0.7111, "parameters": 1625, "training_steps": 4999}
+
+RECENT RESULT
+hypothesis: Extending the qualified terminal-bias gauge to one `fc2` weight column will yield 1,625 parameters and retain at least 99% accuracy, because its omitted all-ones output component is erased by the final LayerNorm while full eight-coordinate AdamW dynamics are preserved.
+change: Gauge-fix the terminal MLP bias and first weight column, reconstruct both eight-dimensional tensors during forward passes, and optimize their stored differences using ambient AdamW moments and clipping.
+mechanism: Terminal MLP output-direction gauge fixing
+evidence_used: The positional-plus-terminal-bias ambient gauge achieved 99.95% accuracy at 1,626 parameters. The new reduction applies the same proven gauge and optimizer treatment to one input-dependent scalar shift from the same terminal MLP, avoiding the earlier unsuccessful attention-output gauge.
+result: met the accuracy requirement and became an available design
+reported_values: {"accuracy": 0.9998999999999999, "parameters": 1625, "training_steps": 4999}
+
+RECENT RESULT
+hypothesis: Extending the qualified terminal gauge from one to two `fc2` weight columns will yield 1,624 parameters while retaining at least 99% accuracy, because each omitted all-ones output component is erased by the final LayerNorm and its full eight-coordinate AdamW dynamics are preserved.
+change: Reproduce the successful positional and terminal-bias gauges, gauge-fix the first two terminal MLP weight columns, and optimize all four gauge vectors using ambient-coordinate moments and clipping.
+mechanism: Two-column terminal MLP output-direction gauge fixing
+evidence_used: The one-column terminal gauge achieved 99.99% accuracy with 1,625 parameters; applying the same exact invariance and proven optimizer treatment to one adjacent column is the smallest supported next reduction.
+result: met the accuracy requirement and became an available design
+reported_values: {"accuracy": 0.9995999999999999, "parameters": 1624, "training_steps": 4999}
+
+RECENT RESULT
+hypothesis: Extending the qualified terminal gauge from two to three `fc2` weight columns will reduce the model to 1,623 parameters while retaining at least 99% accuracy, because the additional omitted all-ones output component is erased by the final LayerNorm and its full eight-coordinate AdamW dynamics are preserved.
+change: Gauge-fix the first three terminal MLP weight columns and update initialization/storage offsets accordingly; the existing ambient optimizer automatically includes the added gauge vector.
+mechanism: Three-column terminal MLP output-direction gauge fixing
+evidence_used: The one-column gauge achieved 99.99% accuracy at 1,625 parameters and the two-column extension achieved 99.96% at 1,624, directly motivating the smallest adjacent one-parameter extension.
+result: met the accuracy requirement and became an available design
+reported_values: {"accuracy": 0.9995, "parameters": 1623, "training_steps": 4999}
+
+RECENT RESULT
+hypothesis: Extending the verified three-column terminal gauge to four `fc2` weight columns will reduce the model to 1,622 parameters while retaining at least 99% accuracy, because the additional all-ones output component is erased by the final LayerNorm and its full eight-coordinate AdamW dynamics are preserved.
+change: Gauge-fix the first four terminal MLP weight columns, reconstruct them during forward passes, and include every column in the existing ambient-coordinate optimizer.
+mechanism: Four-column terminal MLP output-direction gauge fixing
+evidence_used: The three-column design achieved 99.95% accuracy with 1,623 parameters, following successful one- and two-column designs; extending the same exact invariance by one adjacent column is the smallest evidence-supported reduction.
+result: met the accuracy requirement and became an available design
+reported_values: {"accuracy": 0.9995999999999999, "parameters": 1622, "training_steps": 4999}
+
+RECENT RESULT
+hypothesis: Extending the verified four-column terminal gauge to five `fc2` weight columns will reduce the model to 1,621 parameters while retaining at least 99% accuracy, because the additional all-ones output component is erased by the final LayerNorm and its full eight-coordinate AdamW dynamics are preserved.
+change: Gauge-fix the first five terminal MLP weight columns, reconstruct them during forward passes, and include all five columns in the ambient-coordinate optimizer.
+mechanism: Five-column terminal MLP output-direction gauge fixing
+evidence_used: The four-column terminal gauge achieved 99.96% accuracy with 1,622 parameters after the one-, two-, and three-column variants also exceeded 99%; extending the same exact invariance by one adjacent column is the smallest evidence-supported reduction.
+result: did not meet the accuracy requirement
+reported_values: {"accuracy": 0.5892000000000001, "parameters": 1621, "training_steps": 4999}
+
+RECENT RESULT
+hypothesis: Gauge-fixing terminal MLP columns 0–3 and 11 will produce a 1,621-parameter model with at least 99% accuracy, showing whether the failed five-column result was specific to column 4 rather than the number of gauge vectors.
+change: Preserve the first four qualified gauges, leave the previously destabilizing fifth column fully learned, and gauge-fix the final `fc2` column with the existing ambient-coordinate AdamW treatment.
+mechanism: Nonadjacent fifth terminal output-direction gauge
+evidence_used: Four adjacent terminal-column gauges achieved 99.96% at 1,622 parameters, while adding column 4 collapsed accuracy to 58.92%; substituting a nonadjacent column is the smallest controlled test of column-specific optimization sensitivity.
+result: did not meet the accuracy requirement
+reported_values: {"accuracy": 0.8085, "parameters": 1621, "training_steps": 4999}
+
+RECENT RESULT
+hypothesis: Replacing the two independent key/value heads with one shared four-dimensional learned key/value head will retain at least 99% accuracy while reducing the current model from 1,623 to 1,555 parameters, because separate query heads still provide two operand-routing patterns while addition tokens can share a common content representation.
+change: Challenge the assumption that each query head requires its own key and value projections. Preserve the full eight-dimensional residual stream, tied lexical interface, two learned query heads, MLP, and qualified gauges, but broadcast one learned key/value head across both attention maps.
+mechanism: Multi-query causal attention with a shared learned key/value head
+evidence_used: The full-width tied embedding is load-bearing—the rank-seven lexical factorization fell to 3.76%—and the gated-MLP alternative reached only 70.49%, so this patch preserves both. The 1,622-parameter four-gauge design reached 99.96%, while further gauge extensions became unstable, motivating a different reduction in attention redundancy that retains both independently learned routing queries.
+result: met the accuracy requirement and became an available design
+reported_values: {"accuracy": 1.0, "parameters": 1555, "training_steps": 4999}
+
+
+
+Use the available technical evidence to choose the most informative next
+change. Treat unsuccessful or malformed work as evidence when a useful
+subject-level reason is provided. Do not invent missing evidence.
+
+## Response
+
+Return these short metadata lines followed by one or more exact
+`SEARCH`/`REPLACE` blocks that together produce one implementation:
+
+`MECHANISM: <a concise free-form name for the computational idea>`
+
+`HYPOTHESIS: <a falsifiable claim grounded in the evidence above>`
+
+`INTENDED_EDIT: <what this patch changes>`
+
+`EVIDENCE: <the most relevant prior result and why it motivates this patch>`
+
+Start each block with `<<<<<<< SEARCH`, put the exact existing lines next, use a
+line containing `=======` as the divider, put the replacement lines after it,
+and finish the block with `>>>>>>> REPLACE`.
+
+Every `SEARCH` section must be nonempty and match exactly once after earlier
+blocks have been applied. All blocks must apply. They may edit either or both
+editable files, but together they must describe one implementation ready for
+verification. The mechanism name is descriptive, not chosen from a fixed list.
+Do not paste whole files, lengthy logs, or routine progress reports outside the
+patch.

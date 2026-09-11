@@ -1,0 +1,88 @@
+{
+  "artifact_path": "candidates/04460c8faf91791ee7fc16e3ac728938f596853d7c740207cfafd6e0ab84a929",
+  "candidate_id": "04460c8faf91791ee7fc16e3ac728938f596853d7c740207cfafd6e0ab84a929",
+  "codex_service_tier": "default",
+  "condition": "C2",
+  "conversation_session_id": null,
+  "evaluation": {
+    "evaluator_calls": 1,
+    "evaluator_seconds": 357.36556383599964,
+    "failure_kind": null,
+    "fitness": -0.984286,
+    "metrics": {
+      "depth": 8.0,
+      "mfu_percent": 36.57,
+      "num_params_M": 50.3,
+      "num_steps": 1932.0,
+      "peak_vram_mb": 44908.2,
+      "total_tokens_M": 506.5,
+      "training_seconds": 300.0,
+      "val_bpb": 0.984286
+    },
+    "valid": true
+  },
+  "evaluator_calls_cumulative": 47,
+  "evaluator_calls_increment": 1,
+  "evaluator_seconds_cumulative": 16294.310344777978,
+  "evaluator_seconds_increment": 357.36556383599964,
+  "event": "proposal_completed",
+  "evicted_candidate_id": null,
+  "evidence": "Uniform 384-token attention achieved 0.983618, and the front-loaded 512/256 split nearly matched it at 0.983620 while the reverse 256/512 split regressed to 0.984213; the midpoint tests the indicated direction with less extreme late-context reduction.",
+  "hypothesis": "Using 448-token early windows and 320-token late windows will reduce `val_bpb` below 0.983618 by favoring early context without starving late refinement or changing total local-attention compute.",
+  "incumbent_after": "68e4c0a093d8469cbb6dbc35418542522419bf7bea6f8075ef469190949e1a93",
+  "intended_edit": "Restore an average 384-token local window while reallocating 64 tokens from each late local layer to its early counterpart; retain full context at layers 4 and 8.",
+  "mechanism": "Compute-neutral moderate front-loading of local context",
+  "opportunity": 47,
+  "parent_ids": [
+    "84dda2c03881ec4256d09602022fcf3a777d586f97a22d02a405fdea93d7f096"
+  ],
+  "portfolio_after": [
+    "68e4c0a093d8469cbb6dbc35418542522419bf7bea6f8075ef469190949e1a93",
+    "84dda2c03881ec4256d09602022fcf3a777d586f97a22d02a405fdea93d7f096",
+    "92739a4f4f9b23d954e11de6f1f37674bacc704540709754fab72766b1bb2d39",
+    "9ee58ae85f4632d6308bfd3a0587b6b89c9874509338ea355d4772c8d457d231"
+  ],
+  "prompt_hashes": {
+    "common_template_sha256": "ba85b39aa7288f4f48475376da6cff65661f39cfeb7ac7cde15b2a9a2e692fde",
+    "prompt_sha256": "cfb533a7a8ba3d0bd9180353bb230a0a3f91f16bfeba033db7c0be45213a51c1",
+    "proposal_policy_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "search_state_sha256": "c938ac007bf70fe8d27f64661175531e51fcb16b38318c328493c32ee292e27e",
+    "treatment_skeleton_sha256": "c638eb4a987ecc760142f97691c1ed3bf49b178081e3dbff6bcfddd11d03e1f3"
+  },
+  "proposal_type": "ordinary",
+  "proposals_cumulative": 47,
+  "remaining_budget": {
+    "evaluations": 153,
+    "evaluator_seconds": 703705.689655222,
+    "proposals": 153,
+    "tokens": 97744346
+  },
+  "retained": false,
+  "retention_decision": "not_strictly_better_than_selected_parent",
+  "run_id": "nanogpt-openevolve-v2-1-h100-karpathy_nanogpt_source_only_h100-openevolve-b03-c2",
+  "schema_version": "1.0",
+  "selected_parent_ids": [
+    "84dda2c03881ec4256d09602022fcf3a777d586f97a22d02a405fdea93d7f096"
+  ],
+  "timestamp": "2026-08-24T10:20:00.003346+00:00",
+  "usage_cumulative": {
+    "cached_input_tokens": 529920,
+    "input_tokens": 2151431,
+    "output_tokens": 104223,
+    "reasoning_output_tokens": 85184,
+    "total_tokens": 2255654
+  },
+  "usage_increment": {
+    "cached_input_tokens": 12032,
+    "input_tokens": 47427,
+    "output_tokens": 2745,
+    "reasoning_output_tokens": 2457,
+    "total_tokens": 50172
+  },
+  "visible_candidate_ids": [
+    "68e4c0a093d8469cbb6dbc35418542522419bf7bea6f8075ef469190949e1a93",
+    "84dda2c03881ec4256d09602022fcf3a777d586f97a22d02a405fdea93d7f096",
+    "92739a4f4f9b23d954e11de6f1f37674bacc704540709754fab72766b1bb2d39",
+    "9ee58ae85f4632d6308bfd3a0587b6b89c9874509338ea355d4772c8d457d231"
+  ]
+}

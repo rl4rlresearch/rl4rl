@@ -1,0 +1,99 @@
+{
+  "artifact_path": "candidates/0c151e46bf60f6ea5d08f6ff447d0805ebe0b46cb9d185fbe4dc40626a4e169b",
+  "candidate_id": "0c151e46bf60f6ea5d08f6ff447d0805ebe0b46cb9d185fbe4dc40626a4e169b",
+  "codex_service_tier": "default",
+  "condition": "C0",
+  "conversation_session_id": null,
+  "evaluation": {
+    "evaluator_calls": 1,
+    "evaluator_seconds": 84.7386744581163,
+    "failure_kind": null,
+    "fitness": -4722703125947029984,
+    "metrics": {
+      "batch_size": 128,
+      "evaluation_cases": 815,
+      "evaluation_split": "public_speaker_disjoint_validation",
+      "examples_processed": 50000,
+      "inference_cost": 4722703125947029984,
+      "maximum_recurrent_steps": 32,
+      "mean_recurrent_steps": 32.0,
+      "median_recurrent_steps": 32,
+      "optimizer_steps": 397,
+      "p95_recurrent_steps": 32,
+      "parameters": 36104,
+      "peak_hidden_elements": 100864,
+      "recurrent_logit_effect": 0.06595227122306824,
+      "recurrent_macs": 904767360,
+      "recurrent_steps": 26080,
+      "state_dependence_effect": 0.40033552050590515,
+      "state_update_effect": 0.3997440040111542,
+      "total_inference_macs": 905399800,
+      "trained_recurrent_logit_effect": 0.6580158472061157,
+      "trained_state_dependence_effect": 0.45538076758384705,
+      "trained_state_update_effect": 0.4385022222995758,
+      "training_seconds": 63.04487991705537,
+      "validation_accuracy": 0.8552147239263803,
+      "validation_correct": 697,
+      "validation_cross_entropy": 0.45813509701219807
+    },
+    "valid": true
+  },
+  "evaluator_calls_cumulative": 17,
+  "evaluator_calls_increment": 1,
+  "evaluator_seconds_cumulative": 2567.371808915632,
+  "evaluator_seconds_increment": 84.7386744581163,
+  "event": "proposal_completed",
+  "evicted_candidate_id": "66cc6e1a66c9b7b46d0027da3b420cd37413acda3e54418b8d75485527dd30a6",
+  "evidence": "The 98-unit GRU passed at 85.03%, while shrinking the recurrent state to 97 failed; pruning one coordinate only at readout preserves the full recurrent capacity and is a lower-risk structural reduction than altering recurrence, temporal coverage, or spectral inputs.",
+  "hypothesis": "Retaining the verified 98-unit recurrent dynamics while excluding one summary coordinate from the classifier will preserve at least 85% validation accuracy and reduce exact classifier MACs by 6,520 over the validation set.",
+  "incumbent_after": "0c151e46bf60f6ea5d08f6ff447d0805ebe0b46cb9d185fbe4dc40626a4e169b",
+  "intended_edit": "Reduce only the classification head input from 98 to 97 and classify from the first 97 coordinates of the averaged recurrent summary.",
+  "mechanism": "One-coordinate recurrent readout pruning",
+  "opportunity": 17,
+  "parent_ids": [
+    "66cc6e1a66c9b7b46d0027da3b420cd37413acda3e54418b8d75485527dd30a6"
+  ],
+  "portfolio_after": [
+    "0c151e46bf60f6ea5d08f6ff447d0805ebe0b46cb9d185fbe4dc40626a4e169b"
+  ],
+  "prompt_hashes": {
+    "common_template_sha256": "dee04faf4c430276c1036ba97f5705a339857dbdf19117dac88952a5a3a47e9d",
+    "prompt_sha256": "15ff8d62ba1ec3fd4dec17ab89d3f4b9b8901ccdf9345fa959937b2afa63ae0f",
+    "proposal_policy_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "search_state_sha256": "04e5eb078ae1964e4ec65bfeeeb1acd0ffa246e7d54d5e0f997f81f602da28c5",
+    "treatment_skeleton_sha256": "320d00c5b40b40d0f9443a4d23561bd4095a6bcd9b45fedf743f1b3fb5f378f8"
+  },
+  "proposal_type": "ordinary",
+  "proposals_cumulative": 17,
+  "remaining_budget": {
+    "evaluations": 183,
+    "evaluator_seconds": 57432.62819108437,
+    "proposals": 183,
+    "tokens": 99648980
+  },
+  "retained": true,
+  "retention_decision": "strict_incumbent_improvement",
+  "run_id": "tiny-kws-rnn-openevolve-v2-1-cpu-tiny_kws_rnn_source_only_cpu-openevolve-b03-c0",
+  "schema_version": "1.0",
+  "selected_parent_ids": [
+    "66cc6e1a66c9b7b46d0027da3b420cd37413acda3e54418b8d75485527dd30a6"
+  ],
+  "timestamp": "2026-09-04T03:42:19.644594+00:00",
+  "usage_cumulative": {
+    "cached_input_tokens": 182784,
+    "input_tokens": 316343,
+    "output_tokens": 34677,
+    "reasoning_output_tokens": 28908,
+    "total_tokens": 351020
+  },
+  "usage_increment": {
+    "cached_input_tokens": 10752,
+    "input_tokens": 19945,
+    "output_tokens": 1288,
+    "reasoning_output_tokens": 1034,
+    "total_tokens": 21233
+  },
+  "visible_candidate_ids": [
+    "66cc6e1a66c9b7b46d0027da3b420cd37413acda3e54418b8d75485527dd30a6"
+  ]
+}

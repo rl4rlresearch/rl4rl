@@ -1,0 +1,88 @@
+{
+  "artifact_path": "candidates/19333425065e68028aa79197d960a71fc0b444fb65bec3a5146e0a4ddea91fa3",
+  "candidate_id": "19333425065e68028aa79197d960a71fc0b444fb65bec3a5146e0a4ddea91fa3",
+  "codex_service_tier": "default",
+  "condition": "C2",
+  "conversation_session_id": null,
+  "evaluation": {
+    "evaluator_calls": 1,
+    "evaluator_seconds": 359.4823415200008,
+    "failure_kind": null,
+    "fitness": -0.983766,
+    "metrics": {
+      "depth": 8.0,
+      "mfu_percent": 35.63,
+      "num_params_M": 50.3,
+      "num_steps": 1969.0,
+      "peak_vram_mb": 44908.2,
+      "total_tokens_M": 516.2,
+      "training_seconds": 300.1,
+      "val_bpb": 0.983766
+    },
+    "valid": true
+  },
+  "evaluator_calls_cumulative": 25,
+  "evaluator_calls_increment": 1,
+  "evaluator_seconds_cumulative": 8708.661594315006,
+  "evaluator_seconds_increment": 359.4823415200008,
+  "event": "proposal_completed",
+  "evicted_candidate_id": "a205bb1b793512a964bdd9fe26433549ff8562592927b6894302365d690d6867",
+  "evidence": "Successive reductions from 1024 to 768, 512, and 256 tokens improved val_bpb from 0.985746 to 0.984868, 0.984125, and 0.983993 while increasing throughput; testing 128 tokens extends this monotonic compression series and probes its likely boundary.",
+  "hypothesis": "Reducing the six local-attention layers from 256 to 128 tokens while retaining full-context layers 4 and 8 will lower val_bpb below 0.983993 by increasing token throughput enough to offset the reduced local receptive field.",
+  "incumbent_after": "19333425065e68028aa79197d960a71fc0b444fb65bec3a5146e0a4ddea91fa3",
+  "intended_edit": "Change short attention windows from one-eighth to one-sixteenth of the 2048-token context, preserving the SSSL pattern and all optimizer settings.",
+  "mechanism": "Aggressive local-window compression with preserved global integration",
+  "opportunity": 25,
+  "parent_ids": [
+    "a205bb1b793512a964bdd9fe26433549ff8562592927b6894302365d690d6867"
+  ],
+  "portfolio_after": [
+    "19333425065e68028aa79197d960a71fc0b444fb65bec3a5146e0a4ddea91fa3",
+    "d4b308634a871b4dd5a418885788814dfbd68b7c580e75f85fc0542805b74e25",
+    "b167b4ea24017770dfa20861b6aad33546af93659696e9bb410ab4c7d9e459e7",
+    "8c52475db4fda09893476c96d40fc69047ae1c48337447459d04d848b6668f86"
+  ],
+  "prompt_hashes": {
+    "common_template_sha256": "ba85b39aa7288f4f48475376da6cff65661f39cfeb7ac7cde15b2a9a2e692fde",
+    "prompt_sha256": "a525fce5043043e9e15712771914af009e09a859251969e8e37a53eca007ed23",
+    "proposal_policy_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "search_state_sha256": "c938ac007bf70fe8d27f64661175531e51fcb16b38318c328493c32ee292e27e",
+    "treatment_skeleton_sha256": "5549a4053928a654595257ac5f7bc3e58dbd42c544c982109ac465b06c4e1f58"
+  },
+  "proposal_type": "ordinary",
+  "proposals_cumulative": 25,
+  "remaining_budget": {
+    "evaluations": 175,
+    "evaluator_seconds": 711291.338405685,
+    "proposals": 175,
+    "tokens": 98835189
+  },
+  "retained": true,
+  "retention_decision": "replaced_selected_parent_on_strict_improvement",
+  "run_id": "nanogpt-openevolve-v2-1-h100-karpathy_nanogpt_source_only_h100-openevolve-b02-c2",
+  "schema_version": "1.0",
+  "selected_parent_ids": [
+    "a205bb1b793512a964bdd9fe26433549ff8562592927b6894302365d690d6867"
+  ],
+  "timestamp": "2026-08-24T03:12:19.089514+00:00",
+  "usage_cumulative": {
+    "cached_input_tokens": 276480,
+    "input_tokens": 1111766,
+    "output_tokens": 53045,
+    "reasoning_output_tokens": 43863,
+    "total_tokens": 1164811
+  },
+  "usage_increment": {
+    "cached_input_tokens": 12032,
+    "input_tokens": 47030,
+    "output_tokens": 502,
+    "reasoning_output_tokens": 240,
+    "total_tokens": 47532
+  },
+  "visible_candidate_ids": [
+    "a205bb1b793512a964bdd9fe26433549ff8562592927b6894302365d690d6867",
+    "d4b308634a871b4dd5a418885788814dfbd68b7c580e75f85fc0542805b74e25",
+    "b167b4ea24017770dfa20861b6aad33546af93659696e9bb410ab4c7d9e459e7",
+    "8c52475db4fda09893476c96d40fc69047ae1c48337447459d04d848b6668f86"
+  ]
+}

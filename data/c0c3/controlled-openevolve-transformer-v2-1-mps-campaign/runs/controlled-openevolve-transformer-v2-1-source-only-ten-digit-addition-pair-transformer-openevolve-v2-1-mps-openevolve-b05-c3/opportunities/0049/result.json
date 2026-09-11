@@ -1,0 +1,85 @@
+{
+  "artifact_path": "candidates/30217ff13a65cf97c63c930cdfc9905f59096641affaae7a9145f79399da69ac",
+  "candidate_id": "30217ff13a65cf97c63c930cdfc9905f59096641affaae7a9145f79399da69ac",
+  "codex_service_tier": "default",
+  "condition": "C3",
+  "conversation_session_id": null,
+  "evaluation": {
+    "evaluator_calls": 1,
+    "evaluator_seconds": 688.9199867499992,
+    "failure_kind": null,
+    "fitness": -1593.0,
+    "metrics": {
+      "accuracy": 0.9995999999999999,
+      "cases": 10010,
+      "correct": 10006,
+      "parameters": 1593,
+      "training_steps": 4999
+    },
+    "valid": true
+  },
+  "evaluator_calls_cumulative": 49,
+  "evaluator_calls_increment": 1,
+  "evaluator_seconds_cumulative": 18533.60003975639,
+  "evaluator_seconds_increment": 688.9199867499992,
+  "event": "proposal_completed",
+  "evicted_candidate_id": "ec7ed55a0f8028570f10399f511e874f10baaf9ec7d83826b6d951a1ad81662f",
+  "evidence": "The two-column attention-output quotient reached 99.95% at 1,594 parameters, demonstrating that common-output shifts can be removed successfully; the third attention-column quotient failed at 71.64%, motivating an orthogonal common-output gauge immediately before the final LayerNorm instead of another attention input-column reduction.",
+  "hypothesis": "Gauge-fixing the common shift of the final MLP output bias will produce 1,593 learned parameters while retaining at least 99% accuracy, because this shift adds only a channel-uniform residual offset removed by the final LayerNorm.",
+  "incumbent_after": "30217ff13a65cf97c63c930cdfc9905f59096641affaae7a9145f79399da69ac",
+  "intended_edit": "Represent each `fc2` bias with seven learned coordinates and a fixed final zero, while using virtual full-space AdamW moments, weight decay, and gradient clipping for the omitted coordinate.",
+  "mechanism": "Final-MLP common-output-bias quotient",
+  "opportunity": 49,
+  "parent_ids": [
+    "ec7ed55a0f8028570f10399f511e874f10baaf9ec7d83826b6d951a1ad81662f"
+  ],
+  "portfolio_after": [
+    "2b9cea175ed60b009337ac54f6e8ad23bf2c014eb4080237777bfb70bfd9fd5b",
+    "30217ff13a65cf97c63c930cdfc9905f59096641affaae7a9145f79399da69ac",
+    "aac9c5525d76f861c21d06708943eaeb294b51b7703b02fa24aa151737adcc76",
+    "937edaeb6e239475a60f424795c2fe32501098a188afa68f6e387ceb87887ad3"
+  ],
+  "prompt_hashes": {
+    "common_template_sha256": "3f2bea6418b6969c4bf2aa1df18dcda8a3a4ac075bf20c79068c754698b6be5e",
+    "prompt_sha256": "ae3c5895775fbededdde7323206833cc03be3fe721218d65b06527682ed8e7be",
+    "proposal_policy_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "search_state_sha256": "c938ac007bf70fe8d27f64661175531e51fcb16b38318c328493c32ee292e27e",
+    "treatment_skeleton_sha256": "043f33caa2c09b9df823e8a79b08bddeb041626cc4c623d4d25641983a5a10b1"
+  },
+  "proposal_type": "ordinary",
+  "proposals_cumulative": 49,
+  "remaining_budget": {
+    "evaluations": 151,
+    "evaluator_seconds": 341466.3999602436,
+    "proposals": 151,
+    "tokens": 97972737
+  },
+  "retained": true,
+  "retention_decision": "replaced_selected_parent_on_strict_improvement",
+  "run_id": "controlled-openevolve-transformer-v2-1-source-only-ten-digit-addition-pair-transformer-openevolve-v2-1-mps-openevolve-b05-c3",
+  "schema_version": "1.0",
+  "selected_parent_ids": [
+    "ec7ed55a0f8028570f10399f511e874f10baaf9ec7d83826b6d951a1ad81662f"
+  ],
+  "timestamp": "2026-08-24T05:12:18.011920+00:00",
+  "usage_cumulative": {
+    "cached_input_tokens": 579584,
+    "input_tokens": 1702795,
+    "output_tokens": 324468,
+    "reasoning_output_tokens": 241491,
+    "total_tokens": 2027263
+  },
+  "usage_increment": {
+    "cached_input_tokens": 12032,
+    "input_tokens": 46500,
+    "output_tokens": 6906,
+    "reasoning_output_tokens": 5676,
+    "total_tokens": 53406
+  },
+  "visible_candidate_ids": [
+    "2b9cea175ed60b009337ac54f6e8ad23bf2c014eb4080237777bfb70bfd9fd5b",
+    "ec7ed55a0f8028570f10399f511e874f10baaf9ec7d83826b6d951a1ad81662f",
+    "aac9c5525d76f861c21d06708943eaeb294b51b7703b02fa24aa151737adcc76",
+    "937edaeb6e239475a60f424795c2fe32501098a188afa68f6e387ceb87887ad3"
+  ]
+}

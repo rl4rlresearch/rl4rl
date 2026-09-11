@@ -1,0 +1,105 @@
+{
+  "artifact_path": "candidates/52e087efe4cd5ac1df90f51881f29dbe99ec2e7a62157fefdc6edf689f740cb6",
+  "candidate_id": "52e087efe4cd5ac1df90f51881f29dbe99ec2e7a62157fefdc6edf689f740cb6",
+  "codex_service_tier": "default",
+  "condition": "C3",
+  "conversation_session_id": null,
+  "evaluation": {
+    "evaluator_calls": 1,
+    "evaluator_seconds": 125.10943341697566,
+    "failure_kind": "nonqualification",
+    "fitness": null,
+    "metrics": {
+      "batch_size": 128,
+      "evaluation_cases": 815,
+      "evaluation_split": "public_speaker_disjoint_validation",
+      "examples_processed": 50000,
+      "inference_cost": 6432882639791173913,
+      "maximum_recurrent_steps": 27,
+      "mean_recurrent_steps": 27.0,
+      "median_recurrent_steps": 27,
+      "optimizer_steps": 397,
+      "p95_recurrent_steps": 27,
+      "parameters": 57833,
+      "peak_hidden_elements": 130560,
+      "recurrent_logit_effect": 0.08774188905954361,
+      "recurrent_macs": 1232434035,
+      "recurrent_steps": 22005,
+      "state_dependence_effect": 0.39490199089050293,
+      "state_update_effect": 0.39489081501960754,
+      "total_inference_macs": 1233262075,
+      "trained_recurrent_logit_effect": 0.8003009557723999,
+      "trained_state_dependence_effect": 0.45569002628326416,
+      "trained_state_update_effect": 0.4484463632106781,
+      "training_seconds": 103.82524874992669,
+      "validation_accuracy": 0.8466257668711656,
+      "validation_correct": 690,
+      "validation_cross_entropy": 0.44297885075668614
+    },
+    "valid": false
+  },
+  "evaluator_calls_cumulative": 15,
+  "evaluator_calls_increment": 1,
+  "evaluator_seconds_cumulative": 2104.577260752907,
+  "evaluator_seconds_increment": 125.10943341697566,
+  "event": "proposal_completed",
+  "evicted_candidate_id": null,
+  "evidence": "The prior 127-unit variant dropping frame 0 achieved 84.91%, only one validation example below qualification and better than the other tested 27-frame schedules; the qualified 127-unit/28-step model shows sufficient capacity, motivating a training-only margin adjustment at the lower-cost boundary.",
+  "hypothesis": "A 127-unit GRU dropping the earliest frame and reducing label smoothing from 0.03 to 0.01 will recover the single validation example needed for at least 85% accuracy while lowering inference to approximately 1.233B MACs and 27 steps.",
+  "incumbent_after": "dd0c74b4ce42d8520b772c932baf94f48c062f10606fcb2defe534dd0fac22f3",
+  "intended_edit": "Remove frame 0 from the qualified 28-frame schedule and use less-smoothed cross-entropy to strengthen narrow decision margins without changing inference cost.",
+  "mechanism": "Sharpened-loss early-boundary frame thinning",
+  "opportunity": 15,
+  "parent_ids": [
+    "878c9d61b0a1da28f1fe9d9c556fd116eca2bc30e06a2ce41c978967f5abf104"
+  ],
+  "portfolio_after": [
+    "016d906da09d1fe9115b3d48dd009dea2faccbbb35792057b39773f1cdb8582b",
+    "49825af8f29e1fb1469b4ef5a4b193cefb56384e9471be85c4c60f499f53fb5f",
+    "878c9d61b0a1da28f1fe9d9c556fd116eca2bc30e06a2ce41c978967f5abf104",
+    "dd0c74b4ce42d8520b772c932baf94f48c062f10606fcb2defe534dd0fac22f3"
+  ],
+  "prompt_hashes": {
+    "common_template_sha256": "dee04faf4c430276c1036ba97f5705a339857dbdf19117dac88952a5a3a47e9d",
+    "prompt_sha256": "83d285a12437e70d065ec702c7f9c8d7c24c942f8b674e2e4f5bddc8879f2dd7",
+    "proposal_policy_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "search_state_sha256": "c938ac007bf70fe8d27f64661175531e51fcb16b38318c328493c32ee292e27e",
+    "treatment_skeleton_sha256": "a7eea1292373097d3ca573f149093efd7a5b9443d995e0f7a2b592e8b04974d2"
+  },
+  "proposal_type": "ordinary",
+  "proposals_cumulative": 15,
+  "remaining_budget": {
+    "evaluations": 185,
+    "evaluator_seconds": 57895.42273924709,
+    "proposals": 185,
+    "tokens": 99617171
+  },
+  "retained": false,
+  "retention_decision": "invalid",
+  "run_id": "tiny-kws-rnn-openevolve-v2-1-cpu-tiny_kws_rnn_source_only_cpu-openevolve-b04-c3",
+  "schema_version": "1.0",
+  "selected_parent_ids": [
+    "878c9d61b0a1da28f1fe9d9c556fd116eca2bc30e06a2ce41c978967f5abf104"
+  ],
+  "timestamp": "2026-09-04T03:46:59.647286+00:00",
+  "usage_cumulative": {
+    "cached_input_tokens": 172032,
+    "input_tokens": 333081,
+    "output_tokens": 49748,
+    "reasoning_output_tokens": 43275,
+    "total_tokens": 382829
+  },
+  "usage_increment": {
+    "cached_input_tokens": 10752,
+    "input_tokens": 23545,
+    "output_tokens": 2428,
+    "reasoning_output_tokens": 2070,
+    "total_tokens": 25973
+  },
+  "visible_candidate_ids": [
+    "016d906da09d1fe9115b3d48dd009dea2faccbbb35792057b39773f1cdb8582b",
+    "49825af8f29e1fb1469b4ef5a4b193cefb56384e9471be85c4c60f499f53fb5f",
+    "878c9d61b0a1da28f1fe9d9c556fd116eca2bc30e06a2ce41c978967f5abf104",
+    "dd0c74b4ce42d8520b772c932baf94f48c062f10606fcb2defe534dd0fac22f3"
+  ]
+}

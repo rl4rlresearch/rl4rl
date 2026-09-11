@@ -1,0 +1,79 @@
+{
+  "artifact_path": "candidates/513e8214201035504629c6db285c62393542e28edeb0d4e802710a347f974701",
+  "candidate_id": "513e8214201035504629c6db285c62393542e28edeb0d4e802710a347f974701",
+  "codex_service_tier": "default",
+  "condition": "C1",
+  "conversation_session_id": null,
+  "evaluation": {
+    "evaluator_calls": 1,
+    "evaluator_seconds": 242.64887399994768,
+    "failure_kind": "nonqualification",
+    "fitness": null,
+    "metrics": {
+      "accuracy": 0.7492,
+      "cases": 10010,
+      "correct": 7499,
+      "parameters": 1534,
+      "training_steps": 4999
+    },
+    "valid": false
+  },
+  "evaluator_calls_cumulative": 98,
+  "evaluator_calls_increment": 1,
+  "evaluator_seconds_cumulative": 43080.36396820517,
+  "evaluator_seconds_increment": 242.64887399994768,
+  "event": "proposal_completed",
+  "evicted_candidate_id": null,
+  "evidence": "The 1,535-parameter design achieved 99.87% accuracy with seven `fc1` rows already independent of the final input coordinate, while four attempts to constrain the remaining row 5 failed. This motivates preserving row 5 and instead testing the exact upstream-scale/downstream-column gauge, which affects only the five rows retaining that column.",
+  "hypothesis": "Fixing the final `ln2` scale at one will reduce the model from 1,535 to 1,534 parameters while retaining at least 99% accuracy, because its effect remains representable by the learned final input column of `fc1` and fresh initialization is unchanged.",
+  "incumbent_after": "955acebaeb7771c3e532e1f9f1b2ab4ac446fa5d74f37db4e6fd31878936dc85",
+  "intended_edit": "Remove the final trainable scale coordinate from the bias-free MLP LayerNorm and reconstruct it as a fixed one during the forward pass.",
+  "mechanism": "Final-scale/downstream-column gauge fixing",
+  "opportunity": 98,
+  "parent_ids": [
+    "955acebaeb7771c3e532e1f9f1b2ab4ac446fa5d74f37db4e6fd31878936dc85"
+  ],
+  "portfolio_after": [
+    "955acebaeb7771c3e532e1f9f1b2ab4ac446fa5d74f37db4e6fd31878936dc85"
+  ],
+  "prompt_hashes": {
+    "common_template_sha256": "3f2bea6418b6969c4bf2aa1df18dcda8a3a4ac075bf20c79068c754698b6be5e",
+    "prompt_sha256": "ffc22152765664edac33ad10a97fda409ff3be24ee89f6dbf70859398fd973cc",
+    "proposal_policy_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "search_state_sha256": "04e5eb078ae1964e4ec65bfeeeb1acd0ffa246e7d54d5e0f997f81f602da28c5",
+    "treatment_skeleton_sha256": "efeb647d7075cf2bd5c4bbbb42691213f978f01de9f31e47343801d22254f7ef"
+  },
+  "proposal_type": "ordinary",
+  "proposals_cumulative": 98,
+  "remaining_budget": {
+    "evaluations": 102,
+    "evaluator_seconds": 316919.6360317948,
+    "proposals": 102,
+    "tokens": 97374999
+  },
+  "retained": false,
+  "retention_decision": "invalid",
+  "run_id": "controlled-openevolve-transformer-v2-1-source-only-ten-digit-addition-pair-transformer-openevolve-v2-1-mps-openevolve-b01-c1",
+  "schema_version": "1.0",
+  "selected_parent_ids": [
+    "955acebaeb7771c3e532e1f9f1b2ab4ac446fa5d74f37db4e6fd31878936dc85"
+  ],
+  "timestamp": "2026-08-26T02:31:19.283277+00:00",
+  "usage_cumulative": {
+    "cached_input_tokens": 1009408,
+    "input_tokens": 2243230,
+    "output_tokens": 381771,
+    "reasoning_output_tokens": 308524,
+    "total_tokens": 2625001
+  },
+  "usage_increment": {
+    "cached_input_tokens": 0,
+    "input_tokens": 24345,
+    "output_tokens": 3512,
+    "reasoning_output_tokens": 3106,
+    "total_tokens": 27857
+  },
+  "visible_candidate_ids": [
+    "955acebaeb7771c3e532e1f9f1b2ab4ac446fa5d74f37db4e6fd31878936dc85"
+  ]
+}

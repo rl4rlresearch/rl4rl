@@ -1,0 +1,186 @@
+# Optimize a transformer for 10-digit addition
+
+You are an autonomous ML engineer improving the source code for an
+autoregressive transformer that adds two 10-digit numbers.
+
+## Goal
+
+Minimize the actual number of deduplicated learned model parameters while
+maintaining at least 99% accuracy under the fixed verification process. A
+smaller implementation is useful only when it meets that accuracy requirement.
+Every submitted implementation is trained from a fresh initialization.
+
+## Learned-model requirement
+
+Produce a smaller trained autoregressive transformer, not a hand-coded addition
+program. The submitted implementation must:
+
+- have nonzero trainable parameters;
+- contain and use at least one learned causal self-attention module;
+- map token inputs to token logits through the learned model;
+- train from a fresh initialization during verification;
+- write both `checkpoints/best.pt` and a positive-step `checkpoints/last.pt`;
+- keep source code unchanged while training; and
+- use the protected generic decoding interface exactly as supplied.
+
+Do not implement or embed decimal arithmetic, carry propagation, place-value
+rules, digit lookup tables, finite-state addition transitions, fixed answer
+rules, or input-dependent Python logic that directly computes the sum. Do not
+hide such a solver in model generation, token processing, training, or saved
+weights. Do not add dummy or zero-length parameters to disguise a fixed
+algorithm as a learned model.
+
+Do not modify protected files. Do not perform post-training state-dictionary
+surgery, substitute a different saved model, truncate weights after training,
+or report a parameter count that differs from the submitted model.
+
+## Work boundaries
+
+Minimize parameters. Required result: accuracy >= 0.99.
+Editable source files: src/model.py, src/train.py.
+Results reported after each verification: accuracy, parameters, training_steps.
+
+Propose changes through exact SEARCH/REPLACE blocks. The patching interface applies them to the supplied editable source.
+
+The editable source and any reference source are included below. Do not access
+parent directories, home directories, shared temporary directories, global
+session history, online sources, or any surrounding repository. Do not run
+training or verification yourself and do not generate hidden alternatives.
+Return one patch for one implementation; verification happens after you finish.
+
+## Available designs
+
+The current editable design is provided. No reference design is available.
+
+CURRENT DESIGN
+verified_results: {"accuracy": 0.9993000000000001, "parameters": 1397, "training_steps": 4999}
+prior_hypothesis: Folding the value/output constant into the seven observable residual-bias coordinates will produce a 1,397-parameter model with at least 99% accuracy when gradients for the virtual value, LayerNorm, projection-weight, and shared-bias parameters are reconstructed jointly.
+
+## Recent verification evidence
+
+RECENT RESULT
+hypothesis: Removing only one LayerNorm-invisible common-mode weight from one MLP output column will reduce the model from 1,576 to 1,575 parameters while retaining at least 99% accuracy, because the other 11 columns keep their original optimization geometry.
+change: Split `fc2` into an eight-output projection for 11 hidden features and a seven-coordinate projection vector for the final feature, padding its eighth residual coordinate with zero.
+mechanism: Single-column residual common-mode gauge fixing
+evidence_used: Removing all 12 MLP output common modes at once reached only 93.33% or 12.75%, despite exact functional redundancy, indicating an optimization-geometry problem; the 1,576-parameter model reached 99.82%, motivating the smallest possible isolated gauge reduction.
+result: did not meet the accuracy requirement
+reported_values: {"accuracy": 0.2712, "parameters": 1575, "training_steps": 4999}
+
+RECENT RESULT
+hypothesis: Eliminating the 12 LayerNorm-invisible common-mode `fc2` weights while initializing from full-width weight differences and emulating the omitted row’s AdamW moments will produce a 1,564-parameter model with at least 99% accuracy.
+change: Reduce `fc2` to seven residual coordinates, preserve the successful full-width observable initialization, and train it with quotient-aware AdamW updates and gradient clipping.
+mechanism: Optimizer-preserving residual gauge quotient
+evidence_used: Direct and orthonormal seven-coordinate `fc2` projections reached only 93.33% and 12.75%, while the full-width model reached 99.82%; this indicates that altered initialization and optimizer geometry, rather than lost function capacity, caused the failures.
+result: met the accuracy requirement and became an available design
+reported_values: {"accuracy": 0.9975, "parameters": 1564, "training_steps": 4999}
+
+RECENT RESULT
+hypothesis: Replacing the 161-parameter absolute positional table with 46 learned causal distance logits will produce a 1,449-parameter transformer with at least 99% accuracy, because addition’s reusable token alignments can be represented directly by attention offsets rather than reconstructed from absolute position vectors.
+change: Remove absolute positional embeddings and give each attention head a learned bias for every causal relative distance, while preserving the existing model’s initialization RNG stream for a clean comparison.
+mechanism: Head-specific learned relative-distance attention
+evidence_used: Compressing absolute positional embeddings to four dimensions reached only 73.99%, showing that positional information is load-bearing; the successful seven-contrast design retained 99.82%. This patch challenges the shared assumption that those relationships require residual-stream position vectors by moving positional representation into a fully learned, head-specific attention mechanism.
+result: met the accuracy requirement and became an available design
+reported_values: {"accuracy": 0.9998999999999999, "parameters": 1449, "training_steps": 4999}
+
+RECENT RESULT
+hypothesis: Fixing one relative-attention bias per head at zero and training the remaining differences with virtual full-width AdamW moments will reduce the model from 1,449 to 1,447 parameters while retaining at least 99% accuracy.
+change: Store 22 relative-distance bias differences per head instead of 23, reconstruct a fixed zero reference bias, and generalize the quotient-aware optimizer to preserve the omitted biases’ gradients and AdamW moments.
+mechanism: Optimizer-preserving attention-logit gauge quotient
+evidence_used: The 1,449-parameter relative-distance model achieved 99.99%, and quotient-aware gauge optimization previously preserved 99.75% accuracy when direct removal of functionally redundant MLP coordinates failed; this applies the same optimizer-preserving method to an exact per-head softmax-shift invariance.
+result: met the accuracy requirement and became an available design
+reported_values: {"accuracy": 0.9997, "parameters": 1447, "training_steps": 4999}
+
+RECENT RESULT
+hypothesis: Removing the single global additive degree of freedom shared by every tied embedding coordinate will reduce the model from 1,447 to 1,446 parameters while retaining at least 99% accuracy, because it changes input residuals only by LayerNorm-invisible scalar shifts and output logits only by a softmax-invisible common shift.
+change: Store all but one flattened embedding coordinate as differences from a fixed reference, reconstruct the tied input/output weight dynamically, preserve the original initialization RNG stream, and include the omitted coordinate in quotient-aware AdamW moments and gradient clipping.
+mechanism: Optimizer-preserving tied-embedding common-mode gauge quotient
+evidence_used: The 1,447-parameter model reached 99.97%, and optimizer-preserving gauge quotients successfully removed both MLP residual and relative-attention common modes where direct reparameterizations disrupted training; this applies the same proven optimization treatment to another exact model-wide invariance.
+result: met the accuracy requirement and became an available design
+reported_values: {"accuracy": 0.9993000000000001, "parameters": 1446, "training_steps": 4999}
+
+RECENT RESULT
+hypothesis: Removing the eight LayerNorm-invisible common-mode weights from the attention output projection will reduce the model from 1,446 to 1,438 parameters while retaining at least 99% accuracy when full-width initialization and virtual AdamW moments are preserved.
+change: Store seven output rows for the attention projection, reconstruct an eighth zero row, retain its full-width shared value/output bias, and train the omitted row through the existing quotient-aware optimizer.
+mechanism: Optimizer-preserving attention residual gauge quotient
+evidence_used: Quotient-aware optimization let the seven-row MLP projection reach 99.75% after direct reparameterizations failed at 93.33% and 12.75%; the earlier combined attention/MLP reduction lacked this optimizer-preserving treatment, while the current 1,446-parameter model provides 99.93% accuracy headroom.
+result: met the accuracy requirement and became an available design
+reported_values: {"accuracy": 0.9993000000000001, "parameters": 1438, "training_steps": 4999}
+
+RECENT RESULT
+hypothesis: Reparameterizing all key projections on seven zero-mean LayerNorm coordinates will reduce the model from 1,438 to 1,430 parameters while retaining at least 99% accuracy, because key constants are softmax-invisible and virtual full-width AdamW moments preserve the successful optimization geometry.
+change: Replace the full-width key portion of QKV with an eight-by-seven learned projection over non-affine LayerNorm outputs, retain full-width query/value projections and `ln1` affine parameters, and add the omitted key coordinates to quotient-aware optimization.
+mechanism: Optimizer-preserving key-projection LayerNorm quotient
+evidence_used: Quotient-aware optimization preserved 99.75% for the MLP residual quotient and 99.93% for the attention-output quotient, whereas removing `ln1` scales failed near 75%; this isolates an exact key-only redundancy without constraining the load-bearing query/value affine pathways.
+result: met the accuracy requirement and became an available design
+reported_values: {"accuracy": 0.9995, "parameters": 1430, "training_steps": 4999}
+
+RECENT RESULT
+hypothesis: Reparameterizing queries on seven zero-mean LayerNorm coordinates will reduce the model from 1,430 to 1,422 parameters while maintaining at least 99% accuracy, because the learned affine transformation can be absorbed into query weights and the independent query bias, while virtual full-width AdamW moments preserve optimization geometry.
+change: Split QKV storage into seven-coordinate query and key projections plus a full-width affine value projection, and add the omitted query coordinates to quotient-aware optimization.
+mechanism: Optimizer-preserving query-projection LayerNorm quotient
+evidence_used: The analogous key-projection quotient reduced the 1,438-parameter model to 1,430 parameters with 99.95% accuracy. Unlike the load-bearing value pathway with its shared value/output bias, queries already have an independent bias that can absorb the LayerNorm affine offset.
+result: met the accuracy requirement and became an available design
+reported_values: {"accuracy": 0.9998, "parameters": 1422, "training_steps": 4999}
+
+RECENT RESULT
+hypothesis: Collapsing the affine first LayerNorm and full value projection into 56 zero-mean-coordinate weights plus an 8-coordinate value constant will reduce the model from 1,422 to 1,406 parameters while maintaining at least 99% accuracy, because virtual full-width AdamW updates preserve the successful value-path optimization geometry.
+change: Replace the affine value pathway with its exact composite representation, retain the shared value/output bias, and train the compressed value parameters through virtual full value weights and LayerNorm scale/shift states.
+mechanism: Optimizer-preserving value/LayerNorm composite quotient
+evidence_used: Directly fixing one `ln1` scale coordinate fell to 74.8%, while optimizer-preserving query and key LayerNorm quotients reached 99.98% and 99.95%; this motivates quotienting the remaining value-only affine parameters without directly changing their AdamW dynamics.
+result: met the accuracy requirement and became an available design
+reported_values: {"accuracy": 0.9998999999999999, "parameters": 1406, "training_steps": 4999}
+
+RECENT RESULT
+hypothesis: Fixing one coordinate of the shared attention projection bias while compensating it in the value constant will reduce the model from 1,406 to 1,405 parameters and maintain at least 99% accuracy, because the transformation changes the residual only by a LayerNorm-invisible common shift and virtual full-width AdamW preserves the successful optimization geometry.
+change: Store seven projection-bias differences, reconstruct the eighth as zero, compensate its virtual reference coordinate in the value bias, and train both original full bias pathways with reconstructed AdamW gradients and moments.
+mechanism: Optimizer-preserving coupled value/output-bias gauge quotient
+evidence_used: The 1,406-parameter composite value/LayerNorm quotient achieved 99.99%, while direct single-coordinate gauge fixing previously failed; optimizer-preserving quotients repeatedly retained at least 99.75%, motivating this exact one-dimensional coupled quotient.
+result: met the accuracy requirement and became an available design
+reported_values: {"accuracy": 0.9997, "parameters": 1405, "training_steps": 4999}
+
+RECENT RESULT
+hypothesis: Folding the eight-coordinate value/output constant into the seven observable residual-bias coordinates will reduce the model from 1,405 to 1,397 parameters while retaining at least 99% accuracy, because virtual full-width AdamW gradients preserve the successful optimization trajectory.
+change: Remove the learned QKV value bias, use the residual projection bias as the folded effective constant, and reconstruct gradients and updates for the original value/LayerNorm and projection-bias pathways inside the quotient optimizer.
+mechanism: Optimizer-preserving attention constant folding
+evidence_used: The 1,405-parameter coupled value/output-bias quotient achieved 99.97%, and prior optimizer-preserving quotients consistently retained high accuracy. In that design the value constant and full projection bias affect the residual only through `W_out(c + p) + p`, which has seven observable coordinates.
+result: the implementation could not be verified
+
+RECENT RESULT
+hypothesis: Folding the value/output constant into the seven observable residual-bias coordinates will produce a 1,397-parameter model with at least 99% accuracy when gradients for the virtual value, LayerNorm, projection-weight, and shared-bias parameters are reconstructed jointly.
+change: Remove the eight-parameter value bias, store only the folded residual constant, and extend quotient-aware AdamW to reconstruct and update every virtual parameter contributing to that constant.
+mechanism: Optimizer-preserving attention constant folding with joint chain-rule gradients
+evidence_used: The 1,405-parameter coupled value/output-bias quotient achieved 99.97%; the previous 1,397 constant-folding implementation could not be verified and therefore provides no accuracy counterevidence. Completing the joint chain rule preserves the successful model’s virtual optimization geometry.
+result: met the accuracy requirement and became an available design
+reported_values: {"accuracy": 0.9993000000000001, "parameters": 1397, "training_steps": 4999}
+
+## Direction
+
+Before choosing the next change, step back from the current line of work. Think very critically about the assumptions you have made so far, and the assumptions shared by the available designs. Do a thorough analysis of the assumptions, and identify the load-bearing assumptions. Moving forward, make changes that challenge these assumptions, and try to test genuinely different learned computational mechanisms. Think critically about how your next change could make more progress than what you have been making so far, and implement that thinking into your changes. The change should alter how the transformer represents or computes the task. Do not revisit a type of change that already failed unless the recent evidence identifies a specific reason the new version should behave differently. Prefer implementations that cleanly test the alternative, and state the old assumption and the new approach in the final summary. Use prior results to explain why the alternative is plausible and informative.
+
+Use the available technical evidence to choose the most informative next
+change. Treat unsuccessful or malformed work as evidence when a useful
+subject-level reason is provided. Do not invent missing evidence.
+
+## Response
+
+Return these short metadata lines followed by one or more exact
+`SEARCH`/`REPLACE` blocks that together produce one implementation:
+
+`MECHANISM: <a concise free-form name for the computational idea>`
+
+`HYPOTHESIS: <a falsifiable claim grounded in the evidence above>`
+
+`INTENDED_EDIT: <what this patch changes>`
+
+`EVIDENCE: <the most relevant prior result and why it motivates this patch>`
+
+Start each block with `<<<<<<< SEARCH`, put the exact existing lines next, use a
+line containing `=======` as the divider, put the replacement lines after it,
+and finish the block with `>>>>>>> REPLACE`.
+
+Every `SEARCH` section must be nonempty and match exactly once after earlier
+blocks have been applied. All blocks must apply. They may edit either or both
+editable files, but together they must describe one implementation ready for
+verification. The mechanism name is descriptive, not chosen from a fixed list.
+Do not paste whole files, lengthy logs, or routine progress reports outside the
+patch.

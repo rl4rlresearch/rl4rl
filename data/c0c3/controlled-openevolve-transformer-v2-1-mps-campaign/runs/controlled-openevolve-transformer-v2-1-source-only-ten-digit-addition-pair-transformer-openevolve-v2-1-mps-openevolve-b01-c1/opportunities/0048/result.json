@@ -1,0 +1,79 @@
+{
+  "artifact_path": "candidates/4f896c84ed2471fe1eec494dce8094d8919eb18be7fae806689a96d5a2b9ab9a",
+  "candidate_id": "4f896c84ed2471fe1eec494dce8094d8919eb18be7fae806689a96d5a2b9ab9a",
+  "codex_service_tier": "default",
+  "condition": "C1",
+  "conversation_session_id": null,
+  "evaluation": {
+    "evaluator_calls": 1,
+    "evaluator_seconds": 554.1306843748316,
+    "failure_kind": "nonqualification",
+    "fitness": null,
+    "metrics": {
+      "accuracy": 0.8689,
+      "cases": 10010,
+      "correct": 8698,
+      "parameters": 1577,
+      "training_steps": 4999
+    },
+    "valid": false
+  },
+  "evaluator_calls_cumulative": 48,
+  "evaluator_calls_increment": 1,
+  "evaluator_seconds_cumulative": 23820.22593187401,
+  "evaluator_seconds_increment": 554.1306843748316,
+  "event": "proposal_completed",
+  "evicted_candidate_id": null,
+  "evidence": "The one-pruned `fc1` design achieved 99.92% at 1,578 parameters, while removing a second `fc1` bias fell to 84.48%; this motivates a single exact gauge removal elsewhere that preserves the six learned `ln2` bias coordinates implicated in the successful result.",
+  "hypothesis": "Fixing one `ln1` scale coordinate at 1 will reduce the model from 1,578 to 1,577 parameters while retaining at least 99% accuracy, because that coordinate\u2019s bias is already fixed at zero and the following QKV weight column can absorb its learned scale without reducing the attention function family or changing initialization outputs.",
+  "incumbent_after": "0db570d96b3a92065765061257b3c3114441631ae43ba3a976488072b3a09a3c",
+  "intended_edit": "Add a two-bias-pruned LayerNorm with one fixed unit scale coordinate and use it only for `ln1`, leaving the successful `ln2` and one-pruned `fc1` pathway unchanged.",
+  "mechanism": "Zero-beta LayerNorm scale gauge",
+  "opportunity": 48,
+  "parent_ids": [
+    "0db570d96b3a92065765061257b3c3114441631ae43ba3a976488072b3a09a3c"
+  ],
+  "portfolio_after": [
+    "0db570d96b3a92065765061257b3c3114441631ae43ba3a976488072b3a09a3c"
+  ],
+  "prompt_hashes": {
+    "common_template_sha256": "3f2bea6418b6969c4bf2aa1df18dcda8a3a4ac075bf20c79068c754698b6be5e",
+    "prompt_sha256": "e738113474859d53aa06df5a59b54401cf62f6e0c18b649bfc507c492704d164",
+    "proposal_policy_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "search_state_sha256": "04e5eb078ae1964e4ec65bfeeeb1acd0ffa246e7d54d5e0f997f81f602da28c5",
+    "treatment_skeleton_sha256": "535ce194905d58dac649d09e1a9d3a986e2a8738d68ca07b99609b1ea6f9b3d8"
+  },
+  "proposal_type": "ordinary",
+  "proposals_cumulative": 48,
+  "remaining_budget": {
+    "evaluations": 152,
+    "evaluator_seconds": 336179.774068126,
+    "proposals": 152,
+    "tokens": 98757768
+  },
+  "retained": false,
+  "retention_decision": "invalid",
+  "run_id": "controlled-openevolve-transformer-v2-1-source-only-ten-digit-addition-pair-transformer-openevolve-v2-1-mps-openevolve-b01-c1",
+  "schema_version": "1.0",
+  "selected_parent_ids": [
+    "0db570d96b3a92065765061257b3c3114441631ae43ba3a976488072b3a09a3c"
+  ],
+  "timestamp": "2026-08-24T16:53:52.119056+00:00",
+  "usage_cumulative": {
+    "cached_input_tokens": 504320,
+    "input_tokens": 1053892,
+    "output_tokens": 188340,
+    "reasoning_output_tokens": 157501,
+    "total_tokens": 1242232
+  },
+  "usage_increment": {
+    "cached_input_tokens": 12032,
+    "input_tokens": 23435,
+    "output_tokens": 3655,
+    "reasoning_output_tokens": 3106,
+    "total_tokens": 27090
+  },
+  "visible_candidate_ids": [
+    "0db570d96b3a92065765061257b3c3114441631ae43ba3a976488072b3a09a3c"
+  ]
+}

@@ -1,0 +1,79 @@
+{
+  "artifact_path": "candidates/c7a9b593d85924d63e30facafb5756225c68dbfbb07206cca573a652824b39e6",
+  "candidate_id": "c7a9b593d85924d63e30facafb5756225c68dbfbb07206cca573a652824b39e6",
+  "codex_service_tier": "default",
+  "condition": "C0",
+  "conversation_session_id": null,
+  "evaluation": {
+    "evaluator_calls": 1,
+    "evaluator_seconds": 217.2554554170929,
+    "failure_kind": null,
+    "fitness": -1592.0,
+    "metrics": {
+      "accuracy": 0.9993000000000001,
+      "cases": 10010,
+      "correct": 10003,
+      "parameters": 1592,
+      "training_steps": 4999
+    },
+    "valid": true
+  },
+  "evaluator_calls_cumulative": 71,
+  "evaluator_calls_increment": 1,
+  "evaluator_seconds_cumulative": 33785.19668837043,
+  "evaluator_seconds_increment": 217.2554554170929,
+  "event": "proposal_completed",
+  "evicted_candidate_id": "d848e7ae2b9533654360b5ea86a3be954b3b955a72a01bcecfe6cba123668bb2",
+  "evidence": "Fixing `fc2.bias[0]` reached only 2.79%, but the hidden-bias experiments showed that one symmetric coordinate can fail while another succeeds: fixing `fc1.bias[8]` reached 77.57%, whereas fixing coordinate 9 reached 100%.",
+  "hypothesis": "Fixing `fc2.bias[1]` instead of coordinate 0 will reduce the model from 1593 to 1592 parameters while retaining at least 99% accuracy, because coordinate-specific optimization effects may make coordinate 1 removable even though fixing coordinate 0 failed.",
+  "incumbent_after": "c7a9b593d85924d63e30facafb5756225c68dbfbb07206cca573a652824b39e6",
+  "intended_edit": "Replace the eight-parameter `fc2` bias with seven learned coordinates, reconstruct coordinate 1 as zero, and preserve ordinary `nn.Linear` initialization RNG consumption.",
+  "mechanism": "Alternative final-residual bias gauge anchoring",
+  "opportunity": 71,
+  "parent_ids": [
+    "d848e7ae2b9533654360b5ea86a3be954b3b955a72a01bcecfe6cba123668bb2"
+  ],
+  "portfolio_after": [
+    "c7a9b593d85924d63e30facafb5756225c68dbfbb07206cca573a652824b39e6"
+  ],
+  "prompt_hashes": {
+    "common_template_sha256": "3f2bea6418b6969c4bf2aa1df18dcda8a3a4ac075bf20c79068c754698b6be5e",
+    "prompt_sha256": "5ede069b727f743abe6c749fb06e42ef8a89ba809aeb8fc9c6480c006d4081e5",
+    "proposal_policy_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "search_state_sha256": "04e5eb078ae1964e4ec65bfeeeb1acd0ffa246e7d54d5e0f997f81f602da28c5",
+    "treatment_skeleton_sha256": "70331df6101c52a68de3d8b8448f8a8ecb33b2d8269c67653f51f0994f80d431"
+  },
+  "proposal_type": "ordinary",
+  "proposals_cumulative": 71,
+  "remaining_budget": {
+    "evaluations": 129,
+    "evaluator_seconds": 326214.80331162957,
+    "proposals": 129,
+    "tokens": 98267135
+  },
+  "retained": true,
+  "retention_decision": "strict_incumbent_improvement",
+  "run_id": "controlled-openevolve-transformer-v2-1-source-only-ten-digit-addition-pair-transformer-openevolve-v2-1-mps-openevolve-b04-c0",
+  "schema_version": "1.0",
+  "selected_parent_ids": [
+    "d848e7ae2b9533654360b5ea86a3be954b3b955a72a01bcecfe6cba123668bb2"
+  ],
+  "timestamp": "2026-08-25T16:21:07.207694+00:00",
+  "usage_cumulative": {
+    "cached_input_tokens": 748544,
+    "input_tokens": 1572983,
+    "output_tokens": 159882,
+    "reasoning_output_tokens": 119181,
+    "total_tokens": 1732865
+  },
+  "usage_increment": {
+    "cached_input_tokens": 12032,
+    "input_tokens": 22984,
+    "output_tokens": 4287,
+    "reasoning_output_tokens": 3885,
+    "total_tokens": 27271
+  },
+  "visible_candidate_ids": [
+    "d848e7ae2b9533654360b5ea86a3be954b3b955a72a01bcecfe6cba123668bb2"
+  ]
+}

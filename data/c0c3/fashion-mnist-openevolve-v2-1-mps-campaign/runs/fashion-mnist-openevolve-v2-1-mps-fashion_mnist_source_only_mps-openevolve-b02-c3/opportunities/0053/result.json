@@ -1,0 +1,91 @@
+{
+  "artifact_path": "candidates/12e99d0c9051f9fcad647045f137a3d8506c7aac1450c7f452e5324f76540969",
+  "candidate_id": "12e99d0c9051f9fcad647045f137a3d8506c7aac1450c7f452e5324f76540969",
+  "codex_service_tier": "default",
+  "condition": "C3",
+  "conversation_session_id": null,
+  "evaluation": {
+    "evaluator_calls": 1,
+    "evaluator_seconds": 72.08716954197735,
+    "failure_kind": null,
+    "fitness": 9308.419700575027,
+    "metrics": {
+      "batch_size": 128,
+      "evaluation_cases": 10000,
+      "evaluation_split": "public_validation",
+      "examples_processed": 100000,
+      "optimizer_steps": 782,
+      "parameters": 249881,
+      "training_seconds": 63.00137554178946,
+      "validation_accuracy": 0.9308,
+      "validation_correct": 9308,
+      "validation_cross_entropy": 0.19132550621032715,
+      "validation_score": 9308.419700575027
+    },
+    "valid": true
+  },
+  "evaluator_calls_cumulative": 42,
+  "evaluator_calls_increment": 1,
+  "evaluator_seconds_cumulative": 2429.41315900092,
+  "evaluator_seconds_increment": 72.08716954197735,
+  "event": "proposal_completed",
+  "evicted_candidate_id": null,
+  "evidence": "The current mean/max-gated design is best at 9,322 correct, while subsequent architectural and gating variants regressed; its validation path averages flip probabilities, but its training loss supervises those views independently, motivating an orthogonal objective-alignment change.",
+  "hypothesis": "Blending individual-view cross-entropy with cross-entropy on the averaged probabilities of each flip pair will exceed 9,322 correct predictions by aligning training with the probability-level flip ensemble used during validation.",
+  "incumbent_after": "5b38a0a9b912bbfd1df5a26cdefc31925be858589932218b90ac16d962399fc7",
+  "intended_edit": "Preserve the best 249,881-parameter architecture and training exposure, but optimize an equal mixture of the existing per-view loss and a label-smoothed loss on each original/flip probability ensemble.",
+  "mechanism": "Flip-ensemble-aligned supervised training",
+  "opportunity": 53,
+  "parent_ids": [
+    "5b38a0a9b912bbfd1df5a26cdefc31925be858589932218b90ac16d962399fc7"
+  ],
+  "portfolio_after": [
+    "e47709c6746c2f7f19ceaa7f6360c0f101295e761d1682d24b83808248a17c33",
+    "eaa2ddba4e7eaed4f81549ecd839e62cd269fda03e4a10660cbe5721efccc87b",
+    "99f3df2dc53031905dd3faa67092f8951dba6757bce7f03b89daaa3ba9ccace7",
+    "5b38a0a9b912bbfd1df5a26cdefc31925be858589932218b90ac16d962399fc7"
+  ],
+  "prompt_hashes": {
+    "common_template_sha256": "e8327ba94bab12abc7c7ec7c6615378a3ae62434efb944d4a7d9492f1d19bc14",
+    "prompt_sha256": "d2fcf59e42cf3d9b94151b5ac241154a8806b34a765f86c78d55817efa5ea8c1",
+    "proposal_policy_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "search_state_sha256": "c938ac007bf70fe8d27f64661175531e51fcb16b38318c328493c32ee292e27e",
+    "treatment_skeleton_sha256": "777e82740233c85ed9329915efb4d76ad787d8a27b92fd8e1e6b430b57163b0b"
+  },
+  "proposal_type": "ordinary",
+  "proposals_cumulative": 53,
+  "remaining_budget": {
+    "evaluations": 158,
+    "evaluator_seconds": 21570.58684099908,
+    "proposals": 147,
+    "tokens": 98641707
+  },
+  "retained": false,
+  "retention_decision": "not_strictly_better_than_selected_parent",
+  "run_id": "fashion-mnist-openevolve-v2-1-mps-fashion_mnist_source_only_mps-openevolve-b02-c3",
+  "schema_version": "1.0",
+  "selected_parent_ids": [
+    "5b38a0a9b912bbfd1df5a26cdefc31925be858589932218b90ac16d962399fc7"
+  ],
+  "timestamp": "2026-08-24T06:13:24.277403+00:00",
+  "usage_cumulative": {
+    "cached_input_tokens": 562432,
+    "input_tokens": 1230416,
+    "output_tokens": 127877,
+    "reasoning_output_tokens": 95107,
+    "total_tokens": 1358293
+  },
+  "usage_increment": {
+    "cached_input_tokens": 12032,
+    "input_tokens": 24573,
+    "output_tokens": 1811,
+    "reasoning_output_tokens": 1405,
+    "total_tokens": 26384
+  },
+  "visible_candidate_ids": [
+    "e47709c6746c2f7f19ceaa7f6360c0f101295e761d1682d24b83808248a17c33",
+    "eaa2ddba4e7eaed4f81549ecd839e62cd269fda03e4a10660cbe5721efccc87b",
+    "99f3df2dc53031905dd3faa67092f8951dba6757bce7f03b89daaa3ba9ccace7",
+    "5b38a0a9b912bbfd1df5a26cdefc31925be858589932218b90ac16d962399fc7"
+  ]
+}

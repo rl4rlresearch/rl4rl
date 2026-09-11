@@ -1,0 +1,105 @@
+{
+  "artifact_path": "candidates/74312995afd5caa451efce0fa6923ee7bf2248c5197e9179fa4c6a3286d8da31",
+  "candidate_id": "74312995afd5caa451efce0fa6923ee7bf2248c5197e9179fa4c6a3286d8da31",
+  "codex_service_tier": "default",
+  "condition": "C3",
+  "conversation_session_id": null,
+  "evaluation": {
+    "evaluator_calls": 1,
+    "evaluator_seconds": 123.14950312487781,
+    "failure_kind": "nonqualification",
+    "fitness": null,
+    "metrics": {
+      "batch_size": 128,
+      "evaluation_cases": 815,
+      "evaluation_split": "public_speaker_disjoint_validation",
+      "examples_processed": 50000,
+      "inference_cost": 4340132374249767312,
+      "maximum_recurrent_steps": 32,
+      "mean_recurrent_steps": 32.0,
+      "median_recurrent_steps": 32,
+      "optimizer_steps": 397,
+      "p95_recurrent_steps": 32,
+      "parameters": 33712,
+      "peak_hidden_elements": 131584,
+      "recurrent_logit_effect": 0.04786139726638794,
+      "recurrent_macs": 831221760,
+      "recurrent_steps": 26080,
+      "state_dependence_effect": 0.3234505355358124,
+      "state_update_effect": 0.33540862798690796,
+      "total_inference_macs": 832056320,
+      "trained_recurrent_logit_effect": 0.6457791924476624,
+      "trained_state_dependence_effect": 0.36883601546287537,
+      "trained_state_update_effect": 0.3664032816886902,
+      "training_seconds": 102.33075516717508,
+      "validation_accuracy": 0.838036809815951,
+      "validation_correct": 683,
+      "validation_cross_entropy": 0.4725329065615414
+    },
+    "valid": false
+  },
+  "evaluator_calls_cumulative": 12,
+  "evaluator_calls_increment": 1,
+  "evaluator_seconds_cumulative": 1715.5733212488703,
+  "evaluator_seconds_increment": 123.14950312487781,
+  "event": "proposal_completed",
+  "evicted_candidate_id": null,
+  "evidence": "The parallel 64-unit GRUs qualified at 85.28%, whereas temporal subsampling failed below 83%; this motivates preserving every recurrent step and hidden unit while testing whether broadcasting the complete 20-band input to both independent branches is redundant.",
+  "hypothesis": "Giving each 64-unit GRU 19 overlapping mel bands while collectively retaining all 20 bands and all 32 frames will maintain at least 85% validation accuracy and reduce total inference MACs from 842,071,040 to approximately 832,056,320.",
+  "incumbent_after": "bd870665769fb5659fcaf1b77b54688a0031dacaaebae3b4870c6cc4bbfdd750",
+  "intended_edit": "Remove one different edge mel band from each parallel GRU input, reducing both input matrices from 20 to 19 features while preserving the 128-unit aggregate recurrent state.",
+  "mechanism": "Overlapping spectral partition of parallel recurrent inputs",
+  "opportunity": 12,
+  "parent_ids": [
+    "bd870665769fb5659fcaf1b77b54688a0031dacaaebae3b4870c6cc4bbfdd750"
+  ],
+  "portfolio_after": [
+    "016d906da09d1fe9115b3d48dd009dea2faccbbb35792057b39773f1cdb8582b",
+    "bd870665769fb5659fcaf1b77b54688a0031dacaaebae3b4870c6cc4bbfdd750",
+    "66cc6e1a66c9b7b46d0027da3b420cd37413acda3e54418b8d75485527dd30a6",
+    "90d52e0ba942b8628a131c6ad3fc0c780ecbd7ae12ba6a6108e96d860673b731"
+  ],
+  "prompt_hashes": {
+    "common_template_sha256": "dee04faf4c430276c1036ba97f5705a339857dbdf19117dac88952a5a3a47e9d",
+    "prompt_sha256": "14a8fc6f7084034d77234642d394fade3a766498e6d902b21fccdd9305f19cf8",
+    "proposal_policy_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "search_state_sha256": "c938ac007bf70fe8d27f64661175531e51fcb16b38318c328493c32ee292e27e",
+    "treatment_skeleton_sha256": "b8a39946551843a61621681ba70a59c2972e18ad11b8db7b83014d53975ee616"
+  },
+  "proposal_type": "ordinary",
+  "proposals_cumulative": 12,
+  "remaining_budget": {
+    "evaluations": 188,
+    "evaluator_seconds": 58284.42667875113,
+    "proposals": 188,
+    "tokens": 99717006
+  },
+  "retained": false,
+  "retention_decision": "invalid",
+  "run_id": "tiny-kws-rnn-openevolve-v2-1-cpu-tiny_kws_rnn_source_only_cpu-openevolve-b03-c3",
+  "schema_version": "1.0",
+  "selected_parent_ids": [
+    "bd870665769fb5659fcaf1b77b54688a0031dacaaebae3b4870c6cc4bbfdd750"
+  ],
+  "timestamp": "2026-09-04T03:27:07.694631+00:00",
+  "usage_cumulative": {
+    "cached_input_tokens": 129024,
+    "input_tokens": 243962,
+    "output_tokens": 39032,
+    "reasoning_output_tokens": 32929,
+    "total_tokens": 282994
+  },
+  "usage_increment": {
+    "cached_input_tokens": 10752,
+    "input_tokens": 23365,
+    "output_tokens": 7480,
+    "reasoning_output_tokens": 6943,
+    "total_tokens": 30845
+  },
+  "visible_candidate_ids": [
+    "016d906da09d1fe9115b3d48dd009dea2faccbbb35792057b39773f1cdb8582b",
+    "bd870665769fb5659fcaf1b77b54688a0031dacaaebae3b4870c6cc4bbfdd750",
+    "66cc6e1a66c9b7b46d0027da3b420cd37413acda3e54418b8d75485527dd30a6",
+    "90d52e0ba942b8628a131c6ad3fc0c780ecbd7ae12ba6a6108e96d860673b731"
+  ]
+}

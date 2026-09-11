@@ -1,0 +1,79 @@
+{
+  "artifact_path": "candidates/4d21eff536708fab7a87eb2eea212c831a00ebf8ac22476bfba78b58bd668bf3",
+  "candidate_id": "4d21eff536708fab7a87eb2eea212c831a00ebf8ac22476bfba78b58bd668bf3",
+  "codex_service_tier": "default",
+  "condition": "C1",
+  "conversation_session_id": null,
+  "evaluation": {
+    "evaluator_calls": 1,
+    "evaluator_seconds": 217.77271887497045,
+    "failure_kind": "nonqualification",
+    "fitness": null,
+    "metrics": {
+      "accuracy": 0.0664,
+      "cases": 10010,
+      "correct": 665,
+      "parameters": 1481,
+      "training_steps": 4999
+    },
+    "valid": false
+  },
+  "evaluator_calls_cumulative": 70,
+  "evaluator_calls_increment": 1,
+  "evaluator_seconds_cumulative": 36094.07552512246,
+  "evaluator_seconds_increment": 217.77271887497045,
+  "event": "proposal_completed",
+  "evicted_candidate_id": null,
+  "evidence": "The 1,549-parameter model achieves 99.98% accuracy, while failures from pruning positional or normalization coordinates show that representation channels are load-bearing. This instead challenges the untested assumption that both heads need separate key/value feature maps; distinct query projections and output slots remain intact.",
+  "hypothesis": "Replacing head-specific key/value projections with one learned shared key/value projection will reduce the model from 1,549 to 1,481 parameters while retaining at least 99% accuracy, because independent learned queries still let the two heads retrieve different positions while the retrieved operand-pair representation can be shared.",
+  "incumbent_after": "6ac8604fabbb59b365cac874a7647145b65193dd4a772b8838e064dd02559bdb",
+  "intended_edit": "Convert causal self-attention to multi-query attention: retain two independent query heads, share one learned four-dimensional key/value memory across them, and preserve the original initialization distribution and RNG sequence.",
+  "mechanism": "Query-routed shared attention memory",
+  "opportunity": 70,
+  "parent_ids": [
+    "6ac8604fabbb59b365cac874a7647145b65193dd4a772b8838e064dd02559bdb"
+  ],
+  "portfolio_after": [
+    "6ac8604fabbb59b365cac874a7647145b65193dd4a772b8838e064dd02559bdb"
+  ],
+  "prompt_hashes": {
+    "common_template_sha256": "3f2bea6418b6969c4bf2aa1df18dcda8a3a4ac075bf20c79068c754698b6be5e",
+    "prompt_sha256": "2e27328ed1484061022cef62de483a1195c5d80e22e84c6faede17e401da0b6b",
+    "proposal_policy_sha256": "4a27c08e098e719db007f4d6b37fabe2967b41836bb9070e2513a8a24ff7ce90",
+    "search_state_sha256": "04e5eb078ae1964e4ec65bfeeeb1acd0ffa246e7d54d5e0f997f81f602da28c5",
+    "treatment_skeleton_sha256": "a5c6df075859661b8d2ccf5545c707512b919052390940cc5c04c7d653204efd"
+  },
+  "proposal_type": "assumption_changing",
+  "proposals_cumulative": 70,
+  "remaining_budget": {
+    "evaluations": 130,
+    "evaluator_seconds": 323905.92447487754,
+    "proposals": 130,
+    "tokens": 98148488
+  },
+  "retained": false,
+  "retention_decision": "invalid",
+  "run_id": "controlled-openevolve-transformer-v2-1-source-only-ten-digit-addition-pair-transformer-openevolve-v2-1-mps-openevolve-b01-c1",
+  "schema_version": "1.0",
+  "selected_parent_ids": [
+    "6ac8604fabbb59b365cac874a7647145b65193dd4a772b8838e064dd02559bdb"
+  ],
+  "timestamp": "2026-08-25T10:37:20.498916+00:00",
+  "usage_cumulative": {
+    "cached_input_tokens": 754688,
+    "input_tokens": 1573688,
+    "output_tokens": 277824,
+    "reasoning_output_tokens": 229389,
+    "total_tokens": 1851512
+  },
+  "usage_increment": {
+    "cached_input_tokens": 12032,
+    "input_tokens": 23754,
+    "output_tokens": 7994,
+    "reasoning_output_tokens": 6732,
+    "total_tokens": 31748
+  },
+  "visible_candidate_ids": [
+    "6ac8604fabbb59b365cac874a7647145b65193dd4a772b8838e064dd02559bdb"
+  ]
+}

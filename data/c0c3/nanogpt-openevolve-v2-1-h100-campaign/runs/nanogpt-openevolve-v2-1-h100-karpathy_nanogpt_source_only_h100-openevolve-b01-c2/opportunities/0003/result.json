@@ -1,0 +1,87 @@
+{
+  "artifact_path": "candidates/3f86c29c7b170f9b5dd7ccebde668fea2f9f9bc32c149a3e774ae1f52f25cd9d",
+  "candidate_id": "3f86c29c7b170f9b5dd7ccebde668fea2f9f9bc32c149a3e774ae1f52f25cd9d",
+  "codex_service_tier": "fast",
+  "condition": "C2",
+  "conversation_session_id": null,
+  "evaluation": {
+    "evaluator_calls": 1,
+    "evaluator_seconds": 457.93790223200085,
+    "failure_kind": null,
+    "fitness": -1.008305,
+    "metrics": {
+      "depth": 8.0,
+      "mfu_percent": 32.4,
+      "num_params_M": 50.9,
+      "num_steps": 768.0,
+      "peak_vram_mb": 45586.1,
+      "total_tokens_M": 402.7,
+      "training_seconds": 300.3,
+      "val_bpb": 1.008305
+    },
+    "valid": true
+  },
+  "evaluator_calls_cumulative": 3,
+  "evaluator_calls_increment": 1,
+  "evaluator_seconds_cumulative": 1390.488835497001,
+  "evaluator_seconds_increment": 457.93790223200085,
+  "event": "proposal_completed",
+  "evicted_candidate_id": null,
+  "evidence": "The current SSSL design achieved the best result, 0.995558 val_bpb on 497.0M tokens; both attention-window changes reduced throughput and worsened validation, motivating an independent capacity-quality change that leaves attention unchanged.",
+  "hypothesis": "Replacing ReLU-squared MLPs with near-parameter-matched SwiGLU MLPs will improve per-token modeling enough to beat 0.995558 val_bpb while retaining the winning SSSL attention layout and similar throughput.",
+  "incumbent_after": "2865e528e18dc51191e4037eaeb5824cb0ea83ede79061b59b8f3caac686da6b",
+  "intended_edit": "Use a tensor-core-aligned SwiGLU hidden width near 8/3 of model dimension, keeping MLP parameter count and compute close to the current 4\u00d7 ReLU-squared design.",
+  "mechanism": "Parameter-matched SwiGLU feed-forward layers",
+  "opportunity": 3,
+  "parent_ids": [
+    "2865e528e18dc51191e4037eaeb5824cb0ea83ede79061b59b8f3caac686da6b"
+  ],
+  "portfolio_after": [
+    "2865e528e18dc51191e4037eaeb5824cb0ea83ede79061b59b8f3caac686da6b",
+    "ee1f1cf686a479f175a9b2178602df52386a3561e80b0612b88ccd725e447c2e",
+    "992a5ebc7bdd4076d4778d36c84d4c890a0888b5a62ba4959a5125a6aa9af5ec",
+    "3f86c29c7b170f9b5dd7ccebde668fea2f9f9bc32c149a3e774ae1f52f25cd9d"
+  ],
+  "prompt_hashes": {
+    "common_template_sha256": "ba85b39aa7288f4f48475376da6cff65661f39cfeb7ac7cde15b2a9a2e692fde",
+    "prompt_sha256": "40c278aee567b74f4281ada85dbb22c096191e04678953f6325c1785203647f1",
+    "proposal_policy_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "search_state_sha256": "c938ac007bf70fe8d27f64661175531e51fcb16b38318c328493c32ee292e27e",
+    "treatment_skeleton_sha256": "f44aa61d9cf0736f025dc59219cf155ee727431d818335c6ccf57310a83c7a31"
+  },
+  "proposal_type": "ordinary",
+  "proposals_cumulative": 3,
+  "remaining_budget": {
+    "evaluations": 197,
+    "evaluator_seconds": 718609.511164503,
+    "proposals": 197,
+    "tokens": 99903025
+  },
+  "retained": true,
+  "retention_decision": "filled_open_portfolio_slot",
+  "run_id": "nanogpt-openevolve-v2-1-h100-karpathy_nanogpt_source_only_h100-openevolve-b01-c2",
+  "schema_version": "1.0",
+  "selected_parent_ids": [
+    "2865e528e18dc51191e4037eaeb5824cb0ea83ede79061b59b8f3caac686da6b"
+  ],
+  "timestamp": "2026-08-23T13:18:11.921170+00:00",
+  "usage_cumulative": {
+    "cached_input_tokens": 36096,
+    "input_tokens": 88349,
+    "output_tokens": 8626,
+    "reasoning_output_tokens": 7819,
+    "total_tokens": 96975
+  },
+  "usage_increment": {
+    "cached_input_tokens": 12032,
+    "input_tokens": 37063,
+    "output_tokens": 4120,
+    "reasoning_output_tokens": 3708,
+    "total_tokens": 41183
+  },
+  "visible_candidate_ids": [
+    "2865e528e18dc51191e4037eaeb5824cb0ea83ede79061b59b8f3caac686da6b",
+    "ee1f1cf686a479f175a9b2178602df52386a3561e80b0612b88ccd725e447c2e",
+    "992a5ebc7bdd4076d4778d36c84d4c890a0888b5a62ba4959a5125a6aa9af5ec"
+  ]
+}

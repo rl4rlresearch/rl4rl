@@ -1,0 +1,174 @@
+# Improve fixed-time language-model pretraining
+
+You are an autonomous ML engineer improving the source code for single-GPU
+language-model pretraining.
+
+## Goal
+
+Minimize validation bits per byte (`val_bpb`) after a fixed five-minute training
+window on the supplied H100 worker. Lower is better. Startup, compilation, and
+final validation are outside the measured training window, and every submitted
+version starts from a fresh initialization.
+
+You may change the architecture, optimizer, schedules, batching, numerical
+implementation, or other contents of `train.py`. The fixed data preparation,
+tokenizer, validation procedure, hardware class, and time accounting are not
+editable. A useful change must produce a complete trainable implementation and
+finish with the required summary metrics.
+
+## Work boundaries
+
+Minimize val_bpb. No additional accuracy threshold.
+Editable source files: train.py.
+Results reported after each verification: val_bpb, training_seconds, peak_vram_mb, mfu_percent, total_tokens_M, num_steps, num_params_M, depth.
+
+Propose changes through exact SEARCH/REPLACE blocks. The patching interface applies them to the supplied editable source.
+
+The editable source and any reference source are included below. Do not access
+parent directories, home directories, shared temporary directories, global
+session history, online sources, or any surrounding repository. Do not run
+training or validation yourself and do not generate hidden alternatives.
+Return one patch for one implementation; verification happens after you finish.
+
+## Available designs
+
+The current editable design and the qualified reference designs below are available as technical evidence. Edit only the current workspace.
+
+CURRENT DESIGN
+verified_results: {"depth": 8.0, "mfu_percent": 34.99, "num_params_M": 50.3, "num_steps": 2025.0, "peak_vram_mb": 44214.8, "total_tokens_M": 522.5, "training_seconds": 300.0, "val_bpb": 0.985148}
+prior_hypothesis: A 58.5% zero-ending linear warmdown with the proven 258,048-token batch will retain roughly 520M training tokens and lower `val_bpb` below 0.985181.
+
+REFERENCE DESIGN 1
+verified_results: {"depth": 8.0, "mfu_percent": 34.67, "num_params_M": 50.3, "num_steps": 2039.0, "peak_vram_mb": 43522.4, "total_tokens_M": 517.8, "training_seconds": 300.0, "val_bpb": 0.985215}
+prior_hypothesis: A 253,952-token optimizer batch will retain roughly 518M training tokens while lowering val_bpb below 0.985506.
+
+REFERENCE DESIGN 2
+verified_results: {"depth": 8.0, "mfu_percent": 35.16, "num_params_M": 50.3, "num_steps": 2004.0, "peak_vram_mb": 44908.2, "total_tokens_M": 525.3, "training_seconds": 300.1, "val_bpb": 0.985354}
+prior_hypothesis: A 262,144-token optimizer batch with the best 58.5% zero-ending linear warmdown will retain roughly 520M training tokens and lower `val_bpb` below 0.985148.
+
+REFERENCE DESIGN 3
+verified_results: {"depth": 8.0, "mfu_percent": 34.95, "num_params_M": 50.3, "num_steps": 2023.0, "peak_vram_mb": 44214.8, "total_tokens_M": 522.0, "training_seconds": 300.0, "val_bpb": 0.985181}
+prior_hypothesis: A 258,048-token optimizer batch will retain roughly 518M training tokens while lowering val_bpb below 0.985215.
+
+## Recent verification evidence
+
+RECENT RESULT
+hypothesis: Using `MATRIX_LR=0.039` with the proven 258,048-token batch will retain roughly 520M training tokens and lower val_bpb below 0.985181.
+change: Reduce only the Muon matrix learning rate from 0.040 to 0.039, preserving the best architecture, batch size, optimizer, and 60% warmdown.
+mechanism: Lower-side Muon learning-rate midpoint refinement
+evidence_used: At the best batch size, 0.040 achieved 0.985181; equal-sized deviations to 0.038 and 0.042 regressed to 0.985701 and 0.985838 respectively, so the less harmful lower side motivates testing its midpoint.
+result: was valid but was not a strict improvement
+reported_values: {"depth": 8.0, "mfu_percent": 34.44, "num_params_M": 50.3, "num_steps": 1994.0, "peak_vram_mb": 44214.7, "total_tokens_M": 514.5, "training_seconds": 300.1, "val_bpb": 0.985808}
+
+RECENT RESULT
+hypothesis: Using `MATRIX_LR=0.041` with the proven 258,048-token batch will retain roughly 520M training tokens and lower val_bpb below 0.985181.
+change: Restore the best 126-sequence microbatch and increase only the Muon matrix learning rate from 0.040 to 0.041.
+mechanism: Upper-side Muon learning-rate midpoint refinement
+evidence_used: The 258,048-token batch with `MATRIX_LR=0.040` achieved the best val_bpb of 0.985181, while 0.042 regressed to 0.985838; 0.041 tests the unresolved midpoint of that upper learning-rate bracket.
+result: was valid but was not a strict improvement
+reported_values: {"depth": 8.0, "mfu_percent": 34.95, "num_params_M": 50.3, "num_steps": 2023.0, "peak_vram_mb": 44214.8, "total_tokens_M": 522.0, "training_seconds": 300.0, "val_bpb": 0.9853}
+
+RECENT RESULT
+hypothesis: Using cosine rather than linear warmdown with the proven 258,048-token batch and `MATRIX_LR=0.040` will retain roughly 520M training tokens while lowering `val_bpb` below 0.985181.
+change: Restore the best 126-sequence microbatch and replace the 60% linear warmdown with an equal-duration, equal-area cosine warmdown.
+mechanism: Equal-area cosine warmdown at the best batch operating point
+evidence_used: The 258,048-token, `MATRIX_LR=0.040` design achieved the best `val_bpb` of 0.985181, while nearby batch sizes and matrix learning rates regressed; cosine warmdown tests annealing curvature without changing the proven peak LR, endpoints, or total LR exposure.
+result: was valid but was not a strict improvement
+reported_values: {"depth": 8.0, "mfu_percent": 34.81, "num_params_M": 50.3, "num_steps": 2015.0, "peak_vram_mb": 44214.7, "total_tokens_M": 520.0, "training_seconds": 300.1, "val_bpb": 0.98803}
+
+RECENT RESULT
+hypothesis: Restoring `MATRIX_LR=0.040` and ending the proven linear warmdown at 5% of peak LR will retain roughly 520M tokens while lowering `val_bpb` below 0.985181.
+change: Restore the best Muon learning rate and add a modest 5% final LR floor, preserving the architecture, 258,048-token batch, and 60% linear warmdown.
+mechanism: Nonzero linear-decay learning-rate tail
+evidence_used: The `MATRIX_LR=0.040` design achieved the best `val_bpb` of 0.985181. Equal-area cosine warmdown regressed to 0.988030 while shifting LR exposure from the latter half of decay toward the earlier half, motivating a direct test of preserving more late-stage learning rate with the successful linear shape.
+result: improved the objective and became an available design
+reported_values: {"depth": 8.0, "mfu_percent": 34.78, "num_params_M": 50.3, "num_steps": 2014.0, "peak_vram_mb": 44214.8, "total_tokens_M": 519.7, "training_seconds": 300.1, "val_bpb": 0.98548}
+
+RECENT RESULT
+hypothesis: Extending linear warmdown from 60% to 63% will retain roughly 520M training tokens while lowering val_bpb below 0.985181.
+change: Start the proven zero-ending linear decay three percentage points earlier, reducing integrated LR exposure by 0.015 peak-LR-time while preserving all peak learning rates and optimizer settings.
+mechanism: Symmetric linear-schedule exposure reduction
+evidence_used: Adding a 5% LR floor increased exposure by the symmetric 0.015 and regressed val_bpb from 0.985181 to 0.985480; equal-area cosine also regressed, motivating a conservative exposure reduction that retains the successful linear shape and zero endpoint.
+result: was valid but was not a strict improvement
+reported_values: {"depth": 8.0, "mfu_percent": 34.74, "num_params_M": 50.3, "num_steps": 2011.0, "peak_vram_mb": 44214.7, "total_tokens_M": 518.9, "training_seconds": 300.1, "val_bpb": 0.985414}
+
+RECENT RESULT
+hypothesis: Using the proven 258,048-token batch with a 61.5% zero-ending linear warmdown will retain roughly 520M training tokens and lower `val_bpb` below 0.985181.
+change: Restore the best 126-sequence microbatch and move the linear decay start 1.5 percentage points earlier, halving the tested exposure reduction while preserving all peak learning rates and optimizer settings.
+mechanism: Half-step linear warmdown refinement
+evidence_used: The 60% warmdown achieved 0.985181, while the symmetric exposure changes from a 63% warmdown and a 5% LR floor regressed modestly to 0.985414 and 0.985480; testing the midpoint toward the less harmful 63% result provides the tightest remaining schedule refinement.
+result: was valid but was not a strict improvement
+reported_values: {"depth": 8.0, "mfu_percent": 34.78, "num_params_M": 50.3, "num_steps": 2013.0, "peak_vram_mb": 44214.7, "total_tokens_M": 519.5, "training_seconds": 300.0, "val_bpb": 0.985321}
+
+RECENT RESULT
+hypothesis: A 58.5% zero-ending linear warmdown with the proven 258,048-token batch will retain roughly 520M training tokens and lower `val_bpb` below 0.985181.
+change: Restore a zero final learning rate and move the linear-decay start 1.5 percentage points later, preserving all peak learning rates, optimizer settings, and architecture.
+mechanism: Symmetric later-start linear warmdown refinement
+evidence_used: The 60% zero-ending warmdown achieved the best `val_bpb` of 0.985181, while moving its start 1.5 points earlier regressed modestly to 0.985321; testing the symmetric later-start schedule directly resolves the untested higher-exposure side without the endpoint change that confounded the 5% LR-floor result.
+result: improved the objective and became an available design
+reported_values: {"depth": 8.0, "mfu_percent": 34.99, "num_params_M": 50.3, "num_steps": 2025.0, "peak_vram_mb": 44214.8, "total_tokens_M": 522.5, "training_seconds": 300.0, "val_bpb": 0.985148}
+
+RECENT RESULT
+hypothesis: A 57% zero-ending linear warmdown with the proven 258,048-token batch will retain roughly 520M training tokens and lower `val_bpb` below 0.985148.
+change: Restore the best 126-sequence microbatch and move linear-decay onset 1.5 percentage points later than the best 58.5% schedule, preserving all other hyperparameters.
+mechanism: Later-start zero-ending linear warmdown continuation
+evidence_used: At 258,048 tokens per step, progressively shortening warmdown from 63% to 61.5%, 60%, and 58.5% improved `val_bpb` from 0.985414 to 0.985321, 0.985181, and 0.985148; 57% is the next symmetric continuation and tests whether that trend persists.
+result: the implementation could not be verified
+
+RECENT RESULT
+mechanism: [missing mechanism]
+evidence_used: [missing evidence]
+result: no usable edit was produced
+
+RECENT RESULT
+hypothesis: A 57% zero-ending linear warmdown with the proven 258,048-token batch will retain roughly 520M training tokens and lower `val_bpb` below 0.985148.
+change: Move linear-decay onset 1.5 percentage points later than the best verified 58.5% schedule while preserving all other hyperparameters.
+mechanism: Later-start zero-ending linear warmdown continuation
+evidence_used: Shortening warmdown from 63% through 61.5%, 60%, and 58.5% progressively improved `val_bpb` from 0.985414 to 0.985321, 0.985181, and 0.985148; the prior 57% attempt was not verified, so this continuation remains unresolved.
+result: was valid but was not a strict improvement
+reported_values: {"depth": 8.0, "mfu_percent": 34.96, "num_params_M": 50.3, "num_steps": 2024.0, "peak_vram_mb": 44214.4, "total_tokens_M": 522.3, "training_seconds": 300.1, "val_bpb": 0.985198}
+
+RECENT RESULT
+hypothesis: A 58.65% zero-ending linear warmdown with the proven 258,048-token batch will retain roughly 522M training tokens and lower `val_bpb` below 0.985148.
+change: Restore the best 126-sequence microbatch and set warmdown to 58.65%, preserving all other architecture and optimizer settings.
+mechanism: Parabolic warmdown-onset interpolation
+evidence_used: At identical batch size, 57%, 58.5%, and 60% warmdowns produced `val_bpb` 0.985198, 0.985148, and 0.985181; parabolic interpolation places the estimated minimum near 58.65%.
+result: was valid but was not a strict improvement
+reported_values: {"depth": 8.0, "mfu_percent": 34.45, "num_params_M": 50.3, "num_steps": 1994.0, "peak_vram_mb": 44214.8, "total_tokens_M": 514.5, "training_seconds": 300.0, "val_bpb": 0.986418}
+
+RECENT RESULT
+hypothesis: A 262,144-token optimizer batch with the best 58.5% zero-ending linear warmdown will retain roughly 520M training tokens and lower `val_bpb` below 0.985148.
+change: Increase the single-step microbatch from 120 to 128 sequences and adopt the best verified 58.5% warmdown, preserving the architecture and optimizer learning rates.
+mechanism: Power-of-two microbatch scaling with reduced gradient noise
+evidence_used: Increasing the batch from 245,760 to 253,952 and then 258,048 tokens improved `val_bpb` from 0.985506 to 0.985215 and 0.985181; combining the next power-of-two microbatch with the best verified 58.5% schedule tests whether that trend continues.
+result: improved the objective and became an available design
+reported_values: {"depth": 8.0, "mfu_percent": 35.16, "num_params_M": 50.3, "num_steps": 2004.0, "peak_vram_mb": 44908.2, "total_tokens_M": 525.3, "training_seconds": 300.1, "val_bpb": 0.985354}
+
+
+
+Use the available technical evidence to choose the most informative next
+change. Treat unsuccessful or malformed work as evidence when a useful
+subject-level reason is provided. Do not invent missing evidence.
+
+## Response
+
+Return these short metadata lines followed by one or more exact
+`SEARCH`/`REPLACE` blocks that together produce one implementation:
+
+`MECHANISM: <a concise free-form name for the computational idea>`
+
+`HYPOTHESIS: <a falsifiable claim grounded in the evidence above>`
+
+`INTENDED_EDIT: <what this patch changes>`
+
+`EVIDENCE: <the most relevant prior result and why it motivates this patch>`
+
+Start each block with `<<<<<<< SEARCH`, put the exact existing lines next, use a
+line containing `=======` as the divider, put the replacement lines after it,
+and finish the block with `>>>>>>> REPLACE`.
+
+Every `SEARCH` section must be nonempty and match exactly once after earlier
+blocks have been applied. All blocks must apply. Together they must describe
+one implementation ready for verification. The mechanism name is descriptive,
+not chosen from a fixed list. Do not paste whole files, lengthy logs, or routine
+progress reports outside the patch.

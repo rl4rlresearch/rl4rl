@@ -1,0 +1,79 @@
+{
+  "artifact_path": "candidates/e1563f434085015b6871f999ce8d3ce4847f9c65b51ea7aa30d5b33b5503ac9a",
+  "candidate_id": "e1563f434085015b6871f999ce8d3ce4847f9c65b51ea7aa30d5b33b5503ac9a",
+  "codex_service_tier": "default",
+  "condition": "C0",
+  "conversation_session_id": null,
+  "evaluation": {
+    "evaluator_calls": 1,
+    "evaluator_seconds": 624.3853364579845,
+    "failure_kind": "nonqualification",
+    "fitness": null,
+    "metrics": {
+      "accuracy": 0.6819,
+      "cases": 10010,
+      "correct": 6826,
+      "parameters": 1598,
+      "training_steps": 4999
+    },
+    "valid": false
+  },
+  "evaluator_calls_cumulative": 56,
+  "evaluator_calls_increment": 1,
+  "evaluator_seconds_cumulative": 27414.223967829836,
+  "evaluator_seconds_increment": 624.3853364579845,
+  "event": "proposal_completed",
+  "evicted_candidate_id": null,
+  "evidence": "Removing `fc1.bias[8]` reduced accuracy to 77.57%, showing that bias should remain learned; the 1599-parameter design reached 99.91%, motivating removal of an exact incoming-weight redundancy from that same unit instead.",
+  "hypothesis": "Fixing `fc1.weight[8,0]` at zero will reduce the model from 1599 to 1598 parameters while retaining at least 99% accuracy, because LayerNorm\u2019s normalized coordinates sum to zero and the still-learned hidden-unit-8 bias preserves the corresponding affine function class.",
+  "incumbent_after": "99b4cec439f1d5dc731d4625110a6da8b805566957e27cfeb9c30cb510c6fae3",
+  "intended_edit": "Replace the full `fc1` weight with 95 learned coordinates, reconstruct `weight[8,0]` as zero, and gauge-transform its ordinary initialization without changing the initial model function.",
+  "mechanism": "Zero-mean LayerNorm incoming-weight gauge anchoring",
+  "opportunity": 56,
+  "parent_ids": [
+    "99b4cec439f1d5dc731d4625110a6da8b805566957e27cfeb9c30cb510c6fae3"
+  ],
+  "portfolio_after": [
+    "99b4cec439f1d5dc731d4625110a6da8b805566957e27cfeb9c30cb510c6fae3"
+  ],
+  "prompt_hashes": {
+    "common_template_sha256": "3f2bea6418b6969c4bf2aa1df18dcda8a3a4ac075bf20c79068c754698b6be5e",
+    "prompt_sha256": "4ea81425df924afeac97691fcc053f99d82b4d712fcefce872cf840c8e8f239c",
+    "proposal_policy_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "search_state_sha256": "04e5eb078ae1964e4ec65bfeeeb1acd0ffa246e7d54d5e0f997f81f602da28c5",
+    "treatment_skeleton_sha256": "0ad6ad8f00d369decc897a274c1264d035300e5c4123771d41a4a8cfe539292d"
+  },
+  "proposal_type": "ordinary",
+  "proposals_cumulative": 56,
+  "remaining_budget": {
+    "evaluations": 144,
+    "evaluator_seconds": 332585.77603217016,
+    "proposals": 144,
+    "tokens": 98640298
+  },
+  "retained": false,
+  "retention_decision": "invalid",
+  "run_id": "controlled-openevolve-transformer-v2-1-source-only-ten-digit-addition-pair-transformer-openevolve-v2-1-mps-openevolve-b04-c0",
+  "schema_version": "1.0",
+  "selected_parent_ids": [
+    "99b4cec439f1d5dc731d4625110a6da8b805566957e27cfeb9c30cb510c6fae3"
+  ],
+  "timestamp": "2026-08-25T04:39:52.202195+00:00",
+  "usage_cumulative": {
+    "cached_input_tokens": 590336,
+    "input_tokens": 1228274,
+    "output_tokens": 131428,
+    "reasoning_output_tokens": 96423,
+    "total_tokens": 1359702
+  },
+  "usage_increment": {
+    "cached_input_tokens": 12032,
+    "input_tokens": 22960,
+    "output_tokens": 5102,
+    "reasoning_output_tokens": 4321,
+    "total_tokens": 28062
+  },
+  "visible_candidate_ids": [
+    "99b4cec439f1d5dc731d4625110a6da8b805566957e27cfeb9c30cb510c6fae3"
+  ]
+}

@@ -1,0 +1,85 @@
+{
+  "artifact_path": "candidates/c84faa732819d98b9ddd5d0fd36d106b3d726876bb0d15e502f7405a1e302a24",
+  "candidate_id": "c84faa732819d98b9ddd5d0fd36d106b3d726876bb0d15e502f7405a1e302a24",
+  "codex_service_tier": "fast",
+  "condition": "C3",
+  "conversation_session_id": null,
+  "evaluation": {
+    "evaluator_calls": 1,
+    "evaluator_seconds": 249.95030612498522,
+    "failure_kind": null,
+    "fitness": -1551.0,
+    "metrics": {
+      "accuracy": 0.9994,
+      "cases": 10010,
+      "correct": 10004,
+      "parameters": 1551,
+      "training_steps": 4999
+    },
+    "valid": true
+  },
+  "evaluator_calls_cumulative": 8,
+  "evaluator_calls_increment": 1,
+  "evaluator_seconds_cumulative": 1908.0128982500173,
+  "evaluator_seconds_increment": 249.95030612498522,
+  "event": "proposal_completed",
+  "evicted_candidate_id": "db9b3f660e3520715480aa177e81d1c78e964a213309f9e03599519edb1eecd4",
+  "evidence": "The 1,573-parameter design reached 99.93% accuracy. Removing entire residual-output biases failed at 75.38%, so this patch preserves their identifiable mean-zero components and removes only the scalar residual directions that downstream LayerNorms eliminate exactly.",
+  "hypothesis": "Constraining both residual-branch output projections to the seven-dimensional mean-zero subspace will reduce the verified 1,573-parameter design to 1,551 parameters while retaining at least 99% accuracy, because every discarded all-ones output component is invisible to subsequent affine-free pre-norms and the final LayerNorm.",
+  "incumbent_after": "c84faa732819d98b9ddd5d0fd36d106b3d726876bb0d15e502f7405a1e302a24",
+  "intended_edit": "Reproduce the verified mean-zero positional, query-only attention, affine-free block-norm design, then parameterize the attention and MLP residual outputs in the mean-zero subspace while retaining their seven identifiable bias dimensions.",
+  "mechanism": "Mean-zero residual-update codomains",
+  "opportunity": 8,
+  "parent_ids": [
+    "db9b3f660e3520715480aa177e81d1c78e964a213309f9e03599519edb1eecd4"
+  ],
+  "portfolio_after": [
+    "2b9cea175ed60b009337ac54f6e8ad23bf2c014eb4080237777bfb70bfd9fd5b",
+    "c84faa732819d98b9ddd5d0fd36d106b3d726876bb0d15e502f7405a1e302a24",
+    "74b50d836619a8b8d9342b5b0f6481d2553f99a6db64ee813f390f65564074da",
+    "612141e9f8dc70435f06cfd2738fce94f10aa50f3b04a0c02a313003d1af34fb"
+  ],
+  "prompt_hashes": {
+    "common_template_sha256": "3f2bea6418b6969c4bf2aa1df18dcda8a3a4ac075bf20c79068c754698b6be5e",
+    "prompt_sha256": "0ffec26b3170db8f83aa3f4da71b2917b331f89f7c41b3a1c91753bcabde146d",
+    "proposal_policy_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "search_state_sha256": "c938ac007bf70fe8d27f64661175531e51fcb16b38318c328493c32ee292e27e",
+    "treatment_skeleton_sha256": "79a7c19d234c7843a46e96e84cdc8e36ec29c07dad3caa9e8c9a8036ff74e2fb"
+  },
+  "proposal_type": "ordinary",
+  "proposals_cumulative": 8,
+  "remaining_budget": {
+    "evaluations": 192,
+    "evaluator_seconds": 358091.98710175,
+    "proposals": 192,
+    "tokens": 99772548
+  },
+  "retained": true,
+  "retention_decision": "replaced_selected_parent_on_strict_improvement",
+  "run_id": "controlled-openevolve-transformer-v2-1-source-only-ten-digit-addition-pair-transformer-openevolve-v2-1-mps-openevolve-b01-c3",
+  "schema_version": "1.0",
+  "selected_parent_ids": [
+    "db9b3f660e3520715480aa177e81d1c78e964a213309f9e03599519edb1eecd4"
+  ],
+  "timestamp": "2026-08-23T12:16:27.949148+00:00",
+  "usage_cumulative": {
+    "cached_input_tokens": 91136,
+    "input_tokens": 203320,
+    "output_tokens": 24132,
+    "reasoning_output_tokens": 20468,
+    "total_tokens": 227452
+  },
+  "usage_increment": {
+    "cached_input_tokens": 12032,
+    "input_tokens": 32380,
+    "output_tokens": 4385,
+    "reasoning_output_tokens": 3367,
+    "total_tokens": 36765
+  },
+  "visible_candidate_ids": [
+    "2b9cea175ed60b009337ac54f6e8ad23bf2c014eb4080237777bfb70bfd9fd5b",
+    "db9b3f660e3520715480aa177e81d1c78e964a213309f9e03599519edb1eecd4",
+    "74b50d836619a8b8d9342b5b0f6481d2553f99a6db64ee813f390f65564074da",
+    "612141e9f8dc70435f06cfd2738fce94f10aa50f3b04a0c02a313003d1af34fb"
+  ]
+}

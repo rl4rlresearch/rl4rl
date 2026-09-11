@@ -1,0 +1,99 @@
+{
+  "artifact_path": "candidates/adb66a786d58f6e339eef5120f1734f04c9f6194c140973ca62c9b389cc62287",
+  "candidate_id": "adb66a786d58f6e339eef5120f1734f04c9f6194c140973ca62c9b389cc62287",
+  "codex_service_tier": "default",
+  "condition": "C0",
+  "conversation_session_id": null,
+  "evaluation": {
+    "evaluator_calls": 1,
+    "evaluator_seconds": 108.32730237510987,
+    "failure_kind": null,
+    "fitness": -5105613970683691569,
+    "metrics": {
+      "batch_size": 128,
+      "evaluation_cases": 815,
+      "evaluation_split": "public_speaker_disjoint_validation",
+      "examples_processed": 50000,
+      "inference_cost": 5105613970683691569,
+      "maximum_recurrent_steps": 31,
+      "mean_recurrent_steps": 31.0,
+      "median_recurrent_steps": 31,
+      "optimizer_steps": 397,
+      "p95_recurrent_steps": 31,
+      "parameters": 41024,
+      "peak_hidden_elements": 107008,
+      "recurrent_logit_effect": 0.04592519626021385,
+      "recurrent_macs": 977452320,
+      "recurrent_steps": 25265,
+      "state_dependence_effect": 0.39760005474090576,
+      "state_update_effect": 0.39785024523735046,
+      "total_inference_macs": 978808480,
+      "trained_recurrent_logit_effect": 0.507433295249939,
+      "trained_state_dependence_effect": 0.44441819190979004,
+      "trained_state_update_effect": 0.4401572644710541,
+      "training_seconds": 87.27757845888846,
+      "validation_accuracy": 0.8773006134969326,
+      "validation_correct": 715,
+      "validation_cross_entropy": 0.3932182546042226
+    },
+    "valid": true
+  },
+  "evaluator_calls_cumulative": 6,
+  "evaluator_calls_increment": 1,
+  "evaluator_seconds_cumulative": 731.9612666661851,
+  "evaluator_seconds_increment": 108.32730237510987,
+  "event": "proposal_completed",
+  "evicted_candidate_id": "db2f849208a57d6a78ee45f537134f2c8b3537dfa286106cbf1dd59a1c007368",
+  "evidence": "The 31-frame model reached 84.66% with lower cross-entropy than the qualifying 32-frame model, so a richer low-cost readout is a targeted way to recover the small accuracy gap without restoring the omitted recurrent step.",
+  "hypothesis": "Concatenating the final GRU state with the temporal mean will recover the 0.34-point accuracy deficit of the 31-frame model and reach at least 85%, while retaining nearly all of its 3.125% recurrent-MAC reduction.",
+  "incumbent_after": "adb66a786d58f6e339eef5120f1734f04c9f6194c140973ca62c9b389cc62287",
+  "intended_edit": "Process frames 1\u201331 and classify from a learned combination of the 104-dimensional temporal mean and final recurrent state.",
+  "mechanism": "Dual temporal-mean and final-state readout",
+  "opportunity": 6,
+  "parent_ids": [
+    "db2f849208a57d6a78ee45f537134f2c8b3537dfa286106cbf1dd59a1c007368"
+  ],
+  "portfolio_after": [
+    "adb66a786d58f6e339eef5120f1734f04c9f6194c140973ca62c9b389cc62287"
+  ],
+  "prompt_hashes": {
+    "common_template_sha256": "dee04faf4c430276c1036ba97f5705a339857dbdf19117dac88952a5a3a47e9d",
+    "prompt_sha256": "587d1278fc346881340847c96fbe8e85a65b15ebb960892d9fd17f8f0c94fc2e",
+    "proposal_policy_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "search_state_sha256": "04e5eb078ae1964e4ec65bfeeeb1acd0ffa246e7d54d5e0f997f81f602da28c5",
+    "treatment_skeleton_sha256": "3776e10861979a1de680754046db427ee05665fcf39e1dc9f11ef0b63377917b"
+  },
+  "proposal_type": "ordinary",
+  "proposals_cumulative": 6,
+  "remaining_budget": {
+    "evaluations": 194,
+    "evaluator_seconds": 59268.038733333815,
+    "proposals": 194,
+    "tokens": 99884973
+  },
+  "retained": true,
+  "retention_decision": "strict_incumbent_improvement",
+  "run_id": "tiny-kws-rnn-openevolve-v2-1-cpu-tiny_kws_rnn_source_only_cpu-openevolve-b04-c0",
+  "schema_version": "1.0",
+  "selected_parent_ids": [
+    "db2f849208a57d6a78ee45f537134f2c8b3537dfa286106cbf1dd59a1c007368"
+  ],
+  "timestamp": "2026-09-04T02:44:28.149820+00:00",
+  "usage_cumulative": {
+    "cached_input_tokens": 64512,
+    "input_tokens": 101796,
+    "output_tokens": 13231,
+    "reasoning_output_tokens": 11327,
+    "total_tokens": 115027
+  },
+  "usage_increment": {
+    "cached_input_tokens": 10752,
+    "input_tokens": 17661,
+    "output_tokens": 1979,
+    "reasoning_output_tokens": 1660,
+    "total_tokens": 19640
+  },
+  "visible_candidate_ids": [
+    "db2f849208a57d6a78ee45f537134f2c8b3537dfa286106cbf1dd59a1c007368"
+  ]
+}

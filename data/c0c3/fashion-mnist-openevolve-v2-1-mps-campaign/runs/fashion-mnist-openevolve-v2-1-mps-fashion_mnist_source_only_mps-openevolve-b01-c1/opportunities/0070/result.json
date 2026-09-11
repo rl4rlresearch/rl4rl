@@ -1,0 +1,85 @@
+{
+  "artifact_path": "candidates/6cf043a95e1f6b301d7b2a3bf0ecc653f3fe0ffb0a96be915f65ded75c13b5e5",
+  "candidate_id": "6cf043a95e1f6b301d7b2a3bf0ecc653f3fe0ffb0a96be915f65ded75c13b5e5",
+  "codex_service_tier": "default",
+  "condition": "C1",
+  "conversation_session_id": null,
+  "evaluation": {
+    "evaluator_calls": 1,
+    "evaluator_seconds": 84.6921595830936,
+    "failure_kind": null,
+    "fitness": 9191.40928497898,
+    "metrics": {
+      "batch_size": 128,
+      "evaluation_cases": 10000,
+      "evaluation_split": "public_validation",
+      "examples_processed": 100000,
+      "optimizer_steps": 782,
+      "parameters": 239918,
+      "training_seconds": 70.56849791691639,
+      "validation_accuracy": 0.9191,
+      "validation_correct": 9191,
+      "validation_cross_entropy": 0.22164268341064453,
+      "validation_score": 9191.40928497898
+    },
+    "valid": true
+  },
+  "evaluator_calls_cumulative": 70,
+  "evaluator_calls_increment": 1,
+  "evaluator_seconds_cumulative": 4117.00347549608,
+  "evaluator_seconds_increment": 84.6921595830936,
+  "event": "proposal_completed",
+  "evicted_candidate_id": null,
+  "evidence": "The localized raw-image shortcut reached only 9,224 correct and added post-pooling residual refinement reached 9,204, indicating that neither restoring low-level evidence late nor further processing already-pooled features repairs the representation. This challenges the shared assumption that fixed max-pooling should discard spatial phase early and instead learns the downsampling computation before information is lost.",
+  "hypothesis": "Replacing both max-pooling operations with space-to-depth rearrangement and learned channel mixing will exceed 9,247 correct predictions by retaining fine spatial phase information before hierarchical feature extraction.",
+  "incumbent_after": "291d75e5fb325014b9772e32d82e061a0ebd378bf3c6eb1882b194b3e5746e66",
+  "intended_edit": "Replace the 16/32-channel max-pooling stem with a 20/40-channel stem whose lossless pixel-unshuffle stages learn how to combine each 2\u00d72 neighborhood; the resulting 32\u00d77\u00d77 representation preserves the proven residual decoder and training objective at 239,918 parameters.",
+  "mechanism": "Learned phase-preserving space-to-depth stem",
+  "opportunity": 70,
+  "parent_ids": [
+    "291d75e5fb325014b9772e32d82e061a0ebd378bf3c6eb1882b194b3e5746e66"
+  ],
+  "portfolio_after": [
+    "291d75e5fb325014b9772e32d82e061a0ebd378bf3c6eb1882b194b3e5746e66"
+  ],
+  "prompt_hashes": {
+    "common_template_sha256": "e8327ba94bab12abc7c7ec7c6615378a3ae62434efb944d4a7d9492f1d19bc14",
+    "prompt_sha256": "2d71e077579633aee4aaaa06ac0c887e6dba6a47e489e01d3d932a443ecc2fa4",
+    "proposal_policy_sha256": "ce1e11aa597bbfab85bb87bc9a6089bf0c32df89ea8da0d0be408234b8f6347d",
+    "search_state_sha256": "04e5eb078ae1964e4ec65bfeeeb1acd0ffa246e7d54d5e0f997f81f602da28c5",
+    "treatment_skeleton_sha256": "2c0144edc18e705464c644d30174248239aee4877cf44b2521d65deecfe48755"
+  },
+  "proposal_type": "assumption_changing",
+  "proposals_cumulative": 70,
+  "remaining_budget": {
+    "evaluations": 130,
+    "evaluator_seconds": 19882.99652450392,
+    "proposals": 130,
+    "tokens": 98506738
+  },
+  "retained": false,
+  "retention_decision": "not_strictly_better_than_incumbent",
+  "run_id": "fashion-mnist-openevolve-v2-1-mps-fashion_mnist_source_only_mps-openevolve-b01-c1",
+  "schema_version": "1.0",
+  "selected_parent_ids": [
+    "291d75e5fb325014b9772e32d82e061a0ebd378bf3c6eb1882b194b3e5746e66"
+  ],
+  "timestamp": "2026-08-24T09:57:55.823339+00:00",
+  "usage_cumulative": {
+    "cached_input_tokens": 729344,
+    "input_tokens": 1310784,
+    "output_tokens": 182478,
+    "reasoning_output_tokens": 148598,
+    "total_tokens": 1493262
+  },
+  "usage_increment": {
+    "cached_input_tokens": 0,
+    "input_tokens": 19519,
+    "output_tokens": 2551,
+    "reasoning_output_tokens": 2070,
+    "total_tokens": 22070
+  },
+  "visible_candidate_ids": [
+    "291d75e5fb325014b9772e32d82e061a0ebd378bf3c6eb1882b194b3e5746e66"
+  ]
+}

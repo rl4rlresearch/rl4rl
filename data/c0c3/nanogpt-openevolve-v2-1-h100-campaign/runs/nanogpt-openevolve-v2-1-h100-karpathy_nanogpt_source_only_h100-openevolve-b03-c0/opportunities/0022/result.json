@@ -1,0 +1,82 @@
+{
+  "artifact_path": "candidates/315e918120816d264e199ccb8dce30630cb8be5909318eafce278cee2ff1c0bd",
+  "candidate_id": "315e918120816d264e199ccb8dce30630cb8be5909318eafce278cee2ff1c0bd",
+  "codex_service_tier": "fast",
+  "condition": "C0",
+  "conversation_session_id": null,
+  "evaluation": {
+    "evaluator_calls": 1,
+    "evaluator_seconds": 485.11337211200043,
+    "failure_kind": null,
+    "fitness": -0.992986,
+    "metrics": {
+      "depth": 8.0,
+      "mfu_percent": 38.07,
+      "num_params_M": 50.3,
+      "num_steps": 2415.0,
+      "peak_vram_mb": 33911.0,
+      "total_tokens_M": 474.8,
+      "training_seconds": 300.1,
+      "val_bpb": 0.992986
+    },
+    "valid": true
+  },
+  "evaluator_calls_cumulative": 22,
+  "evaluator_calls_increment": 1,
+  "evaluator_seconds_cumulative": 14123.553571819923,
+  "evaluator_seconds_increment": 485.11337211200043,
+  "event": "proposal_completed",
+  "evicted_candidate_id": null,
+  "evidence": "Halving KV heads improved throughput but regressed `val_bpb` from `0.985780` to `0.992933`, showing attention-head structure materially affects quality; this tests the opposite direction without reducing total KV dimension or model capacity.",
+  "hypothesis": "Doubling full-capacity query/KV heads from 4 to 8 while preserving the 512-dimensional residual stream and parameter count will achieve `val_bpb < 0.985780` without materially reducing throughput.",
+  "incumbent_after": "caa9409e440a597e1bb32de15dcef5f3d97a660f4f050a1238bd3885d5e6c27d",
+  "intended_edit": "Reduce `HEAD_DIM` from 128 to 64, yielding eight full KV attention heads instead of four while leaving depth, model width, batching, optimizer, schedule, and softcap unchanged.",
+  "mechanism": "Finer-grained multi-head attention",
+  "opportunity": 22,
+  "parent_ids": [
+    "caa9409e440a597e1bb32de15dcef5f3d97a660f4f050a1238bd3885d5e6c27d"
+  ],
+  "portfolio_after": [
+    "caa9409e440a597e1bb32de15dcef5f3d97a660f4f050a1238bd3885d5e6c27d"
+  ],
+  "prompt_hashes": {
+    "common_template_sha256": "ba85b39aa7288f4f48475376da6cff65661f39cfeb7ac7cde15b2a9a2e692fde",
+    "prompt_sha256": "aae0ee3ad493c27bb3b44bde0671cec429f404f127f3889747f92f7e065790e7",
+    "proposal_policy_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "search_state_sha256": "04e5eb078ae1964e4ec65bfeeeb1acd0ffa246e7d54d5e0f997f81f602da28c5",
+    "treatment_skeleton_sha256": "a1b1374e6606035287d1ba1d144fc82f198d207caad3943c300ad2f6454ff940"
+  },
+  "proposal_type": "ordinary",
+  "proposals_cumulative": 22,
+  "remaining_budget": {
+    "evaluations": 178,
+    "evaluator_seconds": 705876.4464281801,
+    "proposals": 178,
+    "tokens": 99424631
+  },
+  "retained": false,
+  "retention_decision": "not_strictly_better_than_incumbent",
+  "run_id": "nanogpt-openevolve-v2-1-h100-karpathy_nanogpt_source_only_h100-openevolve-b03-c0",
+  "schema_version": "1.0",
+  "selected_parent_ids": [
+    "caa9409e440a597e1bb32de15dcef5f3d97a660f4f050a1238bd3885d5e6c27d"
+  ],
+  "timestamp": "2026-08-24T01:11:43.254236+00:00",
+  "usage_cumulative": {
+    "cached_input_tokens": 247552,
+    "input_tokens": 525006,
+    "output_tokens": 50363,
+    "reasoning_output_tokens": 45552,
+    "total_tokens": 575369
+  },
+  "usage_increment": {
+    "cached_input_tokens": 12032,
+    "input_tokens": 24702,
+    "output_tokens": 2785,
+    "reasoning_output_tokens": 2588,
+    "total_tokens": 27487
+  },
+  "visible_candidate_ids": [
+    "caa9409e440a597e1bb32de15dcef5f3d97a660f4f050a1238bd3885d5e6c27d"
+  ]
+}

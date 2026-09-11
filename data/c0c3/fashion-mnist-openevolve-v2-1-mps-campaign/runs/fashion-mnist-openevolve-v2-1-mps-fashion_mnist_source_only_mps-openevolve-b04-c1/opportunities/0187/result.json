@@ -1,0 +1,85 @@
+{
+  "artifact_path": "candidates/9e81ff443b8eaa6b1dd00e1fe4af2027d63c5416eb68ecd371c1d3a59ec710b0",
+  "candidate_id": "9e81ff443b8eaa6b1dd00e1fe4af2027d63c5416eb68ecd371c1d3a59ec710b0",
+  "codex_service_tier": "default",
+  "condition": "C1",
+  "conversation_session_id": null,
+  "evaluation": {
+    "evaluator_calls": 1,
+    "evaluator_seconds": 69.59093483304605,
+    "failure_kind": null,
+    "fitness": 9326.418847150719,
+    "metrics": {
+      "batch_size": 64,
+      "evaluation_cases": 10000,
+      "evaluation_split": "public_validation",
+      "examples_processed": 100000,
+      "optimizer_steps": 1564,
+      "parameters": 224442,
+      "training_seconds": 64.12241741688922,
+      "validation_accuracy": 0.9326,
+      "validation_correct": 9326,
+      "validation_cross_entropy": 0.19375289802551268,
+      "validation_score": 9326.418847150719
+    },
+    "valid": true
+  },
+  "evaluator_calls_cumulative": 175,
+  "evaluator_calls_increment": 1,
+  "evaluator_seconds_cumulative": 13872.906222162535,
+  "evaluator_seconds_increment": 69.59093483304605,
+  "event": "proposal_completed",
+  "evicted_candidate_id": null,
+  "evidence": "EMA-averaging BatchNorm buffers fell to 9,327 and using final BatchNorm affine parameters fell to 9,328, while classifier-specific faster EMA reached 9,330; this motivates a smaller, isolated acceleration of upstream convolution weights.",
+  "hypothesis": "Raising only convolutional-backbone EMA rates from 0.02 to 0.025 will exceed 9,330 correct predictions by better aligning feature kernels with final BatchNorm statistics without disturbing the proven classifier or normalization averaging.",
+  "incumbent_after": "cebab4c4aaa6e08136f894b855cf72a9f2f385bc5250eef5856067c31df85ab8",
+  "intended_edit": "Use EMA rate 0.025 for the four spatial convolution weights, retain 0.04 for classifier parameters, and retain 0.02 for view fusion and BatchNorm affine parameters.",
+  "mechanism": "Faster convolution-only EMA alignment",
+  "opportunity": 187,
+  "parent_ids": [
+    "cebab4c4aaa6e08136f894b855cf72a9f2f385bc5250eef5856067c31df85ab8"
+  ],
+  "portfolio_after": [
+    "cebab4c4aaa6e08136f894b855cf72a9f2f385bc5250eef5856067c31df85ab8"
+  ],
+  "prompt_hashes": {
+    "common_template_sha256": "e8327ba94bab12abc7c7ec7c6615378a3ae62434efb944d4a7d9492f1d19bc14",
+    "prompt_sha256": "539801c8dd58a54773b15274dc94d67513be06f53a1ac1d4f42707cec92350f0",
+    "proposal_policy_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "search_state_sha256": "04e5eb078ae1964e4ec65bfeeeb1acd0ffa246e7d54d5e0f997f81f602da28c5",
+    "treatment_skeleton_sha256": "33034d517dab9be83bdecec8ee0143becff6dd8cc13803cba5d411ca5846c0a4"
+  },
+  "proposal_type": "ordinary",
+  "proposals_cumulative": 187,
+  "remaining_budget": {
+    "evaluations": 25,
+    "evaluator_seconds": 10127.093777837465,
+    "proposals": 13,
+    "tokens": 95939785
+  },
+  "retained": false,
+  "retention_decision": "not_strictly_better_than_incumbent",
+  "run_id": "fashion-mnist-openevolve-v2-1-mps-fashion_mnist_source_only_mps-openevolve-b04-c1",
+  "schema_version": "1.0",
+  "selected_parent_ids": [
+    "cebab4c4aaa6e08136f894b855cf72a9f2f385bc5250eef5856067c31df85ab8"
+  ],
+  "timestamp": "2026-08-25T09:12:04.247320+00:00",
+  "usage_cumulative": {
+    "cached_input_tokens": 2011648,
+    "input_tokens": 3447483,
+    "output_tokens": 612732,
+    "reasoning_output_tokens": 547989,
+    "total_tokens": 4060215
+  },
+  "usage_increment": {
+    "cached_input_tokens": 12032,
+    "input_tokens": 18893,
+    "output_tokens": 2344,
+    "reasoning_output_tokens": 2070,
+    "total_tokens": 21237
+  },
+  "visible_candidate_ids": [
+    "cebab4c4aaa6e08136f894b855cf72a9f2f385bc5250eef5856067c31df85ab8"
+  ]
+}

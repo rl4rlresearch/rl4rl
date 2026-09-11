@@ -1,0 +1,105 @@
+{
+  "artifact_path": "candidates/3cfb2c998ff3dd5148bbf7e8a829c6bec765451ee3d9a921de4a6a0418b2f14f",
+  "candidate_id": "3cfb2c998ff3dd5148bbf7e8a829c6bec765451ee3d9a921de4a6a0418b2f14f",
+  "codex_service_tier": "default",
+  "condition": "C2",
+  "conversation_session_id": null,
+  "evaluation": {
+    "evaluator_calls": 1,
+    "evaluator_seconds": 100.6300378749147,
+    "failure_kind": null,
+    "fitness": -3273056198122705328,
+    "metrics": {
+      "batch_size": 128,
+      "evaluation_cases": 815,
+      "evaluation_split": "public_speaker_disjoint_validation",
+      "examples_processed": 50000,
+      "inference_cost": 3273056198122705328,
+      "maximum_recurrent_steps": 32,
+      "mean_recurrent_steps": 32.0,
+      "median_recurrent_steps": 32,
+      "optimizer_steps": 397,
+      "p95_recurrent_steps": 32,
+      "parameters": 26448,
+      "peak_hidden_elements": 123392,
+      "recurrent_logit_effect": 0.07738686352968216,
+      "recurrent_macs": 625920000,
+      "recurrent_steps": 26080,
+      "state_dependence_effect": 0.31313642859458923,
+      "state_update_effect": 0.31815627217292786,
+      "total_inference_macs": 627484800,
+      "trained_recurrent_logit_effect": 0.4555581510066986,
+      "trained_state_dependence_effect": 0.34467804431915283,
+      "trained_state_update_effect": 0.3350405693054199,
+      "training_seconds": 77.72414637496695,
+      "validation_accuracy": 0.8687116564417178,
+      "validation_correct": 708,
+      "validation_cross_entropy": 0.4091419711434768
+    },
+    "valid": true
+  },
+  "evaluator_calls_cumulative": 12,
+  "evaluator_calls_increment": 1,
+  "evaluator_seconds_cumulative": 1346.9465760851745,
+  "evaluator_seconds_increment": 100.6300378749147,
+  "event": "proposal_completed",
+  "evicted_candidate_id": "326026cf912167cf391e14bb1ca2c15e646ea74239eb3af64219ff69cdff3152",
+  "evidence": "The 81-unit mean/final model achieved 85.64%, whereas the otherwise equivalent 80-unit model achieved 84.29%; adding a matrix-free temporal maximum supplies complementary transient-feature information at only 640 additional classifier MACs per example, while the width reduction saves substantially more recurrent compute.",
+  "hypothesis": "An 80-unit full-resolution GRU classifying concatenated mean, final, and temporal-maximum recurrent outputs will recover at least 0.71 accuracy points over the failed 80-unit dual-readout model, reaching at least 85% while using approximately 2.1% fewer total inference MACs than the qualified 81-unit design.",
+  "incumbent_after": "3cfb2c998ff3dd5148bbf7e8a829c6bec765451ee3d9a921de4a6a0418b2f14f",
+  "intended_edit": "Reduce the GRU width from 81 to 80 and add an online elementwise maximum summary to the recurrent state and classifier, preserving all 32 causal steps and the established training procedure.",
+  "mechanism": "Max-pooled temporal readout with boundary-width GRU",
+  "opportunity": 12,
+  "parent_ids": [
+    "326026cf912167cf391e14bb1ca2c15e646ea74239eb3af64219ff69cdff3152"
+  ],
+  "portfolio_after": [
+    "016d906da09d1fe9115b3d48dd009dea2faccbbb35792057b39773f1cdb8582b",
+    "3cfb2c998ff3dd5148bbf7e8a829c6bec765451ee3d9a921de4a6a0418b2f14f",
+    "9ab7e4de4cb9e1bd179706e610ef1b06131bce553b768d8db450e0bd41be0396",
+    "e6df34865b14db44a339cf247b99c5e19b7a543382b43177c855323e7647059f"
+  ],
+  "prompt_hashes": {
+    "common_template_sha256": "dee04faf4c430276c1036ba97f5705a339857dbdf19117dac88952a5a3a47e9d",
+    "prompt_sha256": "447becc2c152937a5aa9d14b2a26bb55aabe76c0fbd6e4785c17bd10d87b70da",
+    "proposal_policy_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "search_state_sha256": "c938ac007bf70fe8d27f64661175531e51fcb16b38318c328493c32ee292e27e",
+    "treatment_skeleton_sha256": "26a75357b37a208f99956a66e9abc3d2ef5a2c45e311aa65d2c59bc8469b70ec"
+  },
+  "proposal_type": "ordinary",
+  "proposals_cumulative": 12,
+  "remaining_budget": {
+    "evaluations": 188,
+    "evaluator_seconds": 58653.053423914826,
+    "proposals": 188,
+    "tokens": 99736897
+  },
+  "retained": true,
+  "retention_decision": "replaced_selected_parent_on_strict_improvement",
+  "run_id": "tiny-kws-rnn-openevolve-v2-1-cpu-tiny_kws_rnn_source_only_cpu-openevolve-b05-c2",
+  "schema_version": "1.0",
+  "selected_parent_ids": [
+    "326026cf912167cf391e14bb1ca2c15e646ea74239eb3af64219ff69cdff3152"
+  ],
+  "timestamp": "2026-09-04T03:00:45.793176+00:00",
+  "usage_cumulative": {
+    "cached_input_tokens": 136448,
+    "input_tokens": 247680,
+    "output_tokens": 15423,
+    "reasoning_output_tokens": 10199,
+    "total_tokens": 263103
+  },
+  "usage_increment": {
+    "cached_input_tokens": 10752,
+    "input_tokens": 23395,
+    "output_tokens": 1610,
+    "reasoning_output_tokens": 516,
+    "total_tokens": 25005
+  },
+  "visible_candidate_ids": [
+    "016d906da09d1fe9115b3d48dd009dea2faccbbb35792057b39773f1cdb8582b",
+    "326026cf912167cf391e14bb1ca2c15e646ea74239eb3af64219ff69cdff3152",
+    "9ab7e4de4cb9e1bd179706e610ef1b06131bce553b768d8db450e0bd41be0396",
+    "e6df34865b14db44a339cf247b99c5e19b7a543382b43177c855323e7647059f"
+  ]
+}

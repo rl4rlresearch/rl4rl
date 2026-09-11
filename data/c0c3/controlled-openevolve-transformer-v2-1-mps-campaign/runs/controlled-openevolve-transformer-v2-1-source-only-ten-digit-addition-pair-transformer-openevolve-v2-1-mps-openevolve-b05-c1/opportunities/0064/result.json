@@ -1,0 +1,79 @@
+{
+  "artifact_path": "candidates/f797d44bf143e72fe1357952eb8b9868d624bb98b50b8a43dafe73baa0337726",
+  "candidate_id": "f797d44bf143e72fe1357952eb8b9868d624bb98b50b8a43dafe73baa0337726",
+  "codex_service_tier": "default",
+  "condition": "C1",
+  "conversation_session_id": null,
+  "evaluation": {
+    "evaluator_calls": 1,
+    "evaluator_seconds": 725.7861206671223,
+    "failure_kind": "nonqualification",
+    "fitness": null,
+    "metrics": {
+      "accuracy": 0.5495,
+      "cases": 10010,
+      "correct": 5500,
+      "parameters": 1307,
+      "training_steps": 49999
+    },
+    "valid": false
+  },
+  "evaluator_calls_cumulative": 64,
+  "evaluator_calls_increment": 1,
+  "evaluator_seconds_cumulative": 73975.9313441707,
+  "evaluator_seconds_increment": 725.7861206671223,
+  "event": "proposal_completed",
+  "evicted_candidate_id": null,
+  "evidence": "The dedicated final bias achieved 100% accuracy at 1,308 parameters, while fixing it to zero fell to 29.11%, showing that adaptivity is important; the failed third MLP bias sharing coupled the scalar directly into the sensitive MLP, which this output-only reuse avoids.",
+  "hypothesis": "Reusing `attn.proj.bias[1]` as the single final LayerNorm bias will reduce the model from 1,308 to 1,307 parameters while retaining at least 99% accuracy because it preserves a trainable, zero-initialized output shift without coupling it to the sensitive MLP.",
+  "incumbent_after": "cf78196daf419bd9dc66f73e7f82432958a372963afe3474929bbc6e4cfcfb2f",
+  "intended_edit": "Remove the dedicated one-coordinate final LayerNorm bias and supply an otherwise unused attention projection-bias coordinate during the final normalization.",
+  "mechanism": "Cross-layer reuse of the essential final normalization bias",
+  "opportunity": 64,
+  "parent_ids": [
+    "cf78196daf419bd9dc66f73e7f82432958a372963afe3474929bbc6e4cfcfb2f"
+  ],
+  "portfolio_after": [
+    "cf78196daf419bd9dc66f73e7f82432958a372963afe3474929bbc6e4cfcfb2f"
+  ],
+  "prompt_hashes": {
+    "common_template_sha256": "3f2bea6418b6969c4bf2aa1df18dcda8a3a4ac075bf20c79068c754698b6be5e",
+    "prompt_sha256": "8c52ca21d21dd57cc5916c8ac1914fb077344b1a270990c95a2f510d502db0ec",
+    "proposal_policy_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "search_state_sha256": "04e5eb078ae1964e4ec65bfeeeb1acd0ffa246e7d54d5e0f997f81f602da28c5",
+    "treatment_skeleton_sha256": "a103a4771adc1bc149f9de1f469cbeb786cce7031ccba61cac4dbe42c956290d"
+  },
+  "proposal_type": "ordinary",
+  "proposals_cumulative": 64,
+  "remaining_budget": {
+    "evaluations": 136,
+    "evaluator_seconds": 286024.0686558293,
+    "proposals": 136,
+    "tokens": 98455502
+  },
+  "retained": false,
+  "retention_decision": "invalid",
+  "run_id": "controlled-openevolve-transformer-v2-1-source-only-ten-digit-addition-pair-transformer-openevolve-v2-1-mps-openevolve-b05-c1",
+  "schema_version": "1.0",
+  "selected_parent_ids": [
+    "cf78196daf419bd9dc66f73e7f82432958a372963afe3474929bbc6e4cfcfb2f"
+  ],
+  "timestamp": "2026-08-25T17:16:02.022634+00:00",
+  "usage_cumulative": {
+    "cached_input_tokens": 696064,
+    "input_tokens": 1343695,
+    "output_tokens": 200803,
+    "reasoning_output_tokens": 174364,
+    "total_tokens": 1544498
+  },
+  "usage_increment": {
+    "cached_input_tokens": 6912,
+    "input_tokens": 21340,
+    "output_tokens": 1402,
+    "reasoning_output_tokens": 923,
+    "total_tokens": 22742
+  },
+  "visible_candidate_ids": [
+    "cf78196daf419bd9dc66f73e7f82432958a372963afe3474929bbc6e4cfcfb2f"
+  ]
+}

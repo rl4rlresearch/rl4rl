@@ -1,0 +1,82 @@
+{
+  "artifact_path": "candidates/6b52b1a3aeee2897ce98feffbf262bbe5fc2b9dbf45e4c2aade7f7b5306217df",
+  "candidate_id": "6b52b1a3aeee2897ce98feffbf262bbe5fc2b9dbf45e4c2aade7f7b5306217df",
+  "codex_service_tier": "fast",
+  "condition": "C0",
+  "conversation_session_id": null,
+  "evaluation": {
+    "evaluator_calls": 1,
+    "evaluator_seconds": 362.74773998899946,
+    "failure_kind": null,
+    "fitness": -0.993511,
+    "metrics": {
+      "depth": 8.0,
+      "mfu_percent": 38.92,
+      "num_params_M": 50.3,
+      "num_steps": 2468.0,
+      "peak_vram_mb": 33805.7,
+      "total_tokens_M": 485.2,
+      "training_seconds": 300.0,
+      "val_bpb": 0.993511
+    },
+    "valid": true
+  },
+  "evaluator_calls_cumulative": 14,
+  "evaluator_calls_increment": 1,
+  "evaluator_seconds_cumulative": 10437.11783257692,
+  "evaluator_seconds_increment": 362.74773998899946,
+  "event": "proposal_completed",
+  "evicted_candidate_id": null,
+  "evidence": "The best 96-sequence design reached `val_bpb 0.986636` at 486.2M tokens, while capacity-reducing depth and MLP changes regressed; this targets avoidable output-layer computation without reducing model capacity or changing the validated optimizer schedule.",
+  "hypothesis": "Eliminating the nearly identity `tanh` softcap will increase throughput beyond 486.2M tokens while preserving stable cross-entropy training, achieving `val_bpb < 0.986636`.",
+  "incumbent_after": "bf6ebaac3fac73e8785bcfb3207309a75749488997e42bd5f846e5c073ac252c",
+  "intended_edit": "Compute fp32 logits directly without scaling, `tanh`, and rescaling over every token-vocabulary element.",
+  "mechanism": "Remove vocabulary-wide logit softcapping",
+  "opportunity": 14,
+  "parent_ids": [
+    "bf6ebaac3fac73e8785bcfb3207309a75749488997e42bd5f846e5c073ac252c"
+  ],
+  "portfolio_after": [
+    "bf6ebaac3fac73e8785bcfb3207309a75749488997e42bd5f846e5c073ac252c"
+  ],
+  "prompt_hashes": {
+    "common_template_sha256": "ba85b39aa7288f4f48475376da6cff65661f39cfeb7ac7cde15b2a9a2e692fde",
+    "prompt_sha256": "790ebe7965296707cfc423e3534916d2ba2c66081f9d36cb597515c69c39914e",
+    "proposal_policy_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "search_state_sha256": "04e5eb078ae1964e4ec65bfeeeb1acd0ffa246e7d54d5e0f997f81f602da28c5",
+    "treatment_skeleton_sha256": "7bab6ca5ff0bf82252a51032b628e38821b5ec65488ed3da8e65a72f98bb54f5"
+  },
+  "proposal_type": "ordinary",
+  "proposals_cumulative": 14,
+  "remaining_budget": {
+    "evaluations": 186,
+    "evaluator_seconds": 709562.882167423,
+    "proposals": 186,
+    "tokens": 99640876
+  },
+  "retained": false,
+  "retention_decision": "not_strictly_better_than_incumbent",
+  "run_id": "nanogpt-openevolve-v2-1-h100-karpathy_nanogpt_source_only_h100-openevolve-b03-c0",
+  "schema_version": "1.0",
+  "selected_parent_ids": [
+    "bf6ebaac3fac73e8785bcfb3207309a75749488997e42bd5f846e5c073ac252c"
+  ],
+  "timestamp": "2026-08-23T22:15:23.836560+00:00",
+  "usage_cumulative": {
+    "cached_input_tokens": 163328,
+    "input_tokens": 327737,
+    "output_tokens": 31387,
+    "reasoning_output_tokens": 28217,
+    "total_tokens": 359124
+  },
+  "usage_increment": {
+    "cached_input_tokens": 12032,
+    "input_tokens": 24680,
+    "output_tokens": 1193,
+    "reasoning_output_tokens": 986,
+    "total_tokens": 25873
+  },
+  "visible_candidate_ids": [
+    "bf6ebaac3fac73e8785bcfb3207309a75749488997e42bd5f846e5c073ac252c"
+  ]
+}

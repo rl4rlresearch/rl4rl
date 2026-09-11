@@ -1,0 +1,79 @@
+{
+  "artifact_path": "candidates/95d3cad48166bbaeb1940d8ece011906544a2967d7ac99c5f6ec2025558490f6",
+  "candidate_id": "95d3cad48166bbaeb1940d8ece011906544a2967d7ac99c5f6ec2025558490f6",
+  "codex_service_tier": "default",
+  "condition": "C0",
+  "conversation_session_id": null,
+  "evaluation": {
+    "evaluator_calls": 1,
+    "evaluator_seconds": 719.1749566250946,
+    "failure_kind": null,
+    "fitness": -1606.0,
+    "metrics": {
+      "accuracy": 0.9995999999999999,
+      "cases": 10010,
+      "correct": 10006,
+      "parameters": 1606,
+      "training_steps": 4999
+    },
+    "valid": true
+  },
+  "evaluator_calls_cumulative": 45,
+  "evaluator_calls_increment": 1,
+  "evaluator_seconds_cumulative": 19838.594567122753,
+  "evaluator_seconds_increment": 719.1749566250946,
+  "event": "proposal_completed",
+  "evicted_candidate_id": "fc9d61eaf6fdca7044f0a593ea4de56e5b23d61e138ed1c039c11cf55fa10152",
+  "evidence": "The 1607-parameter design achieved 99.91% accuracy while pre-MLP bias coordinates 2 and 5 remained learned; attempts to fix those shifts failed, so this patch preserves both sensitive coordinates and tests the reverse redundancy after six other pre-MLP shifts were successfully absorbed by `fc1.bias`.",
+  "hypothesis": "Fixing coordinate 0 of `fc1.bias` at zero will reduce the model from 1607 to 1606 parameters while retaining at least 99% accuracy, because either remaining learned pre-MLP LayerNorm shift can absorb that scalar while the other hidden-unit biases compensate for its distributed effect.",
+  "incumbent_after": "95d3cad48166bbaeb1940d8ece011906544a2967d7ac99c5f6ec2025558490f6",
+  "intended_edit": "Replace the first MLP projection with an initialization-equivalent linear layer whose bias has eleven learned coordinates and a fixed-zero coordinate 0.",
+  "mechanism": "Reverse pre-MLP shift-to-bias gauge fixing",
+  "opportunity": 45,
+  "parent_ids": [
+    "fc9d61eaf6fdca7044f0a593ea4de56e5b23d61e138ed1c039c11cf55fa10152"
+  ],
+  "portfolio_after": [
+    "95d3cad48166bbaeb1940d8ece011906544a2967d7ac99c5f6ec2025558490f6"
+  ],
+  "prompt_hashes": {
+    "common_template_sha256": "3f2bea6418b6969c4bf2aa1df18dcda8a3a4ac075bf20c79068c754698b6be5e",
+    "prompt_sha256": "f78bf2dd8d705ca63a6eac6beaa963fb2f987cb8374b6a7b0ef69e45c128cf4f",
+    "proposal_policy_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "search_state_sha256": "04e5eb078ae1964e4ec65bfeeeb1acd0ffa246e7d54d5e0f997f81f602da28c5",
+    "treatment_skeleton_sha256": "b166bae92aa06839862ca35695ead6dff4826713a756edc5ff236f9c041a5469"
+  },
+  "proposal_type": "ordinary",
+  "proposals_cumulative": 45,
+  "remaining_budget": {
+    "evaluations": 155,
+    "evaluator_seconds": 340161.40543287725,
+    "proposals": 155,
+    "tokens": 98917646
+  },
+  "retained": true,
+  "retention_decision": "strict_incumbent_improvement",
+  "run_id": "controlled-openevolve-transformer-v2-1-source-only-ten-digit-addition-pair-transformer-openevolve-v2-1-mps-openevolve-b04-c0",
+  "schema_version": "1.0",
+  "selected_parent_ids": [
+    "fc9d61eaf6fdca7044f0a593ea4de56e5b23d61e138ed1c039c11cf55fa10152"
+  ],
+  "timestamp": "2026-08-24T15:20:06.854888+00:00",
+  "usage_cumulative": {
+    "cached_input_tokens": 452864,
+    "input_tokens": 975016,
+    "output_tokens": 107338,
+    "reasoning_output_tokens": 78543,
+    "total_tokens": 1082354
+  },
+  "usage_increment": {
+    "cached_input_tokens": 12032,
+    "input_tokens": 22897,
+    "output_tokens": 4095,
+    "reasoning_output_tokens": 3624,
+    "total_tokens": 26992
+  },
+  "visible_candidate_ids": [
+    "fc9d61eaf6fdca7044f0a593ea4de56e5b23d61e138ed1c039c11cf55fa10152"
+  ]
+}

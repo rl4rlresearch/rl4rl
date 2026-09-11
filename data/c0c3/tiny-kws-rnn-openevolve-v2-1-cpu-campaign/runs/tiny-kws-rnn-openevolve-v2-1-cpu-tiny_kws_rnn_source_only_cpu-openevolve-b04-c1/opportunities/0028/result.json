@@ -1,0 +1,99 @@
+{
+  "artifact_path": "candidates/063350ba2dd304d74ec0f3c39f897aaa1bc1391a83a2fbc2369dfcdee81f6d94",
+  "candidate_id": "063350ba2dd304d74ec0f3c39f897aaa1bc1391a83a2fbc2369dfcdee81f6d94",
+  "codex_service_tier": "default",
+  "condition": "C1",
+  "conversation_session_id": null,
+  "evaluation": {
+    "evaluator_calls": 1,
+    "evaluator_seconds": 73.73116625007242,
+    "failure_kind": null,
+    "fitness": -1679124763513239695,
+    "metrics": {
+      "batch_size": 128,
+      "evaluation_cases": 815,
+      "evaluation_split": "public_speaker_disjoint_validation",
+      "examples_processed": 50000,
+      "inference_cost": 1679124763513239695,
+      "maximum_recurrent_steps": 29,
+      "mean_recurrent_steps": 29.0,
+      "median_recurrent_steps": 29,
+      "optimizer_steps": 397,
+      "p95_recurrent_steps": 29,
+      "parameters": 15360,
+      "peak_hidden_elements": 89600,
+      "recurrent_logit_effect": 0.09453175216913223,
+      "recurrent_macs": 320774220,
+      "recurrent_steps": 23635,
+      "state_dependence_effect": 0.32782500982284546,
+      "state_update_effect": 0.35305407643318176,
+      "total_inference_macs": 321908700,
+      "trained_recurrent_logit_effect": 0.6255859732627869,
+      "trained_state_dependence_effect": 0.3752346634864807,
+      "trained_state_update_effect": 0.41966694593429565,
+      "training_seconds": 50.2952406660188,
+      "validation_accuracy": 0.8564417177914111,
+      "validation_correct": 698,
+      "validation_cross_entropy": 0.4395944794262845
+    },
+    "valid": true
+  },
+  "evaluator_calls_cumulative": 28,
+  "evaluator_calls_increment": 1,
+  "evaluator_seconds_cumulative": 3360.3118140830193,
+  "evaluator_seconds_increment": 73.73116625007242,
+  "event": "proposal_completed",
+  "evicted_candidate_id": "e478dfba73ba66b91f2d3d75d7507a6d0eab2c6b87188032ce1845ee8c3d79a9",
+  "evidence": "The 58-unit GRU improved from 85.15% at 31 steps to 85.77% at 30 central steps, while dropping the original earliest boundary frame already passed; this supports testing one further boundary removal without reducing recurrent capacity.",
+  "hypothesis": "Processing 29 contiguous near-central frames (indices 2\u201330) will retain at least 85% validation accuracy while reducing recurrent steps and dense MACs by roughly 3.3% versus the verified 30-step model.",
+  "incumbent_after": "063350ba2dd304d74ec0f3c39f897aaa1bc1391a83a2fbc2369dfcdee81f6d94",
+  "intended_edit": "Reduce the schedule from 30 to 29 steps and bias the odd-length window toward later frames, removing the earliest remaining boundary frame.",
+  "mechanism": "Boundary-frame temporal pruning",
+  "opportunity": 28,
+  "parent_ids": [
+    "e478dfba73ba66b91f2d3d75d7507a6d0eab2c6b87188032ce1845ee8c3d79a9"
+  ],
+  "portfolio_after": [
+    "063350ba2dd304d74ec0f3c39f897aaa1bc1391a83a2fbc2369dfcdee81f6d94"
+  ],
+  "prompt_hashes": {
+    "common_template_sha256": "dee04faf4c430276c1036ba97f5705a339857dbdf19117dac88952a5a3a47e9d",
+    "prompt_sha256": "c5eeef1e43d0a517d3dec77a38c7c94ffeae63dc1a99832f9139dbd91d90dfd0",
+    "proposal_policy_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "search_state_sha256": "04e5eb078ae1964e4ec65bfeeeb1acd0ffa246e7d54d5e0f997f81f602da28c5",
+    "treatment_skeleton_sha256": "59b6e26399789dfb09462c13dd53f3fdc8d835f1f870c75c6498211f385e44ff"
+  },
+  "proposal_type": "ordinary",
+  "proposals_cumulative": 28,
+  "remaining_budget": {
+    "evaluations": 172,
+    "evaluator_seconds": 56639.68818591698,
+    "proposals": 172,
+    "tokens": 99419887
+  },
+  "retained": true,
+  "retention_decision": "strict_incumbent_improvement",
+  "run_id": "tiny-kws-rnn-openevolve-v2-1-cpu-tiny_kws_rnn_source_only_cpu-openevolve-b04-c1",
+  "schema_version": "1.0",
+  "selected_parent_ids": [
+    "e478dfba73ba66b91f2d3d75d7507a6d0eab2c6b87188032ce1845ee8c3d79a9"
+  ],
+  "timestamp": "2026-09-04T03:59:05.574337+00:00",
+  "usage_cumulative": {
+    "cached_input_tokens": 301056,
+    "input_tokens": 545166,
+    "output_tokens": 34947,
+    "reasoning_output_tokens": 23606,
+    "total_tokens": 580113
+  },
+  "usage_increment": {
+    "cached_input_tokens": 10752,
+    "input_tokens": 20417,
+    "output_tokens": 1242,
+    "reasoning_output_tokens": 1034,
+    "total_tokens": 21659
+  },
+  "visible_candidate_ids": [
+    "e478dfba73ba66b91f2d3d75d7507a6d0eab2c6b87188032ce1845ee8c3d79a9"
+  ]
+}

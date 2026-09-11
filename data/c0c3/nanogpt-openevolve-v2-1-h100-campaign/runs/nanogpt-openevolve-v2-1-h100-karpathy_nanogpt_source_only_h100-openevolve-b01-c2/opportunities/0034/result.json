@@ -1,0 +1,88 @@
+{
+  "artifact_path": "candidates/7d175e028cb45eff4ef218698cc15ee6373b08a9068d32029347020ce3b37d3d",
+  "candidate_id": "7d175e028cb45eff4ef218698cc15ee6373b08a9068d32029347020ce3b37d3d",
+  "codex_service_tier": "default",
+  "condition": "C2",
+  "conversation_session_id": null,
+  "evaluation": {
+    "evaluator_calls": 1,
+    "evaluator_seconds": 373.1193092820031,
+    "failure_kind": null,
+    "fitness": -0.991781,
+    "metrics": {
+      "depth": 8.0,
+      "mfu_percent": 32.47,
+      "num_params_M": 50.3,
+      "num_steps": 3692.0,
+      "peak_vram_mb": 22701.2,
+      "total_tokens_M": 483.9,
+      "training_seconds": 300.0,
+      "val_bpb": 0.991781
+    },
+    "valid": true
+  },
+  "evaluator_calls_cumulative": 34,
+  "evaluator_calls_increment": 1,
+  "evaluator_seconds_cumulative": 12702.190036926,
+  "evaluator_seconds_increment": 373.1193092820031,
+  "event": "proposal_completed",
+  "evicted_candidate_id": "59ab778813f4c2b498d1b067494630c0cefa7cfabb91c412f1a94a0d688c49f5",
+  "evidence": "Halving the batch from 524K to 262K tokens nearly doubled updates and improved val_bpb from 0.992358 to 0.985657 while still processing 518.8M tokens, strongly motivating another batch-size reduction.",
+  "hypothesis": "Reducing the optimizer batch to 131K tokens will approximately double update frequency again while retaining at least 480M training tokens, lowering val_bpb below 0.985657.",
+  "incumbent_after": "cb4d451d3ab832bea08315c021a0b5a377193b1da16eb20dd3d50b2705b3b10c",
+  "intended_edit": "Use one 64-sequence microbatch per optimizer step, preserve the proven 256-token local-attention architecture, and restore the best 60% linear warmdown.",
+  "mechanism": "Higher-frequency optimizer updates via quartered global batch",
+  "opportunity": 34,
+  "parent_ids": [
+    "59ab778813f4c2b498d1b067494630c0cefa7cfabb91c412f1a94a0d688c49f5"
+  ],
+  "portfolio_after": [
+    "dacd086c63445c1798b319b5b83ff4a5fe9149916d5f7346fa856f4507cd8f05",
+    "7d175e028cb45eff4ef218698cc15ee6373b08a9068d32029347020ce3b37d3d",
+    "cb4d451d3ab832bea08315c021a0b5a377193b1da16eb20dd3d50b2705b3b10c",
+    "91e19d23f1f4cd145bd6b8f924db969ef735a7c4dc53132e8f7f4dc6790478c8"
+  ],
+  "prompt_hashes": {
+    "common_template_sha256": "ba85b39aa7288f4f48475376da6cff65661f39cfeb7ac7cde15b2a9a2e692fde",
+    "prompt_sha256": "1f3f57cfb0b381f560552236380cd47b294aed54054afc771f65501cbe82c17e",
+    "proposal_policy_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "search_state_sha256": "c938ac007bf70fe8d27f64661175531e51fcb16b38318c328493c32ee292e27e",
+    "treatment_skeleton_sha256": "6004a6ddf558b46d6109c6c4348253f56e328e33070f271aa1b7ba1997839dc9"
+  },
+  "proposal_type": "ordinary",
+  "proposals_cumulative": 34,
+  "remaining_budget": {
+    "evaluations": 166,
+    "evaluator_seconds": 707297.809963074,
+    "proposals": 166,
+    "tokens": 98373815
+  },
+  "retained": true,
+  "retention_decision": "replaced_selected_parent_on_strict_improvement",
+  "run_id": "nanogpt-openevolve-v2-1-h100-karpathy_nanogpt_source_only_h100-openevolve-b01-c2",
+  "schema_version": "1.0",
+  "selected_parent_ids": [
+    "59ab778813f4c2b498d1b067494630c0cefa7cfabb91c412f1a94a0d688c49f5"
+  ],
+  "timestamp": "2026-08-24T06:10:38.986998+00:00",
+  "usage_cumulative": {
+    "cached_input_tokens": 369664,
+    "input_tokens": 1535901,
+    "output_tokens": 90284,
+    "reasoning_output_tokens": 78576,
+    "total_tokens": 1626185
+  },
+  "usage_increment": {
+    "cached_input_tokens": 12032,
+    "input_tokens": 46875,
+    "output_tokens": 1766,
+    "reasoning_output_tokens": 1115,
+    "total_tokens": 48641
+  },
+  "visible_candidate_ids": [
+    "dacd086c63445c1798b319b5b83ff4a5fe9149916d5f7346fa856f4507cd8f05",
+    "59ab778813f4c2b498d1b067494630c0cefa7cfabb91c412f1a94a0d688c49f5",
+    "cb4d451d3ab832bea08315c021a0b5a377193b1da16eb20dd3d50b2705b3b10c",
+    "91e19d23f1f4cd145bd6b8f924db969ef735a7c4dc53132e8f7f4dc6790478c8"
+  ]
+}

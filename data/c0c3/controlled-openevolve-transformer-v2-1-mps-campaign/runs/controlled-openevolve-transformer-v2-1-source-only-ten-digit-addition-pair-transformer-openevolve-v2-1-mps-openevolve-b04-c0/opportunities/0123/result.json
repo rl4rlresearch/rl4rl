@@ -1,0 +1,79 @@
+{
+  "artifact_path": "candidates/68936b2c8004f6b551fa4395b6dae5673f89679e6360c2588390acd7e20b273c",
+  "candidate_id": "68936b2c8004f6b551fa4395b6dae5673f89679e6360c2588390acd7e20b273c",
+  "codex_service_tier": "default",
+  "condition": "C0",
+  "conversation_session_id": null,
+  "evaluation": {
+    "evaluator_calls": 1,
+    "evaluator_seconds": 989.3833379999269,
+    "failure_kind": null,
+    "fitness": -1563.0,
+    "metrics": {
+      "accuracy": 0.9919,
+      "cases": 10010,
+      "correct": 9929,
+      "parameters": 1563,
+      "training_steps": 4999
+    },
+    "valid": true
+  },
+  "evaluator_calls_cumulative": 123,
+  "evaluator_calls_increment": 1,
+  "evaluator_seconds_cumulative": 50357.04704062233,
+  "evaluator_seconds_increment": 989.3833379999269,
+  "event": "proposal_completed",
+  "evicted_candidate_id": "076d6fadc9fbf5ba4093a2380ece93f7c1d3b620d54c8f17ef2e67d5ba5fc8ee",
+  "evidence": "The current design reached 99.96% at 1564 parameters; `qkv.weight[8,3]` and `[12,3]` established cross-head viability for component-zero key gauges, while projection columns 2 and 6 established cross-head viability for component two, making row 14 better supported than the failed component-one or component-three directions.",
+  "hypothesis": "Fixing `qkv.weight[14,3]` at zero will produce a 1563-parameter model with at least 99% accuracy because component-two projection anchors succeeded in both attention heads, while the same key-row canonicalization succeeded for component zero in both heads.",
+  "incumbent_after": "68936b2c8004f6b551fa4395b6dae5673f89679e6360c2588390acd7e20b273c",
+  "intended_edit": "Store 177 learned QKV weights, reconstruct `qkv.weight[14,3]` as zero, and canonicalize its initialized key row by subtracting that coefficient from the full row.",
+  "mechanism": "Second-head component-two LayerNorm-null key gauge",
+  "opportunity": 123,
+  "parent_ids": [
+    "076d6fadc9fbf5ba4093a2380ece93f7c1d3b620d54c8f17ef2e67d5ba5fc8ee"
+  ],
+  "portfolio_after": [
+    "68936b2c8004f6b551fa4395b6dae5673f89679e6360c2588390acd7e20b273c"
+  ],
+  "prompt_hashes": {
+    "common_template_sha256": "3f2bea6418b6969c4bf2aa1df18dcda8a3a4ac075bf20c79068c754698b6be5e",
+    "prompt_sha256": "327e7ba2f32452bdb25fe73908d0986899005831810f3e7aa77ed406f471e5b0",
+    "proposal_policy_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "search_state_sha256": "04e5eb078ae1964e4ec65bfeeeb1acd0ffa246e7d54d5e0f997f81f602da28c5",
+    "treatment_skeleton_sha256": "a06b27a177e417ab2134609f16ee72b5d15e761bf0d9050f5cc7b60c1123a782"
+  },
+  "proposal_type": "ordinary",
+  "proposals_cumulative": 123,
+  "remaining_budget": {
+    "evaluations": 77,
+    "evaluator_seconds": 309642.95295937767,
+    "proposals": 77,
+    "tokens": 96829339
+  },
+  "retained": true,
+  "retention_decision": "strict_incumbent_improvement",
+  "run_id": "controlled-openevolve-transformer-v2-1-source-only-ten-digit-addition-pair-transformer-openevolve-v2-1-mps-openevolve-b04-c0",
+  "schema_version": "1.0",
+  "selected_parent_ids": [
+    "076d6fadc9fbf5ba4093a2380ece93f7c1d3b620d54c8f17ef2e67d5ba5fc8ee"
+  ],
+  "timestamp": "2026-09-04T00:09:03.006608+00:00",
+  "usage_cumulative": {
+    "cached_input_tokens": 1241088,
+    "input_tokens": 2830563,
+    "output_tokens": 340098,
+    "reasoning_output_tokens": 264326,
+    "total_tokens": 3170661
+  },
+  "usage_increment": {
+    "cached_input_tokens": 10752,
+    "input_tokens": 25682,
+    "output_tokens": 3822,
+    "reasoning_output_tokens": 3106,
+    "total_tokens": 29504
+  },
+  "visible_candidate_ids": [
+    "076d6fadc9fbf5ba4093a2380ece93f7c1d3b620d54c8f17ef2e67d5ba5fc8ee"
+  ]
+}

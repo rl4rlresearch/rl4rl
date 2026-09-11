@@ -1,0 +1,85 @@
+{
+  "artifact_path": "candidates/a87e541dded890349191dcced39dcc27c999c86b60547ae2213d6c9695e9a82a",
+  "candidate_id": "a87e541dded890349191dcced39dcc27c999c86b60547ae2213d6c9695e9a82a",
+  "codex_service_tier": "default",
+  "condition": "C2",
+  "conversation_session_id": null,
+  "evaluation": {
+    "evaluator_calls": 1,
+    "evaluator_seconds": 1105.092759042047,
+    "failure_kind": "nonqualification",
+    "fitness": null,
+    "metrics": {
+      "accuracy": 0.8342,
+      "cases": 10010,
+      "correct": 8350,
+      "parameters": 1532,
+      "training_steps": 4999
+    },
+    "valid": false
+  },
+  "evaluator_calls_cumulative": 105,
+  "evaluator_calls_increment": 1,
+  "evaluator_seconds_cumulative": 41875.403503126465,
+  "evaluator_seconds_increment": 1105.092759042047,
+  "event": "proposal_completed",
+  "evicted_candidate_id": null,
+  "evidence": "The all-row-QKV design reached 99.6% at 1,533 parameters, while the direct coordinate-0 scale anchor reached 98.22%\u2014substantially closer than coordinate 1\u2014and prior dense-coordinate optimization rescued sensitive QKV quotient training, motivating the same optimizer treatment for this exact scale quotient.",
+  "hypothesis": "Extending the qualified 1,533-parameter all-row-QKV design by fixing LayerNorm scale coordinate 0, while maintaining its omitted dense AdamW moment and absorbing each update into QKV column 0, will produce a 1,532-parameter model with at least 99% accuracy.",
+  "incumbent_after": "105cc074e6b081ee886e61b93cca553de76574cf51b955bed7d4400b0e83bd0e",
+  "intended_edit": "Gauge second-head query row 6 using the verified dense-row optimizer, anchor LayerNorm scale coordinate 0, reconstruct the full scale vector explicitly, and train the removed scale virtually through an equivalent multiplicative QKV-column update.",
+  "mechanism": "Dense-AdamW optimization of the sixth attention-LayerNorm column-scale quotient",
+  "opportunity": 110,
+  "parent_ids": [
+    "2c784d289bfce2035613a6e56dab9fdfa1d5b977af4a35570565db8d17438e2f"
+  ],
+  "portfolio_after": [
+    "2c784d289bfce2035613a6e56dab9fdfa1d5b977af4a35570565db8d17438e2f",
+    "02e66886167733bbb8663a656b2f66862c023ba8721321749567d5bd7e488bd3",
+    "ca426ee5e490756688bebf37eb712d5fbb548287ccfdbc3c2d0124c42fefc5ae",
+    "105cc074e6b081ee886e61b93cca553de76574cf51b955bed7d4400b0e83bd0e"
+  ],
+  "prompt_hashes": {
+    "common_template_sha256": "3f2bea6418b6969c4bf2aa1df18dcda8a3a4ac075bf20c79068c754698b6be5e",
+    "prompt_sha256": "693b3d75b81eef12e32b63ce5b2e48a53d9cce577f928cc06bed76d951ae3a9c",
+    "proposal_policy_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "search_state_sha256": "c938ac007bf70fe8d27f64661175531e51fcb16b38318c328493c32ee292e27e",
+    "treatment_skeleton_sha256": "40d53a58039966a6e3513f8c1787e1b59ee99d7374a0083452f7928a5e30f2d6"
+  },
+  "proposal_type": "ordinary",
+  "proposals_cumulative": 110,
+  "remaining_budget": {
+    "evaluations": 95,
+    "evaluator_seconds": 318124.59649687354,
+    "proposals": 90,
+    "tokens": 95448609
+  },
+  "retained": false,
+  "retention_decision": "invalid",
+  "run_id": "controlled-openevolve-transformer-v2-1-source-only-ten-digit-addition-pair-transformer-openevolve-v2-1-mps-openevolve-b01-c2",
+  "schema_version": "1.0",
+  "selected_parent_ids": [
+    "2c784d289bfce2035613a6e56dab9fdfa1d5b977af4a35570565db8d17438e2f"
+  ],
+  "timestamp": "2026-09-03T19:23:08.804247+00:00",
+  "usage_cumulative": {
+    "cached_input_tokens": 1090176,
+    "input_tokens": 4133323,
+    "output_tokens": 418068,
+    "reasoning_output_tokens": 302942,
+    "total_tokens": 4551391
+  },
+  "usage_increment": {
+    "cached_input_tokens": 50048,
+    "input_tokens": 52845,
+    "output_tokens": 7274,
+    "reasoning_output_tokens": 5696,
+    "total_tokens": 60119
+  },
+  "visible_candidate_ids": [
+    "2c784d289bfce2035613a6e56dab9fdfa1d5b977af4a35570565db8d17438e2f",
+    "02e66886167733bbb8663a656b2f66862c023ba8721321749567d5bd7e488bd3",
+    "ca426ee5e490756688bebf37eb712d5fbb548287ccfdbc3c2d0124c42fefc5ae",
+    "105cc074e6b081ee886e61b93cca553de76574cf51b955bed7d4400b0e83bd0e"
+  ]
+}

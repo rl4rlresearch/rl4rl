@@ -1,0 +1,79 @@
+{
+  "artifact_path": "candidates/471d0d820c2eed68fea4ad349f32dbad349e58cd25ce123412a9e81f7ea95cc4",
+  "candidate_id": "471d0d820c2eed68fea4ad349f32dbad349e58cd25ce123412a9e81f7ea95cc4",
+  "codex_service_tier": "fast",
+  "condition": "C1",
+  "conversation_session_id": null,
+  "evaluation": {
+    "evaluator_calls": 1,
+    "evaluator_seconds": 226.65042029100005,
+    "failure_kind": null,
+    "fitness": -1628.0,
+    "metrics": {
+      "accuracy": 0.9976999999999999,
+      "cases": 10010,
+      "correct": 9987,
+      "parameters": 1628,
+      "training_steps": 4999
+    },
+    "valid": true
+  },
+  "evaluator_calls_cumulative": 5,
+  "evaluator_calls_increment": 1,
+  "evaluator_seconds_cumulative": 1088.399499539868,
+  "evaluator_seconds_increment": 226.65042029100005,
+  "event": "proposal_completed",
+  "evicted_candidate_id": "26a72caae6d1c359cfcfff0df9e448149df20f2e678aadb86b5f691427921486",
+  "evidence": "The 1,636-parameter RNG-aligned design achieved 99.09%, while reducing feed-forward width to 11 or 8 failed badly; this motivates removing an exactly absorbable affine parameter instead of reducing MLP capacity.",
+  "hypothesis": "Disabling the second LayerNorm bias will reduce parameters from 1,636 to 1,628 while retaining at least 99% accuracy, because the following `fc1` bias can represent the same pre-GELU offset.",
+  "incumbent_after": "471d0d820c2eed68fea4ad349f32dbad349e58cd25ce123412a9e81f7ea95cc4",
+  "intended_edit": "Construct `ln2` without a learned bias while preserving its learned scale, the full `d_ff=12` capacity, initialization RNG stream, and training procedure.",
+  "mechanism": "Remove affine redundancy before the MLP",
+  "opportunity": 5,
+  "parent_ids": [
+    "26a72caae6d1c359cfcfff0df9e448149df20f2e678aadb86b5f691427921486"
+  ],
+  "portfolio_after": [
+    "471d0d820c2eed68fea4ad349f32dbad349e58cd25ce123412a9e81f7ea95cc4"
+  ],
+  "prompt_hashes": {
+    "common_template_sha256": "3f2bea6418b6969c4bf2aa1df18dcda8a3a4ac075bf20c79068c754698b6be5e",
+    "prompt_sha256": "cc71bf2e5d0a026946062854d48e94c01a3bf885db67fb6ca8e523bbcd2ed6af",
+    "proposal_policy_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "search_state_sha256": "04e5eb078ae1964e4ec65bfeeeb1acd0ffa246e7d54d5e0f997f81f602da28c5",
+    "treatment_skeleton_sha256": "6607aaf6b5b6bb58fba5b6873cd698a3fd023f5b65fa50a6d4e31dfcea18c07f"
+  },
+  "proposal_type": "ordinary",
+  "proposals_cumulative": 5,
+  "remaining_budget": {
+    "evaluations": 195,
+    "evaluator_seconds": 358911.60050046013,
+    "proposals": 195,
+    "tokens": 99892510
+  },
+  "retained": true,
+  "retention_decision": "strict_incumbent_improvement",
+  "run_id": "controlled-openevolve-transformer-v2-1-source-only-ten-digit-addition-pair-transformer-openevolve-v2-1-mps-openevolve-b03-c1",
+  "schema_version": "1.0",
+  "selected_parent_ids": [
+    "26a72caae6d1c359cfcfff0df9e448149df20f2e678aadb86b5f691427921486"
+  ],
+  "timestamp": "2026-08-23T10:17:11.772172+00:00",
+  "usage_cumulative": {
+    "cached_input_tokens": 58112,
+    "input_tokens": 95069,
+    "output_tokens": 12421,
+    "reasoning_output_tokens": 11006,
+    "total_tokens": 107490
+  },
+  "usage_increment": {
+    "cached_input_tokens": 12032,
+    "input_tokens": 19420,
+    "output_tokens": 2264,
+    "reasoning_output_tokens": 2070,
+    "total_tokens": 21684
+  },
+  "visible_candidate_ids": [
+    "26a72caae6d1c359cfcfff0df9e448149df20f2e678aadb86b5f691427921486"
+  ]
+}

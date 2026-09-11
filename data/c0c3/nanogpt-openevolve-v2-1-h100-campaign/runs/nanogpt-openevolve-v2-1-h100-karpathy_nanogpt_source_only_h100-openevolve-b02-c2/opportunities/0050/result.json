@@ -1,0 +1,88 @@
+{
+  "artifact_path": "candidates/3b8553a1a9ffe98f524127eeab052ab12a5562b6b5983cc47a3bea9e9fea0b38",
+  "candidate_id": "3b8553a1a9ffe98f524127eeab052ab12a5562b6b5983cc47a3bea9e9fea0b38",
+  "codex_service_tier": "default",
+  "condition": "C2",
+  "conversation_session_id": null,
+  "evaluation": {
+    "evaluator_calls": 1,
+    "evaluator_seconds": 375.28579875500145,
+    "failure_kind": null,
+    "fitness": -0.983161,
+    "metrics": {
+      "depth": 8.0,
+      "mfu_percent": 35.71,
+      "num_params_M": 50.3,
+      "num_steps": 1970.0,
+      "peak_vram_mb": 44908.2,
+      "total_tokens_M": 516.4,
+      "training_seconds": 300.1,
+      "val_bpb": 0.983161
+    },
+    "valid": true
+  },
+  "evaluator_calls_cumulative": 50,
+  "evaluator_calls_increment": 1,
+  "evaluator_seconds_cumulative": 17779.353279921008,
+  "evaluator_seconds_increment": 375.28579875500145,
+  "event": "proposal_completed",
+  "evicted_candidate_id": null,
+  "evidence": "Moving eight context tokens from layer 4 to layer 5 improved val_bpb from 0.982662 to 0.982455, identifying layer 5 as the stronger post-global allocation target; relocating a value embedding to full-context layer 3 instead regressed to 0.983327, motivating alignment with the successful local layer rather than the global mixer.",
+  "hypothesis": "With the best verified 128/144 layer-4/layer-5 window allocation, relocating the layer-6 value embedding to layer 5 will lower val_bpb below 0.982455 by supplying token-specific values to the post-global transformation that benefited from additional context, while preserving parameter count.",
+  "incumbent_after": "761bdc3a9986715bde68aade4ce376169df271d89ccd1075361a8e0bfb4c2d40",
+  "intended_edit": "Restore the best 144/144/128/144/128/128 window schedule and change the eight-layer value-embedding placement from layers 2/4/6/8 to layers 2/4/5/8.",
+  "mechanism": "Post-global value-residual alignment",
+  "opportunity": 50,
+  "parent_ids": [
+    "da0fab8041f89267e9119479614152ce1fb1dbe7d0ee9f19538d8e7cc1a58e34"
+  ],
+  "portfolio_after": [
+    "761bdc3a9986715bde68aade4ce376169df271d89ccd1075361a8e0bfb4c2d40",
+    "da0fab8041f89267e9119479614152ce1fb1dbe7d0ee9f19538d8e7cc1a58e34",
+    "dd306615854612c5f4c6a6e93de354d631860c584ec86d42a682044f0f611cbd",
+    "668e4a8eb9addff07c0ea19c69f44df9e7c96f796a33fe29b6e513cce7f9dac1"
+  ],
+  "prompt_hashes": {
+    "common_template_sha256": "ba85b39aa7288f4f48475376da6cff65661f39cfeb7ac7cde15b2a9a2e692fde",
+    "prompt_sha256": "1e7301e66bdd07cb236fb2803de5d3839e1ee9b22674ddab96ed50e1e95d598a",
+    "proposal_policy_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "search_state_sha256": "c938ac007bf70fe8d27f64661175531e51fcb16b38318c328493c32ee292e27e",
+    "treatment_skeleton_sha256": "ebeb392444ad60ab262d572015cc31af6907630393b10a9f5686adb05e499f09"
+  },
+  "proposal_type": "ordinary",
+  "proposals_cumulative": 50,
+  "remaining_budget": {
+    "evaluations": 150,
+    "evaluator_seconds": 702220.646720079,
+    "proposals": 150,
+    "tokens": 97605971
+  },
+  "retained": false,
+  "retention_decision": "not_strictly_better_than_selected_parent",
+  "run_id": "nanogpt-openevolve-v2-1-h100-karpathy_nanogpt_source_only_h100-openevolve-b02-c2",
+  "schema_version": "1.0",
+  "selected_parent_ids": [
+    "da0fab8041f89267e9119479614152ce1fb1dbe7d0ee9f19538d8e7cc1a58e34"
+  ],
+  "timestamp": "2026-08-24T11:37:36.441855+00:00",
+  "usage_cumulative": {
+    "cached_input_tokens": 520448,
+    "input_tokens": 2295716,
+    "output_tokens": 98313,
+    "reasoning_output_tokens": 77420,
+    "total_tokens": 2394029
+  },
+  "usage_increment": {
+    "cached_input_tokens": 0,
+    "input_tokens": 47530,
+    "output_tokens": 2306,
+    "reasoning_output_tokens": 1755,
+    "total_tokens": 49836
+  },
+  "visible_candidate_ids": [
+    "761bdc3a9986715bde68aade4ce376169df271d89ccd1075361a8e0bfb4c2d40",
+    "da0fab8041f89267e9119479614152ce1fb1dbe7d0ee9f19538d8e7cc1a58e34",
+    "dd306615854612c5f4c6a6e93de354d631860c584ec86d42a682044f0f611cbd",
+    "668e4a8eb9addff07c0ea19c69f44df9e7c96f796a33fe29b6e513cce7f9dac1"
+  ]
+}

@@ -1,0 +1,88 @@
+{
+  "artifact_path": "candidates/15e47e53e7cc86d5d4ff31b50bc4eec05aaa8f363078a42daeddb3693accc3d6",
+  "candidate_id": "15e47e53e7cc86d5d4ff31b50bc4eec05aaa8f363078a42daeddb3693accc3d6",
+  "codex_service_tier": "fast",
+  "condition": "C2",
+  "conversation_session_id": null,
+  "evaluation": {
+    "evaluator_calls": 1,
+    "evaluator_seconds": 358.63960717699956,
+    "failure_kind": null,
+    "fitness": -1.009763,
+    "metrics": {
+      "depth": 8.0,
+      "mfu_percent": 31.3,
+      "num_params_M": 50.3,
+      "num_steps": 1000.0,
+      "peak_vram_mb": 45060.2,
+      "total_tokens_M": 393.2,
+      "training_seconds": 300.3,
+      "val_bpb": 1.009763
+    },
+    "valid": true
+  },
+  "evaluator_calls_cumulative": 7,
+  "evaluator_calls_increment": 1,
+  "evaluator_seconds_cumulative": 2819.589822705,
+  "evaluator_seconds_increment": 358.63960717699956,
+  "event": "proposal_completed",
+  "evicted_candidate_id": null,
+  "evidence": "One-microbatch training reached 0.996687 with 1,560 steps and 408.9M tokens, while two-microbatch training reached 0.995558 with 948 steps and 497.0M tokens; an alternating batch schedule directly tests the unobserved throughput/update-frequency midpoint.",
+  "hypothesis": "Alternating 262K- and 524K-token updates will combine the current design\u2019s higher update frequency with Reference Design 1\u2019s higher throughput, processing roughly 460M tokens in about 1,200 steps and lowering val_bpb below 0.995558.",
+  "incumbent_after": "2865e528e18dc51191e4037eaeb5824cb0ea83ede79061b59b8f3caac686da6b",
+  "intended_edit": "Keep the proven SSSL architecture and 128-sequence microbatch, but alternate gradient accumulation between one and two microbatches while accurately tracking tokens and MFU.",
+  "mechanism": "Alternating one- and two-microbatch optimizer steps",
+  "opportunity": 7,
+  "parent_ids": [
+    "751f6421ee699b4c6ae86e4cb2e4fb251857399c2f9b5720235c590a65eaf50a"
+  ],
+  "portfolio_after": [
+    "2865e528e18dc51191e4037eaeb5824cb0ea83ede79061b59b8f3caac686da6b",
+    "751f6421ee699b4c6ae86e4cb2e4fb251857399c2f9b5720235c590a65eaf50a",
+    "2e2cbe56bf689ee5b5413e2bfb8ea74ccfb21838ac3e2da0a617dbfd5a7e1d4e",
+    "3f86c29c7b170f9b5dd7ccebde668fea2f9f9bc32c149a3e774ae1f52f25cd9d"
+  ],
+  "prompt_hashes": {
+    "common_template_sha256": "ba85b39aa7288f4f48475376da6cff65661f39cfeb7ac7cde15b2a9a2e692fde",
+    "prompt_sha256": "3458c46b7dea80c473317945a0f557c0bf640e90fea00c1bf529ea3f2d2483ce",
+    "proposal_policy_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "search_state_sha256": "c938ac007bf70fe8d27f64661175531e51fcb16b38318c328493c32ee292e27e",
+    "treatment_skeleton_sha256": "4f41fc4282a9ff5fdf17f92b670857751bbf87af520e432a6dafef2d4b716aea"
+  },
+  "proposal_type": "ordinary",
+  "proposals_cumulative": 7,
+  "remaining_budget": {
+    "evaluations": 193,
+    "evaluator_seconds": 717180.410177295,
+    "proposals": 193,
+    "tokens": 99707545
+  },
+  "retained": false,
+  "retention_decision": "not_strictly_better_than_selected_parent",
+  "run_id": "nanogpt-openevolve-v2-1-h100-karpathy_nanogpt_source_only_h100-openevolve-b01-c2",
+  "schema_version": "1.0",
+  "selected_parent_ids": [
+    "751f6421ee699b4c6ae86e4cb2e4fb251857399c2f9b5720235c590a65eaf50a"
+  ],
+  "timestamp": "2026-08-23T16:27:52.983596+00:00",
+  "usage_cumulative": {
+    "cached_input_tokens": 70144,
+    "input_tokens": 269153,
+    "output_tokens": 23302,
+    "reasoning_output_tokens": 20537,
+    "total_tokens": 292455
+  },
+  "usage_increment": {
+    "cached_input_tokens": 12032,
+    "input_tokens": 45669,
+    "output_tokens": 3406,
+    "reasoning_output_tokens": 2497,
+    "total_tokens": 49075
+  },
+  "visible_candidate_ids": [
+    "2865e528e18dc51191e4037eaeb5824cb0ea83ede79061b59b8f3caac686da6b",
+    "751f6421ee699b4c6ae86e4cb2e4fb251857399c2f9b5720235c590a65eaf50a",
+    "2e2cbe56bf689ee5b5413e2bfb8ea74ccfb21838ac3e2da0a617dbfd5a7e1d4e",
+    "3f86c29c7b170f9b5dd7ccebde668fea2f9f9bc32c149a3e774ae1f52f25cd9d"
+  ]
+}

@@ -1,0 +1,88 @@
+{
+  "artifact_path": "candidates/021833cad0c0546a7f0b572151648095ee7bb0de7c565cf4face4171caa2b92e",
+  "candidate_id": "021833cad0c0546a7f0b572151648095ee7bb0de7c565cf4face4171caa2b92e",
+  "codex_service_tier": "default",
+  "condition": "C3",
+  "conversation_session_id": null,
+  "evaluation": {
+    "evaluator_calls": 1,
+    "evaluator_seconds": 375.9751627779988,
+    "failure_kind": null,
+    "fitness": -0.99236,
+    "metrics": {
+      "depth": 8.0,
+      "mfu_percent": 37.74,
+      "num_params_M": 50.3,
+      "num_steps": 904.0,
+      "peak_vram_mb": 46349.5,
+      "total_tokens_M": 474.0,
+      "training_seconds": 300.1,
+      "val_bpb": 0.99236
+    },
+    "valid": true
+  },
+  "evaluator_calls_cumulative": 26,
+  "evaluator_calls_increment": 1,
+  "evaluator_seconds_cumulative": 9675.818233131997,
+  "evaluator_seconds_increment": 375.9751627779988,
+  "event": "proposal_completed",
+  "evicted_candidate_id": "3e4e39b024acb43ec694e138159642fb1943bf91abd7c24d580ad02531da1a49",
+  "evidence": "Two-lag mixing with four handoff-layer attention gates achieved the best val_bpb, 0.992110 on 477.1M tokens, while adding a third lag regressed to 0.992455; successful first-32-channel attention gating suggests token-dependent selection is more promising than extending the fixed receptive field.",
+  "hypothesis": "Restoring the best two-lag receptive field and dynamically scaling each lag from the current token will lower val_bpb below 0.992110 while retaining at least 470M trained tokens.",
+  "incumbent_after": "528755766b20deef30a32a5dd29aae232775b7555dc993f76a9a5bd80f1a972d",
+  "intended_edit": "Remove the regressive third lag and add a neutral-initialized, first-32-channel gate that independently modulates the two channel-wise causal embedding paths.",
+  "mechanism": "Token-conditioned two-lag embedding mixing",
+  "opportunity": 26,
+  "parent_ids": [
+    "3e4e39b024acb43ec694e138159642fb1943bf91abd7c24d580ad02531da1a49"
+  ],
+  "portfolio_after": [
+    "9931424bd937324c0b9cc3301f65f06033626b33e060d110d5f4424b73c546cd",
+    "021833cad0c0546a7f0b572151648095ee7bb0de7c565cf4face4171caa2b92e",
+    "528755766b20deef30a32a5dd29aae232775b7555dc993f76a9a5bd80f1a972d",
+    "073c0c20ffce9f9c7373a4c08fde16f87d5b194ad21c03d8a86866625dafc42b"
+  ],
+  "prompt_hashes": {
+    "common_template_sha256": "ba85b39aa7288f4f48475376da6cff65661f39cfeb7ac7cde15b2a9a2e692fde",
+    "prompt_sha256": "daebe8f497e52a4207074a4b10b4704924e9d6e2473c23e23f5100ce8d6dd179",
+    "proposal_policy_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "search_state_sha256": "c938ac007bf70fe8d27f64661175531e51fcb16b38318c328493c32ee292e27e",
+    "treatment_skeleton_sha256": "c51fd69970bac05b414d8563db6c3683096cce0c50447d3d7afc50e18e695b75"
+  },
+  "proposal_type": "ordinary",
+  "proposals_cumulative": 26,
+  "remaining_budget": {
+    "evaluations": 174,
+    "evaluator_seconds": 710324.181766868,
+    "proposals": 174,
+    "tokens": 98746352
+  },
+  "retained": true,
+  "retention_decision": "replaced_selected_parent_on_strict_improvement",
+  "run_id": "nanogpt-openevolve-v2-1-h100-karpathy_nanogpt_source_only_h100-openevolve-b03-c3",
+  "schema_version": "1.0",
+  "selected_parent_ids": [
+    "3e4e39b024acb43ec694e138159642fb1943bf91abd7c24d580ad02531da1a49"
+  ],
+  "timestamp": "2026-08-24T02:05:25.455772+00:00",
+  "usage_cumulative": {
+    "cached_input_tokens": 340480,
+    "input_tokens": 1170903,
+    "output_tokens": 82745,
+    "reasoning_output_tokens": 65719,
+    "total_tokens": 1253648
+  },
+  "usage_increment": {
+    "cached_input_tokens": 12032,
+    "input_tokens": 48516,
+    "output_tokens": 3184,
+    "reasoning_output_tokens": 2525,
+    "total_tokens": 51700
+  },
+  "visible_candidate_ids": [
+    "9931424bd937324c0b9cc3301f65f06033626b33e060d110d5f4424b73c546cd",
+    "3e4e39b024acb43ec694e138159642fb1943bf91abd7c24d580ad02531da1a49",
+    "528755766b20deef30a32a5dd29aae232775b7555dc993f76a9a5bd80f1a972d",
+    "073c0c20ffce9f9c7373a4c08fde16f87d5b194ad21c03d8a86866625dafc42b"
+  ]
+}

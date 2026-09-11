@@ -1,0 +1,85 @@
+{
+  "artifact_path": "candidates/8c634ad88f141bc206f324e7a438f472b74f274ac1b2e503fb5010c2bb7a438b",
+  "candidate_id": "8c634ad88f141bc206f324e7a438f472b74f274ac1b2e503fb5010c2bb7a438b",
+  "codex_service_tier": "default",
+  "condition": "C3",
+  "conversation_session_id": null,
+  "evaluation": {
+    "evaluator_calls": 1,
+    "evaluator_seconds": 464.61330816615373,
+    "failure_kind": null,
+    "fitness": -1378.0,
+    "metrics": {
+      "accuracy": 0.9939,
+      "cases": 10010,
+      "correct": 9949,
+      "parameters": 1378,
+      "training_steps": 4999
+    },
+    "valid": true
+  },
+  "evaluator_calls_cumulative": 91,
+  "evaluator_calls_increment": 1,
+  "evaluator_seconds_cumulative": 42150.635221798206,
+  "evaluator_seconds_increment": 464.61330816615373,
+  "event": "proposal_completed",
+  "evicted_candidate_id": "5681139d612b8aee49d79e110a769740053f4f1a4039eb69fafcd4ce4d8ec135",
+  "evidence": "The current design verifies at 99.67% while already absorbing two `ln1` scales. The failed 1,378-parameter trials altered attention-output or `fc1` gauges, so extending the previously qualified scale-absorption mechanism is the most informative distinct one-parameter reduction.",
+  "hypothesis": "A 1,378-parameter model will retain at least 99% accuracy because the verified 1,379-parameter design achieved 99.67%, and absorbing a third `ln1` scale extends the exact downstream q/k/v factorization already used successfully for two scales.",
+  "incumbent_after": "8c634ad88f141bc206f324e7a438f472b74f274ac1b2e503fb5010c2bb7a438b",
+  "intended_edit": "Remove one learned `ln1` scale, absorb it into the corresponding q/k/v input columns, and preserve its full ambient AdamW and gradient-clipping dynamics through the existing virtual-scale optimizer path.",
+  "mechanism": "Third pre-attention LayerNorm scale absorption",
+  "opportunity": 93,
+  "parent_ids": [
+    "5681139d612b8aee49d79e110a769740053f4f1a4039eb69fafcd4ce4d8ec135"
+  ],
+  "portfolio_after": [
+    "cf8fe12a14b754d7fcaf83b4f587925df6c64d662436fff011a49e6eca24f517",
+    "acf97f01c8a4e544b99e8209543a638dd2f26e5f70c823e389723de220b5977a",
+    "445db01bca5dfb79507af18ea5b735c4085d3804c17647d05e10a68beb110b94",
+    "8c634ad88f141bc206f324e7a438f472b74f274ac1b2e503fb5010c2bb7a438b"
+  ],
+  "prompt_hashes": {
+    "common_template_sha256": "3f2bea6418b6969c4bf2aa1df18dcda8a3a4ac075bf20c79068c754698b6be5e",
+    "prompt_sha256": "0e6c38c02d64a191ab0b3da167b42665d8fb24b46abc0667bfe628dc135581fb",
+    "proposal_policy_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "search_state_sha256": "c938ac007bf70fe8d27f64661175531e51fcb16b38318c328493c32ee292e27e",
+    "treatment_skeleton_sha256": "a17e749887cd79c0062a01c2fad2ec068ede6430a9b1c94a71d6afd6b7995a51"
+  },
+  "proposal_type": "ordinary",
+  "proposals_cumulative": 93,
+  "remaining_budget": {
+    "evaluations": 109,
+    "evaluator_seconds": 317849.3647782018,
+    "proposals": 107,
+    "tokens": 95826906
+  },
+  "retained": true,
+  "retention_decision": "replaced_selected_parent_on_strict_improvement",
+  "run_id": "controlled-openevolve-transformer-v2-1-source-only-ten-digit-addition-pair-transformer-openevolve-v2-1-mps-openevolve-b03-c3",
+  "schema_version": "1.0",
+  "selected_parent_ids": [
+    "5681139d612b8aee49d79e110a769740053f4f1a4039eb69fafcd4ce4d8ec135"
+  ],
+  "timestamp": "2026-09-03T10:17:42.562837+00:00",
+  "usage_cumulative": {
+    "cached_input_tokens": 1032704,
+    "input_tokens": 3731239,
+    "output_tokens": 441855,
+    "reasoning_output_tokens": 303604,
+    "total_tokens": 4173094
+  },
+  "usage_increment": {
+    "cached_input_tokens": 10752,
+    "input_tokens": 54446,
+    "output_tokens": 4891,
+    "reasoning_output_tokens": 3552,
+    "total_tokens": 59337
+  },
+  "visible_candidate_ids": [
+    "cf8fe12a14b754d7fcaf83b4f587925df6c64d662436fff011a49e6eca24f517",
+    "acf97f01c8a4e544b99e8209543a638dd2f26e5f70c823e389723de220b5977a",
+    "445db01bca5dfb79507af18ea5b735c4085d3804c17647d05e10a68beb110b94",
+    "5681139d612b8aee49d79e110a769740053f4f1a4039eb69fafcd4ce4d8ec135"
+  ]
+}

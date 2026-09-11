@@ -1,0 +1,99 @@
+{
+  "artifact_path": "candidates/54e8969b340a9bfb14171e9b07a86aa5732f0541c36668756f5ff9794539efda",
+  "candidate_id": "54e8969b340a9bfb14171e9b07a86aa5732f0541c36668756f5ff9794539efda",
+  "codex_service_tier": "default",
+  "condition": "C1",
+  "conversation_session_id": null,
+  "evaluation": {
+    "evaluator_calls": 1,
+    "evaluator_seconds": 65.24235533294268,
+    "failure_kind": "nonqualification",
+    "fitness": null,
+    "metrics": {
+      "batch_size": 128,
+      "evaluation_cases": 815,
+      "evaluation_split": "public_speaker_disjoint_validation",
+      "examples_processed": 50000,
+      "inference_cost": 1429845007897611091,
+      "maximum_recurrent_steps": 25,
+      "mean_recurrent_steps": 25.0,
+      "median_recurrent_steps": 25,
+      "optimizer_steps": 397,
+      "p95_recurrent_steps": 25,
+      "parameters": 15186,
+      "peak_hidden_elements": 89600,
+      "recurrent_logit_effect": 0.09236494451761246,
+      "recurrent_macs": 272984250,
+      "recurrent_steps": 20375,
+      "state_dependence_effect": 0.3289620280265808,
+      "state_update_effect": 0.3515462577342987,
+      "total_inference_macs": 274118730,
+      "trained_recurrent_logit_effect": 0.6708260178565979,
+      "trained_state_dependence_effect": 0.3676428198814392,
+      "trained_state_update_effect": 0.41121160984039307,
+      "training_seconds": 45.39927483280189,
+      "validation_accuracy": 0.845398773006135,
+      "validation_correct": 689,
+      "validation_cross_entropy": 0.4697868300361867
+    },
+    "valid": false
+  },
+  "evaluator_calls_cumulative": 36,
+  "evaluator_calls_increment": 1,
+  "evaluator_seconds_cumulative": 3744.806093666237,
+  "evaluator_seconds_increment": 65.24235533294268,
+  "event": "proposal_completed",
+  "evicted_candidate_id": null,
+  "evidence": "Removing a recurrent step failed even after increasing width to 59, indicating temporal context is currently more valuable than added capacity; the successful 58-unit, 25-step design motivates preserving its dynamics while testing redundancy between adjacent spectral bands.",
+  "hypothesis": "Fusing the two highest adjacent mel bands will preserve at least 85% validation accuracy while reducing the successful 25-step model by exactly 174 GRU MACs per recurrent step, approximately 3.55M validation MACs overall.",
+  "incumbent_after": "c13838e1b09878795b254ed269f0a0aa4930905a5ad695f315c3d7a5cc30b07a",
+  "intended_edit": "Keep the verified 58-unit GRU, 25-frame schedule, and temporal readout, but average the two highest normalized mel bands so the GRU structurally consumes 19 inputs instead of 20.",
+  "mechanism": "Adjacent high-frequency mel-band fusion",
+  "opportunity": 36,
+  "parent_ids": [
+    "c13838e1b09878795b254ed269f0a0aa4930905a5ad695f315c3d7a5cc30b07a"
+  ],
+  "portfolio_after": [
+    "c13838e1b09878795b254ed269f0a0aa4930905a5ad695f315c3d7a5cc30b07a"
+  ],
+  "prompt_hashes": {
+    "common_template_sha256": "dee04faf4c430276c1036ba97f5705a339857dbdf19117dac88952a5a3a47e9d",
+    "prompt_sha256": "58a273a9083355e18faac49352220e4eefcbf9741cdadc0ff71a6b7d3ef6a58e",
+    "proposal_policy_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "search_state_sha256": "04e5eb078ae1964e4ec65bfeeeb1acd0ffa246e7d54d5e0f997f81f602da28c5",
+    "treatment_skeleton_sha256": "1707745706524b25fb2265cd39f1346976e691b99098a486609a93f65eaa7a6f"
+  },
+  "proposal_type": "ordinary",
+  "proposals_cumulative": 36,
+  "remaining_budget": {
+    "evaluations": 164,
+    "evaluator_seconds": 56255.19390633376,
+    "proposals": 164,
+    "tokens": 99239673
+  },
+  "retained": false,
+  "retention_decision": "invalid",
+  "run_id": "tiny-kws-rnn-openevolve-v2-1-cpu-tiny_kws_rnn_source_only_cpu-openevolve-b04-c1",
+  "schema_version": "1.0",
+  "selected_parent_ids": [
+    "c13838e1b09878795b254ed269f0a0aa4930905a5ad695f315c3d7a5cc30b07a"
+  ],
+  "timestamp": "2026-09-04T04:16:58.642315+00:00",
+  "usage_cumulative": {
+    "cached_input_tokens": 387072,
+    "input_tokens": 707597,
+    "output_tokens": 52730,
+    "reasoning_output_tokens": 37277,
+    "total_tokens": 760327
+  },
+  "usage_increment": {
+    "cached_input_tokens": 10752,
+    "input_tokens": 20212,
+    "output_tokens": 6635,
+    "reasoning_output_tokens": 6149,
+    "total_tokens": 26847
+  },
+  "visible_candidate_ids": [
+    "c13838e1b09878795b254ed269f0a0aa4930905a5ad695f315c3d7a5cc30b07a"
+  ]
+}

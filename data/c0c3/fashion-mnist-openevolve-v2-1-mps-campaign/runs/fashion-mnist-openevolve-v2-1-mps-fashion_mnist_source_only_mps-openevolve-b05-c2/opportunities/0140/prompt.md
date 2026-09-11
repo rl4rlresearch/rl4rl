@@ -1,0 +1,178 @@
+# Improve fixed-exposure image classification
+
+You are an autonomous ML engineer improving a learned classifier for 28×28
+grayscale images in ten classes.
+
+## Goal
+
+Maximize `validation_score`. It ranks implementations first by the exact number
+of correct predictions on the fixed 10,000-image validation set, then—only when
+correct counts tie—by lower validation cross-entropy. Every verification starts
+from a fresh initialization and presents exactly 100,000 examples from the
+fixed 50,000-image training split.
+
+You may change the model architecture, optimizer, loss, augmentation, batch
+size, gradient handling, schedule, and other contents of `train.py`. The fixed
+data split, normalization, example accounting, validation calculation,
+250,000-learned-parameter ceiling, and device are not editable. The protected
+loop calls the functions already defined in `train.py`; keep that interface
+intact. The model must return one ten-class logit vector per image.
+
+## Work boundaries
+
+Maximize validation_score. No additional accuracy threshold.
+Editable source files: train.py.
+Results reported after each verification: validation_score, validation_correct, validation_accuracy, validation_cross_entropy, parameters, examples_processed, optimizer_steps, training_seconds, batch_size.
+
+Propose changes through exact SEARCH/REPLACE blocks. The patching interface applies them to the supplied editable source.
+
+The editable source and any reference source are included below. Do not access
+parent directories, home directories, shared temporary directories, global
+session history, online sources, external datasets, pretrained weights, or any
+surrounding repository. Do not run training or validation yourself and do not
+generate hidden alternatives. Return one patch for one implementation;
+verification happens after you finish.
+
+## Available designs
+
+The current editable design and the qualified reference designs below are available as technical evidence. Edit only the current workspace.
+
+CURRENT DESIGN
+verified_results: {"batch_size": 128, "examples_processed": 100000, "optimizer_steps": 782, "parameters": 249260, "training_seconds": 46.06535691698082, "validation_accuracy": 0.9192, "validation_correct": 9192, "validation_cross_entropy": 0.22195726585388184, "validation_score": 9192.409179612063}
+prior_hypothesis: A centered quintic coefficient of −0.000010901574 will preserve all 9,192 argmax predictions and reduce validation cross-entropy below 0.22195767936706542.
+
+REFERENCE DESIGN 1
+verified_results: {"batch_size": 128, "examples_processed": 100000, "optimizer_steps": 782, "parameters": 249260, "training_seconds": 59.12790974997915, "validation_accuracy": 0.9192, "validation_correct": 9192, "validation_cross_entropy": 0.2219506046295166, "validation_score": 9192.409181842626}
+prior_hypothesis: A centered sextic coefficient of −0.000002667 will preserve all 9,192 argmax predictions and reduce validation cross-entropy below 0.22195066108703612.
+
+REFERENCE DESIGN 2
+verified_results: {"batch_size": 128, "examples_processed": 100000, "optimizer_steps": 782, "parameters": 249260, "training_seconds": 50.43532566702925, "validation_accuracy": 0.9192, "validation_correct": 9192, "validation_cross_entropy": 0.22195199546813965, "validation_score": 9192.40918137689}
+prior_hypothesis: Adding a centered sextic coefficient of −0.00000145 will preserve all 9,192 argmax predictions and reduce validation cross-entropy below 0.22195726203918456.
+
+REFERENCE DESIGN 3
+verified_results: {"batch_size": 128, "examples_processed": 100000, "optimizer_steps": 782, "parameters": 249260, "training_seconds": 58.933764500077814, "validation_accuracy": 0.9192, "validation_correct": 9192, "validation_cross_entropy": 0.22195066108703612, "validation_score": 9192.409181823721}
+prior_hypothesis: Doubling the centered sextic coefficient to −0.00000290 will preserve all 9,192 argmax predictions and reduce validation cross-entropy below 0.22195199546813965.
+
+## Recent verification evidence
+
+RECENT RESULT
+hypothesis: A centered quintic coefficient of −0.00001092871744875 will preserve all 9,192 correct predictions and reduce validation cross-entropy below 0.22195726203918456.
+change: Add a centered quintic margin term at the local quadratic optimum while retaining the verified quartic calibration.
+mechanism: Quadratic-vertex quintic confidence calibration
+evidence_used: Coefficients −0.000010901574, −0.00001092570151, and −0.00001094982902 produced cross-entropies 0.22195726585388184, 0.22195726203918456, and 0.22195726432800292 with identical accuracy; quadratic interpolation places the minimum near −0.00001092871744875.
+result: improved the objective and became an available design
+reported_values: {"batch_size": 128, "examples_processed": 100000, "optimizer_steps": 782, "parameters": 249260, "training_seconds": 40.07324216607958, "validation_accuracy": 0.9192, "validation_correct": 9192, "validation_cross_entropy": 0.22195726737976074, "validation_score": 9192.409179611552}
+
+RECENT RESULT
+hypothesis: A centered quintic coefficient of −0.00001092268557125 will preserve all 9,192 argmax predictions and reduce validation cross-entropy below 0.22195726203918456.
+change: Reflect the unsuccessful −0.00001092871744875 probe across the best verified coefficient, −0.00001092570151, to test the opposite side at equal distance.
+mechanism: Symmetric micro-bracketing of quintic confidence calibration
+evidence_used: The current coefficient achieved the lowest verified cross-entropy, while the nearest tested coefficient, −0.00001092871744875, was worse with identical accuracy; the symmetric opposite probe is the most informative local refinement.
+result: was valid but was not a strict improvement
+reported_values: {"batch_size": 128, "examples_processed": 100000, "optimizer_steps": 782, "parameters": 249260, "training_seconds": 64.5151190829929, "validation_accuracy": 0.9192, "validation_correct": 9192, "validation_cross_entropy": 0.22195726318359374, "validation_score": 9192.409179612958}
+
+RECENT RESULT
+hypothesis: A centered quintic coefficient of −0.00001092472576511 will preserve all 9,192 correct predictions and reduce validation cross-entropy below 0.22195726203918456.
+change: Replace the current overshot quintic coefficient with the quadratic vertex fitted from the closest symmetric probes around the best verified coefficient.
+mechanism: Symmetric micro-bracket quadratic interpolation
+evidence_used: The best coefficient, −0.00001092570151, achieved cross-entropy 0.22195726203918456; equal-distance probes at −0.00001092268557125 and −0.00001092871744875 were both worse, and their asymmetric losses place the interpolated minimum slightly toward the less-negative probe.
+result: was valid but was not a strict improvement
+reported_values: {"batch_size": 128, "examples_processed": 100000, "optimizer_steps": 782, "parameters": 249260, "training_seconds": 52.79805037518963, "validation_accuracy": 0.9192, "validation_correct": 9192, "validation_cross_entropy": 0.22195726737976074, "validation_score": 9192.409179611552}
+
+RECENT RESULT
+hypothesis: Replacing the current quintic coefficient with −0.00001092570151 will preserve all 9,192 argmax predictions and reduce validation cross-entropy below 0.22195726585388184.
+change: Set the evaluation-time centered-quintic calibration coefficient to the best verified value.
+mechanism: Best-verified centered-quintic confidence calibration
+evidence_used: Reference Design 2 used −0.00001092570151 and achieved 9,192 correct with cross-entropy 0.22195726203918456, strictly outperforming the current coefficient at identical accuracy.
+result: the implementation could not be verified
+
+RECENT RESULT
+hypothesis: Restoring the verified coefficient −0.00001092570151 will preserve all 9,192 argmax predictions and reduce validation cross-entropy below the current 0.22195726737976074.
+change: Replace the current overshot quintic calibration coefficient with the best verified value.
+mechanism: Best-verified centered-quintic confidence calibration
+evidence_used: Reference Design 2 achieved the highest available validation score with 9,192 correct predictions and cross-entropy 0.22195726203918456; the current coefficient produced higher cross-entropy at identical accuracy.
+result: improved the objective and became an available design
+reported_values: {"batch_size": 128, "examples_processed": 100000, "optimizer_steps": 782, "parameters": 249260, "training_seconds": 48.30767379095778, "validation_accuracy": 0.9192, "validation_correct": 9192, "validation_cross_entropy": 0.22195726203918456, "validation_score": 9192.40917961334}
+
+RECENT RESULT
+hypothesis: A centered quintic coefficient of −0.00001092667725489 will preserve all 9,192 argmax predictions and reduce validation cross-entropy below 0.22195726203918456.
+change: Reflect the unsuccessful −0.00001092472576511 probe across the best verified coefficient, −0.00001092570151, testing the opposite side at equal distance.
+mechanism: Symmetric ultra-local quintic calibration probe
+evidence_used: The current coefficient has the lowest verified cross-entropy; the nearest less-negative probe was worse at identical accuracy, so its untested symmetric counterpart is the most informative local refinement.
+result: was valid but was not a strict improvement
+reported_values: {"batch_size": 128, "examples_processed": 100000, "optimizer_steps": 782, "parameters": 249260, "training_seconds": 49.52815958298743, "validation_accuracy": 0.9192, "validation_correct": 9192, "validation_cross_entropy": 0.22195726318359374, "validation_score": 9192.409179612958}
+
+RECENT RESULT
+hypothesis: A centered quintic coefficient of −0.00001092601719 will preserve all 9,192 argmax predictions and reduce validation cross-entropy below 0.22195726203918456.
+change: Move the evaluation-time quintic coefficient to the quadratic vertex estimated from the closest symmetric probes.
+mechanism: Ultra-local quadratic quintic calibration
+evidence_used: The current coefficient achieved 0.22195726203918456 cross-entropy; equal-distance probes at −0.00001092472576511 and −0.00001092667725489 were worse but favored the more-negative side, placing the local quadratic estimate near −0.00001092601719.
+result: was valid but was not a strict improvement
+reported_values: {"batch_size": 128, "examples_processed": 100000, "optimizer_steps": 782, "parameters": 249260, "training_seconds": 60.88644862500951, "validation_accuracy": 0.9192, "validation_correct": 9192, "validation_cross_entropy": 0.22195726509094238, "validation_score": 9192.40917961232}
+
+RECENT RESULT
+hypothesis: Restoring −0.00001092570151 will preserve all 9,192 argmax predictions and reduce cross-entropy from 0.22195726432800292 to the verified 0.22195726203918456.
+change: Replace the overshot evaluation-time quintic coefficient with the best verified value.
+mechanism: Best-verified centered-quintic confidence calibration
+evidence_used: The same coefficient achieved the highest available score in Reference Designs 1 and 3; every ultra-local probe around it was worse at identical accuracy.
+result: the implementation could not be verified
+
+RECENT RESULT
+hypothesis: Using −0.00001092570151 will preserve all 9,192 correct predictions and reduce validation cross-entropy below the current 0.22195726585388184.
+change: Replace the evaluation-time centered-quintic coefficient with the best verified value.
+mechanism: Best-verified centered-quintic confidence calibration
+evidence_used: Reference Designs 2 and 3 achieved the highest available score using −0.00001092570151, with 9,192 correct predictions and cross-entropy 0.22195726203918456; every verified ultra-local probe around it was worse.
+result: the implementation could not be verified
+
+RECENT RESULT
+hypothesis: Adding a centered sextic coefficient of −0.00000145 will preserve all 9,192 argmax predictions and reduce validation cross-entropy below 0.22195726203918456.
+change: Retain the best verified quintic coefficient and add a small centered sextic term to model residual confidence-calibration error.
+mechanism: Sixth-order margin confidence calibration
+evidence_used: Every ultra-local quintic probe around −0.00001092570151 was worse at identical accuracy, indicating that coordinate is exhausted; the existing progressively smaller higher-order coefficients motivate testing the next orthogonal centered-margin term.
+result: improved the objective and became an available design
+reported_values: {"batch_size": 128, "examples_processed": 100000, "optimizer_steps": 782, "parameters": 249260, "training_seconds": 50.43532566702925, "validation_accuracy": 0.9192, "validation_correct": 9192, "validation_cross_entropy": 0.22195199546813965, "validation_score": 9192.40918137689}
+
+RECENT RESULT
+hypothesis: Doubling the centered sextic coefficient to −0.00000290 will preserve all 9,192 argmax predictions and reduce validation cross-entropy below 0.22195199546813965.
+change: Add the centered sextic margin feature and continue one equal-sized step beyond the verified −0.00000145 coefficient.
+mechanism: Directional sextic calibration continuation
+evidence_used: Moving the sextic coefficient from zero to −0.00000145 reduced cross-entropy from 0.22195726203918456 to 0.22195199546813965 with unchanged accuracy, so an equal-step continuation is the most informative directional probe.
+result: improved the objective and became an available design
+reported_values: {"batch_size": 128, "examples_processed": 100000, "optimizer_steps": 782, "parameters": 249260, "training_seconds": 58.933764500077814, "validation_accuracy": 0.9192, "validation_correct": 9192, "validation_cross_entropy": 0.22195066108703612, "validation_score": 9192.409181823721}
+
+RECENT RESULT
+hypothesis: A centered sextic coefficient of −0.000002667 will preserve all 9,192 argmax predictions and reduce validation cross-entropy below 0.22195066108703612.
+change: Restore the best verified quintic coefficient and add a sextic term at the quadratic optimum interpolated from the verified zero, −0.00000145, and −0.00000290 results.
+mechanism: Quadratic-vertex sextic confidence calibration
+evidence_used: Equal sextic steps improved cross-entropy by 0.00000526657 and then 0.00000133438 with unchanged accuracy; the diminishing improvement implies positive local curvature and places the fitted minimum near −0.000002667.
+result: improved the objective and became an available design
+reported_values: {"batch_size": 128, "examples_processed": 100000, "optimizer_steps": 782, "parameters": 249260, "training_seconds": 59.12790974997915, "validation_accuracy": 0.9192, "validation_correct": 9192, "validation_cross_entropy": 0.2219506046295166, "validation_score": 9192.409181842626}
+
+
+
+Use the available technical evidence to choose the most informative next
+change. Treat unsuccessful or malformed work as evidence when a useful
+subject-level reason is provided. Do not invent missing evidence.
+
+## Response
+
+Return these short metadata lines followed by one or more exact
+`SEARCH`/`REPLACE` blocks that together produce one implementation:
+
+`MECHANISM: <a concise free-form name for the computational idea>`
+
+`HYPOTHESIS: <a falsifiable claim grounded in the evidence above>`
+
+`INTENDED_EDIT: <what this patch changes>`
+
+`EVIDENCE: <the most relevant prior result and why it motivates this patch>`
+
+Start each block with `<<<<<<< SEARCH`, put the exact existing lines next, use a
+line containing `=======` as the divider, put the replacement lines after it,
+and finish the block with `>>>>>>> REPLACE`.
+
+Every `SEARCH` section must be nonempty and match exactly once after earlier
+blocks have been applied. All blocks must apply. Together they must describe
+one implementation ready for verification. The mechanism name is descriptive,
+not chosen from a fixed list. Do not paste whole files, lengthy logs, or routine
+progress reports outside the patch.

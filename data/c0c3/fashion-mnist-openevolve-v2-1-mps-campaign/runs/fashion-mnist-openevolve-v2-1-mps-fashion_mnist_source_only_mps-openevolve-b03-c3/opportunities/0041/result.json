@@ -1,0 +1,91 @@
+{
+  "artifact_path": "candidates/97b5e19f169be38ea617586851acc4fd6059549c8eeb39d2eb67836462503fe8",
+  "candidate_id": "97b5e19f169be38ea617586851acc4fd6059549c8eeb39d2eb67836462503fe8",
+  "codex_service_tier": "default",
+  "condition": "C3",
+  "conversation_session_id": null,
+  "evaluation": {
+    "evaluator_calls": 1,
+    "evaluator_seconds": 44.314690166153014,
+    "failure_kind": null,
+    "fitness": 9226.409658826624,
+    "metrics": {
+      "batch_size": 192,
+      "evaluation_cases": 10000,
+      "evaluation_split": "public_validation",
+      "examples_processed": 100000,
+      "optimizer_steps": 522,
+      "parameters": 242546,
+      "training_seconds": 26.343437500065193,
+      "validation_accuracy": 0.9226,
+      "validation_correct": 9226,
+      "validation_cross_entropy": 0.2205278331756592,
+      "validation_score": 9226.409658826624
+    },
+    "valid": true
+  },
+  "evaluator_calls_cumulative": 39,
+  "evaluator_calls_increment": 1,
+  "evaluator_seconds_cumulative": 1784.4369398741983,
+  "evaluator_seconds_increment": 44.314690166153014,
+  "event": "proposal_completed",
+  "evicted_candidate_id": null,
+  "evidence": "The calibrated baseline consistently reaches 9,240 correct, while adding a global head reduced this to 9,227 and coordinate gating to 9,225; preserving the successful representation and changing only final-weight selection is the clearest orthogonal next test.",
+  "hypothesis": "Replacing the final optimizer iterate with a 0.98-decay exponential average of the same model weights will exceed 9,240 correct predictions by reducing late-training parameter noise without disturbing the proven architecture, augmentation, or evaluation calibration.",
+  "incumbent_after": "512d2d61c31cc4ea2309471cafa3f4722785926948027e4711b228ef2f5922c2",
+  "intended_edit": "Track an EMA of all learned parameters after each optimizer step and install it after the final step; retain final BatchNorm statistics and the verified 1.296352 logit scale.",
+  "mechanism": "End-of-training exponential weight averaging",
+  "opportunity": 41,
+  "parent_ids": [
+    "512d2d61c31cc4ea2309471cafa3f4722785926948027e4711b228ef2f5922c2"
+  ],
+  "portfolio_after": [
+    "512d2d61c31cc4ea2309471cafa3f4722785926948027e4711b228ef2f5922c2",
+    "6b55e5532a1458391768e63bc3b04243501135d2f2f19e6c5a14f571275ddab1",
+    "10278e7ce7197c743db9e774c0c49753e861ee1613b10d3e03109a8643e5b99f",
+    "f84cfcf55854b3bacd1acd20c4b41c9b1765fbfe5225453b5bb113f79319d627"
+  ],
+  "prompt_hashes": {
+    "common_template_sha256": "e8327ba94bab12abc7c7ec7c6615378a3ae62434efb944d4a7d9492f1d19bc14",
+    "prompt_sha256": "8578323293e5b858dfd9c5d418d551e84946bc28ef76ba245c16542e6cc503f1",
+    "proposal_policy_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "search_state_sha256": "c938ac007bf70fe8d27f64661175531e51fcb16b38318c328493c32ee292e27e",
+    "treatment_skeleton_sha256": "185de13532f9ece9d29de0b7ce031efd855543b0db76dda6471ddf54d11742a1"
+  },
+  "proposal_type": "ordinary",
+  "proposals_cumulative": 41,
+  "remaining_budget": {
+    "evaluations": 161,
+    "evaluator_seconds": 22215.5630601258,
+    "proposals": 159,
+    "tokens": 98909736
+  },
+  "retained": false,
+  "retention_decision": "not_strictly_better_than_selected_parent",
+  "run_id": "fashion-mnist-openevolve-v2-1-mps-fashion_mnist_source_only_mps-openevolve-b03-c3",
+  "schema_version": "1.0",
+  "selected_parent_ids": [
+    "512d2d61c31cc4ea2309471cafa3f4722785926948027e4711b228ef2f5922c2"
+  ],
+  "timestamp": "2026-08-24T04:22:41.561575+00:00",
+  "usage_cumulative": {
+    "cached_input_tokens": 464896,
+    "input_tokens": 976352,
+    "output_tokens": 113912,
+    "reasoning_output_tokens": 84686,
+    "total_tokens": 1090264
+  },
+  "usage_increment": {
+    "cached_input_tokens": 12032,
+    "input_tokens": 25908,
+    "output_tokens": 5245,
+    "reasoning_output_tokens": 4660,
+    "total_tokens": 31153
+  },
+  "visible_candidate_ids": [
+    "512d2d61c31cc4ea2309471cafa3f4722785926948027e4711b228ef2f5922c2",
+    "6b55e5532a1458391768e63bc3b04243501135d2f2f19e6c5a14f571275ddab1",
+    "10278e7ce7197c743db9e774c0c49753e861ee1613b10d3e03109a8643e5b99f",
+    "f84cfcf55854b3bacd1acd20c4b41c9b1765fbfe5225453b5bb113f79319d627"
+  ]
+}

@@ -1,0 +1,88 @@
+{
+  "artifact_path": "candidates/1ac5217b169af3ccd31f4d2c0356eb523f690f0ea5304ba52141d45fc7caa046",
+  "candidate_id": "1ac5217b169af3ccd31f4d2c0356eb523f690f0ea5304ba52141d45fc7caa046",
+  "codex_service_tier": "fast",
+  "condition": "C3",
+  "conversation_session_id": null,
+  "evaluation": {
+    "evaluator_calls": 1,
+    "evaluator_seconds": 388.6658771660004,
+    "failure_kind": null,
+    "fitness": -0.995144,
+    "metrics": {
+      "depth": 8.0,
+      "mfu_percent": 35.91,
+      "num_params_M": 50.1,
+      "num_steps": 940.0,
+      "peak_vram_mb": 44804.8,
+      "total_tokens_M": 492.8,
+      "training_seconds": 300.0,
+      "val_bpb": 0.995144
+    },
+    "valid": true
+  },
+  "evaluator_calls_cumulative": 20,
+  "evaluator_calls_increment": 1,
+  "evaluator_seconds_cumulative": 7517.078933307007,
+  "evaluator_seconds_increment": 388.6658771660004,
+  "event": "proposal_completed",
+  "evicted_candidate_id": null,
+  "evidence": "The 3\u00d7/5\u00d7 depth taper achieved the best val_bpb, 0.992431, while further uniform widening regressed; this suggests allocation is useful but ungated width scaling is exhausted. SwiGLU tests learned multiplicative feature selection without the repeated sequence-shift operations that reduced throughput to 390.1M tokens.",
+  "hypothesis": "Replacing additive ReLU\u00b2 features with parameter-matched multiplicative SwiGLU features, while retaining the successful upper-layer capacity bias, will process at least 490M tokens and reduce val_bpb below 0.992431.",
+  "incumbent_after": "0157c6ea14f93dec9d28d3d42863ad2b7513f0182c0122e21fafa79e576e9499",
+  "intended_edit": "Challenge the assumption that wider ungated ReLU\u00b2 MLPs are the best context representation: use 2\u00d7 lower-layer and 3.25\u00d7 upper-layer SwiGLU widths, approximately matching the proven 3\u00d7/5\u00d7 model\u2019s parameter count and compute.",
+  "mechanism": "Depth-tapered SwiGLU context feature gating",
+  "opportunity": 20,
+  "parent_ids": [
+    "7502b8bb0f536444344910a6250942f956933b7a38b18ec4014023ae54bb9cfb"
+  ],
+  "portfolio_after": [
+    "7502b8bb0f536444344910a6250942f956933b7a38b18ec4014023ae54bb9cfb",
+    "ee1f1cf686a479f175a9b2178602df52386a3561e80b0612b88ccd725e447c2e",
+    "49c753ebb9f66dc73f1fc12687402729601077c41d31a501822a355f5de0f259",
+    "0157c6ea14f93dec9d28d3d42863ad2b7513f0182c0122e21fafa79e576e9499"
+  ],
+  "prompt_hashes": {
+    "common_template_sha256": "ba85b39aa7288f4f48475376da6cff65661f39cfeb7ac7cde15b2a9a2e692fde",
+    "prompt_sha256": "d721fdb0e5bc4df8c6b01e74468963faf385ac30b69ba14d883135b6b9fe0358",
+    "proposal_policy_sha256": "cd7b9ba20a1cd1edd0663b5e3652baa9cd3c81925074103fe47e66c021d61a4a",
+    "search_state_sha256": "c938ac007bf70fe8d27f64661175531e51fcb16b38318c328493c32ee292e27e",
+    "treatment_skeleton_sha256": "e20e07cfd5fbcc1095d60b586da40daf52c9e65b651f25c400eb800ef9b27b21"
+  },
+  "proposal_type": "assumption_changing",
+  "proposals_cumulative": 20,
+  "remaining_budget": {
+    "evaluations": 180,
+    "evaluator_seconds": 712482.921066693,
+    "proposals": 180,
+    "tokens": 99070534
+  },
+  "retained": false,
+  "retention_decision": "not_strictly_better_than_selected_parent",
+  "run_id": "nanogpt-openevolve-v2-1-h100-karpathy_nanogpt_source_only_h100-openevolve-b02-c3",
+  "schema_version": "1.0",
+  "selected_parent_ids": [
+    "7502b8bb0f536444344910a6250942f956933b7a38b18ec4014023ae54bb9cfb"
+  ],
+  "timestamp": "2026-08-24T00:44:48.316714+00:00",
+  "usage_cumulative": {
+    "cached_input_tokens": 238592,
+    "input_tokens": 876751,
+    "output_tokens": 52715,
+    "reasoning_output_tokens": 45183,
+    "total_tokens": 929466
+  },
+  "usage_increment": {
+    "cached_input_tokens": 12032,
+    "input_tokens": 47424,
+    "output_tokens": 3568,
+    "reasoning_output_tokens": 2962,
+    "total_tokens": 50992
+  },
+  "visible_candidate_ids": [
+    "7502b8bb0f536444344910a6250942f956933b7a38b18ec4014023ae54bb9cfb",
+    "ee1f1cf686a479f175a9b2178602df52386a3561e80b0612b88ccd725e447c2e",
+    "49c753ebb9f66dc73f1fc12687402729601077c41d31a501822a355f5de0f259",
+    "0157c6ea14f93dec9d28d3d42863ad2b7513f0182c0122e21fafa79e576e9499"
+  ]
+}

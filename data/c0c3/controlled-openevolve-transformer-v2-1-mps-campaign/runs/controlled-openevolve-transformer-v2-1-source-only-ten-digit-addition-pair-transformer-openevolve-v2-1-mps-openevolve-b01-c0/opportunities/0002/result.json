@@ -1,0 +1,79 @@
+{
+  "artifact_path": "candidates/0c5739da9f29148e1e6269ddc9aed365a62c24fd7d53dc756ee0ead7226bed9b",
+  "candidate_id": "0c5739da9f29148e1e6269ddc9aed365a62c24fd7d53dc756ee0ead7226bed9b",
+  "codex_service_tier": "fast",
+  "condition": "C0",
+  "conversation_session_id": null,
+  "evaluation": {
+    "evaluator_calls": 1,
+    "evaluator_seconds": 232.32871545897797,
+    "failure_kind": "nonqualification",
+    "fitness": null,
+    "metrics": {
+      "accuracy": 0.9826999999999999,
+      "cases": 10010,
+      "correct": 9837,
+      "parameters": 1636,
+      "training_steps": 4999
+    },
+    "valid": false
+  },
+  "evaluator_calls_cumulative": 2,
+  "evaluator_calls_increment": 1,
+  "evaluator_seconds_cumulative": 455.8435051260749,
+  "evaluator_seconds_increment": 232.32871545897797,
+  "event": "proposal_completed",
+  "evicted_candidate_id": null,
+  "evidence": "Narrowing `d_ff` from 12 to 8 reduced parameters to 1576 but collapsed accuracy to 46.74%, showing that learned MLP capacity is essential; this patch instead removes eight attention parameters that are functionally redundant.",
+  "hypothesis": "Removing only the attention key bias will reduce parameters from 1644 to 1636 without reducing accuracy below 99%, because a shared key bias adds the same scalar to every unmasked attention logit for each query and therefore cancels exactly under softmax.",
+  "incumbent_after": "2b9cea175ed60b009337ac54f6e8ad23bf2c014eb4080237777bfb70bfd9fd5b",
+  "intended_edit": "Replace the fused QKV linear bias with separate learned query and value biases while leaving keys unbiased.",
+  "mechanism": "Eliminate softmax-invariant key bias",
+  "opportunity": 2,
+  "parent_ids": [
+    "2b9cea175ed60b009337ac54f6e8ad23bf2c014eb4080237777bfb70bfd9fd5b"
+  ],
+  "portfolio_after": [
+    "2b9cea175ed60b009337ac54f6e8ad23bf2c014eb4080237777bfb70bfd9fd5b"
+  ],
+  "prompt_hashes": {
+    "common_template_sha256": "3f2bea6418b6969c4bf2aa1df18dcda8a3a4ac075bf20c79068c754698b6be5e",
+    "prompt_sha256": "248961890ab0ea01cc16385253ac18ef856c29e0535a9ac6eb8103557926dede",
+    "proposal_policy_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "search_state_sha256": "04e5eb078ae1964e4ec65bfeeeb1acd0ffa246e7d54d5e0f997f81f602da28c5",
+    "treatment_skeleton_sha256": "d906e9f76649ee932d7cc7b5df7fa3f8c8d73ee50945b196048bf7907e93fc02"
+  },
+  "proposal_type": "ordinary",
+  "proposals_cumulative": 2,
+  "remaining_budget": {
+    "evaluations": 198,
+    "evaluator_seconds": 359544.1564948739,
+    "proposals": 198,
+    "tokens": 99960741
+  },
+  "retained": false,
+  "retention_decision": "invalid",
+  "run_id": "controlled-openevolve-transformer-v2-1-source-only-ten-digit-addition-pair-transformer-openevolve-v2-1-mps-openevolve-b01-c0",
+  "schema_version": "1.0",
+  "selected_parent_ids": [
+    "2b9cea175ed60b009337ac54f6e8ad23bf2c014eb4080237777bfb70bfd9fd5b"
+  ],
+  "timestamp": "2026-08-23T09:56:23.633773+00:00",
+  "usage_cumulative": {
+    "cached_input_tokens": 18944,
+    "input_tokens": 37402,
+    "output_tokens": 1857,
+    "reasoning_output_tokens": 1336,
+    "total_tokens": 39259
+  },
+  "usage_increment": {
+    "cached_input_tokens": 12032,
+    "input_tokens": 18768,
+    "output_tokens": 892,
+    "reasoning_output_tokens": 516,
+    "total_tokens": 19660
+  },
+  "visible_candidate_ids": [
+    "2b9cea175ed60b009337ac54f6e8ad23bf2c014eb4080237777bfb70bfd9fd5b"
+  ]
+}

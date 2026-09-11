@@ -1,0 +1,79 @@
+{
+  "artifact_path": "candidates/c8829789a9a11785fb460ef9a67466a96806245357b56229618133e01aeb554b",
+  "candidate_id": "c8829789a9a11785fb460ef9a67466a96806245357b56229618133e01aeb554b",
+  "codex_service_tier": "default",
+  "condition": "C0",
+  "conversation_session_id": null,
+  "evaluation": {
+    "evaluator_calls": 1,
+    "evaluator_seconds": 1341.9062981668394,
+    "failure_kind": null,
+    "fitness": -1595.0,
+    "metrics": {
+      "accuracy": 1.0,
+      "cases": 10010,
+      "correct": 10010,
+      "parameters": 1595,
+      "training_steps": 20999
+    },
+    "valid": true
+  },
+  "evaluator_calls_cumulative": 58,
+  "evaluator_calls_increment": 1,
+  "evaluator_seconds_cumulative": 35943.31914212112,
+  "evaluator_seconds_increment": 1341.9062981668394,
+  "event": "proposal_completed",
+  "evicted_candidate_id": "719d439f6ffad1ec2ac921fa25fa27466778f561c84111d96a7031986682d755",
+  "evidence": "Initialization-preserving attention-output column gauges achieved 99.98% and 99.96%, while the current gauge-anchored MLP output bias achieved 99.96%; together these validate the same uniform-output symmetry and optimizer treatment in the MLP without repeating the failed third attention-column or positional-row anchor.",
+  "hypothesis": "Anchoring one `fc2` input column\u2019s uniform-output coordinate will reduce the model from 1,596 to 1,595 parameters while retaining at least 99% accuracy after 21,000 steps, because adding a uniform vector to that column only creates positionwise residual shifts removed by subsequent LayerNorm.",
+  "incumbent_after": "c8829789a9a11785fb460ef9a67466a96806245357b56229618133e01aeb554b",
+  "intended_edit": "Store the final `fc2` column as seven relative coordinates plus a zero anchor, initialize it from an equivalent full eight-coordinate column, optimize it with GaugeAdamW, and add 1,000 low-rate refinement steps.",
+  "mechanism": "Initialization-preserving MLP output-column gauge",
+  "opportunity": 58,
+  "parent_ids": [
+    "719d439f6ffad1ec2ac921fa25fa27466778f561c84111d96a7031986682d755"
+  ],
+  "portfolio_after": [
+    "c8829789a9a11785fb460ef9a67466a96806245357b56229618133e01aeb554b"
+  ],
+  "prompt_hashes": {
+    "common_template_sha256": "3f2bea6418b6969c4bf2aa1df18dcda8a3a4ac075bf20c79068c754698b6be5e",
+    "prompt_sha256": "5d1bad473994be5a33723d71da3e4a28d18039b598c07aeeaed6b774ae1e53e8",
+    "proposal_policy_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "search_state_sha256": "04e5eb078ae1964e4ec65bfeeeb1acd0ffa246e7d54d5e0f997f81f602da28c5",
+    "treatment_skeleton_sha256": "c3a39d785dd3da2cd1daa04310c1e54abf80a0c797d957013c972eb4c9dd2d18"
+  },
+  "proposal_type": "ordinary",
+  "proposals_cumulative": 58,
+  "remaining_budget": {
+    "evaluations": 142,
+    "evaluator_seconds": 324056.6808578789,
+    "proposals": 142,
+    "tokens": 98563985
+  },
+  "retained": true,
+  "retention_decision": "strict_incumbent_improvement",
+  "run_id": "controlled-openevolve-transformer-v2-1-source-only-ten-digit-addition-pair-transformer-openevolve-v2-1-mps-openevolve-b03-c0",
+  "schema_version": "1.0",
+  "selected_parent_ids": [
+    "719d439f6ffad1ec2ac921fa25fa27466778f561c84111d96a7031986682d755"
+  ],
+  "timestamp": "2026-08-25T06:09:42.739311+00:00",
+  "usage_cumulative": {
+    "cached_input_tokens": 628480,
+    "input_tokens": 1245928,
+    "output_tokens": 190087,
+    "reasoning_output_tokens": 160644,
+    "total_tokens": 1436015
+  },
+  "usage_increment": {
+    "cached_input_tokens": 12032,
+    "input_tokens": 23191,
+    "output_tokens": 3720,
+    "reasoning_output_tokens": 2868,
+    "total_tokens": 26911
+  },
+  "visible_candidate_ids": [
+    "719d439f6ffad1ec2ac921fa25fa27466778f561c84111d96a7031986682d755"
+  ]
+}

@@ -1,0 +1,162 @@
+# Improve fixed-exposure image classification
+
+You are an autonomous ML engineer improving a learned classifier for 28×28
+grayscale images in ten classes.
+
+## Goal
+
+Maximize `validation_score`. It ranks implementations first by the exact number
+of correct predictions on the fixed 10,000-image validation set, then—only when
+correct counts tie—by lower validation cross-entropy. Every verification starts
+from a fresh initialization and presents exactly 100,000 examples from the
+fixed 50,000-image training split.
+
+You may change the model architecture, optimizer, loss, augmentation, batch
+size, gradient handling, schedule, and other contents of `train.py`. The fixed
+data split, normalization, example accounting, validation calculation,
+250,000-learned-parameter ceiling, and device are not editable. The protected
+loop calls the functions already defined in `train.py`; keep that interface
+intact. The model must return one ten-class logit vector per image.
+
+## Work boundaries
+
+Maximize validation_score. No additional accuracy threshold.
+Editable source files: train.py.
+Results reported after each verification: validation_score, validation_correct, validation_accuracy, validation_cross_entropy, parameters, examples_processed, optimizer_steps, training_seconds, batch_size.
+
+Propose changes through exact SEARCH/REPLACE blocks. The patching interface applies them to the supplied editable source.
+
+The editable source and any reference source are included below. Do not access
+parent directories, home directories, shared temporary directories, global
+session history, online sources, external datasets, pretrained weights, or any
+surrounding repository. Do not run training or validation yourself and do not
+generate hidden alternatives. Return one patch for one implementation;
+verification happens after you finish.
+
+## Available designs
+
+The current editable design is provided. No reference design is available.
+
+CURRENT DESIGN
+verified_results: {"batch_size": 32, "examples_processed": 100000, "optimizer_steps": 3126, "parameters": 239634, "training_seconds": 66.35910083306953, "validation_accuracy": 0.926, "validation_correct": 9260, "validation_cross_entropy": 0.21200785331726074, "validation_score": 9260.412538581026}
+prior_hypothesis: A 6.984375% terminal EMA interpolation will preserve 9,260 correct predictions while reducing validation cross-entropy below 0.2120079094.
+
+## Recent verification evidence
+
+RECENT RESULT
+hypothesis: A 7.03125% terminal EMA interpolation will preserve 9,260 correct predictions while reducing validation cross-entropy below 0.2120079094.
+change: Increase only the forced final optimizer-iterate EMA interpolation from 6.9375% to 7.03125%, retaining regular 3% quarter-rate EMA updates and all other behavior.
+mechanism: Fine-grained terminal-iterate EMA interpolation
+evidence_used: Raising terminal interpolation from 6.75% to 6.9375% preserved 9,260 correct and lowered cross-entropy from 0.2120081619 to 0.2120079094; 7.03125% is a conservative midpoint toward the unmeasured 7.125% setting.
+result: training did not finish within the verification time limit
+
+RECENT RESULT
+hypothesis: A 6.984375% terminal EMA interpolation will preserve 9,260 correct predictions while reducing validation cross-entropy below 0.2120079094.
+change: Increase only the forced final optimizer-iterate EMA interpolation from 6.9375% to 6.984375%, retaining regular 3% quarter-rate EMA updates and all other behavior.
+mechanism: Fine-grained terminal-iterate EMA continuation
+evidence_used: Raising terminal interpolation from 6.75% to 6.9375% preserved 9,260 correct and lowered cross-entropy from 0.2120081619 to 0.2120079094; 6.984375% is the conservative midpoint toward the timed-out 7.03125% setting.
+result: improved the objective and became an available design
+reported_values: {"batch_size": 32, "examples_processed": 100000, "optimizer_steps": 3126, "parameters": 239634, "training_seconds": 66.35910083306953, "validation_accuracy": 0.926, "validation_correct": 9260, "validation_cross_entropy": 0.21200785331726074, "validation_score": 9260.412538581026}
+
+RECENT RESULT
+hypothesis: A 7.0078125% terminal EMA interpolation will preserve 9,260 correct predictions while reducing validation cross-entropy below 0.2120078533.
+change: Increase only the forced final optimizer-iterate EMA interpolation from 6.984375% to 7.0078125%, retaining regular 3% quarter-rate EMA updates and all other behavior.
+mechanism: Fine-grained terminal-iterate EMA continuation
+evidence_used: Raising terminal interpolation from 6.9375% to 6.984375% preserved 9,260 correct and lowered cross-entropy from 0.2120079094 to 0.2120078533; 7.0078125% is the conservative midpoint toward the timed-out 7.03125% setting.
+result: training did not finish within the verification time limit
+
+RECENT RESULT
+hypothesis: A 6.99609375% terminal EMA interpolation will preserve 9,260 correct predictions while reducing validation cross-entropy below 0.2120078533.
+change: Increase only the forced final optimizer-iterate EMA interpolation from 6.984375% to 6.99609375%, retaining regular 3% quarter-rate EMA updates and all other behavior.
+mechanism: Fine-grained terminal-iterate EMA continuation
+evidence_used: Raising terminal interpolation from 6.9375% to 6.984375% preserved 9,260 correct and lowered cross-entropy from 0.2120079094 to 0.2120078533; 6.99609375% is a conservative midpoint toward the timed-out 7.0078125% setting.
+result: training did not finish within the verification time limit
+
+RECENT RESULT
+hypothesis: A 6.990234375% terminal EMA interpolation will preserve 9,260 correct predictions while reducing validation cross-entropy below 0.2120078533.
+change: Increase only the forced final optimizer-iterate EMA interpolation from 6.984375% to 6.990234375%, retaining regular 3% quarter-rate EMA updates and all other behavior.
+mechanism: Fine-grained terminal-iterate EMA continuation
+evidence_used: Raising terminal interpolation from 6.9375% to 6.984375% preserved 9,260 correct and lowered cross-entropy from 0.2120079094 to 0.2120078533; 6.990234375% is the conservative midpoint toward the timed-out 6.99609375% setting.
+result: training did not finish within the verification time limit
+
+RECENT RESULT
+hypothesis: A 6.9873046875% terminal EMA interpolation will preserve 9,260 correct predictions while reducing validation cross-entropy below 0.2120078533.
+change: Increase only the forced final-iterate EMA interpolation from 6.984375% to 6.9873046875%, retaining regular 3% quarter-rate EMA updates and all other behavior.
+mechanism: Boundary-refined terminal EMA interpolation
+evidence_used: Increasing terminal interpolation from 6.9375% to 6.984375% preserved 9,260 correct and reduced cross-entropy from 0.2120079094 to 0.2120078533; 6.9873046875% is the midpoint toward the timed-out 6.990234375% attempt, whose timeout supplied no contrary validation evidence.
+result: was valid but was not a strict improvement
+reported_values: {"batch_size": 32, "examples_processed": 100000, "optimizer_steps": 3126, "parameters": 239634, "training_seconds": 62.80786087503657, "validation_accuracy": 0.926, "validation_correct": 9260, "validation_cross_entropy": 0.21200785598754882, "validation_score": 9260.412538580118}
+
+RECENT RESULT
+hypothesis: A 6.98583984375% terminal EMA interpolation will preserve 9,260 correct predictions while reducing validation cross-entropy below 0.2120078533.
+change: Test the midpoint between the best 6.984375% interpolation and the slightly worse 6.9873046875% setting, retaining all other training behavior.
+mechanism: Local terminal-EMA optimum refinement
+evidence_used: The 6.984375% setting achieved the best observed cross-entropy of 0.2120078533, while 6.9873046875% regressed slightly to 0.2120078560 with unchanged accuracy; their midpoint is the most informative local refinement.
+result: training did not finish within the verification time limit
+
+RECENT RESULT
+hypothesis: Reducing terminal EMA interpolation from 6.984375% to 6.9814453125% will preserve 9,260 correct predictions and lower cross-entropy below 0.2120078533.
+change: Test the point equally far below the best setting as the slightly worse 6.9873046875% result was above it, retaining all other behavior.
+mechanism: Symmetric local terminal-EMA optimum probe
+evidence_used: The 6.984375% setting achieved the best observed cross-entropy, while an upward change of 0.0029296875 percentage points regressed slightly with unchanged accuracy; the symmetric downward probe efficiently identifies whether the local optimum lies below the incumbent.
+result: was valid but was not a strict improvement
+reported_values: {"batch_size": 32, "examples_processed": 100000, "optimizer_steps": 3126, "parameters": 239634, "training_seconds": 75.61800433392636, "validation_accuracy": 0.926, "validation_correct": 9260, "validation_cross_entropy": 0.21200785751342774, "validation_score": 9260.412538579598}
+
+RECENT RESULT
+hypothesis: A 6.9847005% terminal EMA interpolation will preserve 9,260 correct predictions and reduce cross-entropy below 0.2120078533.
+change: Replace only the terminal optimizer-iterate EMA interpolation with the quadratic minimum estimated from the incumbent and the two symmetric probes.
+mechanism: Three-point parabolic terminal-EMA refinement
+evidence_used: The 6.984375% incumbent outperformed both equidistant probes: 6.9814453125% increased cross-entropy by 4.20e-9, while 6.9873046875% increased it by 2.67e-9. Their asymmetric regressions estimate the local minimum slightly above the incumbent.
+result: was valid but was not a strict improvement
+reported_values: {"batch_size": 32, "examples_processed": 100000, "optimizer_steps": 3126, "parameters": 239634, "training_seconds": 82.46032483293675, "validation_accuracy": 0.926, "validation_correct": 9260, "validation_cross_entropy": 0.2120078582763672, "validation_score": 9260.412538579338}
+
+RECENT RESULT
+hypothesis: Increasing the evaluation-only logit scale from 1.4164 to 1.4165 will preserve all 9,260 argmax predictions while lowering validation cross-entropy below 0.2120078533.
+change: Increase only the positive evaluation-time logit multiplier by 0.0001; training and terminal EMA behavior remain unchanged.
+mechanism: Orthogonal validation-logit calibration
+evidence_used: Terminal-EMA probes around 6.984375% have produced only regressions or timeouts. A positive logit rescaling cannot change predicted classes, making calibration the most informative remaining way to improve the tie-breaking cross-entropy without risking the incumbent correct count.
+result: training did not finish within the verification time limit
+
+RECENT RESULT
+hypothesis: Decreasing the evaluation-only logit scale from 1.4164 to 1.4163 will preserve all 9,260 argmax predictions and lower validation cross-entropy below 0.2120078533.
+change: Reduce only the positive evaluation-time logit multiplier by 0.0001, leaving training and terminal EMA behavior unchanged.
+mechanism: Symmetric validation-logit calibration probe
+evidence_used: The 1.4165 upward calibration probe timed out without validation evidence. Because positive logit scaling preserves predicted classes, the symmetric downward probe safely brackets the incumbent calibration while directly testing the unexplored direction.
+result: training did not finish within the verification time limit
+
+RECENT RESULT
+hypothesis: Increasing the evaluation-only logit scale to 1.41645 will preserve all 9,260 argmax predictions while reducing validation cross-entropy below 0.2120078533.
+change: Increase only the positive evaluation-time logit multiplier from 1.4164 to 1.41645.
+mechanism: Midpoint validation-logit calibration
+evidence_used: Terminal-EMA probes around 6.984375% regressed, while the 1.4165 calibration attempt timed out without contrary validation evidence; its midpoint provides a lower-risk calibration probe that cannot change predicted classes.
+result: was valid but was not a strict improvement
+reported_values: {"batch_size": 32, "examples_processed": 100000, "optimizer_steps": 3126, "parameters": 239634, "training_seconds": 67.57541375001892, "validation_accuracy": 0.926, "validation_correct": 9260, "validation_cross_entropy": 0.21200785598754882, "validation_score": 9260.412538580118}
+
+
+
+Use the available technical evidence to choose the most informative next
+change. Treat unsuccessful or malformed work as evidence when a useful
+subject-level reason is provided. Do not invent missing evidence.
+
+## Response
+
+Return these short metadata lines followed by one or more exact
+`SEARCH`/`REPLACE` blocks that together produce one implementation:
+
+`MECHANISM: <a concise free-form name for the computational idea>`
+
+`HYPOTHESIS: <a falsifiable claim grounded in the evidence above>`
+
+`INTENDED_EDIT: <what this patch changes>`
+
+`EVIDENCE: <the most relevant prior result and why it motivates this patch>`
+
+Start each block with `<<<<<<< SEARCH`, put the exact existing lines next, use a
+line containing `=======` as the divider, put the replacement lines after it,
+and finish the block with `>>>>>>> REPLACE`.
+
+Every `SEARCH` section must be nonempty and match exactly once after earlier
+blocks have been applied. All blocks must apply. Together they must describe
+one implementation ready for verification. The mechanism name is descriptive,
+not chosen from a fixed list. Do not paste whole files, lengthy logs, or routine
+progress reports outside the patch.

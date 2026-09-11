@@ -1,0 +1,102 @@
+{
+  "artifact_path": "candidates/4bdd833109feaa04eb002926e52de8f2686181e96424c988b12f851e161c4d5c",
+  "candidate_id": "4bdd833109feaa04eb002926e52de8f2686181e96424c988b12f851e161c4d5c",
+  "codex_service_tier": "default",
+  "condition": "C2",
+  "conversation_session_id": null,
+  "evaluation": {
+    "evaluator_calls": 1,
+    "evaluator_seconds": 146.8689440828748,
+    "failure_kind": null,
+    "fitness": -4214569994014521080,
+    "metrics": {
+      "batch_size": 128,
+      "evaluation_cases": 815,
+      "evaluation_split": "public_speaker_disjoint_validation",
+      "examples_processed": 50000,
+      "inference_cost": 4214569994014521080,
+      "maximum_recurrent_steps": 32,
+      "mean_recurrent_steps": 32.0,
+      "median_recurrent_steps": 32,
+      "optimizer_steps": 397,
+      "p95_recurrent_steps": 32,
+      "parameters": 33720,
+      "peak_hidden_elements": 141824,
+      "recurrent_logit_effect": 0.09368963539600372,
+      "recurrent_macs": 806184960,
+      "recurrent_steps": 26080,
+      "state_dependence_effect": 0.3315387964248657,
+      "state_update_effect": 0.5591684579849243,
+      "total_inference_macs": 807984480,
+      "trained_recurrent_logit_effect": 0.3930203318595886,
+      "trained_state_dependence_effect": 0.3847604990005493,
+      "trained_state_update_effect": 0.5704457759857178,
+      "training_seconds": 123.59691491583362,
+      "validation_accuracy": 0.8760736196319019,
+      "validation_correct": 714,
+      "validation_cross_entropy": 0.3681394612130943
+    },
+    "valid": true
+  },
+  "evaluator_calls_cumulative": 4,
+  "evaluator_calls_increment": 1,
+  "evaluator_seconds_cumulative": 450.3364609167911,
+  "evaluator_seconds_increment": 146.8689440828748,
+  "event": "proposal_completed",
+  "evicted_candidate_id": null,
+  "evidence": "The full-resolution 96-unit GRU reached 85.15%, whereas thinning even to 24 frames failed; this motivates preserving every observation and trading a small width reduction for a zero-matrix-cost temporal peak statistic.",
+  "hypothesis": "A 92-unit GRU using mean, peak, and final recurrent features will retain at least 85% accuracy while reducing total dense inference MACs from 872.5M to approximately 808.0M.",
+  "incumbent_after": "4bdd833109feaa04eb002926e52de8f2686181e96424c988b12f851e161c4d5c",
+  "intended_edit": "Preserve all 32 causal frames, reduce GRU width from 128 to 92, maintain an online elementwise maximum, and classify from concatenated mean, maximum, and final states.",
+  "mechanism": "Peak-augmented narrow full-resolution GRU",
+  "opportunity": 4,
+  "parent_ids": [
+    "016d906da09d1fe9115b3d48dd009dea2faccbbb35792057b39773f1cdb8582b"
+  ],
+  "portfolio_after": [
+    "016d906da09d1fe9115b3d48dd009dea2faccbbb35792057b39773f1cdb8582b",
+    "32d4ab710f4ccac8482d4898dd8dd73eb87fd3c17b87f4079e400b611e9f9d44",
+    "4bdd833109feaa04eb002926e52de8f2686181e96424c988b12f851e161c4d5c"
+  ],
+  "prompt_hashes": {
+    "common_template_sha256": "dee04faf4c430276c1036ba97f5705a339857dbdf19117dac88952a5a3a47e9d",
+    "prompt_sha256": "9a45833fbd5c11e7be877cbf6a66fedfc5e0770aa9947e3035872139201f2d63",
+    "proposal_policy_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "search_state_sha256": "c938ac007bf70fe8d27f64661175531e51fcb16b38318c328493c32ee292e27e",
+    "treatment_skeleton_sha256": "e01ad4cc07bdf869c8262937530bdfeafd7d2fa29ac48fef344a2bd8eaa07933"
+  },
+  "proposal_type": "ordinary",
+  "proposals_cumulative": 4,
+  "remaining_budget": {
+    "evaluations": 196,
+    "evaluator_seconds": 59549.66353908321,
+    "proposals": 196,
+    "tokens": 99918869
+  },
+  "retained": true,
+  "retention_decision": "filled_open_portfolio_slot",
+  "run_id": "tiny-kws-rnn-openevolve-v2-1-cpu-tiny_kws_rnn_source_only_cpu-openevolve-b01-c2",
+  "schema_version": "1.0",
+  "selected_parent_ids": [
+    "016d906da09d1fe9115b3d48dd009dea2faccbbb35792057b39773f1cdb8582b"
+  ],
+  "timestamp": "2026-09-04T02:37:07.484375+00:00",
+  "usage_cumulative": {
+    "cached_input_tokens": 43008,
+    "input_tokens": 68278,
+    "output_tokens": 12853,
+    "reasoning_output_tokens": 10582,
+    "total_tokens": 81131
+  },
+  "usage_increment": {
+    "cached_input_tokens": 10752,
+    "input_tokens": 18334,
+    "output_tokens": 6048,
+    "reasoning_output_tokens": 4813,
+    "total_tokens": 24382
+  },
+  "visible_candidate_ids": [
+    "016d906da09d1fe9115b3d48dd009dea2faccbbb35792057b39773f1cdb8582b",
+    "32d4ab710f4ccac8482d4898dd8dd73eb87fd3c17b87f4079e400b611e9f9d44"
+  ]
+}

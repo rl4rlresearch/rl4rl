@@ -1,0 +1,60 @@
+{
+  "adapter": "fashion_mnist_source_only_v1",
+  "display_name": "Fixed-exposure 10-class grayscale image classification",
+  "editable_paths": [
+    "train.py"
+  ],
+  "evaluator_command": [
+    "{python}",
+    "{repo_root}/experiments/c0c3_factorial/fashion_mnist.py",
+    "evaluate",
+    "--workspace",
+    "{workspace}",
+    "--repo-root",
+    "{repo_root}",
+    "--output",
+    "{output}",
+    "--device",
+    "mps",
+    "--training-examples",
+    "100000",
+    "--max-parameters",
+    "250000"
+  ],
+  "final_holdout_command": [
+    "{python}",
+    "{repo_root}/experiments/c0c3_factorial/fashion_mnist.py",
+    "holdout",
+    "--workspace",
+    "{workspace}",
+    "--repo-root",
+    "{repo_root}",
+    "--output",
+    "{output}",
+    "--device",
+    "mps",
+    "--training-examples",
+    "100000",
+    "--max-parameters",
+    "250000"
+  ],
+  "metric_patterns": {},
+  "objective_direction": "maximize",
+  "objective_metric": "validation_score",
+  "preferred_backend": "local",
+  "public_feedback_metrics": [
+    "validation_score",
+    "validation_correct",
+    "validation_accuracy",
+    "validation_cross_entropy",
+    "parameters",
+    "examples_processed",
+    "optimizer_steps",
+    "training_seconds",
+    "batch_size"
+  ],
+  "qualification_metric": null,
+  "qualification_minimum": null,
+  "seed_source": "experiments/c0c3_factorial/task_sources/fashion_mnist",
+  "task_id": "fashion_mnist_source_only_mps"
+}

@@ -1,0 +1,79 @@
+{
+  "artifact_path": "candidates/aff7183c70912e95883765c2b68f81f7bb2387a1a6f8aa3447e507c765b361c1",
+  "candidate_id": "aff7183c70912e95883765c2b68f81f7bb2387a1a6f8aa3447e507c765b361c1",
+  "codex_service_tier": "default",
+  "condition": "C0",
+  "conversation_session_id": null,
+  "evaluation": {
+    "evaluator_calls": 1,
+    "evaluator_seconds": 379.61442408314906,
+    "failure_kind": "nonqualification",
+    "fitness": null,
+    "metrics": {
+      "accuracy": 0.41009999999999996,
+      "cases": 10010,
+      "correct": 4105,
+      "parameters": 1615,
+      "training_steps": 4999
+    },
+    "valid": false
+  },
+  "evaluator_calls_cumulative": 69,
+  "evaluator_calls_increment": 1,
+  "evaluator_seconds_cumulative": 38480.75884324603,
+  "evaluator_seconds_increment": 379.61442408314906,
+  "event": "proposal_completed",
+  "evicted_candidate_id": null,
+  "evidence": "The current feature-4 embedding, LayerNorm-scale, LayerNorm-bias, and MLP-output gauges support 99.93% accuracy. Unlike the failed removal of an essential value bias or an additional key coordinate, this change retains the complete learned query affine map through an exact bias-coupled LayerNorm-null gauge.",
+  "hypothesis": "Fixing `qkv.weight[4, 7]` will reduce the model from 1616 to 1615 parameters while retaining at least 99% accuracy, because the omitted query-weight direction is exactly absorbed by `q_bias[4]`, with virtual AdamW moments preserving optimization of the full affine map.",
+  "incumbent_after": "48fbabe07b02db667730f8ce971e7f1f94f1b3792cb11c8a1f4bf6263ed77558",
+  "intended_edit": "Add query row 4 to the QKV quotient, reconstruct its omitted gradient using LayerNorm scale, LayerNorm bias, and query-bias gradients, and jointly project QKV and query-bias AdamW updates.",
+  "mechanism": "LayerNorm-null query-weight/q-bias affine gauge",
+  "opportunity": 69,
+  "parent_ids": [
+    "48fbabe07b02db667730f8ce971e7f1f94f1b3792cb11c8a1f4bf6263ed77558"
+  ],
+  "portfolio_after": [
+    "48fbabe07b02db667730f8ce971e7f1f94f1b3792cb11c8a1f4bf6263ed77558"
+  ],
+  "prompt_hashes": {
+    "common_template_sha256": "3f2bea6418b6969c4bf2aa1df18dcda8a3a4ac075bf20c79068c754698b6be5e",
+    "prompt_sha256": "d6e85eda044cd434eae6b6d9b6d7f049a2ce86dc18840b79b12d4863bbf7cef4",
+    "proposal_policy_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "search_state_sha256": "04e5eb078ae1964e4ec65bfeeeb1acd0ffa246e7d54d5e0f997f81f602da28c5",
+    "treatment_skeleton_sha256": "2d0d33649f51a0c5f885b127e58565acb72bf19d04ce97e930dbc33f36c04cb7"
+  },
+  "proposal_type": "ordinary",
+  "proposals_cumulative": 69,
+  "remaining_budget": {
+    "evaluations": 131,
+    "evaluator_seconds": 321519.24115675397,
+    "proposals": 131,
+    "tokens": 98051255
+  },
+  "retained": false,
+  "retention_decision": "invalid",
+  "run_id": "controlled-openevolve-transformer-v2-1-source-only-ten-digit-addition-pair-transformer-openevolve-v2-1-mps-openevolve-b05-c0",
+  "schema_version": "1.0",
+  "selected_parent_ids": [
+    "48fbabe07b02db667730f8ce971e7f1f94f1b3792cb11c8a1f4bf6263ed77558"
+  ],
+  "timestamp": "2026-08-26T00:53:47.776651+00:00",
+  "usage_cumulative": {
+    "cached_input_tokens": 741888,
+    "input_tokens": 1632028,
+    "output_tokens": 316717,
+    "reasoning_output_tokens": 249717,
+    "total_tokens": 1948745
+  },
+  "usage_increment": {
+    "cached_input_tokens": 2816,
+    "input_tokens": 26965,
+    "output_tokens": 12593,
+    "reasoning_output_tokens": 8772,
+    "total_tokens": 39558
+  },
+  "visible_candidate_ids": [
+    "48fbabe07b02db667730f8ce971e7f1f94f1b3792cb11c8a1f4bf6263ed77558"
+  ]
+}

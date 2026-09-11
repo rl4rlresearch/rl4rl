@@ -1,0 +1,79 @@
+{
+  "artifact_path": "candidates/72ba2d804905496482a2f1666352e94f7a3fd79b4ae58d94eceb80da5ffdd63b",
+  "candidate_id": "72ba2d804905496482a2f1666352e94f7a3fd79b4ae58d94eceb80da5ffdd63b",
+  "codex_service_tier": "fast",
+  "condition": "C0",
+  "conversation_session_id": null,
+  "evaluation": {
+    "evaluator_calls": 1,
+    "evaluator_seconds": 758.7762884588446,
+    "failure_kind": null,
+    "fitness": -1629.0,
+    "metrics": {
+      "accuracy": 0.9911,
+      "cases": 10010,
+      "correct": 9921,
+      "parameters": 1629,
+      "training_steps": 4999
+    },
+    "valid": true
+  },
+  "evaluator_calls_cumulative": 24,
+  "evaluator_calls_increment": 1,
+  "evaluator_seconds_cumulative": 9426.212307039998,
+  "evaluator_seconds_increment": 758.7762884588446,
+  "event": "proposal_completed",
+  "evicted_candidate_id": "73ce29eeec02ca869668e4e105a72ffebcd4860b6223abbc0da00d4ec3ef5216",
+  "evidence": "The 1630-parameter model reached 99.91% after removing two coordinates from the second head, while placing the second within-head removal in the first head reached only 87.60%; this motivates continuing the smallest one-coordinate titration in the empirically successful head.",
+  "hypothesis": "Removing the softmax-invisible coordinate from the third key row of the second head will reduce the model from 1630 to 1629 parameters while retaining at least 99% accuracy, because two removals in that head succeeded whereas the second removal in the first head failed.",
+  "incumbent_after": "72ba2d804905496482a2f1666352e94f7a3fd79b4ae58d94eceb80da5ffdd63b",
+  "intended_edit": "Add the third key row of the second attention head to `GaugeFixedQKV.fixed_rows`; the existing generalized virtual AdamW and gradient-clipping logic will handle the fourth omitted coordinate.",
+  "mechanism": "Fourth quotient-aware key gauge within the empirically robust second attention head",
+  "opportunity": 24,
+  "parent_ids": [
+    "73ce29eeec02ca869668e4e105a72ffebcd4860b6223abbc0da00d4ec3ef5216"
+  ],
+  "portfolio_after": [
+    "72ba2d804905496482a2f1666352e94f7a3fd79b4ae58d94eceb80da5ffdd63b"
+  ],
+  "prompt_hashes": {
+    "common_template_sha256": "3f2bea6418b6969c4bf2aa1df18dcda8a3a4ac075bf20c79068c754698b6be5e",
+    "prompt_sha256": "3139f3cc3b39e96e688ea592333e125dc7fe33d75e5cd4e5e39d55236fca6d13",
+    "proposal_policy_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "search_state_sha256": "04e5eb078ae1964e4ec65bfeeeb1acd0ffa246e7d54d5e0f997f81f602da28c5",
+    "treatment_skeleton_sha256": "6e40be813acdbfc09cccecb1ca6bf22e572b4c5f723eda6d19442c78f557b101"
+  },
+  "proposal_type": "ordinary",
+  "proposals_cumulative": 24,
+  "remaining_budget": {
+    "evaluations": 176,
+    "evaluator_seconds": 350573.78769296,
+    "proposals": 176,
+    "tokens": 99384647
+  },
+  "retained": true,
+  "retention_decision": "strict_incumbent_improvement",
+  "run_id": "controlled-openevolve-transformer-v2-1-source-only-ten-digit-addition-pair-transformer-openevolve-v2-1-mps-openevolve-b05-c0",
+  "schema_version": "1.0",
+  "selected_parent_ids": [
+    "73ce29eeec02ca869668e4e105a72ffebcd4860b6223abbc0da00d4ec3ef5216"
+  ],
+  "timestamp": "2026-08-24T01:55:03.418101+00:00",
+  "usage_cumulative": {
+    "cached_input_tokens": 279552,
+    "input_tokens": 509639,
+    "output_tokens": 105714,
+    "reasoning_output_tokens": 84503,
+    "total_tokens": 615353
+  },
+  "usage_increment": {
+    "cached_input_tokens": 12032,
+    "input_tokens": 24211,
+    "output_tokens": 1191,
+    "reasoning_output_tokens": 788,
+    "total_tokens": 25402
+  },
+  "visible_candidate_ids": [
+    "73ce29eeec02ca869668e4e105a72ffebcd4860b6223abbc0da00d4ec3ef5216"
+  ]
+}

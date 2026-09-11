@@ -1,0 +1,88 @@
+{
+  "artifact_path": "candidates/2e2cbe56bf689ee5b5413e2bfb8ea74ccfb21838ac3e2da0a617dbfd5a7e1d4e",
+  "candidate_id": "2e2cbe56bf689ee5b5413e2bfb8ea74ccfb21838ac3e2da0a617dbfd5a7e1d4e",
+  "codex_service_tier": "fast",
+  "condition": "C2",
+  "conversation_session_id": null,
+  "evaluation": {
+    "evaluator_calls": 1,
+    "evaluator_seconds": 358.5136960239997,
+    "failure_kind": null,
+    "fitness": -1.001893,
+    "metrics": {
+      "depth": 8.0,
+      "mfu_percent": 32.35,
+      "num_params_M": 50.3,
+      "num_steps": 1032.0,
+      "peak_vram_mb": 67120.7,
+      "total_tokens_M": 405.8,
+      "training_seconds": 300.1,
+      "val_bpb": 1.001893
+    },
+    "valid": true
+  },
+  "evaluator_calls_cumulative": 5,
+  "evaluator_calls_increment": 1,
+  "evaluator_seconds_cumulative": 2109.304801163,
+  "evaluator_seconds_increment": 358.5136960239997,
+  "event": "proposal_completed",
+  "evicted_candidate_id": "992a5ebc7bdd4076d4778d36c84d4c890a0888b5a62ba4959a5125a6aa9af5ec",
+  "evidence": "Reference Design 1 achieved the best val_bpb, 0.995558, with SSSL while using only 45,060 MB peak VRAM; this leaves substantial H100 memory headroom for a larger microbatch and motivates testing more frequent updates without changing the proven model architecture or optimizer.",
+  "hypothesis": "On the proven SSSL architecture, a 393,216-token batch executed as one 192-sequence microbatch will fit the available VRAM, reduce gradient accumulation, and provide more optimizer updates per token, lowering val_bpb below 0.995558.",
+  "incumbent_after": "2865e528e18dc51191e4037eaeb5824cb0ea83ede79061b59b8f3caac686da6b",
+  "intended_edit": "Restore the best-performing SSSL attention layout, increase device batch size to 192, and reduce total batch size to 393,216 so each optimizer step uses one microbatch.",
+  "mechanism": "Single-microbatch, higher-update-frequency training",
+  "opportunity": 5,
+  "parent_ids": [
+    "992a5ebc7bdd4076d4778d36c84d4c890a0888b5a62ba4959a5125a6aa9af5ec"
+  ],
+  "portfolio_after": [
+    "2865e528e18dc51191e4037eaeb5824cb0ea83ede79061b59b8f3caac686da6b",
+    "ee1f1cf686a479f175a9b2178602df52386a3561e80b0612b88ccd725e447c2e",
+    "2e2cbe56bf689ee5b5413e2bfb8ea74ccfb21838ac3e2da0a617dbfd5a7e1d4e",
+    "3f86c29c7b170f9b5dd7ccebde668fea2f9f9bc32c149a3e774ae1f52f25cd9d"
+  ],
+  "prompt_hashes": {
+    "common_template_sha256": "ba85b39aa7288f4f48475376da6cff65661f39cfeb7ac7cde15b2a9a2e692fde",
+    "prompt_sha256": "7b648bb9437a339d21012869878f517cf112528bf12f87ebbe54980c328f8e25",
+    "proposal_policy_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "search_state_sha256": "c938ac007bf70fe8d27f64661175531e51fcb16b38318c328493c32ee292e27e",
+    "treatment_skeleton_sha256": "d49204c4a4a784445745118a423fc887226c35e8321e3f31eb56faaebcecc725"
+  },
+  "proposal_type": "ordinary",
+  "proposals_cumulative": 5,
+  "remaining_budget": {
+    "evaluations": 195,
+    "evaluator_seconds": 717890.695198837,
+    "proposals": 195,
+    "tokens": 99804724
+  },
+  "retained": true,
+  "retention_decision": "replaced_selected_parent_on_strict_improvement",
+  "run_id": "nanogpt-openevolve-v2-1-h100-karpathy_nanogpt_source_only_h100-openevolve-b01-c2",
+  "schema_version": "1.0",
+  "selected_parent_ids": [
+    "992a5ebc7bdd4076d4778d36c84d4c890a0888b5a62ba4959a5125a6aa9af5ec"
+  ],
+  "timestamp": "2026-08-23T14:37:03.053468+00:00",
+  "usage_cumulative": {
+    "cached_input_tokens": 48128,
+    "input_tokens": 178075,
+    "output_tokens": 17201,
+    "reasoning_output_tokens": 15585,
+    "total_tokens": 195276
+  },
+  "usage_increment": {
+    "cached_input_tokens": 0,
+    "input_tokens": 45007,
+    "output_tokens": 6017,
+    "reasoning_output_tokens": 5696,
+    "total_tokens": 51024
+  },
+  "visible_candidate_ids": [
+    "2865e528e18dc51191e4037eaeb5824cb0ea83ede79061b59b8f3caac686da6b",
+    "ee1f1cf686a479f175a9b2178602df52386a3561e80b0612b88ccd725e447c2e",
+    "992a5ebc7bdd4076d4778d36c84d4c890a0888b5a62ba4959a5125a6aa9af5ec",
+    "3f86c29c7b170f9b5dd7ccebde668fea2f9f9bc32c149a3e774ae1f52f25cd9d"
+  ]
+}

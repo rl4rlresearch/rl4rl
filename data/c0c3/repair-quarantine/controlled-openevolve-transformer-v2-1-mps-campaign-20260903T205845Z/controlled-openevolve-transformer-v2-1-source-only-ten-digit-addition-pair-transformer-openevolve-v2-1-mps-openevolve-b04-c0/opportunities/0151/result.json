@@ -1,0 +1,78 @@
+{
+  "artifact_path": "candidates/851c25e80173f5365a38e16b1f4f3199d8a595507f06cc33a3e70cd64a5c5934",
+  "candidate_id": "851c25e80173f5365a38e16b1f4f3199d8a595507f06cc33a3e70cd64a5c5934",
+  "codex_service_tier": "default",
+  "condition": "C0",
+  "conversation_session_id": null,
+  "evaluation": {
+    "evaluator_calls": 0,
+    "evaluator_seconds": 0.0,
+    "failure_kind": "source_preflight",
+    "fitness": null,
+    "metrics": {
+      "adapter_error": null,
+      "codex_returncode": 0,
+      "preflight_error": "src/model.py does not compile: unexpected indent (model.py, line 527)",
+      "protected_changed": false
+    },
+    "valid": false
+  },
+  "evaluator_calls_cumulative": 127,
+  "evaluator_calls_increment": 0,
+  "evaluator_seconds_cumulative": 53601.62317070982,
+  "evaluator_seconds_increment": 0.0,
+  "event": "proposal_completed",
+  "evicted_candidate_id": null,
+  "evidence": "The 1562-parameter design achieved 0.9999 accuracy, while extending attention anchoring reached only 0.721 and extending projection anchoring reached 0.9313; this motivates removing a separate exact embedding redundancy instead of further constraining those sensitive modules.",
+  "hypothesis": "Fixing the first shared embedding anchor at zero will reduce the model from 1562 to 1561 learned parameters while retaining at least 99% accuracy, because a uniform shift of both embedding tables is removed by LayerNorm and changes tied-output logits only by a softmax-invariant common offset.",
+  "incumbent_after": "0f7da1df25a129e162ad733a79aa672076f441d5126eefa2e51af596f4d1c9ad",
+  "intended_edit": "Replace one learned shared embedding anchor with a fixed zero and gauge-transform initialization by subtracting that anchor from every token and position embedding entry.",
+  "mechanism": "Global embedding-shift gauge fixing",
+  "opportunity": 151,
+  "parent_ids": [
+    "0f7da1df25a129e162ad733a79aa672076f441d5126eefa2e51af596f4d1c9ad"
+  ],
+  "portfolio_after": [
+    "0f7da1df25a129e162ad733a79aa672076f441d5126eefa2e51af596f4d1c9ad"
+  ],
+  "prompt_hashes": {
+    "common_template_sha256": "3f2bea6418b6969c4bf2aa1df18dcda8a3a4ac075bf20c79068c754698b6be5e",
+    "prompt_sha256": "a5c407065313fa61a3398a7a6a1e5ffcde9b9b0f2d18760de66e4d16023bc896",
+    "proposal_policy_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "search_state_sha256": "04e5eb078ae1964e4ec65bfeeeb1acd0ffa246e7d54d5e0f997f81f602da28c5",
+    "treatment_skeleton_sha256": "f4a2761e0f61c389268a7ede1ad913ab2774d1be0ae2df92a06dd37ad3341c1f"
+  },
+  "proposal_type": "ordinary",
+  "proposals_cumulative": 151,
+  "remaining_budget": {
+    "evaluations": 73,
+    "evaluator_seconds": 306398.3768292902,
+    "proposals": 49,
+    "tokens": 96699426
+  },
+  "retained": false,
+  "retention_decision": "invalid",
+  "run_id": "controlled-openevolve-transformer-v2-1-source-only-ten-digit-addition-pair-transformer-openevolve-v2-1-mps-openevolve-b04-c0",
+  "schema_version": "1.0",
+  "selected_parent_ids": [
+    "0f7da1df25a129e162ad733a79aa672076f441d5126eefa2e51af596f4d1c9ad"
+  ],
+  "timestamp": "2026-09-03T20:40:43.676973+00:00",
+  "usage_cumulative": {
+    "cached_input_tokens": 1321856,
+    "input_tokens": 2941734,
+    "output_tokens": 358840,
+    "reasoning_output_tokens": 278026,
+    "total_tokens": 3300574
+  },
+  "usage_increment": {
+    "cached_input_tokens": 21632,
+    "input_tokens": 23313,
+    "output_tokens": 4686,
+    "reasoning_output_tokens": 3482,
+    "total_tokens": 27999
+  },
+  "visible_candidate_ids": [
+    "0f7da1df25a129e162ad733a79aa672076f441d5126eefa2e51af596f4d1c9ad"
+  ]
+}

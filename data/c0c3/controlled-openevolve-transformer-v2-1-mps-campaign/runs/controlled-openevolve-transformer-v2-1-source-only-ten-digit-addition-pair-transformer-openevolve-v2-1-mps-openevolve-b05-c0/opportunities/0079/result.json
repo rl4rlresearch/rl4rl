@@ -1,0 +1,79 @@
+{
+  "artifact_path": "candidates/8f73c75e2762b7efb7727530e1f4dc8201813bacfac1d6f7590ba288bcf89d4b",
+  "candidate_id": "8f73c75e2762b7efb7727530e1f4dc8201813bacfac1d6f7590ba288bcf89d4b",
+  "codex_service_tier": "default",
+  "condition": "C0",
+  "conversation_session_id": null,
+  "evaluation": {
+    "evaluator_calls": 1,
+    "evaluator_seconds": 445.7022458340507,
+    "failure_kind": null,
+    "fitness": -1610.0,
+    "metrics": {
+      "accuracy": 0.9995999999999999,
+      "cases": 10010,
+      "correct": 10006,
+      "parameters": 1610,
+      "training_steps": 4999
+    },
+    "valid": true
+  },
+  "evaluator_calls_cumulative": 78,
+  "evaluator_calls_increment": 1,
+  "evaluator_seconds_cumulative": 42275.14356041269,
+  "evaluator_seconds_increment": 445.7022458340507,
+  "event": "proposal_completed",
+  "evicted_candidate_id": "c123aab118fd6367a5bfd4685e914d4a0f3f2e3f56fbdad287f6be06ccb83f87",
+  "evidence": "The 1611-parameter design achieved 99.98% while already quotienting the analogous common-output bias direction; virtual AdamW also rescued an omitted LayerNorm-bias coordinate from 73.2% to 99.86%. This tests a distinct exact null direction instead of extending the triple LayerNorm-bias change that fell to 74.12%.",
+  "hypothesis": "Removing `fc2.weight[4, 11]` while retaining its virtual gradient and AdamW moments will reduce the model from 1611 to 1610 parameters and preserve at least 99% accuracy, because shifting that entire input column equally across output features is invisible to the final LayerNorm.",
+  "incumbent_after": "8f73c75e2762b7efb7727530e1f4dc8201813bacfac1d6f7590ba288bcf89d4b",
+  "intended_edit": "Gauge-fix one MLP output-weight coordinate, reconstruct the full projection during inference, and train the quotient with full-coordinate AdamW dynamics and gauge-aware clipping.",
+  "mechanism": "Virtual-AdamW quotient of an MLP common-output weight direction",
+  "opportunity": 79,
+  "parent_ids": [
+    "c123aab118fd6367a5bfd4685e914d4a0f3f2e3f56fbdad287f6be06ccb83f87"
+  ],
+  "portfolio_after": [
+    "8f73c75e2762b7efb7727530e1f4dc8201813bacfac1d6f7590ba288bcf89d4b"
+  ],
+  "prompt_hashes": {
+    "common_template_sha256": "3f2bea6418b6969c4bf2aa1df18dcda8a3a4ac075bf20c79068c754698b6be5e",
+    "prompt_sha256": "6149d8765f580f263f94a6ada0a71b86e972f41530b3613b9cd21290542a42b6",
+    "proposal_policy_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "search_state_sha256": "04e5eb078ae1964e4ec65bfeeeb1acd0ffa246e7d54d5e0f997f81f602da28c5",
+    "treatment_skeleton_sha256": "d9f56bebad5012c4858325c821ea9c37b8f02f8aa557cbcfa674981c967de370"
+  },
+  "proposal_type": "ordinary",
+  "proposals_cumulative": 79,
+  "remaining_budget": {
+    "evaluations": 122,
+    "evaluator_seconds": 317724.8564395873,
+    "proposals": 121,
+    "tokens": 97746425
+  },
+  "retained": true,
+  "retention_decision": "strict_incumbent_improvement",
+  "run_id": "controlled-openevolve-transformer-v2-1-source-only-ten-digit-addition-pair-transformer-openevolve-v2-1-mps-openevolve-b05-c0",
+  "schema_version": "1.0",
+  "selected_parent_ids": [
+    "c123aab118fd6367a5bfd4685e914d4a0f3f2e3f56fbdad287f6be06ccb83f87"
+  ],
+  "timestamp": "2026-08-26T04:25:55.652789+00:00",
+  "usage_cumulative": {
+    "cached_input_tokens": 827392,
+    "input_tokens": 1902117,
+    "output_tokens": 351458,
+    "reasoning_output_tokens": 272785,
+    "total_tokens": 2253575
+  },
+  "usage_increment": {
+    "cached_input_tokens": 12032,
+    "input_tokens": 27682,
+    "output_tokens": 6965,
+    "reasoning_output_tokens": 4142,
+    "total_tokens": 34647
+  },
+  "visible_candidate_ids": [
+    "c123aab118fd6367a5bfd4685e914d4a0f3f2e3f56fbdad287f6be06ccb83f87"
+  ]
+}

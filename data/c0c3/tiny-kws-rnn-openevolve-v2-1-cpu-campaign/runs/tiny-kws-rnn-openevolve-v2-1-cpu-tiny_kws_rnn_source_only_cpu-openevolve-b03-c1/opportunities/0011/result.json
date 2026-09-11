@@ -1,0 +1,99 @@
+{
+  "artifact_path": "candidates/73a38703cf26318ded16b024ee5fd1f26cbb9946d61257450cdec1b76f70a0db",
+  "candidate_id": "73a38703cf26318ded16b024ee5fd1f26cbb9946d61257450cdec1b76f70a0db",
+  "codex_service_tier": "default",
+  "condition": "C1",
+  "conversation_session_id": null,
+  "evaluation": {
+    "evaluator_calls": 1,
+    "evaluator_seconds": 114.4052437080536,
+    "failure_kind": "nonqualification",
+    "fitness": null,
+    "metrics": {
+      "batch_size": 128,
+      "evaluation_cases": 815,
+      "evaluation_split": "public_speaker_disjoint_validation",
+      "examples_processed": 50000,
+      "inference_cost": 3928755735212512208,
+      "maximum_recurrent_steps": 32,
+      "mean_recurrent_steps": 32.0,
+      "median_recurrent_steps": 32,
+      "optimizer_steps": 397,
+      "p95_recurrent_steps": 32,
+      "parameters": 31728,
+      "peak_hidden_elements": 164352,
+      "recurrent_logit_effect": 0.17417600750923157,
+      "recurrent_macs": 751104000,
+      "recurrent_steps": 26080,
+      "state_dependence_effect": 0.5531653761863708,
+      "state_update_effect": 0.5525966882705688,
+      "total_inference_macs": 753190400,
+      "trained_recurrent_logit_effect": 0.591121256351471,
+      "trained_state_dependence_effect": 0.660567581653595,
+      "trained_state_update_effect": 0.5844755172729492,
+      "training_seconds": 86.33514370792545,
+      "validation_accuracy": 0.7374233128834355,
+      "validation_correct": 601,
+      "validation_cross_entropy": 0.7670786290081001
+    },
+    "valid": false
+  },
+  "evaluator_calls_cumulative": 11,
+  "evaluator_calls_increment": 1,
+  "evaluator_seconds_cumulative": 1402.6890269163996,
+  "evaluator_seconds_increment": 114.4052437080536,
+  "event": "proposal_completed",
+  "evicted_candidate_id": null,
+  "evidence": "Full-rate GRUs consistently cleared 85% while every 16\u201328-frame schedule failed, so all frames should be retained. The prior 160-unit shared-transform recurrence targeted lower MACs but timed out; using the evaluator-supported fused nn.RNN sequence path tests the same efficient single-transform idea without its training-speed failure.",
+  "hypothesis": "A 160-unit orthogonally initialized tanh RNN processing all 32 frames will reach at least 85% validation accuracy while reducing recurrent MACs by 20% versus the 100-unit GRU; jointly classifying the final state and temporal mean will offset the loss of GRU gating.",
+  "incumbent_after": "90d52e0ba942b8628a131c6ad3fc0c780ecbd7ae12ba6a6108e96d860673b731",
+  "intended_edit": "Replace the 100-unit GRU with a fused 160-unit standard RNN, preserve full-rate causal processing, and classify from the concatenated final hidden state and mean recurrent output.",
+  "mechanism": "Fused single-transform Elman recurrence with endpoint-and-trajectory readout",
+  "opportunity": 11,
+  "parent_ids": [
+    "90d52e0ba942b8628a131c6ad3fc0c780ecbd7ae12ba6a6108e96d860673b731"
+  ],
+  "portfolio_after": [
+    "90d52e0ba942b8628a131c6ad3fc0c780ecbd7ae12ba6a6108e96d860673b731"
+  ],
+  "prompt_hashes": {
+    "common_template_sha256": "dee04faf4c430276c1036ba97f5705a339857dbdf19117dac88952a5a3a47e9d",
+    "prompt_sha256": "31fcb0fbaa54cd860ca13edd6bd68738be7bb6c3a837bb08ee730ca973eb8022",
+    "proposal_policy_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "search_state_sha256": "04e5eb078ae1964e4ec65bfeeeb1acd0ffa246e7d54d5e0f997f81f602da28c5",
+    "treatment_skeleton_sha256": "fca6b7ad8fc81d5b5157c713f33308fe3f801a507725c86bc3cc53a55849395c"
+  },
+  "proposal_type": "ordinary",
+  "proposals_cumulative": 11,
+  "remaining_budget": {
+    "evaluations": 189,
+    "evaluator_seconds": 58597.3109730836,
+    "proposals": 189,
+    "tokens": 99776513
+  },
+  "retained": false,
+  "retention_decision": "invalid",
+  "run_id": "tiny-kws-rnn-openevolve-v2-1-cpu-tiny_kws_rnn_source_only_cpu-openevolve-b03-c1",
+  "schema_version": "1.0",
+  "selected_parent_ids": [
+    "90d52e0ba942b8628a131c6ad3fc0c780ecbd7ae12ba6a6108e96d860673b731"
+  ],
+  "timestamp": "2026-09-04T03:16:55.374982+00:00",
+  "usage_cumulative": {
+    "cached_input_tokens": 118272,
+    "input_tokens": 196306,
+    "output_tokens": 27181,
+    "reasoning_output_tokens": 22159,
+    "total_tokens": 223487
+  },
+  "usage_increment": {
+    "cached_input_tokens": 10752,
+    "input_tokens": 19450,
+    "output_tokens": 3567,
+    "reasoning_output_tokens": 2262,
+    "total_tokens": 23017
+  },
+  "visible_candidate_ids": [
+    "90d52e0ba942b8628a131c6ad3fc0c780ecbd7ae12ba6a6108e96d860673b731"
+  ]
+}

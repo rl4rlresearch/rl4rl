@@ -1,0 +1,85 @@
+{
+  "artifact_path": "candidates/5e42e8f5423f51ea1a118c3107dc00f1f14a278b9758cab67fd876aef65890d8",
+  "candidate_id": "5e42e8f5423f51ea1a118c3107dc00f1f14a278b9758cab67fd876aef65890d8",
+  "codex_service_tier": "default",
+  "condition": "C2",
+  "conversation_session_id": null,
+  "evaluation": {
+    "evaluator_calls": 1,
+    "evaluator_seconds": 572.3159032079857,
+    "failure_kind": "nonqualification",
+    "fitness": null,
+    "metrics": {
+      "accuracy": 0.7329000000000001,
+      "cases": 10010,
+      "correct": 7336,
+      "parameters": 1484,
+      "training_steps": 4999
+    },
+    "valid": false
+  },
+  "evaluator_calls_cumulative": 112,
+  "evaluator_calls_increment": 1,
+  "evaluator_seconds_cumulative": 53711.04725937836,
+  "evaluator_seconds_increment": 572.3159032079857,
+  "event": "proposal_completed",
+  "evicted_candidate_id": null,
+  "evidence": "Naive adjacent final-LayerNorm gain sharing reached 98.91%, the closest verified 1484 result, while the current unrestricted design reached 99.92%; preserving separate adaptive moments directly tests whether the narrow deficit was caused by the tied parameter\u2019s aggregated optimizer dynamics.",
+  "hypothesis": "Tying the last two learned final-LayerNorm gains while optimizing their coordinate gradients with separate AdamW moments will reduce the model from 1485 to 1484 parameters and achieve at least 99% accuracy.",
+  "incumbent_after": "f447df388617caf3454464782042b6562ec1ba65a6ce41eb6870e806ce1755af",
+  "intended_edit": "Replace the final two learned gain coordinates with one shared parameter, capture their individual gradients, and project separate full-coordinate AdamW updates back onto the shared gain.",
+  "mechanism": "Projected duplicated-moment AdamW for tied terminal gains",
+  "opportunity": 113,
+  "parent_ids": [
+    "f447df388617caf3454464782042b6562ec1ba65a6ce41eb6870e806ce1755af"
+  ],
+  "portfolio_after": [
+    "28a4dffd968472e1dfa6d7359124baca4528b45d560ed62ffa9afb4850dcf316",
+    "989e201d008be62569f7162b2ec0f1d66ffd3498789979b10504a71f3af451ba",
+    "890127339c7e19f01b0c9118783eb014f01081a7ef6084ac8ac6c954f293d466",
+    "f447df388617caf3454464782042b6562ec1ba65a6ce41eb6870e806ce1755af"
+  ],
+  "prompt_hashes": {
+    "common_template_sha256": "3f2bea6418b6969c4bf2aa1df18dcda8a3a4ac075bf20c79068c754698b6be5e",
+    "prompt_sha256": "f519f7683313e712e1752fb75ddee13ee445ed20ee7ef36de506a6f548d88817",
+    "proposal_policy_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "search_state_sha256": "c938ac007bf70fe8d27f64661175531e51fcb16b38318c328493c32ee292e27e",
+    "treatment_skeleton_sha256": "1fa4dd542287e0f9d5b3d201cd2654ed6f32735b79f08b101081ca6212dceef1"
+  },
+  "proposal_type": "ordinary",
+  "proposals_cumulative": 113,
+  "remaining_budget": {
+    "evaluations": 88,
+    "evaluator_seconds": 306288.95274062164,
+    "proposals": 87,
+    "tokens": 93234088
+  },
+  "retained": false,
+  "retention_decision": "invalid",
+  "run_id": "controlled-openevolve-transformer-v2-1-source-only-ten-digit-addition-pair-transformer-openevolve-v2-1-mps-openevolve-b03-c2",
+  "schema_version": "1.0",
+  "selected_parent_ids": [
+    "f447df388617caf3454464782042b6562ec1ba65a6ce41eb6870e806ce1755af"
+  ],
+  "timestamp": "2026-09-03T21:45:01.222755+00:00",
+  "usage_cumulative": {
+    "cached_input_tokens": 1289984,
+    "input_tokens": 5966008,
+    "output_tokens": 799904,
+    "reasoning_output_tokens": 552455,
+    "total_tokens": 6765912
+  },
+  "usage_increment": {
+    "cached_input_tokens": 10752,
+    "input_tokens": 70258,
+    "output_tokens": 8828,
+    "reasoning_output_tokens": 6784,
+    "total_tokens": 79086
+  },
+  "visible_candidate_ids": [
+    "28a4dffd968472e1dfa6d7359124baca4528b45d560ed62ffa9afb4850dcf316",
+    "989e201d008be62569f7162b2ec0f1d66ffd3498789979b10504a71f3af451ba",
+    "890127339c7e19f01b0c9118783eb014f01081a7ef6084ac8ac6c954f293d466",
+    "f447df388617caf3454464782042b6562ec1ba65a6ce41eb6870e806ce1755af"
+  ]
+}

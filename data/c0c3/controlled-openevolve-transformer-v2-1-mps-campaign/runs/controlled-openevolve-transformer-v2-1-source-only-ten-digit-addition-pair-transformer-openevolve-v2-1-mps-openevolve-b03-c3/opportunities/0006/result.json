@@ -1,0 +1,83 @@
+{
+  "artifact_path": "candidates/feebfed06aeeeef861e22f9ad6846b2715d93feec30fb25201da8de288d188dc",
+  "candidate_id": "feebfed06aeeeef861e22f9ad6846b2715d93feec30fb25201da8de288d188dc",
+  "codex_service_tier": "fast",
+  "condition": "C3",
+  "conversation_session_id": null,
+  "evaluation": {
+    "evaluator_calls": 1,
+    "evaluator_seconds": 253.16440658294596,
+    "failure_kind": "nonqualification",
+    "fitness": null,
+    "metrics": {
+      "accuracy": 0.7291,
+      "cases": 10010,
+      "correct": 7298,
+      "parameters": 1605,
+      "training_steps": 4999
+    },
+    "valid": false
+  },
+  "evaluator_calls_cumulative": 6,
+  "evaluator_calls_increment": 1,
+  "evaluator_seconds_cumulative": 1392.3907962490339,
+  "evaluator_seconds_increment": 253.16440658294596,
+  "event": "proposal_completed",
+  "evicted_candidate_id": null,
+  "evidence": "The 1,628-parameter design achieved 99.95% accuracy, whereas removing the full `ln1` bias failed at 33.96%; this motivates retaining optimization-sensitive offsets while eliminating an exact LayerNorm-invariant positional direction.",
+  "hypothesis": "Starting from the verified 1,628-parameter design, removing each positional embedding\u2019s all-ones component will preserve at least 99% accuracy while saving one parameter per sequence position, because that component is erased by the pre-block and final LayerNorms under the fixed zero-dropout configuration.",
+  "incumbent_after": "a4a0981ef54a0ebd6b6a4a125141c00f870580eca3ab3a62726138e415641ce7",
+  "intended_edit": "Apply the verified key-bias and `ln2`-bias removals, then represent positional embeddings in a learned seven-dimensional orthonormal basis spanning the mean-zero subspace.",
+  "mechanism": "LayerNorm gauge-fixed positional embeddings",
+  "opportunity": 6,
+  "parent_ids": [
+    "2b9cea175ed60b009337ac54f6e8ad23bf2c014eb4080237777bfb70bfd9fd5b"
+  ],
+  "portfolio_after": [
+    "2b9cea175ed60b009337ac54f6e8ad23bf2c014eb4080237777bfb70bfd9fd5b",
+    "0c5739da9f29148e1e6269ddc9aed365a62c24fd7d53dc756ee0ead7226bed9b",
+    "a4a0981ef54a0ebd6b6a4a125141c00f870580eca3ab3a62726138e415641ce7"
+  ],
+  "prompt_hashes": {
+    "common_template_sha256": "3f2bea6418b6969c4bf2aa1df18dcda8a3a4ac075bf20c79068c754698b6be5e",
+    "prompt_sha256": "f3306e56254475ba4b279e7d0d3584039ea97310aefd1de7a05db144c7ebe414",
+    "proposal_policy_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "search_state_sha256": "c938ac007bf70fe8d27f64661175531e51fcb16b38318c328493c32ee292e27e",
+    "treatment_skeleton_sha256": "feb21e2d4d1f2e19dd363afcb0b99ecad820e8676043b846984e3d98063bb2aa"
+  },
+  "proposal_type": "ordinary",
+  "proposals_cumulative": 6,
+  "remaining_budget": {
+    "evaluations": 194,
+    "evaluator_seconds": 358607.60920375097,
+    "proposals": 194,
+    "tokens": 99845640
+  },
+  "retained": false,
+  "retention_decision": "invalid",
+  "run_id": "controlled-openevolve-transformer-v2-1-source-only-ten-digit-addition-pair-transformer-openevolve-v2-1-mps-openevolve-b03-c3",
+  "schema_version": "1.0",
+  "selected_parent_ids": [
+    "2b9cea175ed60b009337ac54f6e8ad23bf2c014eb4080237777bfb70bfd9fd5b"
+  ],
+  "timestamp": "2026-08-23T11:44:25.890263+00:00",
+  "usage_cumulative": {
+    "cached_input_tokens": 70144,
+    "input_tokens": 134851,
+    "output_tokens": 19509,
+    "reasoning_output_tokens": 16898,
+    "total_tokens": 154360
+  },
+  "usage_increment": {
+    "cached_input_tokens": 12032,
+    "input_tokens": 27617,
+    "output_tokens": 10156,
+    "reasoning_output_tokens": 9318,
+    "total_tokens": 37773
+  },
+  "visible_candidate_ids": [
+    "2b9cea175ed60b009337ac54f6e8ad23bf2c014eb4080237777bfb70bfd9fd5b",
+    "0c5739da9f29148e1e6269ddc9aed365a62c24fd7d53dc756ee0ead7226bed9b",
+    "a4a0981ef54a0ebd6b6a4a125141c00f870580eca3ab3a62726138e415641ce7"
+  ]
+}

@@ -1,0 +1,88 @@
+{
+  "artifact_path": "candidates/2bcfbdfe5e02849a418711543df4395c5313250af053d969df313669c1516c08",
+  "candidate_id": "2bcfbdfe5e02849a418711543df4395c5313250af053d969df313669c1516c08",
+  "codex_service_tier": "fast",
+  "condition": "C2",
+  "conversation_session_id": null,
+  "evaluation": {
+    "evaluator_calls": 1,
+    "evaluator_seconds": 348.3202792160009,
+    "failure_kind": null,
+    "fitness": -0.992471,
+    "metrics": {
+      "depth": 8.0,
+      "mfu_percent": 38.51,
+      "num_params_M": 39.8,
+      "num_steps": 1936.0,
+      "peak_vram_mb": 41236.2,
+      "total_tokens_M": 507.5,
+      "training_seconds": 300.1,
+      "val_bpb": 0.992471
+    },
+    "valid": true
+  },
+  "evaluator_calls_cumulative": 8,
+  "evaluator_calls_increment": 1,
+  "evaluator_seconds_cumulative": 2968.882599445,
+  "evaluator_seconds_increment": 348.3202792160009,
+  "event": "proposal_completed",
+  "evicted_candidate_id": null,
+  "evidence": "Reference Design 3 achieved the best val_bpb, 0.98713, at 489.7M tokens and 39.23% MFU; lower-throughput variants regressed, motivating an architecture reduction that preserves its efficient batch geometry.",
+  "hypothesis": "Using four query heads but only two shared KV heads on the proven 128-sequence, 262K-token update geometry will beat val_bpb 0.98713 by reducing projection, value-embedding, and optimizer overhead while retaining query capacity and full token throughput.",
+  "incumbent_after": "183c12a3e4e8f1c2092d95b8d30fc5061c1587032104e5cecf97c87b200cc27c",
+  "intended_edit": "Restore the best verified single-microbatch configuration and replace full multi-head KV attention with two-way grouped-query attention.",
+  "mechanism": "Two-way grouped-query attention with efficient single-microbatch updates",
+  "opportunity": 8,
+  "parent_ids": [
+    "4675b7271f4f63a246cd0c0c4245c7e4b56dd1e71d6c4f9c4839079a42b92b56"
+  ],
+  "portfolio_after": [
+    "2865e528e18dc51191e4037eaeb5824cb0ea83ede79061b59b8f3caac686da6b",
+    "ed4c9655645388fe2e7f93a69093c1d6510263f3a5280f15e89a2c00dcf02c36",
+    "4675b7271f4f63a246cd0c0c4245c7e4b56dd1e71d6c4f9c4839079a42b92b56",
+    "183c12a3e4e8f1c2092d95b8d30fc5061c1587032104e5cecf97c87b200cc27c"
+  ],
+  "prompt_hashes": {
+    "common_template_sha256": "ba85b39aa7288f4f48475376da6cff65661f39cfeb7ac7cde15b2a9a2e692fde",
+    "prompt_sha256": "415ecbe07967ca2277003af7b98b3a1769c67fe0da262583cbf1076704fa1bff",
+    "proposal_policy_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "search_state_sha256": "c938ac007bf70fe8d27f64661175531e51fcb16b38318c328493c32ee292e27e",
+    "treatment_skeleton_sha256": "db8d9f5b4864dac5122c040e2f2dd44ecd6c119b7ec5c4efe252e6f7fcdac85c"
+  },
+  "proposal_type": "ordinary",
+  "proposals_cumulative": 8,
+  "remaining_budget": {
+    "evaluations": 192,
+    "evaluator_seconds": 717031.117400555,
+    "proposals": 192,
+    "tokens": 99663355
+  },
+  "retained": false,
+  "retention_decision": "not_strictly_better_than_selected_parent",
+  "run_id": "nanogpt-openevolve-v2-1-h100-karpathy_nanogpt_source_only_h100-openevolve-b03-c2",
+  "schema_version": "1.0",
+  "selected_parent_ids": [
+    "4675b7271f4f63a246cd0c0c4245c7e4b56dd1e71d6c4f9c4839079a42b92b56"
+  ],
+  "timestamp": "2026-08-23T17:36:52.508857+00:00",
+  "usage_cumulative": {
+    "cached_input_tokens": 86016,
+    "input_tokens": 314735,
+    "output_tokens": 21910,
+    "reasoning_output_tokens": 19719,
+    "total_tokens": 336645
+  },
+  "usage_increment": {
+    "cached_input_tokens": 12032,
+    "input_tokens": 45869,
+    "output_tokens": 4971,
+    "reasoning_output_tokens": 4660,
+    "total_tokens": 50840
+  },
+  "visible_candidate_ids": [
+    "2865e528e18dc51191e4037eaeb5824cb0ea83ede79061b59b8f3caac686da6b",
+    "ed4c9655645388fe2e7f93a69093c1d6510263f3a5280f15e89a2c00dcf02c36",
+    "4675b7271f4f63a246cd0c0c4245c7e4b56dd1e71d6c4f9c4839079a42b92b56",
+    "183c12a3e4e8f1c2092d95b8d30fc5061c1587032104e5cecf97c87b200cc27c"
+  ]
+}

@@ -1,0 +1,82 @@
+{
+  "artifact_path": "candidates/f36469b2e895071174490a487832ea060a1975ab527774c0137e171c98170b11",
+  "candidate_id": "f36469b2e895071174490a487832ea060a1975ab527774c0137e171c98170b11",
+  "codex_service_tier": "fast",
+  "condition": "C1",
+  "conversation_session_id": null,
+  "evaluation": {
+    "evaluator_calls": 1,
+    "evaluator_seconds": 436.12300664000213,
+    "failure_kind": null,
+    "fitness": -1.014553,
+    "metrics": {
+      "depth": 8.0,
+      "mfu_percent": 27.44,
+      "num_params_M": 50.3,
+      "num_steps": 716.0,
+      "peak_vram_mb": 45060.2,
+      "total_tokens_M": 375.4,
+      "training_seconds": 300.2,
+      "val_bpb": 1.014553
+    },
+    "valid": true
+  },
+  "evaluator_calls_cumulative": 8,
+  "evaluator_calls_increment": 1,
+  "evaluator_seconds_cumulative": 3119.904325754,
+  "evaluator_seconds_increment": 436.12300664000213,
+  "event": "proposal_completed",
+  "evicted_candidate_id": null,
+  "evidence": "The best design uses full attention at layers 3 and 7; removing one gained only 4.7M tokens and worsened val_bpb to 0.994122, motivating a numerical optimization of full attention rather than reducing global mixing.",
+  "hypothesis": "Representing the two full-context layers with FlashAttention\u2019s native unrestricted window will preserve the winning SSSL receptive field while improving throughput enough to reduce val_bpb below 0.993365.",
+  "incumbent_after": "ee1f1cf686a479f175a9b2178602df52386a3561e80b0612b88ccd725e447c2e",
+  "intended_edit": "Keep 512-token local windows, but encode full-context attention as `(-1, -1)` instead of the equivalent `(2048, 0)` sliding window.",
+  "mechanism": "Native full-attention kernel path",
+  "opportunity": 8,
+  "parent_ids": [
+    "ee1f1cf686a479f175a9b2178602df52386a3561e80b0612b88ccd725e447c2e"
+  ],
+  "portfolio_after": [
+    "ee1f1cf686a479f175a9b2178602df52386a3561e80b0612b88ccd725e447c2e"
+  ],
+  "prompt_hashes": {
+    "common_template_sha256": "ba85b39aa7288f4f48475376da6cff65661f39cfeb7ac7cde15b2a9a2e692fde",
+    "prompt_sha256": "bc229945e8cdc67da561a4ddb1a9672b539a2684a26c4306c74539821d2a271f",
+    "proposal_policy_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "search_state_sha256": "04e5eb078ae1964e4ec65bfeeeb1acd0ffa246e7d54d5e0f997f81f602da28c5",
+    "treatment_skeleton_sha256": "0a09c8e7e951981a857de5f71b794b471ece6b5f345be693cc30f6c6a2816447"
+  },
+  "proposal_type": "ordinary",
+  "proposals_cumulative": 8,
+  "remaining_budget": {
+    "evaluations": 192,
+    "evaluator_seconds": 716880.095674246,
+    "proposals": 192,
+    "tokens": 99796588
+  },
+  "retained": false,
+  "retention_decision": "not_strictly_better_than_incumbent",
+  "run_id": "nanogpt-openevolve-v2-1-h100-karpathy_nanogpt_source_only_h100-openevolve-b03-c1",
+  "schema_version": "1.0",
+  "selected_parent_ids": [
+    "ee1f1cf686a479f175a9b2178602df52386a3561e80b0612b88ccd725e447c2e"
+  ],
+  "timestamp": "2026-08-23T17:22:47.111949+00:00",
+  "usage_cumulative": {
+    "cached_input_tokens": 96256,
+    "input_tokens": 181636,
+    "output_tokens": 21776,
+    "reasoning_output_tokens": 19798,
+    "total_tokens": 203412
+  },
+  "usage_increment": {
+    "cached_input_tokens": 12032,
+    "input_tokens": 23570,
+    "output_tokens": 5240,
+    "reasoning_output_tokens": 4902,
+    "total_tokens": 28810
+  },
+  "visible_candidate_ids": [
+    "ee1f1cf686a479f175a9b2178602df52386a3561e80b0612b88ccd725e447c2e"
+  ]
+}

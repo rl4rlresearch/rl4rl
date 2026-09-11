@@ -1,0 +1,79 @@
+{
+  "artifact_path": "candidates/d35b6dde549306665bd2a335a3ce47c62069ec9bcab8f30bd55ae52a6c7693b6",
+  "candidate_id": "d35b6dde549306665bd2a335a3ce47c62069ec9bcab8f30bd55ae52a6c7693b6",
+  "codex_service_tier": "default",
+  "condition": "C0",
+  "conversation_session_id": null,
+  "evaluation": {
+    "evaluator_calls": 1,
+    "evaluator_seconds": 652.6888060839847,
+    "failure_kind": null,
+    "fitness": -1630.0,
+    "metrics": {
+      "accuracy": 0.9991,
+      "cases": 10010,
+      "correct": 10001,
+      "parameters": 1630,
+      "training_steps": 4999
+    },
+    "valid": true
+  },
+  "evaluator_calls_cumulative": 33,
+  "evaluator_calls_increment": 1,
+  "evaluator_seconds_cumulative": 13302.814825249836,
+  "evaluator_seconds_increment": 652.6888060839847,
+  "event": "proposal_completed",
+  "evicted_candidate_id": "70305a6023a70af08c91245bdcc37e5e5c5da8b082c5f467d9c7dda37d6fd0cd",
+  "evidence": "The globally shifted token-embedding anchor reached only 84.68%, while a localized positional common-mode anchor reached 99.93%; this motivates retaining the exact token-embedding gauge reduction but localizing its initialization effect to one scalar.",
+  "hypothesis": "Fixing one tied-token embedding scalar at zero while independently initializing every remaining scalar will reduce the model from 1,631 to 1,630 parameters and retain at least 99% accuracy by avoiding the global initialization correlation introduced by the previous gauge-preserving subtraction.",
+  "incumbent_after": "d35b6dde549306665bd2a335a3ce47c62069ec9bcab8f30bd55ae52a6c7693b6",
+  "intended_edit": "Store the tied token embedding with one fewer scalar, reconstruct only its final scalar as zero, initialize the compact learned coordinates normally, and use the reconstructed matrix through a parameterless tied output projection.",
+  "mechanism": "Locally initialized tied-token common-mode gauge",
+  "opportunity": 33,
+  "parent_ids": [
+    "70305a6023a70af08c91245bdcc37e5e5c5da8b082c5f467d9c7dda37d6fd0cd"
+  ],
+  "portfolio_after": [
+    "d35b6dde549306665bd2a335a3ce47c62069ec9bcab8f30bd55ae52a6c7693b6"
+  ],
+  "prompt_hashes": {
+    "common_template_sha256": "3f2bea6418b6969c4bf2aa1df18dcda8a3a4ac075bf20c79068c754698b6be5e",
+    "prompt_sha256": "40a517e15a1870df3534c5106b9e29feccb7b487201a159c3a39daef6feaf76e",
+    "proposal_policy_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "search_state_sha256": "04e5eb078ae1964e4ec65bfeeeb1acd0ffa246e7d54d5e0f997f81f602da28c5",
+    "treatment_skeleton_sha256": "3cb7a0fa4a621a023a20f48857226f0de73bd7cdaac07516acdefe78a8574780"
+  },
+  "proposal_type": "ordinary",
+  "proposals_cumulative": 33,
+  "remaining_budget": {
+    "evaluations": 167,
+    "evaluator_seconds": 346697.18517475016,
+    "proposals": 167,
+    "tokens": 99240745
+  },
+  "retained": true,
+  "retention_decision": "strict_incumbent_improvement",
+  "run_id": "controlled-openevolve-transformer-v2-1-source-only-ten-digit-addition-pair-transformer-openevolve-v2-1-mps-openevolve-b02-c0",
+  "schema_version": "1.0",
+  "selected_parent_ids": [
+    "70305a6023a70af08c91245bdcc37e5e5c5da8b082c5f467d9c7dda37d6fd0cd"
+  ],
+  "timestamp": "2026-08-24T05:00:49.016482+00:00",
+  "usage_cumulative": {
+    "cached_input_tokens": 373760,
+    "input_tokens": 689888,
+    "output_tokens": 69367,
+    "reasoning_output_tokens": 55648,
+    "total_tokens": 759255
+  },
+  "usage_increment": {
+    "cached_input_tokens": 12032,
+    "input_tokens": 21806,
+    "output_tokens": 4209,
+    "reasoning_output_tokens": 3624,
+    "total_tokens": 26015
+  },
+  "visible_candidate_ids": [
+    "70305a6023a70af08c91245bdcc37e5e5c5da8b082c5f467d9c7dda37d6fd0cd"
+  ]
+}

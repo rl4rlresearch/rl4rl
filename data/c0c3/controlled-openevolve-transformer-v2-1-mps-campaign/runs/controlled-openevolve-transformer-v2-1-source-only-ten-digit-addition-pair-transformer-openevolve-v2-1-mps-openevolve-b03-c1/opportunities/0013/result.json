@@ -1,0 +1,79 @@
+{
+  "artifact_path": "candidates/33da62ac5175eb66f742413b0c601d7e8e7986cffccb9c16120c09b8a86100d7",
+  "candidate_id": "33da62ac5175eb66f742413b0c601d7e8e7986cffccb9c16120c09b8a86100d7",
+  "codex_service_tier": "fast",
+  "condition": "C1",
+  "conversation_session_id": null,
+  "evaluation": {
+    "evaluator_calls": 1,
+    "evaluator_seconds": 231.4272434579907,
+    "failure_kind": "nonqualification",
+    "fitness": null,
+    "metrics": {
+      "accuracy": 0.9823999999999999,
+      "cases": 10010,
+      "correct": 9834,
+      "parameters": 1603,
+      "training_steps": 4999
+    },
+    "valid": false
+  },
+  "evaluator_calls_cumulative": 13,
+  "evaluator_calls_increment": 1,
+  "evaluator_seconds_cumulative": 3102.254075538949,
+  "evaluator_seconds_increment": 231.4272434579907,
+  "event": "proposal_completed",
+  "evicted_candidate_id": null,
+  "evidence": "The 1,604-parameter design achieved 99.37%, while removing an entire feed-forward unit caused severe accuracy loss; this removes only a one-dimensional LayerNorm-invariant redundancy without narrowing the capacity-critical MLP.",
+  "hypothesis": "Fixing one coordinate of the MLP output bias at zero will reduce the model from 1,604 to 1,603 parameters while retaining at least 99% accuracy, because any omitted bias vector is equivalent up to an all-coordinate shift erased by the final LayerNorm.",
+  "incumbent_after": "2673a4d78a423f95fae6d8f97c8ea15e708f89624db77ce97219109f9b37e343",
+  "intended_edit": "Preserve the full 12-unit MLP and initialization ordering, but learn only seven `fc2` bias coordinates and pad the eighth with zero during the forward pass.",
+  "mechanism": "Final-LayerNorm bias gauge fixing",
+  "opportunity": 13,
+  "parent_ids": [
+    "2673a4d78a423f95fae6d8f97c8ea15e708f89624db77ce97219109f9b37e343"
+  ],
+  "portfolio_after": [
+    "2673a4d78a423f95fae6d8f97c8ea15e708f89624db77ce97219109f9b37e343"
+  ],
+  "prompt_hashes": {
+    "common_template_sha256": "3f2bea6418b6969c4bf2aa1df18dcda8a3a4ac075bf20c79068c754698b6be5e",
+    "prompt_sha256": "edc3736e1d0a7bc90e5ba72b3fffd9e66a84affc6b6198dcd1f758d5ed860b0e",
+    "proposal_policy_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "search_state_sha256": "04e5eb078ae1964e4ec65bfeeeb1acd0ffa246e7d54d5e0f997f81f602da28c5",
+    "treatment_skeleton_sha256": "a729c324c2c2d5e516c6a990308f4a51664b725e18fc7625572d15e8f72f0a47"
+  },
+  "proposal_type": "ordinary",
+  "proposals_cumulative": 13,
+  "remaining_budget": {
+    "evaluations": 187,
+    "evaluator_seconds": 356897.74592446105,
+    "proposals": 187,
+    "tokens": 99711730
+  },
+  "retained": false,
+  "retention_decision": "invalid",
+  "run_id": "controlled-openevolve-transformer-v2-1-source-only-ten-digit-addition-pair-transformer-openevolve-v2-1-mps-openevolve-b03-c1",
+  "schema_version": "1.0",
+  "selected_parent_ids": [
+    "2673a4d78a423f95fae6d8f97c8ea15e708f89624db77ce97219109f9b37e343"
+  ],
+  "timestamp": "2026-08-23T12:28:43.950052+00:00",
+  "usage_cumulative": {
+    "cached_input_tokens": 152320,
+    "input_tokens": 258307,
+    "output_tokens": 29963,
+    "reasoning_output_tokens": 25328,
+    "total_tokens": 288270
+  },
+  "usage_increment": {
+    "cached_input_tokens": 12032,
+    "input_tokens": 21093,
+    "output_tokens": 2446,
+    "reasoning_output_tokens": 2070,
+    "total_tokens": 23539
+  },
+  "visible_candidate_ids": [
+    "2673a4d78a423f95fae6d8f97c8ea15e708f89624db77ce97219109f9b37e343"
+  ]
+}

@@ -1,0 +1,88 @@
+{
+  "artifact_path": "candidates/cb4d451d3ab832bea08315c021a0b5a377193b1da16eb20dd3d50b2705b3b10c",
+  "candidate_id": "cb4d451d3ab832bea08315c021a0b5a377193b1da16eb20dd3d50b2705b3b10c",
+  "codex_service_tier": "default",
+  "condition": "C2",
+  "conversation_session_id": null,
+  "evaluation": {
+    "evaluator_calls": 1,
+    "evaluator_seconds": 333.4848827650021,
+    "failure_kind": null,
+    "fitness": -0.985657,
+    "metrics": {
+      "depth": 8.0,
+      "mfu_percent": 34.73,
+      "num_params_M": 50.3,
+      "num_steps": 1979.0,
+      "peak_vram_mb": 44908.2,
+      "total_tokens_M": 518.8,
+      "training_seconds": 300.0,
+      "val_bpb": 0.985657
+    },
+    "valid": true
+  },
+  "evaluator_calls_cumulative": 33,
+  "evaluator_calls_increment": 1,
+  "evaluator_seconds_cumulative": 12329.070727643997,
+  "evaluator_seconds_increment": 333.4848827650021,
+  "event": "proposal_completed",
+  "evicted_candidate_id": "235c521c044eaa4ada371b88b135b0092aa1e41541694faaa5f35466281ef22a",
+  "evidence": "The current 256-token, 60%-warmdown design is best at 0.992358 and processes 528.5M tokens, while further attention-window, schedule, and global-layer refinements regressed; batch/update frequency is therefore an informative orthogonal optimization axis.",
+  "hypothesis": "Halving the optimizer batch to 262K tokens will approximately double the number of updates while retaining at least 500M training tokens, lowering val_bpb below 0.992358.",
+  "incumbent_after": "cb4d451d3ab832bea08315c021a0b5a377193b1da16eb20dd3d50b2705b3b10c",
+  "intended_edit": "Reduce gradient accumulation from two 128-sequence microbatches per optimizer step to one, preserving the model, device batch, optimizer hyperparameters, and proven 60% linear warmdown.",
+  "mechanism": "Higher-frequency optimizer updates via halved global batch",
+  "opportunity": 33,
+  "parent_ids": [
+    "235c521c044eaa4ada371b88b135b0092aa1e41541694faaa5f35466281ef22a"
+  ],
+  "portfolio_after": [
+    "dacd086c63445c1798b319b5b83ff4a5fe9149916d5f7346fa856f4507cd8f05",
+    "59ab778813f4c2b498d1b067494630c0cefa7cfabb91c412f1a94a0d688c49f5",
+    "cb4d451d3ab832bea08315c021a0b5a377193b1da16eb20dd3d50b2705b3b10c",
+    "91e19d23f1f4cd145bd6b8f924db969ef735a7c4dc53132e8f7f4dc6790478c8"
+  ],
+  "prompt_hashes": {
+    "common_template_sha256": "ba85b39aa7288f4f48475376da6cff65661f39cfeb7ac7cde15b2a9a2e692fde",
+    "prompt_sha256": "b357fd8bcbcb266435ed59d131b8fa9b37040ebf15169223dbdff325bed7b834",
+    "proposal_policy_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "search_state_sha256": "c938ac007bf70fe8d27f64661175531e51fcb16b38318c328493c32ee292e27e",
+    "treatment_skeleton_sha256": "1d6fdc103ec51b2a7f2f3865bc21dd786b5c073500ebbbfbbfde8752a06aea65"
+  },
+  "proposal_type": "ordinary",
+  "proposals_cumulative": 33,
+  "remaining_budget": {
+    "evaluations": 167,
+    "evaluator_seconds": 707670.929272356,
+    "proposals": 167,
+    "tokens": 98422456
+  },
+  "retained": true,
+  "retention_decision": "replaced_selected_parent_on_strict_improvement",
+  "run_id": "nanogpt-openevolve-v2-1-h100-karpathy_nanogpt_source_only_h100-openevolve-b01-c2",
+  "schema_version": "1.0",
+  "selected_parent_ids": [
+    "235c521c044eaa4ada371b88b135b0092aa1e41541694faaa5f35466281ef22a"
+  ],
+  "timestamp": "2026-08-24T06:01:58.352743+00:00",
+  "usage_cumulative": {
+    "cached_input_tokens": 357632,
+    "input_tokens": 1489026,
+    "output_tokens": 88518,
+    "reasoning_output_tokens": 77461,
+    "total_tokens": 1577544
+  },
+  "usage_increment": {
+    "cached_input_tokens": 12032,
+    "input_tokens": 46886,
+    "output_tokens": 2291,
+    "reasoning_output_tokens": 2070,
+    "total_tokens": 49177
+  },
+  "visible_candidate_ids": [
+    "dacd086c63445c1798b319b5b83ff4a5fe9149916d5f7346fa856f4507cd8f05",
+    "59ab778813f4c2b498d1b067494630c0cefa7cfabb91c412f1a94a0d688c49f5",
+    "235c521c044eaa4ada371b88b135b0092aa1e41541694faaa5f35466281ef22a",
+    "91e19d23f1f4cd145bd6b8f924db969ef735a7c4dc53132e8f7f4dc6790478c8"
+  ]
+}

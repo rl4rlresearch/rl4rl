@@ -1,0 +1,84 @@
+{
+  "artifact_path": "candidates/580a5574f2b9daf4dac13dbb4d00adf565e2c04f2221a3efdfb49e9aaffde9ac",
+  "candidate_id": "580a5574f2b9daf4dac13dbb4d00adf565e2c04f2221a3efdfb49e9aaffde9ac",
+  "codex_service_tier": "fast",
+  "condition": "C2",
+  "conversation_session_id": null,
+  "evaluation": {
+    "evaluator_calls": 1,
+    "evaluator_seconds": 333.5505429171026,
+    "failure_kind": null,
+    "fitness": -1612.0,
+    "metrics": {
+      "accuracy": 0.9995,
+      "cases": 10010,
+      "correct": 10005,
+      "parameters": 1612,
+      "training_steps": 4999
+    },
+    "valid": true
+  },
+  "evaluator_calls_cumulative": 8,
+  "evaluator_calls_increment": 1,
+  "evaluator_seconds_cumulative": 2213.134386666119,
+  "evaluator_seconds_increment": 333.5505429171026,
+  "event": "proposal_completed",
+  "evicted_candidate_id": null,
+  "evidence": "The 1,628-parameter query-only-bias design achieved 99.97% accuracy; its margin motivates removing 16 additional parameters that are initialized to zero and functionally absorbable by existing downstream biases.",
+  "hypothesis": "Retaining only the effective query bias and removing both pre-sublayer LayerNorm biases will reduce the model to 1,612 parameters while maintaining at least 99% accuracy, because those normalization offsets are representable by the downstream query, attention-output, and MLP biases.",
+  "incumbent_after": "580a5574f2b9daf4dac13dbb4d00adf565e2c04f2221a3efdfb49e9aaffde9ac",
+  "intended_edit": "Apply the verified query-only fused-QKV reparameterization and disable the biases in `ln1` and `ln2`.",
+  "mechanism": "Pre-normalization bias absorption",
+  "opportunity": 8,
+  "parent_ids": [
+    "2b9cea175ed60b009337ac54f6e8ad23bf2c014eb4080237777bfb70bfd9fd5b"
+  ],
+  "portfolio_after": [
+    "2b9cea175ed60b009337ac54f6e8ad23bf2c014eb4080237777bfb70bfd9fd5b",
+    "fada12cdbab195de68c9422579bc660529326d55ccdf0e831cb14062141170ef",
+    "4bc06b2b23a61bdbceea5f2f35b182c7418f166378264968ec6c53df6cea80c7",
+    "580a5574f2b9daf4dac13dbb4d00adf565e2c04f2221a3efdfb49e9aaffde9ac"
+  ],
+  "prompt_hashes": {
+    "common_template_sha256": "3f2bea6418b6969c4bf2aa1df18dcda8a3a4ac075bf20c79068c754698b6be5e",
+    "prompt_sha256": "398199a564416527c2794ba1f7953f770faab20cc52beab434e6646e1968b5ca",
+    "proposal_policy_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "search_state_sha256": "c938ac007bf70fe8d27f64661175531e51fcb16b38318c328493c32ee292e27e",
+    "treatment_skeleton_sha256": "2cb61f961caff6f6a1ee634d92e4fa94114050c18aa3a914ceb2307ea3f10862"
+  },
+  "proposal_type": "ordinary",
+  "proposals_cumulative": 8,
+  "remaining_budget": {
+    "evaluations": 192,
+    "evaluator_seconds": 357786.8656133339,
+    "proposals": 192,
+    "tokens": 99815278
+  },
+  "retained": true,
+  "retention_decision": "filled_open_portfolio_slot",
+  "run_id": "controlled-openevolve-transformer-v2-1-source-only-ten-digit-addition-pair-transformer-openevolve-v2-1-mps-openevolve-b01-c2",
+  "schema_version": "1.0",
+  "selected_parent_ids": [
+    "2b9cea175ed60b009337ac54f6e8ad23bf2c014eb4080237777bfb70bfd9fd5b"
+  ],
+  "timestamp": "2026-08-23T13:23:07.472532+00:00",
+  "usage_cumulative": {
+    "cached_input_tokens": 81920,
+    "input_tokens": 166483,
+    "output_tokens": 18239,
+    "reasoning_output_tokens": 15374,
+    "total_tokens": 184722
+  },
+  "usage_increment": {
+    "cached_input_tokens": 6912,
+    "input_tokens": 28232,
+    "output_tokens": 2038,
+    "reasoning_output_tokens": 1505,
+    "total_tokens": 30270
+  },
+  "visible_candidate_ids": [
+    "2b9cea175ed60b009337ac54f6e8ad23bf2c014eb4080237777bfb70bfd9fd5b",
+    "fada12cdbab195de68c9422579bc660529326d55ccdf0e831cb14062141170ef",
+    "4bc06b2b23a61bdbceea5f2f35b182c7418f166378264968ec6c53df6cea80c7"
+  ]
+}

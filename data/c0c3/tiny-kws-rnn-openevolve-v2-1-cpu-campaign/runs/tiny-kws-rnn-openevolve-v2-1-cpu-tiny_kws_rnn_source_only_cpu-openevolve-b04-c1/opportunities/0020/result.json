@@ -1,0 +1,99 @@
+{
+  "artifact_path": "candidates/a2a19a2520cb1a1f1c2608b133555f42e747e7a4a381aa18309749620d7be849",
+  "candidate_id": "a2a19a2520cb1a1f1c2608b133555f42e747e7a4a381aa18309749620d7be849",
+  "codex_service_tier": "default",
+  "condition": "C1",
+  "conversation_session_id": null,
+  "evaluation": {
+    "evaluator_calls": 1,
+    "evaluator_seconds": 226.18879487505183,
+    "failure_kind": "nonqualification",
+    "fitness": null,
+    "metrics": {
+      "batch_size": 128,
+      "evaluation_cases": 815,
+      "evaluation_split": "public_speaker_disjoint_validation",
+      "examples_processed": 50000,
+      "inference_cost": 1992809653817275968,
+      "maximum_recurrent_steps": 32,
+      "mean_recurrent_steps": 32.0,
+      "median_recurrent_steps": 32,
+      "optimizer_steps": 397,
+      "p95_recurrent_steps": 32,
+      "parameters": 16768,
+      "peak_hidden_elements": 117248,
+      "recurrent_logit_effect": 0.134080171585083,
+      "recurrent_macs": 380559360,
+      "recurrent_steps": 26080,
+      "state_dependence_effect": 0.4283183515071869,
+      "state_update_effect": 0.4545555114746094,
+      "total_inference_macs": 382045920,
+      "trained_recurrent_logit_effect": 0.5802180171012878,
+      "trained_state_dependence_effect": 0.41374433040618896,
+      "trained_state_update_effect": 0.44782280921936035,
+      "training_seconds": 200.53093170793727,
+      "validation_accuracy": 0.8429447852760736,
+      "validation_correct": 687,
+      "validation_cross_entropy": 0.4609583474375719
+    },
+    "valid": false
+  },
+  "evaluator_calls_cumulative": 20,
+  "evaluator_calls_increment": 1,
+  "evaluator_seconds_cumulative": 2719.99454862508,
+  "evaluator_seconds_increment": 226.18879487505183,
+  "event": "proposal_completed",
+  "evicted_candidate_id": null,
+  "evidence": "The 64-unit GRU reached 86.01% accuracy at 421.87M MACs, while 72- and 76-unit GRUs reached 87.24% and 86.38%. This supports trading the GRU\u2019s third dense transform for wider state capacity. Unlike the failed low-rank residual model, this update retains full-rank recurrence and makes its gate depend on prior state.",
+  "hypothesis": "A 76-unit, two-transform MGU will preserve at least 85% validation accuracy while reducing total dense inference MACs by about 9.4% versus the verified 64-unit three-transform GRU.",
+  "incumbent_after": "00a8a16462c952fe846016d877e74371e7b2c7e3f260398043a8d114ac6619e0",
+  "intended_edit": "Replace the GRU with a wider full-rank recurrent state using one state-conditioned update gate and one gated candidate transform, while retaining all 32 frames and mean/maximum/final pooling.",
+  "mechanism": "Full-rank minimally gated recurrent update",
+  "opportunity": 20,
+  "parent_ids": [
+    "00a8a16462c952fe846016d877e74371e7b2c7e3f260398043a8d114ac6619e0"
+  ],
+  "portfolio_after": [
+    "00a8a16462c952fe846016d877e74371e7b2c7e3f260398043a8d114ac6619e0"
+  ],
+  "prompt_hashes": {
+    "common_template_sha256": "dee04faf4c430276c1036ba97f5705a339857dbdf19117dac88952a5a3a47e9d",
+    "prompt_sha256": "991edb14fa3b64c44bc8ccde1afdb5a9784d036898e340eea83f4ff78ccbf36b",
+    "proposal_policy_sha256": "f3e935f1a3cb6334e7f39b20b1b6b601cd727de9c5f0c3630206a91f08e358c9",
+    "search_state_sha256": "04e5eb078ae1964e4ec65bfeeeb1acd0ffa246e7d54d5e0f997f81f602da28c5",
+    "treatment_skeleton_sha256": "6802096a638f85afc86fab0f2f06016f30deba45ab59dbf7100e0990d95a1dfb"
+  },
+  "proposal_type": "assumption_changing",
+  "proposals_cumulative": 20,
+  "remaining_budget": {
+    "evaluations": 180,
+    "evaluator_seconds": 57280.00545137492,
+    "proposals": 180,
+    "tokens": 99592346
+  },
+  "retained": false,
+  "retention_decision": "invalid",
+  "run_id": "tiny-kws-rnn-openevolve-v2-1-cpu-tiny_kws_rnn_source_only_cpu-openevolve-b04-c1",
+  "schema_version": "1.0",
+  "selected_parent_ids": [
+    "00a8a16462c952fe846016d877e74371e7b2c7e3f260398043a8d114ac6619e0"
+  ],
+  "timestamp": "2026-09-04T03:38:08.219995+00:00",
+  "usage_cumulative": {
+    "cached_input_tokens": 215040,
+    "input_tokens": 380965,
+    "output_tokens": 26689,
+    "reasoning_output_tokens": 17843,
+    "total_tokens": 407654
+  },
+  "usage_increment": {
+    "cached_input_tokens": 10752,
+    "input_tokens": 20739,
+    "output_tokens": 5476,
+    "reasoning_output_tokens": 4142,
+    "total_tokens": 26215
+  },
+  "visible_candidate_ids": [
+    "00a8a16462c952fe846016d877e74371e7b2c7e3f260398043a8d114ac6619e0"
+  ]
+}

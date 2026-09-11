@@ -1,0 +1,79 @@
+{
+  "artifact_path": "candidates/898dce1e0289159a1336c103ff089d4bbeafab0fbb6c380bb78bea846d606fc3",
+  "candidate_id": "898dce1e0289159a1336c103ff089d4bbeafab0fbb6c380bb78bea846d606fc3",
+  "codex_service_tier": "default",
+  "condition": "C1",
+  "conversation_session_id": null,
+  "evaluation": {
+    "evaluator_calls": 1,
+    "evaluator_seconds": 436.49033208284527,
+    "failure_kind": "nonqualification",
+    "fitness": null,
+    "metrics": {
+      "accuracy": 0.9018,
+      "cases": 10010,
+      "correct": 9027,
+      "parameters": 605,
+      "training_steps": 4999
+    },
+    "valid": false
+  },
+  "evaluator_calls_cumulative": 107,
+  "evaluator_calls_increment": 1,
+  "evaluator_seconds_cumulative": 38447.05666178616,
+  "evaluator_seconds_increment": 436.49033208284527,
+  "event": "proposal_completed",
+  "evicted_candidate_id": null,
+  "evidence": "The current 606-parameter model achieved 99.89% accuracy. The earlier phase gauge collapsed to 4.8%, showing optimizer-coordinate changes can be destructive; this patch therefore retains the omitted coordinate only as transient optimizer state and reproduces full-coordinate gradients, clipping, AdamW moments, and weight decay before exact gauge normalization.",
+  "hypothesis": "Removing one globally redundant token-radius coordinate will reduce the verified model from 606 to 605 parameters while retaining at least 99% accuracy, because virtual full-coordinate AdamW updates preserve the successful 606-parameter training trajectory up to an exact scale gauge.",
+  "incumbent_after": "bd3de48f5525dcfff6bd60d317420799f884f2ebdb491cb5078d6dbf650b991c",
+  "intended_edit": "Fix the first token radius as a buffer, learn the remaining radii, and train the gauge-fixed lexical parameters through virtual full-radius optimizer states mapped back into the 605-parameter model after every step.",
+  "mechanism": "Radius-scale gauge fixing with ambient AdamW moments",
+  "opportunity": 107,
+  "parent_ids": [
+    "bd3de48f5525dcfff6bd60d317420799f884f2ebdb491cb5078d6dbf650b991c"
+  ],
+  "portfolio_after": [
+    "bd3de48f5525dcfff6bd60d317420799f884f2ebdb491cb5078d6dbf650b991c"
+  ],
+  "prompt_hashes": {
+    "common_template_sha256": "3f2bea6418b6969c4bf2aa1df18dcda8a3a4ac075bf20c79068c754698b6be5e",
+    "prompt_sha256": "4b299b21f99eb65ae9484c236bf92148b9856bd31c2cc755b44b96066e5f57c1",
+    "proposal_policy_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "search_state_sha256": "04e5eb078ae1964e4ec65bfeeeb1acd0ffa246e7d54d5e0f997f81f602da28c5",
+    "treatment_skeleton_sha256": "7a105829ee25dfc0f6b1ce979a94872d8d09fe087c6fe3fa9024e7dc87f5c1c1"
+  },
+  "proposal_type": "ordinary",
+  "proposals_cumulative": 107,
+  "remaining_budget": {
+    "evaluations": 93,
+    "evaluator_seconds": 321552.94333821384,
+    "proposals": 93,
+    "tokens": 97157895
+  },
+  "retained": false,
+  "retention_decision": "invalid",
+  "run_id": "controlled-openevolve-transformer-v2-1-source-only-ten-digit-addition-pair-transformer-openevolve-v2-1-mps-openevolve-b03-c1",
+  "schema_version": "1.0",
+  "selected_parent_ids": [
+    "bd3de48f5525dcfff6bd60d317420799f884f2ebdb491cb5078d6dbf650b991c"
+  ],
+  "timestamp": "2026-09-03T08:40:30.941464+00:00",
+  "usage_cumulative": {
+    "cached_input_tokens": 1104384,
+    "input_tokens": 2541720,
+    "output_tokens": 300385,
+    "reasoning_output_tokens": 236492,
+    "total_tokens": 2842105
+  },
+  "usage_increment": {
+    "cached_input_tokens": 7168,
+    "input_tokens": 26186,
+    "output_tokens": 8437,
+    "reasoning_output_tokens": 6732,
+    "total_tokens": 34623
+  },
+  "visible_candidate_ids": [
+    "bd3de48f5525dcfff6bd60d317420799f884f2ebdb491cb5078d6dbf650b991c"
+  ]
+}

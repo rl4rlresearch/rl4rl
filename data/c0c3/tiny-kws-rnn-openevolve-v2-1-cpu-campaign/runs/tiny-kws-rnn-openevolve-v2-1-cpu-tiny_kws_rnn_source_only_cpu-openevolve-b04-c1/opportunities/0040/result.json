@@ -1,0 +1,99 @@
+{
+  "artifact_path": "candidates/da65f82df82fd1fc6f465a5425d4c155dce9eeb8bf19cb346abbde745d9ebd87",
+  "candidate_id": "da65f82df82fd1fc6f465a5425d4c155dce9eeb8bf19cb346abbde745d9ebd87",
+  "codex_service_tier": "default",
+  "condition": "C1",
+  "conversation_session_id": null,
+  "evaluation": {
+    "evaluator_calls": 1,
+    "evaluator_seconds": 39.33005829202011,
+    "failure_kind": null,
+    "fitness": -1283766510225752138,
+    "metrics": {
+      "batch_size": 128,
+      "evaluation_cases": 815,
+      "evaluation_split": "public_speaker_disjoint_validation",
+      "examples_processed": 50000,
+      "inference_cost": 1283766510225752138,
+      "maximum_recurrent_steps": 26,
+      "mean_recurrent_steps": 26.0,
+      "median_recurrent_steps": 26,
+      "optimizer_steps": 397,
+      "p95_recurrent_steps": 26,
+      "parameters": 25248,
+      "peak_hidden_elements": 118784,
+      "recurrent_logit_effect": 0.07924068719148636,
+      "recurrent_macs": 244744500,
+      "recurrent_steps": 21190,
+      "state_dependence_effect": 0.547490119934082,
+      "state_update_effect": 0.30697229504585266,
+      "total_inference_macs": 246113700,
+      "trained_recurrent_logit_effect": 0.39618900418281555,
+      "trained_state_dependence_effect": 0.5921874046325684,
+      "trained_state_update_effect": 0.3222924470901489,
+      "training_seconds": 25.08536475012079,
+      "validation_accuracy": 0.8576687116564418,
+      "validation_correct": 699,
+      "validation_cross_entropy": 0.42380269992570935
+    },
+    "valid": true
+  },
+  "evaluator_calls_cumulative": 40,
+  "evaluator_calls_increment": 1,
+  "evaluator_seconds_cumulative": 3962.2144034581725,
+  "evaluator_seconds_increment": 39.33005829202011,
+  "event": "proposal_completed",
+  "evicted_candidate_id": "c13838e1b09878795b254ed269f0a0aa4930905a5ad695f315c3d7a5cc30b07a",
+  "evidence": "The 58-unit model reached 86.01% on frames 3\u201328, while deleting frames and compensating with width failed. This challenges the load-bearing assumption that every retained frame needs its own full recurrent transition: all 26 proven-useful frames remain available, but temporal updates occur at a learned two-frame clock.",
+  "hypothesis": "A 70-unit GRU that jointly consumes adjacent frames from the verified 26-frame window will retain at least 85% accuracy while reducing learned GRU transitions from 25 to 13 and estimated total validation MACs from 277.66M to 246.11M.",
+  "incumbent_after": "da65f82df82fd1fc6f465a5425d4c155dce9eeb8bf19cb346abbde745d9ebd87",
+  "intended_edit": "Cache the first frame of each causal pair without a dense operation, concatenate it with the next frame, and execute one wider GRU transition per pair; vectorize the identical paired computation during sequence training.",
+  "mechanism": "Lossless causal frame-pair transitions",
+  "opportunity": 40,
+  "parent_ids": [
+    "c13838e1b09878795b254ed269f0a0aa4930905a5ad695f315c3d7a5cc30b07a"
+  ],
+  "portfolio_after": [
+    "da65f82df82fd1fc6f465a5425d4c155dce9eeb8bf19cb346abbde745d9ebd87"
+  ],
+  "prompt_hashes": {
+    "common_template_sha256": "dee04faf4c430276c1036ba97f5705a339857dbdf19117dac88952a5a3a47e9d",
+    "prompt_sha256": "926e3a0349f040ac20899ebb8d5c0e3089982ef7f0178ba31d6af30f1ee125dc",
+    "proposal_policy_sha256": "f3e935f1a3cb6334e7f39b20b1b6b601cd727de9c5f0c3630206a91f08e358c9",
+    "search_state_sha256": "04e5eb078ae1964e4ec65bfeeeb1acd0ffa246e7d54d5e0f997f81f602da28c5",
+    "treatment_skeleton_sha256": "cc8044deee74eaf6af303dec3bed4bf0a43ec3bb27e145f7e0fd069a3ad431af"
+  },
+  "proposal_type": "assumption_changing",
+  "proposals_cumulative": 40,
+  "remaining_budget": {
+    "evaluations": 160,
+    "evaluator_seconds": 56037.78559654183,
+    "proposals": 160,
+    "tokens": 99134553
+  },
+  "retained": true,
+  "retention_decision": "strict_incumbent_improvement",
+  "run_id": "tiny-kws-rnn-openevolve-v2-1-cpu-tiny_kws_rnn_source_only_cpu-openevolve-b04-c1",
+  "schema_version": "1.0",
+  "selected_parent_ids": [
+    "c13838e1b09878795b254ed269f0a0aa4930905a5ad695f315c3d7a5cc30b07a"
+  ],
+  "timestamp": "2026-09-04T04:35:38.131434+00:00",
+  "usage_cumulative": {
+    "cached_input_tokens": 430080,
+    "input_tokens": 788790,
+    "output_tokens": 76657,
+    "reasoning_output_tokens": 57890,
+    "total_tokens": 865447
+  },
+  "usage_increment": {
+    "cached_input_tokens": 10752,
+    "input_tokens": 20477,
+    "output_tokens": 10088,
+    "reasoning_output_tokens": 8093,
+    "total_tokens": 30565
+  },
+  "visible_candidate_ids": [
+    "c13838e1b09878795b254ed269f0a0aa4930905a5ad695f315c3d7a5cc30b07a"
+  ]
+}

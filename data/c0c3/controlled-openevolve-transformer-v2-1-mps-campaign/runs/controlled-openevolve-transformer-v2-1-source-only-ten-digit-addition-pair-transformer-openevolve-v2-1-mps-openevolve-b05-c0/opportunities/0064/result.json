@@ -1,0 +1,79 @@
+{
+  "artifact_path": "candidates/9754d8b2c699adbb461312e49dda3f1a1596240d62b9ac4da82829fddb2c79e5",
+  "candidate_id": "9754d8b2c699adbb461312e49dda3f1a1596240d62b9ac4da82829fddb2c79e5",
+  "codex_service_tier": "default",
+  "condition": "C0",
+  "conversation_session_id": null,
+  "evaluation": {
+    "evaluator_calls": 1,
+    "evaluator_seconds": 423.0105244591832,
+    "failure_kind": "nonqualification",
+    "fitness": null,
+    "metrics": {
+      "accuracy": 0.4578,
+      "cases": 10010,
+      "correct": 4583,
+      "parameters": 1615,
+      "training_steps": 4999
+    },
+    "valid": false
+  },
+  "evaluator_calls_cumulative": 64,
+  "evaluator_calls_increment": 1,
+  "evaluator_seconds_cumulative": 36381.13715503772,
+  "evaluator_seconds_increment": 423.0105244591832,
+  "event": "proposal_completed",
+  "evicted_candidate_id": null,
+  "evidence": "The current 1616-parameter model achieves 99.93% while retaining the successful coordinate-4 MLP-output bias gauge and virtual AdamW treatment. This tests the corresponding activation-dependent output-shift quotient after additional token-position gauges proved accuracy-sensitive.",
+  "hypothesis": "Fixing `fc2.weight[4, 0]` and subtracting its value from every output row will reduce the model from 1616 to 1615 parameters while retaining at least 99% accuracy, because it changes each residual by only a token-dependent uniform feature shift that the final LayerNorm removes, while a virtual AdamW coordinate preserves full-gradient optimization.",
+  "incumbent_after": "48fbabe07b02db667730f8ce971e7f1f94f1b3792cb11c8a1f4bf6263ed77558",
+  "intended_edit": "Extend the coordinate-4 MLP-output gauge to one weight-column coordinate, reconstruct the canonical full weight during forward passes, and add virtual-gradient, clipping, and optimizer handling for the omitted weight.",
+  "mechanism": "MLP output common-column gauge erased by final LayerNorm",
+  "opportunity": 64,
+  "parent_ids": [
+    "48fbabe07b02db667730f8ce971e7f1f94f1b3792cb11c8a1f4bf6263ed77558"
+  ],
+  "portfolio_after": [
+    "48fbabe07b02db667730f8ce971e7f1f94f1b3792cb11c8a1f4bf6263ed77558"
+  ],
+  "prompt_hashes": {
+    "common_template_sha256": "3f2bea6418b6969c4bf2aa1df18dcda8a3a4ac075bf20c79068c754698b6be5e",
+    "prompt_sha256": "23c2c45d6ef31f3564d80158355b53abdbcb58b75429fe5f3c03f921fe10065b",
+    "proposal_policy_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "search_state_sha256": "04e5eb078ae1964e4ec65bfeeeb1acd0ffa246e7d54d5e0f997f81f602da28c5",
+    "treatment_skeleton_sha256": "55612b82432a32a01f2cb50d443aa3594e7a32149790d882eae80dba5188a40b"
+  },
+  "proposal_type": "ordinary",
+  "proposals_cumulative": 64,
+  "remaining_budget": {
+    "evaluations": 136,
+    "evaluator_seconds": 323618.8628449623,
+    "proposals": 136,
+    "tokens": 98244724
+  },
+  "retained": false,
+  "retention_decision": "invalid",
+  "run_id": "controlled-openevolve-transformer-v2-1-source-only-ten-digit-addition-pair-transformer-openevolve-v2-1-mps-openevolve-b05-c0",
+  "schema_version": "1.0",
+  "selected_parent_ids": [
+    "48fbabe07b02db667730f8ce971e7f1f94f1b3792cb11c8a1f4bf6263ed77558"
+  ],
+  "timestamp": "2026-08-25T22:25:59.037466+00:00",
+  "usage_cumulative": {
+    "cached_input_tokens": 708096,
+    "input_tokens": 1497471,
+    "output_tokens": 257805,
+    "reasoning_output_tokens": 201961,
+    "total_tokens": 1755276
+  },
+  "usage_increment": {
+    "cached_input_tokens": 0,
+    "input_tokens": 26856,
+    "output_tokens": 10838,
+    "reasoning_output_tokens": 8098,
+    "total_tokens": 37694
+  },
+  "visible_candidate_ids": [
+    "48fbabe07b02db667730f8ce971e7f1f94f1b3792cb11c8a1f4bf6263ed77558"
+  ]
+}

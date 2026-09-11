@@ -1,0 +1,82 @@
+{
+  "artifact_path": "candidates/674df27b25c58f2cbccc71b14b2a3da3c64efa60f586b6091ad91222de323123",
+  "candidate_id": "674df27b25c58f2cbccc71b14b2a3da3c64efa60f586b6091ad91222de323123",
+  "codex_service_tier": "default",
+  "condition": "C1",
+  "conversation_session_id": null,
+  "evaluation": {
+    "evaluator_calls": 1,
+    "evaluator_seconds": 363.6786168760009,
+    "failure_kind": null,
+    "fitness": -0.983689,
+    "metrics": {
+      "depth": 8.0,
+      "mfu_percent": 36.66,
+      "num_params_M": 50.3,
+      "num_steps": 1951.0,
+      "peak_vram_mb": 44908.2,
+      "total_tokens_M": 511.4,
+      "training_seconds": 300.0,
+      "val_bpb": 0.983689
+    },
+    "valid": true
+  },
+  "evaluator_calls_cumulative": 37,
+  "evaluator_calls_increment": 1,
+  "evaluator_seconds_cumulative": 16945.764689262083,
+  "evaluator_seconds_increment": 363.6786168760009,
+  "event": "proposal_completed",
+  "evicted_candidate_id": "f55a7ebd3bccc225daaab9dae774b00ca019d9df58010225dedb39fb591857a8",
+  "evidence": "SSMLSSML achieved 0.983720, while removing its late medium window produced a marginally better 0.983718 with greater throughput, indicating that late widening is redundant and motivating reuse of that compute in the beneficial first stage.",
+  "hypothesis": "Reallocating the redundant late 512-token window to layer 2 will lower val_bpb below 0.983718 by giving the first global-consolidation stage two consecutive wider-context layers whose features propagate through the remaining network.",
+  "incumbent_after": "674df27b25c58f2cbccc71b14b2a3da3c64efa60f586b6091ad91222de323123",
+  "intended_edit": "Change the window schedule from SSMLSSSL to SMMLSSSL, widening layers 2 and 3 to 512 tokens while retaining full-context attention at layers 4 and 8.",
+  "mechanism": "Front-loaded context widening",
+  "opportunity": 37,
+  "parent_ids": [
+    "f55a7ebd3bccc225daaab9dae774b00ca019d9df58010225dedb39fb591857a8"
+  ],
+  "portfolio_after": [
+    "674df27b25c58f2cbccc71b14b2a3da3c64efa60f586b6091ad91222de323123"
+  ],
+  "prompt_hashes": {
+    "common_template_sha256": "ba85b39aa7288f4f48475376da6cff65661f39cfeb7ac7cde15b2a9a2e692fde",
+    "prompt_sha256": "00380d732f997fa2eb3d97da6be3a7a6493686a5deb1ba3420cd0b890ec7538f",
+    "proposal_policy_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "search_state_sha256": "04e5eb078ae1964e4ec65bfeeeb1acd0ffa246e7d54d5e0f997f81f602da28c5",
+    "treatment_skeleton_sha256": "1ba1603a1393f89b00daea98a21d8daa9c203815a818a97eb4dc91f48f48b431"
+  },
+  "proposal_type": "ordinary",
+  "proposals_cumulative": 37,
+  "remaining_budget": {
+    "evaluations": 163,
+    "evaluator_seconds": 703054.235310738,
+    "proposals": 163,
+    "tokens": 99014055
+  },
+  "retained": true,
+  "retention_decision": "strict_incumbent_improvement",
+  "run_id": "nanogpt-openevolve-v2-1-h100-karpathy_nanogpt_source_only_h100-openevolve-b01-c1",
+  "schema_version": "1.0",
+  "selected_parent_ids": [
+    "f55a7ebd3bccc225daaab9dae774b00ca019d9df58010225dedb39fb591857a8"
+  ],
+  "timestamp": "2026-08-24T08:59:43.052604+00:00",
+  "usage_cumulative": {
+    "cached_input_tokens": 390912,
+    "input_tokens": 897248,
+    "output_tokens": 88697,
+    "reasoning_output_tokens": 78065,
+    "total_tokens": 985945
+  },
+  "usage_increment": {
+    "cached_input_tokens": 12032,
+    "input_tokens": 24895,
+    "output_tokens": 819,
+    "reasoning_output_tokens": 610,
+    "total_tokens": 25714
+  },
+  "visible_candidate_ids": [
+    "f55a7ebd3bccc225daaab9dae774b00ca019d9df58010225dedb39fb591857a8"
+  ]
+}

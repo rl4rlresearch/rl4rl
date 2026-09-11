@@ -1,0 +1,105 @@
+{
+  "artifact_path": "candidates/8cee2364938f1d7a0d75df84f6ab6fcdd47696462c7d79731f7b8572419ea66c",
+  "candidate_id": "8cee2364938f1d7a0d75df84f6ab6fcdd47696462c7d79731f7b8572419ea66c",
+  "codex_service_tier": "default",
+  "condition": "C2",
+  "conversation_session_id": null,
+  "evaluation": {
+    "evaluator_calls": 1,
+    "evaluator_seconds": 138.783064709045,
+    "failure_kind": null,
+    "fitness": -3860840640331568444,
+    "metrics": {
+      "batch_size": 128,
+      "evaluation_cases": 815,
+      "evaluation_split": "public_speaker_disjoint_validation",
+      "examples_processed": 50000,
+      "inference_cost": 3860840640331568444,
+      "maximum_recurrent_steps": 22,
+      "mean_recurrent_steps": 21.084662576687116,
+      "median_recurrent_steps": 21,
+      "optimizer_steps": 397,
+      "p95_recurrent_steps": 22,
+      "parameters": 45332,
+      "peak_hidden_elements": 113152,
+      "recurrent_logit_effect": 0.09202544391155243,
+      "recurrent_macs": 737193600,
+      "recurrent_steps": 17184,
+      "state_dependence_effect": 0.39348304271698,
+      "state_update_effect": 0.39457225799560547,
+      "total_inference_macs": 740170248,
+      "trained_recurrent_logit_effect": 0.1748933494091034,
+      "trained_state_dependence_effect": 0.43320557475090027,
+      "trained_state_update_effect": 0.4290960133075714,
+      "training_seconds": 124.32453812495805,
+      "validation_accuracy": 0.8515337423312883,
+      "validation_correct": 694,
+      "validation_cross_entropy": 0.4644691233254649
+    },
+    "valid": true
+  },
+  "evaluator_calls_cumulative": 42,
+  "evaluator_calls_increment": 1,
+  "evaluator_seconds_cumulative": 5519.6549407097045,
+  "evaluator_seconds_increment": 138.783064709045,
+  "event": "proposal_completed",
+  "evicted_candidate_id": "65808e45d1dc6119ae95a32cb1d684532c6a8999e5cc318e3c1432f4c5a3743c",
+  "evidence": "The 0.98 penultimate exit preserved the no-exit model\u2019s 85.276% accuracy exactly across 180 exits, while unconditional frame removal scored only 84.54%; this supports testing selective high-confidence removal of one additional frame now that threshold-only bisection below 0.7475 repeatedly failed.",
+  "hypothesis": "Evaluating the trained readout two steps before completion and exiting only at confidence >= 0.98 will retain validation_accuracy >= 0.85 while reducing total_inference_macs below 746,601,120 by saving one additional recurrent step on enough highly confident examples to amortize the extra readout.",
+  "incumbent_after": "8cee2364938f1d7a0d75df84f6ab6fcdd47696462c7d79731f7b8572419ea66c",
+  "intended_edit": "Enable dense classification at recurrent step 20, add a conservative 0.98-confidence exit there, and retain the qualified 0.7475 penultimate-step exit.",
+  "mechanism": "Two-stage confidence-gated temporal exit",
+  "opportunity": 42,
+  "parent_ids": [
+    "65808e45d1dc6119ae95a32cb1d684532c6a8999e5cc318e3c1432f4c5a3743c"
+  ],
+  "portfolio_after": [
+    "717f82f09594f8c2b62eef06db443259ff993b1f8708d7b5137a5a799c0f8cf1",
+    "0b61c2da4facbf7a1c37f2555a696a7eb5dd81417788a9238064a293a4559d78",
+    "4bf133660b142b5ee924fb8e5ec35edfe36afaff12b05353f60b57c88acf7480",
+    "8cee2364938f1d7a0d75df84f6ab6fcdd47696462c7d79731f7b8572419ea66c"
+  ],
+  "prompt_hashes": {
+    "common_template_sha256": "dee04faf4c430276c1036ba97f5705a339857dbdf19117dac88952a5a3a47e9d",
+    "prompt_sha256": "500ccedaf294000171a7d67d66133c3e9c0eb3f7a393598aa3dfcc2c33c8f31a",
+    "proposal_policy_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "search_state_sha256": "c938ac007bf70fe8d27f64661175531e51fcb16b38318c328493c32ee292e27e",
+    "treatment_skeleton_sha256": "574eddddbbffb5085559291b8a9cde9a77e7b4e122a5b0c32c5741cf1671c13f"
+  },
+  "proposal_type": "ordinary",
+  "proposals_cumulative": 42,
+  "remaining_budget": {
+    "evaluations": 158,
+    "evaluator_seconds": 54480.345059290295,
+    "proposals": 158,
+    "tokens": 98859245
+  },
+  "retained": true,
+  "retention_decision": "replaced_selected_parent_on_strict_improvement",
+  "run_id": "tiny-kws-rnn-openevolve-v2-1-cpu-tiny_kws_rnn_source_only_cpu-openevolve-b03-c2",
+  "schema_version": "1.0",
+  "selected_parent_ids": [
+    "65808e45d1dc6119ae95a32cb1d684532c6a8999e5cc318e3c1432f4c5a3743c"
+  ],
+  "timestamp": "2026-09-04T05:13:10.571943+00:00",
+  "usage_cumulative": {
+    "cached_input_tokens": 513152,
+    "input_tokens": 1040986,
+    "output_tokens": 99769,
+    "reasoning_output_tokens": 83702,
+    "total_tokens": 1140755
+  },
+  "usage_increment": {
+    "cached_input_tokens": 10752,
+    "input_tokens": 24779,
+    "output_tokens": 4015,
+    "reasoning_output_tokens": 3624,
+    "total_tokens": 28794
+  },
+  "visible_candidate_ids": [
+    "717f82f09594f8c2b62eef06db443259ff993b1f8708d7b5137a5a799c0f8cf1",
+    "0b61c2da4facbf7a1c37f2555a696a7eb5dd81417788a9238064a293a4559d78",
+    "4bf133660b142b5ee924fb8e5ec35edfe36afaff12b05353f60b57c88acf7480",
+    "65808e45d1dc6119ae95a32cb1d684532c6a8999e5cc318e3c1432f4c5a3743c"
+  ]
+}

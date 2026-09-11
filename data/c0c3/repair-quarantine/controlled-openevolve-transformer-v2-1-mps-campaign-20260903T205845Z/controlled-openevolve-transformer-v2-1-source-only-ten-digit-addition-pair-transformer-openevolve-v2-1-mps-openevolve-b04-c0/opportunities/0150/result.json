@@ -1,0 +1,79 @@
+{
+  "artifact_path": "candidates/edcf49a3cbb1a0a01d2c0c59ee5fe6f42d80e91fe4f7fe7c338830da88fa3dbc",
+  "candidate_id": "edcf49a3cbb1a0a01d2c0c59ee5fe6f42d80e91fe4f7fe7c338830da88fa3dbc",
+  "codex_service_tier": "default",
+  "condition": "C0",
+  "conversation_session_id": null,
+  "evaluation": {
+    "evaluator_calls": 1,
+    "evaluator_seconds": 1325.5874824170023,
+    "failure_kind": "nonqualification",
+    "fitness": null,
+    "metrics": {
+      "accuracy": 0.9312999999999999,
+      "cases": 10010,
+      "correct": 9322,
+      "parameters": 1561,
+      "training_steps": 4999
+    },
+    "valid": false
+  },
+  "evaluator_calls_cumulative": 127,
+  "evaluator_calls_increment": 1,
+  "evaluator_seconds_cumulative": 53601.62317070982,
+  "evaluator_seconds_increment": 1325.5874824170023,
+  "event": "proposal_completed",
+  "evicted_candidate_id": null,
+  "evidence": "The current 1562-parameter design reached 0.9999 accuracy with four identical residual-gauge anchors, whereas extending the query/key shear to `qkv.weight[2,1]` fell to 0.721; this motivates reducing a demonstrated exact residual redundancy instead of another attention-coordinate shear.",
+  "hypothesis": "Fixing `proj.weight[0,1]` at zero through the same column-offset canonicalization already used for four projection columns will reduce the model from 1562 to 1561 learned parameters while retaining at least 99% accuracy.",
+  "incumbent_after": "0f7da1df25a129e162ad733a79aa672076f441d5126eefa2e51af596f4d1c9ad",
+  "intended_edit": "Add a fifth zero anchor to `ResidualGaugeLinear`, initialize it by subtracting column 1\u2019s first-row coefficient from every output row, and omit that scalar from learned storage.",
+  "mechanism": "Extend the exact feature-uniform residual projection gauge",
+  "opportunity": 150,
+  "parent_ids": [
+    "0f7da1df25a129e162ad733a79aa672076f441d5126eefa2e51af596f4d1c9ad"
+  ],
+  "portfolio_after": [
+    "0f7da1df25a129e162ad733a79aa672076f441d5126eefa2e51af596f4d1c9ad"
+  ],
+  "prompt_hashes": {
+    "common_template_sha256": "3f2bea6418b6969c4bf2aa1df18dcda8a3a4ac075bf20c79068c754698b6be5e",
+    "prompt_sha256": "04178b487ce2e0b136f414ec4672bc289212f8ea681dd61bb470b0eb1617f02c",
+    "proposal_policy_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "search_state_sha256": "04e5eb078ae1964e4ec65bfeeeb1acd0ffa246e7d54d5e0f997f81f602da28c5",
+    "treatment_skeleton_sha256": "3d27f3b34aa50caba2db9dcd34c8038ff7220f995495176480af31d77f0943d6"
+  },
+  "proposal_type": "ordinary",
+  "proposals_cumulative": 150,
+  "remaining_budget": {
+    "evaluations": 73,
+    "evaluator_seconds": 306398.3768292902,
+    "proposals": 50,
+    "tokens": 96727425
+  },
+  "retained": false,
+  "retention_decision": "invalid",
+  "run_id": "controlled-openevolve-transformer-v2-1-source-only-ten-digit-addition-pair-transformer-openevolve-v2-1-mps-openevolve-b04-c0",
+  "schema_version": "1.0",
+  "selected_parent_ids": [
+    "0f7da1df25a129e162ad733a79aa672076f441d5126eefa2e51af596f4d1c9ad"
+  ],
+  "timestamp": "2026-09-03T19:39:22.927270+00:00",
+  "usage_cumulative": {
+    "cached_input_tokens": 1300224,
+    "input_tokens": 2918421,
+    "output_tokens": 354154,
+    "reasoning_output_tokens": 274544,
+    "total_tokens": 3272575
+  },
+  "usage_increment": {
+    "cached_input_tokens": 10496,
+    "input_tokens": 22613,
+    "output_tokens": 1145,
+    "reasoning_output_tokens": 516,
+    "total_tokens": 23758
+  },
+  "visible_candidate_ids": [
+    "0f7da1df25a129e162ad733a79aa672076f441d5126eefa2e51af596f4d1c9ad"
+  ]
+}

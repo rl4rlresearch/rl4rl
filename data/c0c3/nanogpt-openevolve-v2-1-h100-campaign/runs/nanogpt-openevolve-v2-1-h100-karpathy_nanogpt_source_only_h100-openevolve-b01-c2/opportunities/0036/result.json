@@ -1,0 +1,88 @@
+{
+  "artifact_path": "candidates/3ad582a71d4fa40b20c47f4dd4cf58a761ac9148b2c53607ce75ce99c60c043a",
+  "candidate_id": "3ad582a71d4fa40b20c47f4dd4cf58a761ac9148b2c53607ce75ce99c60c043a",
+  "codex_service_tier": "default",
+  "condition": "C2",
+  "conversation_session_id": null,
+  "evaluation": {
+    "evaluator_calls": 1,
+    "evaluator_seconds": 358.9474543980032,
+    "failure_kind": null,
+    "fitness": -0.985754,
+    "metrics": {
+      "depth": 8.0,
+      "mfu_percent": 34.85,
+      "num_params_M": 50.3,
+      "num_steps": 2268.0,
+      "peak_vram_mb": 39356.7,
+      "total_tokens_M": 520.2,
+      "training_seconds": 300.0,
+      "val_bpb": 0.985754
+    },
+    "valid": true
+  },
+  "evaluator_calls_cumulative": 36,
+  "evaluator_calls_increment": 1,
+  "evaluator_seconds_cumulative": 13421.140444333003,
+  "evaluator_seconds_increment": 358.9474543980032,
+  "event": "proposal_completed",
+  "evicted_candidate_id": "dacd086c63445c1798b319b5b83ff4a5fe9149916d5f7346fa856f4507cd8f05",
+  "evidence": "The 262K batch achieved the best val_bpb of 0.985657, while 196K reached 0.986505 and 131K regressed further; 229K directly probes the narrow bracket between the two strongest batch sizes.",
+  "hypothesis": "A 229,376-token optimizer batch will preserve near-262K throughput while increasing update frequency, lowering val_bpb below 0.985657.",
+  "incumbent_after": "cb4d451d3ab832bea08315c021a0b5a377193b1da16eb20dd3d50b2705b3b10c",
+  "intended_edit": "Restore proven 256-token local attention and 60% linear warmdown, then use one 112-sequence microbatch per optimizer step.",
+  "mechanism": "Bracketed optimizer-batch refinement at 229K tokens",
+  "opportunity": 36,
+  "parent_ids": [
+    "dacd086c63445c1798b319b5b83ff4a5fe9149916d5f7346fa856f4507cd8f05"
+  ],
+  "portfolio_after": [
+    "3ad582a71d4fa40b20c47f4dd4cf58a761ac9148b2c53607ce75ce99c60c043a",
+    "7d175e028cb45eff4ef218698cc15ee6373b08a9068d32029347020ce3b37d3d",
+    "cb4d451d3ab832bea08315c021a0b5a377193b1da16eb20dd3d50b2705b3b10c",
+    "27d44196105583933370c3fd8e2c6965312fe037ad9c4890b7f828ab850e1d16"
+  ],
+  "prompt_hashes": {
+    "common_template_sha256": "ba85b39aa7288f4f48475376da6cff65661f39cfeb7ac7cde15b2a9a2e692fde",
+    "prompt_sha256": "6c886e23c81d356ad131a37ffadf970656667a65230e1ab922c0a8d956ba5ae7",
+    "proposal_policy_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "search_state_sha256": "c938ac007bf70fe8d27f64661175531e51fcb16b38318c328493c32ee292e27e",
+    "treatment_skeleton_sha256": "bf8eff6bb9c97053e9b839673a93e5cf5d63ceb5fcf8b4bb0aa14412bce63541"
+  },
+  "proposal_type": "ordinary",
+  "proposals_cumulative": 36,
+  "remaining_budget": {
+    "evaluations": 164,
+    "evaluator_seconds": 706578.859555667,
+    "proposals": 164,
+    "tokens": 98277808
+  },
+  "retained": true,
+  "retention_decision": "replaced_selected_parent_on_strict_improvement",
+  "run_id": "nanogpt-openevolve-v2-1-h100-karpathy_nanogpt_source_only_h100-openevolve-b01-c2",
+  "schema_version": "1.0",
+  "selected_parent_ids": [
+    "dacd086c63445c1798b319b5b83ff4a5fe9149916d5f7346fa856f4507cd8f05"
+  ],
+  "timestamp": "2026-08-24T06:56:31.146083+00:00",
+  "usage_cumulative": {
+    "cached_input_tokens": 384512,
+    "input_tokens": 1629711,
+    "output_tokens": 92481,
+    "reasoning_output_tokens": 79221,
+    "total_tokens": 1722192
+  },
+  "usage_increment": {
+    "cached_input_tokens": 12032,
+    "input_tokens": 46944,
+    "output_tokens": 1088,
+    "reasoning_output_tokens": 299,
+    "total_tokens": 48032
+  },
+  "visible_candidate_ids": [
+    "dacd086c63445c1798b319b5b83ff4a5fe9149916d5f7346fa856f4507cd8f05",
+    "7d175e028cb45eff4ef218698cc15ee6373b08a9068d32029347020ce3b37d3d",
+    "cb4d451d3ab832bea08315c021a0b5a377193b1da16eb20dd3d50b2705b3b10c",
+    "27d44196105583933370c3fd8e2c6965312fe037ad9c4890b7f828ab850e1d16"
+  ]
+}

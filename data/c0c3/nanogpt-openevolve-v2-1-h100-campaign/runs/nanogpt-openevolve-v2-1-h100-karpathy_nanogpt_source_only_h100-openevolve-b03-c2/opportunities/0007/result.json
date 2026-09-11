@@ -1,0 +1,88 @@
+{
+  "artifact_path": "candidates/2f1adf63792b38deffcaf6b8e4704cce0d937b7aa1f7c4ea682b58f6995a1fca",
+  "candidate_id": "2f1adf63792b38deffcaf6b8e4704cce0d937b7aa1f7c4ea682b58f6995a1fca",
+  "codex_service_tier": "fast",
+  "condition": "C2",
+  "conversation_session_id": null,
+  "evaluation": {
+    "evaluator_calls": 1,
+    "evaluator_seconds": 359.5908367060001,
+    "failure_kind": null,
+    "fitness": -0.9984,
+    "metrics": {
+      "depth": 8.0,
+      "mfu_percent": 31.12,
+      "num_params_M": 50.3,
+      "num_steps": 1524.0,
+      "peak_vram_mb": 44908.2,
+      "total_tokens_M": 399.5,
+      "training_seconds": 300.1,
+      "val_bpb": 0.9984
+    },
+    "valid": true
+  },
+  "evaluator_calls_cumulative": 7,
+  "evaluator_calls_increment": 1,
+  "evaluator_seconds_cumulative": 2620.562320228999,
+  "evaluator_seconds_increment": 359.5908367060001,
+  "event": "proposal_completed",
+  "evicted_candidate_id": null,
+  "evidence": "The best design processed 489.7M tokens at 39.23% MFU, while lower-throughput designs processing 416.8M and 393.6M tokens regressed to 1.000243 and 0.997301 val_bpb; this motivates reducing attention compute without disturbing the efficient batch geometry.",
+  "hypothesis": "Replacing the redundant mid-stack full-attention layer with half-context attention will preserve long-range modeling through the final full-context layer while increasing token throughput enough to beat the current 0.98713 val_bpb.",
+  "incumbent_after": "183c12a3e4e8f1c2092d95b8d30fc5061c1587032104e5cecf97c87b200cc27c",
+  "intended_edit": "Change the eight-layer attention pattern from six short and two full-context layers to seven short and one final full-context layer, retaining the verified 128-sequence, 262K-token update configuration.",
+  "mechanism": "Single full-context anchor layer",
+  "opportunity": 7,
+  "parent_ids": [
+    "183c12a3e4e8f1c2092d95b8d30fc5061c1587032104e5cecf97c87b200cc27c"
+  ],
+  "portfolio_after": [
+    "2865e528e18dc51191e4037eaeb5824cb0ea83ede79061b59b8f3caac686da6b",
+    "ed4c9655645388fe2e7f93a69093c1d6510263f3a5280f15e89a2c00dcf02c36",
+    "4675b7271f4f63a246cd0c0c4245c7e4b56dd1e71d6c4f9c4839079a42b92b56",
+    "183c12a3e4e8f1c2092d95b8d30fc5061c1587032104e5cecf97c87b200cc27c"
+  ],
+  "prompt_hashes": {
+    "common_template_sha256": "ba85b39aa7288f4f48475376da6cff65661f39cfeb7ac7cde15b2a9a2e692fde",
+    "prompt_sha256": "84102b1f24a6df43a193be1f70c69ac1af233d1bd7611d430be6810f91782a3d",
+    "proposal_policy_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "search_state_sha256": "c938ac007bf70fe8d27f64661175531e51fcb16b38318c328493c32ee292e27e",
+    "treatment_skeleton_sha256": "c97935465e9fb2cd6353a76be1e1d644a836b9495830f5ffcf3ecd601527827b"
+  },
+  "proposal_type": "ordinary",
+  "proposals_cumulative": 7,
+  "remaining_budget": {
+    "evaluations": 193,
+    "evaluator_seconds": 717379.437679771,
+    "proposals": 193,
+    "tokens": 99714195
+  },
+  "retained": false,
+  "retention_decision": "not_strictly_better_than_selected_parent",
+  "run_id": "nanogpt-openevolve-v2-1-h100-karpathy_nanogpt_source_only_h100-openevolve-b03-c2",
+  "schema_version": "1.0",
+  "selected_parent_ids": [
+    "183c12a3e4e8f1c2092d95b8d30fc5061c1587032104e5cecf97c87b200cc27c"
+  ],
+  "timestamp": "2026-08-23T16:41:23.775891+00:00",
+  "usage_cumulative": {
+    "cached_input_tokens": 73984,
+    "input_tokens": 268866,
+    "output_tokens": 16939,
+    "reasoning_output_tokens": 15059,
+    "total_tokens": 285805
+  },
+  "usage_increment": {
+    "cached_input_tokens": 12032,
+    "input_tokens": 45610,
+    "output_tokens": 2811,
+    "reasoning_output_tokens": 2588,
+    "total_tokens": 48421
+  },
+  "visible_candidate_ids": [
+    "2865e528e18dc51191e4037eaeb5824cb0ea83ede79061b59b8f3caac686da6b",
+    "ed4c9655645388fe2e7f93a69093c1d6510263f3a5280f15e89a2c00dcf02c36",
+    "4675b7271f4f63a246cd0c0c4245c7e4b56dd1e71d6c4f9c4839079a42b92b56",
+    "183c12a3e4e8f1c2092d95b8d30fc5061c1587032104e5cecf97c87b200cc27c"
+  ]
+}

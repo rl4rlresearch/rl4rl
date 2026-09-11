@@ -1,0 +1,213 @@
+# Improve a recurrent keyword spotter
+
+You are an autonomous ML engineer improving a learned causal recurrent model
+that classifies one-second speech recordings into eight spoken commands.
+
+## Goal
+
+Produce a model with at least 85% accuracy on the fixed speaker-disjoint public
+validation split, then minimize exact dense inference MACs. Among equal-MAC
+models, fewer executed recurrent steps wins; among exact MAC-and-step ties,
+fewer learned parameters wins. Every verification starts from fresh random
+initialization and presents exactly 50,000 training clips drawn from a protected
+training-speaker split.
+
+The protected frontend supplies batches shaped `[batch, 32, 20]`: 32 causal
+time frames with 20 normalized log-mel bands. `train.py` owns the model,
+optimizer, loss, temporal augmentation, batch size, gradient handling, and
+schedule. Keep its five top-level function interfaces intact.
+
+The model interface is deliberately recurrent and evaluator-driven:
+
+- `initial_state(batch_size, device, dtype)` returns batch-first tensor state,
+  or a tuple/list of batch-first tensor states;
+- `recurrent_step(frame, state)` updates that state from one `[batch, 20]`
+  frame;
+- `classify(state)` returns `[batch, 8]` logits;
+- optional `recurrent_sequence(frames, state)` may run a standard causal
+  sequence module efficiently, but must be numerically equivalent to repeated
+  `recurrent_step` calls;
+- optional `frame_schedule(available_frames)` returns 2–64 unique increasing
+  input-frame indices, allowing causal striding;
+- optional `exit_mask(state, logits, step, total_steps)` returns one boolean per
+  active example after the mandatory first two recurrent steps.
+
+All learned matrix operations must use `nn.Linear`, the standard
+`nn.RNN`/`nn.GRU`/`nn.LSTM` modules, or their corresponding cell modules. Their
+exact executed MACs are counted with protected runtime hooks over the complete
+validation set. Bidirectional recurrence is rejected. Direct matmul, functional linear,
+convolutions, and manually created Parameters are rejected because they could
+bypass that counter. Dense matrices receive no credit for zero weights; only
+structural reductions reduce cost. Elementwise gates, nonlinearities,
+normalization, and recurrence logic remain flexible.
+
+The verifier requires a state updated across at least two causal steps, material
+dependence of the next state on the prior state, logits that materially depend
+on recurrent output, learned recurrent-path weight changes, no complete-input
+classifier bypass, and complete accounting of every executed recurrent step.
+Layer C uses recordings from speakers absent from both search training and
+public validation.
+
+Public feedback includes accuracy, cross-entropy, the exact lexicographic
+`inference_cost`, total and recurrent MACs, recurrent-step summaries, parameters,
+peak hidden elements, training exposure, and training time.
+
+## Work boundaries
+
+Minimize inference_cost. Required result: validation_accuracy >= 0.85.
+Editable source files: train.py.
+Results reported after each verification: validation_accuracy, validation_cross_entropy, inference_cost, total_inference_macs, recurrent_macs, recurrent_steps, mean_recurrent_steps, median_recurrent_steps, p95_recurrent_steps, maximum_recurrent_steps, parameters, peak_hidden_elements, examples_processed, optimizer_steps, training_seconds, batch_size.
+
+Propose changes through exact SEARCH/REPLACE blocks. The patching interface applies them to the supplied editable source.
+
+The editable source and any reference source are included below. Do not access
+parent directories, home directories, shared temporary directories, global
+session history, online sources, external datasets, pretrained weights, or any
+surrounding repository. Do not run training or validation yourself and do not
+generate hidden alternatives. Return one patch for one implementation;
+verification happens after you finish.
+
+## Available designs
+
+The current editable design and the qualified reference designs below are available as technical evidence. Edit only the current workspace.
+
+CURRENT DESIGN
+verified_results: {"batch_size": 128, "examples_processed": 50000, "inference_cost": 4578588665885341461, "maximum_recurrent_steps": 31, "mean_recurrent_steps": 31.0, "median_recurrent_steps": 31, "optimizer_steps": 397, "p95_recurrent_steps": 31, "parameters": 36896, "peak_hidden_elements": 100864, "recurrent_macs": 876493380, "recurrent_steps": 25265, "total_inference_macs": 877771300, "training_seconds": 133.824828249868, "validation_accuracy": 0.8650306748466258, "validation_cross_entropy": 0.40440371460709834}
+prior_hypothesis: A 98-unit dual-view GRU processing frames 1–31 will retain at least 85% validation accuracy while reducing total dense inference MACs to approximately 877,771,300 and recurrent steps from 26,080 to 25,265.
+
+REFERENCE DESIGN 1
+verified_results: {"batch_size": 128, "examples_processed": 50000, "inference_cost": 7735622093287437072, "maximum_recurrent_steps": 32, "mean_recurrent_steps": 32.0, "median_recurrent_steps": 32, "optimizer_steps": 397, "p95_recurrent_steps": 32, "parameters": 58672, "peak_hidden_elements": 131584, "recurrent_macs": 1482178560, "recurrent_steps": 26080, "total_inference_macs": 1483013120, "training_seconds": 45.78908033296466, "validation_accuracy": 0.8723926380368098, "validation_cross_entropy": 0.4032038870033311}
+prior_hypothesis: starting design
+
+REFERENCE DESIGN 2
+verified_results: {"batch_size": 128, "examples_processed": 50000, "inference_cost": 4204039860514241589, "maximum_recurrent_steps": 29, "mean_recurrent_steps": 29.0, "median_recurrent_steps": 29, "optimizer_steps": 397, "p95_recurrent_steps": 29, "parameters": 36229, "peak_hidden_elements": 99840, "recurrent_macs": 804700845, "recurrent_steps": 23635, "total_inference_macs": 805965725, "training_seconds": 111.46466445783153, "validation_accuracy": 0.8650306748466258, "validation_cross_entropy": 0.4230663931442916}
+prior_hypothesis: A 97-unit dual-view GRU processing frames 1–29 will retain at least 85% validation accuracy while reducing total inference MACs from 821,223,340 to approximately 805,965,725.
+
+REFERENCE DESIGN 3
+verified_results: {"batch_size": 128, "examples_processed": 50000, "inference_cost": 4283625901968198271, "maximum_recurrent_steps": 29, "mean_recurrent_steps": 29.0, "median_recurrent_steps": 29, "optimizer_steps": 397, "p95_recurrent_steps": 29, "parameters": 36896, "peak_hidden_elements": 100864, "recurrent_macs": 819945420, "recurrent_steps": 23635, "total_inference_macs": 821223340, "training_seconds": 93.3954102920834, "validation_accuracy": 0.8699386503067484, "validation_cross_entropy": 0.40209003284664974}
+prior_hypothesis: The 98-unit dual-view GRU processing frames 1–29 will retain at least 85% validation accuracy while reducing total inference MACs from 849,497,320 to approximately 821,223,340 and recurrent steps from 24,450 to 23,635.
+
+## Recent verification evidence
+
+RECENT RESULT
+hypothesis: A 98-unit GRU using all 32 frames will retain at least 85% validation accuracy while reducing total inference MACs by about 3.6% versus the qualified 100-unit design.
+change: Reduce the GRU hidden state, temporal summary, and classifier width from 120 to 98 while preserving the full-frame schedule and established training procedure.
+mechanism: Full-resolution midpoint width reduction
+evidence_used: The 100-unit model qualified at 85.40% accuracy while the 96-unit model reached 84.29%; 98 units is the most informative untested midpoint at the observed width–accuracy boundary.
+result: did not meet the accuracy requirement
+reported_values: {"batch_size": 128, "examples_processed": 50000, "inference_cost": 4722737135259119712, "maximum_recurrent_steps": 32, "mean_recurrent_steps": 32.0, "median_recurrent_steps": 32, "optimizer_steps": 397, "p95_recurrent_steps": 32, "parameters": 36112, "peak_hidden_elements": 100864, "recurrent_macs": 904767360, "recurrent_steps": 26080, "total_inference_macs": 905406320, "training_seconds": 65.70172241679393, "validation_accuracy": 0.845398773006135, "validation_cross_entropy": 0.4501637090203221}
+
+RECENT RESULT
+hypothesis: A 99-unit GRU processing all 32 frames will retain at least 85% validation accuracy while reducing total inference MACs by approximately 1.8% versus the qualified 100-unit design.
+change: Reduce the GRU hidden state, temporal summary, and classifier width from 100 to 99 while preserving the full-frame schedule and established training procedure.
+mechanism: Full-resolution one-unit boundary refinement
+evidence_used: The 100-unit model qualified at 85.40% accuracy while the 98-unit model reached 84.54%; 99 units is the only untested integer midpoint at the observed width–accuracy boundary.
+result: met the accuracy requirement and became an available design
+reported_values: {"batch_size": 128, "examples_processed": 50000, "inference_cost": 4811331393252840977, "maximum_recurrent_steps": 32, "mean_recurrent_steps": 32.0, "median_recurrent_steps": 32, "optimizer_steps": 397, "p95_recurrent_steps": 32, "parameters": 36777, "peak_hidden_elements": 101888, "recurrent_macs": 921745440, "recurrent_steps": 26080, "total_inference_macs": 922390920, "training_seconds": 118.49872245802544, "validation_accuracy": 0.8539877300613496, "validation_cross_entropy": 0.45291225690783166}
+
+RECENT RESULT
+hypothesis: A learned 20-to-16 feature projection feeding a 100-unit GRU will retain at least 85% validation accuracy while reducing total dense MACs below the qualified 99-unit full-input GRU.
+change: Add a 16-dimensional linear frontend bottleneck and use the previously qualified 100-unit recurrent width throughout the state and classifier.
+mechanism: Learned input bottleneck with recurrent-capacity tradeoff
+evidence_used: The full-input 100-unit GRU achieved 85.40% accuracy; replacing four input dimensions with a learned projection reduces estimated per-step MACs from 35,343 for the qualified 99-unit design to 35,120 while restoring one unit of recurrent capacity.
+result: did not meet the accuracy requirement
+reported_values: {"batch_size": 128, "examples_processed": 50000, "inference_cost": 4781029096180900264, "maximum_recurrent_steps": 32, "mean_recurrent_steps": 32.0, "median_recurrent_steps": 32, "optimizer_steps": 397, "p95_recurrent_steps": 32, "parameters": 36584, "peak_hidden_elements": 102912, "recurrent_macs": 915929600, "recurrent_steps": 26080, "total_inference_macs": 916581600, "training_seconds": 196.61224879091606, "validation_accuracy": 0.8392638036809816, "validation_cross_entropy": 0.5152046063194977}
+
+RECENT RESULT
+hypothesis: A 98-unit GRU classifying the concatenated mean and final recurrent outputs will reach at least 85% accuracy while using fewer total MACs than the qualified 99-unit mean-pooled GRU.
+change: Reduce the GRU width from 120 to 98 and give the classifier separate learned weights for the sequence-wide mean and terminal hidden state, retaining all 32 frames.
+mechanism: Dual-view recurrent pooling
+evidence_used: The mean-pooled 98-unit model narrowly missed at 84.54%, while 99 units qualified at 85.40%; adding the terminal recurrent representation costs only 784 classifier MACs per example and directly tests whether pooling—not recurrent capacity—caused the boundary failure.
+result: met the accuracy requirement and became an available design
+reported_values: {"batch_size": 128, "examples_processed": 50000, "inference_cost": 4726070047843913056, "maximum_recurrent_steps": 32, "mean_recurrent_steps": 32.0, "median_recurrent_steps": 32, "optimizer_steps": 397, "p95_recurrent_steps": 32, "parameters": 36896, "peak_hidden_elements": 100864, "recurrent_macs": 904767360, "recurrent_steps": 26080, "total_inference_macs": 906045280, "training_seconds": 185.1498672501184, "validation_accuracy": 0.8711656441717791, "validation_cross_entropy": 0.39721636625886697}
+
+RECENT RESULT
+hypothesis: A 96-unit GRU classifying concatenated mean and terminal outputs will retain at least 85% validation accuracy while reducing total dense MACs by about 3.7% versus the qualified 98-unit dual-view model.
+change: Reduce the GRU hidden state, temporal summary, and dual-view classifier dimensions from 98 to 96 while retaining all 32 frames and the established training procedure.
+mechanism: Dual-view recurrent pooling with narrower state
+evidence_used: The 98-unit dual-view model achieved 87.12% accuracy versus 84.54% for 98-unit mean-only pooling, showing that the terminal representation recovered substantial accuracy and provides margin for the next two-unit width reduction.
+result: training did not finish within the verification time limit
+
+RECENT RESULT
+hypothesis: A 97-unit GRU classifying concatenated mean and terminal outputs will achieve at least 85% validation accuracy while reducing total dense inference MACs by approximately 1.9% versus the qualified 98-unit dual-view model.
+change: Reduce recurrent width from 99 to 97 and replace mean-only classification with a linear classifier over concatenated sequence-mean and terminal recurrent states.
+mechanism: Dual-view recurrent pooling with one-unit width refinement
+evidence_used: The 98-unit dual-view model achieved 87.12% accuracy and 906,045,280 total MACs, substantially outperforming the same-width mean-only model’s 84.54%; the 96-unit dual-view attempt produced no accuracy evidence because training timed out, making 97 units the closest informative capacity reduction.
+result: met the accuracy requirement and became an available design
+reported_values: {"batch_size": 128, "examples_processed": 50000, "inference_cost": 4638258004028255349, "maximum_recurrent_steps": 32, "mean_recurrent_steps": 32.0, "median_recurrent_steps": 32, "optimizer_steps": 397, "p95_recurrent_steps": 32, "parameters": 36229, "peak_hidden_elements": 99840, "recurrent_macs": 887945760, "recurrent_steps": 26080, "total_inference_macs": 889210640, "training_seconds": 193.08655041712336, "validation_accuracy": 0.8601226993865031, "validation_cross_entropy": 0.41533637485621167}
+
+RECENT RESULT
+hypothesis: A 96-unit GRU using concatenated sequence-mean and terminal states will achieve at least 85% validation accuracy with approximately 872,532,480 total inference MACs, 1.88% fewer than the qualified 97-unit model.
+change: Reduce recurrent width from 104 to 96 and expand the classifier input to combine mean-pooled and terminal recurrent representations.
+mechanism: Dual-view recurrent pooling at the unresolved width boundary
+evidence_used: The 97-unit dual-view model achieved 86.01% accuracy, and the 98-unit version achieved 87.12%; the prior 96-unit attempt timed out without producing accuracy evidence, leaving it as the closest unresolved cost boundary.
+result: the edit reproduced a previously verified implementation
+
+RECENT RESULT
+hypothesis: A 98-unit dual-view GRU processing frames 1–31 will retain at least 85% validation accuracy while reducing total dense inference MACs to approximately 877,771,300 and recurrent steps from 26,080 to 25,265.
+change: Increase recurrent width from 97 to 98, retain mean-plus-terminal classification, and omit only the earliest input frame.
+mechanism: Single-edge-frame omission with capacity insurance
+evidence_used: The 98-unit dual-view model achieved 87.12% accuracy across all 32 frames, providing 2.12 percentage points of margin; because larger reductions to 24 or 28 steps failed, skipping a single likely edge-context frame is the most conservative unresolved temporal-cost reduction.
+result: met the accuracy requirement and became an available design
+reported_values: {"batch_size": 128, "examples_processed": 50000, "inference_cost": 4578588665885341461, "maximum_recurrent_steps": 31, "mean_recurrent_steps": 31.0, "median_recurrent_steps": 31, "optimizer_steps": 397, "p95_recurrent_steps": 31, "parameters": 36896, "peak_hidden_elements": 100864, "recurrent_macs": 876493380, "recurrent_steps": 25265, "total_inference_macs": 877771300, "training_seconds": 133.824828249868, "validation_accuracy": 0.8650306748466258, "validation_cross_entropy": 0.40440371460709834}
+
+RECENT RESULT
+hypothesis: A 97-unit dual-view GRU processing frames 1–31 will retain at least 85% validation accuracy while reducing total dense inference MACs by approximately 1.9% versus the qualified 98-unit, 31-step design.
+change: Reduce the GRU and dual-view pooling width from 98 to 97 and omit the earliest input frame, yielding 31 recurrent steps.
+mechanism: Joint one-unit width refinement and single-edge-frame omission
+evidence_used: The 97-unit dual-view model qualified at 86.01% using all frames, while the 98-unit 31-step model qualified at 86.50%; combining these individually successful, minimal reductions is the closest unresolved cost refinement.
+result: met the accuracy requirement and became an available design
+reported_values: {"batch_size": 128, "examples_processed": 50000, "inference_cost": 4493518622856917429, "maximum_recurrent_steps": 31, "mean_recurrent_steps": 31.0, "median_recurrent_steps": 31, "optimizer_steps": 397, "p95_recurrent_steps": 31, "parameters": 36229, "peak_hidden_elements": 99840, "recurrent_macs": 860197455, "recurrent_steps": 25265, "total_inference_macs": 861462335, "training_seconds": 138.08664666698314, "validation_accuracy": 0.8503067484662576, "validation_cross_entropy": 0.4214622076303681}
+
+RECENT RESULT
+hypothesis: A 98-unit dual-view GRU processing frames 1–30 will retain at least 85% validation accuracy while reducing total inference MACs to approximately 849,497,320 and recurrent steps to 24,450.
+change: Use a 98-unit GRU, classify concatenated mean and terminal recurrent states, and omit the first and final input frames.
+mechanism: Dual-view pooling with two-edge-frame omission
+evidence_used: The 98-unit dual-view model achieved 86.50% accuracy after omitting the first frame, leaving 1.50 percentage points of margin for testing one additional edge-frame omission; this should beat the qualified 97-unit, 31-step model’s 861,462,335 MACs.
+result: met the accuracy requirement and became an available design
+reported_values: {"batch_size": 128, "examples_processed": 50000, "inference_cost": 4431107283926769866, "maximum_recurrent_steps": 30, "mean_recurrent_steps": 30.0, "median_recurrent_steps": 30, "optimizer_steps": 397, "p95_recurrent_steps": 30, "parameters": 36896, "peak_hidden_elements": 100864, "recurrent_macs": 848219400, "recurrent_steps": 24450, "total_inference_macs": 849497320, "training_seconds": 140.15150250005536, "validation_accuracy": 0.8638036809815951, "validation_cross_entropy": 0.40198535568143695}
+
+RECENT RESULT
+hypothesis: The 98-unit dual-view GRU processing frames 1–29 will retain at least 85% validation accuracy while reducing total inference MACs from 849,497,320 to approximately 821,223,340 and recurrent steps from 24,450 to 23,635.
+change: Retain the qualified 98-unit architecture and training procedure, but omit one additional trailing input frame for a 29-step schedule.
+mechanism: Progressive trailing-edge frame omission
+evidence_used: Omitting the final frame from the qualified 31-step 98-unit model reduced MACs while accuracy changed only from 86.50% to 86.38%; its remaining 1.38-point margin motivates testing the next trailing-edge omission.
+result: met the accuracy requirement and became an available design
+reported_values: {"batch_size": 128, "examples_processed": 50000, "inference_cost": 4283625901968198271, "maximum_recurrent_steps": 29, "mean_recurrent_steps": 29.0, "median_recurrent_steps": 29, "optimizer_steps": 397, "p95_recurrent_steps": 29, "parameters": 36896, "peak_hidden_elements": 100864, "recurrent_macs": 819945420, "recurrent_steps": 23635, "total_inference_macs": 821223340, "training_seconds": 93.3954102920834, "validation_accuracy": 0.8699386503067484, "validation_cross_entropy": 0.40209003284664974}
+
+RECENT RESULT
+hypothesis: A 97-unit dual-view GRU processing frames 1–29 will retain at least 85% validation accuracy while reducing total inference MACs from 821,223,340 to approximately 805,965,725.
+change: Retain the current 97-unit architecture and training procedure, but omit the final two input frames in addition to the earliest frame, reducing execution from 31 to 29 recurrent steps.
+mechanism: Dual-view width refinement at the qualified 29-step schedule
+evidence_used: The 98-unit 29-step design achieved 86.99% accuracy with 821,223,340 MACs, providing substantially more margin than the current 97-unit 31-step design’s 85.03%; reducing width by one is the closest unresolved cost refinement, while prior 28-step reductions reportedly failed.
+result: met the accuracy requirement and became an available design
+reported_values: {"batch_size": 128, "examples_processed": 50000, "inference_cost": 4204039860514241589, "maximum_recurrent_steps": 29, "mean_recurrent_steps": 29.0, "median_recurrent_steps": 29, "optimizer_steps": 397, "p95_recurrent_steps": 29, "parameters": 36229, "peak_hidden_elements": 99840, "recurrent_macs": 804700845, "recurrent_steps": 23635, "total_inference_macs": 805965725, "training_seconds": 111.46466445783153, "validation_accuracy": 0.8650306748466258, "validation_cross_entropy": 0.4230663931442916}
+
+
+
+Use the available technical evidence to choose the most informative next
+change. Treat unsuccessful or malformed work as evidence when a useful
+subject-level reason is provided. Do not invent missing evidence.
+
+## Response
+
+Return these short metadata lines followed by one or more exact
+`SEARCH`/`REPLACE` blocks that together produce one implementation:
+
+`MECHANISM: <a concise free-form name for the computational idea>`
+
+`HYPOTHESIS: <a falsifiable claim grounded in the evidence above>`
+
+`INTENDED_EDIT: <what this patch changes>`
+
+`EVIDENCE: <the most relevant prior result and why it motivates this patch>`
+
+Start each block with `<<<<<<< SEARCH`, put the exact existing lines next, use a
+line containing `=======` as the divider, put the replacement lines after it,
+and finish the block with `>>>>>>> REPLACE`.
+
+Every `SEARCH` section must be nonempty and match exactly once after earlier
+blocks have been applied. All blocks must apply. Together they must describe
+one implementation ready for verification. The mechanism name is descriptive,
+not chosen from a fixed list. Do not paste whole files, lengthy logs, or routine
+progress reports outside the patch.

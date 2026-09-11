@@ -1,0 +1,79 @@
+{
+  "artifact_path": "candidates/ae32f91c412b4e72ca2b355895b6162d2e001729887a561ab75ebc174d4a52a9",
+  "candidate_id": "ae32f91c412b4e72ca2b355895b6162d2e001729887a561ab75ebc174d4a52a9",
+  "codex_service_tier": "default",
+  "condition": "C1",
+  "conversation_session_id": null,
+  "evaluation": {
+    "evaluator_calls": 1,
+    "evaluator_seconds": 509.30778654199094,
+    "failure_kind": "nonqualification",
+    "fitness": null,
+    "metrics": {
+      "accuracy": 0.0001,
+      "cases": 10010,
+      "correct": 1,
+      "parameters": 1079,
+      "training_steps": 4999
+    },
+    "valid": false
+  },
+  "evaluator_calls_cumulative": 85,
+  "evaluator_calls_increment": 1,
+  "evaluator_seconds_cumulative": 35811.30022978678,
+  "evaluator_seconds_increment": 509.30778654199094,
+  "event": "proposal_completed",
+  "evicted_candidate_id": null,
+  "evidence": "The 1,107-parameter design achieved 99.91% accuracy while using a single shared value readout across both heads, showing that operand routes need not encode digits differently. The failed direct bilinear scorer and shared-key result indicate that head-specific routing is load-bearing, so this patch preserves both heads\u2019 query/key systems and changes only the downstream interpretation of their already-shared semantic values.",
+  "hypothesis": "Summing the two independently routed attention contexts before one shared learned output projection will reduce parameters from 1,107 to 1,079 while maintaining at least 99% accuracy, because the heads already share their value representation and decimal addition is symmetric in its operands.",
+  "incumbent_after": "81ef7600c2f3d411b54e8b0b148fe77785186517e5f18ad4340ee5f6dde62b43",
+  "intended_edit": "Replace the separate learned output map for each attention head with one shared zero-mean map applied to their variance-preserving summed context, while preserving independent query/key routing and all relative-distance biases.",
+  "mechanism": "Symmetric aggregation of head-routed values",
+  "opportunity": 90,
+  "parent_ids": [
+    "81ef7600c2f3d411b54e8b0b148fe77785186517e5f18ad4340ee5f6dde62b43"
+  ],
+  "portfolio_after": [
+    "81ef7600c2f3d411b54e8b0b148fe77785186517e5f18ad4340ee5f6dde62b43"
+  ],
+  "prompt_hashes": {
+    "common_template_sha256": "3f2bea6418b6969c4bf2aa1df18dcda8a3a4ac075bf20c79068c754698b6be5e",
+    "prompt_sha256": "0dda3820c1dde3948203de3d4293c6bd98848b157dd49a63a191ceeb0079a408",
+    "proposal_policy_sha256": "4a27c08e098e719db007f4d6b37fabe2967b41836bb9070e2513a8a24ff7ce90",
+    "search_state_sha256": "04e5eb078ae1964e4ec65bfeeeb1acd0ffa246e7d54d5e0f997f81f602da28c5",
+    "treatment_skeleton_sha256": "b699f5d2fdb5711b358f481c5ea27633fcf5ee839507bc07320218dada2f9d52"
+  },
+  "proposal_type": "assumption_changing",
+  "proposals_cumulative": 90,
+  "remaining_budget": {
+    "evaluations": 115,
+    "evaluator_seconds": 324188.6997702132,
+    "proposals": 110,
+    "tokens": 97658230
+  },
+  "retained": false,
+  "retention_decision": "invalid",
+  "run_id": "controlled-openevolve-transformer-v2-1-source-only-ten-digit-addition-pair-transformer-openevolve-v2-1-mps-openevolve-b03-c1",
+  "schema_version": "1.0",
+  "selected_parent_ids": [
+    "81ef7600c2f3d411b54e8b0b148fe77785186517e5f18ad4340ee5f6dde62b43"
+  ],
+  "timestamp": "2026-09-03T23:00:47.018857+00:00",
+  "usage_cumulative": {
+    "cached_input_tokens": 931584,
+    "input_tokens": 2107297,
+    "output_tokens": 234473,
+    "reasoning_output_tokens": 181335,
+    "total_tokens": 2341770
+  },
+  "usage_increment": {
+    "cached_input_tokens": 10752,
+    "input_tokens": 25386,
+    "output_tokens": 4156,
+    "reasoning_output_tokens": 3624,
+    "total_tokens": 29542
+  },
+  "visible_candidate_ids": [
+    "81ef7600c2f3d411b54e8b0b148fe77785186517e5f18ad4340ee5f6dde62b43"
+  ]
+}

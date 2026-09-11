@@ -1,0 +1,79 @@
+{
+  "artifact_path": "candidates/b5e3d4629b903f9abbf1995fd68d942392530fa9cfeadc31613a3a7c07a205b2",
+  "candidate_id": "b5e3d4629b903f9abbf1995fd68d942392530fa9cfeadc31613a3a7c07a205b2",
+  "codex_service_tier": "fast",
+  "condition": "C1",
+  "conversation_session_id": null,
+  "evaluation": {
+    "evaluator_calls": 1,
+    "evaluator_seconds": 411.87473820894957,
+    "failure_kind": "nonqualification",
+    "fitness": null,
+    "metrics": {
+      "accuracy": 0.7956,
+      "cases": 10010,
+      "correct": 7964,
+      "parameters": 1469,
+      "training_steps": 4999
+    },
+    "valid": false
+  },
+  "evaluator_calls_cumulative": 35,
+  "evaluator_calls_increment": 1,
+  "evaluator_seconds_cumulative": 11614.367013706942,
+  "evaluator_seconds_increment": 411.87473820894957,
+  "event": "proposal_completed",
+  "evicted_candidate_id": null,
+  "evidence": "Jointly centering the MLP output weight and bias caused the 1,457-parameter model to fail at 84.22%, while isolated attention-output centering reached 99.93% at 1,470 parameters; isolating the single MLP bias gauge tests whether the prior failure came from constraining the output weights rather than the exact bias redundancy.",
+  "hypothesis": "Constraining only the MLP output bias to the zero-mean feature subspace will reduce the model from 1,470 to 1,469 parameters while retaining at least 99% accuracy, because its removed all-ones component adds only a per-token scalar shift that the final LayerNorm erases under zero dropout.",
+  "incumbent_after": "3c17997b3312b3017ac1dfd905a0ac4d4c7142dff5a1c9aff90ad7f89a728659",
+  "intended_edit": "Store the eight-dimensional `fc2` bias as seven orthonormal zero-mean coefficients, reconstruct it during the forward pass, and preserve its initialized observable function.",
+  "mechanism": "Isolated MLP-output bias gauge fixing",
+  "opportunity": 35,
+  "parent_ids": [
+    "3c17997b3312b3017ac1dfd905a0ac4d4c7142dff5a1c9aff90ad7f89a728659"
+  ],
+  "portfolio_after": [
+    "3c17997b3312b3017ac1dfd905a0ac4d4c7142dff5a1c9aff90ad7f89a728659"
+  ],
+  "prompt_hashes": {
+    "common_template_sha256": "3f2bea6418b6969c4bf2aa1df18dcda8a3a4ac075bf20c79068c754698b6be5e",
+    "prompt_sha256": "8486dfbd4b419020f6a8f74d3fbe403242f5f5155224a05c05a633f86ddc1a09",
+    "proposal_policy_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "search_state_sha256": "04e5eb078ae1964e4ec65bfeeeb1acd0ffa246e7d54d5e0f997f81f602da28c5",
+    "treatment_skeleton_sha256": "775481cdb94493d4d60be88ced96e20e448e948a64f8426be0356940218e9417"
+  },
+  "proposal_type": "ordinary",
+  "proposals_cumulative": 35,
+  "remaining_budget": {
+    "evaluations": 165,
+    "evaluator_seconds": 348385.63298629306,
+    "proposals": 165,
+    "tokens": 99156911
+  },
+  "retained": false,
+  "retention_decision": "invalid",
+  "run_id": "controlled-openevolve-transformer-v2-1-source-only-ten-digit-addition-pair-transformer-openevolve-v2-1-mps-openevolve-b03-c1",
+  "schema_version": "1.0",
+  "selected_parent_ids": [
+    "3c17997b3312b3017ac1dfd905a0ac4d4c7142dff5a1c9aff90ad7f89a728659"
+  ],
+  "timestamp": "2026-08-23T21:45:37.807959+00:00",
+  "usage_cumulative": {
+    "cached_input_tokens": 383744,
+    "input_tokens": 746304,
+    "output_tokens": 96785,
+    "reasoning_output_tokens": 76719,
+    "total_tokens": 843089
+  },
+  "usage_increment": {
+    "cached_input_tokens": 9984,
+    "input_tokens": 23368,
+    "output_tokens": 1644,
+    "reasoning_output_tokens": 1034,
+    "total_tokens": 25012
+  },
+  "visible_candidate_ids": [
+    "3c17997b3312b3017ac1dfd905a0ac4d4c7142dff5a1c9aff90ad7f89a728659"
+  ]
+}

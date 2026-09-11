@@ -1,0 +1,88 @@
+{
+  "artifact_path": "candidates/27d44196105583933370c3fd8e2c6965312fe037ad9c4890b7f828ab850e1d16",
+  "candidate_id": "27d44196105583933370c3fd8e2c6965312fe037ad9c4890b7f828ab850e1d16",
+  "codex_service_tier": "default",
+  "condition": "C2",
+  "conversation_session_id": null,
+  "evaluation": {
+    "evaluator_calls": 1,
+    "evaluator_seconds": 360.0029530089996,
+    "failure_kind": null,
+    "fitness": -0.986505,
+    "metrics": {
+      "depth": 8.0,
+      "mfu_percent": 34.41,
+      "num_params_M": 50.3,
+      "num_steps": 2611.0,
+      "peak_vram_mb": 33806.7,
+      "total_tokens_M": 513.3,
+      "training_seconds": 300.0,
+      "val_bpb": 0.986505
+    },
+    "valid": true
+  },
+  "evaluator_calls_cumulative": 35,
+  "evaluator_calls_increment": 1,
+  "evaluator_seconds_cumulative": 13062.192989935,
+  "evaluator_seconds_increment": 360.0029530089996,
+  "event": "proposal_completed",
+  "evicted_candidate_id": "91e19d23f1f4cd145bd6b8f924db969ef735a7c4dc53132e8f7f4dc6790478c8",
+  "evidence": "Reducing batch size from 524K to 262K improved val_bpb from 0.992358 to 0.985657, but reducing it again to 131K regressed to 0.991781 while lowering processed tokens from 518.8M to 483.9M; 196K directly probes the bracketed batch-size optimum.",
+  "hypothesis": "A 196,608-token optimizer batch will retain at least 500M training tokens while balancing the superior update frequency of the 262K-token design against the throughput loss of the 131K-token design, lowering val_bpb below 0.985657.",
+  "incumbent_after": "cb4d451d3ab832bea08315c021a0b5a377193b1da16eb20dd3d50b2705b3b10c",
+  "intended_edit": "Restore the proven 256-token local-attention windows and 60% linear warmdown, then use one 96-sequence microbatch per optimizer step.",
+  "mechanism": "Intermediate-batch optimizer-frequency refinement",
+  "opportunity": 35,
+  "parent_ids": [
+    "91e19d23f1f4cd145bd6b8f924db969ef735a7c4dc53132e8f7f4dc6790478c8"
+  ],
+  "portfolio_after": [
+    "dacd086c63445c1798b319b5b83ff4a5fe9149916d5f7346fa856f4507cd8f05",
+    "7d175e028cb45eff4ef218698cc15ee6373b08a9068d32029347020ce3b37d3d",
+    "cb4d451d3ab832bea08315c021a0b5a377193b1da16eb20dd3d50b2705b3b10c",
+    "27d44196105583933370c3fd8e2c6965312fe037ad9c4890b7f828ab850e1d16"
+  ],
+  "prompt_hashes": {
+    "common_template_sha256": "ba85b39aa7288f4f48475376da6cff65661f39cfeb7ac7cde15b2a9a2e692fde",
+    "prompt_sha256": "d0c515681bb200a1ecf2a80ea9582c2e07aef0de99ead9b0b9c14170de811387",
+    "proposal_policy_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "search_state_sha256": "c938ac007bf70fe8d27f64661175531e51fcb16b38318c328493c32ee292e27e",
+    "treatment_skeleton_sha256": "b24f6bf400375a84b2291326dd9092d5ecd8bf8d07761dc04a4f10376677cbd7"
+  },
+  "proposal_type": "ordinary",
+  "proposals_cumulative": 35,
+  "remaining_budget": {
+    "evaluations": 165,
+    "evaluator_seconds": 706937.807010065,
+    "proposals": 165,
+    "tokens": 98325840
+  },
+  "retained": true,
+  "retention_decision": "replaced_selected_parent_on_strict_improvement",
+  "run_id": "nanogpt-openevolve-v2-1-h100-karpathy_nanogpt_source_only_h100-openevolve-b01-c2",
+  "schema_version": "1.0",
+  "selected_parent_ids": [
+    "91e19d23f1f4cd145bd6b8f924db969ef735a7c4dc53132e8f7f4dc6790478c8"
+  ],
+  "timestamp": "2026-08-24T06:44:32.760025+00:00",
+  "usage_cumulative": {
+    "cached_input_tokens": 372480,
+    "input_tokens": 1582767,
+    "output_tokens": 91393,
+    "reasoning_output_tokens": 78922,
+    "total_tokens": 1674160
+  },
+  "usage_increment": {
+    "cached_input_tokens": 2816,
+    "input_tokens": 46866,
+    "output_tokens": 1109,
+    "reasoning_output_tokens": 346,
+    "total_tokens": 47975
+  },
+  "visible_candidate_ids": [
+    "dacd086c63445c1798b319b5b83ff4a5fe9149916d5f7346fa856f4507cd8f05",
+    "7d175e028cb45eff4ef218698cc15ee6373b08a9068d32029347020ce3b37d3d",
+    "cb4d451d3ab832bea08315c021a0b5a377193b1da16eb20dd3d50b2705b3b10c",
+    "91e19d23f1f4cd145bd6b8f924db969ef735a7c4dc53132e8f7f4dc6790478c8"
+  ]
+}

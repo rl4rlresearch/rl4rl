@@ -1,0 +1,82 @@
+{
+  "artifact_path": "candidates/bfe668fb3c2b98f9486b7e3c18fb3da62b1e795bd886f84cdc105613f7c587e8",
+  "candidate_id": "bfe668fb3c2b98f9486b7e3c18fb3da62b1e795bd886f84cdc105613f7c587e8",
+  "codex_service_tier": "default",
+  "condition": "C1",
+  "conversation_session_id": null,
+  "evaluation": {
+    "evaluator_calls": 1,
+    "evaluator_seconds": 360.86598011099704,
+    "failure_kind": null,
+    "fitness": -0.985581,
+    "metrics": {
+      "depth": 8.0,
+      "mfu_percent": 38.04,
+      "num_params_M": 50.3,
+      "num_steps": 2632.0,
+      "peak_vram_mb": 31031.5,
+      "total_tokens_M": 474.3,
+      "training_seconds": 300.1,
+      "val_bpb": 0.985581
+    },
+    "valid": true
+  },
+  "evaluator_calls_cumulative": 39,
+  "evaluator_calls_increment": 1,
+  "evaluator_seconds_cumulative": 14152.005137258002,
+  "evaluator_seconds_increment": 360.86598011099704,
+  "event": "proposal_completed",
+  "evicted_candidate_id": null,
+  "evidence": "Half-context windows outperformed both 768-token windows at 0.984407 and 1,280-token windows at 0.985631, suggesting the 1,024-token width is already near the useful tradeoff; changing full-context placement while preserving window widths and counts isolates whether earlier global integration is more effective.",
+  "hypothesis": "Moving the first full-context attention layer one block earlier while retaining six half-context and two full-context layers will give global information one additional nonlinear transformation and lower val_bpb below 0.984068 without reducing throughput.",
+  "incumbent_after": "9e282569d79dfb73ab3f519cd8dbb17572918ea4314655a1a32cfeb60f7e5a6e",
+  "intended_edit": "Replace the repeated four-layer window pattern with an explicit eight-layer pattern that shifts the first full-context layer from index 3 to index 2 while keeping the final layer full-context.",
+  "mechanism": "Compute-neutral earlier global-context injection",
+  "opportunity": 39,
+  "parent_ids": [
+    "9e282569d79dfb73ab3f519cd8dbb17572918ea4314655a1a32cfeb60f7e5a6e"
+  ],
+  "portfolio_after": [
+    "9e282569d79dfb73ab3f519cd8dbb17572918ea4314655a1a32cfeb60f7e5a6e"
+  ],
+  "prompt_hashes": {
+    "common_template_sha256": "ba85b39aa7288f4f48475376da6cff65661f39cfeb7ac7cde15b2a9a2e692fde",
+    "prompt_sha256": "b2f9c509c2a2b2c7639c26d668b497396ac01789b49920f2bdf834d30558b8e4",
+    "proposal_policy_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "search_state_sha256": "04e5eb078ae1964e4ec65bfeeeb1acd0ffa246e7d54d5e0f997f81f602da28c5",
+    "treatment_skeleton_sha256": "b7ac437705201b14025deb742be1311280b5f4b74b27b715756c98fc13dccdde"
+  },
+  "proposal_type": "ordinary",
+  "proposals_cumulative": 39,
+  "remaining_budget": {
+    "evaluations": 161,
+    "evaluator_seconds": 705847.994862742,
+    "proposals": 161,
+    "tokens": 98929573
+  },
+  "retained": false,
+  "retention_decision": "not_strictly_better_than_incumbent",
+  "run_id": "nanogpt-openevolve-v2-1-h100-karpathy_nanogpt_source_only_h100-openevolve-b02-c1",
+  "schema_version": "1.0",
+  "selected_parent_ids": [
+    "9e282569d79dfb73ab3f519cd8dbb17572918ea4314655a1a32cfeb60f7e5a6e"
+  ],
+  "timestamp": "2026-08-24T08:18:43.804042+00:00",
+  "usage_cumulative": {
+    "cached_input_tokens": 405760,
+    "input_tokens": 957361,
+    "output_tokens": 113066,
+    "reasoning_output_tokens": 98513,
+    "total_tokens": 1070427
+  },
+  "usage_increment": {
+    "cached_input_tokens": 0,
+    "input_tokens": 25127,
+    "output_tokens": 2018,
+    "reasoning_output_tokens": 1797,
+    "total_tokens": 27145
+  },
+  "visible_candidate_ids": [
+    "9e282569d79dfb73ab3f519cd8dbb17572918ea4314655a1a32cfeb60f7e5a6e"
+  ]
+}

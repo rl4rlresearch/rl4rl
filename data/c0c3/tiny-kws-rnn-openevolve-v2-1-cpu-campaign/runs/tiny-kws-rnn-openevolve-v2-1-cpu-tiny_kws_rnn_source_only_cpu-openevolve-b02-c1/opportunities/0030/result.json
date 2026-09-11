@@ -1,0 +1,99 @@
+{
+  "artifact_path": "candidates/ebef865a57f713ef4c70fe589459f4cf88d53f5b1f2bab227eec0702174035f1",
+  "candidate_id": "ebef865a57f713ef4c70fe589459f4cf88d53f5b1f2bab227eec0702174035f1",
+  "codex_service_tier": "default",
+  "condition": "C1",
+  "conversation_session_id": null,
+  "evaluation": {
+    "evaluator_calls": 1,
+    "evaluator_seconds": 69.27855595899746,
+    "failure_kind": null,
+    "fitness": -3481673569400559960,
+    "metrics": {
+      "batch_size": 128,
+      "evaluation_cases": 815,
+      "evaluation_split": "public_speaker_disjoint_validation",
+      "examples_processed": 50000,
+      "inference_cost": 3481673569400559960,
+      "maximum_recurrent_steps": 29,
+      "mean_recurrent_steps": 29.0,
+      "median_recurrent_steps": 29,
+      "optimizer_steps": 397,
+      "p95_recurrent_steps": 29,
+      "parameters": 29830,
+      "peak_hidden_elements": 91648,
+      "recurrent_logit_effect": 0.0845838114619255,
+      "recurrent_macs": 666577905,
+      "recurrent_steps": 23635,
+      "state_dependence_effect": 0.3088192343711853,
+      "state_update_effect": 0.5177005529403687,
+      "total_inference_macs": 667479295,
+      "trained_recurrent_logit_effect": 0.253972589969635,
+      "trained_state_dependence_effect": 0.32249847054481506,
+      "trained_state_update_effect": 0.542984127998352,
+      "training_seconds": 49.95399195794016,
+      "validation_accuracy": 0.8723926380368098,
+      "validation_correct": 711,
+      "validation_cross_entropy": 0.3698424544071127
+    },
+    "valid": true
+  },
+  "evaluator_calls_cumulative": 30,
+  "evaluator_calls_increment": 1,
+  "evaluator_seconds_cumulative": 3411.9430304567795,
+  "evaluator_seconds_increment": 69.27855595899746,
+  "event": "proposal_completed",
+  "evicted_candidate_id": "186cd8dd3ab2fd44fab9e9b07e22f9ef7908d1a859e6e5876422d869ca1eac41",
+  "evidence": "The 100+100 tanh RNN failed at 71.78%, showing learned gating is load-bearing, while reductions in hidden width or temporal evidence also missed 85%. This patch retains full GRU gating and the successful schedule but challenges the assumption that two independent memories of absolute spectra are preferable to a unified recurrent state with explicit local dynamics; its per-step recurrent cost is slightly lower (28,203 versus 28,383 MACs).",
+  "hypothesis": "A single cross-coupled 79-unit GRU receiving both normalized spectra and explicit frame-to-frame deltas will retain at least 85% accuracy while reducing total inference MACs from 671,511,100 to approximately 667,479,295.",
+  "incumbent_after": "ebef865a57f713ef4c70fe589459f4cf88d53f5b1f2bab227eec0702174035f1",
+  "intended_edit": "Replace the two isolated GRU branches with one 79-unit GRU over 40-dimensional spectrum-plus-delta features, preserve all 29 frames, and classify from concatenated mean and final recurrent outputs.",
+  "mechanism": "Delta-augmented unified GRU with dual-timescale readout",
+  "opportunity": 30,
+  "parent_ids": [
+    "186cd8dd3ab2fd44fab9e9b07e22f9ef7908d1a859e6e5876422d869ca1eac41"
+  ],
+  "portfolio_after": [
+    "ebef865a57f713ef4c70fe589459f4cf88d53f5b1f2bab227eec0702174035f1"
+  ],
+  "prompt_hashes": {
+    "common_template_sha256": "dee04faf4c430276c1036ba97f5705a339857dbdf19117dac88952a5a3a47e9d",
+    "prompt_sha256": "d331f0a2145d16710bfeeafc8247d6fbca2316e76495bf7a1262436c0625beff",
+    "proposal_policy_sha256": "f3e935f1a3cb6334e7f39b20b1b6b601cd727de9c5f0c3630206a91f08e358c9",
+    "search_state_sha256": "04e5eb078ae1964e4ec65bfeeeb1acd0ffa246e7d54d5e0f997f81f602da28c5",
+    "treatment_skeleton_sha256": "a0e8863e52ceda7a4650ad0cb65695847c756038a713016738996f0468437c46"
+  },
+  "proposal_type": "assumption_changing",
+  "proposals_cumulative": 30,
+  "remaining_budget": {
+    "evaluations": 170,
+    "evaluator_seconds": 56588.05696954322,
+    "proposals": 170,
+    "tokens": 99328508
+  },
+  "retained": true,
+  "retention_decision": "strict_incumbent_improvement",
+  "run_id": "tiny-kws-rnn-openevolve-v2-1-cpu-tiny_kws_rnn_source_only_cpu-openevolve-b02-c1",
+  "schema_version": "1.0",
+  "selected_parent_ids": [
+    "186cd8dd3ab2fd44fab9e9b07e22f9ef7908d1a859e6e5876422d869ca1eac41"
+  ],
+  "timestamp": "2026-09-04T04:34:21.665704+00:00",
+  "usage_cumulative": {
+    "cached_input_tokens": 322560,
+    "input_tokens": 581460,
+    "output_tokens": 90032,
+    "reasoning_output_tokens": 73432,
+    "total_tokens": 671492
+  },
+  "usage_increment": {
+    "cached_input_tokens": 10752,
+    "input_tokens": 20866,
+    "output_tokens": 6744,
+    "reasoning_output_tokens": 4928,
+    "total_tokens": 27610
+  },
+  "visible_candidate_ids": [
+    "186cd8dd3ab2fd44fab9e9b07e22f9ef7908d1a859e6e5876422d869ca1eac41"
+  ]
+}

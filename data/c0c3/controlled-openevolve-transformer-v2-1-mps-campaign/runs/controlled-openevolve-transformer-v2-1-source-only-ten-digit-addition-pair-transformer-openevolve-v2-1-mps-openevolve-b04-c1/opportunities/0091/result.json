@@ -1,0 +1,79 @@
+{
+  "artifact_path": "candidates/31638026cd5d371df6106e296548e5e8a61e353ac243a3aaaffee04f65128c56",
+  "candidate_id": "31638026cd5d371df6106e296548e5e8a61e353ac243a3aaaffee04f65128c56",
+  "codex_service_tier": "default",
+  "condition": "C1",
+  "conversation_session_id": null,
+  "evaluation": {
+    "evaluator_calls": 1,
+    "evaluator_seconds": 607.2587098749354,
+    "failure_kind": null,
+    "fitness": -887.0,
+    "metrics": {
+      "accuracy": 0.9992,
+      "cases": 10010,
+      "correct": 10002,
+      "parameters": 887,
+      "training_steps": 4999
+    },
+    "valid": true
+  },
+  "evaluator_calls_cumulative": 91,
+  "evaluator_calls_increment": 1,
+  "evaluator_seconds_cumulative": 49085.17629466939,
+  "evaluator_seconds_increment": 607.2587098749354,
+  "event": "proposal_completed",
+  "evicted_candidate_id": "880260a9572009dc1c8356fbd598a470a2d40d28aa8e863a55eccfa73dcdf092",
+  "evidence": "The 895-parameter design achieved 99.92% accuracy with a four-channel token embedding padded by four exact zeros; unlike the failed MLP tying experiment, this removes only parameters annihilated by the existing output projection.",
+  "hypothesis": "Fixing the final LayerNorm affine values on its last four channels will reduce the model from 895 to 887 parameters while retaining at least 99% accuracy, because the compact tied output embedding has exact zeros in those channels, so their learned scales and biases cannot affect any token logit.",
+  "incumbent_after": "31638026cd5d371df6106e296548e5e8a61e353ac243a3aaaffee04f65128c56",
+  "intended_edit": "Replace the final full affine LayerNorm with a compact affine LayerNorm that learns only the four logit-visible channel scales and biases while preserving normalization across all eight channels.",
+  "mechanism": "Dead output-channel affine pruning",
+  "opportunity": 91,
+  "parent_ids": [
+    "880260a9572009dc1c8356fbd598a470a2d40d28aa8e863a55eccfa73dcdf092"
+  ],
+  "portfolio_after": [
+    "31638026cd5d371df6106e296548e5e8a61e353ac243a3aaaffee04f65128c56"
+  ],
+  "prompt_hashes": {
+    "common_template_sha256": "3f2bea6418b6969c4bf2aa1df18dcda8a3a4ac075bf20c79068c754698b6be5e",
+    "prompt_sha256": "c691a6497a96d3adcb680d0513d344a4ad8c339ec34c947f4176562adf8cb645",
+    "proposal_policy_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "search_state_sha256": "04e5eb078ae1964e4ec65bfeeeb1acd0ffa246e7d54d5e0f997f81f602da28c5",
+    "treatment_skeleton_sha256": "b7f4ab0624786d1d4a882af58c20e23043e88fc77e0169cf5189395dcc416bf8"
+  },
+  "proposal_type": "ordinary",
+  "proposals_cumulative": 91,
+  "remaining_budget": {
+    "evaluations": 109,
+    "evaluator_seconds": 310914.8237053306,
+    "proposals": 109,
+    "tokens": 97643390
+  },
+  "retained": true,
+  "retention_decision": "strict_incumbent_improvement",
+  "run_id": "controlled-openevolve-transformer-v2-1-source-only-ten-digit-addition-pair-transformer-openevolve-v2-1-mps-openevolve-b04-c1",
+  "schema_version": "1.0",
+  "selected_parent_ids": [
+    "880260a9572009dc1c8356fbd598a470a2d40d28aa8e863a55eccfa73dcdf092"
+  ],
+  "timestamp": "2026-08-26T04:59:16.529862+00:00",
+  "usage_cumulative": {
+    "cached_input_tokens": 942848,
+    "input_tokens": 2124619,
+    "output_tokens": 231991,
+    "reasoning_output_tokens": 181053,
+    "total_tokens": 2356610
+  },
+  "usage_increment": {
+    "cached_input_tokens": 12032,
+    "input_tokens": 28070,
+    "output_tokens": 4654,
+    "reasoning_output_tokens": 4142,
+    "total_tokens": 32724
+  },
+  "visible_candidate_ids": [
+    "880260a9572009dc1c8356fbd598a470a2d40d28aa8e863a55eccfa73dcdf092"
+  ]
+}

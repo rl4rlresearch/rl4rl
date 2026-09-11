@@ -1,0 +1,55 @@
+{
+  "adapter": "ten_digit_addition_pair_transformer_v3",
+  "display_name": "transformer for 10-digit addition",
+  "editable_paths": [
+    "src/model.py",
+    "src/train.py"
+  ],
+  "evaluator_command": [
+    "{python}",
+    "{repo_root}/experiments/c0c3_factorial/task_evaluators.py",
+    "pair-token-ten-digit-addition-v2",
+    "--workspace",
+    "{workspace}",
+    "--repo-root",
+    "{repo_root}",
+    "--python-bin",
+    "{python}",
+    "--train-device",
+    "mps",
+    "--output",
+    "{output}"
+  ],
+  "final_holdout_command": [
+    "{python}",
+    "{repo_root}/experiments/c0c3_factorial/task_evaluators.py",
+    "pair-token-ten-digit-addition-v2-holdout",
+    "--workspace",
+    "{workspace}",
+    "--repo-root",
+    "{repo_root}",
+    "--python-bin",
+    "{python}",
+    "--train-device",
+    "mps",
+    "--output",
+    "{output}"
+  ],
+  "metric_patterns": {
+    "accuracy": "Results: [0-9]+/[0-9]+ correct \\(([0-9.]+)%\\)",
+    "parameters": "Parameters \\(unique\\):\\s*([0-9,]+)",
+    "training_steps": "step(?:\\s*=\\s*|\\s+)([0-9]+)"
+  },
+  "objective_direction": "minimize",
+  "objective_metric": "parameters",
+  "preferred_backend": "local",
+  "public_feedback_metrics": [
+    "accuracy",
+    "parameters",
+    "training_steps"
+  ],
+  "qualification_metric": "accuracy",
+  "qualification_minimum": 0.99,
+  "seed_source": "${ADDERBOARD_CODEX_1644_SOURCE}",
+  "task_id": "ten-digit-addition-pair-transformer-openevolve-v2-1-mps"
+}

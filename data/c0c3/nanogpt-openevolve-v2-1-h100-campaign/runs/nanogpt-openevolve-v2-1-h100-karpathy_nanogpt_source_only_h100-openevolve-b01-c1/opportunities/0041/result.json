@@ -1,0 +1,82 @@
+{
+  "artifact_path": "candidates/6a23b7aff0d84117833a1db78182301842f20e95b40483e5f1ce57dc6d19edb1",
+  "candidate_id": "6a23b7aff0d84117833a1db78182301842f20e95b40483e5f1ce57dc6d19edb1",
+  "codex_service_tier": "default",
+  "condition": "C1",
+  "conversation_session_id": null,
+  "evaluation": {
+    "evaluator_calls": 1,
+    "evaluator_seconds": 373.4481342090003,
+    "failure_kind": null,
+    "fitness": -0.985862,
+    "metrics": {
+      "depth": 8.0,
+      "mfu_percent": 35.63,
+      "num_params_M": 50.4,
+      "num_steps": 1893.0,
+      "peak_vram_mb": 45924.8,
+      "total_tokens_M": 496.2,
+      "training_seconds": 300.1,
+      "val_bpb": 0.985862
+    },
+    "valid": true
+  },
+  "evaluator_calls_cumulative": 41,
+  "evaluator_calls_increment": 1,
+  "evaluator_seconds_cumulative": 18384.349592593084,
+  "evaluator_seconds_increment": 373.4481342090003,
+  "event": "proposal_completed",
+  "evicted_candidate_id": null,
+  "evidence": "Attention-window reallocations have plateaued at 0.983689, while parameter-matched SwiGLU regressed to 0.986926 alongside substantially lower throughput; this motivates adding expressivity specifically to the existing value-residual pathway at much lower cost.",
+  "hypothesis": "Replacing each value embedding\u2019s per-head scalar gate with a per-feature gate will reduce val_bpb below 0.983689 by enabling finer token-dependent routing with negligible parameter and compute growth.",
+  "incumbent_after": "674df27b25c58f2cbccc71b14b2a3da3c64efa60f586b6091ad91222de323123",
+  "intended_edit": "Expand the existing zero-initialized value-residual gate from one coefficient per KV head to one coefficient per KV feature, retaining the SMMLSSSL attention schedule and neutral initialization.",
+  "mechanism": "Feature-wise value-residual gating",
+  "opportunity": 41,
+  "parent_ids": [
+    "674df27b25c58f2cbccc71b14b2a3da3c64efa60f586b6091ad91222de323123"
+  ],
+  "portfolio_after": [
+    "674df27b25c58f2cbccc71b14b2a3da3c64efa60f586b6091ad91222de323123"
+  ],
+  "prompt_hashes": {
+    "common_template_sha256": "ba85b39aa7288f4f48475376da6cff65661f39cfeb7ac7cde15b2a9a2e692fde",
+    "prompt_sha256": "f86276d274874633b9e39b8cdb1d27a09bbf2a51e35c946220720699a1775403",
+    "proposal_policy_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "search_state_sha256": "04e5eb078ae1964e4ec65bfeeeb1acd0ffa246e7d54d5e0f997f81f602da28c5",
+    "treatment_skeleton_sha256": "61981396e1657d8c3c1f33875f2db952654491dfd19533f6179756d4a777b7fd"
+  },
+  "proposal_type": "ordinary",
+  "proposals_cumulative": 41,
+  "remaining_budget": {
+    "evaluations": 159,
+    "evaluator_seconds": 701615.650407407,
+    "proposals": 159,
+    "tokens": 98900193
+  },
+  "retained": false,
+  "retention_decision": "not_strictly_better_than_incumbent",
+  "run_id": "nanogpt-openevolve-v2-1-h100-karpathy_nanogpt_source_only_h100-openevolve-b01-c1",
+  "schema_version": "1.0",
+  "selected_parent_ids": [
+    "674df27b25c58f2cbccc71b14b2a3da3c64efa60f586b6091ad91222de323123"
+  ],
+  "timestamp": "2026-08-24T10:18:50.160396+00:00",
+  "usage_cumulative": {
+    "cached_input_tokens": 421888,
+    "input_tokens": 997070,
+    "output_tokens": 102737,
+    "reasoning_output_tokens": 90688,
+    "total_tokens": 1099807
+  },
+  "usage_increment": {
+    "cached_input_tokens": 12032,
+    "input_tokens": 24957,
+    "output_tokens": 4995,
+    "reasoning_output_tokens": 4660,
+    "total_tokens": 29952
+  },
+  "visible_candidate_ids": [
+    "674df27b25c58f2cbccc71b14b2a3da3c64efa60f586b6091ad91222de323123"
+  ]
+}

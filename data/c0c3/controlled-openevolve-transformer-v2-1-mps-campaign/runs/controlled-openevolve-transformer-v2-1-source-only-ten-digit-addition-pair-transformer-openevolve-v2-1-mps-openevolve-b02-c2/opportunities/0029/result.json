@@ -1,0 +1,85 @@
+{
+  "artifact_path": "candidates/c7e3b145d8a3999178d79f0efbac772377f8b188741ececb0da00470c74794f0",
+  "candidate_id": "c7e3b145d8a3999178d79f0efbac772377f8b188741ececb0da00470c74794f0",
+  "codex_service_tier": "fast",
+  "condition": "C2",
+  "conversation_session_id": null,
+  "evaluation": {
+    "evaluator_calls": 1,
+    "evaluator_seconds": 472.5916104170028,
+    "failure_kind": "nonqualification",
+    "fitness": null,
+    "metrics": {
+      "accuracy": 0.35090000000000005,
+      "cases": 10010,
+      "correct": 3513,
+      "parameters": 1629,
+      "training_steps": 4999
+    },
+    "valid": false
+  },
+  "evaluator_calls_cumulative": 29,
+  "evaluator_calls_increment": 1,
+  "evaluator_seconds_cumulative": 9441.183563167113,
+  "evaluator_seconds_increment": 472.5916104170028,
+  "event": "proposal_completed",
+  "evicted_candidate_id": null,
+  "evidence": "The current attention layout achieved 99.81% at 1,630 parameters, while tying an attention output bias fell to 70.57%; this motivates preserving attention and testing a distinct multiplicative gauge. The failed `ln2` beta omission modified an additive pathway, whereas this patch retains every LayerNorm bias and removes only a scale redundant with `fc1`.",
+  "hypothesis": "Fixing one `ln2` scale coordinate at its initialized value of one will reduce the model to 1,629 parameters while retaining at least 99% accuracy, because the unrestricted corresponding `fc1` weight column can learn the same multiplicative transformation.",
+  "incumbent_after": "b484d76ec15ca41b939f7216f9f87d813bf93a2c17c56e4840813d940c47ae61",
+  "intended_edit": "Replace `ln2` with an equivalent LayerNorm containing seven learned scale coordinates and all eight learned biases, preserving the baseline initialization and leaving the qualified attention parameterization unchanged.",
+  "mechanism": "Pre-MLP LayerNorm scale gauge fixing",
+  "opportunity": 29,
+  "parent_ids": [
+    "b484d76ec15ca41b939f7216f9f87d813bf93a2c17c56e4840813d940c47ae61"
+  ],
+  "portfolio_after": [
+    "2b9cea175ed60b009337ac54f6e8ad23bf2c014eb4080237777bfb70bfd9fd5b",
+    "b484d76ec15ca41b939f7216f9f87d813bf93a2c17c56e4840813d940c47ae61",
+    "1f91143948864d52e7bd7be36c66d23e120429d924d85af7b62a788896ad76af",
+    "8d566e20a938e42e67d4848de7ec53ec6982287549cba1c2292818baa2ee72cb"
+  ],
+  "prompt_hashes": {
+    "common_template_sha256": "3f2bea6418b6969c4bf2aa1df18dcda8a3a4ac075bf20c79068c754698b6be5e",
+    "prompt_sha256": "fe872ec9f6ccdc0d0a46d78e0a890736671c8dfdabeddb5efb45bd19c4860ac0",
+    "proposal_policy_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "search_state_sha256": "c938ac007bf70fe8d27f64661175531e51fcb16b38318c328493c32ee292e27e",
+    "treatment_skeleton_sha256": "f96c8db4fd2ca12940884e2c350f4c1f35790f78192e57af439bb6f9abe5205f"
+  },
+  "proposal_type": "ordinary",
+  "proposals_cumulative": 29,
+  "remaining_budget": {
+    "evaluations": 171,
+    "evaluator_seconds": 350558.8164368329,
+    "proposals": 171,
+    "tokens": 99057544
+  },
+  "retained": false,
+  "retention_decision": "invalid",
+  "run_id": "controlled-openevolve-transformer-v2-1-source-only-ten-digit-addition-pair-transformer-openevolve-v2-1-mps-openevolve-b02-c2",
+  "schema_version": "1.0",
+  "selected_parent_ids": [
+    "b484d76ec15ca41b939f7216f9f87d813bf93a2c17c56e4840813d940c47ae61"
+  ],
+  "timestamp": "2026-08-24T01:04:08.130958+00:00",
+  "usage_cumulative": {
+    "cached_input_tokens": 342784,
+    "input_tokens": 863941,
+    "output_tokens": 78515,
+    "reasoning_output_tokens": 59975,
+    "total_tokens": 942456
+  },
+  "usage_increment": {
+    "cached_input_tokens": 12032,
+    "input_tokens": 34139,
+    "output_tokens": 4012,
+    "reasoning_output_tokens": 3440,
+    "total_tokens": 38151
+  },
+  "visible_candidate_ids": [
+    "2b9cea175ed60b009337ac54f6e8ad23bf2c014eb4080237777bfb70bfd9fd5b",
+    "b484d76ec15ca41b939f7216f9f87d813bf93a2c17c56e4840813d940c47ae61",
+    "1f91143948864d52e7bd7be36c66d23e120429d924d85af7b62a788896ad76af",
+    "8d566e20a938e42e67d4848de7ec53ec6982287549cba1c2292818baa2ee72cb"
+  ]
+}

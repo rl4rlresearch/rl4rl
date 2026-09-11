@@ -1,0 +1,82 @@
+{
+  "artifact_path": "candidates/1436d02bf4d95a96075156fc2a46612aa68257a76af7bcdcd09d1ec8cc2f0e98",
+  "candidate_id": "1436d02bf4d95a96075156fc2a46612aa68257a76af7bcdcd09d1ec8cc2f0e98",
+  "codex_service_tier": "default",
+  "condition": "C1",
+  "conversation_session_id": null,
+  "evaluation": {
+    "evaluator_calls": 1,
+    "evaluator_seconds": 371.4654170350004,
+    "failure_kind": null,
+    "fitness": -0.985719,
+    "metrics": {
+      "depth": 8.0,
+      "mfu_percent": 36.34,
+      "num_params_M": 50.3,
+      "num_steps": 1963.0,
+      "peak_vram_mb": 46959.2,
+      "total_tokens_M": 514.6,
+      "training_seconds": 300.1,
+      "val_bpb": 0.985719
+    },
+    "valid": true
+  },
+  "evaluator_calls_cumulative": 30,
+  "evaluator_calls_increment": 1,
+  "evaluator_seconds_cumulative": 14432.391812597076,
+  "evaluator_seconds_increment": 371.4654170350004,
+  "event": "proposal_completed",
+  "evicted_candidate_id": null,
+  "evidence": "Two full-context layers improved val_bpb to 0.984467, while three regressed to 0.985972. This suggests the load-bearing factor is a limited amount of global computation, challenging the old assumption that it must occur as occasional all-channel consolidation.",
+  "hypothesis": "Giving one attention head full context in every layer will lower val_bpb below 0.984467 by enabling continuous global information exchange while preserving the best design\u2019s exact global/local attention-head compute budget.",
+  "incumbent_after": "dd39c374280adbd5750b91e226f2eadce17b6973771f7bf15b61d0f1b9b14726",
+  "intended_edit": "Replace periodic full-width global layers with three local heads and one global head per layer; parameter count and theoretical attention FLOPs remain unchanged, but context scale becomes a learned channel-wise representation rather than a layer-wise choice.",
+  "mechanism": "Head-wise continuous global context",
+  "opportunity": 30,
+  "parent_ids": [
+    "dd39c374280adbd5750b91e226f2eadce17b6973771f7bf15b61d0f1b9b14726"
+  ],
+  "portfolio_after": [
+    "dd39c374280adbd5750b91e226f2eadce17b6973771f7bf15b61d0f1b9b14726"
+  ],
+  "prompt_hashes": {
+    "common_template_sha256": "ba85b39aa7288f4f48475376da6cff65661f39cfeb7ac7cde15b2a9a2e692fde",
+    "prompt_sha256": "f6d99ea57b6574f697682ad3131e7216e2773acdc90eb8eb70d18b14d9063bae",
+    "proposal_policy_sha256": "cd7b9ba20a1cd1edd0663b5e3652baa9cd3c81925074103fe47e66c021d61a4a",
+    "search_state_sha256": "04e5eb078ae1964e4ec65bfeeeb1acd0ffa246e7d54d5e0f997f81f602da28c5",
+    "treatment_skeleton_sha256": "6fc2a3e379478a724a92ba49646b78a2e65b54f6b9fdf952e293d82fba222d46"
+  },
+  "proposal_type": "assumption_changing",
+  "proposals_cumulative": 30,
+  "remaining_budget": {
+    "evaluations": 170,
+    "evaluator_seconds": 705567.608187403,
+    "proposals": 170,
+    "tokens": 99195976
+  },
+  "retained": false,
+  "retention_decision": "not_strictly_better_than_incumbent",
+  "run_id": "nanogpt-openevolve-v2-1-h100-karpathy_nanogpt_source_only_h100-openevolve-b01-c1",
+  "schema_version": "1.0",
+  "selected_parent_ids": [
+    "dd39c374280adbd5750b91e226f2eadce17b6973771f7bf15b61d0f1b9b14726"
+  ],
+  "timestamp": "2026-08-24T04:11:29.476568+00:00",
+  "usage_cumulative": {
+    "cached_input_tokens": 318720,
+    "input_tokens": 722950,
+    "output_tokens": 81074,
+    "reasoning_output_tokens": 72071,
+    "total_tokens": 804024
+  },
+  "usage_increment": {
+    "cached_input_tokens": 12032,
+    "input_tokens": 25040,
+    "output_tokens": 3276,
+    "reasoning_output_tokens": 2068,
+    "total_tokens": 28316
+  },
+  "visible_candidate_ids": [
+    "dd39c374280adbd5750b91e226f2eadce17b6973771f7bf15b61d0f1b9b14726"
+  ]
+}

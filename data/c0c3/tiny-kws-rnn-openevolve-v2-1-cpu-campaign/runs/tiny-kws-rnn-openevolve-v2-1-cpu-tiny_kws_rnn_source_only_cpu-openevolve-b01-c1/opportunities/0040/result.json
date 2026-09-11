@@ -1,0 +1,99 @@
+{
+  "artifact_path": "candidates/d40403a282bc6fcb45b8163fc5f3f9c6c738674c9da011979fada26a82bf570a",
+  "candidate_id": "d40403a282bc6fcb45b8163fc5f3f9c6c738674c9da011979fada26a82bf570a",
+  "codex_service_tier": "default",
+  "condition": "C1",
+  "conversation_session_id": null,
+  "evaluation": {
+    "evaluator_calls": 1,
+    "evaluator_seconds": 58.5325482909102,
+    "failure_kind": "nonqualification",
+    "fitness": null,
+    "metrics": {
+      "batch_size": 128,
+      "evaluation_cases": 815,
+      "evaluation_split": "public_speaker_disjoint_validation",
+      "examples_processed": 50000,
+      "inference_cost": 2164896772665267588,
+      "maximum_recurrent_steps": 28,
+      "mean_recurrent_steps": 28.0,
+      "median_recurrent_steps": 28,
+      "optimizer_steps": 397,
+      "p95_recurrent_steps": 28,
+      "parameters": 28448,
+      "peak_hidden_elements": 108544,
+      "recurrent_logit_effect": 0.072303906083107,
+      "recurrent_macs": 413772240,
+      "recurrent_steps": 22820,
+      "state_dependence_effect": 0.477323979139328,
+      "state_update_effect": 0.29107117652893066,
+      "total_inference_macs": 415037120,
+      "trained_recurrent_logit_effect": 0.41406869888305664,
+      "trained_state_dependence_effect": 0.5021271705627441,
+      "trained_state_update_effect": 0.31425291299819946,
+      "training_seconds": 45.23730045789853,
+      "validation_accuracy": 0.8478527607361963,
+      "validation_correct": 691,
+      "validation_cross_entropy": 0.4628247781765242
+    },
+    "valid": false
+  },
+  "evaluator_calls_cumulative": 36,
+  "evaluator_calls_increment": 1,
+  "evaluator_seconds_cumulative": 3902.9729023287073,
+  "evaluator_seconds_increment": 58.5325482909102,
+  "event": "proposal_completed",
+  "evicted_candidate_id": null,
+  "evidence": "The 49+48 hierarchy reached 86.01%, upper-skip pruning and folding repeatedly retained at least 85%, and reducing the lower width failed; this challenges the shared assumption that the comparatively redundant upper stage must execute at every frame while preserving full-rate lower recurrence.",
+  "hypothesis": "Updating the upper GRU from averaged adjacent acoustic frames and every second lower-GRU output will retain at least 85% validation accuracy while reducing total inference MACs from 600.70M to approximately 415.04M.",
+  "incumbent_after": "378bba936b1f881b87ee7c4068cad34f63425f93c7eef293b0ad42bcf8b428f9",
+  "intended_edit": "Keep the load-bearing lower GRU at all 28 causal steps, but clock the upper GRU once per frame pair, add pending-acoustic and upper-update-count state, and make sequence execution exactly match repeated recurrent steps.",
+  "mechanism": "Pyramidal two-frame upper recurrence",
+  "opportunity": 40,
+  "parent_ids": [
+    "378bba936b1f881b87ee7c4068cad34f63425f93c7eef293b0ad42bcf8b428f9"
+  ],
+  "portfolio_after": [
+    "378bba936b1f881b87ee7c4068cad34f63425f93c7eef293b0ad42bcf8b428f9"
+  ],
+  "prompt_hashes": {
+    "common_template_sha256": "dee04faf4c430276c1036ba97f5705a339857dbdf19117dac88952a5a3a47e9d",
+    "prompt_sha256": "b39dee8124beb70ceefd62f521008930f61a73faaefbf36566f64c7c2fcb4d52",
+    "proposal_policy_sha256": "f3e935f1a3cb6334e7f39b20b1b6b601cd727de9c5f0c3630206a91f08e358c9",
+    "search_state_sha256": "04e5eb078ae1964e4ec65bfeeeb1acd0ffa246e7d54d5e0f997f81f602da28c5",
+    "treatment_skeleton_sha256": "fd46f507d036f385ce130ee8a39035515410d75086de719c29ef7e45106540c4"
+  },
+  "proposal_type": "assumption_changing",
+  "proposals_cumulative": 40,
+  "remaining_budget": {
+    "evaluations": 164,
+    "evaluator_seconds": 56097.02709767129,
+    "proposals": 160,
+    "tokens": 99149888
+  },
+  "retained": false,
+  "retention_decision": "invalid",
+  "run_id": "tiny-kws-rnn-openevolve-v2-1-cpu-tiny_kws_rnn_source_only_cpu-openevolve-b01-c1",
+  "schema_version": "1.0",
+  "selected_parent_ids": [
+    "378bba936b1f881b87ee7c4068cad34f63425f93c7eef293b0ad42bcf8b428f9"
+  ],
+  "timestamp": "2026-09-04T04:35:14.669984+00:00",
+  "usage_cumulative": {
+    "cached_input_tokens": 430080,
+    "input_tokens": 777169,
+    "output_tokens": 72943,
+    "reasoning_output_tokens": 54096,
+    "total_tokens": 850112
+  },
+  "usage_increment": {
+    "cached_input_tokens": 10752,
+    "input_tokens": 20972,
+    "output_tokens": 7523,
+    "reasoning_output_tokens": 4925,
+    "total_tokens": 28495
+  },
+  "visible_candidate_ids": [
+    "378bba936b1f881b87ee7c4068cad34f63425f93c7eef293b0ad42bcf8b428f9"
+  ]
+}

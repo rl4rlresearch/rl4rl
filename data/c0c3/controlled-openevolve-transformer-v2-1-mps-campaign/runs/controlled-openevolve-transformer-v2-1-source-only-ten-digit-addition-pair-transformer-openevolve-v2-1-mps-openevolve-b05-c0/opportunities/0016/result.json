@@ -1,0 +1,79 @@
+{
+  "artifact_path": "candidates/129e9aa93501f4713a12f77856a102142fc7658b1b77d3fe132ca1400efb4590",
+  "candidate_id": "129e9aa93501f4713a12f77856a102142fc7658b1b77d3fe132ca1400efb4590",
+  "codex_service_tier": "fast",
+  "condition": "C0",
+  "conversation_session_id": null,
+  "evaluation": {
+    "evaluator_calls": 1,
+    "evaluator_seconds": 376.69186391693074,
+    "failure_kind": null,
+    "fitness": -1633.0,
+    "metrics": {
+      "accuracy": 0.9972,
+      "cases": 10010,
+      "correct": 9982,
+      "parameters": 1633,
+      "training_steps": 4999
+    },
+    "valid": true
+  },
+  "evaluator_calls_cumulative": 16,
+  "evaluator_calls_increment": 1,
+  "evaluator_seconds_cumulative": 5119.1813967070775,
+  "evaluator_seconds_increment": 376.69186391693074,
+  "event": "proposal_completed",
+  "evicted_candidate_id": "0cd65620be7991dd87e1b577a765fa9d5d649855adf722abc631bd7e509dc5d2",
+  "evidence": "The 1634-parameter attention-bias quotient reached 99.85% only with virtual full-coordinate AdamW; this patch applies that successful optimizer treatment to a distinct exact gauge while leaving all optimization-sensitive query, value, normalization, and MLP parameters intact.",
+  "hypothesis": "Removing the global common-shift degree of freedom from the tied token embedding will reduce the model from 1634 to 1633 parameters while retaining at least 99% accuracy, because the shift is canceled at transformer inputs by LayerNorm and adds only a vocabulary-wide constant to output logits, while virtual full-coordinate AdamW preserves the successful optimization dynamics.",
+  "incumbent_after": "129e9aa93501f4713a12f77856a102142fc7658b1b77d3fe132ca1400efb4590",
+  "intended_edit": "Store all but one coordinate of the tied token embedding, reconstruct its final coordinate as zero, preserve gauge-equivalent initialization and RNG ordering, and optimize it alongside the attention output bias with virtual full-coordinate moments and clipping.",
+  "mechanism": "Quotient-aware tied-embedding gauge fixing",
+  "opportunity": 16,
+  "parent_ids": [
+    "0cd65620be7991dd87e1b577a765fa9d5d649855adf722abc631bd7e509dc5d2"
+  ],
+  "portfolio_after": [
+    "129e9aa93501f4713a12f77856a102142fc7658b1b77d3fe132ca1400efb4590"
+  ],
+  "prompt_hashes": {
+    "common_template_sha256": "3f2bea6418b6969c4bf2aa1df18dcda8a3a4ac075bf20c79068c754698b6be5e",
+    "prompt_sha256": "58eb883906e2196040fc4524b483918e49cf011ca9febf4dbf8a0ea8743c8386",
+    "proposal_policy_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "search_state_sha256": "04e5eb078ae1964e4ec65bfeeeb1acd0ffa246e7d54d5e0f997f81f602da28c5",
+    "treatment_skeleton_sha256": "92803f49f366adc8c9d711f07642821e0fdbe47c435f7d684fe1a8231b0a13c2"
+  },
+  "proposal_type": "ordinary",
+  "proposals_cumulative": 16,
+  "remaining_budget": {
+    "evaluations": 184,
+    "evaluator_seconds": 354880.8186032929,
+    "proposals": 184,
+    "tokens": 99623004
+  },
+  "retained": true,
+  "retention_decision": "strict_incumbent_improvement",
+  "run_id": "controlled-openevolve-transformer-v2-1-source-only-ten-digit-addition-pair-transformer-openevolve-v2-1-mps-openevolve-b05-c0",
+  "schema_version": "1.0",
+  "selected_parent_ids": [
+    "0cd65620be7991dd87e1b577a765fa9d5d649855adf722abc631bd7e509dc5d2"
+  ],
+  "timestamp": "2026-08-23T18:13:33.506691+00:00",
+  "usage_cumulative": {
+    "cached_input_tokens": 183296,
+    "input_tokens": 323481,
+    "output_tokens": 53515,
+    "reasoning_output_tokens": 46038,
+    "total_tokens": 376996
+  },
+  "usage_increment": {
+    "cached_input_tokens": 9984,
+    "input_tokens": 22059,
+    "output_tokens": 6906,
+    "reasoning_output_tokens": 5858,
+    "total_tokens": 28965
+  },
+  "visible_candidate_ids": [
+    "0cd65620be7991dd87e1b577a765fa9d5d649855adf722abc631bd7e509dc5d2"
+  ]
+}

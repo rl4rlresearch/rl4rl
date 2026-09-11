@@ -1,0 +1,79 @@
+{
+  "artifact_path": "candidates/fe949bb4fbd62d1e902f1de0e41c712d93f2ccf2a6efd58f5a51601bcb73c83c",
+  "candidate_id": "fe949bb4fbd62d1e902f1de0e41c712d93f2ccf2a6efd58f5a51601bcb73c83c",
+  "codex_service_tier": "default",
+  "condition": "C1",
+  "conversation_session_id": null,
+  "evaluation": {
+    "evaluator_calls": 1,
+    "evaluator_seconds": 593.7239910410717,
+    "failure_kind": null,
+    "fitness": -1160.0,
+    "metrics": {
+      "accuracy": 0.9994,
+      "cases": 10010,
+      "correct": 10004,
+      "parameters": 1160,
+      "training_steps": 4999
+    },
+    "valid": true
+  },
+  "evaluator_calls_cumulative": 52,
+  "evaluator_calls_increment": 1,
+  "evaluator_seconds_cumulative": 21296.70237203769,
+  "evaluator_seconds_increment": 593.7239910410717,
+  "event": "proposal_completed",
+  "evicted_candidate_id": "08f345645b10290f072a2a9fa867ddacb33704513dbe14fde83f8fb41c97d116",
+  "evidence": "The current design achieved 99.95% accuracy after fixing the two largest-distance biases, while the immediately preceding one-endpoint design achieved 99.99%; this supports testing the adjacent next-least-used bias without reducing demonstrated MLP, lexical, or routing capacity.",
+  "hypothesis": "Fixing each head\u2019s third-farthest attention bias to zero will reduce parameters from 1,162 to 1,160 while retaining at least 99% accuracy, because this distance affects only three causal query-key pairs per full sequence and pruning the two farther endpoints retained 99.95% accuracy.",
+  "incumbent_after": "fe949bb4fbd62d1e902f1de0e41c712d93f2ccf2a6efd58f5a51601bcb73c83c",
+  "intended_edit": "Learn relative biases only for distances 1 through `max_seq_len - 4`, appending fixed zeros for distance zero and the three largest distances.",
+  "mechanism": "Third-farthest relative-bias pruning",
+  "opportunity": 52,
+  "parent_ids": [
+    "08f345645b10290f072a2a9fa867ddacb33704513dbe14fde83f8fb41c97d116"
+  ],
+  "portfolio_after": [
+    "fe949bb4fbd62d1e902f1de0e41c712d93f2ccf2a6efd58f5a51601bcb73c83c"
+  ],
+  "prompt_hashes": {
+    "common_template_sha256": "3f2bea6418b6969c4bf2aa1df18dcda8a3a4ac075bf20c79068c754698b6be5e",
+    "prompt_sha256": "64306d48019966abab141e9fe745c92328f6b9af738b7291806b242e106a304c",
+    "proposal_policy_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "search_state_sha256": "04e5eb078ae1964e4ec65bfeeeb1acd0ffa246e7d54d5e0f997f81f602da28c5",
+    "treatment_skeleton_sha256": "6b93db54e833cf4a6685bba83f847616414acbad00dd076188113a40f442648e"
+  },
+  "proposal_type": "ordinary",
+  "proposals_cumulative": 52,
+  "remaining_budget": {
+    "evaluations": 148,
+    "evaluator_seconds": 338703.2976279623,
+    "proposals": 148,
+    "tokens": 98683863
+  },
+  "retained": true,
+  "retention_decision": "strict_incumbent_improvement",
+  "run_id": "controlled-openevolve-transformer-v2-1-source-only-ten-digit-addition-pair-transformer-openevolve-v2-1-mps-openevolve-b03-c1",
+  "schema_version": "1.0",
+  "selected_parent_ids": [
+    "08f345645b10290f072a2a9fa867ddacb33704513dbe14fde83f8fb41c97d116"
+  ],
+  "timestamp": "2026-08-24T10:50:13.993028+00:00",
+  "usage_cumulative": {
+    "cached_input_tokens": 568320,
+    "input_tokens": 1157586,
+    "output_tokens": 158551,
+    "reasoning_output_tokens": 126976,
+    "total_tokens": 1316137
+  },
+  "usage_increment": {
+    "cached_input_tokens": 9984,
+    "input_tokens": 24443,
+    "output_tokens": 574,
+    "reasoning_output_tokens": 222,
+    "total_tokens": 25017
+  },
+  "visible_candidate_ids": [
+    "08f345645b10290f072a2a9fa867ddacb33704513dbe14fde83f8fb41c97d116"
+  ]
+}

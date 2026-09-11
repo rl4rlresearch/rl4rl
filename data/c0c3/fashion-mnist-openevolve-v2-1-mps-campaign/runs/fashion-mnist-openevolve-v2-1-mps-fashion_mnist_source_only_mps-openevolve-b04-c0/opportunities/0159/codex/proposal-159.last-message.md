@@ -1,0 +1,21 @@
+MECHANISM: One-sided refinement of accepted vertical-TTA weight
+
+HYPOTHESIS: Increasing only the accepted translation blend from 13.44% to 13.4425% will preserve all 9,359 correct predictions and reduce validation cross-entropy below 0.18436292495727538.
+
+INTENDED_EDIT: Keep the verified 13.39739990234375% selection gate fixed while assigning 6.72125% to each vertical shift in the returned refined logits.
+
+EVIDENCE: Raising the decoupled accepted blend from 13.4375% to 13.44% preserved correctness and reduced cross-entropy, motivating a same-sized one-sided probe near the estimated 13.44% continuous optimum.
+
+<<<<<<< SEARCH
+        translation_refined_logits = (
+            0.8656 * ensemble_logits
+            + 0.0672 * down_logits
+            + 0.0672 * up_logits
+        )
+=======
+        translation_refined_logits = (
+            0.865575 * ensemble_logits
+            + 0.0672125 * down_logits
+            + 0.0672125 * up_logits
+        )
+>>>>>>> REPLACE

@@ -1,0 +1,78 @@
+{
+  "artifact_path": "candidates/0f17fffb3663d52d33d8319e450601486ab8f6b86fc4e190fc1b881f64801c73",
+  "candidate_id": "4e5f484ab882120d03c720ac266e9eade294a5fc4064187c2677d5fb1029b620",
+  "codex_service_tier": "default",
+  "condition": "C0",
+  "conversation_session_id": null,
+  "evaluation": {
+    "evaluator_calls": 0,
+    "evaluator_seconds": 0.0,
+    "failure_kind": "ambiguous_diff",
+    "fitness": null,
+    "metrics": {
+      "adapter_error": "diff block 3 SEARCH matched ambiguously",
+      "codex_returncode": 0,
+      "preflight_error": null,
+      "protected_changed": false
+    },
+    "valid": false
+  },
+  "evaluator_calls_cumulative": 30,
+  "evaluator_calls_increment": 0,
+  "evaluator_seconds_cumulative": 3409.739264004398,
+  "evaluator_seconds_increment": 0.0,
+  "event": "proposal_completed",
+  "evicted_candidate_id": null,
+  "evidence": "The plain 64-unit model reached 84.54%, missing the threshold by only 0.46 points, while the 65-unit model reached 86.50%; adding a complementary extrema statistic costs only one additional 64-by-8 classifier slice and may recover the small accuracy deficit without restoring the substantially larger recurrent matrix.",
+  "hypothesis": "A 64-unit GRU augmented with a running-minimum summary will recover validation accuracy to at least 85% while retaining approximately 2.6% fewer dense inference MACs than the verified 65-unit model.",
+  "incumbent_after": "0f17fffb3663d52d33d8319e450601486ab8f6b86fc4e190fc1b881f64801c73",
+  "intended_edit": "Reduce the GRU to 64 units and expand its temporal readout from mean/final/maximum to mean/final/maximum/minimum, producing a 256-feature classifier input while preserving all 32 causal steps and the training procedure.",
+  "mechanism": "Complementary minimum-statistic temporal readout",
+  "opportunity": 31,
+  "parent_ids": [
+    "0f17fffb3663d52d33d8319e450601486ab8f6b86fc4e190fc1b881f64801c73"
+  ],
+  "portfolio_after": [
+    "0f17fffb3663d52d33d8319e450601486ab8f6b86fc4e190fc1b881f64801c73"
+  ],
+  "prompt_hashes": {
+    "common_template_sha256": "dee04faf4c430276c1036ba97f5705a339857dbdf19117dac88952a5a3a47e9d",
+    "prompt_sha256": "f629c1c336ad7159ec1edbba50d740048159c207f6d9a759265ceabf984425fa",
+    "proposal_policy_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "search_state_sha256": "04e5eb078ae1964e4ec65bfeeeb1acd0ffa246e7d54d5e0f997f81f602da28c5",
+    "treatment_skeleton_sha256": "b1f9704a1ff5b3d7cc19f6daba52d034e7740c59c366b438958bbd6473cdab2f"
+  },
+  "proposal_type": "ordinary",
+  "proposals_cumulative": 31,
+  "remaining_budget": {
+    "evaluations": 170,
+    "evaluator_seconds": 56590.2607359956,
+    "proposals": 169,
+    "tokens": 99358471
+  },
+  "retained": false,
+  "retention_decision": "invalid",
+  "run_id": "tiny-kws-rnn-openevolve-v2-1-cpu-tiny_kws_rnn_source_only_cpu-openevolve-b04-c0",
+  "schema_version": "1.0",
+  "selected_parent_ids": [
+    "0f17fffb3663d52d33d8319e450601486ab8f6b86fc4e190fc1b881f64801c73"
+  ],
+  "timestamp": "2026-09-04T04:06:19.283385+00:00",
+  "usage_cumulative": {
+    "cached_input_tokens": 322560,
+    "input_tokens": 603082,
+    "output_tokens": 38447,
+    "reasoning_output_tokens": 25270,
+    "total_tokens": 641529
+  },
+  "usage_increment": {
+    "cached_input_tokens": 10752,
+    "input_tokens": 20452,
+    "output_tokens": 2095,
+    "reasoning_output_tokens": 921,
+    "total_tokens": 22547
+  },
+  "visible_candidate_ids": [
+    "0f17fffb3663d52d33d8319e450601486ab8f6b86fc4e190fc1b881f64801c73"
+  ]
+}

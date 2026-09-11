@@ -1,0 +1,85 @@
+{
+  "artifact_path": "candidates/ffe03c8f6b0ab51dca8073f052a1bd9e177e8f281fe1c4879739436d088017c5",
+  "candidate_id": "ffe03c8f6b0ab51dca8073f052a1bd9e177e8f281fe1c4879739436d088017c5",
+  "codex_service_tier": "default",
+  "condition": "C3",
+  "conversation_session_id": null,
+  "evaluation": {
+    "evaluator_calls": 1,
+    "evaluator_seconds": 663.9586025420576,
+    "failure_kind": null,
+    "fitness": -1319.0,
+    "metrics": {
+      "accuracy": 0.9952,
+      "cases": 10010,
+      "correct": 9962,
+      "parameters": 1319,
+      "training_steps": 4999
+    },
+    "valid": true
+  },
+  "evaluator_calls_cumulative": 68,
+  "evaluator_calls_increment": 1,
+  "evaluator_seconds_cumulative": 31464.5322737135,
+  "evaluator_seconds_increment": 663.9586025420576,
+  "event": "proposal_completed",
+  "evicted_candidate_id": "1843922a099944a9e06bcaf19945030b28b444f10ae5af2e31524bc0d81a738b",
+  "evidence": "The affine-without-bias design achieved 99.66% at 1,320 parameters, whereas removing all eight remaining `ln1` scales collapsed to 42.51%; a one-coordinate quotient directly tests whether seven adaptive scales suffice without repeating the destructive all-at-once reduction.",
+  "hypothesis": "Starting from the verified 1,320-parameter design, fixing one `ln1` scale coordinate at one will produce 1,319 parameters and retain at least 99% accuracy, because the learned value projection can absorb that channel scale while the other seven adaptive scales preserve the optimization flexibility lost by the failed fully non-affine design.",
+  "incumbent_after": "ffe03c8f6b0ab51dca8073f052a1bd9e177e8f281fe1c4879739436d088017c5",
+  "intended_edit": "Adopt the verified global embedding, complete attention/MLP projection, and `ln1`-bias gauges, then quotient only the final `ln1` scale coordinate while preserving full-shape initialization and gauge-aware optimization elsewhere.",
+  "mechanism": "Single-coordinate pre-attention LayerNorm-scale quotient",
+  "opportunity": 68,
+  "parent_ids": [
+    "1843922a099944a9e06bcaf19945030b28b444f10ae5af2e31524bc0d81a738b"
+  ],
+  "portfolio_after": [
+    "ffe03c8f6b0ab51dca8073f052a1bd9e177e8f281fe1c4879739436d088017c5",
+    "0fe85499f5b0d8962ea5daa4890f3f94e035e469d7eef28986198e12049985f4",
+    "14c754600f0d3a258f341cd76967f79700e079718fbe852c7146355fc95056e7",
+    "a44d3c1f5457c0ffeb6e00188b4be5a2207efa1ac86c185e0efa0c1cd6ea12ac"
+  ],
+  "prompt_hashes": {
+    "common_template_sha256": "3f2bea6418b6969c4bf2aa1df18dcda8a3a4ac075bf20c79068c754698b6be5e",
+    "prompt_sha256": "cb1605b94aa98865a89271c641372afd765474d1311c8edc997d9cdb1ce76360",
+    "proposal_policy_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "search_state_sha256": "c938ac007bf70fe8d27f64661175531e51fcb16b38318c328493c32ee292e27e",
+    "treatment_skeleton_sha256": "f343e05acef7bf0fcf4dc195d93b384cd33830b408a63d7a9934bb28281473b9"
+  },
+  "proposal_type": "ordinary",
+  "proposals_cumulative": 68,
+  "remaining_budget": {
+    "evaluations": 132,
+    "evaluator_seconds": 328535.4677262865,
+    "proposals": 132,
+    "tokens": 96781786
+  },
+  "retained": true,
+  "retention_decision": "replaced_selected_parent_on_strict_improvement",
+  "run_id": "controlled-openevolve-transformer-v2-1-source-only-ten-digit-addition-pair-transformer-openevolve-v2-1-mps-openevolve-b05-c3",
+  "schema_version": "1.0",
+  "selected_parent_ids": [
+    "1843922a099944a9e06bcaf19945030b28b444f10ae5af2e31524bc0d81a738b"
+  ],
+  "timestamp": "2026-08-24T23:48:11.942713+00:00",
+  "usage_cumulative": {
+    "cached_input_tokens": 734976,
+    "input_tokens": 2768614,
+    "output_tokens": 449600,
+    "reasoning_output_tokens": 312895,
+    "total_tokens": 3218214
+  },
+  "usage_increment": {
+    "cached_input_tokens": 12032,
+    "input_tokens": 57324,
+    "output_tokens": 9061,
+    "reasoning_output_tokens": 5696,
+    "total_tokens": 66385
+  },
+  "visible_candidate_ids": [
+    "1843922a099944a9e06bcaf19945030b28b444f10ae5af2e31524bc0d81a738b",
+    "0fe85499f5b0d8962ea5daa4890f3f94e035e469d7eef28986198e12049985f4",
+    "14c754600f0d3a258f341cd76967f79700e079718fbe852c7146355fc95056e7",
+    "a44d3c1f5457c0ffeb6e00188b4be5a2207efa1ac86c185e0efa0c1cd6ea12ac"
+  ]
+}

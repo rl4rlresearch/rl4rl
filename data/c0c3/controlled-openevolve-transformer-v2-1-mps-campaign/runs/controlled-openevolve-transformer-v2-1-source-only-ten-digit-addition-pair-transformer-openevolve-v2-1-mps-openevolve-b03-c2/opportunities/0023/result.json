@@ -1,0 +1,85 @@
+{
+  "artifact_path": "candidates/f973b1e6ca452355d875233f3c5e518dcd0cc8e197d3ed6c6dee53242839a91d",
+  "candidate_id": "f973b1e6ca452355d875233f3c5e518dcd0cc8e197d3ed6c6dee53242839a91d",
+  "codex_service_tier": "fast",
+  "condition": "C2",
+  "conversation_session_id": null,
+  "evaluation": {
+    "evaluator_calls": 1,
+    "evaluator_seconds": 416.6199527910212,
+    "failure_kind": null,
+    "fitness": -1595.0,
+    "metrics": {
+      "accuracy": 0.9942,
+      "cases": 10010,
+      "correct": 9952,
+      "parameters": 1595,
+      "training_steps": 4999
+    },
+    "valid": true
+  },
+  "evaluator_calls_cumulative": 23,
+  "evaluator_calls_increment": 1,
+  "evaluator_seconds_cumulative": 7345.997020539944,
+  "evaluator_seconds_increment": 416.6199527910212,
+  "event": "proposal_completed",
+  "evicted_candidate_id": "9f21ae10a0da03e42318e160682de417e267e6db24d269624290a59264d32583",
+  "evidence": "The current 1611-parameter quotient design achieved 99.51% accuracy, and prior successful reductions show that exact redundant degrees can be removed while retaining accuracy. LayerNorm biases initialize to zero, while `qkv` and `fc1` already provide the downstream offsets needed to absorb them.",
+  "hypothesis": "Removing both block LayerNorm bias vectors will produce a 1595-parameter model with at least 99% accuracy, because their affine offsets can be represented by the existing QKV and `fc1` biases without reducing the learned model\u2019s function class.",
+  "incumbent_after": "f973b1e6ca452355d875233f3c5e518dcd0cc8e197d3ed6c6dee53242839a91d",
+  "intended_edit": "Disable the eight-parameter bias in `ln1` and `ln2` while retaining their learned scale parameters and all downstream projection biases.",
+  "mechanism": "Downstream projection-bias absorption of pre-LayerNorm offsets",
+  "opportunity": 23,
+  "parent_ids": [
+    "9f21ae10a0da03e42318e160682de417e267e6db24d269624290a59264d32583"
+  ],
+  "portfolio_after": [
+    "2b9cea175ed60b009337ac54f6e8ad23bf2c014eb4080237777bfb70bfd9fd5b",
+    "e329e9dfdf305095e0617df9fa545eb5a3b29bffe8e6c0a0179bdc624d7a8cec",
+    "7da01520388f0494cd4a53767710dba3e00298ddfb548901e18bdb3833fd2b45",
+    "f973b1e6ca452355d875233f3c5e518dcd0cc8e197d3ed6c6dee53242839a91d"
+  ],
+  "prompt_hashes": {
+    "common_template_sha256": "3f2bea6418b6969c4bf2aa1df18dcda8a3a4ac075bf20c79068c754698b6be5e",
+    "prompt_sha256": "a24ddc757711692a518cb6b62e69c782da667d76048f77c533b03901d0cef77b",
+    "proposal_policy_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "search_state_sha256": "c938ac007bf70fe8d27f64661175531e51fcb16b38318c328493c32ee292e27e",
+    "treatment_skeleton_sha256": "94df079e5209a864baf7e609449a02bf26b0c1d18a3a668e90832ccaadf4103c"
+  },
+  "proposal_type": "ordinary",
+  "proposals_cumulative": 23,
+  "remaining_budget": {
+    "evaluations": 177,
+    "evaluator_seconds": 352654.00297946006,
+    "proposals": 177,
+    "tokens": 99246151
+  },
+  "retained": true,
+  "retention_decision": "replaced_selected_parent_on_strict_improvement",
+  "run_id": "controlled-openevolve-transformer-v2-1-source-only-ten-digit-addition-pair-transformer-openevolve-v2-1-mps-openevolve-b03-c2",
+  "schema_version": "1.0",
+  "selected_parent_ids": [
+    "9f21ae10a0da03e42318e160682de417e267e6db24d269624290a59264d32583"
+  ],
+  "timestamp": "2026-08-23T19:16:34.375783+00:00",
+  "usage_cumulative": {
+    "cached_input_tokens": 254208,
+    "input_tokens": 661601,
+    "output_tokens": 92248,
+    "reasoning_output_tokens": 78148,
+    "total_tokens": 753849
+  },
+  "usage_increment": {
+    "cached_input_tokens": 12032,
+    "input_tokens": 36423,
+    "output_tokens": 11640,
+    "reasoning_output_tokens": 11302,
+    "total_tokens": 48063
+  },
+  "visible_candidate_ids": [
+    "2b9cea175ed60b009337ac54f6e8ad23bf2c014eb4080237777bfb70bfd9fd5b",
+    "e329e9dfdf305095e0617df9fa545eb5a3b29bffe8e6c0a0179bdc624d7a8cec",
+    "7da01520388f0494cd4a53767710dba3e00298ddfb548901e18bdb3833fd2b45",
+    "9f21ae10a0da03e42318e160682de417e267e6db24d269624290a59264d32583"
+  ]
+}

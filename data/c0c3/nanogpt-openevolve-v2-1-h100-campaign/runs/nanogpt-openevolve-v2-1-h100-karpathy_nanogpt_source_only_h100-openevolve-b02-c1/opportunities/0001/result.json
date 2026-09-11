@@ -1,0 +1,82 @@
+{
+  "artifact_path": "candidates/d782436a561ad334e3aba0c85360805d596057dc0d640603b41eb66c38462b40",
+  "candidate_id": "d782436a561ad334e3aba0c85360805d596057dc0d640603b41eb66c38462b40",
+  "codex_service_tier": "fast",
+  "condition": "C1",
+  "conversation_session_id": null,
+  "evaluation": {
+    "evaluator_calls": 1,
+    "evaluator_seconds": 360.41086048399984,
+    "failure_kind": null,
+    "fitness": -1.001602,
+    "metrics": {
+      "depth": 8.0,
+      "mfu_percent": 33.0,
+      "num_params_M": 50.3,
+      "num_steps": 1053.0,
+      "peak_vram_mb": 67120.7,
+      "total_tokens_M": 414.1,
+      "training_seconds": 300.2,
+      "val_bpb": 1.001602
+    },
+    "valid": true
+  },
+  "evaluator_calls_cumulative": 1,
+  "evaluator_calls_increment": 1,
+  "evaluator_seconds_cumulative": 360.41086048399984,
+  "evaluator_seconds_increment": 360.41086048399984,
+  "event": "proposal_completed",
+  "evicted_candidate_id": null,
+  "evidence": "The starting design reaches val_bpb 0.995558 with 948 steps and only 45,060 MB peak VRAM; this leaves enough H100 memory to trade two 128-sequence microbatches for one 192-sequence microbatch and obtain more optimization steps.",
+  "hypothesis": "Using spare H100 memory to eliminate gradient accumulation while reducing the global batch by 25% will preserve token throughput, increase optimizer updates by roughly 33%, and lower val_bpb below 0.995558.",
+  "incumbent_after": "2865e528e18dc51191e4037eaeb5824cb0ea83ede79061b59b8f3caac686da6b",
+  "intended_edit": "Raise the device batch to 192, set the global batch to 393,216 tokens, scale learning rates by 0.75 to preserve the token-normalized update budget, and extend the Muon momentum ramp to the same token horizon.",
+  "mechanism": "Single-microbatch, higher-update-frequency training",
+  "opportunity": 1,
+  "parent_ids": [
+    "2865e528e18dc51191e4037eaeb5824cb0ea83ede79061b59b8f3caac686da6b"
+  ],
+  "portfolio_after": [
+    "2865e528e18dc51191e4037eaeb5824cb0ea83ede79061b59b8f3caac686da6b"
+  ],
+  "prompt_hashes": {
+    "common_template_sha256": "ba85b39aa7288f4f48475376da6cff65661f39cfeb7ac7cde15b2a9a2e692fde",
+    "prompt_sha256": "5177ff128e5b681f3e3c3258ece9fbb639dff8246e9fb22675fa4272992386ed",
+    "proposal_policy_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "search_state_sha256": "04e5eb078ae1964e4ec65bfeeeb1acd0ffa246e7d54d5e0f997f81f602da28c5",
+    "treatment_skeleton_sha256": "8215902ee679cd7fd58b3199550368f22042f7835786db29fcdf63e19f51d9ba"
+  },
+  "proposal_type": "ordinary",
+  "proposals_cumulative": 1,
+  "remaining_budget": {
+    "evaluations": 199,
+    "evaluator_seconds": 719639.589139516,
+    "proposals": 199,
+    "tokens": 99973015
+  },
+  "retained": false,
+  "retention_decision": "not_strictly_better_than_incumbent",
+  "run_id": "nanogpt-openevolve-v2-1-h100-karpathy_nanogpt_source_only_h100-openevolve-b02-c1",
+  "schema_version": "1.0",
+  "selected_parent_ids": [
+    "2865e528e18dc51191e4037eaeb5824cb0ea83ede79061b59b8f3caac686da6b"
+  ],
+  "timestamp": "2026-08-23T11:55:27.673481+00:00",
+  "usage_cumulative": {
+    "cached_input_tokens": 12032,
+    "input_tokens": 21828,
+    "output_tokens": 5157,
+    "reasoning_output_tokens": 4660,
+    "total_tokens": 26985
+  },
+  "usage_increment": {
+    "cached_input_tokens": 12032,
+    "input_tokens": 21828,
+    "output_tokens": 5157,
+    "reasoning_output_tokens": 4660,
+    "total_tokens": 26985
+  },
+  "visible_candidate_ids": [
+    "2865e528e18dc51191e4037eaeb5824cb0ea83ede79061b59b8f3caac686da6b"
+  ]
+}

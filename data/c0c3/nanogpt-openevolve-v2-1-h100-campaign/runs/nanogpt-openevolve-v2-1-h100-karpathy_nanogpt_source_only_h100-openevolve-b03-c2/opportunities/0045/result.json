@@ -1,0 +1,88 @@
+{
+  "artifact_path": "candidates/1c980f500840d42338a75e64ee860e09633d38efd710b6fb45fa414e5aee27e0",
+  "candidate_id": "1c980f500840d42338a75e64ee860e09633d38efd710b6fb45fa414e5aee27e0",
+  "codex_service_tier": "default",
+  "condition": "C2",
+  "conversation_session_id": null,
+  "evaluation": {
+    "evaluator_calls": 1,
+    "evaluator_seconds": 362.9811391129988,
+    "failure_kind": null,
+    "fitness": -0.98362,
+    "metrics": {
+      "depth": 8.0,
+      "mfu_percent": 36.73,
+      "num_params_M": 50.3,
+      "num_steps": 1941.0,
+      "peak_vram_mb": 44908.2,
+      "total_tokens_M": 508.8,
+      "training_seconds": 300.1,
+      "val_bpb": 0.98362
+    },
+    "valid": true
+  },
+  "evaluator_calls_cumulative": 45,
+  "evaluator_calls_increment": 1,
+  "evaluator_seconds_cumulative": 15577.148932222974,
+  "evaluator_seconds_increment": 362.9811391129988,
+  "event": "proposal_completed",
+  "evicted_candidate_id": null,
+  "evidence": "Uniform 384-token attention achieved 0.983618, while the opposite compute-neutral split\u2014256 tokens early and 512 late\u2014regressed to 0.984213; reversing that allocation directly tests whether local context is more valuable before the verified intermediate global-attention layer.",
+  "hypothesis": "Using 512-token local attention before the intermediate full-context layer and 256-token local attention afterward will reduce `val_bpb` below 0.983618 by preserving broader token interactions during early feature construction while using cheaper late refinement.",
+  "incumbent_after": "68e4c0a093d8469cbb6dbc35418542522419bf7bea6f8075ef469190949e1a93",
+  "intended_edit": "Replace uniform 384-token short attention with a compute-neutral 512/256-token stagewise split, retaining full context at layers 4 and 8 and all optimizer settings.",
+  "mechanism": "Front-loaded local context allocation",
+  "opportunity": 45,
+  "parent_ids": [
+    "68e4c0a093d8469cbb6dbc35418542522419bf7bea6f8075ef469190949e1a93"
+  ],
+  "portfolio_after": [
+    "68e4c0a093d8469cbb6dbc35418542522419bf7bea6f8075ef469190949e1a93",
+    "84dda2c03881ec4256d09602022fcf3a777d586f97a22d02a405fdea93d7f096",
+    "903eb902e4af9012416a318e30198ac4964cc9719e148b94823dd853653ca8d0",
+    "9ee58ae85f4632d6308bfd3a0587b6b89c9874509338ea355d4772c8d457d231"
+  ],
+  "prompt_hashes": {
+    "common_template_sha256": "ba85b39aa7288f4f48475376da6cff65661f39cfeb7ac7cde15b2a9a2e692fde",
+    "prompt_sha256": "b72fbda4c075c2148f7352cfb4cea70e6013671a84bcd87b05e04d7a5fe01959",
+    "proposal_policy_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "search_state_sha256": "c938ac007bf70fe8d27f64661175531e51fcb16b38318c328493c32ee292e27e",
+    "treatment_skeleton_sha256": "816588415b461f3ccadf7ac3d1834326770b39327e92202e850b31b28b985529"
+  },
+  "proposal_type": "ordinary",
+  "proposals_cumulative": 45,
+  "remaining_budget": {
+    "evaluations": 155,
+    "evaluator_seconds": 704422.851067777,
+    "proposals": 155,
+    "tokens": 97845823
+  },
+  "retained": false,
+  "retention_decision": "not_strictly_better_than_selected_parent",
+  "run_id": "nanogpt-openevolve-v2-1-h100-karpathy_nanogpt_source_only_h100-openevolve-b03-c2",
+  "schema_version": "1.0",
+  "selected_parent_ids": [
+    "68e4c0a093d8469cbb6dbc35418542522419bf7bea6f8075ef469190949e1a93"
+  ],
+  "timestamp": "2026-08-24T09:12:03.085320+00:00",
+  "usage_cumulative": {
+    "cached_input_tokens": 505856,
+    "input_tokens": 2056616,
+    "output_tokens": 97561,
+    "reasoning_output_tokens": 79328,
+    "total_tokens": 2154177
+  },
+  "usage_increment": {
+    "cached_input_tokens": 6912,
+    "input_tokens": 47368,
+    "output_tokens": 966,
+    "reasoning_output_tokens": 516,
+    "total_tokens": 48334
+  },
+  "visible_candidate_ids": [
+    "68e4c0a093d8469cbb6dbc35418542522419bf7bea6f8075ef469190949e1a93",
+    "84dda2c03881ec4256d09602022fcf3a777d586f97a22d02a405fdea93d7f096",
+    "903eb902e4af9012416a318e30198ac4964cc9719e148b94823dd853653ca8d0",
+    "9ee58ae85f4632d6308bfd3a0587b6b89c9874509338ea355d4772c8d457d231"
+  ]
+}

@@ -1,0 +1,79 @@
+{
+  "artifact_path": "candidates/5e58dd849e4981bb22a28ed1a331e6f26cab37cf5b653d8158fcc23eb1072bd8",
+  "candidate_id": "5e58dd849e4981bb22a28ed1a331e6f26cab37cf5b653d8158fcc23eb1072bd8",
+  "codex_service_tier": "default",
+  "condition": "C0",
+  "conversation_session_id": null,
+  "evaluation": {
+    "evaluator_calls": 1,
+    "evaluator_seconds": 313.0955814579502,
+    "failure_kind": null,
+    "fitness": -1565.0,
+    "metrics": {
+      "accuracy": 0.9987999999999999,
+      "cases": 10010,
+      "correct": 9998,
+      "parameters": 1565,
+      "training_steps": 4999
+    },
+    "valid": true
+  },
+  "evaluator_calls_cumulative": 122,
+  "evaluator_calls_increment": 1,
+  "evaluator_seconds_cumulative": 49862.563192332746,
+  "evaluator_seconds_increment": 313.0955814579502,
+  "event": "proposal_completed",
+  "evicted_candidate_id": "5f7b883d536bc481e215a42cc911c3063054555f4bfdb05bb105e05983ef8b95",
+  "evidence": "The verified 1566-parameter model reaches 99.87% accuracy while using the identical stable `qkv.weight[0,4]=0.02` pivot to eliminate `[2,4]`; this tests another exact within-head attention gauge instead of the output-projection and shared-bias anchors that failed at 1565 parameters.",
+  "hypothesis": "Fixing `qkv.weight[1,4]` through the same exact row-0-pivot shear already used for `[2,4]` will reduce the model to 1565 parameters while retaining at least 99% accuracy.",
+  "incumbent_after": "5e58dd849e4981bb22a28ed1a331e6f26cab37cf5b653d8158fcc23eb1072bd8",
+  "intended_edit": "Store 178 learned QKV weights, reconstruct `qkv.weight[1,4]` as zero, and canonicalize initialization with the compensating key-row shear.",
+  "mechanism": "Stable-pivot query/key reciprocal shear",
+  "opportunity": 131,
+  "parent_ids": [
+    "5f7b883d536bc481e215a42cc911c3063054555f4bfdb05bb105e05983ef8b95"
+  ],
+  "portfolio_after": [
+    "5e58dd849e4981bb22a28ed1a331e6f26cab37cf5b653d8158fcc23eb1072bd8"
+  ],
+  "prompt_hashes": {
+    "common_template_sha256": "3f2bea6418b6969c4bf2aa1df18dcda8a3a4ac075bf20c79068c754698b6be5e",
+    "prompt_sha256": "2b9c1d6b56310a8774b413a9bec1012c0e314893bb4c43fbe0680d0116e96213",
+    "proposal_policy_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "search_state_sha256": "04e5eb078ae1964e4ec65bfeeeb1acd0ffa246e7d54d5e0f997f81f602da28c5",
+    "treatment_skeleton_sha256": "3f1912d3f5fc2cab97fcc240a835b4241cfaf9b00230a9441006ebc85eca9f4e"
+  },
+  "proposal_type": "ordinary",
+  "proposals_cumulative": 131,
+  "remaining_budget": {
+    "evaluations": 78,
+    "evaluator_seconds": 310137.43680766725,
+    "proposals": 69,
+    "tokens": 96865181
+  },
+  "retained": true,
+  "retention_decision": "strict_incumbent_improvement",
+  "run_id": "controlled-openevolve-transformer-v2-1-source-only-ten-digit-addition-pair-transformer-openevolve-v2-1-mps-openevolve-b04-c0",
+  "schema_version": "1.0",
+  "selected_parent_ids": [
+    "5f7b883d536bc481e215a42cc911c3063054555f4bfdb05bb105e05983ef8b95"
+  ],
+  "timestamp": "2026-09-03T14:09:56.805723+00:00",
+  "usage_cumulative": {
+    "cached_input_tokens": 1219584,
+    "input_tokens": 2795514,
+    "output_tokens": 339305,
+    "reasoning_output_tokens": 264186,
+    "total_tokens": 3134819
+  },
+  "usage_increment": {
+    "cached_input_tokens": 10752,
+    "input_tokens": 23448,
+    "output_tokens": 6304,
+    "reasoning_output_tokens": 5178,
+    "total_tokens": 29752
+  },
+  "visible_candidate_ids": [
+    "5f7b883d536bc481e215a42cc911c3063054555f4bfdb05bb105e05983ef8b95"
+  ]
+}

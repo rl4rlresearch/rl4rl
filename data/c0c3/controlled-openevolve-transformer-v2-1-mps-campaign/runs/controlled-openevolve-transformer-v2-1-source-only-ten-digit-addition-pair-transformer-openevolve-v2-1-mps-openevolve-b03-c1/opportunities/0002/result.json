@@ -1,0 +1,79 @@
+{
+  "artifact_path": "candidates/0c5739da9f29148e1e6269ddc9aed365a62c24fd7d53dc756ee0ead7226bed9b",
+  "candidate_id": "0c5739da9f29148e1e6269ddc9aed365a62c24fd7d53dc756ee0ead7226bed9b",
+  "codex_service_tier": "fast",
+  "condition": "C1",
+  "conversation_session_id": null,
+  "evaluation": {
+    "evaluator_calls": 1,
+    "evaluator_seconds": 196.0015100829769,
+    "failure_kind": "nonqualification",
+    "fitness": null,
+    "metrics": {
+      "accuracy": 0.9593,
+      "cases": 10010,
+      "correct": 9603,
+      "parameters": 1636,
+      "training_steps": 4999
+    },
+    "valid": false
+  },
+  "evaluator_calls_cumulative": 2,
+  "evaluator_calls_increment": 1,
+  "evaluator_seconds_cumulative": 410.18185920792166,
+  "evaluator_seconds_increment": 196.0015100829769,
+  "event": "proposal_completed",
+  "evicted_candidate_id": null,
+  "evidence": "The 1,644-parameter d_ff=12 model achieved 99.96% accuracy, whereas narrowing d_ff to 8 reduced accuracy to 71%; this motivates preserving feed-forward capacity and removing a mathematically redundant attention parameter instead.",
+  "hypothesis": "Removing only the key-projection bias will reduce parameters from 1,644 to 1,636 while retaining at least 99% accuracy because a position-independent key bias adds the same constant to every unmasked attention score and therefore cannot change softmax attention weights.",
+  "incumbent_after": "2b9cea175ed60b009337ac54f6e8ad23bf2c014eb4080237777bfb70bfd9fd5b",
+  "intended_edit": "Replace the combined QKV bias with learned query and value biases, preserving the full d_ff=12 architecture while eliminating the redundant eight-parameter key bias.",
+  "mechanism": "Remove softmax-invariant key bias",
+  "opportunity": 2,
+  "parent_ids": [
+    "2b9cea175ed60b009337ac54f6e8ad23bf2c014eb4080237777bfb70bfd9fd5b"
+  ],
+  "portfolio_after": [
+    "2b9cea175ed60b009337ac54f6e8ad23bf2c014eb4080237777bfb70bfd9fd5b"
+  ],
+  "prompt_hashes": {
+    "common_template_sha256": "3f2bea6418b6969c4bf2aa1df18dcda8a3a4ac075bf20c79068c754698b6be5e",
+    "prompt_sha256": "c7fb78533efba1e13ca19e94c423b68e7d8a35a5d88c94add6a1ee5f1dc542fb",
+    "proposal_policy_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "search_state_sha256": "04e5eb078ae1964e4ec65bfeeeb1acd0ffa246e7d54d5e0f997f81f602da28c5",
+    "treatment_skeleton_sha256": "a6f42b7112d67f78a5fcdb26db98e0c0adb338c959b04023b72f4a924e1e3905"
+  },
+  "proposal_type": "ordinary",
+  "proposals_cumulative": 2,
+  "remaining_budget": {
+    "evaluations": 198,
+    "evaluator_seconds": 359589.8181407921,
+    "proposals": 198,
+    "tokens": 99959248
+  },
+  "retained": false,
+  "retention_decision": "invalid",
+  "run_id": "controlled-openevolve-transformer-v2-1-source-only-ten-digit-addition-pair-transformer-openevolve-v2-1-mps-openevolve-b03-c1",
+  "schema_version": "1.0",
+  "selected_parent_ids": [
+    "2b9cea175ed60b009337ac54f6e8ad23bf2c014eb4080237777bfb70bfd9fd5b"
+  ],
+  "timestamp": "2026-08-23T09:45:18.245408+00:00",
+  "usage_cumulative": {
+    "cached_input_tokens": 24064,
+    "input_tokens": 37424,
+    "output_tokens": 3328,
+    "reasoning_output_tokens": 2790,
+    "total_tokens": 40752
+  },
+  "usage_increment": {
+    "cached_input_tokens": 12032,
+    "input_tokens": 18786,
+    "output_tokens": 1855,
+    "reasoning_output_tokens": 1485,
+    "total_tokens": 20641
+  },
+  "visible_candidate_ids": [
+    "2b9cea175ed60b009337ac54f6e8ad23bf2c014eb4080237777bfb70bfd9fd5b"
+  ]
+}

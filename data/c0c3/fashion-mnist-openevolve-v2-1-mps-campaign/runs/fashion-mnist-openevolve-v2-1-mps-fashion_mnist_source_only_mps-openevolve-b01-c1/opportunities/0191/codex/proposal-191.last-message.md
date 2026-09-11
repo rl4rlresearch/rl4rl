@@ -1,0 +1,17 @@
+MECHANISM: Prediction-safe agreement-stratified blend continuation
+
+HYPOTHESIS: Raising the geometric component from 10% to 11% only when the arithmetic and geometric predictors agree will retain exactly 9,267 correct predictions while lowering validation cross-entropy below 0.2154026180267334.
+
+INTENDED_EDIT: Increase the agreement-only geometric-logit weight to 11%, while preserving the verified 9.832581520080566% blend on disagreement examples.
+
+EVIDENCE: Moving agreement examples from the baseline blend to 10% geometric retained 9,267 correct and reduced cross-entropy from 0.21540798034667968 to 0.2154026180267334; because both endpoint predictors have the same argmax on these examples, further convex interpolation cannot change their predicted class.
+
+<<<<<<< SEARCH
+        agreement_logits = (
+            0.9 * arithmetic_logits + 0.1 * geometric_logits
+        )
+=======
+        agreement_logits = (
+            0.89 * arithmetic_logits + 0.11 * geometric_logits
+        )
+>>>>>>> REPLACE

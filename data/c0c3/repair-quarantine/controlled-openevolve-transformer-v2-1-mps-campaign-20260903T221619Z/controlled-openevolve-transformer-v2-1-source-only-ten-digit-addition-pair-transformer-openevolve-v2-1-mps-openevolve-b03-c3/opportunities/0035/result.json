@@ -1,0 +1,85 @@
+{
+  "artifact_path": "candidates/d04555510b37b64a9830fd92d373493ddd090fdedf89c88a79c398a21614bc52",
+  "candidate_id": "d04555510b37b64a9830fd92d373493ddd090fdedf89c88a79c398a21614bc52",
+  "codex_service_tier": "default",
+  "condition": "C3",
+  "conversation_session_id": null,
+  "evaluation": {
+    "evaluator_calls": 1,
+    "evaluator_seconds": 745.3014744590037,
+    "failure_kind": null,
+    "fitness": -1542.0,
+    "metrics": {
+      "accuracy": 0.9991,
+      "cases": 10010,
+      "correct": 10001,
+      "parameters": 1542,
+      "training_steps": 4999
+    },
+    "valid": true
+  },
+  "evaluator_calls_cumulative": 35,
+  "evaluator_calls_increment": 1,
+  "evaluator_seconds_cumulative": 14522.572341002058,
+  "evaluator_seconds_increment": 745.3014744590037,
+  "event": "proposal_completed",
+  "evicted_candidate_id": "a9399efe4603c9cc60d1d9826afc296152eedc6b447293307bd9bdab027b88ef",
+  "evidence": "The current bias-free-value shared-key/value model achieves 99.85% at 1,550 parameters. Unlike the failed removal of `ln2` scales, this removes a zero-initialized affine offset whose three downstream effects already have exact absorption or invariance mechanisms, making it a controlled test at 1,542 parameters.",
+  "hypothesis": "Making `ln1` bias-free will reduce the model from 1,550 to 1,542 parameters while retaining at least 99% accuracy, because its query offset is representable by the retained learned query bias, its key offset cancels under softmax, and its position-independent value offset is representable by the attention output bias.",
+  "incumbent_after": "d04555510b37b64a9830fd92d373493ddd090fdedf89c88a79c398a21614bc52",
+  "intended_edit": "Disable only the eight-dimensional bias of the first pre-attention LayerNorm while preserving its learned scale and all existing attention, MLP, and gauge parameters.",
+  "mechanism": "Redundant first pre-norm offset removal",
+  "opportunity": 35,
+  "parent_ids": [
+    "a9399efe4603c9cc60d1d9826afc296152eedc6b447293307bd9bdab027b88ef"
+  ],
+  "portfolio_after": [
+    "2b9cea175ed60b009337ac54f6e8ad23bf2c014eb4080237777bfb70bfd9fd5b",
+    "b4a21570cab95320208e1ad0c75ead10cad3a2f08b2749f6f3b2eecabdb7f3a7",
+    "d04555510b37b64a9830fd92d373493ddd090fdedf89c88a79c398a21614bc52",
+    "f710a90b7fe51188fcfc3a07580a92dbe6c6b26a4147c943a5d702729241fe10"
+  ],
+  "prompt_hashes": {
+    "common_template_sha256": "3f2bea6418b6969c4bf2aa1df18dcda8a3a4ac075bf20c79068c754698b6be5e",
+    "prompt_sha256": "98ec3780f17ca1eed2d51590fd7a2aa9c330c384ad546ce3316ebd70d713c75c",
+    "proposal_policy_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "search_state_sha256": "c938ac007bf70fe8d27f64661175531e51fcb16b38318c328493c32ee292e27e",
+    "treatment_skeleton_sha256": "3d4ca07e822d23528afeb914eeca0ffba2c6c0b5561d81d15a8b0ca1894f11a4"
+  },
+  "proposal_type": "ordinary",
+  "proposals_cumulative": 35,
+  "remaining_budget": {
+    "evaluations": 165,
+    "evaluator_seconds": 345477.42765899794,
+    "proposals": 165,
+    "tokens": 98729479
+  },
+  "retained": true,
+  "retention_decision": "replaced_selected_parent_on_strict_improvement",
+  "run_id": "controlled-openevolve-transformer-v2-1-source-only-ten-digit-addition-pair-transformer-openevolve-v2-1-mps-openevolve-b03-c3",
+  "schema_version": "1.0",
+  "selected_parent_ids": [
+    "a9399efe4603c9cc60d1d9826afc296152eedc6b447293307bd9bdab027b88ef"
+  ],
+  "timestamp": "2026-08-24T04:36:10.368150+00:00",
+  "usage_cumulative": {
+    "cached_input_tokens": 410880,
+    "input_tokens": 1113804,
+    "output_tokens": 156717,
+    "reasoning_output_tokens": 120352,
+    "total_tokens": 1270521
+  },
+  "usage_increment": {
+    "cached_input_tokens": 12032,
+    "input_tokens": 37808,
+    "output_tokens": 2814,
+    "reasoning_output_tokens": 2497,
+    "total_tokens": 40622
+  },
+  "visible_candidate_ids": [
+    "2b9cea175ed60b009337ac54f6e8ad23bf2c014eb4080237777bfb70bfd9fd5b",
+    "b4a21570cab95320208e1ad0c75ead10cad3a2f08b2749f6f3b2eecabdb7f3a7",
+    "a9399efe4603c9cc60d1d9826afc296152eedc6b447293307bd9bdab027b88ef",
+    "f710a90b7fe51188fcfc3a07580a92dbe6c6b26a4147c943a5d702729241fe10"
+  ]
+}

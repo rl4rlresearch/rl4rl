@@ -1,0 +1,1225 @@
+{
+  "active": null,
+  "candidates": {
+    "0157c6ea14f93dec9d28d3d42863ad2b7513f0182c0122e21fafa79e576e9499": {
+      "artifact_path": "candidates/0157c6ea14f93dec9d28d3d42863ad2b7513f0182c0122e21fafa79e576e9499",
+      "candidate_id": "0157c6ea14f93dec9d28d3d42863ad2b7513f0182c0122e21fafa79e576e9499",
+      "created_opportunity": 19,
+      "fitness": -0.992431,
+      "hypothesis": "Moving from 3.5\u00d7/4.5\u00d7 to 3\u00d7/5\u00d7 lower/upper MLPs while preserving average width, total parameters, and the best 50% linear warmdown will reduce val_bpb below 0.992809 without materially reducing throughput.",
+      "intended_edit": "Allocate 3\u00d7 MLP width to the lower four layers and 5\u00d7 width to the upper four layers, and restore the best verified 50% warmdown.",
+      "metrics": {
+        "depth": 8.0,
+        "mfu_percent": 36.96,
+        "num_params_M": 50.3,
+        "num_steps": 961.0,
+        "peak_vram_mb": 45066.2,
+        "total_tokens_M": 503.8,
+        "training_seconds": 300.2,
+        "val_bpb": 0.992431
+      },
+      "parent_ids": [
+        "2d771edf47265f31291fbb34e32f91548e44b43045421f48f01ac9a7b05d9d0f"
+      ],
+      "retained_order": 19,
+      "selected_count": 6
+    },
+    "026879a46f507b71b1aa8d8204b1dd56b35e3793037b20f533e2faa713ff3081": {
+      "artifact_path": "candidates/026879a46f507b71b1aa8d8204b1dd56b35e3793037b20f533e2faa713ff3081",
+      "candidate_id": "026879a46f507b71b1aa8d8204b1dd56b35e3793037b20f533e2faa713ff3081",
+      "created_opportunity": 28,
+      "fitness": -0.991682,
+      "hypothesis": "A 2.25\u00d7/2.75\u00d7 lower-half taper with uniform 5.5\u00d7 upper MLPs will preserve roughly 500M-token throughput and reduce val_bpb below 0.991736.",
+      "intended_edit": "Use 2.25\u00d7 MLPs in layers 0\u20131, 2.75\u00d7 in layers 2\u20133, and 5.5\u00d7 in layers 4\u20137, preserving total parameters and aggregate MLP compute.",
+      "metrics": {
+        "depth": 8.0,
+        "mfu_percent": 37.46,
+        "num_params_M": 50.3,
+        "num_steps": 974.0,
+        "peak_vram_mb": 45068.0,
+        "total_tokens_M": 510.7,
+        "training_seconds": 300.2,
+        "val_bpb": 0.991682
+      },
+      "parent_ids": [
+        "bd20b6e3c02d74bfe71ca34a052c7df11db764d5ddf401b3cb448b5d80031e65"
+      ],
+      "retained_order": 28,
+      "selected_count": 11
+    },
+    "0ab6e901fc43cc4576f310d0effe0a751b23c55ce5ee9f6be054f0f012264aa0": {
+      "artifact_path": "candidates/0ab6e901fc43cc4576f310d0effe0a751b23c55ce5ee9f6be054f0f012264aa0",
+      "candidate_id": "0ab6e901fc43cc4576f310d0effe0a751b23c55ce5ee9f6be054f0f012264aa0",
+      "created_opportunity": 10,
+      "fitness": -1.010413,
+      "hypothesis": "Replacing the positionwise-MLP assumption with a learned per-channel blend of current and previous-token states will improve local transition modeling, achieving val_bpb below 0.993287 while processing at least 480M tokens.",
+      "intended_edit": "Preserve the proven 512-token SSSL attention geometry, but give every MLP a learned causal one-token context path initialized to retain 88% of the current state; optimize its mixing vectors with AdamW.",
+      "metrics": {
+        "depth": 8.0,
+        "mfu_percent": 28.54,
+        "num_params_M": 50.3,
+        "num_steps": 744.0,
+        "peak_vram_mb": 47108.3,
+        "total_tokens_M": 390.1,
+        "training_seconds": 300.1,
+        "val_bpb": 1.010413
+      },
+      "parent_ids": [
+        "ee1f1cf686a479f175a9b2178602df52386a3561e80b0612b88ccd725e447c2e"
+      ],
+      "retained_order": 10,
+      "selected_count": 0
+    },
+    "0aee7ad500e9b02c5f212dd31be253e891306a8bc31452976f7d62b0b6b4c1bc": {
+      "artifact_path": "candidates/0aee7ad500e9b02c5f212dd31be253e891306a8bc31452976f7d62b0b6b4c1bc",
+      "candidate_id": "0aee7ad500e9b02c5f212dd31be253e891306a8bc31452976f7d62b0b6b4c1bc",
+      "created_opportunity": 52,
+      "fitness": -0.984321,
+      "hypothesis": "A 212,992-token batch with all peak learning rates scaled by 11/12 will process at least 490M tokens and reduce val_bpb below 0.983505.",
+      "intended_edit": "Preserve the best architecture, batch, and linear schedule while moving the coupled peak-rate scale from 33/35 to 11/12.",
+      "metrics": {
+        "depth": 8.0,
+        "mfu_percent": 36.64,
+        "num_params_M": 50.3,
+        "num_steps": 2330.0,
+        "peak_vram_mb": 36584.6,
+        "total_tokens_M": 496.3,
+        "training_seconds": 300.1,
+        "val_bpb": 0.984321
+      },
+      "parent_ids": [
+        "74f801e1f7709a6cdf60a3af16c962ddd12e27dc1761d5286d6c74fc082b600b"
+      ],
+      "retained_order": 52,
+      "selected_count": 0
+    },
+    "18b4ebcffa67416f5decbe2a50bb88ca93b314b431342f30c3b988e9dc47747c": {
+      "artifact_path": "candidates/18b4ebcffa67416f5decbe2a50bb88ca93b314b431342f30c3b988e9dc47747c",
+      "candidate_id": "18b4ebcffa67416f5decbe2a50bb88ca93b314b431342f30c3b988e9dc47747c",
+      "created_opportunity": 40,
+      "fitness": -0.989288,
+      "hypothesis": "On the proven 2.25\u00d7/2.75\u00d7/5.5\u00d7 taper and 262K-token optimizer batch, replacing four 128-dimensional attention heads with eight 64-dimensional heads will retain at least 480M training tokens and reduce val_bpb below 0.985237 by enabling more specialized contextual routing at essentially unchanged projection and attention FLOPs.",
+      "intended_edit": "Restore the best verified MLP taper and optimizer batch, then challenge the shared assumption that four wide heads are the best context representation by doubling head count while preserving model width, KV width, parameter scale, sequence length, and attention-window pattern.",
+      "metrics": {
+        "depth": 8.0,
+        "mfu_percent": 35.91,
+        "num_params_M": 50.3,
+        "num_steps": 1857.0,
+        "peak_vram_mb": 45013.6,
+        "total_tokens_M": 486.8,
+        "training_seconds": 300.0,
+        "val_bpb": 0.989288
+      },
+      "parent_ids": [
+        "ca3eec1a909d9a8ac242d8f3a78d71416773d03e9530d17e365d295fae65ace2"
+      ],
+      "retained_order": 40,
+      "selected_count": 11
+    },
+    "1ac5217b169af3ccd31f4d2c0356eb523f690f0ea5304ba52141d45fc7caa046": {
+      "artifact_path": "candidates/1ac5217b169af3ccd31f4d2c0356eb523f690f0ea5304ba52141d45fc7caa046",
+      "candidate_id": "1ac5217b169af3ccd31f4d2c0356eb523f690f0ea5304ba52141d45fc7caa046",
+      "created_opportunity": 20,
+      "fitness": -0.995144,
+      "hypothesis": "Replacing additive ReLU\u00b2 features with parameter-matched multiplicative SwiGLU features, while retaining the successful upper-layer capacity bias, will process at least 490M tokens and reduce val_bpb below 0.992431.",
+      "intended_edit": "Challenge the assumption that wider ungated ReLU\u00b2 MLPs are the best context representation: use 2\u00d7 lower-layer and 3.25\u00d7 upper-layer SwiGLU widths, approximately matching the proven 3\u00d7/5\u00d7 model\u2019s parameter count and compute.",
+      "metrics": {
+        "depth": 8.0,
+        "mfu_percent": 35.91,
+        "num_params_M": 50.1,
+        "num_steps": 940.0,
+        "peak_vram_mb": 44804.8,
+        "total_tokens_M": 492.8,
+        "training_seconds": 300.0,
+        "val_bpb": 0.995144
+      },
+      "parent_ids": [
+        "7502b8bb0f536444344910a6250942f956933b7a38b18ec4014023ae54bb9cfb"
+      ],
+      "retained_order": 20,
+      "selected_count": 0
+    },
+    "23fba43c1748854e10caea243af9482b67e89522be34c650f738d807fec2a39d": {
+      "artifact_path": "candidates/23fba43c1748854e10caea243af9482b67e89522be34c650f738d807fec2a39d",
+      "candidate_id": "23fba43c1748854e10caea243af9482b67e89522be34c650f738d807fec2a39d",
+      "created_opportunity": 50,
+      "fitness": -0.988103,
+      "hypothesis": "On the verified 212,992-token, 23/25-rate baseline, replacing unary squared-ReLU features with parameter-matched multiplicative SwiGLU features will retain at least 480M training tokens and reduce val_bpb below 0.983505.",
+      "intended_edit": "Restore the best verified peak learning rates and replace each dense squared-ReLU MLP with a nearly parameter-matched, 64-aligned SwiGLU MLP whose learned gate conditionally selects prediction features.",
+      "metrics": {
+        "depth": 8.0,
+        "mfu_percent": 34.89,
+        "num_params_M": 50.3,
+        "num_steps": 2223.0,
+        "peak_vram_mb": 36531.2,
+        "total_tokens_M": 473.5,
+        "training_seconds": 300.1,
+        "val_bpb": 0.988103
+      },
+      "parent_ids": [
+        "790aac324c6713329cc1457bb465a526d84812127f68d7a86e3c10e07e8255cf"
+      ],
+      "retained_order": 50,
+      "selected_count": 0
+    },
+    "257e7272cecb780db3b8e54ee8404ae0666f5007a726925f07322f128a49f33c": {
+      "artifact_path": "candidates/257e7272cecb780db3b8e54ee8404ae0666f5007a726925f07322f128a49f33c",
+      "candidate_id": "257e7272cecb780db3b8e54ee8404ae0666f5007a726925f07322f128a49f33c",
+      "created_opportunity": 44,
+      "fitness": -0.984713,
+      "hypothesis": "A 229,376-token batch with all peak learning rates increased by 2.86% will process at least 490M tokens and reduce val_bpb below 0.984024.",
+      "intended_edit": "Restore the best 112-sequence single-microbatch design and scale every optimizer-group peak learning rate by 36/35.",
+      "metrics": {
+        "depth": 8.0,
+        "mfu_percent": 36.64,
+        "num_params_M": 50.3,
+        "num_steps": 2164.0,
+        "peak_vram_mb": 39360.4,
+        "total_tokens_M": 496.4,
+        "training_seconds": 300.1,
+        "val_bpb": 0.984713
+      },
+      "parent_ids": [
+        "026879a46f507b71b1aa8d8204b1dd56b35e3793037b20f533e2faa713ff3081"
+      ],
+      "retained_order": 44,
+      "selected_count": 12
+    },
+    "2865e528e18dc51191e4037eaeb5824cb0ea83ede79061b59b8f3caac686da6b": {
+      "artifact_path": "candidates/2865e528e18dc51191e4037eaeb5824cb0ea83ede79061b59b8f3caac686da6b",
+      "candidate_id": "2865e528e18dc51191e4037eaeb5824cb0ea83ede79061b59b8f3caac686da6b",
+      "created_opportunity": 0,
+      "fitness": -0.995558,
+      "hypothesis": "frozen seed baseline",
+      "intended_edit": "none",
+      "metrics": {
+        "depth": 8.0,
+        "mfu_percent": 39.58,
+        "num_params_M": 50.3,
+        "num_steps": 948.0,
+        "peak_vram_mb": 45060.2,
+        "total_tokens_M": 497.0,
+        "training_seconds": 300.2,
+        "val_bpb": 0.995558
+      },
+      "parent_ids": [],
+      "retained_order": 0,
+      "selected_count": 4
+    },
+    "2d771edf47265f31291fbb34e32f91548e44b43045421f48f01ac9a7b05d9d0f": {
+      "artifact_path": "candidates/2d771edf47265f31291fbb34e32f91548e44b43045421f48f01ac9a7b05d9d0f",
+      "candidate_id": "2d771edf47265f31291fbb34e32f91548e44b43045421f48f01ac9a7b05d9d0f",
+      "created_opportunity": 8,
+      "fitness": -0.993995,
+      "hypothesis": "Restoring the 524K-token batch and shortening warmdown from 50% to 40% will preserve roughly 513M-token throughput while increasing useful high-learning-rate training, reducing val_bpb below 0.993287.",
+      "intended_edit": "Restore two-microbatch gradient accumulation and delay linear LR decay until 60% of the training window.",
+      "metrics": {
+        "depth": 8.0,
+        "mfu_percent": 37.51,
+        "num_params_M": 50.3,
+        "num_steps": 975.0,
+        "peak_vram_mb": 45060.2,
+        "total_tokens_M": 511.2,
+        "training_seconds": 300.2,
+        "val_bpb": 0.993995
+      },
+      "parent_ids": [
+        "68b8078b7e72a4a3ce709b4b7119a0edd2cc510d5aad0d029ca4a9ef8d1595a9"
+      ],
+      "retained_order": 8,
+      "selected_count": 5
+    },
+    "35662a63fb38ac5633e1946a9dea72630419888d816eeb8ee3491b5b722a9eef": {
+      "artifact_path": "candidates/35662a63fb38ac5633e1946a9dea72630419888d816eeb8ee3491b5b722a9eef",
+      "candidate_id": "35662a63fb38ac5633e1946a9dea72630419888d816eeb8ee3491b5b722a9eef",
+      "created_opportunity": 49,
+      "fitness": -0.986677,
+      "hypothesis": "Replacing linear warmdown with an equal-area cosine decay will retain at least 490M training tokens and reduce val_bpb below 0.983505 by sustaining useful learning rates longer before decaying more sharply near the end.",
+      "intended_edit": "Preserve the best 212,992-token batch, 23/25 peak learning rates, warmdown duration, and zero terminal rate while changing only the warmdown curve from linear to cosine.",
+      "metrics": {
+        "depth": 8.0,
+        "mfu_percent": 36.68,
+        "num_params_M": 50.3,
+        "num_steps": 2332.0,
+        "peak_vram_mb": 36584.6,
+        "total_tokens_M": 496.7,
+        "training_seconds": 300.1,
+        "val_bpb": 0.986677
+      },
+      "parent_ids": [
+        "3f839e76c7c064905ec449dfd3cbe30a3aba56c2f2a412960bbdb5fafb01e0be"
+      ],
+      "retained_order": 49,
+      "selected_count": 0
+    },
+    "38071317c547d0865db0c9d38559210cc7949239ddf9c59b9adb640566c1dec0": {
+      "artifact_path": "candidates/38071317c547d0865db0c9d38559210cc7949239ddf9c59b9adb640566c1dec0",
+      "candidate_id": "38071317c547d0865db0c9d38559210cc7949239ddf9c59b9adb640566c1dec0",
+      "created_opportunity": 2,
+      "fitness": -1.009565,
+      "hypothesis": "Reducing the six short-attention layers from 512 to 256 tokens will raise throughput beyond 513.3M tokens while the two full-context layers retain enough global modeling to beat 0.993287 val_bpb.",
+      "intended_edit": "Set short attention to one-eighth of the 2048-token sequence, preserving the SSSL pattern and forced full-context final layer.",
+      "metrics": {
+        "depth": 8.0,
+        "mfu_percent": 28.55,
+        "num_params_M": 50.3,
+        "num_steps": 778.0,
+        "peak_vram_mb": 45060.2,
+        "total_tokens_M": 407.9,
+        "training_seconds": 300.4,
+        "val_bpb": 1.009565
+      },
+      "parent_ids": [
+        "2865e528e18dc51191e4037eaeb5824cb0ea83ede79061b59b8f3caac686da6b"
+      ],
+      "retained_order": 2,
+      "selected_count": 1
+    },
+    "3d31108dd2560dedb2a9f4b45d8fcf99a1db29716ee5ceaadc6e961435956f26": {
+      "artifact_path": "candidates/3d31108dd2560dedb2a9f4b45d8fcf99a1db29716ee5ceaadc6e961435956f26",
+      "candidate_id": "3d31108dd2560dedb2a9f4b45d8fcf99a1db29716ee5ceaadc6e961435956f26",
+      "created_opportunity": 42,
+      "fitness": -0.984024,
+      "hypothesis": "A 229,376-token optimizer batch will retain at least 490M training tokens and reduce val_bpb below 0.985044.",
+      "intended_edit": "Increase the current batch to 112 sequences per single-microbatch optimizer step while preserving the best architecture, learning rates, and schedules.",
+      "metrics": {
+        "depth": 8.0,
+        "mfu_percent": 36.68,
+        "num_params_M": 50.3,
+        "num_steps": 2166.0,
+        "peak_vram_mb": 39360.4,
+        "total_tokens_M": 496.8,
+        "training_seconds": 300.0,
+        "val_bpb": 0.984024
+      },
+      "parent_ids": [
+        "e738a32d8a472f2740c091d04e39ae7502ab7ece7901a35ff019825afbf62c3a"
+      ],
+      "retained_order": 42,
+      "selected_count": 12
+    },
+    "3f7a5cd897cb195bd46ece8b6e1a30f701ede68182b553c97d0a0f4fc9b559f1": {
+      "artifact_path": "candidates/3f7a5cd897cb195bd46ece8b6e1a30f701ede68182b553c97d0a0f4fc9b559f1",
+      "candidate_id": "3f7a5cd897cb195bd46ece8b6e1a30f701ede68182b553c97d0a0f4fc9b559f1",
+      "created_opportunity": 56,
+      "fitness": -0.98452,
+      "hypothesis": "Using the batch-normalized 13/14 peak rate for AdamW parameters while retaining the best 23/25 Muon rate will process at least 490M tokens and reduce val_bpb below 0.983505.",
+      "intended_edit": "Restore the best Muon matrix rate while independently raising embedding, unembedding, and scalar AdamW rates to 13/14 of their base values.",
+      "metrics": {
+        "depth": 8.0,
+        "mfu_percent": 36.61,
+        "num_params_M": 50.3,
+        "num_steps": 2328.0,
+        "peak_vram_mb": 36585.2,
+        "total_tokens_M": 495.8,
+        "training_seconds": 300.1,
+        "val_bpb": 0.98452
+      },
+      "parent_ids": [
+        "74f801e1f7709a6cdf60a3af16c962ddd12e27dc1761d5286d6c74fc082b600b"
+      ],
+      "retained_order": 56,
+      "selected_count": 0
+    },
+    "3f839e76c7c064905ec449dfd3cbe30a3aba56c2f2a412960bbdb5fafb01e0be": {
+      "artifact_path": "candidates/3f839e76c7c064905ec449dfd3cbe30a3aba56c2f2a412960bbdb5fafb01e0be",
+      "candidate_id": "3f839e76c7c064905ec449dfd3cbe30a3aba56c2f2a412960bbdb5fafb01e0be",
+      "created_opportunity": 48,
+      "fitness": -0.983505,
+      "hypothesis": "A 212,992-token batch with peak learning rates scaled by 23/25 will process at least 490M tokens and reduce val_bpb below 0.983699.",
+      "intended_edit": "Use a 104-sequence single microbatch and scale every optimizer-group peak learning rate to 23/25 of its base value.",
+      "metrics": {
+        "depth": 8.0,
+        "mfu_percent": 36.83,
+        "num_params_M": 50.3,
+        "num_steps": 2341.0,
+        "peak_vram_mb": 36584.6,
+        "total_tokens_M": 498.6,
+        "training_seconds": 300.0,
+        "val_bpb": 0.983505
+      },
+      "parent_ids": [
+        "df068d3bd8ab55e48b64c8e80ba9b8bd5ac4080491f549c49f0ac823a2def330"
+      ],
+      "retained_order": 48,
+      "selected_count": 14
+    },
+    "40694189f71e696d90ab38fcbec0e6b7b8ae1732c98f28dd6929c4001abb6df8": {
+      "artifact_path": "candidates/40694189f71e696d90ab38fcbec0e6b7b8ae1732c98f28dd6929c4001abb6df8",
+      "candidate_id": "40694189f71e696d90ab38fcbec0e6b7b8ae1732c98f28dd6929c4001abb6df8",
+      "created_opportunity": 15,
+      "fitness": -0.995582,
+      "hypothesis": "A 3.5\u00d7 MLP with the best verified 50% linear warmdown will retain more capacity than the 3\u00d7 design while exceeding the 4\u00d7 design\u2019s 513.3M-token throughput, reducing val_bpb below 0.993287.",
+      "intended_edit": "Narrow every MLP from 4\u00d7 to 3.5\u00d7 model width and restore WARMDOWN_RATIO from 0.4 to the best verified value of 0.5.",
+      "metrics": {
+        "depth": 8.0,
+        "mfu_percent": 36.65,
+        "num_params_M": 48.2,
+        "num_steps": 1010.0,
+        "peak_vram_mb": 42992.7,
+        "total_tokens_M": 529.5,
+        "training_seconds": 300.2,
+        "val_bpb": 0.995582
+      },
+      "parent_ids": [
+        "2d771edf47265f31291fbb34e32f91548e44b43045421f48f01ac9a7b05d9d0f"
+      ],
+      "retained_order": 15,
+      "selected_count": 0
+    },
+    "41fccbbccf12bb41623503995a8377fed906cbd6475a156a254399f6e5724be4": {
+      "artifact_path": "candidates/41fccbbccf12bb41623503995a8377fed906cbd6475a156a254399f6e5724be4",
+      "candidate_id": "41fccbbccf12bb41623503995a8377fed906cbd6475a156a254399f6e5724be4",
+      "created_opportunity": 34,
+      "fitness": -0.992481,
+      "hypothesis": "A 2.375\u00d7/2.625\u00d7 lower-half taper with uniform 5.5\u00d7 upper MLPs will preserve roughly 500M-token throughput and reduce val_bpb below 0.991682.",
+      "intended_edit": "Restore the best architecture\u2019s aggregate MLP allocation while testing the tensor-core-aligned midpoint between its 2.25\u00d7/2.75\u00d7 lower taper and the competitive uniform 2.5\u00d7 lower allocation.",
+      "metrics": {
+        "depth": 8.0,
+        "mfu_percent": 36.98,
+        "num_params_M": 50.3,
+        "num_steps": 961.0,
+        "peak_vram_mb": 45067.3,
+        "total_tokens_M": 503.8,
+        "training_seconds": 300.1,
+        "val_bpb": 0.992481
+      },
+      "parent_ids": [
+        "be13e3be18db1d8c00e015b205a8e25501f1a5928da93443c056e6ba0f98b25f"
+      ],
+      "retained_order": 34,
+      "selected_count": 0
+    },
+    "428ca13b9592c97b92bfad5ca4586967b8892b30717f46633fc5dddd2a0aecfc": {
+      "artifact_path": "candidates/428ca13b9592c97b92bfad5ca4586967b8892b30717f46633fc5dddd2a0aecfc",
+      "candidate_id": "428ca13b9592c97b92bfad5ca4586967b8892b30717f46633fc5dddd2a0aecfc",
+      "created_opportunity": 37,
+      "fitness": -0.99372,
+      "hypothesis": "Doubling short-layer context from 512 to 1024 tokens will retain at least 500M training tokens and reduce val_bpb below 0.991682.",
+      "intended_edit": "Keep the best 2.25\u00d7/2.75\u00d7/5.5\u00d7 architecture and SSSL pattern, but make each short-attention layer cover half rather than one quarter of the 2048-token sequence.",
+      "metrics": {
+        "depth": 8.0,
+        "mfu_percent": 39.4,
+        "num_params_M": 50.3,
+        "num_steps": 944.0,
+        "peak_vram_mb": 45064.8,
+        "total_tokens_M": 494.9,
+        "training_seconds": 300.3,
+        "val_bpb": 0.99372
+      },
+      "parent_ids": [
+        "026879a46f507b71b1aa8d8204b1dd56b35e3793037b20f533e2faa713ff3081"
+      ],
+      "retained_order": 37,
+      "selected_count": 0
+    },
+    "49c753ebb9f66dc73f1fc12687402729601077c41d31a501822a355f5de0f259": {
+      "artifact_path": "candidates/49c753ebb9f66dc73f1fc12687402729601077c41d31a501822a355f5de0f259",
+      "candidate_id": "49c753ebb9f66dc73f1fc12687402729601077c41d31a501822a355f5de0f259",
+      "created_opportunity": 18,
+      "fitness": -0.992809,
+      "hypothesis": "Shifting MLP capacity from the lower four layers to the upper four while preserving total parameters and compute will retain roughly 513M-token throughput and reduce val_bpb below 0.993287.",
+      "intended_edit": "Use 3.5\u00d7 MLPs in the lower half and 4.5\u00d7 MLPs in the upper half, preserving the 4\u00d7 average width, and restore the best verified 50% linear warmdown.",
+      "metrics": {
+        "depth": 8.0,
+        "mfu_percent": 37.07,
+        "num_params_M": 50.3,
+        "num_steps": 964.0,
+        "peak_vram_mb": 45064.7,
+        "total_tokens_M": 505.4,
+        "training_seconds": 300.3,
+        "val_bpb": 0.992809
+      },
+      "parent_ids": [
+        "8739f3a112cc296b7e52346edda0d7c193dbfb73b3aec6a3e9ed03bb18a2b8f5"
+      ],
+      "retained_order": 18,
+      "selected_count": 6
+    },
+    "4de4803d42647a22e5a6d8c555104d07af9421d7bc276c9ddecf0555b4be98e2": {
+      "artifact_path": "candidates/4de4803d42647a22e5a6d8c555104d07af9421d7bc276c9ddecf0555b4be98e2",
+      "candidate_id": "4de4803d42647a22e5a6d8c555104d07af9421d7bc276c9ddecf0555b4be98e2",
+      "created_opportunity": 24,
+      "fitness": -0.992466,
+      "hypothesis": "Preserving the best 2.5\u00d7 lower-half allocation while shifting upper-half capacity from 5.5\u00d7 uniformly to 5\u00d7/6\u00d7 by depth will retain at least 495M tokens and reduce val_bpb below 0.991816.",
+      "intended_edit": "Use 2.5\u00d7 MLPs in layers 0\u20133, 5\u00d7 in layers 4\u20135, and 6\u00d7 in layers 6\u20137, preserving the proven 4\u00d7 average width, optimizer, attention geometry, and schedule.",
+      "metrics": {
+        "depth": 8.0,
+        "mfu_percent": 37.16,
+        "num_params_M": 50.3,
+        "num_steps": 966.0,
+        "peak_vram_mb": 45066.2,
+        "total_tokens_M": 506.5,
+        "training_seconds": 300.2,
+        "val_bpb": 0.992466
+      },
+      "parent_ids": [
+        "7502b8bb0f536444344910a6250942f956933b7a38b18ec4014023ae54bb9cfb"
+      ],
+      "retained_order": 24,
+      "selected_count": 7
+    },
+    "5a2c60d2debf52d2c5599761b88f596aa1e6bd2674e1b35fd543c40a95bcdad8": {
+      "artifact_path": "candidates/5a2c60d2debf52d2c5599761b88f596aa1e6bd2674e1b35fd543c40a95bcdad8",
+      "candidate_id": "5a2c60d2debf52d2c5599761b88f596aa1e6bd2674e1b35fd543c40a95bcdad8",
+      "created_opportunity": 7,
+      "fitness": -1.013096,
+      "hypothesis": "Reducing Muon from five to three polar iterations will preserve useful gradient orthogonalization while lowering optimizer overhead, processing more than 513.3M tokens and reducing val_bpb below 0.993287.",
+      "intended_edit": "Retain the proven 512-token SSSL architecture and 524K-token batch, but use three Newton-Schulz-style Polar Express iterations per Muon update.",
+      "metrics": {
+        "depth": 8.0,
+        "mfu_percent": 29.34,
+        "num_params_M": 50.3,
+        "num_steps": 765.0,
+        "peak_vram_mb": 45060.2,
+        "total_tokens_M": 401.1,
+        "training_seconds": 300.2,
+        "val_bpb": 1.013096
+      },
+      "parent_ids": [
+        "ee1f1cf686a479f175a9b2178602df52386a3561e80b0612b88ccd725e447c2e"
+      ],
+      "retained_order": 7,
+      "selected_count": 0
+    },
+    "5ae3bd5c7c6dc0757bebb1f88154325403885bc7173631cfa650f827e99ea00a": {
+      "artifact_path": "candidates/5ae3bd5c7c6dc0757bebb1f88154325403885bc7173631cfa650f827e99ea00a",
+      "candidate_id": "5ae3bd5c7c6dc0757bebb1f88154325403885bc7173631cfa650f827e99ea00a",
+      "created_opportunity": 6,
+      "fitness": -1.00841,
+      "hypothesis": "Halving KV heads while restoring 512-token SSSL attention will preserve modeling quality, process more than 513.3M tokens, and reduce val_bpb below 0.993287.",
+      "intended_edit": "Restore quarter-context short windows and use two KV heads shared across four query heads.",
+      "metrics": {
+        "depth": 8.0,
+        "mfu_percent": 30.91,
+        "num_params_M": 39.8,
+        "num_steps": 853.0,
+        "peak_vram_mb": 41364.2,
+        "total_tokens_M": 447.2,
+        "training_seconds": 300.0,
+        "val_bpb": 1.00841
+      },
+      "parent_ids": [
+        "38071317c547d0865db0c9d38559210cc7949239ddf9c59b9adb640566c1dec0"
+      ],
+      "retained_order": 6,
+      "selected_count": 2
+    },
+    "67f14a9fbf4196598763d238ba7df377635c49522501cf48ffd9e9acec0319f1": {
+      "artifact_path": "candidates/67f14a9fbf4196598763d238ba7df377635c49522501cf48ffd9e9acec0319f1",
+      "candidate_id": "67f14a9fbf4196598763d238ba7df377635c49522501cf48ffd9e9acec0319f1",
+      "created_opportunity": 36,
+      "fitness": -0.99232,
+      "hypothesis": "On the best 2.25\u00d7/2.75\u00d7/5.5\u00d7 MLP taper, removing the redundant layer-3 full-context attention pass will increase throughput beyond 510.7M tokens while the forced full-context final layer preserves global mixing, reducing val_bpb below 0.991682.",
+      "intended_edit": "Restore the best verified MLP allocation and change the attention pattern from SSSL to SSSS, leaving only the automatically forced final layer at full context.",
+      "metrics": {
+        "depth": 8.0,
+        "mfu_percent": 36.08,
+        "num_params_M": 50.3,
+        "num_steps": 980.0,
+        "peak_vram_mb": 45064.8,
+        "total_tokens_M": 513.8,
+        "training_seconds": 300.2,
+        "val_bpb": 0.99232
+      },
+      "parent_ids": [
+        "ca3eec1a909d9a8ac242d8f3a78d71416773d03e9530d17e365d295fae65ace2"
+      ],
+      "retained_order": 36,
+      "selected_count": 0
+    },
+    "68b8078b7e72a4a3ce709b4b7119a0edd2cc510d5aad0d029ca4a9ef8d1595a9": {
+      "artifact_path": "candidates/68b8078b7e72a4a3ce709b4b7119a0edd2cc510d5aad0d029ca4a9ef8d1595a9",
+      "candidate_id": "68b8078b7e72a4a3ce709b4b7119a0edd2cc510d5aad0d029ca4a9ef8d1595a9",
+      "created_opportunity": 5,
+      "fitness": -1.000127,
+      "hypothesis": "Halving the optimizer batch to 262K tokens while restoring the best 512-token SSSL attention design will nearly double update frequency with only modest throughput loss, reducing val_bpb below 0.993287.",
+      "intended_edit": "Restore quarter-context short attention and reduce gradient accumulation from two microbatches to one by halving TOTAL_BATCH_SIZE.",
+      "metrics": {
+        "depth": 8.0,
+        "mfu_percent": 28.25,
+        "num_params_M": 50.3,
+        "num_steps": 1463.0,
+        "peak_vram_mb": 44908.2,
+        "total_tokens_M": 383.5,
+        "training_seconds": 300.1,
+        "val_bpb": 1.000127
+      },
+      "parent_ids": [
+        "9d8fc41e98bf3e33d97926e0a412115e51c960dd64e12451a24d07e0474e70f1"
+      ],
+      "retained_order": 5,
+      "selected_count": 2
+    },
+    "74f801e1f7709a6cdf60a3af16c962ddd12e27dc1761d5286d6c74fc082b600b": {
+      "artifact_path": "candidates/74f801e1f7709a6cdf60a3af16c962ddd12e27dc1761d5286d6c74fc082b600b",
+      "candidate_id": "74f801e1f7709a6cdf60a3af16c962ddd12e27dc1761d5286d6c74fc082b600b",
+      "created_opportunity": 47,
+      "fitness": -0.984113,
+      "hypothesis": "A 212,992-token batch with peak learning rates scaled by 33/35 will process at least 490M tokens and reduce val_bpb below 0.983699.",
+      "intended_edit": "Restore the best 104-sequence single-microbatch configuration and raise every optimizer-group peak learning rate from 13/14 to 33/35 of its base value.",
+      "metrics": {
+        "depth": 8.0,
+        "mfu_percent": 36.93,
+        "num_params_M": 50.3,
+        "num_steps": 2348.0,
+        "peak_vram_mb": 36584.6,
+        "total_tokens_M": 500.1,
+        "training_seconds": 300.1,
+        "val_bpb": 0.984113
+      },
+      "parent_ids": [
+        "257e7272cecb780db3b8e54ee8404ae0666f5007a726925f07322f128a49f33c"
+      ],
+      "retained_order": 47,
+      "selected_count": 14
+    },
+    "7502b8bb0f536444344910a6250942f956933b7a38b18ec4014023ae54bb9cfb": {
+      "artifact_path": "candidates/7502b8bb0f536444344910a6250942f956933b7a38b18ec4014023ae54bb9cfb",
+      "candidate_id": "7502b8bb0f536444344910a6250942f956933b7a38b18ec4014023ae54bb9cfb",
+      "created_opportunity": 16,
+      "fitness": -0.994453,
+      "hypothesis": "A 4.5\u00d7 MLP at the proven 512-token SSSL attention geometry will retain at least 490M training tokens while extending the monotonic quality gains from 3\u00d7 through 4\u00d7, reducing val_bpb below 0.993287.",
+      "intended_edit": "Restore quarter-context short attention and widen every MLP from 4\u00d7 to 4.5\u00d7 model dimension while preserving the best 50% linear warmdown and 524K-token optimizer batch.",
+      "metrics": {
+        "depth": 8.0,
+        "mfu_percent": 37.25,
+        "num_params_M": 52.4,
+        "num_steps": 916.0,
+        "peak_vram_mb": 47138.0,
+        "total_tokens_M": 480.2,
+        "training_seconds": 300.0,
+        "val_bpb": 0.994453
+      },
+      "parent_ids": [
+        "2865e528e18dc51191e4037eaeb5824cb0ea83ede79061b59b8f3caac686da6b"
+      ],
+      "retained_order": 16,
+      "selected_count": 6
+    },
+    "790aac324c6713329cc1457bb465a526d84812127f68d7a86e3c10e07e8255cf": {
+      "artifact_path": "candidates/790aac324c6713329cc1457bb465a526d84812127f68d7a86e3c10e07e8255cf",
+      "candidate_id": "790aac324c6713329cc1457bb465a526d84812127f68d7a86e3c10e07e8255cf",
+      "created_opportunity": 45,
+      "fitness": -0.983699,
+      "hypothesis": "A 212,992-token batch with learning rates scaled by 13/14 will process at least 490M tokens and reduce val_bpb below 0.984024 by preserving cumulative optimizer displacement while interpolating between the two equally competitive normalized-batch endpoints.",
+      "intended_edit": "Use a 104-sequence single microbatch and scale every optimizer-group peak learning rate by the batch ratio 212,992/229,376.",
+      "metrics": {
+        "depth": 8.0,
+        "mfu_percent": 36.84,
+        "num_params_M": 50.3,
+        "num_steps": 2342.0,
+        "peak_vram_mb": 36584.2,
+        "total_tokens_M": 498.8,
+        "training_seconds": 300.1,
+        "val_bpb": 0.983699
+      },
+      "parent_ids": [
+        "3d31108dd2560dedb2a9f4b45d8fcf99a1db29716ee5ceaadc6e961435956f26"
+      ],
+      "retained_order": 45,
+      "selected_count": 14
+    },
+    "7afb5cbc209c031b8ed8bc852b7135b43f561f4dc0d08996b81adc2075c2a6d1": {
+      "artifact_path": "candidates/7afb5cbc209c031b8ed8bc852b7135b43f561f4dc0d08996b81adc2075c2a6d1",
+      "candidate_id": "7afb5cbc209c031b8ed8bc852b7135b43f561f4dc0d08996b81adc2075c2a6d1",
+      "created_opportunity": 17,
+      "fitness": -0.994781,
+      "hypothesis": "A 4.25\u00d7 MLP will retain at least 495M training tokens while balancing the 4\u00d7 model\u2019s superior throughput against the 4.5\u00d7 model\u2019s added capacity, reducing val_bpb below 0.993287.",
+      "intended_edit": "Widen every MLP from 4\u00d7 to 4.25\u00d7 model dimension while preserving the proven attention geometry, optimizer batch, and 50% linear warmdown.",
+      "metrics": {
+        "depth": 8.0,
+        "mfu_percent": 36.8,
+        "num_params_M": 51.4,
+        "num_steps": 930.0,
+        "peak_vram_mb": 46101.3,
+        "total_tokens_M": 487.6,
+        "training_seconds": 300.0,
+        "val_bpb": 0.994781
+      },
+      "parent_ids": [
+        "ee1f1cf686a479f175a9b2178602df52386a3561e80b0612b88ccd725e447c2e"
+      ],
+      "retained_order": 17,
+      "selected_count": 0
+    },
+    "82180b25ae9cb15f76430fa0ea5935ca5982d083aaf63f23e63c9464ee462611": {
+      "artifact_path": "candidates/82180b25ae9cb15f76430fa0ea5935ca5982d083aaf63f23e63c9464ee462611",
+      "candidate_id": "82180b25ae9cb15f76430fa0ea5935ca5982d083aaf63f23e63c9464ee462611",
+      "created_opportunity": 4,
+      "fitness": -1.014831,
+      "hypothesis": "Using 512-token attention in seven layers and full-context attention only in the final layer will process more than 513.3M tokens while preserving sequence-wide integration, reducing val_bpb below 0.993287.",
+      "intended_edit": "Change the depth-8 window pattern from SSSLSSSL to SSSSSSSL, retaining the proven 512-token short window and forced full-context final layer.",
+      "metrics": {
+        "depth": 8.0,
+        "mfu_percent": 26.58,
+        "num_params_M": 50.3,
+        "num_steps": 725.0,
+        "peak_vram_mb": 45060.2,
+        "total_tokens_M": 380.1,
+        "training_seconds": 300.4,
+        "val_bpb": 1.014831
+      },
+      "parent_ids": [
+        "ee1f1cf686a479f175a9b2178602df52386a3561e80b0612b88ccd725e447c2e"
+      ],
+      "retained_order": 4,
+      "selected_count": 0
+    },
+    "83beb449a4f1a5584460142c59bbfb8ebc4a503c67a085e2e773be168f55c58d": {
+      "artifact_path": "candidates/83beb449a4f1a5584460142c59bbfb8ebc4a503c67a085e2e773be168f55c58d",
+      "candidate_id": "83beb449a4f1a5584460142c59bbfb8ebc4a503c67a085e2e773be168f55c58d",
+      "created_opportunity": 22,
+      "fitness": -0.9919,
+      "hypothesis": "Moving from 2.5\u00d7/5.5\u00d7 to 2\u00d7/6\u00d7 lower/upper MLPs will preserve aggregate parameters and at least 500M-token throughput while reducing val_bpb below 0.991816.",
+      "intended_edit": "Allocate 2\u00d7 MLP width to the lower four layers and 6\u00d7 width to the upper four, retaining the 4\u00d7 average width and proven 50% linear warmdown.",
+      "metrics": {
+        "depth": 8.0,
+        "mfu_percent": 37.1,
+        "num_params_M": 50.3,
+        "num_steps": 964.0,
+        "peak_vram_mb": 45060.2,
+        "total_tokens_M": 505.4,
+        "training_seconds": 300.0,
+        "val_bpb": 0.9919
+      },
+      "parent_ids": [
+        "49c753ebb9f66dc73f1fc12687402729601077c41d31a501822a355f5de0f259"
+      ],
+      "retained_order": 22,
+      "selected_count": 7
+    },
+    "84bf16c6338551311426de21c2568230cc4eecdccbf405e08a69960139f20d36": {
+      "artifact_path": "candidates/84bf16c6338551311426de21c2568230cc4eecdccbf405e08a69960139f20d36",
+      "candidate_id": "84bf16c6338551311426de21c2568230cc4eecdccbf405e08a69960139f20d36",
+      "created_opportunity": 31,
+      "fitness": -0.991814,
+      "hypothesis": "A 2.125\u00d7/2.875\u00d7 lower-half taper with uniform 5.5\u00d7 upper MLPs will process roughly 500M tokens and reduce val_bpb below 0.991682.",
+      "intended_edit": "Interpolate between the best 2.25\u00d7/2.75\u00d7 allocation and the competitive 2\u00d7/3\u00d7 allocation while preserving total parameters, aggregate MLP compute, and all other settings.",
+      "metrics": {
+        "depth": 8.0,
+        "mfu_percent": 37.4,
+        "num_params_M": 50.3,
+        "num_steps": 972.0,
+        "peak_vram_mb": 45063.7,
+        "total_tokens_M": 509.6,
+        "training_seconds": 300.1,
+        "val_bpb": 0.991814
+      },
+      "parent_ids": [
+        "9c848d0bebf20f10c029376284bf256c4a77c6c25d28ae55464a45810226f23f"
+      ],
+      "retained_order": 31,
+      "selected_count": 0
+    },
+    "858f50c6a7dd20d0e167581c90df8d205113dbf65a172ac6454ec99b7abb6b21": {
+      "artifact_path": "candidates/858f50c6a7dd20d0e167581c90df8d205113dbf65a172ac6454ec99b7abb6b21",
+      "candidate_id": "858f50c6a7dd20d0e167581c90df8d205113dbf65a172ac6454ec99b7abb6b21",
+      "created_opportunity": 13,
+      "fitness": -1.015936,
+      "hypothesis": "Doubling the optimizer batch to 1.05M tokens will amortize Muon overhead, process more than 513.3M tokens in five minutes, and reduce val_bpb below 0.993287 despite fewer parameter updates.",
+      "intended_edit": "Double TOTAL_BATCH_SIZE while preserving the proven 512-token SSSL architecture, learning rates, and 50% linear warmdown.",
+      "metrics": {
+        "depth": 8.0,
+        "mfu_percent": 37.65,
+        "num_params_M": 50.3,
+        "num_steps": 495.0,
+        "peak_vram_mb": 45060.2,
+        "total_tokens_M": 519.0,
+        "training_seconds": 300.6,
+        "val_bpb": 1.015936
+      },
+      "parent_ids": [
+        "ee1f1cf686a479f175a9b2178602df52386a3561e80b0612b88ccd725e447c2e"
+      ],
+      "retained_order": 13,
+      "selected_count": 0
+    },
+    "8739f3a112cc296b7e52346edda0d7c193dbfb73b3aec6a3e9ed03bb18a2b8f5": {
+      "artifact_path": "candidates/8739f3a112cc296b7e52346edda0d7c193dbfb73b3aec6a3e9ed03bb18a2b8f5",
+      "candidate_id": "8739f3a112cc296b7e52346edda0d7c193dbfb73b3aec6a3e9ed03bb18a2b8f5",
+      "created_opportunity": 9,
+      "fitness": -0.993714,
+      "hypothesis": "Restoring full KV heads and beginning warmdown at 40% of the training window will preserve roughly 513M-token throughput while improving late-stage convergence below 0.993287 val_bpb.",
+      "intended_edit": "Restore the proven full multi-head 512-token SSSL architecture and increase LR warmdown from 50% to 60%.",
+      "metrics": {
+        "depth": 8.0,
+        "mfu_percent": 37.52,
+        "num_params_M": 50.3,
+        "num_steps": 975.0,
+        "peak_vram_mb": 45060.2,
+        "total_tokens_M": 511.2,
+        "training_seconds": 300.1,
+        "val_bpb": 0.993714
+      },
+      "parent_ids": [
+        "5ae3bd5c7c6dc0757bebb1f88154325403885bc7173631cfa650f827e99ea00a"
+      ],
+      "retained_order": 9,
+      "selected_count": 5
+    },
+    "87493078cffe8ab2e690eb9d634c4f491db06a94942234d3551b09ff84d1e1d3": {
+      "artifact_path": "candidates/87493078cffe8ab2e690eb9d634c4f491db06a94942234d3551b09ff84d1e1d3",
+      "candidate_id": "87493078cffe8ab2e690eb9d634c4f491db06a94942234d3551b09ff84d1e1d3",
+      "created_opportunity": 12,
+      "fitness": -0.996815,
+      "hypothesis": "Replacing the best 50% linear warmdown with an equal-duration cosine decay will preserve roughly 513M-token throughput while improving late-stage convergence enough to reduce val_bpb below 0.993287.",
+      "intended_edit": "Restore the proven 50% warmdown and change only its interpolation from linear to cosine, retaining the established architecture, batch size, optimizer, and zero final learning rate.",
+      "metrics": {
+        "depth": 8.0,
+        "mfu_percent": 37.36,
+        "num_params_M": 50.3,
+        "num_steps": 971.0,
+        "peak_vram_mb": 45060.2,
+        "total_tokens_M": 509.1,
+        "training_seconds": 300.2,
+        "val_bpb": 0.996815
+      },
+      "parent_ids": [
+        "2d771edf47265f31291fbb34e32f91548e44b43045421f48f01ac9a7b05d9d0f"
+      ],
+      "retained_order": 12,
+      "selected_count": 0
+    },
+    "88cb58590f67c93d3ce285953a5765c54abbdbe7b89c288f85e84676012f975e": {
+      "artifact_path": "candidates/88cb58590f67c93d3ce285953a5765c54abbdbe7b89c288f85e84676012f975e",
+      "candidate_id": "88cb58590f67c93d3ce285953a5765c54abbdbe7b89c288f85e84676012f975e",
+      "created_opportunity": 30,
+      "fitness": -1.000046,
+      "hypothesis": "On the best 2.25\u00d7/2.75\u00d7/5.5\u00d7 MLP taper, a separate horizon-2 head trained on every fourth position with weight 0.2 will retain at least 490M tokens and reduce val_bpb below 0.991682.",
+      "intended_edit": "Restore the best verified MLP allocation and challenge the assumption that next-token supervision alone produces the best context representation; training adds sparse token-t+2 prediction while validation and primary predictions remain unchanged.",
+      "metrics": {
+        "depth": 8.0,
+        "mfu_percent": 36.28,
+        "num_params_M": 54.5,
+        "num_steps": 917.0,
+        "peak_vram_mb": 46229.7,
+        "total_tokens_M": 480.8,
+        "training_seconds": 300.0,
+        "val_bpb": 1.000046
+      },
+      "parent_ids": [
+        "be13e3be18db1d8c00e015b205a8e25501f1a5928da93443c056e6ba0f98b25f"
+      ],
+      "retained_order": 30,
+      "selected_count": 0
+    },
+    "8b6445bd4fdf199d4ec902e3064286f697770e15cf3af9a251c252513a28fbfe": {
+      "artifact_path": "candidates/8b6445bd4fdf199d4ec902e3064286f697770e15cf3af9a251c252513a28fbfe",
+      "candidate_id": "8b6445bd4fdf199d4ec902e3064286f697770e15cf3af9a251c252513a28fbfe",
+      "created_opportunity": 43,
+      "fitness": -0.984034,
+      "hypothesis": "A 196,608-token batch with all peak learning rates scaled by 6/7 will process at least 490M tokens and reduce val_bpb below 0.984024 by preserving the best run\u2019s cumulative optimizer displacement while benefiting from more frequent, less correlated updates.",
+      "intended_edit": "Restore four 128-dimensional heads, use a 96-sequence single microbatch, and scale every optimizer-group learning rate by the 196,608/229,376 batch ratio.",
+      "metrics": {
+        "depth": 8.0,
+        "mfu_percent": 36.5,
+        "num_params_M": 50.3,
+        "num_steps": 2513.0,
+        "peak_vram_mb": 33810.6,
+        "total_tokens_M": 494.1,
+        "training_seconds": 300.1,
+        "val_bpb": 0.984034
+      },
+      "parent_ids": [
+        "18b4ebcffa67416f5decbe2a50bb88ca93b314b431342f30c3b988e9dc47747c"
+      ],
+      "retained_order": 43,
+      "selected_count": 12
+    },
+    "9c848d0bebf20f10c029376284bf256c4a77c6c25d28ae55464a45810226f23f": {
+      "artifact_path": "candidates/9c848d0bebf20f10c029376284bf256c4a77c6c25d28ae55464a45810226f23f",
+      "candidate_id": "9c848d0bebf20f10c029376284bf256c4a77c6c25d28ae55464a45810226f23f",
+      "created_opportunity": 26,
+      "fitness": -0.991793,
+      "hypothesis": "Shifting the lower-half allocation from 2\u00d7/3\u00d7 to 1.5\u00d7/3.5\u00d7 while retaining uniform 5.5\u00d7 upper MLPs will preserve roughly 500M-token throughput and reduce val_bpb below 0.991736.",
+      "intended_edit": "Use 1.5\u00d7 MLPs in layers 0\u20131, 3.5\u00d7 in layers 2\u20133, and 5.5\u00d7 in layers 4\u20137, preserving total parameters, aggregate MLP compute, and all other settings.",
+      "metrics": {
+        "depth": 8.0,
+        "mfu_percent": 37.29,
+        "num_params_M": 50.3,
+        "num_steps": 969.0,
+        "peak_vram_mb": 45065.5,
+        "total_tokens_M": 508.0,
+        "training_seconds": 300.1,
+        "val_bpb": 0.991793
+      },
+      "parent_ids": [
+        "83beb449a4f1a5584460142c59bbfb8ebc4a503c67a085e2e773be168f55c58d"
+      ],
+      "retained_order": 26,
+      "selected_count": 10
+    },
+    "9d8fc41e98bf3e33d97926e0a412115e51c960dd64e12451a24d07e0474e70f1": {
+      "artifact_path": "candidates/9d8fc41e98bf3e33d97926e0a412115e51c960dd64e12451a24d07e0474e70f1",
+      "candidate_id": "9d8fc41e98bf3e33d97926e0a412115e51c960dd64e12451a24d07e0474e70f1",
+      "created_opportunity": 3,
+      "fitness": -1.00495,
+      "hypothesis": "A 768-token short window will retain more context than 512 while processing more than 497M tokens, reducing val_bpb below 0.993287.",
+      "intended_edit": "Set the six short-attention layers to three-eighths of the 2048-token context.",
+      "metrics": {
+        "depth": 8.0,
+        "mfu_percent": 32.58,
+        "num_params_M": 50.3,
+        "num_steps": 814.0,
+        "peak_vram_mb": 45060.2,
+        "total_tokens_M": 426.8,
+        "training_seconds": 300.3,
+        "val_bpb": 1.00495
+      },
+      "parent_ids": [
+        "2865e528e18dc51191e4037eaeb5824cb0ea83ede79061b59b8f3caac686da6b"
+      ],
+      "retained_order": 3,
+      "selected_count": 1
+    },
+    "aacdfd33fa5edc8e0b1d974ec4ba412a1a4d10ced6af3e944d0c844311fc4009": {
+      "artifact_path": "candidates/aacdfd33fa5edc8e0b1d974ec4ba412a1a4d10ced6af3e944d0c844311fc4009",
+      "candidate_id": "aacdfd33fa5edc8e0b1d974ec4ba412a1a4d10ced6af3e944d0c844311fc4009",
+      "created_opportunity": 32,
+      "fitness": -0.99501,
+      "hypothesis": "Restoring the verified 2.25\u00d7/2.75\u00d7/5.5\u00d7 MLP taper and replacing its linear final-50% warmdown with an equal-duration cosine warmdown will process at least 500M tokens and reduce val_bpb below 0.991682.",
+      "intended_edit": "Restore the best verified MLP allocation, then use cosine rather than linear learning-rate decay during the existing 50% warmdown without changing peak or final learning rates.",
+      "metrics": {
+        "depth": 8.0,
+        "mfu_percent": 37.27,
+        "num_params_M": 50.3,
+        "num_steps": 969.0,
+        "peak_vram_mb": 45064.8,
+        "total_tokens_M": 508.0,
+        "training_seconds": 300.2,
+        "val_bpb": 0.99501
+      },
+      "parent_ids": [
+        "ca3eec1a909d9a8ac242d8f3a78d71416773d03e9530d17e365d295fae65ace2"
+      ],
+      "retained_order": 32,
+      "selected_count": 0
+    },
+    "af8d3af70d4854627139f5bb5d7ae27d6c84b60a5fcf1a079666105619ac21c3": {
+      "artifact_path": "candidates/af8d3af70d4854627139f5bb5d7ae27d6c84b60a5fcf1a079666105619ac21c3",
+      "candidate_id": "af8d3af70d4854627139f5bb5d7ae27d6c84b60a5fcf1a079666105619ac21c3",
+      "created_opportunity": 38,
+      "fitness": -0.985237,
+      "hypothesis": "Halving the optimizer batch to 262K tokens on the best 2.25\u00d7/2.75\u00d7/5.5\u00d7 architecture will provide roughly twice as many parameter updates, retain at least 450M training tokens, and reduce val_bpb below 0.991682.",
+      "intended_edit": "Restore the best verified MLP taper and reduce gradient accumulation from two microbatches to one while preserving all learning rates and schedules.",
+      "metrics": {
+        "depth": 8.0,
+        "mfu_percent": 36.53,
+        "num_params_M": 50.3,
+        "num_steps": 1889.0,
+        "peak_vram_mb": 44912.7,
+        "total_tokens_M": 495.2,
+        "training_seconds": 300.1,
+        "val_bpb": 0.985237
+      },
+      "parent_ids": [
+        "be13e3be18db1d8c00e015b205a8e25501f1a5928da93443c056e6ba0f98b25f"
+      ],
+      "retained_order": 38,
+      "selected_count": 11
+    },
+    "bd20b6e3c02d74bfe71ca34a052c7df11db764d5ddf401b3cb448b5d80031e65": {
+      "artifact_path": "candidates/bd20b6e3c02d74bfe71ca34a052c7df11db764d5ddf401b3cb448b5d80031e65",
+      "candidate_id": "bd20b6e3c02d74bfe71ca34a052c7df11db764d5ddf401b3cb448b5d80031e65",
+      "created_opportunity": 23,
+      "fitness": -0.992854,
+      "hypothesis": "A 2.25\u00d7/5.75\u00d7 lower/upper MLP taper will preserve the 4\u00d7 average width and roughly 500M-token throughput while reducing val_bpb below the best observed 0.991816.",
+      "intended_edit": "Give the lower four layers 2.25\u00d7 MLP width and the upper four layers 5.75\u00d7 width, retaining all other architecture, optimizer, batching, and schedule settings.",
+      "metrics": {
+        "depth": 8.0,
+        "mfu_percent": 36.6,
+        "num_params_M": 50.3,
+        "num_steps": 952.0,
+        "peak_vram_mb": 45066.6,
+        "total_tokens_M": 499.1,
+        "training_seconds": 300.3,
+        "val_bpb": 0.992854
+      },
+      "parent_ids": [
+        "ee1f1cf686a479f175a9b2178602df52386a3561e80b0612b88ccd725e447c2e"
+      ],
+      "retained_order": 23,
+      "selected_count": 7
+    },
+    "be13e3be18db1d8c00e015b205a8e25501f1a5928da93443c056e6ba0f98b25f": {
+      "artifact_path": "candidates/be13e3be18db1d8c00e015b205a8e25501f1a5928da93443c056e6ba0f98b25f",
+      "candidate_id": "be13e3be18db1d8c00e015b205a8e25501f1a5928da93443c056e6ba0f98b25f",
+      "created_opportunity": 25,
+      "fitness": -0.991736,
+      "hypothesis": "Using 2\u00d7 MLPs in layers 0\u20131 and 3\u00d7 MLPs in layers 2\u20133, while retaining uniform 5.5\u00d7 upper-layer MLPs, will preserve roughly 500M-token throughput and reduce val_bpb below 0.991816.",
+      "intended_edit": "Redistribute the lower half\u2019s unchanged average 2.5\u00d7 MLP capacity toward its later layers; leave the best-performing upper-half allocation and all other settings unchanged.",
+      "metrics": {
+        "depth": 8.0,
+        "mfu_percent": 37.41,
+        "num_params_M": 50.3,
+        "num_steps": 973.0,
+        "peak_vram_mb": 45064.7,
+        "total_tokens_M": 510.1,
+        "training_seconds": 300.3,
+        "val_bpb": 0.991736
+      },
+      "parent_ids": [
+        "f4ae1a32498a182f424d798168236c57bae2be80a174715a32e32c2cde20aedd"
+      ],
+      "retained_order": 25,
+      "selected_count": 10
+    },
+    "ca3eec1a909d9a8ac242d8f3a78d71416773d03e9530d17e365d295fae65ace2": {
+      "artifact_path": "candidates/ca3eec1a909d9a8ac242d8f3a78d71416773d03e9530d17e365d295fae65ace2",
+      "candidate_id": "ca3eec1a909d9a8ac242d8f3a78d71416773d03e9530d17e365d295fae65ace2",
+      "created_opportunity": 27,
+      "fitness": -0.991926,
+      "hypothesis": "Using 1.75\u00d7 MLPs in layers 0\u20131, 3.25\u00d7 in layers 2\u20133, and 5.5\u00d7 in layers 4\u20137 will preserve roughly 500M-token throughput and reduce val_bpb below 0.991736.",
+      "intended_edit": "Restore the proven uniform 5.5\u00d7 upper-half allocation and interpolate the lower-half taper between the tested 2\u00d7/3\u00d7 and 1.5\u00d7/3.5\u00d7 designs while preserving total parameters and aggregate MLP compute.",
+      "metrics": {
+        "depth": 8.0,
+        "mfu_percent": 37.36,
+        "num_params_M": 50.3,
+        "num_steps": 971.0,
+        "peak_vram_mb": 45067.2,
+        "total_tokens_M": 509.1,
+        "training_seconds": 300.2,
+        "val_bpb": 0.991926
+      },
+      "parent_ids": [
+        "4de4803d42647a22e5a6d8c555104d07af9421d7bc276c9ddecf0555b4be98e2"
+      ],
+      "retained_order": 27,
+      "selected_count": 10
+    },
+    "ccf0fe48f6cefebc9b7eb63574e3589b9924b475b24480b5a08854032b0fe5ec": {
+      "artifact_path": "candidates/ccf0fe48f6cefebc9b7eb63574e3589b9924b475b24480b5a08854032b0fe5ec",
+      "candidate_id": "ccf0fe48f6cefebc9b7eb63574e3589b9924b475b24480b5a08854032b0fe5ec",
+      "created_opportunity": 11,
+      "fitness": -0.994459,
+      "hypothesis": "A 52% warmdown will preserve roughly 511M-token throughput and reduce val_bpb below 0.993287 by placing the decay length near the bracketed optimum between the tested 50% and 60% schedules.",
+      "intended_edit": "Shorten the current linear warmdown from 60% to 52% of the training window while preserving the proven architecture, batch size, and optimizer.",
+      "metrics": {
+        "depth": 8.0,
+        "mfu_percent": 36.93,
+        "num_params_M": 50.3,
+        "num_steps": 960.0,
+        "peak_vram_mb": 45060.2,
+        "total_tokens_M": 503.3,
+        "training_seconds": 300.2,
+        "val_bpb": 0.994459
+      },
+      "parent_ids": [
+        "8739f3a112cc296b7e52346edda0d7c193dbfb73b3aec6a3e9ed03bb18a2b8f5"
+      ],
+      "retained_order": 11,
+      "selected_count": 0
+    },
+    "cf68dc3f1c1e3c3a4531b78ecaf5ff9769397db8aa7fad60cf5ba658d5dbff3b": {
+      "artifact_path": "candidates/cf68dc3f1c1e3c3a4531b78ecaf5ff9769397db8aa7fad60cf5ba658d5dbff3b",
+      "candidate_id": "cf68dc3f1c1e3c3a4531b78ecaf5ff9769397db8aa7fad60cf5ba658d5dbff3b",
+      "created_opportunity": 55,
+      "fitness": -0.984609,
+      "hypothesis": "Restoring the verified 23/25 peak rates and shifting warmdown learning-rate area from its first half to its second half will process at least 490M tokens and reduce val_bpb below 0.983505.",
+      "intended_edit": "Restore the best coupled peak rates, then add a monotonic zero-area sinusoidal perturbation to linear warmdown, lowering rates early in decay and raising them late without changing its endpoints, duration, or total area.",
+      "metrics": {
+        "depth": 8.0,
+        "mfu_percent": 36.73,
+        "num_params_M": 50.3,
+        "num_steps": 2335.0,
+        "peak_vram_mb": 36585.2,
+        "total_tokens_M": 497.3,
+        "training_seconds": 300.0,
+        "val_bpb": 0.984609
+      },
+      "parent_ids": [
+        "fe98fb63f812869234ab07e4c6e117adab0cc9d53dc23713c4ad96ed27ad1a02"
+      ],
+      "retained_order": 55,
+      "selected_count": 0
+    },
+    "de5375379986f5107403e668002cce25495843a2784b330c878bad00e6ccf205": {
+      "artifact_path": "candidates/de5375379986f5107403e668002cce25495843a2784b330c878bad00e6ccf205",
+      "candidate_id": "de5375379986f5107403e668002cce25495843a2784b330c878bad00e6ccf205",
+      "created_opportunity": 14,
+      "fitness": -0.996996,
+      "hypothesis": "Narrowing each MLP from 4\u00d7 to 3\u00d7 while restoring the proven 50% linear warmdown will preserve the established attention geometry, exceed 513.3M training tokens without reducing optimizer-step frequency, and lower val_bpb below 0.993287.",
+      "intended_edit": "Reduce MLP hidden width from 4\u00d7 to 3\u00d7 model dimension and restore WARMDOWN_RATIO from 0.6 to the best verified value of 0.5.",
+      "metrics": {
+        "depth": 8.0,
+        "mfu_percent": 36.18,
+        "num_params_M": 46.1,
+        "num_steps": 1061.0,
+        "peak_vram_mb": 40913.2,
+        "total_tokens_M": 556.3,
+        "training_seconds": 300.2,
+        "val_bpb": 0.996996
+      },
+      "parent_ids": [
+        "8739f3a112cc296b7e52346edda0d7c193dbfb73b3aec6a3e9ed03bb18a2b8f5"
+      ],
+      "retained_order": 14,
+      "selected_count": 0
+    },
+    "df068d3bd8ab55e48b64c8e80ba9b8bd5ac4080491f549c49f0ac823a2def330": {
+      "artifact_path": "candidates/df068d3bd8ab55e48b64c8e80ba9b8bd5ac4080491f549c49f0ac823a2def330",
+      "candidate_id": "df068d3bd8ab55e48b64c8e80ba9b8bd5ac4080491f549c49f0ac823a2def330",
+      "created_opportunity": 41,
+      "fitness": -0.985044,
+      "hypothesis": "A 196,608-token optimizer batch will retain at least 485M training tokens while reducing val_bpb below 0.985237.",
+      "intended_edit": "Use a 96-sequence device batch and optimizer batch three-quarters the current size, preserving one microbatch per update and all learning rates and schedules.",
+      "metrics": {
+        "depth": 8.0,
+        "mfu_percent": 36.48,
+        "num_params_M": 50.3,
+        "num_steps": 2512.0,
+        "peak_vram_mb": 33808.7,
+        "total_tokens_M": 493.9,
+        "training_seconds": 300.0,
+        "val_bpb": 0.985044
+      },
+      "parent_ids": [
+        "af8d3af70d4854627139f5bb5d7ae27d6c84b60a5fcf1a079666105619ac21c3"
+      ],
+      "retained_order": 41,
+      "selected_count": 12
+    },
+    "e738a32d8a472f2740c091d04e39ae7502ab7ece7901a35ff019825afbf62c3a": {
+      "artifact_path": "candidates/e738a32d8a472f2740c091d04e39ae7502ab7ece7901a35ff019825afbf62c3a",
+      "candidate_id": "e738a32d8a472f2740c091d04e39ae7502ab7ece7901a35ff019825afbf62c3a",
+      "created_opportunity": 39,
+      "fitness": -0.989256,
+      "hypothesis": "Halving the optimizer batch again on the proven 2.25\u00d7/2.75\u00d7/5.5\u00d7 architecture will retain at least 440M training tokens while increasing parameter-update frequency enough to reduce val_bpb below 0.985237.",
+      "intended_edit": "Restore the best verified MLP taper, reduce the optimizer batch from 262K to 131K tokens, and use a 64-sequence device batch so each optimizer step remains one microbatch.",
+      "metrics": {
+        "depth": 8.0,
+        "mfu_percent": 35.73,
+        "num_params_M": 50.3,
+        "num_steps": 3685.0,
+        "peak_vram_mb": 22705.3,
+        "total_tokens_M": 483.0,
+        "training_seconds": 300.0,
+        "val_bpb": 0.989256
+      },
+      "parent_ids": [
+        "9c848d0bebf20f10c029376284bf256c4a77c6c25d28ae55464a45810226f23f"
+      ],
+      "retained_order": 39,
+      "selected_count": 11
+    },
+    "ee1f1cf686a479f175a9b2178602df52386a3561e80b0612b88ccd725e447c2e": {
+      "artifact_path": "candidates/ee1f1cf686a479f175a9b2178602df52386a3561e80b0612b88ccd725e447c2e",
+      "candidate_id": "ee1f1cf686a479f175a9b2178602df52386a3561e80b0612b88ccd725e447c2e",
+      "created_opportunity": 1,
+      "fitness": -0.993287,
+      "hypothesis": "Reducing the six short-attention layers from 1024 to 512 tokens will increase throughput beyond 497M tokens while the two full-context layers preserve enough long-range modeling to beat 0.995558 val_bpb.",
+      "intended_edit": "Change short attention windows from half-context to quarter-context, retaining the existing SSSL pattern and forced full-context final layer.",
+      "metrics": {
+        "depth": 8.0,
+        "mfu_percent": 37.67,
+        "num_params_M": 50.3,
+        "num_steps": 979.0,
+        "peak_vram_mb": 45060.2,
+        "total_tokens_M": 513.3,
+        "training_seconds": 300.2,
+        "val_bpb": 0.993287
+      },
+      "parent_ids": [
+        "2865e528e18dc51191e4037eaeb5824cb0ea83ede79061b59b8f3caac686da6b"
+      ],
+      "retained_order": 1,
+      "selected_count": 6
+    },
+    "f4ae1a32498a182f424d798168236c57bae2be80a174715a32e32c2cde20aedd": {
+      "artifact_path": "candidates/f4ae1a32498a182f424d798168236c57bae2be80a174715a32e32c2cde20aedd",
+      "candidate_id": "f4ae1a32498a182f424d798168236c57bae2be80a174715a32e32c2cde20aedd",
+      "created_opportunity": 21,
+      "fitness": -0.991816,
+      "hypothesis": "Moving from 3\u00d7/5\u00d7 to 2.5\u00d7/5.5\u00d7 lower/upper MLPs will preserve aggregate parameters and roughly 500M-token throughput while reducing val_bpb below 0.992431.",
+      "intended_edit": "Allocate 2.5\u00d7 MLP width to the lower four layers and 5.5\u00d7 width to the upper four, retaining the 4\u00d7 average width and 50% linear warmdown.",
+      "metrics": {
+        "depth": 8.0,
+        "mfu_percent": 37.36,
+        "num_params_M": 50.3,
+        "num_steps": 971.0,
+        "peak_vram_mb": 45066.0,
+        "total_tokens_M": 509.1,
+        "training_seconds": 300.1,
+        "val_bpb": 0.991816
+      },
+      "parent_ids": [
+        "0157c6ea14f93dec9d28d3d42863ad2b7513f0182c0122e21fafa79e576e9499"
+      ],
+      "retained_order": 21,
+      "selected_count": 7
+    },
+    "faac3477fbe5abbb7e3570e19f7ea945a8f16c8be364f73e038d6d69da18aa79": {
+      "artifact_path": "candidates/faac3477fbe5abbb7e3570e19f7ea945a8f16c8be364f73e038d6d69da18aa79",
+      "candidate_id": "faac3477fbe5abbb7e3570e19f7ea945a8f16c8be364f73e038d6d69da18aa79",
+      "created_opportunity": 33,
+      "fitness": -0.992023,
+      "hypothesis": "Extending linear warmdown from 50% to 60% on the best 2.25\u00d7/2.75\u00d7/5.5\u00d7 architecture will preserve roughly 500M-token throughput and reduce val_bpb below 0.991682.",
+      "intended_edit": "Start the proven linear decay at 40% rather than 50% of the training window while retaining the same peak and zero final learning rates.",
+      "metrics": {
+        "depth": 8.0,
+        "mfu_percent": 37.28,
+        "num_params_M": 50.3,
+        "num_steps": 969.0,
+        "peak_vram_mb": 45068.0,
+        "total_tokens_M": 508.0,
+        "training_seconds": 300.1,
+        "val_bpb": 0.992023
+      },
+      "parent_ids": [
+        "026879a46f507b71b1aa8d8204b1dd56b35e3793037b20f533e2faa713ff3081"
+      ],
+      "retained_order": 33,
+      "selected_count": 0
+    },
+    "fe98fb63f812869234ab07e4c6e117adab0cc9d53dc23713c4ad96ed27ad1a02": {
+      "artifact_path": "candidates/fe98fb63f812869234ab07e4c6e117adab0cc9d53dc23713c4ad96ed27ad1a02",
+      "candidate_id": "fe98fb63f812869234ab07e4c6e117adab0cc9d53dc23713c4ad96ed27ad1a02",
+      "created_opportunity": 46,
+      "fitness": -0.983937,
+      "hypothesis": "A 212,992-token batch with all peak learning rates reduced from 13/14 to 9/10 of their base values will process at least 490M tokens and reduce val_bpb below 0.983699.",
+      "intended_edit": "Restore the best 104-sequence single-microbatch configuration and lower every optimizer-group peak learning rate by 3.08%.",
+      "metrics": {
+        "depth": 8.0,
+        "mfu_percent": 36.66,
+        "num_params_M": 50.3,
+        "num_steps": 2331.0,
+        "peak_vram_mb": 36584.2,
+        "total_tokens_M": 496.5,
+        "training_seconds": 300.1,
+        "val_bpb": 0.983937
+      },
+      "parent_ids": [
+        "8b6445bd4fdf199d4ec902e3064286f697770e15cf3af9a251c252513a28fbfe"
+      ],
+      "retained_order": 46,
+      "selected_count": 14
+    }
+  },
+  "condition": "C3",
+  "conversation_session_id": null,
+  "evaluations_used": 55,
+  "evaluator_seconds_used": 19590.648920402018,
+  "incumbent_id": "3f839e76c7c064905ec449dfd3cbe30a3aba56c2f2a412960bbdb5fafb01e0be",
+  "next_opportunity": 57,
+  "no_search": false,
+  "portfolio_ids": [
+    "fe98fb63f812869234ab07e4c6e117adab0cc9d53dc23713c4ad96ed27ad1a02",
+    "74f801e1f7709a6cdf60a3af16c962ddd12e27dc1761d5286d6c74fc082b600b",
+    "790aac324c6713329cc1457bb465a526d84812127f68d7a86e3c10e07e8255cf",
+    "3f839e76c7c064905ec449dfd3cbe30a3aba56c2f2a412960bbdb5fafb01e0be"
+  ],
+  "proposals_used": 56,
+  "protocol_hash": "d93f667ff4268b72857a7b8dd52642e7eab9babee32c11ebec5bda120d8aa246",
+  "revision": 113,
+  "run_id": "nanogpt-openevolve-v2-1-h100-karpathy_nanogpt_source_only_h100-openevolve-b02-c3",
+  "schema_version": "1.0",
+  "status": "running",
+  "token_budget_continuation_notice_sent": false,
+  "usage": {
+    "cached_input_tokens": 606208,
+    "input_tokens": 2539555,
+    "output_tokens": 148225,
+    "reasoning_output_tokens": 123796
+  }
+}

@@ -1,0 +1,79 @@
+{
+  "artifact_path": "candidates/ea3388ad3cffea727f15c85ac8b7e06a681f28f8ae6f1876d5effd0ce928a0be",
+  "candidate_id": "ea3388ad3cffea727f15c85ac8b7e06a681f28f8ae6f1876d5effd0ce928a0be",
+  "codex_service_tier": "default",
+  "condition": "C0",
+  "conversation_session_id": null,
+  "evaluation": {
+    "evaluator_calls": 1,
+    "evaluator_seconds": 348.16945283301175,
+    "failure_kind": "nonqualification",
+    "fitness": null,
+    "metrics": {
+      "accuracy": 0.9142,
+      "cases": 10010,
+      "correct": 9151,
+      "parameters": 1561,
+      "training_steps": 4999
+    },
+    "valid": false
+  },
+  "evaluator_calls_cumulative": 128,
+  "evaluator_calls_increment": 1,
+  "evaluator_seconds_cumulative": 53949.79262354283,
+  "evaluator_seconds_increment": 348.16945283301175,
+  "event": "proposal_completed",
+  "evicted_candidate_id": null,
+  "evidence": "The 1562-parameter design achieved 0.9999 accuracy, while extra attention and projection anchors fell to 0.721 and 0.9313. The prior embedding-shift attempt did not pass submission checks, so this exact redundancy remains untested and is the most informative next reduction.",
+  "hypothesis": "Correctly removing the exact scalar shift symmetry shared by both embedding tables will reduce the model from 1562 to 1561 parameters while retaining at least 99% accuracy, because all normalized hidden states and output softmax probabilities remain invariant.",
+  "incumbent_after": "0f7da1df25a129e162ad733a79aa672076f441d5126eefa2e51af596f4d1c9ad",
+  "intended_edit": "Fix the first shared embedding anchor at zero, reindex the seven remaining learned anchors, and gauge-transform initialization by subtracting the former anchor from every token and position embedding entry.",
+  "mechanism": "Global embedding-shift gauge fixing",
+  "opportunity": 152,
+  "parent_ids": [
+    "0f7da1df25a129e162ad733a79aa672076f441d5126eefa2e51af596f4d1c9ad"
+  ],
+  "portfolio_after": [
+    "0f7da1df25a129e162ad733a79aa672076f441d5126eefa2e51af596f4d1c9ad"
+  ],
+  "prompt_hashes": {
+    "common_template_sha256": "3f2bea6418b6969c4bf2aa1df18dcda8a3a4ac075bf20c79068c754698b6be5e",
+    "prompt_sha256": "6c3b14f13d566c7a9251934f1df24a05e35ea3d7b47f658c59671acb68613978",
+    "proposal_policy_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "search_state_sha256": "04e5eb078ae1964e4ec65bfeeeb1acd0ffa246e7d54d5e0f997f81f602da28c5",
+    "treatment_skeleton_sha256": "ecd1de4a76dd42f3e88096781a3c2aebd171fd3fcad8726bda9bebab11a04815"
+  },
+  "proposal_type": "ordinary",
+  "proposals_cumulative": 152,
+  "remaining_budget": {
+    "evaluations": 72,
+    "evaluator_seconds": 306050.20737645717,
+    "proposals": 48,
+    "tokens": 96670408
+  },
+  "retained": false,
+  "retention_decision": "invalid",
+  "run_id": "controlled-openevolve-transformer-v2-1-source-only-ten-digit-addition-pair-transformer-openevolve-v2-1-mps-openevolve-b04-c0",
+  "schema_version": "1.0",
+  "selected_parent_ids": [
+    "0f7da1df25a129e162ad733a79aa672076f441d5126eefa2e51af596f4d1c9ad"
+  ],
+  "timestamp": "2026-09-03T20:55:30.047632+00:00",
+  "usage_cumulative": {
+    "cached_input_tokens": 1332608,
+    "input_tokens": 2965439,
+    "output_tokens": 364153,
+    "reasoning_output_tokens": 282072,
+    "total_tokens": 3329592
+  },
+  "usage_increment": {
+    "cached_input_tokens": 10752,
+    "input_tokens": 23705,
+    "output_tokens": 5313,
+    "reasoning_output_tokens": 4046,
+    "total_tokens": 29018
+  },
+  "visible_candidate_ids": [
+    "0f7da1df25a129e162ad733a79aa672076f441d5126eefa2e51af596f4d1c9ad"
+  ]
+}

@@ -1,0 +1,79 @@
+{
+  "artifact_path": "candidates/48fbabe07b02db667730f8ce971e7f1f94f1b3792cb11c8a1f4bf6263ed77558",
+  "candidate_id": "48fbabe07b02db667730f8ce971e7f1f94f1b3792cb11c8a1f4bf6263ed77558",
+  "codex_service_tier": "default",
+  "condition": "C0",
+  "conversation_session_id": null,
+  "evaluation": {
+    "evaluator_calls": 1,
+    "evaluator_seconds": 411.46220733295195,
+    "failure_kind": null,
+    "fitness": -1616.0,
+    "metrics": {
+      "accuracy": 0.9993000000000001,
+      "cases": 10010,
+      "correct": 10003,
+      "parameters": 1616,
+      "training_steps": 4999
+    },
+    "valid": true
+  },
+  "evaluator_calls_cumulative": 59,
+  "evaluator_calls_increment": 1,
+  "evaluator_seconds_cumulative": 34782.824222910334,
+  "evaluator_seconds_increment": 411.46220733295195,
+  "event": "proposal_completed",
+  "evicted_candidate_id": "b10d293f53ddbc25f68e676e387662daea147e0e822cfcb986d92da8b53d492f",
+  "evidence": "The current global embedding quotient reaches 99.83%. Unlike the isolated positional-row quotient that fell to 37.73%, this gauge leaves every token-plus-position input exactly unchanged; feature 4 is also the strongest coordinate-specific choice, having supported successful LayerNorm-scale, LayerNorm-bias, and MLP-output gauges.",
+  "hypothesis": "Fixing feature-4 of the final token row and transferring its offset into every positional row will reduce the model from 1617 to 1616 parameters while retaining at least 99% accuracy, because token-plus-position inputs and output probabilities are unchanged, and the virtual AdamW path reproduces the omitted gradients and updates.",
+  "incumbent_after": "48fbabe07b02db667730f8ce971e7f1f94f1b3792cb11c8a1f4bf6263ed77558",
+  "intended_edit": "Extend the token-embedding quotient by one coordinate, transfer that coordinate into positional embeddings at initialization, and jointly optimize token and positional parameters with both omitted coordinates restored virtually.",
+  "mechanism": "Joint token\u2013position common-column gauge",
+  "opportunity": 59,
+  "parent_ids": [
+    "b10d293f53ddbc25f68e676e387662daea147e0e822cfcb986d92da8b53d492f"
+  ],
+  "portfolio_after": [
+    "48fbabe07b02db667730f8ce971e7f1f94f1b3792cb11c8a1f4bf6263ed77558"
+  ],
+  "prompt_hashes": {
+    "common_template_sha256": "3f2bea6418b6969c4bf2aa1df18dcda8a3a4ac075bf20c79068c754698b6be5e",
+    "prompt_sha256": "89341b54f5204b4ee4e53e41ab32964fed77125ba6fa2c2e43487076c78f2532",
+    "proposal_policy_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "search_state_sha256": "04e5eb078ae1964e4ec65bfeeeb1acd0ffa246e7d54d5e0f997f81f602da28c5",
+    "treatment_skeleton_sha256": "aff680db16707ed7b2254dcded1a84f13c05a57b828da6c2be5487a2dd780a16"
+  },
+  "proposal_type": "ordinary",
+  "proposals_cumulative": 59,
+  "remaining_budget": {
+    "evaluations": 141,
+    "evaluator_seconds": 325217.17577708967,
+    "proposals": 141,
+    "tokens": 98416189
+  },
+  "retained": true,
+  "retention_decision": "strict_incumbent_improvement",
+  "run_id": "controlled-openevolve-transformer-v2-1-source-only-ten-digit-addition-pair-transformer-openevolve-v2-1-mps-openevolve-b05-c0",
+  "schema_version": "1.0",
+  "selected_parent_ids": [
+    "b10d293f53ddbc25f68e676e387662daea147e0e822cfcb986d92da8b53d492f"
+  ],
+  "timestamp": "2026-08-25T19:19:51.176144+00:00",
+  "usage_cumulative": {
+    "cached_input_tokens": 672000,
+    "input_tokens": 1363301,
+    "output_tokens": 220510,
+    "reasoning_output_tokens": 176828,
+    "total_tokens": 1583811
+  },
+  "usage_increment": {
+    "cached_input_tokens": 24320,
+    "input_tokens": 28010,
+    "output_tokens": 12494,
+    "reasoning_output_tokens": 9087,
+    "total_tokens": 40504
+  },
+  "visible_candidate_ids": [
+    "b10d293f53ddbc25f68e676e387662daea147e0e822cfcb986d92da8b53d492f"
+  ]
+}

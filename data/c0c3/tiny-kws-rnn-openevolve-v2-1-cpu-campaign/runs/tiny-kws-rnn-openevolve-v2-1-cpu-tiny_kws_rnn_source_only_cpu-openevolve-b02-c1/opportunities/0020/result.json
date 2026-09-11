@@ -1,0 +1,99 @@
+{
+  "artifact_path": "candidates/e8ea9992dd4f46a757e999a118c9b65376d0d8213f94713b2cedbc2c82fca2ed",
+  "candidate_id": "e8ea9992dd4f46a757e999a118c9b65376d0d8213f94713b2cedbc2c82fca2ed",
+  "codex_service_tier": "default",
+  "condition": "C1",
+  "conversation_session_id": null,
+  "evaluation": {
+    "evaluator_calls": 1,
+    "evaluator_seconds": 76.14119833288714,
+    "failure_kind": "nonqualification",
+    "fitness": null,
+    "metrics": {
+      "batch_size": 128,
+      "evaluation_cases": 815,
+      "evaluation_split": "public_speaker_disjoint_validation",
+      "examples_processed": 50000,
+      "inference_cost": 2965612016587133683,
+      "maximum_recurrent_steps": 29,
+      "mean_recurrent_steps": 29.0,
+      "median_recurrent_steps": 29,
+      "optimizer_steps": 397,
+      "p95_recurrent_steps": 29,
+      "parameters": 26048,
+      "peak_hidden_elements": 205312,
+      "recurrent_logit_effect": 0.08762191236019135,
+      "recurrent_macs": 567240000,
+      "recurrent_steps": 23635,
+      "state_dependence_effect": 0.3634428381919861,
+      "state_update_effect": 0.4098096489906311,
+      "total_inference_macs": 568544000,
+      "trained_recurrent_logit_effect": 1.376204490661621,
+      "trained_state_dependence_effect": 0.520128071308136,
+      "trained_state_update_effect": 0.5014652013778687,
+      "training_seconds": 57.03650337504223,
+      "validation_accuracy": 0.7177914110429447,
+      "validation_correct": 585,
+      "validation_cross_entropy": 0.8712244513576016
+    },
+    "valid": false
+  },
+  "evaluator_calls_cumulative": 20,
+  "evaluator_calls_increment": 1,
+  "evaluator_seconds_cumulative": 2539.782850792166,
+  "evaluator_seconds_increment": 76.14119833288714,
+  "event": "proposal_completed",
+  "evicted_candidate_id": null,
+  "evidence": "Parallel recurrent blocks already achieved 86.50% accuracy before trimming; replacing each GRU\u2019s three gated matrices with one RNN transition permits 200 aggregate hidden features at 24,000 recurrent MACs per step versus 28,383 currently. This challenges the load-bearing assumption that learned gates are necessary for these short normalized sequences.",
+  "hypothesis": "Two independent 100-unit tanh RNNs over the verified 29-frame schedule will retain at least 85% validation accuracy while reducing total inference MACs below 570 million.",
+  "incumbent_after": "ac21c3198549f046b2738837fd9f39d002d3990f83bba5f6c0a5bf7a4b3dd98f",
+  "intended_edit": "Replace the gated 60+59 recurrence with wider 100+100 ungated recurrent blocks, resizing the state, temporal summary, and classifier while preserving causal mean pooling and frames 3\u201331.",
+  "mechanism": "Wider ungated block-diagonal tanh recurrence",
+  "opportunity": 20,
+  "parent_ids": [
+    "ac21c3198549f046b2738837fd9f39d002d3990f83bba5f6c0a5bf7a4b3dd98f"
+  ],
+  "portfolio_after": [
+    "ac21c3198549f046b2738837fd9f39d002d3990f83bba5f6c0a5bf7a4b3dd98f"
+  ],
+  "prompt_hashes": {
+    "common_template_sha256": "dee04faf4c430276c1036ba97f5705a339857dbdf19117dac88952a5a3a47e9d",
+    "prompt_sha256": "52cbabaf40ca5842143417595b0e13f2558cb48a52f5c44d9605f277246a5001",
+    "proposal_policy_sha256": "f3e935f1a3cb6334e7f39b20b1b6b601cd727de9c5f0c3630206a91f08e358c9",
+    "search_state_sha256": "04e5eb078ae1964e4ec65bfeeeb1acd0ffa246e7d54d5e0f997f81f602da28c5",
+    "treatment_skeleton_sha256": "5c6690df3886eb9cc595f7ea5058c5c0cb6fb71312d3637e1f87b358c0c977bb"
+  },
+  "proposal_type": "assumption_changing",
+  "proposals_cumulative": 20,
+  "remaining_budget": {
+    "evaluations": 180,
+    "evaluator_seconds": 57460.217149207834,
+    "proposals": 180,
+    "tokens": 99578240
+  },
+  "retained": false,
+  "retention_decision": "invalid",
+  "run_id": "tiny-kws-rnn-openevolve-v2-1-cpu-tiny_kws_rnn_source_only_cpu-openevolve-b02-c1",
+  "schema_version": "1.0",
+  "selected_parent_ids": [
+    "ac21c3198549f046b2738837fd9f39d002d3990f83bba5f6c0a5bf7a4b3dd98f"
+  ],
+  "timestamp": "2026-09-04T03:49:59.542477+00:00",
+  "usage_cumulative": {
+    "cached_input_tokens": 215040,
+    "input_tokens": 376687,
+    "output_tokens": 45073,
+    "reasoning_output_tokens": 35944,
+    "total_tokens": 421760
+  },
+  "usage_increment": {
+    "cached_input_tokens": 10752,
+    "input_tokens": 20272,
+    "output_tokens": 4853,
+    "reasoning_output_tokens": 4050,
+    "total_tokens": 25125
+  },
+  "visible_candidate_ids": [
+    "ac21c3198549f046b2738837fd9f39d002d3990f83bba5f6c0a5bf7a4b3dd98f"
+  ]
+}

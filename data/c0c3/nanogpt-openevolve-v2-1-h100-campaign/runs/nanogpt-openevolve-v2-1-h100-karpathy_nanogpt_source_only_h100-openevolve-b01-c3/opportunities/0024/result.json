@@ -1,0 +1,88 @@
+{
+  "artifact_path": "candidates/f9fbec3ded8f328f7d5df0b692630c178729ceace6e0db0fd87bd2f405fd57b9",
+  "candidate_id": "f9fbec3ded8f328f7d5df0b692630c178729ceace6e0db0fd87bd2f405fd57b9",
+  "codex_service_tier": "fast",
+  "condition": "C3",
+  "conversation_session_id": null,
+  "evaluation": {
+    "evaluator_calls": 1,
+    "evaluator_seconds": 334.30586393500016,
+    "failure_kind": null,
+    "fitness": -0.985713,
+    "metrics": {
+      "depth": 8.0,
+      "mfu_percent": 38.66,
+      "num_params_M": 51.9,
+      "num_steps": 2359.0,
+      "peak_vram_mb": 34974.8,
+      "total_tokens_M": 463.8,
+      "training_seconds": 300.0,
+      "val_bpb": 0.985713
+    },
+    "valid": true
+  },
+  "evaluator_calls_cumulative": 24,
+  "evaluator_calls_increment": 1,
+  "evaluator_seconds_cumulative": 10271.000863576968,
+  "evaluator_seconds_increment": 334.30586393500016,
+  "event": "proposal_completed",
+  "evicted_candidate_id": "a8c2216800237df0c13067f6c097580fe31fc155eec60507f49f82fa3b07c485",
+  "evidence": "The 196,608-token design reached 0.986435 versus 0.985506 at 262,144 tokens, but used the same learning rates across 32% more updates; scaling rates by 0.75 preserves its finer update frequency without increasing cumulative learning-rate exposure.",
+  "hypothesis": "A 196,608-token batch with every optimizer learning rate scaled by 0.75 will preserve at least 450M-token throughput while matching the successful 262,144-token run\u2019s cumulative update magnitude, reducing val_bpb below 0.985506.",
+  "incumbent_after": "9e857e3ceb8a4a3b30e7e71d06b9abba205f67b78e877f601084cb54ff381c0f",
+  "intended_edit": "Restore uniform 4.375\u00d7 MLPs, use the proven 196,608-token single-microbatch configuration, and scale all AdamW and Muon learning rates in proportion to batch size.",
+  "mechanism": "Batch-linear learning-rate normalization",
+  "opportunity": 24,
+  "parent_ids": [
+    "a8c2216800237df0c13067f6c097580fe31fc155eec60507f49f82fa3b07c485"
+  ],
+  "portfolio_after": [
+    "f9fbec3ded8f328f7d5df0b692630c178729ceace6e0db0fd87bd2f405fd57b9",
+    "9e857e3ceb8a4a3b30e7e71d06b9abba205f67b78e877f601084cb54ff381c0f",
+    "37c7381c51035c84ef892f34ee47b38ad2d516eee36a4c172f34fab0d3327256",
+    "cd51c0634a1651c5e21a293d8dba439dcdb357346513a1cb0d262673fd0d2b25"
+  ],
+  "prompt_hashes": {
+    "common_template_sha256": "ba85b39aa7288f4f48475376da6cff65661f39cfeb7ac7cde15b2a9a2e692fde",
+    "prompt_sha256": "645b47d87c88c55e5b92622e26b0d9591aec8d7ff774df8cd544be81c4f65052",
+    "proposal_policy_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "search_state_sha256": "c938ac007bf70fe8d27f64661175531e51fcb16b38318c328493c32ee292e27e",
+    "treatment_skeleton_sha256": "9bff2984af1056d23012817b0a7aaa3b851cd4aa694227547a8332a44eae2128"
+  },
+  "proposal_type": "ordinary",
+  "proposals_cumulative": 24,
+  "remaining_budget": {
+    "evaluations": 176,
+    "evaluator_seconds": 709728.999136423,
+    "proposals": 176,
+    "tokens": 98851870
+  },
+  "retained": true,
+  "retention_decision": "replaced_selected_parent_on_strict_improvement",
+  "run_id": "nanogpt-openevolve-v2-1-h100-karpathy_nanogpt_source_only_h100-openevolve-b01-c3",
+  "schema_version": "1.0",
+  "selected_parent_ids": [
+    "a8c2216800237df0c13067f6c097580fe31fc155eec60507f49f82fa3b07c485"
+  ],
+  "timestamp": "2026-08-24T00:01:09.933321+00:00",
+  "usage_cumulative": {
+    "cached_input_tokens": 322560,
+    "input_tokens": 1067792,
+    "output_tokens": 80338,
+    "reasoning_output_tokens": 70608,
+    "total_tokens": 1148130
+  },
+  "usage_increment": {
+    "cached_input_tokens": 12032,
+    "input_tokens": 46899,
+    "output_tokens": 5850,
+    "reasoning_output_tokens": 5359,
+    "total_tokens": 52749
+  },
+  "visible_candidate_ids": [
+    "a8c2216800237df0c13067f6c097580fe31fc155eec60507f49f82fa3b07c485",
+    "9e857e3ceb8a4a3b30e7e71d06b9abba205f67b78e877f601084cb54ff381c0f",
+    "37c7381c51035c84ef892f34ee47b38ad2d516eee36a4c172f34fab0d3327256",
+    "cd51c0634a1651c5e21a293d8dba439dcdb357346513a1cb0d262673fd0d2b25"
+  ]
+}

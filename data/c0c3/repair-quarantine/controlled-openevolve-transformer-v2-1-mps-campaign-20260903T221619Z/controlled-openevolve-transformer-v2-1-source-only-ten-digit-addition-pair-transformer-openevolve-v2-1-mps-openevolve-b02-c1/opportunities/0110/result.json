@@ -1,0 +1,79 @@
+{
+  "artifact_path": "candidates/cd30877358b34d8a61d4cd4720e7a3ae6a5569efcf8f9ce8b2e69b139aafd76d",
+  "candidate_id": "cd30877358b34d8a61d4cd4720e7a3ae6a5569efcf8f9ce8b2e69b139aafd76d",
+  "codex_service_tier": "default",
+  "condition": "C1",
+  "conversation_session_id": null,
+  "evaluation": {
+    "evaluator_calls": 1,
+    "evaluator_seconds": 931.8335489169694,
+    "failure_kind": null,
+    "fitness": -868.0,
+    "metrics": {
+      "accuracy": 0.9983,
+      "cases": 10010,
+      "correct": 9993,
+      "parameters": 868,
+      "training_steps": 4999
+    },
+    "valid": true
+  },
+  "evaluator_calls_cumulative": 110,
+  "evaluator_calls_increment": 1,
+  "evaluator_seconds_cumulative": 65671.16764561855,
+  "evaluator_seconds_increment": 931.8335489169694,
+  "event": "proposal_completed",
+  "evicted_candidate_id": "b11b46675c9ac102718b3d10fede5f39c1577412005198b6809614955817e4f1",
+  "evidence": "Mid-pair final-LayerNorm scale sharing achieved 99.75%, and disjoint MLP input pairing achieved 99.93%. This challenges the old assumption that every token needs distinct coefficients on all residual channels, while preserving the independent attention value spaces whose cross-head sharing failed at 15.71%.",
+  "hypothesis": "Because residual coordinates two and three already share an MLP input vector and final-LayerNorm scale successfully, sharing their learned token embedding/readout coefficient will reduce the model by one parameter per vocabulary token while retaining at least 99% accuracy.",
+  "incumbent_after": "cd30877358b34d8a61d4cd4720e7a3ae6a5569efcf8f9ce8b2e69b139aafd76d",
+  "intended_edit": "Store six rather than seven gauge-fixed token contrasts, reconstruct embedding coordinates two and three from one learned column, and initialize that column from their mean; the constraint affects both input representation and the tied language-model classifier.",
+  "mechanism": "Mid-pair tied token-code subspace",
+  "opportunity": 110,
+  "parent_ids": [
+    "b11b46675c9ac102718b3d10fede5f39c1577412005198b6809614955817e4f1"
+  ],
+  "portfolio_after": [
+    "cd30877358b34d8a61d4cd4720e7a3ae6a5569efcf8f9ce8b2e69b139aafd76d"
+  ],
+  "prompt_hashes": {
+    "common_template_sha256": "3f2bea6418b6969c4bf2aa1df18dcda8a3a4ac075bf20c79068c754698b6be5e",
+    "prompt_sha256": "a5825891645d9a8c3a545c36e0d7826b9602a318b198fee2fa884a9b86cdb875",
+    "proposal_policy_sha256": "4a27c08e098e719db007f4d6b37fabe2967b41836bb9070e2513a8a24ff7ce90",
+    "search_state_sha256": "04e5eb078ae1964e4ec65bfeeeb1acd0ffa246e7d54d5e0f997f81f602da28c5",
+    "treatment_skeleton_sha256": "f6216643a0a16afa69989f8d9ee73a5630de93502ba9cc03ba2a4db3380eb463"
+  },
+  "proposal_type": "assumption_changing",
+  "proposals_cumulative": 110,
+  "remaining_budget": {
+    "evaluations": 90,
+    "evaluator_seconds": 294328.83235438145,
+    "proposals": 90,
+    "tokens": 96574903
+  },
+  "retained": true,
+  "retention_decision": "strict_incumbent_improvement",
+  "run_id": "controlled-openevolve-transformer-v2-1-source-only-ten-digit-addition-pair-transformer-openevolve-v2-1-mps-openevolve-b02-c1",
+  "schema_version": "1.0",
+  "selected_parent_ids": [
+    "b11b46675c9ac102718b3d10fede5f39c1577412005198b6809614955817e4f1"
+  ],
+  "timestamp": "2026-09-03T22:07:22.355258+00:00",
+  "usage_cumulative": {
+    "cached_input_tokens": 1046784,
+    "input_tokens": 2959521,
+    "output_tokens": 465576,
+    "reasoning_output_tokens": 380425,
+    "total_tokens": 3425097
+  },
+  "usage_increment": {
+    "cached_input_tokens": 10752,
+    "input_tokens": 29932,
+    "output_tokens": 12064,
+    "reasoning_output_tokens": 11367,
+    "total_tokens": 41996
+  },
+  "visible_candidate_ids": [
+    "b11b46675c9ac102718b3d10fede5f39c1577412005198b6809614955817e4f1"
+  ]
+}

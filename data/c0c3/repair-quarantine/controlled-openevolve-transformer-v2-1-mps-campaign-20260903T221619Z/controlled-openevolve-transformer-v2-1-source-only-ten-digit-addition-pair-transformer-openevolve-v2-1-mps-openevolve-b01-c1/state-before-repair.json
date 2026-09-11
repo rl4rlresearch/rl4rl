@@ -1,0 +1,1126 @@
+{
+  "active": null,
+  "candidates": {
+    "0947f6e2b7fcb414866ae1fdb365830706d1038ea1fe0128eec9b34abeefe4b4": {
+      "artifact_path": "candidates/0947f6e2b7fcb414866ae1fdb365830706d1038ea1fe0128eec9b34abeefe4b4",
+      "candidate_id": "0947f6e2b7fcb414866ae1fdb365830706d1038ea1fe0128eec9b34abeefe4b4",
+      "created_opportunity": 85,
+      "fitness": -1540.0,
+      "hypothesis": "Constraining `fc1` row 9 alongside rows 0\u20132 and 10\u201311 will reduce the model to 1,540 parameters while retaining at least 99% accuracy, indicating that the tail-neuron optimization tolerance extends beyond the final two rows.",
+      "intended_edit": "Remove the final input-weight coordinate from `fc1` row 9 and canonicalize its fresh initialization, preserving all existing constraints and training settings.",
+      "metrics": {
+        "accuracy": 0.9989,
+        "cases": 10010,
+        "correct": 9999,
+        "parameters": 1540,
+        "training_steps": 4999
+      },
+      "parent_ids": [
+        "cfd7350240db1b40938248b175ba475be2ea672df6011fcb330e559b77f1a866"
+      ],
+      "retained_order": 85,
+      "selected_count": 1
+    },
+    "0b081eddb2c4c74bd336f64baf9e144e4baf3d675dd74b8134a28071d36cef59": {
+      "artifact_path": "candidates/0b081eddb2c4c74bd336f64baf9e144e4baf3d675dd74b8134a28071d36cef59",
+      "candidate_id": "0b081eddb2c4c74bd336f64baf9e144e4baf3d675dd74b8134a28071d36cef59",
+      "created_opportunity": 113,
+      "fitness": -1532.0,
+      "hypothesis": "Mean-centering positional content coordinate two and transferring its removed common component into the matching non-decayed token coordinate will reduce the model from 1,533 to 1,532 parameters while retaining at least 99% accuracy.",
+      "intended_edit": "Represent positional content coordinate two in the existing position-mean-free basis, reconstruct it during the forward pass, and transfer its initialization mean into token embeddings so initial token-plus-position inputs remain unchanged.",
+      "metrics": {
+        "accuracy": 1.0,
+        "cases": 10010,
+        "correct": 10010,
+        "parameters": 1532,
+        "training_steps": 4999
+      },
+      "parent_ids": [
+        "63e7658b907b9e4c30f1dad3db47809b5f0bed69420aa540dcb241ece23062d0"
+      ],
+      "retained_order": 113,
+      "selected_count": 1
+    },
+    "0db570d96b3a92065765061257b3c3114441631ae43ba3a976488072b3a09a3c": {
+      "artifact_path": "candidates/0db570d96b3a92065765061257b3c3114441631ae43ba3a976488072b3a09a3c",
+      "candidate_id": "0db570d96b3a92065765061257b3c3114441631ae43ba3a976488072b3a09a3c",
+      "created_opportunity": 46,
+      "fitness": -1578.0,
+      "hypothesis": "Removing one `fc1` bias scalar will reduce the model from 1,579 to 1,578 parameters while retaining at least 99% accuracy, because `ln2`\u2019s six learned bias coordinates can generate the omitted neuron offset through its learned weight row, while the other `fc1` biases cancel collateral offsets.",
+      "intended_edit": "Replace the MLP\u2019s first linear layer with an otherwise identical layer whose final output-bias coordinate is fixed at zero, preserving all successful attention, embedding, final-LayerNorm, initialization, and optimizer settings.",
+      "metrics": {
+        "accuracy": 0.9992,
+        "cases": 10010,
+        "correct": 10002,
+        "parameters": 1578,
+        "training_steps": 4999
+      },
+      "parent_ids": [
+        "9d9c0914c643457ae70436f1bbcdd9952a895265391543fc00477124d81f206f"
+      ],
+      "retained_order": 46,
+      "selected_count": 5
+    },
+    "11bfb9fdba996255746ceb9fc36d59da8adfb44c137b754174eac37cf2381f1f": {
+      "artifact_path": "candidates/11bfb9fdba996255746ceb9fc36d59da8adfb44c137b754174eac37cf2381f1f",
+      "candidate_id": "11bfb9fdba996255746ceb9fc36d59da8adfb44c137b754174eac37cf2381f1f",
+      "created_opportunity": 53,
+      "fitness": -1554.0,
+      "hypothesis": "Constraining only the sixth positional coordinate to be mean-free across positions will reduce the model from 1,555 to 1,554 parameters while retaining at least 99% accuracy, because it preserves all position-dependent variation in the coordinate whose wholesale removal caused the 52.62% collapse.",
+      "intended_edit": "Reparameterize the sixth positional coordinate with `INPUT_LEN - 1` orthogonal coordinates, removing only its position-independent component while preserving the original full-width initialization draw and all other behavior.",
+      "metrics": {
+        "accuracy": 0.9992,
+        "cases": 10010,
+        "correct": 10002,
+        "parameters": 1554,
+        "training_steps": 4999
+      },
+      "parent_ids": [
+        "a31033140bec5e1c5b4e66efbe86f6224cf7fa7e3bf85862cd3d58de94dfc7fc"
+      ],
+      "retained_order": 53,
+      "selected_count": 10
+    },
+    "12af434a117adf7aed42b4743250b7833b9cff05e1db51c2434aebdc15d34169": {
+      "artifact_path": "candidates/12af434a117adf7aed42b4743250b7833b9cff05e1db51c2434aebdc15d34169",
+      "candidate_id": "12af434a117adf7aed42b4743250b7833b9cff05e1db51c2434aebdc15d34169",
+      "created_opportunity": 91,
+      "fitness": -1537.0,
+      "hypothesis": "Constraining `fc1` row 6 through its second input coordinate will reduce the model from 1,538 to 1,537 parameters while retaining at least 99% accuracy, because it adds an exact LayerNorm-induced quotient without further concentrating constraints on either the final or first coordinate.",
+      "intended_edit": "Keep the eight verified constraints, remove row 6\u2019s second input weight, and canonicalize its fresh initialization to preserve its initial map on zero-mean inputs.",
+      "metrics": {
+        "accuracy": 0.9995,
+        "cases": 10010,
+        "correct": 10005,
+        "parameters": 1537,
+        "training_steps": 4999
+      },
+      "parent_ids": [
+        "6ff53b2b6ce815895af8e48d45e76cb8ebbff711133fcaef6afe8668851a5e3e"
+      ],
+      "retained_order": 91,
+      "selected_count": 2
+    },
+    "22bd2ac7627ad888e7ed6fe30314e3ffc39f26090d7c6bdf320d5a82d65499fb": {
+      "artifact_path": "candidates/22bd2ac7627ad888e7ed6fe30314e3ffc39f26090d7c6bdf320d5a82d65499fb",
+      "candidate_id": "22bd2ac7627ad888e7ed6fe30314e3ffc39f26090d7c6bdf320d5a82d65499fb",
+      "created_opportunity": 12,
+      "fitness": -1617.0,
+      "hypothesis": "Representing the `fc2` bias with seven orthonormal mean-free coordinates will reduce parameters from 1,618 to 1,617 while retaining at least 99% accuracy, because its omitted all-ones component is canceled by the downstream final LayerNorm.",
+      "intended_edit": "Replace the eight-parameter MLP output bias with a seven-parameter basis representation, preserving constructor RNG consumption, MLP width, and all observable bias directions.",
+      "metrics": {
+        "accuracy": 0.9998,
+        "cases": 10010,
+        "correct": 10008,
+        "parameters": 1617,
+        "training_steps": 4999
+      },
+      "parent_ids": [
+        "f9d14919602a3fe72fe571895c6df52ca62ab2b3b44447f9880ceccd859243e6"
+      ],
+      "retained_order": 12,
+      "selected_count": 1
+    },
+    "232c1e4dcb7b8f0856dd77ecbd02902fec3e39ce169b1a3fa72f279b1fd55e20": {
+      "artifact_path": "candidates/232c1e4dcb7b8f0856dd77ecbd02902fec3e39ce169b1a3fa72f279b1fd55e20",
+      "candidate_id": "232c1e4dcb7b8f0856dd77ecbd02902fec3e39ce169b1a3fa72f279b1fd55e20",
+      "created_opportunity": 64,
+      "fitness": -1552.0,
+      "hypothesis": "Removing a fourth `ln1` bias coordinate will reduce the model from 1,553 to 1,552 parameters while retaining at least 99% accuracy, because the verified three-coordinate pruning shows that downstream query and value biases can absorb these constant affine effects while the key-side effect is softmax-invariant.",
+      "intended_edit": "Replace the three-coordinate-pruned LayerNorm used before attention with a four-coordinate-pruned variant, leaving `ln2`, initialization, and training unchanged.",
+      "metrics": {
+        "accuracy": 1.0,
+        "cases": 10010,
+        "correct": 10010,
+        "parameters": 1552,
+        "training_steps": 4999
+      },
+      "parent_ids": [
+        "bff1b6dec439e135b94899efbcc49e5cfb7ca81826ed9c01989d2692cc691d82"
+      ],
+      "retained_order": 64,
+      "selected_count": 3
+    },
+    "25b94c956a5f02e426f5a70c8143f1c3b93066c70eda95ab3dee6c44910d330e": {
+      "artifact_path": "candidates/25b94c956a5f02e426f5a70c8143f1c3b93066c70eda95ab3dee6c44910d330e",
+      "candidate_id": "25b94c956a5f02e426f5a70c8143f1c3b93066c70eda95ab3dee6c44910d330e",
+      "created_opportunity": 67,
+      "fitness": -1551.0,
+      "hypothesis": "Removing a third `ln2` bias coordinate will reduce the model from 1,552 to 1,551 parameters while retaining at least 99% accuracy, because the current 100%-accurate model already removes two such coordinates and the following `fc1` bias can absorb the additional constant affine effect.",
+      "intended_edit": "Replace the two-coordinate-pruned LayerNorm before the MLP with a three-coordinate-pruned variant, leaving attention, initialization, and training unchanged.",
+      "metrics": {
+        "accuracy": 0.9994,
+        "cases": 10010,
+        "correct": 10004,
+        "parameters": 1551,
+        "training_steps": 4999
+      },
+      "parent_ids": [
+        "232c1e4dcb7b8f0856dd77ecbd02902fec3e39ce169b1a3fa72f279b1fd55e20"
+      ],
+      "retained_order": 67,
+      "selected_count": 1
+    },
+    "29eec0b5f88c53d6828aef2cf7a9db13e21e030299b3febce257e966d165e637": {
+      "artifact_path": "candidates/29eec0b5f88c53d6828aef2cf7a9db13e21e030299b3febce257e966d165e637",
+      "candidate_id": "29eec0b5f88c53d6828aef2cf7a9db13e21e030299b3febce257e966d165e637",
+      "created_opportunity": 79,
+      "fitness": -1544.0,
+      "hypothesis": "Extending the successful `fc1` quotient to a second row will reduce the model from 1,545 to 1,544 parameters while retaining at least 99% accuracy, because each row has the same redundant weight direction induced by the preceding bias-free LayerNorm, and canonicalized initialization preserves the initial function.",
+      "intended_edit": "Constrain the final input-weight coordinate of the first two `fc1` rows, retain all LayerNorm scales and linear biases, and canonicalize both rows during fresh initialization.",
+      "metrics": {
+        "accuracy": 0.9990000000000001,
+        "cases": 10010,
+        "correct": 10000,
+        "parameters": 1544,
+        "training_steps": 4999
+      },
+      "parent_ids": [
+        "6a0de4f0f8a8c3fdb3a2630660ec6bdb7610f39ffa3c0a3948b88d6d6421d9f8"
+      ],
+      "retained_order": 79,
+      "selected_count": 2
+    },
+    "2b9cea175ed60b009337ac54f6e8ad23bf2c014eb4080237777bfb70bfd9fd5b": {
+      "artifact_path": "candidates/2b9cea175ed60b009337ac54f6e8ad23bf2c014eb4080237777bfb70bfd9fd5b",
+      "candidate_id": "2b9cea175ed60b009337ac54f6e8ad23bf2c014eb4080237777bfb70bfd9fd5b",
+      "created_opportunity": 0,
+      "fitness": -1644.0,
+      "hypothesis": "frozen seed baseline",
+      "intended_edit": "none",
+      "metrics": {
+        "accuracy": 0.9995999999999999,
+        "cases": 10010,
+        "correct": 10006,
+        "parameters": 1644,
+        "training_steps": 4999
+      },
+      "parent_ids": [],
+      "retained_order": 0,
+      "selected_count": 5
+    },
+    "3328cf94fe7560685ac7a093587e789dfa16c1f7ac2231f68651e6633f7ebe99": {
+      "artifact_path": "candidates/3328cf94fe7560685ac7a093587e789dfa16c1f7ac2231f68651e6633f7ebe99",
+      "candidate_id": "3328cf94fe7560685ac7a093587e789dfa16c1f7ac2231f68651e6633f7ebe99",
+      "created_opportunity": 134,
+      "fitness": -1521.0,
+      "hypothesis": "Removing one input coefficient from the second key-projection row will reduce the verified model from 1,522 to 1,521 parameters while retaining at least 99% accuracy, because the same LayerNorm constraint and softmax-null key offset that supported pruning the first key row apply independently to every key row.",
+      "intended_edit": "Represent the first two key-projection rows with seven coefficients each, reconstruct their final coefficients as zero, and canonicalize both rows during initialization.",
+      "metrics": {
+        "accuracy": 0.9995999999999999,
+        "cases": 10010,
+        "correct": 10006,
+        "parameters": 1521,
+        "training_steps": 4999
+      },
+      "parent_ids": [
+        "fabfa6bf163ecc0e2986bc69bcc3b2dd4cae52be2a05f200978390e9e82815c3"
+      ],
+      "retained_order": 134,
+      "selected_count": 0
+    },
+    "3a620bf0ff41f8ad24a4d44596f333033150a7316c6967dfba1f59d17c6a0dca": {
+      "artifact_path": "candidates/3a620bf0ff41f8ad24a4d44596f333033150a7316c6967dfba1f59d17c6a0dca",
+      "candidate_id": "3a620bf0ff41f8ad24a4d44596f333033150a7316c6967dfba1f59d17c6a0dca",
+      "created_opportunity": 32,
+      "fitness": -1584.0,
+      "hypothesis": "Restoring the full value bias while quotienting two final-LayerNorm bias degrees of freedom into otherwise hidden token-row means will produce 1,584 parameters and retain at least 99% accuracy.",
+      "intended_edit": "Restore all eight value-bias coordinates, initialize each token embedding row mean-free, and replace the final LayerNorm bias with six learned mean-free coordinates plus a fixed common component that turns token-row means into a direct output-bias channel.",
+      "metrics": {
+        "accuracy": 0.9962000000000001,
+        "cases": 10010,
+        "correct": 9972,
+        "parameters": 1584,
+        "training_steps": 4999
+      },
+      "parent_ids": [
+        "d028ad47218b86e28f80c83cd2a8082552ecabd5fbcd4f55c2d7594d31aebbb6"
+      ],
+      "retained_order": 32,
+      "selected_count": 4
+    },
+    "3ebf326fe7c4ac228ad8feead219e6dd009bcc209bb2c95c7f6ef66b5062a487": {
+      "artifact_path": "candidates/3ebf326fe7c4ac228ad8feead219e6dd009bcc209bb2c95c7f6ef66b5062a487",
+      "candidate_id": "3ebf326fe7c4ac228ad8feead219e6dd009bcc209bb2c95c7f6ef66b5062a487",
+      "created_opportunity": 39,
+      "fitness": -1582.0,
+      "hypothesis": "Removing a fourth final-LayerNorm bias direction while exempting the tied token embedding from weight decay will achieve at least 99% accuracy with 1,582 parameters, because the token-row means that absorb omitted output biases are input-side invisible and should not be penalized toward zero.",
+      "intended_edit": "Reduce the learned final-LayerNorm bias basis from five to four coordinates and use a zero-weight-decay optimizer group for the tied token embedding while retaining configured weight decay elsewhere.",
+      "metrics": {
+        "accuracy": 0.9995,
+        "cases": 10010,
+        "correct": 10005,
+        "parameters": 1582,
+        "training_steps": 4999
+      },
+      "parent_ids": [
+        "c9e4ff7255c20cf9f0c524283479e7b58072adbefc79cc39cc8a46f7c7c0ef73"
+      ],
+      "retained_order": 39,
+      "selected_count": 2
+    },
+    "468bbb14f2b8225c3ca0e34b541b341a3e58c717cee863498c73299166cd6dc4": {
+      "artifact_path": "candidates/468bbb14f2b8225c3ca0e34b541b341a3e58c717cee863498c73299166cd6dc4",
+      "candidate_id": "468bbb14f2b8225c3ca0e34b541b341a3e58c717cee863498c73299166cd6dc4",
+      "created_opportunity": 18,
+      "fitness": -1594.0,
+      "hypothesis": "Pruning one `ln1` bias coordinate will reduce parameters from 1,595 to 1,594 while retaining at least 99% accuracy, because its effect can be represented by the downstream QKV and attention-output biases.",
+      "intended_edit": "Add a one-coordinate-pruned LayerNorm and use it before causal self-attention, leaving the successful two-coordinate `ln2` pruning unchanged.",
+      "metrics": {
+        "accuracy": 0.9962000000000001,
+        "cases": 10010,
+        "correct": 9972,
+        "parameters": 1594,
+        "training_steps": 4999
+      },
+      "parent_ids": [
+        "d5e0660af689749fef5f7e12e4a7f7aa657c3ea41ccbde0fbcd8c98ee02a1dd1"
+      ],
+      "retained_order": 18,
+      "selected_count": 1
+    },
+    "500e7b99a3b0cc99f7511fd79615af374a2ecd605f7812570dc512376028cc21": {
+      "artifact_path": "candidates/500e7b99a3b0cc99f7511fd79615af374a2ecd605f7812570dc512376028cc21",
+      "candidate_id": "500e7b99a3b0cc99f7511fd79615af374a2ecd605f7812570dc512376028cc21",
+      "created_opportunity": 114,
+      "fitness": -1531.0,
+      "hypothesis": "Mean-centering positional content coordinate three and transferring its removed common component into the matching non-decayed token coordinate will reduce the model from 1,532 to 1,531 parameters while retaining at least 99% accuracy.",
+      "intended_edit": "Represent positional content coordinate three in the position-mean-free basis, reconstruct it during the forward pass, and transfer its initialization mean into token embeddings to preserve initial token-plus-position inputs.",
+      "metrics": {
+        "accuracy": 0.9994,
+        "cases": 10010,
+        "correct": 10004,
+        "parameters": 1531,
+        "training_steps": 4999
+      },
+      "parent_ids": [
+        "0b081eddb2c4c74bd336f64baf9e144e4baf3d675dd74b8134a28071d36cef59"
+      ],
+      "retained_order": 114,
+      "selected_count": 2
+    },
+    "5425de7def97224d967138e1769b646a1b0155cba427a41aa5d1df98b01c508d": {
+      "artifact_path": "candidates/5425de7def97224d967138e1769b646a1b0155cba427a41aa5d1df98b01c508d",
+      "candidate_id": "5425de7def97224d967138e1769b646a1b0155cba427a41aa5d1df98b01c508d",
+      "created_opportunity": 25,
+      "fitness": -1586.0,
+      "hypothesis": "Restoring the successful full value bias while removing one exact global-shift degree of freedom from the tied token/output embedding will yield 1,585 parameters and retain at least 99% accuracy.",
+      "intended_edit": "Restore all eight value-bias coordinates, then represent the tied embedding in an orthonormal 111-dimensional mean-free basis while preserving constructor and initialization RNG consumption.",
+      "metrics": {
+        "accuracy": 0.9998999999999999,
+        "cases": 10010,
+        "correct": 10009,
+        "parameters": 1586,
+        "training_steps": 4999
+      },
+      "parent_ids": [
+        "ab335d9641b95fe0fe5eef65fec6aa33947413cc8221b50e02dd3e448d1a12f8"
+      ],
+      "retained_order": 25,
+      "selected_count": 0
+    },
+    "63e7658b907b9e4c30f1dad3db47809b5f0bed69420aa540dcb241ece23062d0": {
+      "artifact_path": "candidates/63e7658b907b9e4c30f1dad3db47809b5f0bed69420aa540dcb241ece23062d0",
+      "candidate_id": "63e7658b907b9e4c30f1dad3db47809b5f0bed69420aa540dcb241ece23062d0",
+      "created_opportunity": 109,
+      "fitness": -1533.0,
+      "hypothesis": "Mean-centering positional content coordinate one and transferring its removed common component into the matching non-decayed token coordinate will reduce the model from 1,534 to 1,533 parameters while retaining at least 99% accuracy.",
+      "intended_edit": "Represent the second positional content coordinate in the existing position-mean-free basis, reconstruct it during the forward pass, and transfer its initialization mean into token embeddings so initial token-plus-position inputs are preserved.",
+      "metrics": {
+        "accuracy": 0.9984000000000001,
+        "cases": 10010,
+        "correct": 9994,
+        "parameters": 1533,
+        "training_steps": 4999
+      },
+      "parent_ids": [
+        "95880bc121c114eddbfc08e9ecb38d0567d91ad40c7e8e859dd3774a20a65407"
+      ],
+      "retained_order": 109,
+      "selected_count": 4
+    },
+    "6a0de4f0f8a8c3fdb3a2630660ec6bdb7610f39ffa3c0a3948b88d6d6421d9f8": {
+      "artifact_path": "candidates/6a0de4f0f8a8c3fdb3a2630660ec6bdb7610f39ffa3c0a3948b88d6d6421d9f8",
+      "candidate_id": "6a0de4f0f8a8c3fdb3a2630660ec6bdb7610f39ffa3c0a3948b88d6d6421d9f8",
+      "created_opportunity": 78,
+      "fitness": -1545.0,
+      "hypothesis": "Removing one `fc1` input-weight scalar will reduce the model from 1,546 to 1,545 parameters while retaining at least 99% accuracy, because zero-mean LayerNorm outputs make one weight direction per MLP neuron functionally redundant while all eight learned `ln2` scales remain trainable.",
+      "intended_edit": "Constrain one `fc1` row to have a fixed final coordinate, canonicalize its fresh initialization to preserve the initial function, and leave the other eleven rows unchanged.",
+      "metrics": {
+        "accuracy": 0.9976,
+        "cases": 10010,
+        "correct": 9986,
+        "parameters": 1545,
+        "training_steps": 4999
+      },
+      "parent_ids": [
+        "99914c2a299a383ad699e55a65f04bc806da8cdf6a9cb427fd28d49bd4c463a6"
+      ],
+      "retained_order": 78,
+      "selected_count": 1
+    },
+    "6ac8604fabbb59b365cac874a7647145b65193dd4a772b8838e064dd02559bdb": {
+      "artifact_path": "candidates/6ac8604fabbb59b365cac874a7647145b65193dd4a772b8838e064dd02559bdb",
+      "candidate_id": "6ac8604fabbb59b365cac874a7647145b65193dd4a772b8838e064dd02559bdb",
+      "created_opportunity": 69,
+      "fitness": -1549.0,
+      "hypothesis": "Removing a fifth `ln2` bias coordinate will reduce the model from 1,550 to 1,549 parameters while retaining at least 99% accuracy, because the following learned `fc1` bias can absorb its constant affine contribution.",
+      "intended_edit": "Extend pre-MLP LayerNorm bias pruning from four coordinates to five while leaving attention, initialization, and training unchanged.",
+      "metrics": {
+        "accuracy": 0.9998,
+        "cases": 10010,
+        "correct": 10008,
+        "parameters": 1549,
+        "training_steps": 4999
+      },
+      "parent_ids": [
+        "fff86e5388a942bb4549bd60bfae365cc71391f872fe2e5aefb21cdaa659a8eb"
+      ],
+      "retained_order": 69,
+      "selected_count": 2
+    },
+    "6ff53b2b6ce815895af8e48d45e76cb8ebbff711133fcaef6afe8668851a5e3e": {
+      "artifact_path": "candidates/6ff53b2b6ce815895af8e48d45e76cb8ebbff711133fcaef6afe8668851a5e3e",
+      "candidate_id": "6ff53b2b6ce815895af8e48d45e76cb8ebbff711133fcaef6afe8668851a5e3e",
+      "created_opportunity": 89,
+      "fitness": -1538.0,
+      "hypothesis": "Constraining row 7 through its first input coordinate will reduce the model to 1,538 parameters while retaining at least 99% accuracy, because it avoids further concentrating all eight quotients on the final LayerNorm coordinate.",
+      "intended_edit": "Keep rows 0\u20132 and 8\u201311 constrained on their final coordinate, but constrain row 7 on its first coordinate and canonicalize initialization to preserve its initial map on zero-mean inputs.",
+      "metrics": {
+        "accuracy": 0.9995,
+        "cases": 10010,
+        "correct": 10005,
+        "parameters": 1538,
+        "training_steps": 4999
+      },
+      "parent_ids": [
+        "e333020868d02c9307efdca10b61da9d643cae56ade4078ce444026ce9604729"
+      ],
+      "retained_order": 89,
+      "selected_count": 2
+    },
+    "780d7fdb6e7bef7bb4646e3e92fe16a65c4a2f3492fca8d705fecc982528e0a7": {
+      "artifact_path": "candidates/780d7fdb6e7bef7bb4646e3e92fe16a65c4a2f3492fca8d705fecc982528e0a7",
+      "candidate_id": "780d7fdb6e7bef7bb4646e3e92fe16a65c4a2f3492fca8d705fecc982528e0a7",
+      "created_opportunity": 10,
+      "fitness": -1619.0,
+      "hypothesis": "Representing each learned 8-dimensional positional vector in the 7-dimensional mean-free subspace will reduce parameters from 1,642 to 1,619 while retaining at least 99% accuracy, because per-position all-ones offsets are removed by every pre-LayerNorm and the final LayerNorm.",
+      "intended_edit": "Replace unconstrained positional embeddings with seven learned orthonormal coordinates reconstructed into a mean-zero 8-dimensional vector, while preserving the baseline initialization function and RNG consumption.",
+      "metrics": {
+        "accuracy": 0.9964,
+        "cases": 10010,
+        "correct": 9974,
+        "parameters": 1619,
+        "training_steps": 4999
+      },
+      "parent_ids": [
+        "878bd3c22c2d806cd1a60b9931c1f2d7a753e42901eb96e3017eef706f71bab7"
+      ],
+      "retained_order": 10,
+      "selected_count": 1
+    },
+    "794ee3f6ed975d9fe91c84f950b4e7e35299512f654a6101633956039a9455f3": {
+      "artifact_path": "candidates/794ee3f6ed975d9fe91c84f950b4e7e35299512f654a6101633956039a9455f3",
+      "candidate_id": "794ee3f6ed975d9fe91c84f950b4e7e35299512f654a6101633956039a9455f3",
+      "created_opportunity": 117,
+      "fitness": -1529.0,
+      "hypothesis": "Fixing `ln2` scale coordinate one at its initialized value of one will reduce the model from 1,530 to 1,529 parameters while retaining at least 99% accuracy, because its effect remains absorbable by the ten trainable `fc1` coefficients that use that coordinate.",
+      "intended_edit": "Retain learned `ln2` scales for coordinates zero and two through six, while reconstructing coordinates one and seven as ones during the forward pass.",
+      "metrics": {
+        "accuracy": 0.9998999999999999,
+        "cases": 10010,
+        "correct": 10009,
+        "parameters": 1529,
+        "training_steps": 4999
+      },
+      "parent_ids": [
+        "7c3ec0c75eb2a5577ba98cb8336f06c75024d0a575330241fe6ae59327f11418"
+      ],
+      "retained_order": 117,
+      "selected_count": 1
+    },
+    "7c3ec0c75eb2a5577ba98cb8336f06c75024d0a575330241fe6ae59327f11418": {
+      "artifact_path": "candidates/7c3ec0c75eb2a5577ba98cb8336f06c75024d0a575330241fe6ae59327f11418",
+      "candidate_id": "7c3ec0c75eb2a5577ba98cb8336f06c75024d0a575330241fe6ae59327f11418",
+      "created_opportunity": 116,
+      "fitness": -1530.0,
+      "hypothesis": "Fixing `ln2` scale coordinate seven at its initialized value of one will reduce the model from 1,531 to 1,530 parameters while retaining at least 99% accuracy, because its effect can be absorbed by the corresponding trainable `fc1` coefficients.",
+      "intended_edit": "Retain seven learned `ln2` scale coordinates and reconstruct the final coordinate as one during the forward pass.",
+      "metrics": {
+        "accuracy": 0.9995999999999999,
+        "cases": 10010,
+        "correct": 10006,
+        "parameters": 1530,
+        "training_steps": 4999
+      },
+      "parent_ids": [
+        "500e7b99a3b0cc99f7511fd79615af374a2ecd605f7812570dc512376028cc21"
+      ],
+      "retained_order": 116,
+      "selected_count": 1
+    },
+    "818f30bb1e1969cf0d57489b206693cb2ac59b73fba5c67344091ee09d419224": {
+      "artifact_path": "candidates/818f30bb1e1969cf0d57489b206693cb2ac59b73fba5c67344091ee09d419224",
+      "candidate_id": "818f30bb1e1969cf0d57489b206693cb2ac59b73fba5c67344091ee09d419224",
+      "created_opportunity": 13,
+      "fitness": -1616.0,
+      "hypothesis": "Representing the attention output-projection bias with seven mean-free coordinates will reduce parameters from 1,617 to 1,616 while retaining at least 99% accuracy, because its omitted all-ones component propagates unchanged through the residual stream and is canceled by downstream LayerNorms.",
+      "intended_edit": "Reuse `MeanFreeResidualLinear` for the attention output projection, preserving its full weight matrix, all seven observable bias directions, and constructor RNG consumption.",
+      "metrics": {
+        "accuracy": 0.9987,
+        "cases": 10010,
+        "correct": 9997,
+        "parameters": 1616,
+        "training_steps": 4999
+      },
+      "parent_ids": [
+        "22bd2ac7627ad888e7ed6fe30314e3ffc39f26090d7c6bdf320d5a82d65499fb"
+      ],
+      "retained_order": 13,
+      "selected_count": 1
+    },
+    "82b25752b35627f169f3a945d968ba6af39db2d19e65d5ad63deb397487602f8": {
+      "artifact_path": "candidates/82b25752b35627f169f3a945d968ba6af39db2d19e65d5ad63deb397487602f8",
+      "candidate_id": "82b25752b35627f169f3a945d968ba6af39db2d19e65d5ad63deb397487602f8",
+      "created_opportunity": 129,
+      "fitness": -1524.0,
+      "hypothesis": "Removing the position-common component of the sole remaining dense positional coordinate will reduce the model from 1,525 to 1,524 parameters while retaining at least 99% accuracy, because transferring that component to the corresponding token-embedding coordinate preserves initialized token-plus-position inputs and is softmax-null under the tied output projection.",
+      "intended_edit": "Represent positional coordinate zero in the mean-free position basis, record its removed common component during initialization, and transfer that component to token-embedding coordinate zero.",
+      "metrics": {
+        "accuracy": 0.9998999999999999,
+        "cases": 10010,
+        "correct": 10009,
+        "parameters": 1524,
+        "training_steps": 4999
+      },
+      "parent_ids": [
+        "aeb317294f5cdaba0bcb74b446d00317b314f03060810088194811cb528274b6"
+      ],
+      "retained_order": 129,
+      "selected_count": 2
+    },
+    "878bd3c22c2d806cd1a60b9931c1f2d7a753e42901eb96e3017eef706f71bab7": {
+      "artifact_path": "candidates/878bd3c22c2d806cd1a60b9931c1f2d7a753e42901eb96e3017eef706f71bab7",
+      "candidate_id": "878bd3c22c2d806cd1a60b9931c1f2d7a753e42901eb96e3017eef706f71bab7",
+      "created_opportunity": 8,
+      "fitness": -1642.0,
+      "hypothesis": "Fixing one softmax-invariant key-bias coordinate to zero will reduce parameters from 1,643 to 1,642 while retaining at least 99% accuracy.",
+      "intended_edit": "Preserve constructor RNG consumption, retain seven of eight key biases and seven of eight value biases, and reconstruct their final coordinates as fixed zeros during QKV projection.",
+      "metrics": {
+        "accuracy": 0.996,
+        "cases": 10010,
+        "correct": 9970,
+        "parameters": 1642,
+        "training_steps": 4999
+      },
+      "parent_ids": [
+        "b6e57bc15c30934e9466ad82de57d97960851250eeda5ca6e37d3439b22198b5"
+      ],
+      "retained_order": 8,
+      "selected_count": 2
+    },
+    "94b60c3de519b3f991173c5f1ba26577fa28f5627dc99c5f6635f6bbeef3d0b7": {
+      "artifact_path": "candidates/94b60c3de519b3f991173c5f1ba26577fa28f5627dc99c5f6635f6bbeef3d0b7",
+      "candidate_id": "94b60c3de519b3f991173c5f1ba26577fa28f5627dc99c5f6635f6bbeef3d0b7",
+      "created_opportunity": 71,
+      "fitness": -1547.0,
+      "hypothesis": "Replacing the three remaining `ln2` bias parameters with the restored twelfth `fc1` bias will reduce the model from 1,549 to 1,547 parameters while retaining at least 99% accuracy, because `fc1` can absorb every constant contribution of the preceding LayerNorm bias.",
+      "intended_edit": "Make pre-MLP LayerNorm bias-free and restore a conventional fully biased `fc1`, eliminating two redundant learned coordinates without reducing the attainable MLP preactivation-bias space.",
+      "metrics": {
+        "accuracy": 0.9987999999999999,
+        "cases": 10010,
+        "correct": 9998,
+        "parameters": 1547,
+        "training_steps": 4999
+      },
+      "parent_ids": [
+        "6ac8604fabbb59b365cac874a7647145b65193dd4a772b8838e064dd02559bdb"
+      ],
+      "retained_order": 71,
+      "selected_count": 5
+    },
+    "94deb064232b95b934fe58022f10f3dccf8091f01d2530db0c7e68c1e59e42c0": {
+      "artifact_path": "candidates/94deb064232b95b934fe58022f10f3dccf8091f01d2530db0c7e68c1e59e42c0",
+      "candidate_id": "94deb064232b95b934fe58022f10f3dccf8091f01d2530db0c7e68c1e59e42c0",
+      "created_opportunity": 14,
+      "fitness": -1615.0,
+      "hypothesis": "Fixing a second `ln2` bias coordinate to zero will reduce parameters from 1,616 to 1,615 while retaining at least 99% accuracy, because both omitted coordinates can be absorbed into the retained `fc1` bias.",
+      "intended_edit": "Retain six of eight second pre-LayerNorm bias coordinates and reconstruct the final two as fixed zeros, leaving all other model capacity and training settings unchanged.",
+      "metrics": {
+        "accuracy": 0.9997,
+        "cases": 10010,
+        "correct": 10007,
+        "parameters": 1615,
+        "training_steps": 4999
+      },
+      "parent_ids": [
+        "818f30bb1e1969cf0d57489b206693cb2ac59b73fba5c67344091ee09d419224"
+      ],
+      "retained_order": 14,
+      "selected_count": 3
+    },
+    "955acebaeb7771c3e532e1f9f1b2ab4ac446fa5d74f37db4e6fd31878936dc85": {
+      "artifact_path": "candidates/955acebaeb7771c3e532e1f9f1b2ab4ac446fa5d74f37db4e6fd31878936dc85",
+      "candidate_id": "955acebaeb7771c3e532e1f9f1b2ab4ac446fa5d74f37db4e6fd31878936dc85",
+      "created_opportunity": 95,
+      "fitness": -1535.0,
+      "hypothesis": "Constraining `fc1` row 3 through its fourth input coordinate will reduce the model from 1,536 to 1,535 parameters while retaining at least 99% accuracy, showing that row 5\u2019s failure on this coordinate was neuron-specific.",
+      "intended_edit": "Remove row 3\u2019s fourth input weight, reconstruct it as zero during the forward pass, and canonicalize its fresh initialization to preserve its initial map on zero-mean LayerNorm inputs.",
+      "metrics": {
+        "accuracy": 0.9987,
+        "cases": 10010,
+        "correct": 9997,
+        "parameters": 1535,
+        "training_steps": 4999
+      },
+      "parent_ids": [
+        "accea2f4a4ff12b37a075ca3482d6d270f2dfc09a7000d762101e05868725cc1"
+      ],
+      "retained_order": 95,
+      "selected_count": 6
+    },
+    "95880bc121c114eddbfc08e9ecb38d0567d91ad40c7e8e859dd3774a20a65407": {
+      "artifact_path": "candidates/95880bc121c114eddbfc08e9ecb38d0567d91ad40c7e8e859dd3774a20a65407",
+      "candidate_id": "95880bc121c114eddbfc08e9ecb38d0567d91ad40c7e8e859dd3774a20a65407",
+      "created_opportunity": 101,
+      "fitness": -1534.0,
+      "hypothesis": "Constraining `fc1` row 5 through its second input coordinate will reduce the model from 1,535 to 1,534 parameters while retaining at least 99% accuracy, because the identical coordinate parameterization already succeeded on adjacent row 6.",
+      "intended_edit": "Remove row 5\u2019s second input weight, reconstruct it as zero during the forward pass, and canonicalize initialization to preserve its initial map on zero-mean LayerNorm inputs.",
+      "metrics": {
+        "accuracy": 0.9991,
+        "cases": 10010,
+        "correct": 10001,
+        "parameters": 1534,
+        "training_steps": 4999
+      },
+      "parent_ids": [
+        "955acebaeb7771c3e532e1f9f1b2ab4ac446fa5d74f37db4e6fd31878936dc85"
+      ],
+      "retained_order": 101,
+      "selected_count": 8
+    },
+    "978aa345a760642b0dfb1ef9743a759b8678b29e1066e6e5520e862b165031f2": {
+      "artifact_path": "candidates/978aa345a760642b0dfb1ef9743a759b8678b29e1066e6e5520e862b165031f2",
+      "candidate_id": "978aa345a760642b0dfb1ef9743a759b8678b29e1066e6e5520e862b165031f2",
+      "created_opportunity": 41,
+      "fitness": -1581.0,
+      "hypothesis": "Removing a fifth final-LayerNorm bias direction will reduce the model from 1,582 to 1,581 parameters while retaining at least 99% accuracy, because exempting the tied token embedding from weight decay raised the four-direction quotient from 98.28% to 99.95%, demonstrating that its token-row means can reliably learn the replacement output-bias channel.",
+      "intended_edit": "Reduce the final-LayerNorm bias basis from four to three learned coordinates while preserving the successful zero-weight-decay embedding group and all attention, MLP, initialization, and training settings.",
+      "metrics": {
+        "accuracy": 0.9995999999999999,
+        "cases": 10010,
+        "correct": 10006,
+        "parameters": 1581,
+        "training_steps": 4999
+      },
+      "parent_ids": [
+        "3ebf326fe7c4ac228ad8feead219e6dd009bcc209bb2c95c7f6ef66b5062a487"
+      ],
+      "retained_order": 41,
+      "selected_count": 1
+    },
+    "99914c2a299a383ad699e55a65f04bc806da8cdf6a9cb427fd28d49bd4c463a6": {
+      "artifact_path": "candidates/99914c2a299a383ad699e55a65f04bc806da8cdf6a9cb427fd28d49bd4c463a6",
+      "candidate_id": "99914c2a299a383ad699e55a65f04bc806da8cdf6a9cb427fd28d49bd4c463a6",
+      "created_opportunity": 76,
+      "fitness": -1546.0,
+      "hypothesis": "Fixing the remaining learned final-LayerNorm bias coordinate at its initialized zero will reduce the model from 1,547 to 1,546 parameters while retaining at least 99% accuracy, because the fixed common offset preserves the token-row-mean pathway that already supports eliminating the other seven bias parameters.",
+      "intended_edit": "Replace the final LayerNorm\u2019s single learned bias coordinate with only its existing fixed common bias, leaving all attention, scale, embedding, and training pathways unchanged.",
+      "metrics": {
+        "accuracy": 0.9993000000000001,
+        "cases": 10010,
+        "correct": 10003,
+        "parameters": 1546,
+        "training_steps": 4999
+      },
+      "parent_ids": [
+        "94b60c3de519b3f991173c5f1ba26577fa28f5627dc99c5f6635f6bbeef3d0b7"
+      ],
+      "retained_order": 76,
+      "selected_count": 2
+    },
+    "9a58898065b4005c06b9a6df5918828f4c1f20cf761534f40d25290309d542e5": {
+      "artifact_path": "candidates/9a58898065b4005c06b9a6df5918828f4c1f20cf761534f40d25290309d542e5",
+      "candidate_id": "9a58898065b4005c06b9a6df5918828f4c1f20cf761534f40d25290309d542e5",
+      "created_opportunity": 124,
+      "fitness": -1526.0,
+      "hypothesis": "Fixing `ln2` scale coordinate five at one will reduce the model from 1,527 to 1,526 parameters while retaining at least 99% accuracy, because all twelve `fc1` rows have trainable coefficients for that coordinate and can absorb its scale.",
+      "intended_edit": "Retain learned `ln2` scales only for coordinates zero, three, and six, reconstructing coordinates one, two, four, five, and seven as ones.",
+      "metrics": {
+        "accuracy": 0.9982,
+        "cases": 10010,
+        "correct": 9992,
+        "parameters": 1526,
+        "training_steps": 4999
+      },
+      "parent_ids": [
+        "f5c0453576d1ffacf9d0a0b93691ed8fabc8082677054ebaeebef262bc1ea449"
+      ],
+      "retained_order": 124,
+      "selected_count": 4
+    },
+    "9b519846ec9a71338f9da83c7799933670199822ddf036edb7e815f14c3869a4": {
+      "artifact_path": "candidates/9b519846ec9a71338f9da83c7799933670199822ddf036edb7e815f14c3869a4",
+      "candidate_id": "9b519846ec9a71338f9da83c7799933670199822ddf036edb7e815f14c3869a4",
+      "created_opportunity": 83,
+      "fitness": -1542.0,
+      "hypothesis": "Constraining the last `fc1` row instead of the fourth row will produce a 1,542-parameter model with at least 99% accuracy, showing whether the previous collapse was specific to which initialized neuron received the fourth constraint.",
+      "intended_edit": "Retain the successful constraints on rows 0\u20132, additionally remove the final input-weight coordinate from row 11, and canonicalize all four affected rows while preserving the freshly initialized function.",
+      "metrics": {
+        "accuracy": 0.9984999999999999,
+        "cases": 10010,
+        "correct": 9995,
+        "parameters": 1542,
+        "training_steps": 4999
+      },
+      "parent_ids": [
+        "c6999d1da3a1cad23a0600a7c124280e7d8a90945d8cc61238aa1c69f4ece36a"
+      ],
+      "retained_order": 83,
+      "selected_count": 1
+    },
+    "9d9c0914c643457ae70436f1bbcdd9952a895265391543fc00477124d81f206f": {
+      "artifact_path": "candidates/9d9c0914c643457ae70436f1bbcdd9952a895265391543fc00477124d81f206f",
+      "candidate_id": "9d9c0914c643457ae70436f1bbcdd9952a895265391543fc00477124d81f206f",
+      "created_opportunity": 43,
+      "fitness": -1579.0,
+      "hypothesis": "Orthogonally isolating the decay-free token-row-mean output-bias coordinates before removing a seventh final-LayerNorm bias direction will produce a 1,579-parameter model with at least 99% accuracy.",
+      "intended_edit": "Reparameterize the unchanged globally mean-free tied embedding into row-centered content and explicit mean-free row offsets, keep both components free of weight decay, and reduce the final-LayerNorm learned bias basis from two coordinates to one.",
+      "metrics": {
+        "accuracy": 1.0,
+        "cases": 10010,
+        "correct": 10010,
+        "parameters": 1579,
+        "training_steps": 4999
+      },
+      "parent_ids": [
+        "a4f2c599a2c7ec514e704b3a604a9761879dd67a002a9a35a558eb3da16d503a"
+      ],
+      "retained_order": 43,
+      "selected_count": 3
+    },
+    "a31033140bec5e1c5b4e66efbe86f6224cf7fa7e3bf85862cd3d58de94dfc7fc": {
+      "artifact_path": "candidates/a31033140bec5e1c5b4e66efbe86f6224cf7fa7e3bf85862cd3d58de94dfc7fc",
+      "candidate_id": "a31033140bec5e1c5b4e66efbe86f6224cf7fa7e3bf85862cd3d58de94dfc7fc",
+      "created_opportunity": 51,
+      "fitness": -1555.0,
+      "hypothesis": "Restricting each learned positional vector from seven to six mean-free coordinates will reduce the model by `INPUT_LEN` parameters while retaining at least 99% accuracy, because the current model reaches 99.92% and this preserves learned absolute positioning, all initialization draws, and six independent positional directions.",
+      "intended_edit": "Remove one orthogonal coordinate from `MeanFreePositionEmbedding`, projecting the unchanged full-width initialization draw into the retained six-dimensional subspace.",
+      "metrics": {
+        "accuracy": 1.0,
+        "cases": 10010,
+        "correct": 10010,
+        "parameters": 1555,
+        "training_steps": 4999
+      },
+      "parent_ids": [
+        "0db570d96b3a92065765061257b3c3114441631ae43ba3a976488072b3a09a3c"
+      ],
+      "retained_order": 51,
+      "selected_count": 2
+    },
+    "a4f2c599a2c7ec514e704b3a604a9761879dd67a002a9a35a558eb3da16d503a": {
+      "artifact_path": "candidates/a4f2c599a2c7ec514e704b3a604a9761879dd67a002a9a35a558eb3da16d503a",
+      "candidate_id": "a4f2c599a2c7ec514e704b3a604a9761879dd67a002a9a35a558eb3da16d503a",
+      "created_opportunity": 42,
+      "fitness": -1580.0,
+      "hypothesis": "Removing a sixth final-LayerNorm bias direction will reduce the model from 1,581 to 1,580 parameters while retaining at least 99% accuracy, because the zero-weight-decay token-row-mean channel achieved 99.96% accuracy after absorbing five bias directions.",
+      "intended_edit": "Reduce the final-LayerNorm learned bias basis from three to two coordinates while preserving the successful embedding optimizer group and all attention, MLP, initialization, and decoding behavior.",
+      "metrics": {
+        "accuracy": 0.9913,
+        "cases": 10010,
+        "correct": 9923,
+        "parameters": 1580,
+        "training_steps": 4999
+      },
+      "parent_ids": [
+        "978aa345a760642b0dfb1ef9743a759b8678b29e1066e6e5520e862b165031f2"
+      ],
+      "retained_order": 42,
+      "selected_count": 1
+    },
+    "ab335d9641b95fe0fe5eef65fec6aa33947413cc8221b50e02dd3e448d1a12f8": {
+      "artifact_path": "candidates/ab335d9641b95fe0fe5eef65fec6aa33947413cc8221b50e02dd3e448d1a12f8",
+      "candidate_id": "ab335d9641b95fe0fe5eef65fec6aa33947413cc8221b50e02dd3e448d1a12f8",
+      "created_opportunity": 22,
+      "fitness": -1586.0,
+      "hypothesis": "Removing all seven remaining learned key-bias coordinates will reduce parameters from 1,593 to 1,586 while retaining at least 99% accuracy, because each head\u2019s position-independent key bias adds the same scalar to every unmasked attention logit and is canceled exactly by softmax.",
+      "intended_edit": "Retain learned query biases and the seven-coordinate value bias, but reconstruct the entire key bias as zeros while preserving the original linear constructor and initialization behavior.",
+      "metrics": {
+        "accuracy": 0.9994,
+        "cases": 10010,
+        "correct": 10004,
+        "parameters": 1586,
+        "training_steps": 4999
+      },
+      "parent_ids": [
+        "d20407400ad0de7f3ae6871237d8d0137029fef842c23cbf4edfb3a97ef44b25"
+      ],
+      "retained_order": 22,
+      "selected_count": 4
+    },
+    "accea2f4a4ff12b37a075ca3482d6d270f2dfc09a7000d762101e05868725cc1": {
+      "artifact_path": "candidates/accea2f4a4ff12b37a075ca3482d6d270f2dfc09a7000d762101e05868725cc1",
+      "candidate_id": "accea2f4a4ff12b37a075ca3482d6d270f2dfc09a7000d762101e05868725cc1",
+      "created_opportunity": 93,
+      "fitness": -1536.0,
+      "hypothesis": "Constraining `fc1` row 4 through its third input coordinate will reduce the model from 1,537 to 1,536 parameters while retaining at least 99% accuracy, showing that the failed row-5 constraint was another row-specific optimization failure rather than a limit on distributed quotients.",
+      "intended_edit": "Leave row 5 unconstrained, remove row 4\u2019s third input weight, and canonicalize its fresh initialization while preserving its initial map on zero-mean LayerNorm inputs.",
+      "metrics": {
+        "accuracy": 0.9941,
+        "cases": 10010,
+        "correct": 9951,
+        "parameters": 1536,
+        "training_steps": 4999
+      },
+      "parent_ids": [
+        "12af434a117adf7aed42b4743250b7833b9cff05e1db51c2434aebdc15d34169"
+      ],
+      "retained_order": 93,
+      "selected_count": 2
+    },
+    "aeb317294f5cdaba0bcb74b446d00317b314f03060810088194811cb528274b6": {
+      "artifact_path": "candidates/aeb317294f5cdaba0bcb74b446d00317b314f03060810088194811cb528274b6",
+      "candidate_id": "aeb317294f5cdaba0bcb74b446d00317b314f03060810088194811cb528274b6",
+      "created_opportunity": 128,
+      "fitness": -1525.0,
+      "hypothesis": "Removing the position-common component of the fifth retained positional coordinate will reduce the model from 1,526 to 1,525 parameters while retaining at least 99% accuracy, because its input contribution can be transferred exactly to the corresponding token-embedding coordinate and remains softmax-null under the tied output projection.",
+      "intended_edit": "Represent positional coordinate four with a mean-free basis, transfer its initialized common component to token embeddings, and retain coordinate zero as the sole dense positional coordinate.",
+      "metrics": {
+        "accuracy": 0.9987999999999999,
+        "cases": 10010,
+        "correct": 9998,
+        "parameters": 1525,
+        "training_steps": 4999
+      },
+      "parent_ids": [
+        "9a58898065b4005c06b9a6df5918828f4c1f20cf761534f40d25290309d542e5"
+      ],
+      "retained_order": 128,
+      "selected_count": 1
+    },
+    "b31037591ae53bede1013d2e759802fa65797d866e9c26ec0e6ae47c56af69e7": {
+      "artifact_path": "candidates/b31037591ae53bede1013d2e759802fa65797d866e9c26ec0e6ae47c56af69e7",
+      "candidate_id": "b31037591ae53bede1013d2e759802fa65797d866e9c26ec0e6ae47c56af69e7",
+      "created_opportunity": 131,
+      "fitness": -1523.0,
+      "hypothesis": "Fixing `ln1` bias coordinate three at zero will reduce the model from 1,524 to 1,523 parameters while retaining at least 99% accuracy, because its query and value effects remain representable by the learned QKV biases while its key effect is softmax-null.",
+      "intended_edit": "Extend the verified four-coordinate `ln1` bias pruning to coordinate three, retaining only the first three learned bias coordinates.",
+      "metrics": {
+        "accuracy": 0.9995,
+        "cases": 10010,
+        "correct": 10005,
+        "parameters": 1523,
+        "training_steps": 4999
+      },
+      "parent_ids": [
+        "82b25752b35627f169f3a945d968ba6af39db2d19e65d5ad63deb397487602f8"
+      ],
+      "retained_order": 131,
+      "selected_count": 2
+    },
+    "b6e57bc15c30934e9466ad82de57d97960851250eeda5ca6e37d3439b22198b5": {
+      "artifact_path": "candidates/b6e57bc15c30934e9466ad82de57d97960851250eeda5ca6e37d3439b22198b5",
+      "candidate_id": "b6e57bc15c30934e9466ad82de57d97960851250eeda5ca6e37d3439b22198b5",
+      "created_opportunity": 5,
+      "fitness": -1643.0,
+      "hypothesis": "Fixing one algebraically redundant value-projection bias coordinate to zero while preserving the baseline constructor RNG sequence will reduce parameters from 1,644 to 1,643 and retain at least 99% accuracy.",
+      "intended_edit": "Retain all query and key biases and seven of eight value biases; reconstruct the final value-bias coordinate as a fixed zero during the QKV projection.",
+      "metrics": {
+        "accuracy": 0.9995999999999999,
+        "cases": 10010,
+        "correct": 10006,
+        "parameters": 1643,
+        "training_steps": 4999
+      },
+      "parent_ids": [
+        "2b9cea175ed60b009337ac54f6e8ad23bf2c014eb4080237777bfb70bfd9fd5b"
+      ],
+      "retained_order": 5,
+      "selected_count": 3
+    },
+    "bff1b6dec439e135b94899efbcc49e5cfb7ca81826ed9c01989d2692cc691d82": {
+      "artifact_path": "candidates/bff1b6dec439e135b94899efbcc49e5cfb7ca81826ed9c01989d2692cc691d82",
+      "candidate_id": "bff1b6dec439e135b94899efbcc49e5cfb7ca81826ed9c01989d2692cc691d82",
+      "created_opportunity": 63,
+      "fitness": -1553.0,
+      "hypothesis": "Removing a third `ln1` bias coordinate will reduce the model from 1,554 to 1,553 parameters while retaining at least 99% accuracy, because downstream query and value biases absorb its constant affine effects while the corresponding key shift is softmax-invariant.",
+      "intended_edit": "Reuse the unused LayerNorm variant as a three-coordinate-pruned LayerNorm and apply it only before attention, leaving `ln2` and all training settings unchanged.",
+      "metrics": {
+        "accuracy": 0.9991,
+        "cases": 10010,
+        "correct": 10001,
+        "parameters": 1553,
+        "training_steps": 4999
+      },
+      "parent_ids": [
+        "11bfb9fdba996255746ceb9fc36d59da8adfb44c137b754174eac37cf2381f1f"
+      ],
+      "retained_order": 63,
+      "selected_count": 1
+    },
+    "c6999d1da3a1cad23a0600a7c124280e7d8a90945d8cc61238aa1c69f4ece36a": {
+      "artifact_path": "candidates/c6999d1da3a1cad23a0600a7c124280e7d8a90945d8cc61238aa1c69f4ece36a",
+      "candidate_id": "c6999d1da3a1cad23a0600a7c124280e7d8a90945d8cc61238aa1c69f4ece36a",
+      "created_opportunity": 81,
+      "fitness": -1543.0,
+      "hypothesis": "Extending the verified `fc1` quotient from two rows to three will reduce the model from 1,544 to 1,543 parameters while retaining at least 99% accuracy, because every `fc1` row has the same redundant input-weight direction induced by the preceding bias-free LayerNorm.",
+      "intended_edit": "Constrain the final input-weight coordinate of the first three `fc1` rows and canonicalize all three rows during fresh initialization, while retaining every LayerNorm scale and linear bias.",
+      "metrics": {
+        "accuracy": 1.0,
+        "cases": 10010,
+        "correct": 10010,
+        "parameters": 1543,
+        "training_steps": 4999
+      },
+      "parent_ids": [
+        "29eec0b5f88c53d6828aef2cf7a9db13e21e030299b3febce257e966d165e637"
+      ],
+      "retained_order": 81,
+      "selected_count": 2
+    },
+    "c9e4ff7255c20cf9f0c524283479e7b58072adbefc79cc39cc8a46f7c7c0ef73": {
+      "artifact_path": "candidates/c9e4ff7255c20cf9f0c524283479e7b58072adbefc79cc39cc8a46f7c7c0ef73",
+      "candidate_id": "c9e4ff7255c20cf9f0c524283479e7b58072adbefc79cc39cc8a46f7c7c0ef73",
+      "created_opportunity": 36,
+      "fitness": -1583.0,
+      "hypothesis": "Removing one additional final-LayerNorm bias direction will reduce the model from 1,584 to 1,583 parameters while retaining at least 99% accuracy, because token-row means provide a learned output-bias channel while remaining invisible to the input-side LayerNorm.",
+      "intended_edit": "Reduce the learned final-LayerNorm bias basis from six to five coordinates, preserving all attention, MLP, value-bias, and training settings.",
+      "metrics": {
+        "accuracy": 0.9991,
+        "cases": 10010,
+        "correct": 10001,
+        "parameters": 1583,
+        "training_steps": 4999
+      },
+      "parent_ids": [
+        "3a620bf0ff41f8ad24a4d44596f333033150a7316c6967dfba1f59d17c6a0dca"
+      ],
+      "retained_order": 36,
+      "selected_count": 3
+    },
+    "cfd7350240db1b40938248b175ba475be2ea672df6011fcb330e559b77f1a866": {
+      "artifact_path": "candidates/cfd7350240db1b40938248b175ba475be2ea672df6011fcb330e559b77f1a866",
+      "candidate_id": "cfd7350240db1b40938248b175ba475be2ea672df6011fcb330e559b77f1a866",
+      "created_opportunity": 84,
+      "fitness": -1541.0,
+      "hypothesis": "Constraining the penultimate `fc1` row alongside rows 0\u20132 and 11 will reduce the model to 1,541 parameters while retaining at least 99% accuracy, indicating that the successful fourth constraint is characteristic of tail MLP neurons rather than unique to row 11.",
+      "intended_edit": "Remove the final input-weight coordinate from `fc1` row 10 and canonicalize its fresh initialization, leaving all previously successful constraints and training settings unchanged.",
+      "metrics": {
+        "accuracy": 0.9995999999999999,
+        "cases": 10010,
+        "correct": 10006,
+        "parameters": 1541,
+        "training_steps": 4999
+      },
+      "parent_ids": [
+        "9b519846ec9a71338f9da83c7799933670199822ddf036edb7e815f14c3869a4"
+      ],
+      "retained_order": 84,
+      "selected_count": 1
+    },
+    "d028ad47218b86e28f80c83cd2a8082552ecabd5fbcd4f55c2d7594d31aebbb6": {
+      "artifact_path": "candidates/d028ad47218b86e28f80c83cd2a8082552ecabd5fbcd4f55c2d7594d31aebbb6",
+      "candidate_id": "d028ad47218b86e28f80c83cd2a8082552ecabd5fbcd4f55c2d7594d31aebbb6",
+      "created_opportunity": 26,
+      "fitness": -1585.0,
+      "hypothesis": "Representing the tied token/output embedding with exactly one fewer learned coordinate will reduce the model from 1,586 to 1,585 parameters while retaining at least 99% accuracy, because the previous global-shift quotient achieved 99.99% accuracy and the removed direction is invisible to both LayerNorm and output softmax.",
+      "intended_edit": "Replace the tied full embedding parameter with an orthonormal mean-free flattened parameterization shared by input lookup and output projection, while preserving the original constructor and initialization RNG draws.",
+      "metrics": {
+        "accuracy": 0.9997,
+        "cases": 10010,
+        "correct": 10007,
+        "parameters": 1585,
+        "training_steps": 4999
+      },
+      "parent_ids": [
+        "ab335d9641b95fe0fe5eef65fec6aa33947413cc8221b50e02dd3e448d1a12f8"
+      ],
+      "retained_order": 26,
+      "selected_count": 6
+    },
+    "d20407400ad0de7f3ae6871237d8d0137029fef842c23cbf4edfb3a97ef44b25": {
+      "artifact_path": "candidates/d20407400ad0de7f3ae6871237d8d0137029fef842c23cbf4edfb3a97ef44b25",
+      "candidate_id": "d20407400ad0de7f3ae6871237d8d0137029fef842c23cbf4edfb3a97ef44b25",
+      "created_opportunity": 19,
+      "fitness": -1593.0,
+      "hypothesis": "Fixing a second `ln1` bias coordinate to zero will reduce parameters from 1,594 to 1,593 while retaining at least 99% accuracy, because its effect can be absorbed by the learned QKV and attention-output biases.",
+      "intended_edit": "Use the existing two-coordinate-pruned LayerNorm before causal self-attention, leaving all other model capacity, initialization, and training settings unchanged.",
+      "metrics": {
+        "accuracy": 0.9987999999999999,
+        "cases": 10010,
+        "correct": 9998,
+        "parameters": 1593,
+        "training_steps": 4999
+      },
+      "parent_ids": [
+        "468bbb14f2b8225c3ca0e34b541b341a3e58c717cee863498c73299166cd6dc4"
+      ],
+      "retained_order": 19,
+      "selected_count": 3
+    },
+    "d5e0660af689749fef5f7e12e4a7f7aa657c3ea41ccbde0fbcd8c98ee02a1dd1": {
+      "artifact_path": "candidates/d5e0660af689749fef5f7e12e4a7f7aa657c3ea41ccbde0fbcd8c98ee02a1dd1",
+      "candidate_id": "d5e0660af689749fef5f7e12e4a7f7aa657c3ea41ccbde0fbcd8c98ee02a1dd1",
+      "created_opportunity": 17,
+      "fitness": -1595.0,
+      "hypothesis": "Constraining both residual-output weight matrices to the seven-dimensional mean-free output subspace will reduce parameters from 1,615 to 1,595 while retaining at least 99% accuracy, because the removed input-dependent all-ones components pass unchanged through residual connections and are canceled by downstream LayerNorms.",
+      "intended_edit": "Represent the attention projection and MLP `fc2` weights with orthonormal mean-free coordinates, reconstruct full weights during forward passes, and preserve full-width initialization RNG consumption.",
+      "metrics": {
+        "accuracy": 0.9961,
+        "cases": 10010,
+        "correct": 9971,
+        "parameters": 1595,
+        "training_steps": 4999
+      },
+      "parent_ids": [
+        "94deb064232b95b934fe58022f10f3dccf8091f01d2530db0c7e68c1e59e42c0"
+      ],
+      "retained_order": 17,
+      "selected_count": 1
+    },
+    "dd1dfd05847d6a5558b62cff33eb255ba0fc1b528b380c00d284b172a991e314": {
+      "artifact_path": "candidates/dd1dfd05847d6a5558b62cff33eb255ba0fc1b528b380c00d284b172a991e314",
+      "candidate_id": "dd1dfd05847d6a5558b62cff33eb255ba0fc1b528b380c00d284b172a991e314",
+      "created_opportunity": 118,
+      "fitness": -1528.0,
+      "hypothesis": "Fixing `ln2` scale coordinate two at one will reduce the model from 1,529 to 1,528 parameters while retaining at least 99% accuracy, because its effect can be absorbed by the eleven trainable `fc1` coefficients using that coordinate.",
+      "intended_edit": "Retain learned `ln2` scales for coordinates zero and three through six, reconstructing coordinates one, two, and seven as ones.",
+      "metrics": {
+        "accuracy": 1.0,
+        "cases": 10010,
+        "correct": 10010,
+        "parameters": 1528,
+        "training_steps": 4999
+      },
+      "parent_ids": [
+        "794ee3f6ed975d9fe91c84f950b4e7e35299512f654a6101633956039a9455f3"
+      ],
+      "retained_order": 118,
+      "selected_count": 5
+    },
+    "e333020868d02c9307efdca10b61da9d643cae56ade4078ce444026ce9604729": {
+      "artifact_path": "candidates/e333020868d02c9307efdca10b61da9d643cae56ade4078ce444026ce9604729",
+      "candidate_id": "e333020868d02c9307efdca10b61da9d643cae56ade4078ce444026ce9604729",
+      "created_opportunity": 86,
+      "fitness": -1539.0,
+      "hypothesis": "Constraining `fc1` row 8 alongside rows 0\u20132 and 9\u201311 will reduce the model to 1,539 parameters while retaining at least 99% accuracy, showing that the tail-neuron optimization tolerance extends through the final four rows.",
+      "intended_edit": "Remove the final input-weight coordinate from `fc1` row 8 and canonicalize its fresh initialization, preserving all existing model and training pathways.",
+      "metrics": {
+        "accuracy": 1.0,
+        "cases": 10010,
+        "correct": 10010,
+        "parameters": 1539,
+        "training_steps": 4999
+      },
+      "parent_ids": [
+        "0947f6e2b7fcb414866ae1fdb365830706d1038ea1fe0128eec9b34abeefe4b4"
+      ],
+      "retained_order": 86,
+      "selected_count": 3
+    },
+    "f5c0453576d1ffacf9d0a0b93691ed8fabc8082677054ebaeebef262bc1ea449": {
+      "artifact_path": "candidates/f5c0453576d1ffacf9d0a0b93691ed8fabc8082677054ebaeebef262bc1ea449",
+      "candidate_id": "f5c0453576d1ffacf9d0a0b93691ed8fabc8082677054ebaeebef262bc1ea449",
+      "created_opportunity": 123,
+      "fitness": -1527.0,
+      "hypothesis": "Fixing `ln2` scale coordinate four at one will reduce the model from 1,528 to 1,527 parameters while retaining at least 99% accuracy, because all twelve `fc1` rows have trainable coefficients for that coordinate and can absorb its scale.",
+      "intended_edit": "Retain learned `ln2` scales for coordinates zero, three, five, and six, reconstructing coordinates one, two, four, and seven as ones.",
+      "metrics": {
+        "accuracy": 0.9997,
+        "cases": 10010,
+        "correct": 10007,
+        "parameters": 1527,
+        "training_steps": 4999
+      },
+      "parent_ids": [
+        "dd1dfd05847d6a5558b62cff33eb255ba0fc1b528b380c00d284b172a991e314"
+      ],
+      "retained_order": 123,
+      "selected_count": 1
+    },
+    "f9d14919602a3fe72fe571895c6df52ca62ab2b3b44447f9880ceccd859243e6": {
+      "artifact_path": "candidates/f9d14919602a3fe72fe571895c6df52ca62ab2b3b44447f9880ceccd859243e6",
+      "candidate_id": "f9d14919602a3fe72fe571895c6df52ca62ab2b3b44447f9880ceccd859243e6",
+      "created_opportunity": 11,
+      "fitness": -1618.0,
+      "hypothesis": "Fixing one coordinate of the second pre-LayerNorm bias to zero will reduce parameters from 1,619 to 1,618 while retaining at least 99% accuracy, because its effect can be absorbed exactly into the retained `fc1` bias.",
+      "intended_edit": "Add a LayerNorm variant with seven learned bias coordinates and use it only before the MLP, reconstructing the eighth coordinate as zero without changing initialization RNG consumption.",
+      "metrics": {
+        "accuracy": 0.9998,
+        "cases": 10010,
+        "correct": 10008,
+        "parameters": 1618,
+        "training_steps": 4999
+      },
+      "parent_ids": [
+        "780d7fdb6e7bef7bb4646e3e92fe16a65c4a2f3492fca8d705fecc982528e0a7"
+      ],
+      "retained_order": 11,
+      "selected_count": 1
+    },
+    "fabfa6bf163ecc0e2986bc69bcc3b2dd4cae52be2a05f200978390e9e82815c3": {
+      "artifact_path": "candidates/fabfa6bf163ecc0e2986bc69bcc3b2dd4cae52be2a05f200978390e9e82815c3",
+      "candidate_id": "fabfa6bf163ecc0e2986bc69bcc3b2dd4cae52be2a05f200978390e9e82815c3",
+      "created_opportunity": 133,
+      "fitness": -1522.0,
+      "hypothesis": "Removing one input coefficient from the first key-projection row will reduce the model from 1,523 to 1,522 parameters while retaining at least 99% accuracy, because LayerNorm outputs have one affine constraint and the resulting position-common key offset is softmax-null.",
+      "intended_edit": "Represent the first key row with seven coefficients, reconstruct its final coefficient as zero, and canonicalize initialization by subtracting the removed coefficient from the retained coefficients.",
+      "metrics": {
+        "accuracy": 0.9995,
+        "cases": 10010,
+        "correct": 10005,
+        "parameters": 1522,
+        "training_steps": 4999
+      },
+      "parent_ids": [
+        "b31037591ae53bede1013d2e759802fa65797d866e9c26ec0e6ae47c56af69e7"
+      ],
+      "retained_order": 133,
+      "selected_count": 1
+    },
+    "fff86e5388a942bb4549bd60bfae365cc71391f872fe2e5aefb21cdaa659a8eb": {
+      "artifact_path": "candidates/fff86e5388a942bb4549bd60bfae365cc71391f872fe2e5aefb21cdaa659a8eb",
+      "candidate_id": "fff86e5388a942bb4549bd60bfae365cc71391f872fe2e5aefb21cdaa659a8eb",
+      "created_opportunity": 68,
+      "fitness": -1550.0,
+      "hypothesis": "Removing a fourth `ln2` bias coordinate will reduce the model from 1,551 to 1,550 parameters while retaining at least 99% accuracy, because the following learned `fc1` bias can absorb the omitted constant affine effect.",
+      "intended_edit": "Extend pre-MLP LayerNorm bias pruning from three coordinates to four, leaving attention, initialization, and training unchanged.",
+      "metrics": {
+        "accuracy": 0.9998,
+        "cases": 10010,
+        "correct": 10008,
+        "parameters": 1550,
+        "training_steps": 4999
+      },
+      "parent_ids": [
+        "25b94c956a5f02e426f5a70c8143f1c3b93066c70eda95ab3dee6c44910d330e"
+      ],
+      "retained_order": 68,
+      "selected_count": 1
+    }
+  },
+  "condition": "C1",
+  "conversation_session_id": null,
+  "evaluations_used": 133,
+  "evaluator_seconds_used": 56574.45393024362,
+  "incumbent_id": "3328cf94fe7560685ac7a093587e789dfa16c1f7ac2231f68651e6633f7ebe99",
+  "next_opportunity": 135,
+  "no_search": false,
+  "portfolio_ids": [
+    "3328cf94fe7560685ac7a093587e789dfa16c1f7ac2231f68651e6633f7ebe99"
+  ],
+  "proposals_used": 134,
+  "protocol_hash": "0247b4415c62d35b231e3347f31a3f63cd54eb4ec6bb2441bfc209e0ee2d3cc4",
+  "revision": 289,
+  "run_id": "controlled-openevolve-transformer-v2-1-source-only-ten-digit-addition-pair-transformer-openevolve-v2-1-mps-openevolve-b01-c1",
+  "schema_version": "1.0",
+  "status": "running",
+  "token_budget_continuation_notice_sent": false,
+  "usage": {
+    "cached_input_tokens": 1418880,
+    "input_tokens": 3142295,
+    "output_tokens": 512735,
+    "reasoning_output_tokens": 409364
+  }
+}

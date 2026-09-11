@@ -1,0 +1,79 @@
+{
+  "artifact_path": "candidates/e814490fd2ef5d265c2ada32e7468302bc44ddbc42c898b68a5e3397cd5bfcc4",
+  "candidate_id": "e814490fd2ef5d265c2ada32e7468302bc44ddbc42c898b68a5e3397cd5bfcc4",
+  "codex_service_tier": "default",
+  "condition": "C1",
+  "conversation_session_id": null,
+  "evaluation": {
+    "evaluator_calls": 1,
+    "evaluator_seconds": 958.3006904169451,
+    "failure_kind": null,
+    "fitness": -866.0,
+    "metrics": {
+      "accuracy": 0.9993000000000001,
+      "cases": 10010,
+      "correct": 10003,
+      "parameters": 866,
+      "training_steps": 4999
+    },
+    "valid": true
+  },
+  "evaluator_calls_cumulative": 99,
+  "evaluator_calls_increment": 1,
+  "evaluator_seconds_cumulative": 56228.990898586926,
+  "evaluator_seconds_increment": 958.3006904169451,
+  "event": "proposal_completed",
+  "evicted_candidate_id": "fcd7804eff441074d1f5fbe3b7e2918fb969a1cc69262cfbddc2a703d94e942a",
+  "evidence": "Fixing the corresponding scale of the biased head\u2019s first query channel produced the current 867-parameter model at 99.96% accuracy; the remaining independently scalable, bias-free second channel admits the same exact quotient.",
+  "hypothesis": "Fixing one nonzero coefficient of the biased head\u2019s second query row will reduce the model from 867 to 866 learned parameters while retaining at least 99% accuracy, because scaling that query channel while inversely scaling its key channel preserves every attention logit and leaves the one-axis query bias unchanged.",
+  "incumbent_after": "e814490fd2ef5d265c2ada32e7468302bc44ddbc42c898b68a5e3397cd5bfcc4",
+  "intended_edit": "Preserve the initialized largest coefficient of the biased head\u2019s second query row as a checkpointed buffer, omit it from learned coordinates, reconstruct it during forward passes, and include the fixed value in ambient AdamW updates.",
+  "mechanism": "Biased-head second-channel diagonal Q/K scale gauge",
+  "opportunity": 99,
+  "parent_ids": [
+    "fcd7804eff441074d1f5fbe3b7e2918fb969a1cc69262cfbddc2a703d94e942a"
+  ],
+  "portfolio_after": [
+    "e814490fd2ef5d265c2ada32e7468302bc44ddbc42c898b68a5e3397cd5bfcc4"
+  ],
+  "prompt_hashes": {
+    "common_template_sha256": "3f2bea6418b6969c4bf2aa1df18dcda8a3a4ac075bf20c79068c754698b6be5e",
+    "prompt_sha256": "962367c8484f68260b54965581ca81a9066db76991de271546f4a51c92fd5b76",
+    "proposal_policy_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "search_state_sha256": "04e5eb078ae1964e4ec65bfeeeb1acd0ffa246e7d54d5e0f997f81f602da28c5",
+    "treatment_skeleton_sha256": "72d627f13e0fe4d5298456e8ee69a82f06248944ce034bf2f203fc76589e0e71"
+  },
+  "proposal_type": "ordinary",
+  "proposals_cumulative": 99,
+  "remaining_budget": {
+    "evaluations": 101,
+    "evaluator_seconds": 303771.0091014131,
+    "proposals": 101,
+    "tokens": 97355781
+  },
+  "retained": true,
+  "retention_decision": "strict_incumbent_improvement",
+  "run_id": "controlled-openevolve-transformer-v2-1-source-only-ten-digit-addition-pair-transformer-openevolve-v2-1-mps-openevolve-b04-c1",
+  "schema_version": "1.0",
+  "selected_parent_ids": [
+    "fcd7804eff441074d1f5fbe3b7e2918fb969a1cc69262cfbddc2a703d94e942a"
+  ],
+  "timestamp": "2026-09-03T11:10:46.232680+00:00",
+  "usage_cumulative": {
+    "cached_input_tokens": 1028864,
+    "input_tokens": 2359122,
+    "output_tokens": 285097,
+    "reasoning_output_tokens": 223657,
+    "total_tokens": 2644219
+  },
+  "usage_increment": {
+    "cached_input_tokens": 10752,
+    "input_tokens": 30537,
+    "output_tokens": 5402,
+    "reasoning_output_tokens": 3852,
+    "total_tokens": 35939
+  },
+  "visible_candidate_ids": [
+    "fcd7804eff441074d1f5fbe3b7e2918fb969a1cc69262cfbddc2a703d94e942a"
+  ]
+}

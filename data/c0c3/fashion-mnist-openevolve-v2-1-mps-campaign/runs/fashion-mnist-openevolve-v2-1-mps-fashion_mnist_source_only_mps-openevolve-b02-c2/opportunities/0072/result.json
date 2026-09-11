@@ -1,0 +1,91 @@
+{
+  "artifact_path": "candidates/f58b8e0fc4ccb694857093b84381ad3d60b2ac1221e1fbcb94f5703ac330fc84",
+  "candidate_id": "f58b8e0fc4ccb694857093b84381ad3d60b2ac1221e1fbcb94f5703ac330fc84",
+  "codex_service_tier": "default",
+  "condition": "C2",
+  "conversation_session_id": null,
+  "evaluation": {
+    "evaluator_calls": 1,
+    "evaluator_seconds": 80.33794945804402,
+    "failure_kind": null,
+    "fitness": 9306.418402705218,
+    "metrics": {
+      "batch_size": 128,
+      "evaluation_cases": 10000,
+      "evaluation_split": "public_validation",
+      "examples_processed": 100000,
+      "optimizer_steps": 782,
+      "parameters": 249855,
+      "training_seconds": 73.99872791697271,
+      "validation_accuracy": 0.9306,
+      "validation_correct": 9306,
+      "validation_cross_entropy": 0.19502095413208007,
+      "validation_score": 9306.418402705218
+    },
+    "valid": true
+  },
+  "evaluator_calls_cumulative": 71,
+  "evaluator_calls_increment": 1,
+  "evaluator_seconds_cumulative": 5902.946899955627,
+  "evaluator_seconds_increment": 80.33794945804402,
+  "event": "proposal_completed",
+  "evicted_candidate_id": null,
+  "evidence": "Plain paired-view cross-entropy with hard-maximum attention reached 9,320 correct, while the ensemble-aware objective reduced that to 9,307; the hard-maximum architecture also finished faster than the 9,322-correct top-four design, leaving schedule refinement as a low-cost orthogonal test.",
+  "hypothesis": "Restoring plain paired-view cross-entropy and raising the cosine schedule floor from 1% to 5% will exceed 9,322 correct predictions by preserving late-stage refinement without adding runtime-heavy operations.",
+  "incumbent_after": "cea074c987f9ccfcd7fabbea1b96c3b6d5fe503a77d9cab9441e6227abe2ff63",
+  "intended_edit": "Remove the harmful arithmetic-ensemble loss and retain more learning rate near the end of the fixed 100,000-example exposure.",
+  "mechanism": "Higher terminal learning-rate floor with plain paired-view supervision",
+  "opportunity": 72,
+  "parent_ids": [
+    "43b0bdb6911510ccb44c9b5dc1e1926c6d17977baae444733e979b9ab5e38582"
+  ],
+  "portfolio_after": [
+    "9f83416d32d3a99654643c13dcd1f34ee87d947eb7d11d5c373a79ca09fde4cb",
+    "4ba035895a76a27e9091e0727f914908930d22bd441dc1c5d997164dea8269e6",
+    "cea074c987f9ccfcd7fabbea1b96c3b6d5fe503a77d9cab9441e6227abe2ff63",
+    "43b0bdb6911510ccb44c9b5dc1e1926c6d17977baae444733e979b9ab5e38582"
+  ],
+  "prompt_hashes": {
+    "common_template_sha256": "e8327ba94bab12abc7c7ec7c6615378a3ae62434efb944d4a7d9492f1d19bc14",
+    "prompt_sha256": "e8dd362b2443e93309116aebb9b7bd9d8ae28feab03608f845ebff3a00c1e3a2",
+    "proposal_policy_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "search_state_sha256": "c938ac007bf70fe8d27f64661175531e51fcb16b38318c328493c32ee292e27e",
+    "treatment_skeleton_sha256": "f5fd8d9f59f641a06daf79a15d976cf9d163b929b2a4fe592968a6645204ecdf"
+  },
+  "proposal_type": "ordinary",
+  "proposals_cumulative": 72,
+  "remaining_budget": {
+    "evaluations": 129,
+    "evaluator_seconds": 18097.053100044373,
+    "proposals": 128,
+    "tokens": 98001474
+  },
+  "retained": false,
+  "retention_decision": "not_strictly_better_than_selected_parent",
+  "run_id": "fashion-mnist-openevolve-v2-1-mps-fashion_mnist_source_only_mps-openevolve-b02-c2",
+  "schema_version": "1.0",
+  "selected_parent_ids": [
+    "43b0bdb6911510ccb44c9b5dc1e1926c6d17977baae444733e979b9ab5e38582"
+  ],
+  "timestamp": "2026-08-24T10:57:57.214837+00:00",
+  "usage_cumulative": {
+    "cached_input_tokens": 766976,
+    "input_tokens": 1727393,
+    "output_tokens": 271133,
+    "reasoning_output_tokens": 230545,
+    "total_tokens": 1998526
+  },
+  "usage_increment": {
+    "cached_input_tokens": 9984,
+    "input_tokens": 24623,
+    "output_tokens": 5480,
+    "reasoning_output_tokens": 5100,
+    "total_tokens": 30103
+  },
+  "visible_candidate_ids": [
+    "9f83416d32d3a99654643c13dcd1f34ee87d947eb7d11d5c373a79ca09fde4cb",
+    "4ba035895a76a27e9091e0727f914908930d22bd441dc1c5d997164dea8269e6",
+    "cea074c987f9ccfcd7fabbea1b96c3b6d5fe503a77d9cab9441e6227abe2ff63",
+    "43b0bdb6911510ccb44c9b5dc1e1926c6d17977baae444733e979b9ab5e38582"
+  ]
+}

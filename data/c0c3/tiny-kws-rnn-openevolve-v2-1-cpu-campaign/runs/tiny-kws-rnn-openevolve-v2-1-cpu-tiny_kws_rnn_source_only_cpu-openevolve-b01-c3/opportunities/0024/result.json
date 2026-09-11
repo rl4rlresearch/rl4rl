@@ -1,0 +1,105 @@
+{
+  "artifact_path": "candidates/49bad27ee330227464d7c9c8c52d72a7b84f1e0b116083f2eea855105b7ffe77",
+  "candidate_id": "49bad27ee330227464d7c9c8c52d72a7b84f1e0b116083f2eea855105b7ffe77",
+  "codex_service_tier": "default",
+  "condition": "C3",
+  "conversation_session_id": null,
+  "evaluation": {
+    "evaluator_calls": 1,
+    "evaluator_seconds": 76.01607437501661,
+    "failure_kind": null,
+    "fitness": -2366367936506767536,
+    "metrics": {
+      "batch_size": 64,
+      "evaluation_cases": 815,
+      "evaluation_split": "public_speaker_disjoint_validation",
+      "examples_processed": 50000,
+      "inference_cost": 2366367936506767536,
+      "maximum_recurrent_steps": 16,
+      "mean_recurrent_steps": 16.0,
+      "median_recurrent_steps": 16,
+      "optimizer_steps": 786,
+      "p95_recurrent_steps": 16,
+      "parameters": 36896,
+      "peak_hidden_elements": 100864,
+      "recurrent_logit_effect": 0.08561943471431732,
+      "recurrent_macs": 452383680,
+      "recurrent_steps": 13040,
+      "state_dependence_effect": 0.4080759584903717,
+      "state_update_effect": 0.4057740271091461,
+      "total_inference_macs": 453661600,
+      "trained_recurrent_logit_effect": 0.4679468870162964,
+      "trained_state_dependence_effect": 0.45201683044433594,
+      "trained_state_update_effect": 0.4436553716659546,
+      "training_seconds": 53.559765374986455,
+      "validation_accuracy": 0.8564417177914111,
+      "validation_correct": 698,
+      "validation_cross_entropy": 0.3973136574212759
+    },
+    "valid": true
+  },
+  "evaluator_calls_cumulative": 23,
+  "evaluator_calls_increment": 1,
+  "evaluator_seconds_cumulative": 2722.5064497054555,
+  "evaluator_seconds_increment": 76.01607437501661,
+  "event": "proposal_completed",
+  "evicted_candidate_id": "93a6428aeb60fe2e6e7c68307bbb65b971115e35e4c52b433de614f8c88e5d54",
+  "evidence": "The mean-only 98-unit model narrowly missed at 84.785% accuracy, while 99 units qualified at 85.521%. Adding the final-state feature costs only 638,960 MACs over the failed 98-unit design and remains 7,856,600 MACs below the qualified 99-unit design.",
+  "hypothesis": "A 98-unit GRU classified from both its mean output and final hidden state will recover at least 85% validation accuracy while requiring approximately 453,661,600 total inference MACs.",
+  "incumbent_after": "49bad27ee330227464d7c9c8c52d72a7b84f1e0b116083f2eea855105b7ffe77",
+  "intended_edit": "Reduce the GRU to 98 units and replace the mean-only classifier with a single linear classifier over the concatenated temporal mean and final hidden state.",
+  "mechanism": "Endpoint-augmented temporal readout",
+  "opportunity": 24,
+  "parent_ids": [
+    "93a6428aeb60fe2e6e7c68307bbb65b971115e35e4c52b433de614f8c88e5d54"
+  ],
+  "portfolio_after": [
+    "016d906da09d1fe9115b3d48dd009dea2faccbbb35792057b39773f1cdb8582b",
+    "25e39edf54ee384d39494f38d0c0a7076084284c14e6798137c74a397351dd27",
+    "49bad27ee330227464d7c9c8c52d72a7b84f1e0b116083f2eea855105b7ffe77",
+    "aa473f8906c02da67c4d92b7a7ed224f50864c74ee4e5c3979382427acfcfdc5"
+  ],
+  "prompt_hashes": {
+    "common_template_sha256": "dee04faf4c430276c1036ba97f5705a339857dbdf19117dac88952a5a3a47e9d",
+    "prompt_sha256": "4959ea6915b6e417a8f5aa742542779e9276c12be0719beef60ef472c4a37b23",
+    "proposal_policy_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "search_state_sha256": "c938ac007bf70fe8d27f64661175531e51fcb16b38318c328493c32ee292e27e",
+    "treatment_skeleton_sha256": "8d29aaf18c91c331196116d3afceda18c85019cbcf0516c09df0637007086d7b"
+  },
+  "proposal_type": "ordinary",
+  "proposals_cumulative": 24,
+  "remaining_budget": {
+    "evaluations": 177,
+    "evaluator_seconds": 57277.493550294545,
+    "proposals": 176,
+    "tokens": 99421397
+  },
+  "retained": true,
+  "retention_decision": "replaced_selected_parent_on_strict_improvement",
+  "run_id": "tiny-kws-rnn-openevolve-v2-1-cpu-tiny_kws_rnn_source_only_cpu-openevolve-b01-c3",
+  "schema_version": "1.0",
+  "selected_parent_ids": [
+    "93a6428aeb60fe2e6e7c68307bbb65b971115e35e4c52b433de614f8c88e5d54"
+  ],
+  "timestamp": "2026-09-04T04:00:25.001080+00:00",
+  "usage_cumulative": {
+    "cached_input_tokens": 258048,
+    "input_tokens": 522345,
+    "output_tokens": 56258,
+    "reasoning_output_tokens": 45950,
+    "total_tokens": 578603
+  },
+  "usage_increment": {
+    "cached_input_tokens": 10752,
+    "input_tokens": 23195,
+    "output_tokens": 1867,
+    "reasoning_output_tokens": 1454,
+    "total_tokens": 25062
+  },
+  "visible_candidate_ids": [
+    "016d906da09d1fe9115b3d48dd009dea2faccbbb35792057b39773f1cdb8582b",
+    "25e39edf54ee384d39494f38d0c0a7076084284c14e6798137c74a397351dd27",
+    "93a6428aeb60fe2e6e7c68307bbb65b971115e35e4c52b433de614f8c88e5d54",
+    "aa473f8906c02da67c4d92b7a7ed224f50864c74ee4e5c3979382427acfcfdc5"
+  ]
+}

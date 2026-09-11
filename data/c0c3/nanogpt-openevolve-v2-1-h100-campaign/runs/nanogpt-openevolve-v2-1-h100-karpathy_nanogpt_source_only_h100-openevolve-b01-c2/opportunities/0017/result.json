@@ -1,0 +1,88 @@
+{
+  "artifact_path": "candidates/2b73305c34bd05716e15e325a1df049aad6b90582b14ad5caf9535b62f775801",
+  "candidate_id": "2b73305c34bd05716e15e325a1df049aad6b90582b14ad5caf9535b62f775801",
+  "codex_service_tier": "fast",
+  "condition": "C2",
+  "conversation_session_id": null,
+  "evaluation": {
+    "evaluator_calls": 1,
+    "evaluator_seconds": 363.1673575169998,
+    "failure_kind": null,
+    "fitness": -1.001821,
+    "metrics": {
+      "depth": 8.0,
+      "mfu_percent": 34.42,
+      "num_params_M": 50.3,
+      "num_steps": 978.0,
+      "peak_vram_mb": 45060.2,
+      "total_tokens_M": 512.8,
+      "training_seconds": 300.0,
+      "val_bpb": 1.001821
+    },
+    "valid": true
+  },
+  "evaluator_calls_cumulative": 17,
+  "evaluator_calls_increment": 1,
+  "evaluator_seconds_cumulative": 6723.6879836439975,
+  "evaluator_seconds_increment": 363.1673575169998,
+  "event": "proposal_completed",
+  "evicted_candidate_id": null,
+  "evidence": "Replacing the intermediate full-context layer with a 512-token local layer improved val_bpb from 0.994770 to 0.993870 and throughput from 503.3M to 518.5M tokens; seven stacked local layers already provide a full-sequence receptive field before the current final anchor.",
+  "hypothesis": "Making all eight layers use 512-token attention will exceed 518.5M training tokens, while the stacked receptive field still spans the full 2,048-token sequence, lowering val_bpb below 0.993870.",
+  "incumbent_after": "8398f6a44da02110e69923d6ad536cb18c5d86e2a95bc65979fedb83351a4164",
+  "intended_edit": "Remove the forced full-context final layer so the existing SSSS pattern produces eight quarter-context attention layers.",
+  "mechanism": "Fully local stacked receptive-field attention",
+  "opportunity": 17,
+  "parent_ids": [
+    "8398f6a44da02110e69923d6ad536cb18c5d86e2a95bc65979fedb83351a4164"
+  ],
+  "portfolio_after": [
+    "2865e528e18dc51191e4037eaeb5824cb0ea83ede79061b59b8f3caac686da6b",
+    "751f6421ee699b4c6ae86e4cb2e4fb251857399c2f9b5720235c590a65eaf50a",
+    "e851f3f277cd5f216a6438df48eb17a425d2354d52becdf00dc0225d90cbbb90",
+    "8398f6a44da02110e69923d6ad536cb18c5d86e2a95bc65979fedb83351a4164"
+  ],
+  "prompt_hashes": {
+    "common_template_sha256": "ba85b39aa7288f4f48475376da6cff65661f39cfeb7ac7cde15b2a9a2e692fde",
+    "prompt_sha256": "d7b3ce6496a57e7d5af47e4d595fd39e3f379bc73339d7b8c1c48ec429ee1655",
+    "proposal_policy_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "search_state_sha256": "c938ac007bf70fe8d27f64661175531e51fcb16b38318c328493c32ee292e27e",
+    "treatment_skeleton_sha256": "2d307b1aecf2e4474697d21af0354b61f5c85306b58b0d1bedf7f0ed402c9c50"
+  },
+  "proposal_type": "ordinary",
+  "proposals_cumulative": 17,
+  "remaining_budget": {
+    "evaluations": 183,
+    "evaluator_seconds": 713276.312016356,
+    "proposals": 183,
+    "tokens": 99201172
+  },
+  "retained": false,
+  "retention_decision": "not_strictly_better_than_selected_parent",
+  "run_id": "nanogpt-openevolve-v2-1-h100-karpathy_nanogpt_source_only_h100-openevolve-b01-c2",
+  "schema_version": "1.0",
+  "selected_parent_ids": [
+    "8398f6a44da02110e69923d6ad536cb18c5d86e2a95bc65979fedb83351a4164"
+  ],
+  "timestamp": "2026-08-23T21:28:27.786661+00:00",
+  "usage_cumulative": {
+    "cached_input_tokens": 167168,
+    "input_tokens": 736892,
+    "output_tokens": 61936,
+    "reasoning_output_tokens": 55608,
+    "total_tokens": 798828
+  },
+  "usage_increment": {
+    "cached_input_tokens": 12032,
+    "input_tokens": 47172,
+    "output_tokens": 1603,
+    "reasoning_output_tokens": 1363,
+    "total_tokens": 48775
+  },
+  "visible_candidate_ids": [
+    "2865e528e18dc51191e4037eaeb5824cb0ea83ede79061b59b8f3caac686da6b",
+    "751f6421ee699b4c6ae86e4cb2e4fb251857399c2f9b5720235c590a65eaf50a",
+    "e851f3f277cd5f216a6438df48eb17a425d2354d52becdf00dc0225d90cbbb90",
+    "8398f6a44da02110e69923d6ad536cb18c5d86e2a95bc65979fedb83351a4164"
+  ]
+}

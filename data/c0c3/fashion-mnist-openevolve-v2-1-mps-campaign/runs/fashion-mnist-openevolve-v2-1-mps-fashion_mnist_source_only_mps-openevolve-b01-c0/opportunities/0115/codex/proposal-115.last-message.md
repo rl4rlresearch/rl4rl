@@ -1,0 +1,15 @@
+MECHANISM: Upper-side sub-quantization live/EMA mixture refinement retry
+
+HYPOTHESIS: A 50.68797302246094% live / 49.31202697753906% EMA mixture will retain 9,290 correct predictions and reduce validation cross-entropy below 0.20248969497680663.
+
+INTENDED_EDIT: Increase the live-model ensemble weight from 0.50687969970703125 to 0.5068797302246094 and reduce the EMA complement accordingly.
+
+EVIDENCE: The current mixture is best at 9,290 correct and 0.20248969497680663 cross-entropy; the sole verification of the adjacent upper midpoint timed out, so retrying it resolves the closest untested local probe.
+
+<<<<<<< SEARCH
+                        live_ensemble + math.log(0.50687969970703125),
+                        ema_ensemble + math.log(0.49312030029296875),
+=======
+                        live_ensemble + math.log(0.5068797302246094),
+                        ema_ensemble + math.log(0.4931202697753906),
+>>>>>>> REPLACE

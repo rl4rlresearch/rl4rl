@@ -1,0 +1,88 @@
+{
+  "artifact_path": "candidates/2e4e679fdd77bbc3fed6a47ae628686a2ccb0d91245639f7c0f5c3c4567dbc26",
+  "candidate_id": "2e4e679fdd77bbc3fed6a47ae628686a2ccb0d91245639f7c0f5c3c4567dbc26",
+  "codex_service_tier": "default",
+  "condition": "C2",
+  "conversation_session_id": null,
+  "evaluation": {
+    "evaluator_calls": 1,
+    "evaluator_seconds": 359.49419447499895,
+    "failure_kind": null,
+    "fitness": -0.983641,
+    "metrics": {
+      "depth": 8.0,
+      "mfu_percent": 35.64,
+      "num_params_M": 50.3,
+      "num_steps": 1967.0,
+      "peak_vram_mb": 44908.2,
+      "total_tokens_M": 515.6,
+      "training_seconds": 300.1,
+      "val_bpb": 0.983641
+    },
+    "valid": true
+  },
+  "evaluator_calls_cumulative": 30,
+  "evaluator_calls_increment": 1,
+  "evaluator_seconds_cumulative": 10511.158408116005,
+  "evaluator_seconds_increment": 359.49419447499895,
+  "event": "proposal_completed",
+  "evicted_candidate_id": "19333425065e68028aa79197d960a71fc0b444fb65bec3a5146e0a4ddea91fa3",
+  "evidence": "Uniform 136-token windows achieved the best val_bpb of 0.983317, outperforming both 128 tokens at 0.983766 and 144 tokens at 0.983758; a 3\u00d7128 plus 3\u00d7144 schedule preserves exactly the same aggregate local-window budget as 6\u00d7136 while testing whether context is more valuable at greater depth.",
+  "hypothesis": "Using 128-token windows in the first three local layers and 144-token windows in the final three local layers will lower val_bpb below 0.983317 by allocating more context to higher-level representations while matching the total local-attention compute of the best homogeneous 136-token design.",
+  "incumbent_after": "a4773d8d9da797249640369db372a5771680031313ab50231d1f103bbd072da4",
+  "intended_edit": "Replace uniform 128-token local attention with 128-token early windows and 144-token late windows, retaining full-context layers 4 and 8 and all optimizer settings.",
+  "mechanism": "Depth-progressive local-context allocation",
+  "opportunity": 30,
+  "parent_ids": [
+    "19333425065e68028aa79197d960a71fc0b444fb65bec3a5146e0a4ddea91fa3"
+  ],
+  "portfolio_after": [
+    "2e4e679fdd77bbc3fed6a47ae628686a2ccb0d91245639f7c0f5c3c4567dbc26",
+    "3a33cb8c30856a8e11eb7d01cc5a45fe311db86799ecf90a8047ea5e8ae52999",
+    "a4773d8d9da797249640369db372a5771680031313ab50231d1f103bbd072da4",
+    "8c52475db4fda09893476c96d40fc69047ae1c48337447459d04d848b6668f86"
+  ],
+  "prompt_hashes": {
+    "common_template_sha256": "ba85b39aa7288f4f48475376da6cff65661f39cfeb7ac7cde15b2a9a2e692fde",
+    "prompt_sha256": "706ef97d2c5033044bc3e312e3274e5f1b56648b32ec95a4413242b716073c52",
+    "proposal_policy_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "search_state_sha256": "c938ac007bf70fe8d27f64661175531e51fcb16b38318c328493c32ee292e27e",
+    "treatment_skeleton_sha256": "9e6a16762cd1e28dda457f745c30d5992bef124d873cdc104ac2759e73fda39d"
+  },
+  "proposal_type": "ordinary",
+  "proposals_cumulative": 30,
+  "remaining_budget": {
+    "evaluations": 170,
+    "evaluator_seconds": 709488.841591884,
+    "proposals": 170,
+    "tokens": 98594077
+  },
+  "retained": true,
+  "retention_decision": "replaced_selected_parent_on_strict_improvement",
+  "run_id": "nanogpt-openevolve-v2-1-h100-karpathy_nanogpt_source_only_h100-openevolve-b02-c2",
+  "schema_version": "1.0",
+  "selected_parent_ids": [
+    "19333425065e68028aa79197d960a71fc0b444fb65bec3a5146e0a4ddea91fa3"
+  ],
+  "timestamp": "2026-08-24T04:42:39.950318+00:00",
+  "usage_cumulative": {
+    "cached_input_tokens": 336640,
+    "input_tokens": 1346984,
+    "output_tokens": 58939,
+    "reasoning_output_tokens": 48220,
+    "total_tokens": 1405923
+  },
+  "usage_increment": {
+    "cached_input_tokens": 12032,
+    "input_tokens": 47042,
+    "output_tokens": 1652,
+    "reasoning_output_tokens": 1195,
+    "total_tokens": 48694
+  },
+  "visible_candidate_ids": [
+    "19333425065e68028aa79197d960a71fc0b444fb65bec3a5146e0a4ddea91fa3",
+    "3a33cb8c30856a8e11eb7d01cc5a45fe311db86799ecf90a8047ea5e8ae52999",
+    "a4773d8d9da797249640369db372a5771680031313ab50231d1f103bbd072da4",
+    "8c52475db4fda09893476c96d40fc69047ae1c48337447459d04d848b6668f86"
+  ]
+}

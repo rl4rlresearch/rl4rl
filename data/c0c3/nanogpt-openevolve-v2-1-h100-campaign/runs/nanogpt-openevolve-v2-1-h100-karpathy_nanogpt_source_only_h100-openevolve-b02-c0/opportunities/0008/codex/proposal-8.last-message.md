@@ -1,0 +1,62 @@
+MECHANISM: Shorter training sequences with occupancy-preserving microbatches
+
+HYPOTHESIS: Training on 1,024-token sequences with 128 sequences per step will beat val_bpb 0.987174 by approximately doubling update frequency while avoiding the throughput collapse seen when the 131K-token batch used only 64 sequences.
+
+INTENDED_EDIT: Use 1,024-token sequences and a 131,072-token single-microbatch training step, retain the fixed 2,048-token model and validation context, and calculate MFU from the actual training sequence length.
+
+EVIDENCE: The 262K-token batch with 128 sequences achieved 489.9M tokens and val_bpb 0.987174, whereas reducing the same 2,048-token workload to 64 or 96 sequences cut throughput to 366.9M and 374.1M tokens; shortening sequences preserves the proven 128-sequence launch while increasing update frequency.
+
+<<<<<<< SEARCH
+    def estimate_flops(self):
+        """Estimated FLOPs per token (forward + backward)."""
+        nparams = sum(p.numel() for p in self.parameters())
+        value_embeds_numel = sum(ve.weight.numel() for ve in self.value_embeds.values())
+        nparams_exclude = (self.transformer.wte.weight.numel() + value_embeds_numel +
+                          self.resid_lambdas.numel() + self.x0_lambdas.numel())
+        h = self.config.n_head
+        q = self.config.n_embd // self.config.n_head
+        t = self.config.sequence_len
+=======
+    def estimate_flops(self, sequence_len=None):
+        """Estimated FLOPs per token (forward + backward)."""
+        nparams = sum(p.numel() for p in self.parameters())
+        value_embeds_numel = sum(ve.weight.numel() for ve in self.value_embeds.values())
+        nparams_exclude = (self.transformer.wte.weight.numel() + value_embeds_numel +
+                          self.resid_lambdas.numel() + self.x0_lambdas.numel())
+        h = self.config.n_head
+        q = self.config.n_embd // self.config.n_head
+        t = self.config.sequence_len if sequence_len is None else sequence_len
+>>>>>>> REPLACE
+
+<<<<<<< SEARCH
+TOTAL_BATCH_SIZE = 2**18 # ~262K tokens per optimizer step
+=======
+TOTAL_BATCH_SIZE = 2**17 # ~131K tokens per optimizer step
+>>>>>>> REPLACE
+
+<<<<<<< SEARCH
+DEPTH = 8               # number of transformer layers
+DEVICE_BATCH_SIZE = 128  # per-device batch size (reduce if OOM)
+=======
+DEPTH = 8                # number of transformer layers
+TRAIN_SEQUENCE_LEN = 1024 # shorter training context; validation remains fixed
+DEVICE_BATCH_SIZE = 128   # per-device batch size (reduce if OOM)
+>>>>>>> REPLACE
+
+<<<<<<< SEARCH
+num_flops_per_token = model.estimate_flops()
+=======
+num_flops_per_token = model.estimate_flops(TRAIN_SEQUENCE_LEN)
+>>>>>>> REPLACE
+
+<<<<<<< SEARCH
+tokens_per_fwdbwd = DEVICE_BATCH_SIZE * MAX_SEQ_LEN
+=======
+tokens_per_fwdbwd = DEVICE_BATCH_SIZE * TRAIN_SEQUENCE_LEN
+>>>>>>> REPLACE
+
+<<<<<<< SEARCH
+train_loader = make_dataloader(tokenizer, DEVICE_BATCH_SIZE, MAX_SEQ_LEN, "train")
+=======
+train_loader = make_dataloader(tokenizer, DEVICE_BATCH_SIZE, TRAIN_SEQUENCE_LEN, "train")
+>>>>>>> REPLACE

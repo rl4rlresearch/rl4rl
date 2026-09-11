@@ -1,0 +1,88 @@
+{
+  "artifact_path": "candidates/1672d8d0ee8e902a0619c466ac0540fb8f43ea901642548fe1761c29190ab6cf",
+  "candidate_id": "1672d8d0ee8e902a0619c466ac0540fb8f43ea901642548fe1761c29190ab6cf",
+  "codex_service_tier": "fast",
+  "condition": "C2",
+  "conversation_session_id": null,
+  "evaluation": {
+    "evaluator_calls": 1,
+    "evaluator_seconds": 362.4416328020002,
+    "failure_kind": null,
+    "fitness": -0.993518,
+    "metrics": {
+      "depth": 8.0,
+      "mfu_percent": 35.36,
+      "num_params_M": 50.3,
+      "num_steps": 986.0,
+      "peak_vram_mb": 45060.2,
+      "total_tokens_M": 516.9,
+      "training_seconds": 300.2,
+      "val_bpb": 0.993518
+    },
+    "valid": true
+  },
+  "evaluator_calls_cumulative": 19,
+  "evaluator_calls_increment": 1,
+  "evaluator_seconds_cumulative": 7450.899194489997,
+  "evaluator_seconds_increment": 362.4416328020002,
+  "event": "proposal_completed",
+  "evicted_candidate_id": "2865e528e18dc51191e4037eaeb5824cb0ea83ede79061b59b8f3caac686da6b",
+  "evidence": "The 512-token single-anchor design achieved the best result at 0.993870 and 518.5M tokens; removing its final global anchor worsened val_bpb to 1.001821, so this patch preserves that anchor while testing whether cheaper local layers improve fixed-time training.",
+  "hypothesis": "Seven 384-token local-attention layers followed by one full-context layer will process more than 518.5M tokens while retaining full-sequence integration, lowering val_bpb below 0.993870.",
+  "incumbent_after": "1672d8d0ee8e902a0619c466ac0540fb8f43ea901642548fe1761c29190ab6cf",
+  "intended_edit": "Reduce local windows from 1024 to 384 tokens and change the layout to seven local layers plus the forced full-context final layer.",
+  "mechanism": "Sub-quarter local attention with a final global anchor",
+  "opportunity": 19,
+  "parent_ids": [
+    "2865e528e18dc51191e4037eaeb5824cb0ea83ede79061b59b8f3caac686da6b"
+  ],
+  "portfolio_after": [
+    "1672d8d0ee8e902a0619c466ac0540fb8f43ea901642548fe1761c29190ab6cf",
+    "751f6421ee699b4c6ae86e4cb2e4fb251857399c2f9b5720235c590a65eaf50a",
+    "e851f3f277cd5f216a6438df48eb17a425d2354d52becdf00dc0225d90cbbb90",
+    "8398f6a44da02110e69923d6ad536cb18c5d86e2a95bc65979fedb83351a4164"
+  ],
+  "prompt_hashes": {
+    "common_template_sha256": "ba85b39aa7288f4f48475376da6cff65661f39cfeb7ac7cde15b2a9a2e692fde",
+    "prompt_sha256": "08331dc5cf30f7b0ea264f3c290831e7f7c12d29543afb06cb25531527d53e60",
+    "proposal_policy_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "search_state_sha256": "c938ac007bf70fe8d27f64661175531e51fcb16b38318c328493c32ee292e27e",
+    "treatment_skeleton_sha256": "e43022f4d0c7212eaeb7bd52291f7dec1cbaf91b25008948cd39e0d88ec0a733"
+  },
+  "proposal_type": "ordinary",
+  "proposals_cumulative": 19,
+  "remaining_budget": {
+    "evaluations": 181,
+    "evaluator_seconds": 712549.10080551,
+    "proposals": 181,
+    "tokens": 99103501
+  },
+  "retained": true,
+  "retention_decision": "replaced_selected_parent_on_strict_improvement",
+  "run_id": "nanogpt-openevolve-v2-1-h100-karpathy_nanogpt_source_only_h100-openevolve-b01-c2",
+  "schema_version": "1.0",
+  "selected_parent_ids": [
+    "2865e528e18dc51191e4037eaeb5824cb0ea83ede79061b59b8f3caac686da6b"
+  ],
+  "timestamp": "2026-08-23T22:13:33.509323+00:00",
+  "usage_cumulative": {
+    "cached_input_tokens": 191232,
+    "input_tokens": 831060,
+    "output_tokens": 65439,
+    "reasoning_output_tokens": 58372,
+    "total_tokens": 896499
+  },
+  "usage_increment": {
+    "cached_input_tokens": 12032,
+    "input_tokens": 47026,
+    "output_tokens": 1794,
+    "reasoning_output_tokens": 1552,
+    "total_tokens": 48820
+  },
+  "visible_candidate_ids": [
+    "2865e528e18dc51191e4037eaeb5824cb0ea83ede79061b59b8f3caac686da6b",
+    "751f6421ee699b4c6ae86e4cb2e4fb251857399c2f9b5720235c590a65eaf50a",
+    "e851f3f277cd5f216a6438df48eb17a425d2354d52becdf00dc0225d90cbbb90",
+    "8398f6a44da02110e69923d6ad536cb18c5d86e2a95bc65979fedb83351a4164"
+  ]
+}

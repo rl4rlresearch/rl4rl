@@ -1,0 +1,79 @@
+{
+  "artifact_path": "candidates/904f0850507f3d99d8dc8fc0901a424b9566c04a4d7052decbb2c2b62f19e001",
+  "candidate_id": "904f0850507f3d99d8dc8fc0901a424b9566c04a4d7052decbb2c2b62f19e001",
+  "codex_service_tier": "default",
+  "condition": "C1",
+  "conversation_session_id": null,
+  "evaluation": {
+    "evaluator_calls": 1,
+    "evaluator_seconds": 595.3196952908766,
+    "failure_kind": "nonqualification",
+    "fitness": null,
+    "metrics": {
+      "accuracy": 0.0001,
+      "cases": 10010,
+      "correct": 1,
+      "parameters": 1191,
+      "training_steps": 4999
+    },
+    "valid": false
+  },
+  "evaluator_calls_cumulative": 43,
+  "evaluator_calls_increment": 1,
+  "evaluator_seconds_cumulative": 15407.966767664184,
+  "evaluator_seconds_increment": 595.3196952908766,
+  "event": "proposal_completed",
+  "evicted_candidate_id": null,
+  "evidence": "The identity-pivot query\u2013key chart reached only 95.92% at 1,191 parameters despite preserving initial attention scores, whereas the analogous lexical gauge chart reached 99.96%; retaining the key pivots at their small natural initialization directly tests whether the failure was caused by the identity chart\u2019s severe query/key rescaling rather than the gauge reduction itself.",
+  "hypothesis": "Fixing each head\u2019s key pivot to its original initialized matrix will reduce learned parameters from 1,223 to 1,191 while retaining at least 99% accuracy, because it removes the same exact 32-dimensional query\u2013key gauge as the failed identity chart without rescaling the initialized query and key tensors.",
+  "incumbent_after": "08608c2a9b9bdf933d90e83b93f7683b64dfd587bbed0d2f4d8683b68adb21f7",
+  "intended_edit": "Select a well-conditioned four-column key pivot per head, preserve that initialized pivot as a fixed buffer, learn only the remaining key coefficients, and reconstruct the full key projections during forward passes.",
+  "mechanism": "Natural-scale per-head query\u2013key gauge charts",
+  "opportunity": 43,
+  "parent_ids": [
+    "08608c2a9b9bdf933d90e83b93f7683b64dfd587bbed0d2f4d8683b68adb21f7"
+  ],
+  "portfolio_after": [
+    "08608c2a9b9bdf933d90e83b93f7683b64dfd587bbed0d2f4d8683b68adb21f7"
+  ],
+  "prompt_hashes": {
+    "common_template_sha256": "3f2bea6418b6969c4bf2aa1df18dcda8a3a4ac075bf20c79068c754698b6be5e",
+    "prompt_sha256": "5887a6d269f224e34b1e1ad86f1c5ff9e9762bd2d9ff35806fb311a63fec7801",
+    "proposal_policy_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "search_state_sha256": "04e5eb078ae1964e4ec65bfeeeb1acd0ffa246e7d54d5e0f997f81f602da28c5",
+    "treatment_skeleton_sha256": "68bdd117e865a6a5600607c65abc80905a36b758d9f9a2f1a76e7ab4813dcb6b"
+  },
+  "proposal_type": "ordinary",
+  "proposals_cumulative": 43,
+  "remaining_budget": {
+    "evaluations": 157,
+    "evaluator_seconds": 344592.0332323358,
+    "proposals": 157,
+    "tokens": 98929228
+  },
+  "retained": false,
+  "retention_decision": "invalid",
+  "run_id": "controlled-openevolve-transformer-v2-1-source-only-ten-digit-addition-pair-transformer-openevolve-v2-1-mps-openevolve-b03-c1",
+  "schema_version": "1.0",
+  "selected_parent_ids": [
+    "08608c2a9b9bdf933d90e83b93f7683b64dfd587bbed0d2f4d8683b68adb21f7"
+  ],
+  "timestamp": "2026-08-24T02:04:58.775871+00:00",
+  "usage_cumulative": {
+    "cached_input_tokens": 480000,
+    "input_tokens": 936432,
+    "output_tokens": 134340,
+    "reasoning_output_tokens": 106712,
+    "total_tokens": 1070772
+  },
+  "usage_increment": {
+    "cached_input_tokens": 12032,
+    "input_tokens": 24161,
+    "output_tokens": 5340,
+    "reasoning_output_tokens": 3989,
+    "total_tokens": 29501
+  },
+  "visible_candidate_ids": [
+    "08608c2a9b9bdf933d90e83b93f7683b64dfd587bbed0d2f4d8683b68adb21f7"
+  ]
+}

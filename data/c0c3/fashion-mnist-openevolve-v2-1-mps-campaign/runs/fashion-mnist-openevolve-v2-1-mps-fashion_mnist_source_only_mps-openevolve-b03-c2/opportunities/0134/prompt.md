@@ -1,0 +1,173 @@
+# Improve fixed-exposure image classification
+
+You are an autonomous ML engineer improving a learned classifier for 28×28
+grayscale images in ten classes.
+
+## Goal
+
+Maximize `validation_score`. It ranks implementations first by the exact number
+of correct predictions on the fixed 10,000-image validation set, then—only when
+correct counts tie—by lower validation cross-entropy. Every verification starts
+from a fresh initialization and presents exactly 100,000 examples from the
+fixed 50,000-image training split.
+
+You may change the model architecture, optimizer, loss, augmentation, batch
+size, gradient handling, schedule, and other contents of `train.py`. The fixed
+data split, normalization, example accounting, validation calculation,
+250,000-learned-parameter ceiling, and device are not editable. The protected
+loop calls the functions already defined in `train.py`; keep that interface
+intact. The model must return one ten-class logit vector per image.
+
+## Work boundaries
+
+Maximize validation_score. No additional accuracy threshold.
+Editable source files: train.py.
+Results reported after each verification: validation_score, validation_correct, validation_accuracy, validation_cross_entropy, parameters, examples_processed, optimizer_steps, training_seconds, batch_size.
+
+Propose changes through exact SEARCH/REPLACE blocks. The patching interface applies them to the supplied editable source.
+
+The editable source and any reference source are included below. Do not access
+parent directories, home directories, shared temporary directories, global
+session history, online sources, external datasets, pretrained weights, or any
+surrounding repository. Do not run training or validation yourself and do not
+generate hidden alternatives. Return one patch for one implementation;
+verification happens after you finish.
+
+## Available designs
+
+The current editable design and the qualified reference designs below are available as technical evidence. Edit only the current workspace.
+
+CURRENT DESIGN
+verified_results: {"batch_size": 64, "examples_processed": 100000, "optimizer_steps": 1564, "parameters": 247538, "training_seconds": 48.661927457898855, "validation_accuracy": 0.9256, "validation_correct": 9256, "validation_cross_entropy": 0.21445223388671875, "validation_score": 9256.411708246771}
+prior_hypothesis: Scaling the ensemble logits by 1.356 will preserve exactly 9,256 correct predictions while reducing validation cross-entropy below 0.214452343.
+
+REFERENCE DESIGN 1
+verified_results: {"batch_size": 64, "examples_processed": 100000, "optimizer_steps": 1564, "parameters": 247538, "training_seconds": 48.07536750007421, "validation_accuracy": 0.9256, "validation_correct": 9256, "validation_cross_entropy": 0.21445224533081056, "validation_score": 9256.411708242891}
+prior_hypothesis: Scaling the ensemble logits by 1.35641 will preserve exactly 9,256 correct predictions while reducing validation cross-entropy below 0.2144522300720215.
+
+REFERENCE DESIGN 2
+verified_results: {"batch_size": 64, "examples_processed": 100000, "optimizer_steps": 1564, "parameters": 247538, "training_seconds": 44.383009457960725, "validation_accuracy": 0.9256, "validation_correct": 9256, "validation_cross_entropy": 0.2147829204559326, "validation_score": 9256.411596172107}
+prior_hypothesis: Scaling the verified 3.25:1 ensemble logits by 1.30 will retain exactly 9,256 correct predictions while reducing validation cross-entropy below 0.2152603.
+
+REFERENCE DESIGN 3
+verified_results: {"batch_size": 64, "examples_processed": 100000, "optimizer_steps": 1564, "parameters": 247538, "training_seconds": 69.34729949990287, "validation_accuracy": 0.9256, "validation_correct": 9256, "validation_cross_entropy": 0.2144234748840332, "validation_score": 9256.411717996514}
+prior_hypothesis: Increasing the center-view weight from 3.25 to 3.375 will exceed 9,256 correct predictions by reducing shifted-view influence on borderline examples while preserving most translation-ensemble benefit.
+
+## Recent verification evidence
+
+RECENT RESULT
+hypothesis: Raising the evaluation-only multiplier to 1.35605 will preserve exactly 9,256 correct predictions and reduce validation cross-entropy below 0.21445223388671875.
+change: Change only the ensemble logit multiplier from 1.356 to 1.35605.
+mechanism: Fine-grained evaluation temperature calibration
+evidence_used: Reference Design 3 verified the otherwise-identical implementation at 9,256 correct and 0.2144522300720215 cross-entropy; prior verification failures supplied no contradictory measurements.
+result: the implementation could not be verified
+
+RECENT RESULT
+hypothesis: Scaling the ensemble logits by 1.35641 will preserve exactly 9,256 correct predictions while reducing validation cross-entropy below 0.2144522300720215.
+change: Change only the evaluation-time ensemble logit multiplier from 1.33 to 1.35641.
+mechanism: Quadratic evaluation-temperature interpolation
+evidence_used: Multipliers 1.33, 1.356, and 1.35605 produced cross-entropies 0.2145212341, 0.2144522339, and 0.2144522301 with identical correct counts; local quadratic interpolation places the minimum near 1.35641.
+result: improved the objective and became an available design
+reported_values: {"batch_size": 64, "examples_processed": 100000, "optimizer_steps": 1564, "parameters": 247538, "training_seconds": 48.07536750007421, "validation_accuracy": 0.9256, "validation_correct": 9256, "validation_cross_entropy": 0.21445224533081056, "validation_score": 9256.411708242891}
+
+RECENT RESULT
+hypothesis: Scaling ensemble logits by 1.35605 will preserve all 9,256 argmax predictions while reducing validation cross-entropy to approximately 0.2144522301.
+change: Change only the evaluation-time ensemble logit multiplier from 1.30 to 1.35605.
+mechanism: Verified evaluation-temperature calibration
+evidence_used: Reference Design 2 directly verified the otherwise-identical implementation at 9,256 correct with the best reported cross-entropy, 0.2144522300720215; unsuccessful verification attempts reported no contradictory measurement.
+result: the implementation could not be verified
+
+RECENT RESULT
+hypothesis: Scaling ensemble logits by 1.356157 will preserve exactly 9,256 argmax predictions and reduce validation cross-entropy below 0.2144522300720215.
+change: Change only the evaluation-time ensemble logit multiplier from 1.35605 to 1.356157.
+mechanism: Local quadratic evaluation-temperature calibration
+evidence_used: Multipliers 1.356, 1.35605, and 1.35641 yielded cross-entropies 0.21445223388671875, 0.2144522300720215, and 0.21445224533081056 with identical correct counts; quadratic interpolation places the minimum near 1.356157.
+result: was valid but was not a strict improvement
+reported_values: {"batch_size": 64, "examples_processed": 100000, "optimizer_steps": 1564, "parameters": 247538, "training_seconds": 51.37876004213467, "validation_accuracy": 0.9256, "validation_correct": 9256, "validation_cross_entropy": 0.21445223236083985, "validation_score": 9256.411708247288}
+
+RECENT RESULT
+hypothesis: Scaling ensemble logits by 1.35605 will preserve exactly 9,256 correct predictions while reducing validation cross-entropy from 0.21445223388671875 to approximately 0.2144522300720215.
+change: Change only the evaluation-time ensemble logit multiplier from 1.356 to 1.35605.
+mechanism: Verified evaluation-temperature calibration
+evidence_used: Reference Design 3 verified the otherwise-identical implementation at 9,256 correct with lower cross-entropy; prior unsuccessful attempts produced no contradictory measurement.
+result: the implementation could not be verified
+
+RECENT RESULT
+hypothesis: Scaling evaluation logits by 1.35605 will preserve all 9,256 argmax predictions while reducing validation cross-entropy from 0.21445224533081056 to 0.2144522300720215.
+change: Change only the evaluation-time ensemble logit multiplier from 1.35641 to 1.35605.
+mechanism: Verified evaluation-temperature calibration
+evidence_used: Reference Design 2 is otherwise identical and achieved the same 9,256 correct predictions with the best verified cross-entropy and a strictly higher validation_score than the current design.
+result: the implementation could not be verified
+
+RECENT RESULT
+hypothesis: Scaling ensemble logits by 1.35605 will preserve exactly 9,256 correct predictions while reducing validation cross-entropy from 0.2147829205 to approximately 0.2144522301.
+change: Change only the evaluation-time ensemble logit multiplier from 1.30 to 1.35605.
+mechanism: Verified evaluation-temperature calibration
+evidence_used: Reference Design 2 verified the otherwise-identical implementation at 9,256 correct with the best reported cross-entropy, 0.2144522300720215; unsuccessful verification attempts supplied no contradictory measurement.
+result: the implementation could not be verified
+
+RECENT RESULT
+hypothesis: Increasing the center-view weight from 3.25 to 3.5 will exceed 9,256 correct predictions by reducing the influence of shifted views on borderline examples while retaining their robustness benefits.
+change: Increase only the evaluation ensemble’s center-view weight and update its normalization constant; preserve training and temperature calibration.
+mechanism: Stronger center-view weighting in the inference ensemble
+evidence_used: Both shortening and redistributing shift augmentation reduced validation_correct, while the center-biased 3.25:1 ensemble retained 9,256 correct; a small increase isolates whether remaining errors come from over-weighting shifted predictions without perturbing the verified training trajectory.
+result: the implementation could not be verified
+
+RECENT RESULT
+hypothesis: Extending deterministic shift augmentation from 50% to 55% of training will exceed 9,256 correct predictions by balancing the accuracy losses observed at both 40% and approximately 69% exposure.
+change: End shift augmentation after 55% of optimizer steps while preserving all other training and inference behavior.
+mechanism: Bracketed shift-augmentation duration refinement
+evidence_used: Reducing augmentation exposure to 40% produced 9,244 correct, while extending it to 20/29 produced 9,246 versus 9,256 at 50%; interpolation between these bracketed results motivates a small extension near 55%.
+result: was valid but was not a strict improvement
+reported_values: {"batch_size": 64, "examples_processed": 100000, "optimizer_steps": 1564, "parameters": 247538, "training_seconds": 54.789772167103365, "validation_accuracy": 0.9246, "validation_correct": 9246, "validation_cross_entropy": 0.2148713363647461, "validation_score": 9246.411566216959}
+
+RECENT RESULT
+hypothesis: Scaling ensemble logits by 1.35605 will preserve exactly 9,256 correct predictions while reducing validation cross-entropy to 0.2144522300720215.
+change: Change only the evaluation-time ensemble logit multiplier from 1.35641 to 1.35605.
+mechanism: Verified evaluation-temperature calibration
+evidence_used: Reference Design 2 verified the otherwise-identical implementation at 9,256 correct with lower cross-entropy and a strictly higher validation_score than the current design; unsuccessful attempts reported no contradictory measurement.
+result: the implementation could not be verified
+
+RECENT RESULT
+hypothesis: Scaling ensemble logits by 1.35605 will preserve all 9,256 argmax predictions while reducing validation cross-entropy from 0.2147829205 to the verified 0.2144522301.
+change: Change only the evaluation-time ensemble logit multiplier from 1.30 to 1.35605.
+mechanism: Verified evaluation-temperature calibration
+evidence_used: Reference Design 2 is otherwise identical and achieved 9,256 correct with the best verified cross-entropy; unsuccessful attempts supplied no contradictory measurement.
+result: the implementation could not be verified
+
+RECENT RESULT
+hypothesis: Increasing the center-view weight from 3.25 to 3.375 will exceed 9,256 correct predictions by reducing shifted-view influence on borderline examples while preserving most translation-ensemble benefit.
+change: Increase only the evaluation ensemble’s center-view weight and corresponding normalization constant; leave training and temperature calibration unchanged.
+mechanism: Conservative center-view reweighting
+evidence_used: The center-biased 3.25:1 ensemble achieved 9,256 correct, while changing shift-augmentation duration or timing reduced correctness. The unverified 3.5 proposal motivates testing a smaller, more conservative step toward the center prediction.
+result: improved the objective and became an available design
+reported_values: {"batch_size": 64, "examples_processed": 100000, "optimizer_steps": 1564, "parameters": 247538, "training_seconds": 69.34729949990287, "validation_accuracy": 0.9256, "validation_correct": 9256, "validation_cross_entropy": 0.2144234748840332, "validation_score": 9256.411717996514}
+
+
+
+Use the available technical evidence to choose the most informative next
+change. Treat unsuccessful or malformed work as evidence when a useful
+subject-level reason is provided. Do not invent missing evidence.
+
+## Response
+
+Return these short metadata lines followed by one or more exact
+`SEARCH`/`REPLACE` blocks that together produce one implementation:
+
+`MECHANISM: <a concise free-form name for the computational idea>`
+
+`HYPOTHESIS: <a falsifiable claim grounded in the evidence above>`
+
+`INTENDED_EDIT: <what this patch changes>`
+
+`EVIDENCE: <the most relevant prior result and why it motivates this patch>`
+
+Start each block with `<<<<<<< SEARCH`, put the exact existing lines next, use a
+line containing `=======` as the divider, put the replacement lines after it,
+and finish the block with `>>>>>>> REPLACE`.
+
+Every `SEARCH` section must be nonempty and match exactly once after earlier
+blocks have been applied. All blocks must apply. Together they must describe
+one implementation ready for verification. The mechanism name is descriptive,
+not chosen from a fixed list. Do not paste whole files, lengthy logs, or routine
+progress reports outside the patch.

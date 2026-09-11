@@ -1,0 +1,99 @@
+{
+  "artifact_path": "candidates/36264ce77f2c2191f65abefa2ea1ab98339eb072f920c4435eb4c39c0a26506f",
+  "candidate_id": "36264ce77f2c2191f65abefa2ea1ab98339eb072f920c4435eb4c39c0a26506f",
+  "codex_service_tier": "default",
+  "condition": "C1",
+  "conversation_session_id": null,
+  "evaluation": {
+    "evaluator_calls": 1,
+    "evaluator_seconds": 98.36849987483583,
+    "failure_kind": "nonqualification",
+    "fitness": null,
+    "metrics": {
+      "batch_size": 128,
+      "evaluation_cases": 815,
+      "evaluation_split": "public_speaker_disjoint_validation",
+      "examples_processed": 50000,
+      "inference_cost": 3482604574237516365,
+      "maximum_recurrent_steps": 28,
+      "mean_recurrent_steps": 28.0,
+      "median_recurrent_steps": 28,
+      "optimizer_steps": 397,
+      "p95_recurrent_steps": 28,
+      "parameters": 30965,
+      "peak_hidden_elements": 124416,
+      "recurrent_logit_effect": 0.0976666659116745,
+      "recurrent_macs": 666868860,
+      "recurrent_steps": 22820,
+      "state_dependence_effect": 0.3283679485321045,
+      "state_update_effect": 0.34516847133636475,
+      "total_inference_macs": 667657780,
+      "trained_recurrent_logit_effect": 0.6290270686149597,
+      "trained_state_dependence_effect": 0.3722039759159088,
+      "trained_state_update_effect": 0.37935468554496765,
+      "training_seconds": 81.21272766706534,
+      "validation_accuracy": 0.845398773006135,
+      "validation_correct": 689,
+      "validation_cross_entropy": 0.47602081298828125
+    },
+    "valid": false
+  },
+  "evaluator_calls_cumulative": 21,
+  "evaluator_calls_increment": 1,
+  "evaluator_seconds_cumulative": 2638.1513506670017,
+  "evaluator_seconds_increment": 98.36849987483583,
+  "event": "proposal_completed",
+  "evicted_candidate_id": null,
+  "evidence": "The 60+59 model remained feasible through three consecutive frame trims, reaching 85.03% at 29 steps, while 59+59 failed; this suggests recurrent width is at its capacity boundary. At 28 steps, 61+60 is the widest near-balanced two-block configuration that still costs less than the current design.",
+  "hypothesis": "Balanced 61+60 GRUs processing frames 4\u201331 will retain at least 85% validation accuracy while reducing exact total inference MACs from 671,608,085 to approximately 667,657,780.",
+  "incumbent_after": "ac21c3198549f046b2738837fd9f39d002d3990f83bba5f6c0a5bf7a4b3dd98f",
+  "intended_edit": "Remove one additional leading frame, widen the recurrent blocks from 60+59 to 61+60 units, and resize the state, summary, and classifier to 121 features.",
+  "mechanism": "Reallocate one recurrent step\u2019s MAC budget into balanced hidden width",
+  "opportunity": 21,
+  "parent_ids": [
+    "ac21c3198549f046b2738837fd9f39d002d3990f83bba5f6c0a5bf7a4b3dd98f"
+  ],
+  "portfolio_after": [
+    "ac21c3198549f046b2738837fd9f39d002d3990f83bba5f6c0a5bf7a4b3dd98f"
+  ],
+  "prompt_hashes": {
+    "common_template_sha256": "dee04faf4c430276c1036ba97f5705a339857dbdf19117dac88952a5a3a47e9d",
+    "prompt_sha256": "5709100a11cb8241d2f41afa5b60cd625bfb25774cd471d0b54ce5bec521e76b",
+    "proposal_policy_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "search_state_sha256": "04e5eb078ae1964e4ec65bfeeeb1acd0ffa246e7d54d5e0f997f81f602da28c5",
+    "treatment_skeleton_sha256": "83908b3199261a0e7cd46a12afdfba99bd43f02fbf153f5bbb86ab7e08df437a"
+  },
+  "proposal_type": "ordinary",
+  "proposals_cumulative": 21,
+  "remaining_budget": {
+    "evaluations": 179,
+    "evaluator_seconds": 57361.848649333,
+    "proposals": 179,
+    "tokens": 99555487
+  },
+  "retained": false,
+  "retention_decision": "invalid",
+  "run_id": "tiny-kws-rnn-openevolve-v2-1-cpu-tiny_kws_rnn_source_only_cpu-openevolve-b02-c1",
+  "schema_version": "1.0",
+  "selected_parent_ids": [
+    "ac21c3198549f046b2738837fd9f39d002d3990f83bba5f6c0a5bf7a4b3dd98f"
+  ],
+  "timestamp": "2026-09-04T03:53:57.861020+00:00",
+  "usage_cumulative": {
+    "cached_input_tokens": 225792,
+    "input_tokens": 396800,
+    "output_tokens": 47713,
+    "reasoning_output_tokens": 38110,
+    "total_tokens": 444513
+  },
+  "usage_increment": {
+    "cached_input_tokens": 10752,
+    "input_tokens": 20113,
+    "output_tokens": 2640,
+    "reasoning_output_tokens": 2166,
+    "total_tokens": 22753
+  },
+  "visible_candidate_ids": [
+    "ac21c3198549f046b2738837fd9f39d002d3990f83bba5f6c0a5bf7a4b3dd98f"
+  ]
+}

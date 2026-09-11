@@ -1,0 +1,79 @@
+{
+  "artifact_path": "candidates/36af129e387359a2a2df7a38ac23da4542be8479b63952bed4bf66008aeb257e",
+  "candidate_id": "36af129e387359a2a2df7a38ac23da4542be8479b63952bed4bf66008aeb257e",
+  "codex_service_tier": "default",
+  "condition": "C0",
+  "conversation_session_id": null,
+  "evaluation": {
+    "evaluator_calls": 1,
+    "evaluator_seconds": 326.72377691604197,
+    "failure_kind": null,
+    "fitness": -1568.0,
+    "metrics": {
+      "accuracy": 0.9963,
+      "cases": 10010,
+      "correct": 9973,
+      "parameters": 1568,
+      "training_steps": 4999
+    },
+    "valid": true
+  },
+  "evaluator_calls_cumulative": 117,
+  "evaluator_calls_increment": 1,
+  "evaluator_seconds_cumulative": 47075.47154012357,
+  "evaluator_seconds_increment": 326.72377691604197,
+  "event": "proposal_completed",
+  "evicted_candidate_id": "ab643eb1c760aa418a1663a4bf6c111e27aa6d3356e48a3753184b60c075d986",
+  "evidence": "The component-zero projection anchor at `proj.weight[0,0]` achieved 99.93% at 1569 parameters, while the adjacent component-one anchor at `[0,1]` collapsed to 15.51%; prior QKV evidence also showed component-zero anchors succeeding across both heads while component one failed, motivating the cross-head component-zero counterpart.",
+  "hypothesis": "Fixing `proj.weight[0,4]` alongside the verified `proj.weight[0,0]` anchor will produce a 1568-parameter model with at least 99% accuracy, because column 4 is the component-zero counterpart in the second attention head and its removal adds only a feature-uniform residual shift eliminated by downstream LayerNorms.",
+  "incumbent_after": "36af129e387359a2a2df7a38ac23da4542be8479b63952bed4bf66008aeb257e",
+  "intended_edit": "Store 62 learned attention-output projection weights, reconstruct `proj.weight[0,0]` and `proj.weight[0,4]` as zeros, and canonicalize both columns at initialization.",
+  "mechanism": "Cross-head attention-output residual-shift gauge",
+  "opportunity": 117,
+  "parent_ids": [
+    "ab643eb1c760aa418a1663a4bf6c111e27aa6d3356e48a3753184b60c075d986"
+  ],
+  "portfolio_after": [
+    "36af129e387359a2a2df7a38ac23da4542be8479b63952bed4bf66008aeb257e"
+  ],
+  "prompt_hashes": {
+    "common_template_sha256": "3f2bea6418b6969c4bf2aa1df18dcda8a3a4ac075bf20c79068c754698b6be5e",
+    "prompt_sha256": "a54f7714a6f9e8255164a10d68391fb3b0484641e9f701f1261b2b76196a5a05",
+    "proposal_policy_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "search_state_sha256": "04e5eb078ae1964e4ec65bfeeeb1acd0ffa246e7d54d5e0f997f81f602da28c5",
+    "treatment_skeleton_sha256": "abf0e18a0b00134517a68dd618f79d3efe324c0797300798c57afc7020bc4171"
+  },
+  "proposal_type": "ordinary",
+  "proposals_cumulative": 117,
+  "remaining_budget": {
+    "evaluations": 83,
+    "evaluator_seconds": 312924.5284598764,
+    "proposals": 83,
+    "tokens": 96997996
+  },
+  "retained": true,
+  "retention_decision": "strict_incumbent_improvement",
+  "run_id": "controlled-openevolve-transformer-v2-1-source-only-ten-digit-addition-pair-transformer-openevolve-v2-1-mps-openevolve-b04-c0",
+  "schema_version": "1.0",
+  "selected_parent_ids": [
+    "ab643eb1c760aa418a1663a4bf6c111e27aa6d3356e48a3753184b60c075d986"
+  ],
+  "timestamp": "2026-09-03T12:06:12.955328+00:00",
+  "usage_cumulative": {
+    "cached_input_tokens": 1176576,
+    "input_tokens": 2678234,
+    "output_tokens": 323770,
+    "reasoning_output_tokens": 253034,
+    "total_tokens": 3002004
+  },
+  "usage_increment": {
+    "cached_input_tokens": 10752,
+    "input_tokens": 25080,
+    "output_tokens": 1862,
+    "reasoning_output_tokens": 1034,
+    "total_tokens": 26942
+  },
+  "visible_candidate_ids": [
+    "ab643eb1c760aa418a1663a4bf6c111e27aa6d3356e48a3753184b60c075d986"
+  ]
+}

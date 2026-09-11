@@ -1,0 +1,82 @@
+{
+  "artifact_path": "candidates/21f0709f1402aaf46dfbafa85dc3d3f8c4a26832528185781894cb2c4d5f1d9a",
+  "candidate_id": "21f0709f1402aaf46dfbafa85dc3d3f8c4a26832528185781894cb2c4d5f1d9a",
+  "codex_service_tier": "default",
+  "condition": "C1",
+  "conversation_session_id": null,
+  "evaluation": {
+    "evaluator_calls": 1,
+    "evaluator_seconds": 363.31482536500016,
+    "failure_kind": null,
+    "fitness": -0.984585,
+    "metrics": {
+      "depth": 8.0,
+      "mfu_percent": 36.42,
+      "num_params_M": 50.3,
+      "num_steps": 1938.0,
+      "peak_vram_mb": 44908.2,
+      "total_tokens_M": 508.0,
+      "training_seconds": 300.0,
+      "val_bpb": 0.984585
+    },
+    "valid": true
+  },
+  "evaluator_calls_cumulative": 47,
+  "evaluator_calls_increment": 1,
+  "evaluator_seconds_cumulative": 24142.41304803103,
+  "evaluator_seconds_increment": 363.31482536500016,
+  "event": "proposal_completed",
+  "evicted_candidate_id": null,
+  "evidence": "Feature-wise value-residual gating regressed to 0.985862 and reduced training to 496.2M tokens, so retaining the efficient proven per-head pathway while improving its learning dynamics is more motivated than adding gate granularity.",
+  "hypothesis": "Doubling the local sensitivity of the existing bounded per-head value gate will lower val_bpb below 0.983689 by letting it adapt value-embedding contributions faster without increasing parameters or materially reducing throughput.",
+  "incumbent_after": "674df27b25c58f2cbccc71b14b2a3da3c64efa60f586b6091ad91222de323123",
+  "intended_edit": "Reparameterize the gate from `2*sigmoid(z)` to the equivalent-range but steeper `1+tanh(z)`, preserving neutral zero initialization and outputs bounded between 0 and 2.",
+  "mechanism": "Higher-sensitivity bounded value-residual gating",
+  "opportunity": 48,
+  "parent_ids": [
+    "674df27b25c58f2cbccc71b14b2a3da3c64efa60f586b6091ad91222de323123"
+  ],
+  "portfolio_after": [
+    "674df27b25c58f2cbccc71b14b2a3da3c64efa60f586b6091ad91222de323123"
+  ],
+  "prompt_hashes": {
+    "common_template_sha256": "ba85b39aa7288f4f48475376da6cff65661f39cfeb7ac7cde15b2a9a2e692fde",
+    "prompt_sha256": "2f3bd9dd213aa99c6500f49301f230b8b84fbd0c6a6e75bcccfd5ed4256515ba",
+    "proposal_policy_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "search_state_sha256": "04e5eb078ae1964e4ec65bfeeeb1acd0ffa246e7d54d5e0f997f81f602da28c5",
+    "treatment_skeleton_sha256": "d976ce4e335765e0cc0c168442ac7d99b07b264ad8d1656af6050fad6c6ad541"
+  },
+  "proposal_type": "ordinary",
+  "proposals_cumulative": 48,
+  "remaining_budget": {
+    "evaluations": 153,
+    "evaluator_seconds": 695857.586951969,
+    "proposals": 152,
+    "tokens": 98739301
+  },
+  "retained": false,
+  "retention_decision": "not_strictly_better_than_incumbent",
+  "run_id": "nanogpt-openevolve-v2-1-h100-karpathy_nanogpt_source_only_h100-openevolve-b01-c1",
+  "schema_version": "1.0",
+  "selected_parent_ids": [
+    "674df27b25c58f2cbccc71b14b2a3da3c64efa60f586b6091ad91222de323123"
+  ],
+  "timestamp": "2026-08-24T13:16:55.333724+00:00",
+  "usage_cumulative": {
+    "cached_input_tokens": 486912,
+    "input_tokens": 1145439,
+    "output_tokens": 115260,
+    "reasoning_output_tokens": 101621,
+    "total_tokens": 1260699
+  },
+  "usage_increment": {
+    "cached_input_tokens": 12032,
+    "input_tokens": 24553,
+    "output_tokens": 2693,
+    "reasoning_output_tokens": 2371,
+    "total_tokens": 27246
+  },
+  "visible_candidate_ids": [
+    "674df27b25c58f2cbccc71b14b2a3da3c64efa60f586b6091ad91222de323123"
+  ]
+}

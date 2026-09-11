@@ -1,0 +1,48 @@
+Run: repro_l1_d8_ff12
+Params: 1572
+Device: mps
+step=     0 loss=4.7362 val_exact=0.00000 val_tok=0.02550 lr=3.00e-05 t=25.1s
+step=  1000 loss=0.5371 val_exact=0.06950 val_tok=0.76555 lr=2.78e-03 t=130.9s
+step=  2000 loss=0.0104 val_exact=1.00000 val_tok=1.00000 lr=2.12e-03 t=242.8s
+step=  3000 loss=0.0033 val_exact=1.00000 val_tok=1.00000 lr=1.27e-03 t=354.3s
+step=  4000 loss=0.0020 val_exact=1.00000 val_tok=1.00000 lr=5.68e-04 t=502.5s
+step=  4999 loss=0.0016 val_exact=1.00000 val_tok=1.00000 lr=3.00e-04 t=636.8s
+{
+  "run_name": "repro_l1_d8_ff12",
+  "params": 1572,
+  "best_val_exact": 1.0,
+  "best_step": 2000,
+  "train_steps": 5000,
+  "elapsed_sec": 636.9858770370483,
+  "metrics_csv": "results/runs/repro_l1_d8_ff12/metrics.csv",
+  "best_ckpt": "checkpoints/best.pt",
+  "last_ckpt": "checkpoints/last.pt"
+}
+Model: 10-digit addition transformer
+Author: autonomous optimization run
+Parameters (unique): 1572
+Architecture: trained autoregressive transformer with pair-column input tokens d=8, h=2, L=1, ff=12
+Tricks: generic greedy decoding, freshly trained checkpoint
+
+  Progress: 1000/10010 (1000/1000 correct) [91.8s]
+  Progress: 2000/10010 (1998/2000 correct) [189.0s]
+  Progress: 3000/10010 (2998/3000 correct) [274.8s]
+  Progress: 4000/10010 (3998/4000 correct) [356.6s]
+  Progress: 5000/10010 (4997/5000 correct) [444.4s]
+  Progress: 6000/10010 (5997/6000 correct) [544.9s]
+  Progress: 7000/10010 (6995/7000 correct) [632.1s]
+  Progress: 8000/10010 (7995/8000 correct) [709.4s]
+  Progress: 9000/10010 (8994/9000 correct) [785.8s]
+  Progress: 10000/10010 (9994/10000 correct) [858.5s]
+
+Results: 10004/10010 correct (99.94%)
+Time: 859.3s (12 additions/sec)
+Status: QUALIFIED (threshold: 99%)
+
+Failures (6):
+  8224083433 + 8969073829 = 17193157262, got 17183157262
+  1249404161 + 5637909167 = 6887313328, got 6886313328
+  8924598477 + 3957059921 = 12881658398, got 12981658398
+  2028016358 + 9415114535 = 11443130893, got 11433130893
+  2724077707 + 7869055642 = 10593133349, got 10583133349
+  4239079475 + 5344014985 = 9583094460, got 9573094460

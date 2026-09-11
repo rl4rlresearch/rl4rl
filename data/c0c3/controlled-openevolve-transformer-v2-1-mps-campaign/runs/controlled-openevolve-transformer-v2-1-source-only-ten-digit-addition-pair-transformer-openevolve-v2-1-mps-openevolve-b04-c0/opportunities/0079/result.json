@@ -1,0 +1,79 @@
+{
+  "artifact_path": "candidates/13a5dcd5992c1d1962975c9e0aadb46dedeaab8e4d32ec16623e0a287cebd67a",
+  "candidate_id": "13a5dcd5992c1d1962975c9e0aadb46dedeaab8e4d32ec16623e0a287cebd67a",
+  "codex_service_tier": "default",
+  "condition": "C0",
+  "conversation_session_id": null,
+  "evaluation": {
+    "evaluator_calls": 1,
+    "evaluator_seconds": 213.44508433388546,
+    "failure_kind": "nonqualification",
+    "fitness": null,
+    "metrics": {
+      "accuracy": 0.9628,
+      "cases": 10010,
+      "correct": 9638,
+      "parameters": 1586,
+      "training_steps": 4999
+    },
+    "valid": false
+  },
+  "evaluator_calls_cumulative": 79,
+  "evaluator_calls_increment": 1,
+  "evaluator_seconds_cumulative": 35623.160043786396,
+  "evaluator_seconds_increment": 213.44508433388546,
+  "event": "proposal_completed",
+  "evicted_candidate_id": null,
+  "evidence": "The current design achieved 99.63% after fixing gains 0, 2, 4, 5, and 6; although additional fixes at gains 1 and 3 failed, prior coordinate-sensitive results show those failures do not determine whether the sole remaining coordinate 7 is removable.",
+  "hypothesis": "Fixing `ln1.weight[7]` alongside coordinates 0, 2, 4, 5, and 6 will reduce the model from 1587 to 1586 parameters while retaining at least 99% accuracy, because coordinate 7 is the only untested first-LayerNorm gain and its scale is absorbable by QKV input column 7.",
+  "incumbent_after": "356bc3474761d46f8469a1819c2396b701ba4be98de14b7ba092180614b86743",
+  "intended_edit": "Store only gains 1 and 3 as learned parameters and reconstruct all other first-LayerNorm gains as fixed ones, while continuing to fix shift coordinate 3.",
+  "mechanism": "Final-coordinate attention-input gain anchoring",
+  "opportunity": 79,
+  "parent_ids": [
+    "356bc3474761d46f8469a1819c2396b701ba4be98de14b7ba092180614b86743"
+  ],
+  "portfolio_after": [
+    "356bc3474761d46f8469a1819c2396b701ba4be98de14b7ba092180614b86743"
+  ],
+  "prompt_hashes": {
+    "common_template_sha256": "3f2bea6418b6969c4bf2aa1df18dcda8a3a4ac075bf20c79068c754698b6be5e",
+    "prompt_sha256": "1fe0c9b851208e62dad66f812c76e023b8126d436dce1e926c0e3ba47d480cbb",
+    "proposal_policy_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "search_state_sha256": "04e5eb078ae1964e4ec65bfeeeb1acd0ffa246e7d54d5e0f997f81f602da28c5",
+    "treatment_skeleton_sha256": "99adcb648593b34419545e606874d8d323a0284c40a735fa79bcfbf3c44d9c89"
+  },
+  "proposal_type": "ordinary",
+  "proposals_cumulative": 79,
+  "remaining_budget": {
+    "evaluations": 121,
+    "evaluator_seconds": 324376.8399562136,
+    "proposals": 121,
+    "tokens": 98071372
+  },
+  "retained": false,
+  "retention_decision": "invalid",
+  "run_id": "controlled-openevolve-transformer-v2-1-source-only-ten-digit-addition-pair-transformer-openevolve-v2-1-mps-openevolve-b04-c0",
+  "schema_version": "1.0",
+  "selected_parent_ids": [
+    "356bc3474761d46f8469a1819c2396b701ba4be98de14b7ba092180614b86743"
+  ],
+  "timestamp": "2026-08-25T19:09:08.918806+00:00",
+  "usage_cumulative": {
+    "cached_input_tokens": 823296,
+    "input_tokens": 1758538,
+    "output_tokens": 170090,
+    "reasoning_output_tokens": 124753,
+    "total_tokens": 1928628
+  },
+  "usage_increment": {
+    "cached_input_tokens": 12032,
+    "input_tokens": 23327,
+    "output_tokens": 791,
+    "reasoning_output_tokens": 323,
+    "total_tokens": 24118
+  },
+  "visible_candidate_ids": [
+    "356bc3474761d46f8469a1819c2396b701ba4be98de14b7ba092180614b86743"
+  ]
+}

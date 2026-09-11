@@ -1,0 +1,79 @@
+{
+  "artifact_path": "candidates/9bfe1397e14bddbe628600b35fa64a67ad31414851360df1dc6672ed9cd2c5b5",
+  "candidate_id": "9bfe1397e14bddbe628600b35fa64a67ad31414851360df1dc6672ed9cd2c5b5",
+  "codex_service_tier": "fast",
+  "condition": "C0",
+  "conversation_session_id": null,
+  "evaluation": {
+    "evaluator_calls": 1,
+    "evaluator_seconds": 333.87172504200134,
+    "failure_kind": "nonqualification",
+    "fitness": null,
+    "metrics": {
+      "accuracy": 0.7134999999999999,
+      "cases": 10010,
+      "correct": 7142,
+      "parameters": 1617,
+      "training_steps": 4999
+    },
+    "valid": false
+  },
+  "evaluator_calls_cumulative": 16,
+  "evaluator_calls_increment": 1,
+  "evaluator_seconds_cumulative": 4572.937966792262,
+  "evaluator_seconds_increment": 333.87172504200134,
+  "event": "proposal_completed",
+  "evicted_candidate_id": null,
+  "evidence": "The current one-key/one-value-bias design achieved 99.96% at 1,618 parameters, while removing another value-bias coordinate fell to 96.11%; this motivates testing a distinct single-coordinate redundancy while preserving the successful initialization trajectory and initial model function.",
+  "hypothesis": "Removing one redundant `fc1` weight coordinate while preserving the initialized function will reduce the model from 1,618 to 1,617 parameters and retain at least 99% accuracy, because LayerNorm outputs lie on an affine hyperplane and therefore one weight per downstream affine row is functionally redundant.",
+  "incumbent_after": "e26dd5f04cdc6b5989fe9226decc7b034421d922893f44fe00b0a12c083cdffe",
+  "intended_edit": "Store 95 rather than 96 `fc1` weights, reconstruct the first coordinate as zero during inference, and shift the remaining first-row weights after initialization so the initial MLP preactivation is unchanged.",
+  "mechanism": "LayerNorm-hyperplane canonicalization of one MLP input weight",
+  "opportunity": 16,
+  "parent_ids": [
+    "e26dd5f04cdc6b5989fe9226decc7b034421d922893f44fe00b0a12c083cdffe"
+  ],
+  "portfolio_after": [
+    "e26dd5f04cdc6b5989fe9226decc7b034421d922893f44fe00b0a12c083cdffe"
+  ],
+  "prompt_hashes": {
+    "common_template_sha256": "3f2bea6418b6969c4bf2aa1df18dcda8a3a4ac075bf20c79068c754698b6be5e",
+    "prompt_sha256": "3d7cdc30157f00d24ac807b95179a56b82e39cd8951639b0e7f0e61117d0980d",
+    "proposal_policy_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "search_state_sha256": "04e5eb078ae1964e4ec65bfeeeb1acd0ffa246e7d54d5e0f997f81f602da28c5",
+    "treatment_skeleton_sha256": "5575d2286ca07d0130382cb628b97c9ece92f487d6f4d4845093a6f2933b8c41"
+  },
+  "proposal_type": "ordinary",
+  "proposals_cumulative": 16,
+  "remaining_budget": {
+    "evaluations": 184,
+    "evaluator_seconds": 355427.06203320774,
+    "proposals": 184,
+    "tokens": 99648152
+  },
+  "retained": false,
+  "retention_decision": "invalid",
+  "run_id": "controlled-openevolve-transformer-v2-1-source-only-ten-digit-addition-pair-transformer-openevolve-v2-1-mps-openevolve-b03-c0",
+  "schema_version": "1.0",
+  "selected_parent_ids": [
+    "e26dd5f04cdc6b5989fe9226decc7b034421d922893f44fe00b0a12c083cdffe"
+  ],
+  "timestamp": "2026-08-23T15:11:05.872937+00:00",
+  "usage_cumulative": {
+    "cached_input_tokens": 173056,
+    "input_tokens": 319330,
+    "output_tokens": 32518,
+    "reasoning_output_tokens": 27876,
+    "total_tokens": 351848
+  },
+  "usage_increment": {
+    "cached_input_tokens": 12032,
+    "input_tokens": 21095,
+    "output_tokens": 5499,
+    "reasoning_output_tokens": 5044,
+    "total_tokens": 26594
+  },
+  "visible_candidate_ids": [
+    "e26dd5f04cdc6b5989fe9226decc7b034421d922893f44fe00b0a12c083cdffe"
+  ]
+}

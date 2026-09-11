@@ -1,0 +1,166 @@
+# Improve fixed-time language-model pretraining
+
+You are an autonomous ML engineer improving the source code for single-GPU
+language-model pretraining.
+
+## Goal
+
+Minimize validation bits per byte (`val_bpb`) after a fixed five-minute training
+window on the supplied H100 worker. Lower is better. Startup, compilation, and
+final validation are outside the measured training window, and every submitted
+version starts from a fresh initialization.
+
+You may change the architecture, optimizer, schedules, batching, numerical
+implementation, or other contents of `train.py`. The fixed data preparation,
+tokenizer, validation procedure, hardware class, and time accounting are not
+editable. A useful change must produce a complete trainable implementation and
+finish with the required summary metrics.
+
+## Work boundaries
+
+Minimize val_bpb. No additional accuracy threshold.
+Editable source files: train.py.
+Results reported after each verification: val_bpb, training_seconds, peak_vram_mb, mfu_percent, total_tokens_M, num_steps, num_params_M, depth.
+
+Propose changes through exact SEARCH/REPLACE blocks. The patching interface applies them to the supplied editable source.
+
+The editable source and any reference source are included below. Do not access
+parent directories, home directories, shared temporary directories, global
+session history, online sources, or any surrounding repository. Do not run
+training or validation yourself and do not generate hidden alternatives.
+Return one patch for one implementation; verification happens after you finish.
+
+## Available designs
+
+The current editable design is provided. No reference design is available.
+
+CURRENT DESIGN
+verified_results: {"depth": 8.0, "mfu_percent": 38.38, "num_params_M": 50.3, "num_steps": 2655.0, "peak_vram_mb": 31031.5, "total_tokens_M": 478.5, "training_seconds": 300.1, "val_bpb": 0.984068}
+prior_hypothesis: Setting Muon weight decay to 0.126 will better approximate the optimum bracketed by the 0.11, 0.12, and 0.14 results, lowering val_bpb below 0.984109.
+
+## Recent verification evidence
+
+RECENT RESULT
+hypothesis: Zero-initialized, per-channel delay taps that mix hidden states from offsets 1, 2, and 4 into every block’s nonlinear MLP will exploit short-range contextual structure more effectively than a readout-only lexical expert, lowering val_bpb below 0.984109 without materially reducing throughput.
+change: Replace the assumption that non-current context must reach each position through softmax attention with a learned fixed-offset context path. Each block’s MLP receives a normalized mixture of the current post-attention state and three delayed contextual states, with independent channel gates initialized to zero so training begins as the verified baseline.
+mechanism: Layerwise contextual delay-line MLP
+evidence_used: The direct current-token expert improved val_bpb from 0.995511 to 0.994364, showing that an explicit short-range path can help, while the ordered multiplicative trigram readout reached 0.987766 versus 0.987386 and did not improve. This suggests the limitation was injecting lexical context only at prediction time; the proposed mechanism instead lets delayed contextual states interact inside every layer’s squared-ReLU computation.
+result: was valid but was not a strict improvement
+reported_values: {"depth": 8.0, "mfu_percent": 35.45, "num_params_M": 50.3, "num_steps": 2453.0, "peak_vram_mb": 35959.7, "total_tokens_M": 442.1, "training_seconds": 300.1, "val_bpb": 0.986236}
+
+RECENT RESULT
+hypothesis: Setting Muon weight decay to 0.126 will better approximate the optimum bracketed by the 0.11, 0.12, and 0.14 results, lowering val_bpb below 0.984109.
+change: Increase only the cautious Muon weight-decay coefficient from 0.12 to 0.126, preserving the best 176K-token batch regime and all other settings.
+mechanism: Quadratically interpolated cautious Muon decay
+evidence_used: Weight decay 0.12 achieved 0.984109, outperforming both 0.14 at 0.984418 and 0.11 at 0.984588; quadratic interpolation of these three observations places the estimated minimum near 0.126.
+result: improved the objective and became an available design
+reported_values: {"depth": 8.0, "mfu_percent": 38.38, "num_params_M": 50.3, "num_steps": 2655.0, "peak_vram_mb": 31031.5, "total_tokens_M": 478.5, "training_seconds": 300.1, "val_bpb": 0.984068}
+
+RECENT RESULT
+hypothesis: Setting Muon weight decay to 0.1245 will improve upon 0.984068 by targeting the quadratic minimum implied by the verified 0.11, 0.12, 0.126, and 0.14 results.
+change: Lower only the cautious Muon weight-decay coefficient from 0.126 to 0.1245, preserving the best 176K-token batch regime and all other settings.
+mechanism: Four-point quadratic cautious-decay refinement
+evidence_used: Weight decay 0.126 achieved the best val_bpb of 0.984068, versus 0.984109 at 0.12, 0.984418 at 0.14, and 0.984588 at 0.11; fitting this local bracket places the estimated minimum near 0.1245.
+result: was valid but was not a strict improvement
+reported_values: {"depth": 8.0, "mfu_percent": 37.75, "num_params_M": 50.3, "num_steps": 2611.0, "peak_vram_mb": 31031.5, "total_tokens_M": 470.6, "training_seconds": 300.0, "val_bpb": 0.984839}
+
+RECENT RESULT
+hypothesis: A 192K-token update with weight decay scaled to preserve the best 176K regime’s cumulative decay will reduce gradient noise and lower val_bpb below 0.984068.
+change: Increase the single-microbatch update from 88 to 96 sequences and scale Muon weight decay from 0.126 to 0.138.
+mechanism: Batch-transfer-normalized cautious Muon decay
+evidence_used: At weight decay 0.20, the 176K and 192K batches were essentially tied at 0.986967 and 0.986971, while update-count-normalized decay subsequently improved the 176K design to 0.984068; scaling 0.126 by 2655/2429 transfers that successful decay exposure to the less noisy 192K batch.
+result: was valid but was not a strict improvement
+reported_values: {"depth": 8.0, "mfu_percent": 38.18, "num_params_M": 50.3, "num_steps": 2422.0, "peak_vram_mb": 33808.5, "total_tokens_M": 476.2, "training_seconds": 300.1, "val_bpb": 0.985429}
+
+RECENT RESULT
+hypothesis: Extending the Muon momentum ramp to preserve its 256K-batch token horizon will reduce noisy early updates in the 176K regime and lower val_bpb below 0.984068.
+change: Replace the fixed 300-step momentum ramp with an equivalent token-based ramp, reaching 0.95 momentum after 300 × 256K tokens.
+mechanism: Token-horizon-normalized Muon momentum ramp
+evidence_used: Normalizing step-dependent weight decay for the 176K batch improved val_bpb from 0.986967 to 0.984418. Unlike the unsuccessful permanent beta2 increase, this change normalizes only the early first-moment transition and restores the verified baseline afterward.
+result: was valid but was not a strict improvement
+reported_values: {"depth": 8.0, "mfu_percent": 38.29, "num_params_M": 50.3, "num_steps": 2649.0, "peak_vram_mb": 31031.5, "total_tokens_M": 477.4, "training_seconds": 300.1, "val_bpb": 0.98417}
+
+RECENT RESULT
+hypothesis: Shortening the Muon momentum ramp to 206 steps will reach the noise-suppressing 0.95 momentum sooner and lower val_bpb below 0.984068.
+change: Reduce only the Muon momentum-ramp duration from 300 to 206 steps.
+mechanism: Earlier Muon momentum smoothing
+evidence_used: Extending the ramp from 300 to approximately 436 steps regressed val_bpb from 0.984068 to 0.984170; testing the inverse batch-ratio scaling, 300 × 176/256 ≈ 206, probes the more-promising shorter-ramp direction while preserving every other verified setting.
+result: was valid but was not a strict improvement
+reported_values: {"depth": 8.0, "mfu_percent": 37.47, "num_params_M": 50.3, "num_steps": 2592.0, "peak_vram_mb": 31031.5, "total_tokens_M": 467.1, "training_seconds": 300.1, "val_bpb": 0.985398}
+
+RECENT RESULT
+hypothesis: Extending the Muon momentum ramp from 300 to 362 steps will lower val_bpb below 0.984068 by approaching the empirical minimum bracketed by the verified 206-, 300-, and 436-step ramps.
+change: Change only the Muon momentum-ramp duration to 362 optimizer steps, preserving the best architecture, batch size, learning rates, and weight decay.
+mechanism: Three-point interpolated Muon momentum ramp
+evidence_used: The 300-step ramp achieved 0.984068, while 436 steps remained close at 0.984170 and 206 steps regressed substantially to 0.985398; quadratic interpolation of this asymmetric bracket places the estimated minimum near 362 steps.
+result: was valid but was not a strict improvement
+reported_values: {"depth": 8.0, "mfu_percent": 38.34, "num_params_M": 50.3, "num_steps": 2652.0, "peak_vram_mb": 31031.5, "total_tokens_M": 478.0, "training_seconds": 300.1, "val_bpb": 0.984152}
+
+RECENT RESULT
+hypothesis: Reducing short-layer context from 1,024 to 768 tokens while retaining two full-context layers will increase token throughput enough to lower val_bpb below 0.984068.
+change: Set each `S` attention window to three-eighths of the 2,048-token sequence length.
+mechanism: Throughput-biased three-eighths sliding attention
+evidence_used: The best design processed 478.5M tokens at 0.984068, while the slower delay-line design processed 442.1M and regressed to 0.986236; shortening only the six local-attention windows targets throughput without removing full-context attention.
+result: was valid but was not a strict improvement
+reported_values: {"depth": 8.0, "mfu_percent": 37.11, "num_params_M": 50.3, "num_steps": 2672.0, "peak_vram_mb": 31031.5, "total_tokens_M": 481.6, "training_seconds": 300.0, "val_bpb": 0.984407}
+
+RECENT RESULT
+hypothesis: Increasing local-attention windows from 1,024 to 1,280 tokens will recover more useful context than the modest throughput reduction costs, lowering val_bpb below 0.984068.
+change: Set every `S` attention window to five-eighths of the 2,048-token sequence length.
+mechanism: Context-favoring five-eighths sliding attention
+evidence_used: Reducing `S` windows to 768 increased total tokens from 478.5M to 481.6M but worsened val_bpb from 0.984068 to 0.984407, indicating that additional context was more valuable than the measured throughput gain and motivating a test in the opposite direction.
+result: was valid but was not a strict improvement
+reported_values: {"depth": 8.0, "mfu_percent": 39.02, "num_params_M": 50.3, "num_steps": 2597.0, "peak_vram_mb": 31031.5, "total_tokens_M": 468.0, "training_seconds": 300.1, "val_bpb": 0.985631}
+
+RECENT RESULT
+hypothesis: Moving the first full-context attention layer one block earlier while retaining six half-context and two full-context layers will give global information one additional nonlinear transformation and lower val_bpb below 0.984068 without reducing throughput.
+change: Replace the repeated four-layer window pattern with an explicit eight-layer pattern that shifts the first full-context layer from index 3 to index 2 while keeping the final layer full-context.
+mechanism: Compute-neutral earlier global-context injection
+evidence_used: Half-context windows outperformed both 768-token windows at 0.984407 and 1,280-token windows at 0.985631, suggesting the 1,024-token width is already near the useful tradeoff; changing full-context placement while preserving window widths and counts isolates whether earlier global integration is more effective.
+result: was valid but was not a strict improvement
+reported_values: {"depth": 8.0, "mfu_percent": 38.04, "num_params_M": 50.3, "num_steps": 2632.0, "peak_vram_mb": 31031.5, "total_tokens_M": 474.3, "training_seconds": 300.1, "val_bpb": 0.985581}
+
+RECENT RESULT
+hypothesis: Replacing the fixed additive bigram shortcut with an initially equivalent context-conditioned lexical scale will lower val_bpb below 0.984068 by letting the full contextual state determine which current-token features should influence each prediction channel.
+change: Add a zero-initialized readout matrix that computes a bounded channel-wise lexical adjustment from the final contextual state, producing an explicit bilinear interaction between context and the current-token value embedding while preserving baseline behavior at initialization.
+mechanism: Context-conditioned bilinear lexical readout
+evidence_used: The direct lexical expert improved val_bpb from 0.995511 to 0.994364, but the lexical-only multiplicative trigram readout failed at 0.987766 versus 0.987386. This tests a different load-bearing assumption—fixed additive separation of lexical and contextual evidence—by making lexical influence conditional on the fully contextualized representation rather than multiplying lexical embeddings alone.
+result: was valid but was not a strict improvement
+reported_values: {"depth": 8.0, "mfu_percent": 37.95, "num_params_M": 50.6, "num_steps": 2608.0, "peak_vram_mb": 31737.7, "total_tokens_M": 470.0, "training_seconds": 300.1, "val_bpb": 0.985305}
+
+RECENT RESULT
+hypothesis: Redistributing the verified decay exposure uniformly across training will preserve useful late-stage regularization and lower val_bpb below 0.984068.
+change: Replace the linearly vanishing 0.126 Muon weight decay with a constant 0.077 coefficient, exactly matching its LR-weighted schedule integral under the existing half-window warmdown.
+mechanism: Integral-matched constant cautious Muon decay
+evidence_used: Weight decay materially affected val_bpb, with 0.126 reaching 0.984068; neighboring coefficient refinements were noisy, motivating an exposure-matched test of decay timing instead of another amplitude interpolation.
+result: was valid but was not a strict improvement
+reported_values: {"depth": 8.0, "mfu_percent": 38.1, "num_params_M": 50.3, "num_steps": 2636.0, "peak_vram_mb": 31031.5, "total_tokens_M": 475.1, "training_seconds": 300.1, "val_bpb": 0.986934}
+
+
+
+Use the available technical evidence to choose the most informative next
+change. Treat unsuccessful or malformed work as evidence when a useful
+subject-level reason is provided. Do not invent missing evidence.
+
+## Response
+
+Return these short metadata lines followed by one or more exact
+`SEARCH`/`REPLACE` blocks that together produce one implementation:
+
+`MECHANISM: <a concise free-form name for the computational idea>`
+
+`HYPOTHESIS: <a falsifiable claim grounded in the evidence above>`
+
+`INTENDED_EDIT: <what this patch changes>`
+
+`EVIDENCE: <the most relevant prior result and why it motivates this patch>`
+
+Start each block with `<<<<<<< SEARCH`, put the exact existing lines next, use a
+line containing `=======` as the divider, put the replacement lines after it,
+and finish the block with `>>>>>>> REPLACE`.
+
+Every `SEARCH` section must be nonempty and match exactly once after earlier
+blocks have been applied. All blocks must apply. Together they must describe
+one implementation ready for verification. The mechanism name is descriptive,
+not chosen from a fixed list. Do not paste whole files, lengthy logs, or routine
+progress reports outside the patch.

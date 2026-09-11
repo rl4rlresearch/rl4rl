@@ -1,0 +1,83 @@
+{
+  "artifact_path": "candidates/74d82a3c6db02501650ce2689c6191f763ec293a033dc12a4ac7af7e39ec13bf",
+  "candidate_id": "74d82a3c6db02501650ce2689c6191f763ec293a033dc12a4ac7af7e39ec13bf",
+  "codex_service_tier": "fast",
+  "condition": "C3",
+  "conversation_session_id": null,
+  "evaluation": {
+    "evaluator_calls": 1,
+    "evaluator_seconds": 237.3767989590997,
+    "failure_kind": "nonqualification",
+    "fitness": null,
+    "metrics": {
+      "accuracy": 0.3967,
+      "cases": 10010,
+      "correct": 3971,
+      "parameters": 1627,
+      "training_steps": 4999
+    },
+    "valid": false
+  },
+  "evaluator_calls_cumulative": 8,
+  "evaluator_calls_increment": 1,
+  "evaluator_seconds_cumulative": 1813.7285508351633,
+  "evaluator_seconds_increment": 237.3767989590997,
+  "event": "proposal_completed",
+  "evicted_candidate_id": null,
+  "evidence": "The query-only QKV design achieved 99.92% accuracy at 1628 parameters. Unlike the failed positional gauge edit, this removes a zero-initialized null direction immediately before `ln_f`, requiring no transformation of randomly initialized embeddings.",
+  "hypothesis": "Combining the qualified query-only QKV bias with a seven-dimensional mean-zero parameterization of `fc2.bias` will reduce the model to 1627 parameters while retaining at least 99% accuracy, because the omitted all-ones bias direction is exactly canceled by the immediately following final LayerNorm.",
+  "incumbent_after": "a91d17a18b4eb5b68640561507be2dfdd6ebe850bd8a64c62897914ce559cfcd",
+  "intended_edit": "Apply the proven key/value-bias removal and represent the eight-coordinate MLP output bias using seven learned coefficients in a fixed orthonormal basis perpendicular to the all-ones vector, while preserving the baseline initialization RNG stream.",
+  "mechanism": "Orthonormal gauge removal of the final pre-LayerNorm bias",
+  "opportunity": 8,
+  "parent_ids": [
+    "2b9cea175ed60b009337ac54f6e8ad23bf2c014eb4080237777bfb70bfd9fd5b"
+  ],
+  "portfolio_after": [
+    "2b9cea175ed60b009337ac54f6e8ad23bf2c014eb4080237777bfb70bfd9fd5b",
+    "ab1f04e2fd829b04a7203faf36349aa0ebb5b0229225bf61b12e800f0d7f6ab4",
+    "a91d17a18b4eb5b68640561507be2dfdd6ebe850bd8a64c62897914ce559cfcd"
+  ],
+  "prompt_hashes": {
+    "common_template_sha256": "3f2bea6418b6969c4bf2aa1df18dcda8a3a4ac075bf20c79068c754698b6be5e",
+    "prompt_sha256": "4e01e0342862e38afc4ae7e308f94f3ead89e47a480873147f15fd2d43dcd8e9",
+    "proposal_policy_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "search_state_sha256": "c938ac007bf70fe8d27f64661175531e51fcb16b38318c328493c32ee292e27e",
+    "treatment_skeleton_sha256": "75dce62e8ba2104e58e3b7d0c4f2bd2cbe30710fd5add0c7f91191b208160452"
+  },
+  "proposal_type": "ordinary",
+  "proposals_cumulative": 8,
+  "remaining_budget": {
+    "evaluations": 192,
+    "evaluator_seconds": 358186.27144916484,
+    "proposals": 192,
+    "tokens": 99799014
+  },
+  "retained": false,
+  "retention_decision": "invalid",
+  "run_id": "controlled-openevolve-transformer-v2-1-source-only-ten-digit-addition-pair-transformer-openevolve-v2-1-mps-openevolve-b05-c3",
+  "schema_version": "1.0",
+  "selected_parent_ids": [
+    "2b9cea175ed60b009337ac54f6e8ad23bf2c014eb4080237777bfb70bfd9fd5b"
+  ],
+  "timestamp": "2026-08-23T11:05:41.069937+00:00",
+  "usage_cumulative": {
+    "cached_input_tokens": 88064,
+    "input_tokens": 175126,
+    "output_tokens": 25860,
+    "reasoning_output_tokens": 21524,
+    "total_tokens": 200986
+  },
+  "usage_increment": {
+    "cached_input_tokens": 12032,
+    "input_tokens": 28290,
+    "output_tokens": 3658,
+    "reasoning_output_tokens": 2904,
+    "total_tokens": 31948
+  },
+  "visible_candidate_ids": [
+    "2b9cea175ed60b009337ac54f6e8ad23bf2c014eb4080237777bfb70bfd9fd5b",
+    "ab1f04e2fd829b04a7203faf36349aa0ebb5b0229225bf61b12e800f0d7f6ab4",
+    "a91d17a18b4eb5b68640561507be2dfdd6ebe850bd8a64c62897914ce559cfcd"
+  ]
+}

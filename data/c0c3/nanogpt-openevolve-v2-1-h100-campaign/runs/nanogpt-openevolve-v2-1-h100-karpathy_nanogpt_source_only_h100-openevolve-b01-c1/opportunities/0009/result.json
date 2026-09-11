@@ -1,0 +1,82 @@
+{
+  "artifact_path": "candidates/90dd17736a7099721259b605fdd2d94b2198928e8c510272627a158f4172dfec",
+  "candidate_id": "90dd17736a7099721259b605fdd2d94b2198928e8c510272627a158f4172dfec",
+  "codex_service_tier": "fast",
+  "condition": "C1",
+  "conversation_session_id": null,
+  "evaluation": {
+    "evaluator_calls": 1,
+    "evaluator_seconds": 436.38087419300064,
+    "failure_kind": null,
+    "fitness": -1.012563,
+    "metrics": {
+      "depth": 8.0,
+      "mfu_percent": 28.01,
+      "num_params_M": 50.3,
+      "num_steps": 804.0,
+      "peak_vram_mb": 45060.2,
+      "total_tokens_M": 421.5,
+      "training_seconds": 300.1,
+      "val_bpb": 1.012563
+    },
+    "valid": true
+  },
+  "evaluator_calls_cumulative": 9,
+  "evaluator_calls_increment": 1,
+  "evaluator_seconds_cumulative": 3442.588394652003,
+  "evaluator_seconds_increment": 436.38087419300064,
+  "event": "proposal_completed",
+  "evicted_candidate_id": null,
+  "evidence": "Grouped-query attention processed 16.8M more tokens but regressed to 0.996550 after reducing capacity; this motivates a throughput optimization that leaves the successful attention architecture and parameter count intact.",
+  "hypothesis": "Removing the vocabulary-wide tanh softcap will increase throughput while preserving the 50.3M-parameter model and essential final global-attention layer, lowering val_bpb below 0.992286.",
+  "incumbent_after": "a1a9234027b48bc7b7b3915b2e809e849b6afedfe79a9a211f23947b1f8adec9",
+  "intended_edit": "Feed FP32 logits directly to cross-entropy, eliminating the softcap division, tanh, and multiplication.",
+  "mechanism": "Raw-logit cross-entropy",
+  "opportunity": 9,
+  "parent_ids": [
+    "a1a9234027b48bc7b7b3915b2e809e849b6afedfe79a9a211f23947b1f8adec9"
+  ],
+  "portfolio_after": [
+    "a1a9234027b48bc7b7b3915b2e809e849b6afedfe79a9a211f23947b1f8adec9"
+  ],
+  "prompt_hashes": {
+    "common_template_sha256": "ba85b39aa7288f4f48475376da6cff65661f39cfeb7ac7cde15b2a9a2e692fde",
+    "prompt_sha256": "5159a9a7cdc9d3048aa3d723d06cf15cb435295cdf34754a72a17d35eaa0e4de",
+    "proposal_policy_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "search_state_sha256": "04e5eb078ae1964e4ec65bfeeeb1acd0ffa246e7d54d5e0f997f81f602da28c5",
+    "treatment_skeleton_sha256": "c827e4975e85118633877cd73555314f218d04c14ac6d3b680c205724871ca9f"
+  },
+  "proposal_type": "ordinary",
+  "proposals_cumulative": 9,
+  "remaining_budget": {
+    "evaluations": 191,
+    "evaluator_seconds": 716557.411605348,
+    "proposals": 191,
+    "tokens": 99777442
+  },
+  "retained": false,
+  "retention_decision": "not_strictly_better_than_incumbent",
+  "run_id": "nanogpt-openevolve-v2-1-h100-karpathy_nanogpt_source_only_h100-openevolve-b01-c1",
+  "schema_version": "1.0",
+  "selected_parent_ids": [
+    "a1a9234027b48bc7b7b3915b2e809e849b6afedfe79a9a211f23947b1f8adec9"
+  ],
+  "timestamp": "2026-08-23T18:18:56.282116+00:00",
+  "usage_cumulative": {
+    "cached_input_tokens": 89088,
+    "input_tokens": 205081,
+    "output_tokens": 17477,
+    "reasoning_output_tokens": 15808,
+    "total_tokens": 222558
+  },
+  "usage_increment": {
+    "cached_input_tokens": 12032,
+    "input_tokens": 23677,
+    "output_tokens": 5064,
+    "reasoning_output_tokens": 4871,
+    "total_tokens": 28741
+  },
+  "visible_candidate_ids": [
+    "a1a9234027b48bc7b7b3915b2e809e849b6afedfe79a9a211f23947b1f8adec9"
+  ]
+}

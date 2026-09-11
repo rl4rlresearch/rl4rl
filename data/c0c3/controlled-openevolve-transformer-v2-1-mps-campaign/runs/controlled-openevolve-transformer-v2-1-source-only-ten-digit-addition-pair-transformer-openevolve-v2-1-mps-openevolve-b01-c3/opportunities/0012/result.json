@@ -1,0 +1,85 @@
+{
+  "artifact_path": "candidates/f961f48305c52581ee821e6f8b9848ed95c8af01bee57c80e3b8d2a3b143aeac",
+  "candidate_id": "f961f48305c52581ee821e6f8b9848ed95c8af01bee57c80e3b8d2a3b143aeac",
+  "codex_service_tier": "fast",
+  "condition": "C3",
+  "conversation_session_id": null,
+  "evaluation": {
+    "evaluator_calls": 1,
+    "evaluator_seconds": 346.510049332981,
+    "failure_kind": "nonqualification",
+    "fitness": null,
+    "metrics": {
+      "accuracy": 0.9887,
+      "cases": 10010,
+      "correct": 9897,
+      "parameters": 1534,
+      "training_steps": 4999
+    },
+    "valid": false
+  },
+  "evaluator_calls_cumulative": 12,
+  "evaluator_calls_increment": 1,
+  "evaluator_seconds_cumulative": 3293.003263792023,
+  "evaluator_seconds_increment": 346.510049332981,
+  "event": "proposal_completed",
+  "evicted_candidate_id": null,
+  "evidence": "The current gauge-fixed model reached 99.63% accuracy with 1,535 parameters after removing the final LayerNorm bias; this motivates a minimal follow-up that preserves every relative terminal scale rather than removing the full scale vector.",
+  "hypothesis": "Constraining the final LayerNorm scale to have mean one will reduce the verified 1,535-parameter model to 1,534 parameters while retaining at least 99% accuracy, because any positive global multiplier of its scale only changes logit temperature and not greedy predictions, while all seven relative feature scales remain learnable.",
+  "incumbent_after": "233394cd375a5ff2e6ce46d1b46cbed468499a6f42b3c710d410413603edab39",
+  "intended_edit": "Reparameterize the eight-element terminal normalization scale as an all-ones vector plus seven learned mean-zero coordinates.",
+  "mechanism": "Mean-fixed terminal scale gauge",
+  "opportunity": 12,
+  "parent_ids": [
+    "233394cd375a5ff2e6ce46d1b46cbed468499a6f42b3c710d410413603edab39"
+  ],
+  "portfolio_after": [
+    "2b9cea175ed60b009337ac54f6e8ad23bf2c014eb4080237777bfb70bfd9fd5b",
+    "4186d8a6926bebdd50198f23a72624f9f82de893aa213a1529e1f5bc0ccd04f0",
+    "74b50d836619a8b8d9342b5b0f6481d2553f99a6db64ee813f390f65564074da",
+    "233394cd375a5ff2e6ce46d1b46cbed468499a6f42b3c710d410413603edab39"
+  ],
+  "prompt_hashes": {
+    "common_template_sha256": "3f2bea6418b6969c4bf2aa1df18dcda8a3a4ac075bf20c79068c754698b6be5e",
+    "prompt_sha256": "3c2a14fd74e4f374f3e3d7deace80fd627b6b25408ee45e85a9216a3708f44bf",
+    "proposal_policy_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "search_state_sha256": "c938ac007bf70fe8d27f64661175531e51fcb16b38318c328493c32ee292e27e",
+    "treatment_skeleton_sha256": "bb445b6e9a22a38ebd3745d3e4b6d7ff932323545ae40eeeb94dec737fc21fed"
+  },
+  "proposal_type": "ordinary",
+  "proposals_cumulative": 12,
+  "remaining_budget": {
+    "evaluations": 188,
+    "evaluator_seconds": 356706.996736208,
+    "proposals": 188,
+    "tokens": 99615290
+  },
+  "retained": false,
+  "retention_decision": "invalid",
+  "run_id": "controlled-openevolve-transformer-v2-1-source-only-ten-digit-addition-pair-transformer-openevolve-v2-1-mps-openevolve-b01-c3",
+  "schema_version": "1.0",
+  "selected_parent_ids": [
+    "233394cd375a5ff2e6ce46d1b46cbed468499a6f42b3c710d410413603edab39"
+  ],
+  "timestamp": "2026-08-23T13:32:03.422944+00:00",
+  "usage_cumulative": {
+    "cached_input_tokens": 134144,
+    "input_tokens": 337070,
+    "output_tokens": 47640,
+    "reasoning_output_tokens": 40180,
+    "total_tokens": 384710
+  },
+  "usage_increment": {
+    "cached_input_tokens": 12032,
+    "input_tokens": 34017,
+    "output_tokens": 3471,
+    "reasoning_output_tokens": 3106,
+    "total_tokens": 37488
+  },
+  "visible_candidate_ids": [
+    "2b9cea175ed60b009337ac54f6e8ad23bf2c014eb4080237777bfb70bfd9fd5b",
+    "4186d8a6926bebdd50198f23a72624f9f82de893aa213a1529e1f5bc0ccd04f0",
+    "74b50d836619a8b8d9342b5b0f6481d2553f99a6db64ee813f390f65564074da",
+    "233394cd375a5ff2e6ce46d1b46cbed468499a6f42b3c710d410413603edab39"
+  ]
+}

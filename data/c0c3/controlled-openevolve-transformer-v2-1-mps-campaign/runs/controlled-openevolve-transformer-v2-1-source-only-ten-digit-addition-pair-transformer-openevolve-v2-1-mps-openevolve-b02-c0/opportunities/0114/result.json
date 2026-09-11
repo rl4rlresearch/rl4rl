@@ -1,0 +1,79 @@
+{
+  "artifact_path": "candidates/c774552ea960e0b39fc479f35f2dad320a4260b8c43e4cc263ddd9885958a3b2",
+  "candidate_id": "c774552ea960e0b39fc479f35f2dad320a4260b8c43e4cc263ddd9885958a3b2",
+  "codex_service_tier": "default",
+  "condition": "C0",
+  "conversation_session_id": null,
+  "evaluation": {
+    "evaluator_calls": 1,
+    "evaluator_seconds": 363.39239399996586,
+    "failure_kind": "nonqualification",
+    "fitness": null,
+    "metrics": {
+      "accuracy": 0.7392,
+      "cases": 10010,
+      "correct": 7399,
+      "parameters": 1575,
+      "training_steps": 4999
+    },
+    "valid": false
+  },
+  "evaluator_calls_cumulative": 114,
+  "evaluator_calls_increment": 1,
+  "evaluator_seconds_cumulative": 48191.75661087828,
+  "evaluator_seconds_increment": 363.39239399996586,
+  "event": "proposal_completed",
+  "evicted_candidate_id": null,
+  "evidence": "The 1,576-parameter design achieved 99.92% with three `fc2` columns already using this gauge; unlike the failed fifth attention-output constraint, this extends the established projection immediately upstream of the final LayerNorm.",
+  "hypothesis": "Constraining the fourth `fc2` output-projection column to zero mean will reduce the model to 1,575 parameters while retaining at least 99% accuracy, because its removed all-ones output component is invisible to downstream LayerNorm and initialization remains functionally and RNG aligned.",
+  "incumbent_after": "83a3865a90d0f7ad2b26be8430e854000ba2fb034b505aac58460109058ef401",
+  "intended_edit": "Extend `OutputAnchoredLinear` from three to four zero-mean weight columns, projecting the additional column from the same 94-scalar initialization draw used by the verified design.",
+  "mechanism": "Fourth MLP-output common-mode gauge",
+  "opportunity": 114,
+  "parent_ids": [
+    "83a3865a90d0f7ad2b26be8430e854000ba2fb034b505aac58460109058ef401"
+  ],
+  "portfolio_after": [
+    "83a3865a90d0f7ad2b26be8430e854000ba2fb034b505aac58460109058ef401"
+  ],
+  "prompt_hashes": {
+    "common_template_sha256": "3f2bea6418b6969c4bf2aa1df18dcda8a3a4ac075bf20c79068c754698b6be5e",
+    "prompt_sha256": "fc6bda48ce65c3bd8c8b3a0799a422a228ae933a73bc4375f6751b1c512f1451",
+    "proposal_policy_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "search_state_sha256": "04e5eb078ae1964e4ec65bfeeeb1acd0ffa246e7d54d5e0f997f81f602da28c5",
+    "treatment_skeleton_sha256": "8ad122097c082e635a4f411cff41f1ba67ba23590b7c9c3734ecfe626d97e506"
+  },
+  "proposal_type": "ordinary",
+  "proposals_cumulative": 114,
+  "remaining_budget": {
+    "evaluations": 86,
+    "evaluator_seconds": 311808.2433891217,
+    "proposals": 86,
+    "tokens": 97025581
+  },
+  "retained": false,
+  "retention_decision": "invalid",
+  "run_id": "controlled-openevolve-transformer-v2-1-source-only-ten-digit-addition-pair-transformer-openevolve-v2-1-mps-openevolve-b02-c0",
+  "schema_version": "1.0",
+  "selected_parent_ids": [
+    "83a3865a90d0f7ad2b26be8430e854000ba2fb034b505aac58460109058ef401"
+  ],
+  "timestamp": "2026-09-03T11:58:09.862236+00:00",
+  "usage_cumulative": {
+    "cached_input_tokens": 1156352,
+    "input_tokens": 2649931,
+    "output_tokens": 324488,
+    "reasoning_output_tokens": 252054,
+    "total_tokens": 2974419
+  },
+  "usage_increment": {
+    "cached_input_tokens": 10752,
+    "input_tokens": 25138,
+    "output_tokens": 4420,
+    "reasoning_output_tokens": 3106,
+    "total_tokens": 29558
+  },
+  "visible_candidate_ids": [
+    "83a3865a90d0f7ad2b26be8430e854000ba2fb034b505aac58460109058ef401"
+  ]
+}

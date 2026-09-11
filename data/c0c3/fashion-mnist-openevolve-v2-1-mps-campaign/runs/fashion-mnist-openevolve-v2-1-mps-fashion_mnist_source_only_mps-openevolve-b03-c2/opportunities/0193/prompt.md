@@ -1,0 +1,181 @@
+# Improve fixed-exposure image classification
+
+You are an autonomous ML engineer improving a learned classifier for 28×28
+grayscale images in ten classes.
+
+## Goal
+
+Maximize `validation_score`. It ranks implementations first by the exact number
+of correct predictions on the fixed 10,000-image validation set, then—only when
+correct counts tie—by lower validation cross-entropy. Every verification starts
+from a fresh initialization and presents exactly 100,000 examples from the
+fixed 50,000-image training split.
+
+You may change the model architecture, optimizer, loss, augmentation, batch
+size, gradient handling, schedule, and other contents of `train.py`. The fixed
+data split, normalization, example accounting, validation calculation,
+250,000-learned-parameter ceiling, and device are not editable. The protected
+loop calls the functions already defined in `train.py`; keep that interface
+intact. The model must return one ten-class logit vector per image.
+
+## Work boundaries
+
+Maximize validation_score. No additional accuracy threshold.
+Editable source files: train.py.
+Results reported after each verification: validation_score, validation_correct, validation_accuracy, validation_cross_entropy, parameters, examples_processed, optimizer_steps, training_seconds, batch_size.
+
+Propose changes through exact SEARCH/REPLACE blocks. The patching interface applies them to the supplied editable source.
+
+The editable source and any reference source are included below. Do not access
+parent directories, home directories, shared temporary directories, global
+session history, online sources, external datasets, pretrained weights, or any
+surrounding repository. Do not run training or validation yourself and do not
+generate hidden alternatives. Return one patch for one implementation;
+verification happens after you finish.
+
+## Available designs
+
+The current editable design and the qualified reference designs below are available as technical evidence. Edit only the current workspace.
+
+CURRENT DESIGN
+verified_results: {"batch_size": 64, "examples_processed": 100000, "optimizer_steps": 1564, "parameters": 247538, "training_seconds": 63.32095912494697, "validation_accuracy": 0.9257, "validation_correct": 9257, "validation_cross_entropy": 0.21436881332397462, "validation_score": 9257.411736528898}
+prior_hypothesis: A 163/2048 geometric-consensus blend will preserve exactly 9,257 correct predictions while reducing validation cross-entropy below 0.21436909408569335.
+
+REFERENCE DESIGN 1
+verified_results: {"batch_size": 64, "examples_processed": 100000, "optimizer_steps": 1564, "parameters": 247538, "training_seconds": 58.75192158296704, "validation_accuracy": 0.9257, "validation_correct": 9257, "validation_cross_entropy": 0.21436964797973632, "validation_score": 9257.411736245906}
+prior_hypothesis: A 5/64 geometric-consensus blend will preserve exactly 9,257 correct predictions while reducing validation cross-entropy below 0.214378804397583.
+
+REFERENCE DESIGN 2
+verified_results: {"batch_size": 64, "examples_processed": 100000, "optimizer_steps": 1564, "parameters": 247538, "training_seconds": 43.480353417107835, "validation_accuracy": 0.9257, "validation_correct": 9257, "validation_cross_entropy": 0.2144188995361328, "validation_score": 9257.41171954767}
+prior_hypothesis: The next float32 logit scale below 1.35603 will preserve exactly 9,257 correct predictions and reduce validation cross-entropy below 0.21441890335083008.
+
+REFERENCE DESIGN 3
+verified_results: {"batch_size": 64, "examples_processed": 100000, "optimizer_steps": 1564, "parameters": 247538, "training_seconds": 66.46290395781398, "validation_accuracy": 0.9257, "validation_correct": 9257, "validation_cross_entropy": 0.21436909408569335, "validation_score": 9257.411736433705}
+prior_hypothesis: An 81/1024 geometric-consensus blend will preserve exactly 9,257 correct predictions while reducing validation cross-entropy below 0.21436964797973632.
+
+## Recent verification evidence
+
+RECENT RESULT
+hypothesis: Blending 1/8 weighted geometric consensus into the existing probability-average ensemble will suppress transformation-specific outlier predictions and increase validation_correct above 9,257.
+change: Keep the trained model and proven center/cardinal views unchanged, but blend their current arithmetic probability fusion with a center-weighted geometric fusion before logit calibration.
+mechanism: Robust arithmetic–geometric TTA fusion
+evidence_used: Temperature refinements repeatedly plateaued at 9,257 correct, while adding diagonal views reduced accuracy to 9,247; this motivates changing how the established views are fused without introducing weaker views.
+result: was valid but was not a strict improvement
+reported_values: {"batch_size": 64, "examples_processed": 100000, "optimizer_steps": 1564, "parameters": 247538, "training_seconds": 60.137730250135064, "validation_accuracy": 0.9256, "validation_correct": 9256, "validation_cross_entropy": 0.21433232460021973, "validation_score": 9256.411748900915}
+
+RECENT RESULT
+hypothesis: Blending 1/64 geometric consensus into the established arithmetic ensemble will preserve 9,257 correct predictions while reducing validation cross-entropy below 0.2144188995361328.
+change: Retain the proven views, weights, and compensated calibration, but add a conservative geometric-consensus component to the fused probabilities.
+mechanism: Low-dose arithmetic–geometric TTA fusion
+evidence_used: A 1/8 geometric blend reduced cross-entropy to 0.21433232460021973 but lost one correct prediction; a much smaller blend tests whether its calibration benefit can be retained before that ranking boundary is crossed.
+result: improved the objective and became an available design
+reported_values: {"batch_size": 64, "examples_processed": 100000, "optimizer_steps": 1564, "parameters": 247538, "training_seconds": 42.216582708992064, "validation_accuracy": 0.9257, "validation_correct": 9257, "validation_cross_entropy": 0.214408358001709, "validation_score": 9257.411723121555}
+
+RECENT RESULT
+hypothesis: Increasing the geometric-consensus blend from 1/64 to 1/32 will preserve exactly 9,257 correct predictions while reducing validation cross-entropy below 0.214408358001709.
+change: Restore the qualified arithmetic–geometric ensemble and compensated calibration, using a 1/32 geometric blend to probe the interval between the successful 1/64 blend and accuracy-reducing 1/8 blend.
+mechanism: Moderate-dose arithmetic–geometric TTA fusion
+evidence_used: The 1/64 blend preserved 9,257 correct and improved cross-entropy, while 1/8 lost only one prediction and improved cross-entropy further; 1/32 is a conservative increase toward that demonstrated calibration benefit.
+result: improved the objective and became an available design
+reported_values: {"batch_size": 64, "examples_processed": 100000, "optimizer_steps": 1564, "parameters": 247538, "training_seconds": 46.8521305420436, "validation_accuracy": 0.9257, "validation_correct": 9257, "validation_cross_entropy": 0.2143981575012207, "validation_score": 9257.41172657988}
+
+RECENT RESULT
+hypothesis: A 1/16 geometric-consensus blend will preserve exactly 9,257 correct predictions while reducing validation cross-entropy below 0.2143981575012207.
+change: Replace the arithmetic-only ensemble with a 15/16 arithmetic and 1/16 center-weighted geometric probability blend, retaining the best verified compensated logit calibration.
+mechanism: Intermediate-dose arithmetic–geometric TTA fusion
+evidence_used: Increasing the geometric blend from 1/64 to 1/32 preserved 9,257 correct predictions and improved cross-entropy, while 1/8 lost only one correct prediction and reduced cross-entropy further; 1/16 probes the midpoint of that ranking boundary.
+result: improved the objective and became an available design
+reported_values: {"batch_size": 64, "examples_processed": 100000, "optimizer_steps": 1564, "parameters": 247538, "training_seconds": 50.313613874837756, "validation_accuracy": 0.9257, "validation_correct": 9257, "validation_cross_entropy": 0.214378804397583, "validation_score": 9257.411733141413}
+
+RECENT RESULT
+hypothesis: A 3/32 geometric-consensus blend will preserve exactly 9,257 correct predictions while reducing validation cross-entropy below 0.214378804397583.
+change: Increase the geometric fusion weight from 1/16 to 3/32, retaining all trained-model, view-weighting, and calibration settings.
+mechanism: Boundary-seeking arithmetic–geometric TTA fusion
+evidence_used: The 1/16 blend preserved 9,257 correct and improved cross-entropy, whereas 1/8 reduced cross-entropy further but lost one correct; 3/32 is the midpoint that probes the remaining ranking boundary.
+result: was valid but was not a strict improvement
+reported_values: {"batch_size": 64, "examples_processed": 100000, "optimizer_steps": 1564, "parameters": 247538, "training_seconds": 62.134076208109036, "validation_accuracy": 0.9256, "validation_correct": 9256, "validation_cross_entropy": 0.21436085662841797, "validation_score": 9256.411739226665}
+
+RECENT RESULT
+hypothesis: A 5/64 geometric-consensus blend will preserve exactly 9,257 correct predictions while reducing validation cross-entropy below 0.214378804397583.
+change: Increase the geometric fusion weight from 1/32 to 5/64, retaining the trained model, established views, view weights, and compensated calibration.
+mechanism: Binary search of the geometric-fusion ranking boundary
+evidence_used: The 1/16 blend retained 9,257 correct with 0.214378804397583 cross-entropy, while 3/32 lost one correct but further reduced cross-entropy; 5/64 is their midpoint and directly probes the remaining ranking boundary.
+result: improved the objective and became an available design
+reported_values: {"batch_size": 64, "examples_processed": 100000, "optimizer_steps": 1564, "parameters": 247538, "training_seconds": 58.75192158296704, "validation_accuracy": 0.9257, "validation_correct": 9257, "validation_cross_entropy": 0.21436964797973632, "validation_score": 9257.411736245906}
+
+RECENT RESULT
+hypothesis: An 11/128 geometric-consensus blend will preserve exactly 9,257 correct predictions while reducing validation cross-entropy below 0.21436964797973632.
+change: Increase geometric fusion from 1/64 to 11/128 while retaining the trained model, established views, view weights, and compensated calibration.
+mechanism: Final binary search of the geometric-fusion ranking boundary
+evidence_used: A 5/64 blend preserved 9,257 correct with 0.21436964797973632 cross-entropy, while 3/32 lost one correct but reduced cross-entropy further; 11/128 is their exact midpoint and isolates the remaining ranking boundary.
+result: was valid but was not a strict improvement
+reported_values: {"batch_size": 64, "examples_processed": 100000, "optimizer_steps": 1564, "parameters": 247538, "training_seconds": 49.529807541985065, "validation_accuracy": 0.9256, "validation_correct": 9256, "validation_cross_entropy": 0.21436521072387696, "validation_score": 9256.411737750377}
+
+RECENT RESULT
+hypothesis: A 21/256 geometric-consensus blend will preserve exactly 9,257 correct predictions while reducing validation cross-entropy below 0.21436964797973632.
+change: Replace arithmetic-only fusion with a 235/256 arithmetic and 21/256 center-weighted geometric probability blend, retaining the qualified compensated logit calibration.
+mechanism: Fine-grained geometric-fusion boundary search
+evidence_used: The 5/64 blend preserved 9,257 correct predictions with 0.21436964797973632 cross-entropy, while 11/128 lost one correct prediction but further reduced cross-entropy; 21/256 is their midpoint and most directly refines the ranking boundary.
+result: was valid but was not a strict improvement
+reported_values: {"batch_size": 64, "examples_processed": 100000, "optimizer_steps": 1564, "parameters": 247538, "training_seconds": 44.43280037492514, "validation_accuracy": 0.9256, "validation_correct": 9256, "validation_cross_entropy": 0.2143674201965332, "validation_score": 9256.411737001245}
+
+RECENT RESULT
+hypothesis: A 41/512 geometric-consensus blend will preserve exactly 9,257 correct predictions while reducing validation cross-entropy below 0.21436964797973632.
+change: Increase geometric fusion from 5/64 to 41/512, the midpoint between the best qualified blend and the nearest tested accuracy-reducing blend.
+mechanism: Sub-percent geometric-fusion boundary search
+evidence_used: The 5/64 blend retained 9,257 correct at 0.21436964797973632 cross-entropy, while 21/256 lost one correct but lowered cross-entropy; 41/512 bisects this unresolved ranking boundary.
+result: was valid but was not a strict improvement
+reported_values: {"batch_size": 64, "examples_processed": 100000, "optimizer_steps": 1564, "parameters": 247538, "training_seconds": 54.942358458880335, "validation_accuracy": 0.9256, "validation_correct": 9256, "validation_cross_entropy": 0.21436853256225585, "validation_score": 9256.411736624092}
+
+RECENT RESULT
+hypothesis: An 81/1024 geometric-consensus blend will preserve exactly 9,257 correct predictions while reducing validation cross-entropy below 0.21436964797973632.
+change: Increase geometric fusion from 5/64 to 81/1024, the exact midpoint between the best qualified blend and the nearest tested accuracy-reducing blend.
+mechanism: Sub-permille geometric-fusion boundary search
+evidence_used: The 5/64 blend retained 9,257 correct at 0.21436964797973632 cross-entropy, while 41/512 lost one correct; 81/1024 bisects this remaining ranking boundary.
+result: improved the objective and became an available design
+reported_values: {"batch_size": 64, "examples_processed": 100000, "optimizer_steps": 1564, "parameters": 247538, "training_seconds": 66.46290395781398, "validation_accuracy": 0.9257, "validation_correct": 9257, "validation_cross_entropy": 0.21436909408569335, "validation_score": 9257.411736433705}
+
+RECENT RESULT
+hypothesis: A 163/2048 geometric-consensus blend will preserve exactly 9,257 correct predictions while reducing validation cross-entropy below 0.21436909408569335.
+change: Increase geometric fusion from the current 1/64 to 163/2048, the midpoint between the best qualified blend and the nearest tested accuracy-reducing blend.
+mechanism: Fine-grained geometric-fusion boundary bisection
+evidence_used: The 81/1024 blend retained 9,257 correct at 0.21436909408569335 cross-entropy, while 41/512 lost one correct; 163/2048 exactly bisects that unresolved boundary.
+result: improved the objective and became an available design
+reported_values: {"batch_size": 64, "examples_processed": 100000, "optimizer_steps": 1564, "parameters": 247538, "training_seconds": 63.32095912494697, "validation_accuracy": 0.9257, "validation_correct": 9257, "validation_cross_entropy": 0.21436881332397462, "validation_score": 9257.411736528898}
+
+RECENT RESULT
+hypothesis: A 327/4096 geometric-consensus blend will preserve exactly 9,257 correct predictions while reducing validation cross-entropy below 0.21436881332397462.
+change: Add compensated arithmetic–geometric probability fusion using the midpoint between the best qualified 163/2048 blend and the nearest accuracy-reducing 41/512 blend.
+mechanism: Geometric-fusion boundary bisection
+evidence_used: The 163/2048 blend retained 9,257 correct at 0.21436881332397462 cross-entropy, while 41/512 lost one correct; 327/4096 exactly bisects this remaining boundary.
+result: was valid but was not a strict improvement
+reported_values: {"batch_size": 64, "examples_processed": 100000, "optimizer_steps": 1564, "parameters": 247538, "training_seconds": 43.44022570899688, "validation_accuracy": 0.9256, "validation_correct": 9256, "validation_cross_entropy": 0.21436867637634277, "validation_score": 9256.41173657533}
+
+
+
+Use the available technical evidence to choose the most informative next
+change. Treat unsuccessful or malformed work as evidence when a useful
+subject-level reason is provided. Do not invent missing evidence.
+
+## Response
+
+Return these short metadata lines followed by one or more exact
+`SEARCH`/`REPLACE` blocks that together produce one implementation:
+
+`MECHANISM: <a concise free-form name for the computational idea>`
+
+`HYPOTHESIS: <a falsifiable claim grounded in the evidence above>`
+
+`INTENDED_EDIT: <what this patch changes>`
+
+`EVIDENCE: <the most relevant prior result and why it motivates this patch>`
+
+Start each block with `<<<<<<< SEARCH`, put the exact existing lines next, use a
+line containing `=======` as the divider, put the replacement lines after it,
+and finish the block with `>>>>>>> REPLACE`.
+
+Every `SEARCH` section must be nonempty and match exactly once after earlier
+blocks have been applied. All blocks must apply. Together they must describe
+one implementation ready for verification. The mechanism name is descriptive,
+not chosen from a fixed list. Do not paste whole files, lengthy logs, or routine
+progress reports outside the patch.

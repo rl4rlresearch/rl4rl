@@ -1,0 +1,81 @@
+{
+  "artifact_path": "candidates/6ae7e1938eab2c4a502871872ddf2c9011bd149e9ef3e3acc5d652533a66987a",
+  "candidate_id": "6ae7e1938eab2c4a502871872ddf2c9011bd149e9ef3e3acc5d652533a66987a",
+  "codex_service_tier": "fast",
+  "condition": "C3",
+  "conversation_session_id": null,
+  "evaluation": {
+    "evaluator_calls": 1,
+    "evaluator_seconds": 213.6408775410382,
+    "failure_kind": "nonqualification",
+    "fitness": null,
+    "metrics": {
+      "accuracy": 0.0855,
+      "cases": 10010,
+      "correct": 856,
+      "parameters": 1620,
+      "training_steps": 4999
+    },
+    "valid": false
+  },
+  "evaluator_calls_cumulative": 5,
+  "evaluator_calls_increment": 1,
+  "evaluator_seconds_cumulative": 1110.7100532479817,
+  "evaluator_seconds_increment": 213.6408775410382,
+  "event": "proposal_completed",
+  "evicted_candidate_id": null,
+  "evidence": "Query-only attention reached 100% accuracy with 1628 parameters. Removing all `ln2` affine parameters failed at 59.17%, motivating the narrower test that preserves its potentially capacity-critical learned scale.",
+  "hypothesis": "The query-only attention design with `ln2` bias removed will use 1620 parameters and retain at least 99% accuracy because `fc1.bias` can absorb the LayerNorm offset while the learned LayerNorm scale remains available.",
+  "incumbent_after": "f7c12ed23f10cb9de5524a8399c06551a59f785a79d400497e61301cfe339876",
+  "intended_edit": "Apply the proven query-only QKV bias parameterization and remove only the eight-parameter bias from the pre-MLP LayerNorm.",
+  "mechanism": "Downstream absorption of the pre-MLP normalization bias",
+  "opportunity": 5,
+  "parent_ids": [
+    "2b9cea175ed60b009337ac54f6e8ad23bf2c014eb4080237777bfb70bfd9fd5b"
+  ],
+  "portfolio_after": [
+    "2b9cea175ed60b009337ac54f6e8ad23bf2c014eb4080237777bfb70bfd9fd5b",
+    "f7c12ed23f10cb9de5524a8399c06551a59f785a79d400497e61301cfe339876"
+  ],
+  "prompt_hashes": {
+    "common_template_sha256": "3f2bea6418b6969c4bf2aa1df18dcda8a3a4ac075bf20c79068c754698b6be5e",
+    "prompt_sha256": "67ef1b56a3c2b92d007da6612aec027b0adfe456dbb937a94fd3dd931334b061",
+    "proposal_policy_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "search_state_sha256": "c938ac007bf70fe8d27f64661175531e51fcb16b38318c328493c32ee292e27e",
+    "treatment_skeleton_sha256": "a097a64d1a0b8e415213ade98e795c90ff91e810c87208d2577eb7f3e461ada7"
+  },
+  "proposal_type": "ordinary",
+  "proposals_cumulative": 5,
+  "remaining_budget": {
+    "evaluations": 195,
+    "evaluator_seconds": 358889.289946752,
+    "proposals": 195,
+    "tokens": 99880108
+  },
+  "retained": false,
+  "retention_decision": "invalid",
+  "run_id": "controlled-openevolve-transformer-v2-1-source-only-ten-digit-addition-pair-transformer-openevolve-v2-1-mps-openevolve-b02-c3",
+  "schema_version": "1.0",
+  "selected_parent_ids": [
+    "2b9cea175ed60b009337ac54f6e8ad23bf2c014eb4080237777bfb70bfd9fd5b"
+  ],
+  "timestamp": "2026-08-23T09:59:57.276633+00:00",
+  "usage_cumulative": {
+    "cached_input_tokens": 56064,
+    "input_tokens": 107327,
+    "output_tokens": 12565,
+    "reasoning_output_tokens": 10990,
+    "total_tokens": 119892
+  },
+  "usage_increment": {
+    "cached_input_tokens": 9984,
+    "input_tokens": 23543,
+    "output_tokens": 1971,
+    "reasoning_output_tokens": 1552,
+    "total_tokens": 25514
+  },
+  "visible_candidate_ids": [
+    "2b9cea175ed60b009337ac54f6e8ad23bf2c014eb4080237777bfb70bfd9fd5b",
+    "f7c12ed23f10cb9de5524a8399c06551a59f785a79d400497e61301cfe339876"
+  ]
+}

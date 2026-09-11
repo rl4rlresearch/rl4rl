@@ -1,0 +1,88 @@
+{
+  "artifact_path": "candidates/6b31e32637d295e81824d5f283f16eeaa8bf0e1aadcd054c0f0b2ac4975a5838",
+  "candidate_id": "6b31e32637d295e81824d5f283f16eeaa8bf0e1aadcd054c0f0b2ac4975a5838",
+  "codex_service_tier": "default",
+  "condition": "C3",
+  "conversation_session_id": null,
+  "evaluation": {
+    "evaluator_calls": 1,
+    "evaluator_seconds": 361.74506829099846,
+    "failure_kind": null,
+    "fitness": -0.984526,
+    "metrics": {
+      "depth": 8.0,
+      "mfu_percent": 39.24,
+      "num_params_M": 54.5,
+      "num_steps": 1692.0,
+      "peak_vram_mb": 49046.7,
+      "total_tokens_M": 443.5,
+      "training_seconds": 300.1,
+      "val_bpb": 0.984526
+    },
+    "valid": true
+  },
+  "evaluator_calls_cumulative": 40,
+  "evaluator_calls_increment": 1,
+  "evaluator_seconds_cumulative": 16111.729829226964,
+  "evaluator_seconds_increment": 361.74506829099846,
+  "event": "proposal_completed",
+  "evicted_candidate_id": null,
+  "evidence": "The compensated SSSL design achieved the best result, 0.982780. Removing its intermediate global layer regressed to 0.983844, while adding another global layer regressed to 0.985077, suggesting the informative alternative is improving how the proven two global layers retrieve context rather than changing their count.",
+  "hypothesis": "On the restored 0.982780 SSSL/aspect-compensated baseline, making one of four heads in each full-context layer positionless will retain at least 445M training tokens and reduce val_bpb below 0.982780 by enabling content-addressed long-range retrieval without distance-dependent rotary phase, while the other three heads preserve ordered context.",
+  "incumbent_after": "06d7f1e870b93d437a6e75adb4a8ff9a697919c9236cc49edaf494de0fbe6b0d",
+  "intended_edit": "Restore the verified-best SSSL attention pattern and compensated 5\u00d7-MLP Muon rate, then omit RoPE from the final head only in the two full-context layers.",
+  "mechanism": "Positionless long-range retrieval head",
+  "opportunity": 40,
+  "parent_ids": [
+    "f147862cf900cccc73a28dc92578e07823642bb58619df1024d8527e05c6ecb1"
+  ],
+  "portfolio_after": [
+    "f147862cf900cccc73a28dc92578e07823642bb58619df1024d8527e05c6ecb1",
+    "06d7f1e870b93d437a6e75adb4a8ff9a697919c9236cc49edaf494de0fbe6b0d",
+    "4a4558bfcc0bf4280a42830d64e2b4e97632b60be36f27cd8cc4afc2322e08ad",
+    "1e7859e9934c6cfa4c5851bca385fa3dba73a7ef1b2f5106aba39f010be3e092"
+  ],
+  "prompt_hashes": {
+    "common_template_sha256": "ba85b39aa7288f4f48475376da6cff65661f39cfeb7ac7cde15b2a9a2e692fde",
+    "prompt_sha256": "e9bd42f0852dfbfbbc9cc6ccca1b5c43a92b5c63084983cc569390f22a60c40f",
+    "proposal_policy_sha256": "cd7b9ba20a1cd1edd0663b5e3652baa9cd3c81925074103fe47e66c021d61a4a",
+    "search_state_sha256": "c938ac007bf70fe8d27f64661175531e51fcb16b38318c328493c32ee292e27e",
+    "treatment_skeleton_sha256": "9a31b0ac10277fb68bdbb7699ca539ccae4abb91c5d571036be7788b83e6fbde"
+  },
+  "proposal_type": "assumption_changing",
+  "proposals_cumulative": 40,
+  "remaining_budget": {
+    "evaluations": 160,
+    "evaluator_seconds": 703888.270170773,
+    "proposals": 160,
+    "tokens": 98044154
+  },
+  "retained": false,
+  "retention_decision": "not_strictly_better_than_selected_parent",
+  "run_id": "nanogpt-openevolve-v2-1-h100-karpathy_nanogpt_source_only_h100-openevolve-b01-c3",
+  "schema_version": "1.0",
+  "selected_parent_ids": [
+    "f147862cf900cccc73a28dc92578e07823642bb58619df1024d8527e05c6ecb1"
+  ],
+  "timestamp": "2026-08-24T07:31:30.278076+00:00",
+  "usage_cumulative": {
+    "cached_input_tokens": 527616,
+    "input_tokens": 1824207,
+    "output_tokens": 131639,
+    "reasoning_output_tokens": 112104,
+    "total_tokens": 1955846
+  },
+  "usage_increment": {
+    "cached_input_tokens": 12032,
+    "input_tokens": 47519,
+    "output_tokens": 7263,
+    "reasoning_output_tokens": 6214,
+    "total_tokens": 54782
+  },
+  "visible_candidate_ids": [
+    "f147862cf900cccc73a28dc92578e07823642bb58619df1024d8527e05c6ecb1",
+    "06d7f1e870b93d437a6e75adb4a8ff9a697919c9236cc49edaf494de0fbe6b0d",
+    "4a4558bfcc0bf4280a42830d64e2b4e97632b60be36f27cd8cc4afc2322e08ad",
+    "1e7859e9934c6cfa4c5851bca385fa3dba73a7ef1b2f5106aba39f010be3e092"
+  ]
+}

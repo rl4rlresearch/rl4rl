@@ -1,0 +1,91 @@
+{
+  "artifact_path": "candidates/9160a0f4bec2b8f677342daccda60a2b18e6e569077cd48908d0569c414a1794",
+  "candidate_id": "9160a0f4bec2b8f677342daccda60a2b18e6e569077cd48908d0569c414a1794",
+  "codex_service_tier": "default",
+  "condition": "C2",
+  "conversation_session_id": null,
+  "evaluation": {
+    "evaluator_calls": 1,
+    "evaluator_seconds": 72.63316125003621,
+    "failure_kind": null,
+    "fitness": 9244.411028974728,
+    "metrics": {
+      "batch_size": 64,
+      "evaluation_cases": 10000,
+      "evaluation_split": "public_validation",
+      "examples_processed": 100000,
+      "optimizer_steps": 1564,
+      "parameters": 247538,
+      "training_seconds": 64.16854579211213,
+      "validation_accuracy": 0.9244,
+      "validation_correct": 9244,
+      "validation_cross_entropy": 0.2164592540740967,
+      "validation_score": 9244.411028974728
+    },
+    "valid": true
+  },
+  "evaluator_calls_cumulative": 97,
+  "evaluator_calls_increment": 1,
+  "evaluator_seconds_cumulative": 7615.398522968637,
+  "evaluator_seconds_increment": 72.63316125003621,
+  "event": "proposal_completed",
+  "evicted_candidate_id": null,
+  "evidence": "Changes to ensemble-aligned loss, stronger smoothing, and longer shift augmentation reduced validation_correct, while the current recipe reached 9,256; this motivates preserving that exact trajectory and averaging its late checkpoints instead of perturbing its objective or data distribution.",
+  "hypothesis": "Evaluating a warm-started EMA of the unchanged training trajectory will exceed 9,256 correct predictions by reducing late-step optimizer variance without altering the established augmentation, loss, or inference ensemble.",
+  "incumbent_after": "035eacd1d7feacb6176c1ca298ecfefc919a7011a637849554bb50030b26ee59",
+  "intended_edit": "Maintain an EMA shadow of every learned parameter after each AdamW step and temporarily use those averaged parameters during evaluation.",
+  "mechanism": "Warm-started exponential weight averaging",
+  "opportunity": 117,
+  "parent_ids": [
+    "035eacd1d7feacb6176c1ca298ecfefc919a7011a637849554bb50030b26ee59"
+  ],
+  "portfolio_after": [
+    "ba7dc46dc2d4e6575d76fd077ddef625227135c10d6f940b4f7764d3d5befcd1",
+    "c0c05778604d50c0964c5274cfe817af6494fa63a7b5d008b6014b7c46cdb3c1",
+    "035eacd1d7feacb6176c1ca298ecfefc919a7011a637849554bb50030b26ee59",
+    "3d9aaa80b9bbfa49ca0d9ff675f29461e90e5a2212f30fb609c2fd8418c58283"
+  ],
+  "prompt_hashes": {
+    "common_template_sha256": "e8327ba94bab12abc7c7ec7c6615378a3ae62434efb944d4a7d9492f1d19bc14",
+    "prompt_sha256": "7eacca0a5818420c6f44f8900d74391bd79015c6fd12015ede181464662e209b",
+    "proposal_policy_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "search_state_sha256": "c938ac007bf70fe8d27f64661175531e51fcb16b38318c328493c32ee292e27e",
+    "treatment_skeleton_sha256": "001e18487cc684354c7bae01be654a7f72fb1f2ee8b690da3b9b70b53908b6c6"
+  },
+  "proposal_type": "ordinary",
+  "proposals_cumulative": 117,
+  "remaining_budget": {
+    "evaluations": 103,
+    "evaluator_seconds": 16384.601477031363,
+    "proposals": 83,
+    "tokens": 97203438
+  },
+  "retained": false,
+  "retention_decision": "not_strictly_better_than_selected_parent",
+  "run_id": "fashion-mnist-openevolve-v2-1-mps-fashion_mnist_source_only_mps-openevolve-b03-c2",
+  "schema_version": "1.0",
+  "selected_parent_ids": [
+    "035eacd1d7feacb6176c1ca298ecfefc919a7011a637849554bb50030b26ee59"
+  ],
+  "timestamp": "2026-08-24T22:20:15.090706+00:00",
+  "usage_cumulative": {
+    "cached_input_tokens": 1194496,
+    "input_tokens": 2481822,
+    "output_tokens": 314740,
+    "reasoning_output_tokens": 239472,
+    "total_tokens": 2796562
+  },
+  "usage_increment": {
+    "cached_input_tokens": 9984,
+    "input_tokens": 21851,
+    "output_tokens": 5539,
+    "reasoning_output_tokens": 4142,
+    "total_tokens": 27390
+  },
+  "visible_candidate_ids": [
+    "ba7dc46dc2d4e6575d76fd077ddef625227135c10d6f940b4f7764d3d5befcd1",
+    "c0c05778604d50c0964c5274cfe817af6494fa63a7b5d008b6014b7c46cdb3c1",
+    "035eacd1d7feacb6176c1ca298ecfefc919a7011a637849554bb50030b26ee59",
+    "3d9aaa80b9bbfa49ca0d9ff675f29461e90e5a2212f30fb609c2fd8418c58283"
+  ]
+}

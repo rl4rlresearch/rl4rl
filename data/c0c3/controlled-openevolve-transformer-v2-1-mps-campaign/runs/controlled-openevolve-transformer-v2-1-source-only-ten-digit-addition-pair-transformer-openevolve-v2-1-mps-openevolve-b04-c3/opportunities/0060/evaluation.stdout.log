@@ -1,0 +1,57 @@
+Run: repro_l1_d8_ff12
+Params: 1233
+Device: mps
+step= 44999 loss=0.1092 val_exact=0.57950 val_tok=0.94691 lr=3.00e-04 t=819.5s
+{
+  "run_name": "repro_l1_d8_ff12",
+  "params": 1233,
+  "best_val_exact": 0.5795,
+  "best_step": 44999,
+  "train_steps": 45000,
+  "elapsed_sec": 819.5229699611664,
+  "metrics_csv": "results/runs/repro_l1_d8_ff12/metrics.csv",
+  "best_ckpt": "checkpoints/best.pt",
+  "last_ckpt": "checkpoints/last.pt"
+}
+Model: 10-digit addition transformer
+Author: autonomous optimization run
+Parameters (unique): 1233
+Architecture: trained autoregressive transformer with pair-column input tokens d=8, h=2, L=1, ff=12
+Tricks: generic greedy decoding, freshly trained checkpoint
+
+  Progress: 1000/10010 (546/1000 correct) [5.4s]
+  Progress: 2000/10010 (1110/2000 correct) [10.6s]
+  Progress: 3000/10010 (1690/3000 correct) [15.9s]
+  Progress: 4000/10010 (2280/4000 correct) [21.2s]
+  Progress: 5000/10010 (2800/5000 correct) [26.3s]
+  Progress: 6000/10010 (3371/6000 correct) [31.6s]
+  Progress: 7000/10010 (3944/7000 correct) [36.9s]
+  Progress: 8000/10010 (4532/8000 correct) [42.2s]
+  Progress: 9000/10010 (5084/9000 correct) [47.4s]
+  Progress: 10000/10010 (5666/10000 correct) [52.3s]
+
+Results: 5670/10010 correct (56.64%)
+Time: 52.4s (191 additions/sec)
+Status: NOT QUALIFIED (threshold: 99%)
+
+First 20 failures (of 4340):
+  0 + 0 = 0, got 1111111110
+  0 + 1 = 1, got 1111111111
+  5000000000 + 5000000000 = 10000000000, got 11111111110
+  1234567890 + 9876543210 = 11111111100, got 11111111110
+  4721664841 + 8801376086 = 13523040927, got 13633040927
+  813236058 + 3041824170 = 3855060228, got 3855061228
+  7038162399 + 8251837442 = 15289999841, got 16289999841
+  2345623234 + 894115330 = 3239738564, got 3239838564
+  9635552803 + 139097711 = 9774650514, got 9774650614
+  2965087954 + 6711714523 = 9676802477, got 9676792477
+  2522781535 + 7550172023 = 10072953558, got 10072963558
+  1550659006 + 2395544933 = 3946203939, got 3946204039
+  9773982893 + 9769054290 = 19543037183, got 19543037193
+  883443420 + 879455072 = 1762898492, got 1762898502
+  6795557231 + 2923425751 = 9718982982, got 9718982992
+  9176130466 + 6994442884 = 16170573350, got 16170572350
+  980155794 + 6513138938 = 7493294732, got 7494294732
+  6337327306 + 4000359568 = 10337686874, got 10437686874
+  9910916827 + 6473406151 = 16384322978, got 16384422978
+  1421630270 + 4126123705 = 5547753975, got 5547763975

@@ -1,0 +1,85 @@
+{
+  "artifact_path": "candidates/b420a9f107556d81a8d2ac9a809a0ec689ce0914fcd29a31e58c52c6a029c7da",
+  "candidate_id": "b420a9f107556d81a8d2ac9a809a0ec689ce0914fcd29a31e58c52c6a029c7da",
+  "codex_service_tier": "fast",
+  "condition": "C3",
+  "conversation_session_id": null,
+  "evaluation": {
+    "evaluator_calls": 1,
+    "evaluator_seconds": 396.5130722920876,
+    "failure_kind": "nonqualification",
+    "fitness": null,
+    "metrics": {
+      "accuracy": 0.4268,
+      "cases": 10010,
+      "correct": 4272,
+      "parameters": 1593,
+      "training_steps": 4999
+    },
+    "valid": false
+  },
+  "evaluator_calls_cumulative": 31,
+  "evaluator_calls_increment": 1,
+  "evaluator_seconds_cumulative": 9936.424230213277,
+  "evaluator_seconds_increment": 396.5130722920876,
+  "event": "proposal_completed",
+  "evicted_candidate_id": null,
+  "evidence": "The 1600-parameter design reached 99.91% with its missing hidden bias compensated by `ln2`\u2019s offset, while removing another hidden bias fell to 98.57%; a full `fc1` bias supplies every unit\u2019s threshold directly, making the preceding LayerNorm offset exactly absorbable into that bias.",
+  "hypothesis": "Restoring all 12 `fc1` biases while removing the redundant eight-coordinate `ln2` offset will produce 1593 learned parameters and retain at least 99% accuracy.",
+  "incumbent_after": "d72ff7c2c14bc117721e67d3f6cab91330684c6da02edbcdca4c27fd1ff4f6e2",
+  "intended_edit": "Disable only `ln2.bias` and restore the trailing `fc1` bias, leaving LayerNorm scaling, initialization streams, attention, and training unchanged.",
+  "mechanism": "Absorb the second LayerNorm offset into full MLP hidden biases",
+  "opportunity": 31,
+  "parent_ids": [
+    "d72ff7c2c14bc117721e67d3f6cab91330684c6da02edbcdca4c27fd1ff4f6e2"
+  ],
+  "portfolio_after": [
+    "2b9cea175ed60b009337ac54f6e8ad23bf2c014eb4080237777bfb70bfd9fd5b",
+    "ec0704330c71e339fd4ef7f7631b7846401d6ed258c5a815e43a444f4adbc511",
+    "a91d17a18b4eb5b68640561507be2dfdd6ebe850bd8a64c62897914ce559cfcd",
+    "d72ff7c2c14bc117721e67d3f6cab91330684c6da02edbcdca4c27fd1ff4f6e2"
+  ],
+  "prompt_hashes": {
+    "common_template_sha256": "3f2bea6418b6969c4bf2aa1df18dcda8a3a4ac075bf20c79068c754698b6be5e",
+    "prompt_sha256": "cbe071029e4da90e10466f28e2f632ce74138c3bd0a96a10035b7ed48a554efa",
+    "proposal_policy_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "search_state_sha256": "c938ac007bf70fe8d27f64661175531e51fcb16b38318c328493c32ee292e27e",
+    "treatment_skeleton_sha256": "5b24de70170c0f91d678edafb2c7dd087a927ec8810fc2da6168f62efeb21bda"
+  },
+  "proposal_type": "ordinary",
+  "proposals_cumulative": 31,
+  "remaining_budget": {
+    "evaluations": 169,
+    "evaluator_seconds": 350063.5757697867,
+    "proposals": 169,
+    "tokens": 98841064
+  },
+  "retained": false,
+  "retention_decision": "invalid",
+  "run_id": "controlled-openevolve-transformer-v2-1-source-only-ten-digit-addition-pair-transformer-openevolve-v2-1-mps-openevolve-b05-c3",
+  "schema_version": "1.0",
+  "selected_parent_ids": [
+    "d72ff7c2c14bc117721e67d3f6cab91330684c6da02edbcdca4c27fd1ff4f6e2"
+  ],
+  "timestamp": "2026-08-23T21:01:42.573327+00:00",
+  "usage_cumulative": {
+    "cached_input_tokens": 347648,
+    "input_tokens": 983264,
+    "output_tokens": 175672,
+    "reasoning_output_tokens": 141051,
+    "total_tokens": 1158936
+  },
+  "usage_increment": {
+    "cached_input_tokens": 12032,
+    "input_tokens": 35869,
+    "output_tokens": 8657,
+    "reasoning_output_tokens": 8185,
+    "total_tokens": 44526
+  },
+  "visible_candidate_ids": [
+    "2b9cea175ed60b009337ac54f6e8ad23bf2c014eb4080237777bfb70bfd9fd5b",
+    "ec0704330c71e339fd4ef7f7631b7846401d6ed258c5a815e43a444f4adbc511",
+    "a91d17a18b4eb5b68640561507be2dfdd6ebe850bd8a64c62897914ce559cfcd",
+    "d72ff7c2c14bc117721e67d3f6cab91330684c6da02edbcdca4c27fd1ff4f6e2"
+  ]
+}

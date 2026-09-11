@@ -1,0 +1,156 @@
+# Improve fixed-time language-model pretraining
+
+You are an autonomous ML engineer improving the source code for single-GPU
+language-model pretraining.
+
+## Goal
+
+Minimize validation bits per byte (`val_bpb`) after a fixed five-minute training
+window on the supplied H100 worker. Lower is better. Startup, compilation, and
+final validation are outside the measured training window, and every submitted
+version starts from a fresh initialization.
+
+You may change the architecture, optimizer, schedules, batching, numerical
+implementation, or other contents of `train.py`. The fixed data preparation,
+tokenizer, validation procedure, hardware class, and time accounting are not
+editable. A useful change must produce a complete trainable implementation and
+finish with the required summary metrics.
+
+## Work boundaries
+
+Minimize val_bpb. No additional accuracy threshold.
+Editable source files: train.py.
+Results reported after each verification: val_bpb, training_seconds, peak_vram_mb, mfu_percent, total_tokens_M, num_steps, num_params_M, depth.
+
+Propose changes through exact SEARCH/REPLACE blocks. The patching interface applies them to the supplied editable source.
+
+The editable source and any reference source are included below. Do not access
+parent directories, home directories, shared temporary directories, global
+session history, online sources, or any surrounding repository. Do not run
+training or validation yourself and do not generate hidden alternatives.
+Return one patch for one implementation; verification happens after you finish.
+
+## Available designs
+
+The current editable design and the qualified reference designs below are available as technical evidence. Edit only the current workspace.
+
+CURRENT DESIGN
+verified_results: {"depth": 8.0, "mfu_percent": 39.26, "num_params_M": 50.3, "num_steps": 940.0, "peak_vram_mb": 45060.2, "total_tokens_M": 492.8, "training_seconds": 300.0, "val_bpb": 0.9952}
+prior_hypothesis: A softcap of 11.75 on the proven 524,288-token batch will lower val_bpb below 0.995230 by refining the apparent optimum just below cap 12.
+
+REFERENCE DESIGN 1
+verified_results: {"depth": 8.0, "mfu_percent": 39.58, "num_params_M": 50.3, "num_steps": 948.0, "peak_vram_mb": 45060.2, "total_tokens_M": 497.0, "training_seconds": 300.2, "val_bpb": 0.995558}
+prior_hypothesis: starting design
+
+REFERENCE DESIGN 2
+verified_results: {"depth": 8.0, "mfu_percent": 39.26, "num_params_M": 50.3, "num_steps": 940.0, "peak_vram_mb": 45060.2, "total_tokens_M": 492.8, "training_seconds": 300.1, "val_bpb": 0.99523}
+prior_hypothesis: A softcap of 12 will lower val_bpb below 0.995334 at comparable throughput by relaxing cap 10 slightly without approaching the weaker regularization of cap 15.
+
+REFERENCE DESIGN 3
+verified_results: {"depth": 8.0, "mfu_percent": 39.28, "num_params_M": 50.3, "num_steps": 941.0, "peak_vram_mb": 45060.2, "total_tokens_M": 493.4, "training_seconds": 300.3, "val_bpb": 0.995334}
+prior_hypothesis: Applying a tanh softcap of 10 will reduce val_bpb below 0.995558 by more strongly suppressing overconfident logits than the successful cap of 15.
+
+## Recent verification evidence
+
+RECENT RESULT
+hypothesis: Reducing short-layer attention from 1024 to 512 tokens while retaining full-context layers every fourth block will increase tokens trained in five minutes and lower val_bpb below 0.995558.
+change: Change only the short attention window from half to one quarter of the 2048-token sequence.
+mechanism: Hierarchical quarter-context sliding attention
+evidence_used: The depth-8 baseline reached val_bpb 0.995558 on 497.0M tokens at 39.58% MFU; six of eight layers use short attention, so reducing their window targets a substantial recurring cost while preserving two full-context layers.
+result: improved the objective and became an available design
+reported_values: {"depth": 8.0, "mfu_percent": 29.33, "num_params_M": 50.3, "num_steps": 765.0, "peak_vram_mb": 45060.2, "total_tokens_M": 401.1, "training_seconds": 300.4, "val_bpb": 1.009577}
+
+RECENT RESULT
+hypothesis: Removing the vocabulary-wide tanh softcap will increase trained tokens without destabilizing the five-minute run and reduce val_bpb below 0.995558.
+change: Replace softcapped logits with direct FP32 logits for both training and validation.
+mechanism: Uncapped fused vocabulary loss
+evidence_used: Quarter-context attention regressed from 0.995558 on 497.0M tokens to 1.009577 on 401.1M tokens, indicating that reducing attention work did not improve throughput; eliminating the dense tanh forward/backward computation targets a different per-token cost while leaving model capacity and context unchanged.
+result: improved the objective and became an available design
+reported_values: {"depth": 8.0, "mfu_percent": 39.88, "num_params_M": 50.3, "num_steps": 955.0, "peak_vram_mb": 45060.2, "total_tokens_M": 500.7, "training_seconds": 300.2, "val_bpb": 1.000923}
+
+RECENT RESULT
+hypothesis: Halving the optimizer batch to 262,144 tokens will provide nearly twice as many parameter updates within five minutes and reduce val_bpb below 0.995558 despite modest optimizer overhead.
+change: Reduce gradient accumulation from two microbatches to one while retaining the 128-sequence device batch and all model, loss, and learning-rate settings.
+mechanism: Higher-frequency stochastic optimization
+evidence_used: Removing the softcap increased training from 497.0M to 500.7M tokens but worsened val_bpb from 0.995558 to 1.000923, showing that marginal token throughput alone is insufficient and motivating improved optimization efficiency per token.
+result: improved the objective and became an available design
+reported_values: {"depth": 8.0, "mfu_percent": 30.08, "num_params_M": 50.3, "num_steps": 1435.0, "peak_vram_mb": 44908.2, "total_tokens_M": 376.2, "training_seconds": 300.1, "val_bpb": 1.001276}
+
+RECENT RESULT
+hypothesis: Applying a tanh softcap of 10 will reduce val_bpb below 0.995558 by more strongly suppressing overconfident logits than the successful cap of 15.
+change: Replace uncapped FP32 logits with softcapped FP32 logits during both training and validation.
+mechanism: Stronger finite-logit confidence regularization
+evidence_used: Removing the cap increased tokens from 497.0M to 500.7M but worsened val_bpb from 0.995558 to 1.000923, showing that finite-logit regularization matters more than its small throughput cost and motivating a stronger cap.
+result: improved the objective and became an available design
+reported_values: {"depth": 8.0, "mfu_percent": 39.28, "num_params_M": 50.3, "num_steps": 941.0, "peak_vram_mb": 45060.2, "total_tokens_M": 493.4, "training_seconds": 300.3, "val_bpb": 0.995334}
+
+RECENT RESULT
+hypothesis: On the proven 524,288-token batch, reducing the tanh softcap from 10 to 7.5 will extend the improvement from cap 15 to cap 10 and lower val_bpb below 0.995334.
+change: Restore the higher-throughput 524,288-token optimizer batch and apply a 7.5 FP32 logit softcap during training and validation.
+mechanism: Stronger finite-logit confidence regularization
+evidence_used: Cap 10 achieved the best observed val_bpb of 0.995334 versus 0.995558 for cap 15, while the 262,144-token batch regressed to 1.001276 and reduced training volume from roughly 493–497M tokens to 376.2M.
+result: was valid but was not a strict improvement
+reported_values: {"depth": 8.0, "mfu_percent": 31.14, "num_params_M": 50.3, "num_steps": 748.0, "peak_vram_mb": 45060.2, "total_tokens_M": 392.2, "training_seconds": 300.2, "val_bpb": 1.013318}
+
+RECENT RESULT
+hypothesis: Restoring the proven 1024-token short window and using a softcap of 9 will lower val_bpb below 0.995334 by strengthening the beneficial cap-10 regularization without the excessive restriction observed at cap 7.5.
+change: Restore half-context sliding attention and change the FP32 training-and-validation logit softcap from 15 to 9.
+mechanism: Moderately stronger finite-logit confidence regularization
+evidence_used: Half-context cap 10 achieved the best observed val_bpb of 0.995334 on 493.4M tokens; quarter-context attention regressed to 1.009577, while cap 7.5 regressed to 1.013318, motivating a narrowly intermediate softcap on the proven architecture.
+result: improved the objective and became an available design
+reported_values: {"depth": 8.0, "mfu_percent": 39.26, "num_params_M": 50.3, "num_steps": 940.0, "peak_vram_mb": 45060.2, "total_tokens_M": 492.8, "training_seconds": 300.1, "val_bpb": 0.995704}
+
+RECENT RESULT
+hypothesis: Raising the softcap from 10 to 11 will preserve beneficial confidence control while slightly reducing saturation, lowering val_bpb below 0.995334.
+change: Change the FP32 training-and-validation logit softcap from 10 to 11, leaving architecture, batching, and optimization unchanged.
+mechanism: Intermediate finite-logit confidence regularization
+evidence_used: Cap 10 achieved the best observed val_bpb of 0.995334, outperforming cap 9 at 0.995704 and cap 15 at 0.995558; cap 11 probes the narrower, more promising side of the apparent optimum.
+result: was valid but was not a strict improvement
+reported_values: {"depth": 8.0, "mfu_percent": 31.34, "num_params_M": 50.3, "num_steps": 753.0, "peak_vram_mb": 45060.2, "total_tokens_M": 394.8, "training_seconds": 300.3, "val_bpb": 1.009914}
+
+RECENT RESULT
+hypothesis: A softcap of 12 will lower val_bpb below 0.995334 at comparable throughput by relaxing cap 10 slightly without approaching the weaker regularization of cap 15.
+change: Change the FP32 training-and-validation logit softcap from 9 to 12, leaving architecture, batching, and optimization unchanged.
+mechanism: Intermediate tanh confidence regularization
+evidence_used: Cap 10 achieved 0.995334, while full-throughput cap 15 reached 0.995558 versus 0.995704 for cap 9, suggesting the more promising side of cap 10 is upward; the cap-11 run trained only 394.8M tokens versus 493.4M and therefore did not isolate that region.
+result: improved the objective and became an available design
+reported_values: {"depth": 8.0, "mfu_percent": 39.26, "num_params_M": 50.3, "num_steps": 940.0, "peak_vram_mb": 45060.2, "total_tokens_M": 492.8, "training_seconds": 300.1, "val_bpb": 0.99523}
+
+RECENT RESULT
+hypothesis: A softcap of 11.75 on the proven 524,288-token batch will lower val_bpb below 0.995230 by refining the apparent optimum just below cap 12.
+change: Restore two-microbatch gradient accumulation and change the training-and-validation FP32 logit softcap from 15 to 11.75.
+mechanism: Full-batch near-optimal logit confidence regularization
+evidence_used: Cap 12 achieved the best val_bpb of 0.995230, outperforming cap 10 at 0.995334 and cap 15 at 0.995558; meanwhile, halving the batch reduced trained tokens to 376.2M and regressed val_bpb to 1.001276.
+result: improved the objective and became an available design
+reported_values: {"depth": 8.0, "mfu_percent": 39.26, "num_params_M": 50.3, "num_steps": 940.0, "peak_vram_mb": 45060.2, "total_tokens_M": 492.8, "training_seconds": 300.0, "val_bpb": 0.9952}
+
+## Direction
+
+Before choosing the next change, step back from the current line of work. Think very critically about the assumptions you have made so far, and the assumptions shared by the available designs. Do a thorough analysis of the assumptions, and identify the load-bearing assumptions. Moving forward, make changes that challenge these assumptions, and try to test genuinely different learned computational mechanisms. Think critically about how your next change could make more progress than what you have been making so far, and implement that thinking into your changes. The change should alter how the language model represents context or computes predictions. Do not revisit a type of change that already failed unless the recent evidence identifies a specific reason the new version should behave differently. Prefer implementations that cleanly test the alternative, and state the old assumption and the new approach in the final summary. Use prior results to explain why the alternative is plausible and informative.
+
+Use the available technical evidence to choose the most informative next
+change. Treat unsuccessful or malformed work as evidence when a useful
+subject-level reason is provided. Do not invent missing evidence.
+
+## Response
+
+Return these short metadata lines followed by one or more exact
+`SEARCH`/`REPLACE` blocks that together produce one implementation:
+
+`MECHANISM: <a concise free-form name for the computational idea>`
+
+`HYPOTHESIS: <a falsifiable claim grounded in the evidence above>`
+
+`INTENDED_EDIT: <what this patch changes>`
+
+`EVIDENCE: <the most relevant prior result and why it motivates this patch>`
+
+Start each block with `<<<<<<< SEARCH`, put the exact existing lines next, use a
+line containing `=======` as the divider, put the replacement lines after it,
+and finish the block with `>>>>>>> REPLACE`.
+
+Every `SEARCH` section must be nonempty and match exactly once after earlier
+blocks have been applied. All blocks must apply. Together they must describe
+one implementation ready for verification. The mechanism name is descriptive,
+not chosen from a fixed list. Do not paste whole files, lengthy logs, or routine
+progress reports outside the patch.

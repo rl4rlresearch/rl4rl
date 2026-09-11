@@ -1,0 +1,79 @@
+{
+  "artifact_path": "candidates/286f4a5e8560515147ac6b28c044db22b34a0c4c7a57f856dd48ce2aa2da16fd",
+  "candidate_id": "286f4a5e8560515147ac6b28c044db22b34a0c4c7a57f856dd48ce2aa2da16fd",
+  "codex_service_tier": "default",
+  "condition": "C1",
+  "conversation_session_id": null,
+  "evaluation": {
+    "evaluator_calls": 1,
+    "evaluator_seconds": 679.751103958115,
+    "failure_kind": "nonqualification",
+    "fitness": null,
+    "metrics": {
+      "accuracy": 0.7924,
+      "cases": 10010,
+      "correct": 7932,
+      "parameters": 1577,
+      "training_steps": 4999
+    },
+    "valid": false
+  },
+  "evaluator_calls_cumulative": 49,
+  "evaluator_calls_increment": 1,
+  "evaluator_seconds_cumulative": 24499.977035832126,
+  "evaluator_seconds_increment": 679.751103958115,
+  "event": "proposal_completed",
+  "evicted_candidate_id": null,
+  "evidence": "The current 1,578-parameter model achieves 99.92% accuracy. Unlike the unsuccessful second `fc1`-bias and `ln1`-scale removals, this quotient lies entirely within two consecutive affine attention operations: the mean-free output projection maps the omitted value offset into its own representable seven-dimensional bias space.",
+  "hypothesis": "Fixing one value-projection bias scalar at zero will reduce the model from 1,578 to 1,577 parameters while retaining at least 99% accuracy, because causal softmax rows sum to one, making every value bias a context-independent offset that the learned attention output-projection bias can exactly absorb.",
+  "incumbent_after": "0db570d96b3a92065765061257b3c3114441631ae43ba3a976488072b3a09a3c",
+  "intended_edit": "Remove the final value-bias coordinate from `qkv.bias` and restore it as a fixed zero during the forward pass, preserving all weights, query biases, initialization behavior, and successful training settings.",
+  "mechanism": "Value-bias/output-bias affine quotient",
+  "opportunity": 49,
+  "parent_ids": [
+    "0db570d96b3a92065765061257b3c3114441631ae43ba3a976488072b3a09a3c"
+  ],
+  "portfolio_after": [
+    "0db570d96b3a92065765061257b3c3114441631ae43ba3a976488072b3a09a3c"
+  ],
+  "prompt_hashes": {
+    "common_template_sha256": "3f2bea6418b6969c4bf2aa1df18dcda8a3a4ac075bf20c79068c754698b6be5e",
+    "prompt_sha256": "3e8ece4486827d5767233b3b342e0dbba00289128369d2209054be2f859dfc6f",
+    "proposal_policy_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "search_state_sha256": "04e5eb078ae1964e4ec65bfeeeb1acd0ffa246e7d54d5e0f997f81f602da28c5",
+    "treatment_skeleton_sha256": "a6aea6108b7514e7750a058263f7b5ced59cfd72e35816a53ba48906097de866"
+  },
+  "proposal_type": "ordinary",
+  "proposals_cumulative": 49,
+  "remaining_budget": {
+    "evaluations": 151,
+    "evaluator_seconds": 335500.0229641679,
+    "proposals": 151,
+    "tokens": 98732283
+  },
+  "retained": false,
+  "retention_decision": "invalid",
+  "run_id": "controlled-openevolve-transformer-v2-1-source-only-ten-digit-addition-pair-transformer-openevolve-v2-1-mps-openevolve-b01-c1",
+  "schema_version": "1.0",
+  "selected_parent_ids": [
+    "0db570d96b3a92065765061257b3c3114441631ae43ba3a976488072b3a09a3c"
+  ],
+  "timestamp": "2026-08-24T17:16:39.123339+00:00",
+  "usage_cumulative": {
+    "cached_input_tokens": 516352,
+    "input_tokens": 1077363,
+    "output_tokens": 190354,
+    "reasoning_output_tokens": 159053,
+    "total_tokens": 1267717
+  },
+  "usage_increment": {
+    "cached_input_tokens": 12032,
+    "input_tokens": 23471,
+    "output_tokens": 2014,
+    "reasoning_output_tokens": 1552,
+    "total_tokens": 25485
+  },
+  "visible_candidate_ids": [
+    "0db570d96b3a92065765061257b3c3114441631ae43ba3a976488072b3a09a3c"
+  ]
+}

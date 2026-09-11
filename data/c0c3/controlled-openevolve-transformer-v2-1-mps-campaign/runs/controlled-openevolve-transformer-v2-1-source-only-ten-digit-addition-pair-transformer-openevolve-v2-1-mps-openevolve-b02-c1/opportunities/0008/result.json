@@ -1,0 +1,79 @@
+{
+  "artifact_path": "candidates/31e04c5684665535943e2f9d935ace91413a04f0502158dd30bf09bfde879014",
+  "candidate_id": "31e04c5684665535943e2f9d935ace91413a04f0502158dd30bf09bfde879014",
+  "codex_service_tier": "fast",
+  "condition": "C1",
+  "conversation_session_id": null,
+  "evaluation": {
+    "evaluator_calls": 1,
+    "evaluator_seconds": 260.3129931660369,
+    "failure_kind": "nonqualification",
+    "fitness": null,
+    "metrics": {
+      "accuracy": 0.7779,
+      "cases": 10010,
+      "correct": 7787,
+      "parameters": 1560,
+      "training_steps": 4999
+    },
+    "valid": false
+  },
+  "evaluator_calls_cumulative": 8,
+  "evaluator_calls_increment": 1,
+  "evaluator_seconds_cumulative": 1862.9321468350245,
+  "evaluator_seconds_increment": 260.3129931660369,
+  "event": "proposal_completed",
+  "evicted_candidate_id": null,
+  "evidence": "The analogous non-affine MLP LayerNorm retained 99.92% accuracy, and eliminating its dependent normalized coordinate then reached 99.99% at 1,600 parameters; this motivates applying the same exact zero-mean reparameterization to the attention input.",
+  "hypothesis": "Making the attention-preceding LayerNorm non-affine and omitting its linearly dependent final normalized coordinate from QKV projection will reduce the model from 1,600 to 1,560 parameters while preserving at least 99% accuracy.",
+  "incumbent_after": "dfd60da0e2966ac09fa94a167e97bcaa6b5c92d6b0518bfe59e3acb8831cfc4c",
+  "intended_edit": "Remove the first LayerNorm\u2019s 16 affine parameters and reduce the QKV projection from eight to seven input coordinates, retaining the learned causal attention computation and residual width.",
+  "mechanism": "Attention pre-normalization affine absorption and zero-mean coordinate elimination",
+  "opportunity": 8,
+  "parent_ids": [
+    "dfd60da0e2966ac09fa94a167e97bcaa6b5c92d6b0518bfe59e3acb8831cfc4c"
+  ],
+  "portfolio_after": [
+    "dfd60da0e2966ac09fa94a167e97bcaa6b5c92d6b0518bfe59e3acb8831cfc4c"
+  ],
+  "prompt_hashes": {
+    "common_template_sha256": "3f2bea6418b6969c4bf2aa1df18dcda8a3a4ac075bf20c79068c754698b6be5e",
+    "prompt_sha256": "d582306307039e37731f242828dc73cf4c5b9db94c30a10ea88fd0b5f0f9fab7",
+    "proposal_policy_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "search_state_sha256": "04e5eb078ae1964e4ec65bfeeeb1acd0ffa246e7d54d5e0f997f81f602da28c5",
+    "treatment_skeleton_sha256": "f26009ba75ddc1ff03a01501f2b3400b6b3b695813a5afe97db875a107d3e4b2"
+  },
+  "proposal_type": "ordinary",
+  "proposals_cumulative": 8,
+  "remaining_budget": {
+    "evaluations": 192,
+    "evaluator_seconds": 358137.067853165,
+    "proposals": 192,
+    "tokens": 99814980
+  },
+  "retained": false,
+  "retention_decision": "invalid",
+  "run_id": "controlled-openevolve-transformer-v2-1-source-only-ten-digit-addition-pair-transformer-openevolve-v2-1-mps-openevolve-b02-c1",
+  "schema_version": "1.0",
+  "selected_parent_ids": [
+    "dfd60da0e2966ac09fa94a167e97bcaa6b5c92d6b0518bfe59e3acb8831cfc4c"
+  ],
+  "timestamp": "2026-08-23T11:18:42.100694+00:00",
+  "usage_cumulative": {
+    "cached_input_tokens": 64768,
+    "input_tokens": 154547,
+    "output_tokens": 30473,
+    "reasoning_output_tokens": 28026,
+    "total_tokens": 185020
+  },
+  "usage_increment": {
+    "cached_input_tokens": 0,
+    "input_tokens": 19991,
+    "output_tokens": 4729,
+    "reasoning_output_tokens": 4440,
+    "total_tokens": 24720
+  },
+  "visible_candidate_ids": [
+    "dfd60da0e2966ac09fa94a167e97bcaa6b5c92d6b0518bfe59e3acb8831cfc4c"
+  ]
+}

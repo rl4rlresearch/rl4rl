@@ -1,0 +1,88 @@
+{
+  "artifact_path": "candidates/8aafc35220e41cf56e751b6da888a020b01fa44d77c1f1f4c6797b2fef98f1c0",
+  "candidate_id": "8aafc35220e41cf56e751b6da888a020b01fa44d77c1f1f4c6797b2fef98f1c0",
+  "codex_service_tier": "fast",
+  "condition": "C3",
+  "conversation_session_id": null,
+  "evaluation": {
+    "evaluator_calls": 1,
+    "evaluator_seconds": 373.782579674,
+    "failure_kind": null,
+    "fitness": -0.999637,
+    "metrics": {
+      "depth": 8.0,
+      "mfu_percent": 37.68,
+      "num_params_M": 46.1,
+      "num_steps": 1008.0,
+      "peak_vram_mb": 40914.7,
+      "total_tokens_M": 528.5,
+      "training_seconds": 300.2,
+      "val_bpb": 0.999637
+    },
+    "valid": true
+  },
+  "evaluator_calls_cumulative": 13,
+  "evaluator_calls_increment": 1,
+  "evaluator_seconds_cumulative": 6230.160705079971,
+  "evaluator_seconds_increment": 373.782579674,
+  "event": "proposal_completed",
+  "evicted_candidate_id": null,
+  "evidence": "Attention sparsification produced essentially no throughput gain, GQA reduced parameters but slowed training, and the seven-layer test could not be verified; targeting the dominant MLP matrix compute is the clearest untested way to trade modest capacity for more training tokens without altering attention or optimizer behavior.",
+  "hypothesis": "Reducing each MLP from 4\u00d7 to 3\u00d7 width will preserve the proven eight-layer SSSL attention stack while increasing token throughput enough to achieve val_bpb below 0.995558.",
+  "incumbent_after": "2865e528e18dc51191e4037eaeb5824cb0ea83ede79061b59b8f3caac686da6b",
+  "intended_edit": "Change the squared-ReLU MLP hidden width from 4\u00d7 to 3\u00d7 model dimension.",
+  "mechanism": "Reduced MLP expansion for compute reallocation",
+  "opportunity": 13,
+  "parent_ids": [
+    "2865e528e18dc51191e4037eaeb5824cb0ea83ede79061b59b8f3caac686da6b"
+  ],
+  "portfolio_after": [
+    "2865e528e18dc51191e4037eaeb5824cb0ea83ede79061b59b8f3caac686da6b",
+    "005b27c638e8ced7b681518a1df47186e926fc1a87b4dda0797371df3c14496a",
+    "1dfdda4e155579415df2f0419942e6ec1d5989a12399f914d7984eed7a57ffdf",
+    "4b4b8eda44d73f74c14a1179ff73edf4e434066ed7ceb8d4d058a3b6d07e3236"
+  ],
+  "prompt_hashes": {
+    "common_template_sha256": "ba85b39aa7288f4f48475376da6cff65661f39cfeb7ac7cde15b2a9a2e692fde",
+    "prompt_sha256": "af33fe1bf146fad9342b033ee0df7be6b998d8b9523e274169547bb94031c4ba",
+    "proposal_policy_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "search_state_sha256": "c938ac007bf70fe8d27f64661175531e51fcb16b38318c328493c32ee292e27e",
+    "treatment_skeleton_sha256": "9845907e66ab5335221dc1b7e37875212eeaabd0e2d5272249dc7355aa883762"
+  },
+  "proposal_type": "ordinary",
+  "proposals_cumulative": 13,
+  "remaining_budget": {
+    "evaluations": 187,
+    "evaluator_seconds": 713769.83929492,
+    "proposals": 187,
+    "tokens": 99412703
+  },
+  "retained": false,
+  "retention_decision": "not_strictly_better_than_selected_parent",
+  "run_id": "nanogpt-openevolve-v2-1-h100-karpathy_nanogpt_source_only_h100-openevolve-b01-c3",
+  "schema_version": "1.0",
+  "selected_parent_ids": [
+    "2865e528e18dc51191e4037eaeb5824cb0ea83ede79061b59b8f3caac686da6b"
+  ],
+  "timestamp": "2026-08-23T20:01:18.064230+00:00",
+  "usage_cumulative": {
+    "cached_input_tokens": 156416,
+    "input_tokens": 546193,
+    "output_tokens": 41104,
+    "reasoning_output_tokens": 37215,
+    "total_tokens": 587297
+  },
+  "usage_increment": {
+    "cached_input_tokens": 12032,
+    "input_tokens": 46898,
+    "output_tokens": 3912,
+    "reasoning_output_tokens": 3624,
+    "total_tokens": 50810
+  },
+  "visible_candidate_ids": [
+    "2865e528e18dc51191e4037eaeb5824cb0ea83ede79061b59b8f3caac686da6b",
+    "005b27c638e8ced7b681518a1df47186e926fc1a87b4dda0797371df3c14496a",
+    "1dfdda4e155579415df2f0419942e6ec1d5989a12399f914d7984eed7a57ffdf",
+    "4b4b8eda44d73f74c14a1179ff73edf4e434066ed7ceb8d4d058a3b6d07e3236"
+  ]
+}

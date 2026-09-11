@@ -1,0 +1,79 @@
+{
+  "artifact_path": "candidates/7b7c957e5ab97b951c2fa2e21a5fcba04a59d327d649e8cedc12884b7201b755",
+  "candidate_id": "7b7c957e5ab97b951c2fa2e21a5fcba04a59d327d649e8cedc12884b7201b755",
+  "codex_service_tier": "default",
+  "condition": "C1",
+  "conversation_session_id": null,
+  "evaluation": {
+    "evaluator_calls": 1,
+    "evaluator_seconds": 653.5826238330919,
+    "failure_kind": null,
+    "fitness": -1209.0,
+    "metrics": {
+      "accuracy": 0.9989,
+      "cases": 10010,
+      "correct": 9999,
+      "parameters": 1209,
+      "training_steps": 4999
+    },
+    "valid": true
+  },
+  "evaluator_calls_cumulative": 45,
+  "evaluator_calls_increment": 1,
+  "evaluator_seconds_cumulative": 16695.15334512212,
+  "evaluator_seconds_increment": 653.5826238330919,
+  "event": "proposal_completed",
+  "evicted_candidate_id": "6af0433264903c417f147ced0a06b3f25616ebb9859fdf15baf601dece03c06f",
+  "evidence": "Jointly centering the MLP output weight and bias failed at 84.22%, but centering the bias alone also failed at 79.56%; therefore the weight-only constraint is the missing isolation experiment. The same orthonormal output-subspace parameterization succeeded for the attention projection at 99.93%.",
+  "hypothesis": "Constraining only the MLP output weight to the seven-dimensional zero-mean residual subspace will reduce parameters from 1,221 to 1,209 while retaining at least 99% accuracy, because each removed all-ones output component is erased by the final LayerNorm while the full eight-dimensional MLP output bias remains unchanged.",
+  "incumbent_after": "7b7c957e5ab97b951c2fa2e21a5fcba04a59d327d649e8cedc12884b7201b755",
+  "intended_edit": "Store `fc2.weight` as 7-by-12 coefficients, reconstruct its centered 8-by-12 weight during forward passes, and preserve its initialized observable function.",
+  "mechanism": "Final-LayerNorm-null MLP output-weight centering",
+  "opportunity": 45,
+  "parent_ids": [
+    "6af0433264903c417f147ced0a06b3f25616ebb9859fdf15baf601dece03c06f"
+  ],
+  "portfolio_after": [
+    "7b7c957e5ab97b951c2fa2e21a5fcba04a59d327d649e8cedc12884b7201b755"
+  ],
+  "prompt_hashes": {
+    "common_template_sha256": "3f2bea6418b6969c4bf2aa1df18dcda8a3a4ac075bf20c79068c754698b6be5e",
+    "prompt_sha256": "6426027e310cb77b1d5500717eaf950ea4b0d416102d86731516375f12d9531c",
+    "proposal_policy_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "search_state_sha256": "04e5eb078ae1964e4ec65bfeeeb1acd0ffa246e7d54d5e0f997f81f602da28c5",
+    "treatment_skeleton_sha256": "82b9b142a21f7057e7ea4cca364065fdb5f4dddbf760d7fbdf3a7a0f86e78f38"
+  },
+  "proposal_type": "ordinary",
+  "proposals_cumulative": 45,
+  "remaining_budget": {
+    "evaluations": 155,
+    "evaluator_seconds": 343304.8466548779,
+    "proposals": 155,
+    "tokens": 98871561
+  },
+  "retained": true,
+  "retention_decision": "strict_incumbent_improvement",
+  "run_id": "controlled-openevolve-transformer-v2-1-source-only-ten-digit-addition-pair-transformer-openevolve-v2-1-mps-openevolve-b03-c1",
+  "schema_version": "1.0",
+  "selected_parent_ids": [
+    "6af0433264903c417f147ced0a06b3f25616ebb9859fdf15baf601dece03c06f"
+  ],
+  "timestamp": "2026-08-24T04:20:53.170247+00:00",
+  "usage_cumulative": {
+    "cached_input_tokens": 498944,
+    "input_tokens": 984889,
+    "output_tokens": 143550,
+    "reasoning_output_tokens": 114806,
+    "total_tokens": 1128439
+  },
+  "usage_increment": {
+    "cached_input_tokens": 6912,
+    "input_tokens": 24262,
+    "output_tokens": 4749,
+    "reasoning_output_tokens": 4118,
+    "total_tokens": 29011
+  },
+  "visible_candidate_ids": [
+    "6af0433264903c417f147ced0a06b3f25616ebb9859fdf15baf601dece03c06f"
+  ]
+}

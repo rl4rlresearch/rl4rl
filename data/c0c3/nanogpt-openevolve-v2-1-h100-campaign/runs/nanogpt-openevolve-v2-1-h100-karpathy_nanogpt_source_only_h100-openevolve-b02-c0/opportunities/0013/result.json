@@ -1,0 +1,82 @@
+{
+  "artifact_path": "candidates/15054c76eff525d12171c5c1ba30b5acea935db24065e579265ed9bb05317870",
+  "candidate_id": "15054c76eff525d12171c5c1ba30b5acea935db24065e579265ed9bb05317870",
+  "codex_service_tier": "fast",
+  "condition": "C0",
+  "conversation_session_id": null,
+  "evaluation": {
+    "evaluator_calls": 1,
+    "evaluator_seconds": 336.66617116900034,
+    "failure_kind": null,
+    "fitness": -0.991303,
+    "metrics": {
+      "depth": 8.0,
+      "mfu_percent": 38.33,
+      "num_params_M": 50.3,
+      "num_steps": 1826.0,
+      "peak_vram_mb": 44908.2,
+      "total_tokens_M": 478.7,
+      "training_seconds": 300.1,
+      "val_bpb": 0.991303
+    },
+    "valid": true
+  },
+  "evaluator_calls_cumulative": 13,
+  "evaluator_calls_increment": 1,
+  "evaluator_seconds_cumulative": 4307.1507782370045,
+  "evaluator_seconds_increment": 336.66617116900034,
+  "event": "proposal_completed",
+  "evicted_candidate_id": null,
+  "evidence": "Delaying warmdown to the final 25% worsened val_bpb to 0.991963, while starting linear decay after 25% nearly tied the best result at 0.987184; this suggests late learning rates are harmful while moderate reductions in cumulative learning rate are safe.",
+  "hypothesis": "Replacing the winning 50%-window linear warmdown with cosine warmdown will reduce val_bpb below 0.987174 by retaining more learning rate early in the decay while suppressing late-stage optimization noise, without affecting throughput.",
+  "incumbent_after": "005b27c638e8ced7b681518a1df47186e926fc1a87b4dda0797371df3c14496a",
+  "intended_edit": "Keep the architecture, batch size, peak learning rates, and warmdown timing unchanged, but reshape the linear warmdown into a cosine curve.",
+  "mechanism": "Back-loaded cosine learning-rate annealing",
+  "opportunity": 13,
+  "parent_ids": [
+    "005b27c638e8ced7b681518a1df47186e926fc1a87b4dda0797371df3c14496a"
+  ],
+  "portfolio_after": [
+    "005b27c638e8ced7b681518a1df47186e926fc1a87b4dda0797371df3c14496a"
+  ],
+  "prompt_hashes": {
+    "common_template_sha256": "ba85b39aa7288f4f48475376da6cff65661f39cfeb7ac7cde15b2a9a2e692fde",
+    "prompt_sha256": "5f276ada4b52b526af61107e9b01feea5292462e885580db9a9e950aa824f497",
+    "proposal_policy_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "search_state_sha256": "04e5eb078ae1964e4ec65bfeeeb1acd0ffa246e7d54d5e0f997f81f602da28c5",
+    "treatment_skeleton_sha256": "0dd3e271425121e0e3e564828e17ea09f78683025aea0a01fea4556525ec4329"
+  },
+  "proposal_type": "ordinary",
+  "proposals_cumulative": 13,
+  "remaining_budget": {
+    "evaluations": 187,
+    "evaluator_seconds": 715692.849221763,
+    "proposals": 187,
+    "tokens": 99661384
+  },
+  "retained": false,
+  "retention_decision": "not_strictly_better_than_incumbent",
+  "run_id": "nanogpt-openevolve-v2-1-h100-karpathy_nanogpt_source_only_h100-openevolve-b02-c0",
+  "schema_version": "1.0",
+  "selected_parent_ids": [
+    "005b27c638e8ced7b681518a1df47186e926fc1a87b4dda0797371df3c14496a"
+  ],
+  "timestamp": "2026-08-23T21:51:19.728469+00:00",
+  "usage_cumulative": {
+    "cached_input_tokens": 143104,
+    "input_tokens": 302189,
+    "output_tokens": 36427,
+    "reasoning_output_tokens": 32476,
+    "total_tokens": 338616
+  },
+  "usage_increment": {
+    "cached_input_tokens": 12032,
+    "input_tokens": 24682,
+    "output_tokens": 2860,
+    "reasoning_output_tokens": 2588,
+    "total_tokens": 27542
+  },
+  "visible_candidate_ids": [
+    "005b27c638e8ced7b681518a1df47186e926fc1a87b4dda0797371df3c14496a"
+  ]
+}

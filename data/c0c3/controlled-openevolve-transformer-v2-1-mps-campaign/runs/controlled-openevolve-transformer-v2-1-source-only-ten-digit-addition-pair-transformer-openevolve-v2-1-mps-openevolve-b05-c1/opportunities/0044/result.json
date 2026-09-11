@@ -1,0 +1,79 @@
+{
+  "artifact_path": "candidates/42e3e1801efbe92bc6c914c819d263e09e95f2173ba1c29ca14cc7cbe5e909f9",
+  "candidate_id": "42e3e1801efbe92bc6c914c819d263e09e95f2173ba1c29ca14cc7cbe5e909f9",
+  "codex_service_tier": "default",
+  "condition": "C1",
+  "conversation_session_id": null,
+  "evaluation": {
+    "evaluator_calls": 1,
+    "evaluator_seconds": 1688.9012557920069,
+    "failure_kind": null,
+    "fitness": -1376.0,
+    "metrics": {
+      "accuracy": 1.0,
+      "cases": 10010,
+      "correct": 10010,
+      "parameters": 1376,
+      "training_steps": 49999
+    },
+    "valid": true
+  },
+  "evaluator_calls_cumulative": 44,
+  "evaluator_calls_increment": 1,
+  "evaluator_seconds_cumulative": 48571.956246418995,
+  "evaluator_seconds_increment": 1688.9012557920069,
+  "event": "proposal_completed",
+  "evicted_candidate_id": "2dcfa8464da3fbb5e8cbf5244637cc8e812a0284640385ef8a87fd16e913b29c",
+  "evidence": "The 1,377-parameter model achieved 100% accuracy at 50,000 steps, whereas fixing the offset to one changed its successful zero-initialized optimization path and timed out. The projection bias\u2019s common-mode component is erased by downstream LayerNorms, so it can encode the query offset without reducing effective model capacity.",
+  "hypothesis": "Reusing the functionally redundant common-mode attention projection bias as the learned query offset will reduce the model from 1,377 to 1,376 parameters while retaining at least 99% accuracy within 50,000 steps.",
+  "incumbent_after": "42e3e1801efbe92bc6c914c819d263e09e95f2173ba1c29ca14cc7cbe5e909f9",
+  "intended_edit": "Remove the standalone query-offset parameter and derive its zero-initialized learned value from the mean attention projection bias.",
+  "mechanism": "Attention-output gauge reuse",
+  "opportunity": 44,
+  "parent_ids": [
+    "2dcfa8464da3fbb5e8cbf5244637cc8e812a0284640385ef8a87fd16e913b29c"
+  ],
+  "portfolio_after": [
+    "42e3e1801efbe92bc6c914c819d263e09e95f2173ba1c29ca14cc7cbe5e909f9"
+  ],
+  "prompt_hashes": {
+    "common_template_sha256": "3f2bea6418b6969c4bf2aa1df18dcda8a3a4ac075bf20c79068c754698b6be5e",
+    "prompt_sha256": "5a572118bf3533734597e206bc12a477c8943fa8b8e2e59a58f9d1bd843224b1",
+    "proposal_policy_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "search_state_sha256": "04e5eb078ae1964e4ec65bfeeeb1acd0ffa246e7d54d5e0f997f81f602da28c5",
+    "treatment_skeleton_sha256": "f135ef15ca20fd3dfd2d3a3cc734c7cef2cc0cbb9564f46ebc98a4af4a5634a4"
+  },
+  "proposal_type": "ordinary",
+  "proposals_cumulative": 44,
+  "remaining_budget": {
+    "evaluations": 156,
+    "evaluator_seconds": 311428.043753581,
+    "proposals": 156,
+    "tokens": 98936605
+  },
+  "retained": true,
+  "retention_decision": "strict_incumbent_improvement",
+  "run_id": "controlled-openevolve-transformer-v2-1-source-only-ten-digit-addition-pair-transformer-openevolve-v2-1-mps-openevolve-b05-c1",
+  "schema_version": "1.0",
+  "selected_parent_ids": [
+    "2dcfa8464da3fbb5e8cbf5244637cc8e812a0284640385ef8a87fd16e913b29c"
+  ],
+  "timestamp": "2026-08-25T00:19:52.923871+00:00",
+  "usage_cumulative": {
+    "cached_input_tokens": 492800,
+    "input_tokens": 915653,
+    "output_tokens": 147742,
+    "reasoning_output_tokens": 129273,
+    "total_tokens": 1063395
+  },
+  "usage_increment": {
+    "cached_input_tokens": 12032,
+    "input_tokens": 21031,
+    "output_tokens": 3722,
+    "reasoning_output_tokens": 3432,
+    "total_tokens": 24753
+  },
+  "visible_candidate_ids": [
+    "2dcfa8464da3fbb5e8cbf5244637cc8e812a0284640385ef8a87fd16e913b29c"
+  ]
+}

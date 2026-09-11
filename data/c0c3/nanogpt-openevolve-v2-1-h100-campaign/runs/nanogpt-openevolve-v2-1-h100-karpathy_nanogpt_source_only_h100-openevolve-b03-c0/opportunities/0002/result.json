@@ -1,0 +1,82 @@
+{
+  "artifact_path": "candidates/ae4b5e04880b9d220fa5b26b53a5276b856c9fdcb4f1d78ae26b1e93a0589b55",
+  "candidate_id": "ae4b5e04880b9d220fa5b26b53a5276b856c9fdcb4f1d78ae26b1e93a0589b55",
+  "codex_service_tier": "fast",
+  "condition": "C0",
+  "conversation_session_id": null,
+  "evaluation": {
+    "evaluator_calls": 1,
+    "evaluator_seconds": 329.66589359299905,
+    "failure_kind": null,
+    "fitness": -0.987111,
+    "metrics": {
+      "depth": 8.0,
+      "mfu_percent": 39.24,
+      "num_params_M": 50.3,
+      "num_steps": 1869.0,
+      "peak_vram_mb": 44908.2,
+      "total_tokens_M": 489.9,
+      "training_seconds": 300.1,
+      "val_bpb": 0.987111
+    },
+    "valid": true
+  },
+  "evaluator_calls_cumulative": 2,
+  "evaluator_calls_increment": 1,
+  "evaluator_seconds_cumulative": 775.100983035999,
+  "evaluator_seconds_increment": 329.66589359299905,
+  "event": "proposal_completed",
+  "evicted_candidate_id": "2865e528e18dc51191e4037eaeb5824cb0ea83ede79061b59b8f3caac686da6b",
+  "evidence": "The 192-sequence single-microbatch trial regressed to `val_bpb 1.003716` because throughput fell from 497.0M to 395.2M tokens; the baseline demonstrates that 128-sequence microbatches efficiently sustain the higher throughput.",
+  "hypothesis": "A single 128-sequence microbatch per optimizer step will retain the baseline\u2019s roughly 497M-token throughput while doubling optimizer updates, yielding `val_bpb < 0.995558`.",
+  "incumbent_after": "ae4b5e04880b9d220fa5b26b53a5276b856c9fdcb4f1d78ae26b1e93a0589b55",
+  "intended_edit": "Halve the global batch from 524K to 262K tokens, matching the existing 128-sequence device batch and eliminating gradient accumulation.",
+  "mechanism": "Throughput-preserving update densification",
+  "opportunity": 2,
+  "parent_ids": [
+    "2865e528e18dc51191e4037eaeb5824cb0ea83ede79061b59b8f3caac686da6b"
+  ],
+  "portfolio_after": [
+    "ae4b5e04880b9d220fa5b26b53a5276b856c9fdcb4f1d78ae26b1e93a0589b55"
+  ],
+  "prompt_hashes": {
+    "common_template_sha256": "ba85b39aa7288f4f48475376da6cff65661f39cfeb7ac7cde15b2a9a2e692fde",
+    "prompt_sha256": "84ebc347284910acfef3afadda9a04b3cd494dfa1e7790d409bd8c3089509af1",
+    "proposal_policy_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "search_state_sha256": "04e5eb078ae1964e4ec65bfeeeb1acd0ffa246e7d54d5e0f997f81f602da28c5",
+    "treatment_skeleton_sha256": "4d49e7c8393942671a30839133158ae08bd6c5b9b7f0583661f4f39d8d56d282"
+  },
+  "proposal_type": "ordinary",
+  "proposals_cumulative": 2,
+  "remaining_budget": {
+    "evaluations": 198,
+    "evaluator_seconds": 719224.899016964,
+    "proposals": 198,
+    "tokens": 99952373
+  },
+  "retained": true,
+  "retention_decision": "strict_incumbent_improvement",
+  "run_id": "nanogpt-openevolve-v2-1-h100-karpathy_nanogpt_source_only_h100-openevolve-b03-c0",
+  "schema_version": "1.0",
+  "selected_parent_ids": [
+    "2865e528e18dc51191e4037eaeb5824cb0ea83ede79061b59b8f3caac686da6b"
+  ],
+  "timestamp": "2026-08-23T13:32:23.145669+00:00",
+  "usage_cumulative": {
+    "cached_input_tokens": 24064,
+    "input_tokens": 43898,
+    "output_tokens": 3729,
+    "reasoning_output_tokens": 3278,
+    "total_tokens": 47627
+  },
+  "usage_increment": {
+    "cached_input_tokens": 12032,
+    "input_tokens": 22066,
+    "output_tokens": 442,
+    "reasoning_output_tokens": 236,
+    "total_tokens": 22508
+  },
+  "visible_candidate_ids": [
+    "2865e528e18dc51191e4037eaeb5824cb0ea83ede79061b59b8f3caac686da6b"
+  ]
+}

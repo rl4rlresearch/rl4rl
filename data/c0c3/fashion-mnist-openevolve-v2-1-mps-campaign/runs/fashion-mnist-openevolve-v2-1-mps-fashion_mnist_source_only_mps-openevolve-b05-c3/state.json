@@ -1,0 +1,1251 @@
+{
+  "active": null,
+  "candidates": {
+    "002902416275e6b3597b46a1430c42451d3496d69434a38e682f4bf030519fc6": {
+      "artifact_path": "candidates/002902416275e6b3597b46a1430c42451d3496d69434a38e682f4bf030519fc6",
+      "candidate_id": "002902416275e6b3597b46a1430c42451d3496d69434a38e682f4bf030519fc6",
+      "created_opportunity": 193,
+      "fitness": 9214.409046816461,
+      "hypothesis": "Increasing each centered-view weight from 0.375 to 0.5 will retain at least 9,215 correct predictions and reduce validation cross-entropy below 0.222402 by better balancing unshifted evidence against translation-robust views.",
+      "intended_edit": "Increase both centered-view ensemble weights to 0.5 and update the normalization from 6.75 to 7.0, leaving training and all shifted-view weights unchanged.",
+      "metrics": {
+        "batch_size": 64,
+        "evaluation_cases": 10000,
+        "evaluation_split": "public_validation",
+        "examples_processed": 100000,
+        "optimizer_steps": 1564,
+        "parameters": 245818,
+        "training_seconds": 63.98163733398542,
+        "validation_accuracy": 0.9214,
+        "validation_correct": 9214,
+        "validation_cross_entropy": 0.22235396995544435,
+        "validation_score": 9214.409046816461
+      },
+      "parent_ids": [
+        "4d985c334633b92049d71e4ef43f5078307efe80bab45b2396e3109ff93f2916"
+      ],
+      "retained_order": 193,
+      "selected_count": 0
+    },
+    "0620d0d3baff9770e27848d23ce79cda36d8ae5fb33ae453c6cb5f30486ff3fb": {
+      "artifact_path": "candidates/0620d0d3baff9770e27848d23ce79cda36d8ae5fb33ae453c6cb5f30486ff3fb",
+      "candidate_id": "0620d0d3baff9770e27848d23ce79cda36d8ae5fb33ae453c6cb5f30486ff3fb",
+      "created_opportunity": 6,
+      "fitness": 9128.40135220983,
+      "hypothesis": "Halving the batch size to 64 will exceed 9,125 correct predictions by providing roughly twice as many updates, while scaling AdamW decay and EMA momentum preserves their behavior per training example.",
+      "intended_edit": "Adopt the best validated equal-weight center/cardinal/flip ensemble, use batch size 64, halve weight decay, and slow EMA updates to retain the original example-based averaging horizon.",
+      "metrics": {
+        "batch_size": 64,
+        "evaluation_cases": 10000,
+        "evaluation_split": "public_validation",
+        "examples_processed": 100000,
+        "optimizer_steps": 1564,
+        "parameters": 245818,
+        "training_seconds": 71.47676383284852,
+        "validation_accuracy": 0.9128,
+        "validation_correct": 9128,
+        "validation_cross_entropy": 0.24578858108520507,
+        "validation_score": 9128.40135220983
+      },
+      "parent_ids": [
+        "5358d745b4c379de9b032f6ce01ab422ea87db815e5c0558460ac83f752b5da2"
+      ],
+      "retained_order": 6,
+      "selected_count": 4
+    },
+    "0762c8ab73838307c867f7fa2c4ba67ddfb5d1f4e5d77095066ecb0e9b02b3d2": {
+      "artifact_path": "candidates/0762c8ab73838307c867f7fa2c4ba67ddfb5d1f4e5d77095066ecb0e9b02b3d2",
+      "candidate_id": "0762c8ab73838307c867f7fa2c4ba67ddfb5d1f4e5d77095066ecb0e9b02b3d2",
+      "created_opportunity": 16,
+      "fitness": 9167.403599147125,
+      "hypothesis": "Beginning center/cardinal augmentation after 39/64 of training will exceed 9,163 correct predictions by extending the monotonically beneficial inference-aligned phase beyond three-eighths while making a smaller change than the timed-out two-fifths configuration.",
+      "intended_edit": "Adopt the best validated batch-64 architecture, optimizer, EMA, loss, and ten-view ensemble, then use broad \u00b12 translations for the first 39/64 of training and center/cardinal translations thereafter.",
+      "metrics": {
+        "batch_size": 64,
+        "evaluation_cases": 10000,
+        "evaluation_split": "public_validation",
+        "examples_processed": 100000,
+        "optimizer_steps": 1564,
+        "parameters": 245818,
+        "training_seconds": 70.46581783308648,
+        "validation_accuracy": 0.9167,
+        "validation_correct": 9167,
+        "validation_cross_entropy": 0.23885296478271484,
+        "validation_score": 9167.403599147125
+      },
+      "parent_ids": [
+        "1519f52d28c6c739b31c8d221690983a68a7059a34bf6272219d467f90e88386"
+      ],
+      "retained_order": 16,
+      "selected_count": 22
+    },
+    "0770b34f3e9bfc7903932c1dc395f81288941c716a07ab5a51c26e2bfa15b6ba": {
+      "artifact_path": "candidates/0770b34f3e9bfc7903932c1dc395f81288941c716a07ab5a51c26e2bfa15b6ba",
+      "candidate_id": "0770b34f3e9bfc7903932c1dc395f81288941c716a07ab5a51c26e2bfa15b6ba",
+      "created_opportunity": 60,
+      "fitness": 9193.403510419976,
+      "hypothesis": "On the verified 19/32 curriculum, residual refinement within each convolutional stage will exceed 9,172 correct predictions by preserving useful early-stage features and improving gradient flow during the fixed two-pass exposure budget.",
+      "intended_edit": "Replace the plain six-layer convolutional chain with three parameter-neutral residual stages while retaining the validated positional head and TTA; restore default AdamW and the best 19/32 curriculum.",
+      "metrics": {
+        "batch_size": 64,
+        "evaluation_cases": 10000,
+        "evaluation_split": "public_validation",
+        "examples_processed": 100000,
+        "optimizer_steps": 1564,
+        "parameters": 245818,
+        "training_seconds": 68.94878062489443,
+        "validation_accuracy": 0.9193,
+        "validation_correct": 9193,
+        "validation_cross_entropy": 0.23912537384033203,
+        "validation_score": 9193.403510419976
+      },
+      "parent_ids": [
+        "f2b26b600235e3bad3977eea8116ac072f0443316f805b93d8011aa9a1226c0d"
+      ],
+      "retained_order": 60,
+      "selected_count": 21
+    },
+    "148cca79231316e1c3ae04f9faf124f4fb69330da440c19fdebcef87c8a67a7e": {
+      "artifact_path": "candidates/148cca79231316e1c3ae04f9faf124f4fb69330da440c19fdebcef87c8a67a7e",
+      "candidate_id": "148cca79231316e1c3ae04f9faf124f4fb69330da440c19fdebcef87c8a67a7e",
+      "created_opportunity": 81,
+      "fitness": 9200.404407071728,
+      "hypothesis": "Increasing the EMA update rate from 0.005 to 0.01 only during the cardinal-augmentation phase will exceed 9,193 correct predictions by reducing broad-phase parameter and BatchNorm lag while retaining late-training smoothing.",
+      "intended_edit": "Preserve the verified residual architecture, 19/32 curriculum, and all-tensor EMA, but shorten the EMA averaging horizon after the curriculum transition.",
+      "metrics": {
+        "batch_size": 64,
+        "evaluation_cases": 10000,
+        "evaluation_split": "public_validation",
+        "examples_processed": 100000,
+        "optimizer_steps": 1564,
+        "parameters": 245818,
+        "training_seconds": 79.16737045813352,
+        "validation_accuracy": 0.92,
+        "validation_correct": 9200,
+        "validation_cross_entropy": 0.23637798385620118,
+        "validation_score": 9200.404407071728
+      },
+      "parent_ids": [
+        "0770b34f3e9bfc7903932c1dc395f81288941c716a07ab5a51c26e2bfa15b6ba"
+      ],
+      "retained_order": 81,
+      "selected_count": 22
+    },
+    "1519f52d28c6c739b31c8d221690983a68a7059a34bf6272219d467f90e88386": {
+      "artifact_path": "candidates/1519f52d28c6c739b31c8d221690983a68a7059a34bf6272219d467f90e88386",
+      "candidate_id": "1519f52d28c6c739b31c8d221690983a68a7059a34bf6272219d467f90e88386",
+      "created_opportunity": 0,
+      "fitness": 8928.37429160177,
+      "hypothesis": "frozen seed baseline",
+      "intended_edit": "none",
+      "metrics": {
+        "batch_size": 256,
+        "evaluation_cases": 10000,
+        "evaluation_split": "public_validation",
+        "examples_processed": 100000,
+        "optimizer_steps": 392,
+        "parameters": 105866,
+        "training_seconds": 12.175030375132337,
+        "validation_accuracy": 0.8928,
+        "validation_correct": 8928,
+        "validation_cross_entropy": 0.33585684967041013,
+        "validation_score": 8928.37429160177
+      },
+      "parent_ids": [],
+      "retained_order": 0,
+      "selected_count": 4
+    },
+    "1700a84ab0cfbbc343ca8688279c29fa0214743d0a56e3785a1f7a6c23c46551": {
+      "artifact_path": "candidates/1700a84ab0cfbbc343ca8688279c29fa0214743d0a56e3785a1f7a6c23c46551",
+      "candidate_id": "1700a84ab0cfbbc343ca8688279c29fa0214743d0a56e3785a1f7a6c23c46551",
+      "created_opportunity": 115,
+      "fitness": 9206.408343709141,
+      "hypothesis": "The verified per-view sharpening and 0.0325 BatchNorm EMA will recover 9,206 correct predictions, while increasing the argmax-invariant outer sharpening to 1.10\u00d7 will reduce cross-entropy below 0.227083.",
+      "intended_edit": "Apply 1.05\u00d7 sharpening before averaging each TTA view, sharpen the ensemble log-probabilities by 1.10\u00d7, and use the validated 0.0325 terminal BatchNorm-buffer EMA rate.",
+      "metrics": {
+        "batch_size": 64,
+        "evaluation_cases": 10000,
+        "evaluation_split": "public_validation",
+        "examples_processed": 100000,
+        "optimizer_steps": 1564,
+        "parameters": 245818,
+        "training_seconds": 72.40000991616398,
+        "validation_accuracy": 0.9206,
+        "validation_correct": 9206,
+        "validation_cross_entropy": 0.22445868225097657,
+        "validation_score": 9206.408343709141
+      },
+      "parent_ids": [
+        "83e5a560b4b99a143daa4051fbd5829f06a1b1b13a2433cab0052bd92d85b02f"
+      ],
+      "retained_order": 115,
+      "selected_count": 41
+    },
+    "1995cfce057c60603f56291dd92a3a5acb4c8bdef7ab542af6c3d8866d5e99df": {
+      "artifact_path": "candidates/1995cfce057c60603f56291dd92a3a5acb4c8bdef7ab542af6c3d8866d5e99df",
+      "candidate_id": "1995cfce057c60603f56291dd92a3a5acb4c8bdef7ab542af6c3d8866d5e99df",
+      "created_opportunity": 137,
+      "fitness": 9202.408358393197,
+      "hypothesis": "Doubling the influence of the two unshifted views will exceed 9,206 correct predictions by preventing the eight padded shifts from dominating close ensemble decisions.",
+      "intended_edit": "Weight the original and horizontally flipped unshifted predictions twice, retain all shifted views and existing sharpening, and normalize the resulting twelve units of ensemble weight.",
+      "metrics": {
+        "batch_size": 64,
+        "evaluation_cases": 10000,
+        "evaluation_split": "public_validation",
+        "examples_processed": 100000,
+        "optimizer_steps": 1564,
+        "parameters": 245818,
+        "training_seconds": 59.503497540950775,
+        "validation_accuracy": 0.9202,
+        "validation_correct": 9202,
+        "validation_cross_entropy": 0.22441465225219726,
+        "validation_score": 9202.408358393197
+      },
+      "parent_ids": [
+        "1700a84ab0cfbbc343ca8688279c29fa0214743d0a56e3785a1f7a6c23c46551"
+      ],
+      "retained_order": 137,
+      "selected_count": 0
+    },
+    "36995b61a377f57ad1e3879d73db8390bb3f27733c738dcb8c22cc57c1b220f1": {
+      "artifact_path": "candidates/36995b61a377f57ad1e3879d73db8390bb3f27733c738dcb8c22cc57c1b220f1",
+      "candidate_id": "36995b61a377f57ad1e3879d73db8390bb3f27733c738dcb8c22cc57c1b220f1",
+      "created_opportunity": 196,
+      "fitness": 9214.40900951603,
+      "hypothesis": "Reducing each centered-view weight from 0.375 to 0.25 will exceed 9,215 correct predictions by favoring the translation-robust symmetric shifted views.",
+      "intended_edit": "Install the verified symmetric ten-pass ensemble, reduce both centered-view weights to 0.25, normalize by 6.5, and restore 1.178\u00d7 calibration.",
+      "metrics": {
+        "batch_size": 64,
+        "evaluation_cases": 10000,
+        "evaluation_split": "public_validation",
+        "examples_processed": 100000,
+        "optimizer_steps": 1564,
+        "parameters": 245818,
+        "training_seconds": 64.93181979213841,
+        "validation_accuracy": 0.9214,
+        "validation_correct": 9214,
+        "validation_cross_entropy": 0.22246544494628906,
+        "validation_score": 9214.40900951603
+      },
+      "parent_ids": [
+        "39844b6703b1d3aad2a315ad2851e150c376709d1f2ec7627265e8d4a5a6888e"
+      ],
+      "retained_order": 196,
+      "selected_count": 50
+    },
+    "39844b6703b1d3aad2a315ad2851e150c376709d1f2ec7627265e8d4a5a6888e": {
+      "artifact_path": "candidates/39844b6703b1d3aad2a315ad2851e150c376709d1f2ec7627265e8d4a5a6888e",
+      "candidate_id": "39844b6703b1d3aad2a315ad2851e150c376709d1f2ec7627265e8d4a5a6888e",
+      "created_opportunity": 169,
+      "fitness": 9210.408828646767,
+      "hypothesis": "Increasing per-view logit sharpening from 1.05\u00d7 to 1.10\u00d7 will exceed 9,210 correct predictions by giving the most confident centered and shifted views greater influence without changing the qualified training trajectory or inference workload.",
+      "intended_edit": "Increase only the pre-softmax temperature multiplier for every TTA view, retaining the verified 1/3-centered training sampler, view weights, and 1.15\u00d7 final calibration.",
+      "metrics": {
+        "batch_size": 64,
+        "evaluation_cases": 10000,
+        "evaluation_split": "public_validation",
+        "examples_processed": 100000,
+        "optimizer_steps": 1564,
+        "parameters": 245818,
+        "training_seconds": 62.26942599983886,
+        "validation_accuracy": 0.921,
+        "validation_correct": 9210,
+        "validation_cross_entropy": 0.22300627403259277,
+        "validation_score": 9210.408828646767
+      },
+      "parent_ids": [
+        "8b03c65714a70f7da1e6fdb148cced0ab1c59234a9d69a4793f0bfb87d6cf7bf"
+      ],
+      "retained_order": 169,
+      "selected_count": 49
+    },
+    "4ad2e6a4811f04d56d927a6378184f06d1ff333a77b3dc960754d56d0a18c8fe": {
+      "artifact_path": "candidates/4ad2e6a4811f04d56d927a6378184f06d1ff333a77b3dc960754d56d0a18c8fe",
+      "candidate_id": "4ad2e6a4811f04d56d927a6378184f06d1ff333a77b3dc960754d56d0a18c8fe",
+      "created_opportunity": 180,
+      "fitness": 9193.408455800425,
+      "hypothesis": "Exposing global summaries of the first two residual stages directly to the classifier will exceed 9,210 correct predictions by preserving fine texture and mid-level shape evidence that the final 3\u00d73 representation may discard.",
+      "intended_edit": "Replace the final-stage-only head with a parameter-budget-neutral 245,571-parameter multi-scale head, while restoring the best-qualified training sampler and TTA controls.",
+      "metrics": {
+        "batch_size": 64,
+        "evaluation_cases": 10000,
+        "evaluation_split": "public_validation",
+        "examples_processed": 100000,
+        "optimizer_steps": 1564,
+        "parameters": 245571,
+        "training_seconds": 64.44317704206333,
+        "validation_accuracy": 0.9193,
+        "validation_correct": 9193,
+        "validation_cross_entropy": 0.22412265777587892,
+        "validation_score": 9193.408455800425
+      },
+      "parent_ids": [
+        "76f18c4ee9cd2dc81eefc7a58877078ff5549227d23394989922d9dd510ec4ad"
+      ],
+      "retained_order": 180,
+      "selected_count": 0
+    },
+    "4d985c334633b92049d71e4ef43f5078307efe80bab45b2396e3109ff93f2916": {
+      "artifact_path": "candidates/4d985c334633b92049d71e4ef43f5078307efe80bab45b2396e3109ff93f2916",
+      "candidate_id": "4d985c334633b92049d71e4ef43f5078307efe80bab45b2396e3109ff93f2916",
+      "created_opportunity": 192,
+      "fitness": 9215.40903063983,
+      "hypothesis": "Splitting the qualified horizontal-view weight equally between left- and right-shifted views will exceed 9,210 correct predictions by removing directional inference bias while preserving the best ensemble\u2019s total horizontal, centered, and vertical weight.",
+      "intended_edit": "Restore the qualified training sampler and calibration, then use ten inference passes with half-weighted left/right shift pairs, full-weighted vertical pairs, and unchanged total normalization.",
+      "metrics": {
+        "batch_size": 64,
+        "evaluation_cases": 10000,
+        "evaluation_split": "public_validation",
+        "examples_processed": 100000,
+        "optimizer_steps": 1564,
+        "parameters": 245818,
+        "training_seconds": 53.110233209095895,
+        "validation_accuracy": 0.9215,
+        "validation_correct": 9215,
+        "validation_cross_entropy": 0.22240231246948242,
+        "validation_score": 9215.40903063983
+      },
+      "parent_ids": [
+        "76f18c4ee9cd2dc81eefc7a58877078ff5549227d23394989922d9dd510ec4ad"
+      ],
+      "retained_order": 192,
+      "selected_count": 50
+    },
+    "4e4952bc57a0629f0bbc6656720ca17e339d091ac1f2fd60d1ff53b5de0c8239": {
+      "artifact_path": "candidates/4e4952bc57a0629f0bbc6656720ca17e339d091ac1f2fd60d1ff53b5de0c8239",
+      "candidate_id": "4e4952bc57a0629f0bbc6656720ca17e339d091ac1f2fd60d1ff53b5de0c8239",
+      "created_opportunity": 179,
+      "fitness": 9210.408860633168,
+      "hypothesis": "Restoring 1.10\u00d7 per-view sharpening will recover exactly 9,210 correct predictions, while a 1.1875\u00d7 argmax-invariant final multiplier will reduce cross-entropy below 0.2228996.",
+      "intended_edit": "Restore the best verified per-view temperature and increase final ensemble sharpening halfway from the qualified 1.175\u00d7 setting toward the unresolved 1.20\u00d7 setting.",
+      "metrics": {
+        "batch_size": 64,
+        "evaluation_cases": 10000,
+        "evaluation_split": "public_validation",
+        "examples_processed": 100000,
+        "optimizer_steps": 1564,
+        "parameters": 245818,
+        "training_seconds": 68.64136466709897,
+        "validation_accuracy": 0.921,
+        "validation_correct": 9210,
+        "validation_cross_entropy": 0.2229105945587158,
+        "validation_score": 9210.408860633168
+      },
+      "parent_ids": [
+        "ceae4a02aa564b32e013fe665daffe86c3f5ef12e65e790ed0943819b30bf27a"
+      ],
+      "retained_order": 179,
+      "selected_count": 50
+    },
+    "5358d745b4c379de9b032f6ce01ab422ea87db815e5c0558460ac83f752b5da2": {
+      "artifact_path": "candidates/5358d745b4c379de9b032f6ce01ab422ea87db815e5c0558460ac83f752b5da2",
+      "candidate_id": "5358d745b4c379de9b032f6ce01ab422ea87db815e5c0558460ac83f752b5da2",
+      "created_opportunity": 1,
+      "fitness": 9099.398904525975,
+      "hypothesis": "Expanding the 105,866-parameter two-layer CNN to a roughly 246k-parameter six-layer CNN, while doubling optimizer updates with batch size 128, will exceed 8,928 correct predictions by learning more discriminative features within the fixed 100,000-example exposure.",
+      "intended_edit": "Replace the baseline with a six-convolution batch-normalized network, random per-image translation and horizontal flipping, AdamW with warmup-cosine scheduling, mild label smoothing, and end-of-training exponential weight averaging.",
+      "metrics": {
+        "batch_size": 128,
+        "evaluation_cases": 10000,
+        "evaluation_split": "public_validation",
+        "examples_processed": 100000,
+        "optimizer_steps": 782,
+        "parameters": 245818,
+        "training_seconds": 43.330183665966615,
+        "validation_accuracy": 0.9099,
+        "validation_correct": 9099,
+        "validation_cross_entropy": 0.25343275756835937,
+        "validation_score": 9099.398904525975
+      },
+      "parent_ids": [
+        "1519f52d28c6c739b31c8d221690983a68a7059a34bf6272219d467f90e88386"
+      ],
+      "retained_order": 1,
+      "selected_count": 1
+    },
+    "6ae92704ab8533996c0caf4767deb8b9d7cc2b20e981558bd12d8d158b2d9909": {
+      "artifact_path": "candidates/6ae92704ab8533996c0caf4767deb8b9d7cc2b20e981558bd12d8d158b2d9909",
+      "candidate_id": "6ae92704ab8533996c0caf4767deb8b9d7cc2b20e981558bd12d8d158b2d9909",
+      "created_opportunity": 163,
+      "fitness": 9208.407910326694,
+      "hypothesis": "Increasing terminal centered-crop frequency from 1/3 to 3/7 will exceed 9,210 correct predictions while retaining the verified runtime-safe ensemble.",
+      "intended_edit": "Restore the best eight-pass centered/shifted aggregation and give terminal sampling three centered outcomes versus four cardinal-shift outcomes.",
+      "metrics": {
+        "batch_size": 64,
+        "evaluation_cases": 10000,
+        "evaluation_split": "public_validation",
+        "examples_processed": 100000,
+        "optimizer_steps": 1564,
+        "parameters": 245818,
+        "training_seconds": 77.07978883292526,
+        "validation_accuracy": 0.9208,
+        "validation_correct": 9208,
+        "validation_cross_entropy": 0.22575960273742676,
+        "validation_score": 9208.407910326694
+      },
+      "parent_ids": [
+        "1700a84ab0cfbbc343ca8688279c29fa0214743d0a56e3785a1f7a6c23c46551"
+      ],
+      "retained_order": 163,
+      "selected_count": 42
+    },
+    "6c60a5fe257a8ca0125bae6067f83f409b68e963f69650e8fd1bdcbfcb6d5972": {
+      "artifact_path": "candidates/6c60a5fe257a8ca0125bae6067f83f409b68e963f69650e8fd1bdcbfcb6d5972",
+      "candidate_id": "6c60a5fe257a8ca0125bae6067f83f409b68e963f69650e8fd1bdcbfcb6d5972",
+      "created_opportunity": 90,
+      "fitness": 9201.404199911414,
+      "hypothesis": "Adding a zero-initialized mean-and-standard-deviation prediction branch to the qualified 0.0325-buffer-EMA design will exceed 9,206 correct predictions by complementing coordinate-sensitive spatial templates with translation-stable channel-distribution evidence.",
+      "intended_edit": "Replace the old assumption that flattened 3\u00d73 features alone should determine each class with an additive classifier that also learns from global first- and second-order feature moments; retain the strongest qualified EMA setting.",
+      "metrics": {
+        "batch_size": 64,
+        "evaluation_cases": 10000,
+        "evaluation_split": "public_validation",
+        "examples_processed": 100000,
+        "optimizer_steps": 1564,
+        "parameters": 247748,
+        "training_seconds": 73.07314416696317,
+        "validation_accuracy": 0.9201,
+        "validation_correct": 9201,
+        "validation_cross_entropy": 0.23701165161132812,
+        "validation_score": 9201.404199911414
+      },
+      "parent_ids": [
+        "83e5a560b4b99a143daa4051fbd5829f06a1b1b13a2433cab0052bd92d85b02f"
+      ],
+      "retained_order": 90,
+      "selected_count": 0
+    },
+    "6d8ce4df6484f356e7eca5923e2be7be54b20f289ff32c2ff7ac4b86eed0876c": {
+      "artifact_path": "candidates/6d8ce4df6484f356e7eca5923e2be7be54b20f289ff32c2ff7ac4b86eed0876c",
+      "candidate_id": "6d8ce4df6484f356e7eca5923e2be7be54b20f289ff32c2ff7ac4b86eed0876c",
+      "created_opportunity": 143,
+      "fitness": 9208.408313918848,
+      "hypothesis": "Halving the two unshifted-view weights will exceed 9,206 correct predictions by moving aggregation opposite the clean-view doubling that reduced correctness to 9,202.",
+      "intended_edit": "Apply verified 1.05\u00d7 per-view and 1.10\u00d7 final sharpening while weighting each unshifted view 0.5 and each shifted view 1.0.",
+      "metrics": {
+        "batch_size": 64,
+        "evaluation_cases": 10000,
+        "evaluation_split": "public_validation",
+        "examples_processed": 100000,
+        "optimizer_steps": 1564,
+        "parameters": 245818,
+        "training_seconds": 72.72801075014286,
+        "validation_accuracy": 0.9208,
+        "validation_correct": 9208,
+        "validation_cross_entropy": 0.22454801788330078,
+        "validation_score": 9208.408313918848
+      },
+      "parent_ids": [
+        "c20ec8260678d8830afe53e980e533e25f98e4439dceef504390b00a3331e316"
+      ],
+      "retained_order": 143,
+      "selected_count": 41
+    },
+    "6ddffb9f4dab02cf2c6dcc36796a0b87daf3ff59ae25c48cb2fad7aca1f4c8ad": {
+      "artifact_path": "candidates/6ddffb9f4dab02cf2c6dcc36796a0b87daf3ff59ae25c48cb2fad7aca1f4c8ad",
+      "candidate_id": "6ddffb9f4dab02cf2c6dcc36796a0b87daf3ff59ae25c48cb2fad7aca1f4c8ad",
+      "created_opportunity": 15,
+      "fitness": 9163.402874339235,
+      "hypothesis": "Beginning center/cardinal one-pixel augmentation after five-eighths of training will exceed 9,155 correct predictions by extending the beneficial inference-matched phase beyond one-third while retaining more broad \u00b12 translation exposure than the timed-out two-fifths configuration.",
+      "intended_edit": "Preserve the validated batch-64 model, optimizer, EMA, loss, and ten-view ensemble while using broad \u00b12 translations for the first five-eighths of training and center/cardinal one-pixel translations for the final three-eighths.",
+      "metrics": {
+        "batch_size": 64,
+        "evaluation_cases": 10000,
+        "evaluation_split": "public_validation",
+        "examples_processed": 100000,
+        "optimizer_steps": 1564,
+        "parameters": 245818,
+        "training_seconds": 68.43390987510793,
+        "validation_accuracy": 0.9163,
+        "validation_correct": 9163,
+        "validation_cross_entropy": 0.24108177490234375,
+        "validation_score": 9163.402874339235
+      },
+      "parent_ids": [
+        "0620d0d3baff9770e27848d23ce79cda36d8ae5fb33ae453c6cb5f30486ff3fb"
+      ],
+      "retained_order": 15,
+      "selected_count": 11
+    },
+    "6f7efc82fc7418322835f0f2b902f67e794a820013f7bbd06d3936a0cffee092": {
+      "artifact_path": "candidates/6f7efc82fc7418322835f0f2b902f67e794a820013f7bbd06d3936a0cffee092",
+      "candidate_id": "6f7efc82fc7418322835f0f2b902f67e794a820013f7bbd06d3936a0cffee092",
+      "created_opportunity": 49,
+      "fitness": 9160.40318797786,
+      "hypothesis": "Moving the broad-to-cardinal transition from 38/64 to 37/64 of training will exceed 9,172 correct predictions by continuing the observed monotonic improvement from successively longer terminal inference-aligned phases.",
+      "intended_edit": "Use broad \u00b12 translations for the first 37/64 of training, then center/cardinal one-pixel translations for the remaining 27/64.",
+      "metrics": {
+        "batch_size": 64,
+        "evaluation_cases": 10000,
+        "evaluation_split": "public_validation",
+        "examples_processed": 100000,
+        "optimizer_steps": 1564,
+        "parameters": 245818,
+        "training_seconds": 75.55717633315362,
+        "validation_accuracy": 0.916,
+        "validation_correct": 9160,
+        "validation_cross_entropy": 0.24011634140014648,
+        "validation_score": 9160.40318797786
+      },
+      "parent_ids": [
+        "fdd70b4d2639fa75887f014d0aef718c9cba47c484a6e19ce824273eb6447853"
+      ],
+      "retained_order": 49,
+      "selected_count": 0
+    },
+    "76f18c4ee9cd2dc81eefc7a58877078ff5549227d23394989922d9dd510ec4ad": {
+      "artifact_path": "candidates/76f18c4ee9cd2dc81eefc7a58877078ff5549227d23394989922d9dd510ec4ad",
+      "candidate_id": "76f18c4ee9cd2dc81eefc7a58877078ff5549227d23394989922d9dd510ec4ad",
+      "created_opportunity": 113,
+      "fitness": 9206.40747029956,
+      "hypothesis": "Sharpening each view\u2019s logits by 1.05 before probability averaging will exceed 9,206 correct predictions by favoring views with stronger class margins, while retaining the verified post-ensemble sharpening for tied-count cross-entropy gains.",
+      "intended_edit": "Apply 1.05\u00d7 sharpening independently to every original, flipped, and shifted TTA member before averaging their probabilities.",
+      "metrics": {
+        "batch_size": 64,
+        "evaluation_cases": 10000,
+        "evaluation_split": "public_validation",
+        "examples_processed": 100000,
+        "optimizer_steps": 1564,
+        "parameters": 245818,
+        "training_seconds": 70.83847858314402,
+        "validation_accuracy": 0.9206,
+        "validation_correct": 9206,
+        "validation_cross_entropy": 0.22708330039978028,
+        "validation_score": 9206.40747029956
+      },
+      "parent_ids": [
+        "d60ba7ab7a73dc3823652025ac0a9b7d0675956fd43e38b7e52f8fb54aeaf07f"
+      ],
+      "retained_order": 113,
+      "selected_count": 48
+    },
+    "7f1d9665e7b623199061571c8806897c3c1eac8b5cd7ba42053aeeef0c75e608": {
+      "artifact_path": "candidates/7f1d9665e7b623199061571c8806897c3c1eac8b5cd7ba42053aeeef0c75e608",
+      "candidate_id": "7f1d9665e7b623199061571c8806897c3c1eac8b5cd7ba42053aeeef0c75e608",
+      "created_opportunity": 11,
+      "fitness": 9141.402251732847,
+      "hypothesis": "Using the validated batch-64 configuration while restricting the final quarter of training to the five center/cardinal one-pixel views used by inference will exceed 9,128 correct predictions by preserving early translation regularization and eliminating late optimization on the diagonal and two-pixel views that are mismatched with the best ensemble.",
+      "intended_edit": "Switch to batch size 64 with exposure-matched AdamW decay and EMA momentum, and replace uniform \u00b12 translation augmentation during the final training quarter with uniform center/cardinal one-pixel translations while retaining horizontal flips.",
+      "metrics": {
+        "batch_size": 64,
+        "evaluation_cases": 10000,
+        "evaluation_split": "public_validation",
+        "examples_processed": 100000,
+        "optimizer_steps": 1564,
+        "parameters": 245818,
+        "training_seconds": 67.55882224999368,
+        "validation_accuracy": 0.9141,
+        "validation_correct": 9141,
+        "validation_cross_entropy": 0.24300272483825683,
+        "validation_score": 9141.402251732847
+      },
+      "parent_ids": [
+        "9555df9858170cea172676b2173698af4a110fbdd0ca630a4ff84cc300107a40"
+      ],
+      "retained_order": 11,
+      "selected_count": 12
+    },
+    "7f7246be75a2658ffb136403a84162915fde3f7dc7ec6390d47716cc775d8cd2": {
+      "artifact_path": "candidates/7f7246be75a2658ffb136403a84162915fde3f7dc7ec6390d47716cc775d8cd2",
+      "candidate_id": "7f7246be75a2658ffb136403a84162915fde3f7dc7ec6390d47716cc775d8cd2",
+      "created_opportunity": 55,
+      "fitness": 9168.403460315789,
+      "hypothesis": "On the verified 19/32 curriculum, retaining final-phase BatchNorm statistics while averaging only learned parameters will exceed 9,172 correct predictions by eliminating normalization-statistic lag across the augmentation shift.",
+      "intended_edit": "Restore the validated 48-unit head and 19/32 transition, and exclude BatchNorm buffers from EMA so evaluation uses statistics accumulated from the terminal inference-aligned distribution.",
+      "metrics": {
+        "batch_size": 64,
+        "evaluation_cases": 10000,
+        "evaluation_split": "public_validation",
+        "examples_processed": 100000,
+        "optimizer_steps": 1564,
+        "parameters": 245818,
+        "training_seconds": 73.22455829195678,
+        "validation_accuracy": 0.9168,
+        "validation_correct": 9168,
+        "validation_cross_entropy": 0.23927925605773925,
+        "validation_score": 9168.403460315789
+      },
+      "parent_ids": [
+        "bc59ae9aac8aa8a47e08d73d6848d6184b46b16c4e4d4179da8c66596601ba02"
+      ],
+      "retained_order": 55,
+      "selected_count": 37
+    },
+    "83e5a560b4b99a143daa4051fbd5829f06a1b1b13a2433cab0052bd92d85b02f": {
+      "artifact_path": "candidates/83e5a560b4b99a143daa4051fbd5829f06a1b1b13a2433cab0052bd92d85b02f",
+      "candidate_id": "83e5a560b4b99a143daa4051fbd5829f06a1b1b13a2433cab0052bd92d85b02f",
+      "created_opportunity": 86,
+      "fitness": 9205.404551276179,
+      "hypothesis": "Using a 0.015 terminal EMA rate for learned parameters and 0.04 for BatchNorm buffers will exceed 9,206 correct predictions by further reducing normalization-state lag while preserving the validated parameter smoothing.",
+      "intended_edit": "Mark EMA tensors that are model buffers, then apply terminal EMA rates of 0.015 to parameters and 0.04 to buffers while retaining the 0.005 pre-transition rate.",
+      "metrics": {
+        "batch_size": 64,
+        "evaluation_cases": 10000,
+        "evaluation_split": "public_validation",
+        "examples_processed": 100000,
+        "optimizer_steps": 1564,
+        "parameters": 245818,
+        "training_seconds": 79.74243187485263,
+        "validation_accuracy": 0.9205,
+        "validation_correct": 9205,
+        "validation_cross_entropy": 0.2359372703552246,
+        "validation_score": 9205.404551276179
+      },
+      "parent_ids": [
+        "148cca79231316e1c3ae04f9faf124f4fb69330da440c19fdebcef87c8a67a7e"
+      ],
+      "retained_order": 86,
+      "selected_count": 29
+    },
+    "84aa08361642d9b4ce862123bcb8faf912874467cd82b70cd3e192f430c100c9": {
+      "artifact_path": "candidates/84aa08361642d9b4ce862123bcb8faf912874467cd82b70cd3e192f430c100c9",
+      "candidate_id": "84aa08361642d9b4ce862123bcb8faf912874467cd82b70cd3e192f430c100c9",
+      "created_opportunity": 164,
+      "fitness": 9192.407769088757,
+      "hypothesis": "A 30% terminal centered-crop rate will exceed 9,210 correct predictions by targeting the apparent optimum between 20% (9,209), 33.3% (9,210), and 42.9% (9,208), while retaining the best verified eight-view ensemble.",
+      "intended_edit": "Restore the qualified eight-pass centered/shifted TTA and replace terminal crop sampling with 12 centered and seven outcomes per cardinal shift out of 40 equally likely outcomes.",
+      "metrics": {
+        "batch_size": 64,
+        "evaluation_cases": 10000,
+        "evaluation_split": "public_validation",
+        "examples_processed": 100000,
+        "optimizer_steps": 1564,
+        "parameters": 245818,
+        "training_seconds": 61.411563417175785,
+        "validation_accuracy": 0.9192,
+        "validation_correct": 9192,
+        "validation_cross_entropy": 0.22618416595458984,
+        "validation_score": 9192.407769088757
+      },
+      "parent_ids": [
+        "76f18c4ee9cd2dc81eefc7a58877078ff5549227d23394989922d9dd510ec4ad"
+      ],
+      "retained_order": 164,
+      "selected_count": 0
+    },
+    "8b03c65714a70f7da1e6fdb148cced0ab1c59234a9d69a4793f0bfb87d6cf7bf": {
+      "artifact_path": "candidates/8b03c65714a70f7da1e6fdb148cced0ab1c59234a9d69a4793f0bfb87d6cf7bf",
+      "candidate_id": "8b03c65714a70f7da1e6fdb148cced0ab1c59234a9d69a4793f0bfb87d6cf7bf",
+      "created_opportunity": 167,
+      "fitness": 9210.408576552763,
+      "hypothesis": "Restoring the verified 1/3 terminal centered-crop rate will recover 9,210 correct predictions, while 1.15\u00d7 final sharpening preserves those argmax decisions and lowers cross-entropy below 0.2253669.",
+      "intended_edit": "Sample two centered and four cardinal-shift outcomes during terminal training, then increase the eight-view ensemble\u2019s final log-probability multiplier from 1.10\u00d7 to 1.15\u00d7.",
+      "metrics": {
+        "batch_size": 64,
+        "evaluation_cases": 10000,
+        "evaluation_split": "public_validation",
+        "examples_processed": 100000,
+        "optimizer_steps": 1564,
+        "parameters": 245818,
+        "training_seconds": 63.683481083018705,
+        "validation_accuracy": 0.921,
+        "validation_correct": 9210,
+        "validation_cross_entropy": 0.2237608757019043,
+        "validation_score": 9210.408576552763
+      },
+      "parent_ids": [
+        "6ae92704ab8533996c0caf4767deb8b9d7cc2b20e981558bd12d8d158b2d9909"
+      ],
+      "retained_order": 167,
+      "selected_count": 43
+    },
+    "9555df9858170cea172676b2173698af4a110fbdd0ca630a4ff84cc300107a40": {
+      "artifact_path": "candidates/9555df9858170cea172676b2173698af4a110fbdd0ca630a4ff84cc300107a40",
+      "candidate_id": "9555df9858170cea172676b2173698af4a110fbdd0ca630a4ff84cc300107a40",
+      "created_opportunity": 3,
+      "fitness": 9125.40002021733,
+      "hypothesis": "Averaging the center view and four one-pixel translations, each with its horizontal mirror, will exceed Reference Design 2\u2019s 9,110 correct predictions because its training already learned both translation and flip invariance, and flip-only ensembling improved the prior model by 11 correct predictions.",
+      "intended_edit": "Adopt the qualified 245,818-parameter six-layer CNN, batch-128 augmented training, warmup-cosine AdamW, and EMA, then extend evaluation from two-view flip averaging to a ten-view translation-and-flip probability ensemble.",
+      "metrics": {
+        "batch_size": 128,
+        "evaluation_cases": 10000,
+        "evaluation_split": "public_validation",
+        "examples_processed": 100000,
+        "optimizer_steps": 782,
+        "parameters": 245818,
+        "training_seconds": 35.947825708892196,
+        "validation_accuracy": 0.9125,
+        "validation_correct": 9125,
+        "validation_cross_entropy": 0.24993682403564454,
+        "validation_score": 9125.40002021733
+      },
+      "parent_ids": [
+        "1519f52d28c6c739b31c8d221690983a68a7059a34bf6272219d467f90e88386"
+      ],
+      "retained_order": 3,
+      "selected_count": 3
+    },
+    "a4fb6e619d16971f6ec958fefbab9291c5e0c137793cc8616210dcbbeed7e88d": {
+      "artifact_path": "candidates/a4fb6e619d16971f6ec958fefbab9291c5e0c137793cc8616210dcbbeed7e88d",
+      "candidate_id": "a4fb6e619d16971f6ec958fefbab9291c5e0c137793cc8616210dcbbeed7e88d",
+      "created_opportunity": 162,
+      "fitness": 9210.408041047047,
+      "hypothesis": "Increasing terminal centered-crop frequency from 1/5 to 1/3 will exceed 9,209 correct predictions by reversing the centered-exposure reduction that dropped correctness to 9,193.",
+      "intended_edit": "Restore the best verified eight-pass ensemble, then add a second centered outcome to the terminal crop sampler while retaining one outcome per cardinal shift.",
+      "metrics": {
+        "batch_size": 64,
+        "evaluation_cases": 10000,
+        "evaluation_split": "public_validation",
+        "examples_processed": 100000,
+        "optimizer_steps": 1564,
+        "parameters": 245818,
+        "training_seconds": 64.58129475009628,
+        "validation_accuracy": 0.921,
+        "validation_correct": 9210,
+        "validation_cross_entropy": 0.2253669174194336,
+        "validation_score": 9210.408041047047
+      },
+      "parent_ids": [
+        "6d8ce4df6484f356e7eca5923e2be7be54b20f289ff32c2ff7ac4b86eed0876c"
+      ],
+      "retained_order": 162,
+      "selected_count": 45
+    },
+    "a9867ef16e4437988e9b0dee148c4b1c6919a5629ffb66a50deaf03877188e8e": {
+      "artifact_path": "candidates/a9867ef16e4437988e9b0dee148c4b1c6919a5629ffb66a50deaf03877188e8e",
+      "candidate_id": "a9867ef16e4437988e9b0dee148c4b1c6919a5629ffb66a50deaf03877188e8e",
+      "created_opportunity": 148,
+      "fitness": 9206.408254410431,
+      "hypothesis": "Excluding both unshifted views will exceed 9,208 correct predictions by continuing the observed improvement as their weights decreased from 2.0 to 1.0 to 0.5, while reducing inference work.",
+      "intended_edit": "Restore the qualified residual architecture, phase-specific parameter-and-BatchNorm EMA, and calibrated sharpening, then ensemble only the eight \u00b11-pixel shifted and flipped views.",
+      "metrics": {
+        "batch_size": 64,
+        "evaluation_cases": 10000,
+        "evaluation_split": "public_validation",
+        "examples_processed": 100000,
+        "optimizer_steps": 1564,
+        "parameters": 245818,
+        "training_seconds": 73.22419091686606,
+        "validation_accuracy": 0.9206,
+        "validation_correct": 9206,
+        "validation_cross_entropy": 0.22472651176452638,
+        "validation_score": 9206.408254410431
+      },
+      "parent_ids": [
+        "7f7246be75a2658ffb136403a84162915fde3f7dc7ec6390d47716cc775d8cd2"
+      ],
+      "retained_order": 148,
+      "selected_count": 40
+    },
+    "ac84b734b3498c72a63a317964a0e8bf41a890c49b0bbe93ec18a4fe2dfb6bf9": {
+      "artifact_path": "candidates/ac84b734b3498c72a63a317964a0e8bf41a890c49b0bbe93ec18a4fe2dfb6bf9",
+      "candidate_id": "ac84b734b3498c72a63a317964a0e8bf41a890c49b0bbe93ec18a4fe2dfb6bf9",
+      "created_opportunity": 12,
+      "fitness": 9155.402785797016,
+      "hypothesis": "Extending center/cardinal one-pixel augmentation from the final quarter to the final third of the validated batch-64 training run will exceed 9,141 correct predictions by increasing the EMA model\u2019s exposure to inference-matched views while retaining broad \u00b12 translation regularization early in training.",
+      "intended_edit": "Adopt the validated batch-64 optimizer, EMA, and equal-weight ten-view ensemble, then begin inference-aligned cardinal augmentation after two-thirds rather than three-quarters of training.",
+      "metrics": {
+        "batch_size": 64,
+        "evaluation_cases": 10000,
+        "evaluation_split": "public_validation",
+        "examples_processed": 100000,
+        "optimizer_steps": 1564,
+        "parameters": 245818,
+        "training_seconds": 74.47288516582921,
+        "validation_accuracy": 0.9155,
+        "validation_correct": 9155,
+        "validation_cross_entropy": 0.24135459518432617,
+        "validation_score": 9155.402785797016
+      },
+      "parent_ids": [
+        "e6a5975cb2d6284cd548529be64bc68f94fa953a67a2d87565666ff929fa19d2"
+      ],
+      "retained_order": 12,
+      "selected_count": 12
+    },
+    "bc59ae9aac8aa8a47e08d73d6848d6184b46b16c4e4d4179da8c66596601ba02": {
+      "artifact_path": "candidates/bc59ae9aac8aa8a47e08d73d6848d6184b46b16c4e4d4179da8c66596601ba02",
+      "candidate_id": "bc59ae9aac8aa8a47e08d73d6848d6184b46b16c4e4d4179da8c66596601ba02",
+      "created_opportunity": 42,
+      "fitness": 9164.402830089259,
+      "hypothesis": "Widening the validated flattened classifier head from 48 to 52 units on the best 39/64 curriculum will exceed 9,167 correct predictions by using the remaining parameter budget to improve position-sensitive class separation.",
+      "intended_edit": "Restore the verified 39/64 augmentation transition and widen both classifier-layer dimensions to 52, raising learned parameters from 245,818 to 249,318 with negligible added computation.",
+      "metrics": {
+        "batch_size": 64,
+        "evaluation_cases": 10000,
+        "evaluation_split": "public_validation",
+        "examples_processed": 100000,
+        "optimizer_steps": 1564,
+        "parameters": 249318,
+        "training_seconds": 77.04319570795633,
+        "validation_accuracy": 0.9164,
+        "validation_correct": 9164,
+        "validation_cross_entropy": 0.2412181049346924,
+        "validation_score": 9164.402830089259
+      },
+      "parent_ids": [
+        "6ddffb9f4dab02cf2c6dcc36796a0b87daf3ff59ae25c48cb2fad7aca1f4c8ad"
+      ],
+      "retained_order": 42,
+      "selected_count": 14
+    },
+    "be9095c899b5430acf00b4aa140e4b9e7190a979b9da961850027d3b2184e7e9": {
+      "artifact_path": "candidates/be9095c899b5430acf00b4aa140e4b9e7190a979b9da961850027d3b2184e7e9",
+      "candidate_id": "be9095c899b5430acf00b4aa140e4b9e7190a979b9da961850027d3b2184e7e9",
+      "created_opportunity": 178,
+      "fitness": 9210.408864322502,
+      "hypothesis": "Restoring 1.10\u00d7 per-view sharpening will retain 9,210 correct predictions, while a 1.175\u00d7 argmax-invariant final multiplier will reduce cross-entropy below 0.2230063.",
+      "intended_edit": "Increase per-view sharpening from 1.05\u00d7 to the best verified 1.10\u00d7 and test final sharpening midway between the verified 1.15\u00d7 setting and repeatedly timed-out 1.20\u00d7 setting.",
+      "metrics": {
+        "batch_size": 64,
+        "evaluation_cases": 10000,
+        "evaluation_split": "public_validation",
+        "examples_processed": 100000,
+        "optimizer_steps": 1564,
+        "parameters": 245818,
+        "training_seconds": 74.83207758283243,
+        "validation_accuracy": 0.921,
+        "validation_correct": 9210,
+        "validation_cross_entropy": 0.22289955978393555,
+        "validation_score": 9210.408864322502
+      },
+      "parent_ids": [
+        "a4fb6e619d16971f6ec958fefbab9291c5e0c137793cc8616210dcbbeed7e88d"
+      ],
+      "retained_order": 178,
+      "selected_count": 46
+    },
+    "c0036e01fed2776d3baddb99d60b844743bc8cb94bcd7745289d3fb2a7670f8c": {
+      "artifact_path": "candidates/c0036e01fed2776d3baddb99d60b844743bc8cb94bcd7745289d3fb2a7670f8c",
+      "candidate_id": "c0036e01fed2776d3baddb99d60b844743bc8cb94bcd7745289d3fb2a7670f8c",
+      "created_opportunity": 159,
+      "fitness": 9209.4080413636,
+      "hypothesis": "Replacing one horizontally redundant shift pair with centered views while preserving the best verified 1:8 centered-to-shifted weight ratio will reach at least 9,208 correct predictions without increasing inference work.",
+      "intended_edit": "Evaluate centered and flipped-centered views at 0.375 weight each, retain three unit-weight shift pairs, omit one horizontal shift pair, and normalize the eight-pass ensemble by 6.75.",
+      "metrics": {
+        "batch_size": 64,
+        "evaluation_cases": 10000,
+        "evaluation_split": "public_validation",
+        "examples_processed": 100000,
+        "optimizer_steps": 1564,
+        "parameters": 245818,
+        "training_seconds": 69.44678320805542,
+        "validation_accuracy": 0.9209,
+        "validation_correct": 9209,
+        "validation_cross_entropy": 0.225365966796875,
+        "validation_score": 9209.4080413636
+      },
+      "parent_ids": [
+        "a9867ef16e4437988e9b0dee148c4b1c6919a5629ffb66a50deaf03877188e8e"
+      ],
+      "retained_order": 159,
+      "selected_count": 43
+    },
+    "c05209b3023b042728732cda85ff0a83ee6c23e4f0b9bf91b5d68c5a74276516": {
+      "artifact_path": "candidates/c05209b3023b042728732cda85ff0a83ee6c23e4f0b9bf91b5d68c5a74276516",
+      "candidate_id": "c05209b3023b042728732cda85ff0a83ee6c23e4f0b9bf91b5d68c5a74276516",
+      "created_opportunity": 2,
+      "fitness": 9110.399599656217,
+      "hypothesis": "Averaging predictions for each image and its horizontal mirror will exceed the reference\u2019s 9,099 correct predictions because the qualified model was trained with random horizontal flips, while preserving its parameter count and exposure budget.",
+      "intended_edit": "Adopt the qualified six-layer CNN and training procedure, then add evaluation-time probability averaging between original and mirrored inputs.",
+      "metrics": {
+        "batch_size": 128,
+        "evaluation_cases": 10000,
+        "evaluation_split": "public_validation",
+        "examples_processed": 100000,
+        "optimizer_steps": 782,
+        "parameters": 245818,
+        "training_seconds": 48.65767579106614,
+        "validation_accuracy": 0.911,
+        "validation_correct": 9110,
+        "validation_cross_entropy": 0.2512523277282715,
+        "validation_score": 9110.399599656217
+      },
+      "parent_ids": [
+        "1519f52d28c6c739b31c8d221690983a68a7059a34bf6272219d467f90e88386"
+      ],
+      "retained_order": 2,
+      "selected_count": 1
+    },
+    "c1984814b673ec202ce377e325b513e80d67e6e99df545287a34185f4ee48234": {
+      "artifact_path": "candidates/c1984814b673ec202ce377e325b513e80d67e6e99df545287a34185f4ee48234",
+      "candidate_id": "c1984814b673ec202ce377e325b513e80d67e6e99df545287a34185f4ee48234",
+      "created_opportunity": 152,
+      "fitness": 9193.407997887918,
+      "hypothesis": "Matching terminal augmentation frequencies to the best verified half-weight centered TTA will exceed 9,208 correct predictions by training on centered versus shifted views in the same 1:8 ratio used during validation.",
+      "intended_edit": "Restore the qualified half-weight centered ensemble with 1.10\u00d7 calibration, and sample terminal crops with one centered outcome and two outcomes for each cardinal shift.",
+      "metrics": {
+        "batch_size": 64,
+        "evaluation_cases": 10000,
+        "evaluation_split": "public_validation",
+        "examples_processed": 100000,
+        "optimizer_steps": 1564,
+        "parameters": 245818,
+        "training_seconds": 71.57632437511347,
+        "validation_accuracy": 0.9193,
+        "validation_correct": 9193,
+        "validation_cross_entropy": 0.2254965400695801,
+        "validation_score": 9193.407997887918
+      },
+      "parent_ids": [
+        "76f18c4ee9cd2dc81eefc7a58877078ff5549227d23394989922d9dd510ec4ad"
+      ],
+      "retained_order": 152,
+      "selected_count": 0
+    },
+    "c20ec8260678d8830afe53e980e533e25f98e4439dceef504390b00a3331e316": {
+      "artifact_path": "candidates/c20ec8260678d8830afe53e980e533e25f98e4439dceef504390b00a3331e316",
+      "candidate_id": "c20ec8260678d8830afe53e980e533e25f98e4439dceef504390b00a3331e316",
+      "created_opportunity": 88,
+      "fitness": 9206.404566989426,
+      "hypothesis": "A 0.0325 terminal EMA rate for BatchNorm buffers will exceed 9,206 correct predictions by refining the interval between the best reported 0.03 rate and the slightly worse 0.04 rate while preserving the validated 0.015 parameter smoothing.",
+      "intended_edit": "Restore the residual 19/32 curriculum, distinguish BatchNorm buffers from parameters in EMA, and use terminal EMA rates of 0.015 for parameters and 0.0325 for buffers.",
+      "metrics": {
+        "batch_size": 64,
+        "evaluation_cases": 10000,
+        "evaluation_split": "public_validation",
+        "examples_processed": 100000,
+        "optimizer_steps": 1564,
+        "parameters": 245818,
+        "training_seconds": 65.12440524995327,
+        "validation_accuracy": 0.9206,
+        "validation_correct": 9206,
+        "validation_cross_entropy": 0.23588926696777343,
+        "validation_score": 9206.404566989426
+      },
+      "parent_ids": [
+        "0762c8ab73838307c867f7fa2c4ba67ddfb5d1f4e5d77095066ecb0e9b02b3d2"
+      ],
+      "retained_order": 88,
+      "selected_count": 36
+    },
+    "ceae4a02aa564b32e013fe665daffe86c3f5ef12e65e790ed0943819b30bf27a": {
+      "artifact_path": "candidates/ceae4a02aa564b32e013fe665daffe86c3f5ef12e65e790ed0943819b30bf27a",
+      "candidate_id": "ceae4a02aa564b32e013fe665daffe86c3f5ef12e65e790ed0943819b30bf27a",
+      "created_opportunity": 175,
+      "fitness": 9209.408859179364,
+      "hypothesis": "A 1.125\u00d7 per-view multiplier will restore 9,210 correct predictions while lowering cross-entropy below the 0.2230063 achieved at 1.10\u00d7.",
+      "intended_edit": "Replace the current 1.15\u00d7 per-view sharpening with the unverified 1.125\u00d7 midpoint, retaining the qualified 1/3-centered training sampler and 1.15\u00d7 final calibration.",
+      "metrics": {
+        "batch_size": 64,
+        "evaluation_cases": 10000,
+        "evaluation_split": "public_validation",
+        "examples_processed": 100000,
+        "optimizer_steps": 1564,
+        "parameters": 245818,
+        "training_seconds": 72.27186129195616,
+        "validation_accuracy": 0.9209,
+        "validation_correct": 9209,
+        "validation_cross_entropy": 0.2229149429321289,
+        "validation_score": 9209.408859179364
+      },
+      "parent_ids": [
+        "df0705672dab0979b63788fd8906b0e1ca18c2aaa5cb8736275bde5a4e970cd8"
+      ],
+      "retained_order": 175,
+      "selected_count": 45
+    },
+    "d10e21f65962d6726b615569f7bbb7dae0ac912b5792da88eadc3299d7bfbfda": {
+      "artifact_path": "candidates/d10e21f65962d6726b615569f7bbb7dae0ac912b5792da88eadc3299d7bfbfda",
+      "candidate_id": "d10e21f65962d6726b615569f7bbb7dae0ac912b5792da88eadc3299d7bfbfda",
+      "created_opportunity": 82,
+      "fitness": 9201.40453729664,
+      "hypothesis": "Increasing the terminal-phase all-tensor EMA rate from 0.01 to 0.015 on the qualified residual design will exceed 9,200 correct predictions by further reducing stale parameter and BatchNorm state after the augmentation transition without abandoning late-training smoothing.",
+      "intended_edit": "Restore the qualified parameter-neutral residual topology and use EMA rate 0.005 during broad augmentation and 0.015 during cardinal augmentation.",
+      "metrics": {
+        "batch_size": 64,
+        "evaluation_cases": 10000,
+        "evaluation_split": "public_validation",
+        "examples_processed": 100000,
+        "optimizer_steps": 1564,
+        "parameters": 245818,
+        "training_seconds": 75.69645908288658,
+        "validation_accuracy": 0.9201,
+        "validation_correct": 9201,
+        "validation_cross_entropy": 0.23597998046875,
+        "validation_score": 9201.40453729664
+      },
+      "parent_ids": [
+        "fdd70b4d2639fa75887f014d0aef718c9cba47c484a6e19ce824273eb6447853"
+      ],
+      "retained_order": 82,
+      "selected_count": 23
+    },
+    "d60ba7ab7a73dc3823652025ac0a9b7d0675956fd43e38b7e52f8fb54aeaf07f": {
+      "artifact_path": "candidates/d60ba7ab7a73dc3823652025ac0a9b7d0675956fd43e38b7e52f8fb54aeaf07f",
+      "candidate_id": "d60ba7ab7a73dc3823652025ac0a9b7d0675956fd43e38b7e52f8fb54aeaf07f",
+      "created_opportunity": 91,
+      "fitness": 9206.406249005566,
+      "hypothesis": "Applying 1.05\u00d7 sharpening to the qualified split-EMA model\u2019s ensemble logits will retain 9,206 correct predictions while lowering cross-entropy below 0.235889, improving validation_score.",
+      "intended_edit": "Restore the qualified 0.015 parameter/0.0325 BatchNorm-buffer terminal EMA rates and sharpen only evaluation-time ensemble logits without changing their argmax.",
+      "metrics": {
+        "batch_size": 64,
+        "evaluation_cases": 10000,
+        "evaluation_split": "public_validation",
+        "examples_processed": 100000,
+        "optimizer_steps": 1564,
+        "parameters": 245818,
+        "training_seconds": 68.0530132080894,
+        "validation_accuracy": 0.9206,
+        "validation_correct": 9206,
+        "validation_cross_entropy": 0.23077224349975586,
+        "validation_score": 9206.406249005566
+      },
+      "parent_ids": [
+        "d10e21f65962d6726b615569f7bbb7dae0ac912b5792da88eadc3299d7bfbfda"
+      ],
+      "retained_order": 91,
+      "selected_count": 29
+    },
+    "d83098431fe61b3ee1b3d99d040bf939cb9e2eb259064a6cf92fc0ef43fb12a1": {
+      "artifact_path": "candidates/d83098431fe61b3ee1b3d99d040bf939cb9e2eb259064a6cf92fc0ef43fb12a1",
+      "candidate_id": "d83098431fe61b3ee1b3d99d040bf939cb9e2eb259064a6cf92fc0ef43fb12a1",
+      "created_opportunity": 4,
+      "fitness": 9119.399959124295,
+      "hypothesis": "Adding the four one-pixel diagonal translations and their mirrors will exceed 9,125 correct predictions because the independent x/y training offsets explicitly include diagonal shifts, while cardinal translation views already improved flip-only ensembling by 15 predictions.",
+      "intended_edit": "Expand evaluation from ten center/cardinal/flip views to all eighteen combinations of a 3\u00d73 one-pixel translation grid and horizontal mirroring.",
+      "metrics": {
+        "batch_size": 128,
+        "evaluation_cases": 10000,
+        "evaluation_split": "public_validation",
+        "examples_processed": 100000,
+        "optimizer_steps": 782,
+        "parameters": 245818,
+        "training_seconds": 34.16083383304067,
+        "validation_accuracy": 0.9119,
+        "validation_correct": 9119,
+        "validation_cross_entropy": 0.2501277496337891,
+        "validation_score": 9119.399959124295
+      },
+      "parent_ids": [
+        "9555df9858170cea172676b2173698af4a110fbdd0ca630a4ff84cc300107a40"
+      ],
+      "retained_order": 4,
+      "selected_count": 0
+    },
+    "dd67012ce3fd1b2d8454c9bfb101d081eb9e0f0e3b6b32d3dffb601feb922b2f": {
+      "artifact_path": "candidates/dd67012ce3fd1b2d8454c9bfb101d081eb9e0f0e3b6b32d3dffb601feb922b2f",
+      "candidate_id": "dd67012ce3fd1b2d8454c9bfb101d081eb9e0f0e3b6b32d3dffb601feb922b2f",
+      "created_opportunity": 191,
+      "fitness": 9204.408101129995,
+      "hypothesis": "Widening the classifier bottleneck from 48 to 52 units will exceed 9,210 correct predictions by increasing learned class-separation capacity while remaining under the 250,000-parameter ceiling.",
+      "intended_edit": "Expand both classifier linear layers consistently to 52 hidden units, producing 249,318 parameters, and restore the verified 1.178\u00d7 output calibration.",
+      "metrics": {
+        "batch_size": 64,
+        "evaluation_cases": 10000,
+        "evaluation_split": "public_validation",
+        "examples_processed": 100000,
+        "optimizer_steps": 1564,
+        "parameters": 249318,
+        "training_seconds": 75.97553304187022,
+        "validation_accuracy": 0.9204,
+        "validation_correct": 9204,
+        "validation_cross_entropy": 0.2251865119934082,
+        "validation_score": 9204.408101129995
+      },
+      "parent_ids": [
+        "39844b6703b1d3aad2a315ad2851e150c376709d1f2ec7627265e8d4a5a6888e"
+      ],
+      "retained_order": 191,
+      "selected_count": 0
+    },
+    "debbfb26aa33b4bd3de348d8008ddca2c96e4fb0651a651b27d2540c2f23d6ca": {
+      "artifact_path": "candidates/debbfb26aa33b4bd3de348d8008ddca2c96e4fb0651a651b27d2540c2f23d6ca",
+      "candidate_id": "debbfb26aa33b4bd3de348d8008ddca2c96e4fb0651a651b27d2540c2f23d6ca",
+      "created_opportunity": 190,
+      "fitness": 9208.409508600751,
+      "hypothesis": "Input-conditioned recalibration of the final 96 feature channels will exceed 9,210 correct predictions by using global image context to emphasize class-relevant texture and shape channels, while identity initialization and the qualified training/TTA pipeline preserve the strong baseline trajectory.",
+      "intended_edit": "Add a parameter-efficient squeeze/recalibration branch to the final residual stage, initialized as an exact identity, and restore the best-verified 1.178\u00d7 output calibration; the model remains below the parameter ceiling at 249,002 parameters.",
+      "metrics": {
+        "batch_size": 64,
+        "evaluation_cases": 10000,
+        "evaluation_split": "public_validation",
+        "examples_processed": 100000,
+        "optimizer_steps": 1564,
+        "parameters": 249002,
+        "training_seconds": 65.44978337502107,
+        "validation_accuracy": 0.9208,
+        "validation_correct": 9208,
+        "validation_cross_entropy": 0.22097557678222657,
+        "validation_score": 9208.409508600751
+      },
+      "parent_ids": [
+        "4e4952bc57a0629f0bbc6656720ca17e339d091ac1f2fd60d1ff53b5de0c8239"
+      ],
+      "retained_order": 190,
+      "selected_count": 0
+    },
+    "df0705672dab0979b63788fd8906b0e1ca18c2aaa5cb8736275bde5a4e970cd8": {
+      "artifact_path": "candidates/df0705672dab0979b63788fd8906b0e1ca18c2aaa5cb8736275bde5a4e970cd8",
+      "candidate_id": "df0705672dab0979b63788fd8906b0e1ca18c2aaa5cb8736275bde5a4e970cd8",
+      "created_opportunity": 171,
+      "fitness": 9209.408834609612,
+      "hypothesis": "Restoring the qualified 1/3-centered training sampler and increasing per-view sharpening from 1.10\u00d7 to 1.15\u00d7 will exceed 9,210 correct predictions by further emphasizing views with decisive class margins, while retaining the best verified 1.15\u00d7 final calibration.",
+      "intended_edit": "Use two centered outcomes and four cardinal shifts during terminal training, sharpen every centered and shifted TTA view by 1.15\u00d7, and apply the qualified 1.15\u00d7 post-ensemble multiplier.",
+      "metrics": {
+        "batch_size": 64,
+        "evaluation_cases": 10000,
+        "evaluation_split": "public_validation",
+        "examples_processed": 100000,
+        "optimizer_steps": 1564,
+        "parameters": 245818,
+        "training_seconds": 66.18983545806259,
+        "validation_accuracy": 0.9209,
+        "validation_correct": 9209,
+        "validation_cross_entropy": 0.2229884365081787,
+        "validation_score": 9209.408834609612
+      },
+      "parent_ids": [
+        "c0036e01fed2776d3baddb99d60b844743bc8cb94bcd7745289d3fb2a7670f8c"
+      ],
+      "retained_order": 171,
+      "selected_count": 44
+    },
+    "e5d31f86f831e52af6c5305e4ed13b9efc99d29ab595829b284ddc49a53ad579": {
+      "artifact_path": "candidates/e5d31f86f831e52af6c5305e4ed13b9efc99d29ab595829b284ddc49a53ad579",
+      "candidate_id": "e5d31f86f831e52af6c5305e4ed13b9efc99d29ab595829b284ddc49a53ad579",
+      "created_opportunity": 181,
+      "fitness": 9210.408864699002,
+      "hypothesis": "A 1.178\u00d7 final multiplier will preserve all 9,210 predictions while reducing validation cross-entropy below 0.22289956.",
+      "intended_edit": "Increase only the argmax-invariant final ensemble multiplier from 1.175\u00d7 to 1.178\u00d7.",
+      "metrics": {
+        "batch_size": 64,
+        "evaluation_cases": 10000,
+        "evaluation_split": "public_validation",
+        "examples_processed": 100000,
+        "optimizer_steps": 1564,
+        "parameters": 245818,
+        "training_seconds": 67.10024604201317,
+        "validation_accuracy": 0.921,
+        "validation_correct": 9210,
+        "validation_cross_entropy": 0.22289843368530274,
+        "validation_score": 9210.408864699002
+      },
+      "parent_ids": [
+        "be9095c899b5430acf00b4aa140e4b9e7190a979b9da961850027d3b2184e7e9"
+      ],
+      "retained_order": 181,
+      "selected_count": 50
+    },
+    "e6a5975cb2d6284cd548529be64bc68f94fa953a67a2d87565666ff929fa19d2": {
+      "artifact_path": "candidates/e6a5975cb2d6284cd548529be64bc68f94fa953a67a2d87565666ff929fa19d2",
+      "candidate_id": "e6a5975cb2d6284cd548529be64bc68f94fa953a67a2d87565666ff929fa19d2",
+      "created_opportunity": 5,
+      "fitness": 9125.40000947703,
+      "hypothesis": "Giving the original and mirrored center views twice the weight of each one-pixel cardinal view will exceed 9,125 correct predictions by retaining useful translation marginalization while reducing errors from shifted-view artifacts.",
+      "intended_edit": "Replace flip-only evaluation with a ten-view probability ensemble comprising center, horizontal mirror, and four one-pixel cardinal translations with mirrors, using double weight for the two center views.",
+      "metrics": {
+        "batch_size": 128,
+        "evaluation_cases": 10000,
+        "evaluation_split": "public_validation",
+        "examples_processed": 100000,
+        "optimizer_steps": 782,
+        "parameters": 245818,
+        "training_seconds": 36.542762249941006,
+        "validation_accuracy": 0.9125,
+        "validation_correct": 9125,
+        "validation_cross_entropy": 0.24997038497924803,
+        "validation_score": 9125.40000947703
+      },
+      "parent_ids": [
+        "c05209b3023b042728732cda85ff0a83ee6c23e4f0b9bf91b5d68c5a74276516"
+      ],
+      "retained_order": 5,
+      "selected_count": 3
+    },
+    "e8e4772688d0500306a39a3dc03af6777a89fdb7d7981dfc45b52d0befc6824b": {
+      "artifact_path": "candidates/e8e4772688d0500306a39a3dc03af6777a89fdb7d7981dfc45b52d0befc6824b",
+      "candidate_id": "e8e4772688d0500306a39a3dc03af6777a89fdb7d7981dfc45b52d0befc6824b",
+      "created_opportunity": 185,
+      "fitness": 9210.408864699002,
+      "hypothesis": "A 1.17792\u00d7 final multiplier will preserve all 9,210 argmax predictions while reducing validation cross-entropy below 0.2228984337.",
+      "intended_edit": "Refine only the argmax-invariant final ensemble calibration from 1.178\u00d7 to the estimated local minimum, leaving training and TTA unchanged.",
+      "metrics": {
+        "batch_size": 64,
+        "evaluation_cases": 10000,
+        "evaluation_split": "public_validation",
+        "examples_processed": 100000,
+        "optimizer_steps": 1564,
+        "parameters": 245818,
+        "training_seconds": 62.426601541927084,
+        "validation_accuracy": 0.921,
+        "validation_correct": 9210,
+        "validation_cross_entropy": 0.22289843368530274,
+        "validation_score": 9210.408864699002
+      },
+      "parent_ids": [
+        "e5d31f86f831e52af6c5305e4ed13b9efc99d29ab595829b284ddc49a53ad579"
+      ],
+      "retained_order": 185,
+      "selected_count": 0
+    },
+    "f2b26b600235e3bad3977eea8116ac072f0443316f805b93d8011aa9a1226c0d": {
+      "artifact_path": "candidates/f2b26b600235e3bad3977eea8116ac072f0443316f805b93d8011aa9a1226c0d",
+      "candidate_id": "f2b26b600235e3bad3977eea8116ac072f0443316f805b93d8011aa9a1226c0d",
+      "created_opportunity": 47,
+      "fitness": 9163.403678229348,
+      "hypothesis": "Using AdamW \u03b2\u2082=0.99 with the verified 39/64 augmentation transition will exceed 9,167 correct predictions by letting adaptive learning rates respond to terminal inference-aligned gradients instead of retaining second-moment statistics from most of the broad-translation phase.",
+      "intended_edit": "Restore the best verified 39/64 augmentation boundary and shorten AdamW\u2019s second-moment memory from the default 0.999 to 0.99.",
+      "metrics": {
+        "batch_size": 64,
+        "evaluation_cases": 10000,
+        "evaluation_split": "public_validation",
+        "examples_processed": 100000,
+        "optimizer_steps": 1564,
+        "parameters": 245818,
+        "training_seconds": 75.7961785828229,
+        "validation_accuracy": 0.9163,
+        "validation_correct": 9163,
+        "validation_cross_entropy": 0.23861026840209962,
+        "validation_score": 9163.403678229348
+      },
+      "parent_ids": [
+        "ac84b734b3498c72a63a317964a0e8bf41a890c49b0bbe93ec18a4fe2dfb6bf9"
+      ],
+      "retained_order": 47,
+      "selected_count": 15
+    },
+    "fdd70b4d2639fa75887f014d0aef718c9cba47c484a6e19ce824273eb6447853": {
+      "artifact_path": "candidates/fdd70b4d2639fa75887f014d0aef718c9cba47c484a6e19ce824273eb6447853",
+      "candidate_id": "fdd70b4d2639fa75887f014d0aef718c9cba47c484a6e19ce824273eb6447853",
+      "created_opportunity": 48,
+      "fitness": 9172.403132233992,
+      "hypothesis": "Moving the broad-to-cardinal transition from 39/64 to 19/32 of training will exceed 9,167 correct predictions by continuing the observed improvement from progressively longer terminal phases.",
+      "intended_edit": "Use broad \u00b12 translations for the first 19/32 of training, then center/cardinal one-pixel translations for the remaining 13/32.",
+      "metrics": {
+        "batch_size": 64,
+        "evaluation_cases": 10000,
+        "evaluation_split": "public_validation",
+        "examples_processed": 100000,
+        "optimizer_steps": 1564,
+        "parameters": 245818,
+        "training_seconds": 78.00768562499434,
+        "validation_accuracy": 0.9172,
+        "validation_correct": 9172,
+        "validation_cross_entropy": 0.24028782081604003,
+        "validation_score": 9172.403132233992
+      },
+      "parent_ids": [
+        "7f1d9665e7b623199061571c8806897c3c1eac8b5cd7ba42053aeeef0c75e608"
+      ],
+      "retained_order": 48,
+      "selected_count": 21
+    }
+  },
+  "condition": "C3",
+  "conversation_session_id": null,
+  "evaluations_used": 158,
+  "evaluator_seconds_used": 13411.399548835121,
+  "incumbent_id": "4d985c334633b92049d71e4ef43f5078307efe80bab45b2396e3109ff93f2916",
+  "next_opportunity": 201,
+  "no_search": false,
+  "portfolio_ids": [
+    "e5d31f86f831e52af6c5305e4ed13b9efc99d29ab595829b284ddc49a53ad579",
+    "4e4952bc57a0629f0bbc6656720ca17e339d091ac1f2fd60d1ff53b5de0c8239",
+    "36995b61a377f57ad1e3879d73db8390bb3f27733c738dcb8c22cc57c1b220f1",
+    "4d985c334633b92049d71e4ef43f5078307efe80bab45b2396e3109ff93f2916"
+  ],
+  "proposals_used": 200,
+  "protocol_hash": "68ca90f25b4e08614af9af953834dae29679326bcfc50d10f0d8a2692bdb2552",
+  "revision": 401,
+  "run_id": "fashion-mnist-openevolve-v2-1-mps-fashion_mnist_source_only_mps-openevolve-b05-c3",
+  "schema_version": "1.0",
+  "status": "completed",
+  "token_budget_continuation_notice_sent": false,
+  "usage": {
+    "cached_input_tokens": 2110976,
+    "input_tokens": 4711921,
+    "output_tokens": 512567,
+    "reasoning_output_tokens": 404085
+  }
+}

@@ -1,0 +1,105 @@
+{
+  "artifact_path": "candidates/b21dd301bb6f086d0cb025e5b0ffaf4cffc2cfa10c6680fa1e0f514885392616",
+  "candidate_id": "b21dd301bb6f086d0cb025e5b0ffaf4cffc2cfa10c6680fa1e0f514885392616",
+  "codex_service_tier": "default",
+  "condition": "C3",
+  "conversation_session_id": null,
+  "evaluation": {
+    "evaluator_calls": 1,
+    "evaluator_seconds": 97.10748866712674,
+    "failure_kind": "nonqualification",
+    "fitness": null,
+    "metrics": {
+      "batch_size": 128,
+      "evaluation_cases": 815,
+      "evaluation_split": "public_speaker_disjoint_validation",
+      "examples_processed": 50000,
+      "inference_cost": 2872018389797723810,
+      "maximum_recurrent_steps": 30,
+      "mean_recurrent_steps": 30.0,
+      "median_recurrent_steps": 30,
+      "optimizer_steps": 397,
+      "p95_recurrent_steps": 30,
+      "parameters": 24800,
+      "peak_hidden_elements": 107008,
+      "recurrent_logit_effect": 0.11092008650302887,
+      "recurrent_macs": 549244800,
+      "recurrent_steps": 24450,
+      "state_dependence_effect": 0.4294717609882355,
+      "state_update_effect": 0.43007612228393555,
+      "total_inference_macs": 550600960,
+      "trained_recurrent_logit_effect": 0.4734180271625519,
+      "trained_state_dependence_effect": 0.45659807324409485,
+      "trained_state_update_effect": 0.455303817987442,
+      "training_seconds": 76.44758554222062,
+      "validation_accuracy": 0.8404907975460123,
+      "validation_correct": 685,
+      "validation_cross_entropy": 0.4542129984662577
+    },
+    "valid": false
+  },
+  "evaluator_calls_cumulative": 20,
+  "evaluator_calls_increment": 1,
+  "evaluator_seconds_cumulative": 2865.6593735432252,
+  "evaluator_seconds_increment": 97.10748866712674,
+  "event": "proposal_completed",
+  "evicted_candidate_id": null,
+  "evidence": "Dense 90-, 92-, 94-, and 96-unit GRUs all qualified, suggesting total recurrent width is useful; the failed low-rank experiment challenged dense recurrent mixing but timed out. Standard parallel GRUs cleanly test whether full cross-channel recurrent connectivity is unnecessary while preserving gated dynamics and efficient sequence execution.",
+  "hypothesis": "Two independent 52-unit GRU branches over the qualified 30-frame schedule will achieve at least 85% validation accuracy while reducing predicted total inference MACs from 727,338,600 to approximately 550,600,960.",
+  "incumbent_after": "deff28b9a4b9e4d6a63e7f9e99715e7236834112e50730c899d470f7d76e5897",
+  "intended_edit": "Replace the single densely connected 94-unit GRU with two parallel 52-unit GRUs, concatenate their temporal outputs, and retain the mean-plus-final readout.",
+  "mechanism": "Parallel grouped-GRU temporal subspaces",
+  "opportunity": 20,
+  "parent_ids": [
+    "5669e520f236292e82c76ed7c43273bce891422e0018c7915bedea48d5712316"
+  ],
+  "portfolio_after": [
+    "016d906da09d1fe9115b3d48dd009dea2faccbbb35792057b39773f1cdb8582b",
+    "deff28b9a4b9e4d6a63e7f9e99715e7236834112e50730c899d470f7d76e5897",
+    "5669e520f236292e82c76ed7c43273bce891422e0018c7915bedea48d5712316",
+    "5e69a89753369e3989145f81d695ebfc2362abb81cc40616345e20177d4283f1"
+  ],
+  "prompt_hashes": {
+    "common_template_sha256": "dee04faf4c430276c1036ba97f5705a339857dbdf19117dac88952a5a3a47e9d",
+    "prompt_sha256": "98ceaeeae8accd3a8b90680d7613c58c4e3f22df73e160477f7b13fcade753d6",
+    "proposal_policy_sha256": "f3e935f1a3cb6334e7f39b20b1b6b601cd727de9c5f0c3630206a91f08e358c9",
+    "search_state_sha256": "c938ac007bf70fe8d27f64661175531e51fcb16b38318c328493c32ee292e27e",
+    "treatment_skeleton_sha256": "c8e49850aeb2289fd8667456ccf388b28f3008f616125802b5eecc547f972cc6"
+  },
+  "proposal_type": "assumption_changing",
+  "proposals_cumulative": 20,
+  "remaining_budget": {
+    "evaluations": 180,
+    "evaluator_seconds": 57134.340626456775,
+    "proposals": 180,
+    "tokens": 99515196
+  },
+  "retained": false,
+  "retention_decision": "invalid",
+  "run_id": "tiny-kws-rnn-openevolve-v2-1-cpu-tiny_kws_rnn_source_only_cpu-openevolve-b02-c3",
+  "schema_version": "1.0",
+  "selected_parent_ids": [
+    "5669e520f236292e82c76ed7c43273bce891422e0018c7915bedea48d5712316"
+  ],
+  "timestamp": "2026-09-04T03:51:05.294863+00:00",
+  "usage_cumulative": {
+    "cached_input_tokens": 244352,
+    "input_tokens": 451014,
+    "output_tokens": 33790,
+    "reasoning_output_tokens": 25024,
+    "total_tokens": 484804
+  },
+  "usage_increment": {
+    "cached_input_tokens": 10752,
+    "input_tokens": 23360,
+    "output_tokens": 4223,
+    "reasoning_output_tokens": 2849,
+    "total_tokens": 27583
+  },
+  "visible_candidate_ids": [
+    "016d906da09d1fe9115b3d48dd009dea2faccbbb35792057b39773f1cdb8582b",
+    "deff28b9a4b9e4d6a63e7f9e99715e7236834112e50730c899d470f7d76e5897",
+    "5669e520f236292e82c76ed7c43273bce891422e0018c7915bedea48d5712316",
+    "5e69a89753369e3989145f81d695ebfc2362abb81cc40616345e20177d4283f1"
+  ]
+}

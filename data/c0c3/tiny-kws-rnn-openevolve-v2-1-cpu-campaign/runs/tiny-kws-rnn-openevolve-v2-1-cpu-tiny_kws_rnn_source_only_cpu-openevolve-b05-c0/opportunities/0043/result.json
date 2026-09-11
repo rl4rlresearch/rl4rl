@@ -1,0 +1,99 @@
+{
+  "artifact_path": "candidates/032226c89c85c58286fb58d3c2cff061ed006f0807c4af9890a36264bbd46c69",
+  "candidate_id": "032226c89c85c58286fb58d3c2cff061ed006f0807c4af9890a36264bbd46c69",
+  "codex_service_tier": "default",
+  "condition": "C0",
+  "conversation_session_id": null,
+  "evaluation": {
+    "evaluator_calls": 1,
+    "evaluator_seconds": 41.644637959077954,
+    "failure_kind": "nonqualification",
+    "fitness": null,
+    "metrics": {
+      "batch_size": 96,
+      "evaluation_cases": 815,
+      "evaluation_split": "public_speaker_disjoint_validation",
+      "examples_processed": 50000,
+      "inference_cost": 1215577839078349071,
+      "maximum_recurrent_steps": 21,
+      "mean_recurrent_steps": 21.0,
+      "median_recurrent_steps": 21,
+      "optimizer_steps": 522,
+      "p95_recurrent_steps": 21,
+      "parameters": 14856,
+      "peak_hidden_elements": 59904,
+      "recurrent_logit_effect": 0.11456423997879028,
+      "recurrent_macs": 232284780,
+      "recurrent_steps": 17115,
+      "state_dependence_effect": 0.42375442385673523,
+      "state_update_effect": 0.4210512638092041,
+      "total_inference_macs": 233041100,
+      "trained_recurrent_logit_effect": 0.36828696727752686,
+      "trained_state_dependence_effect": 0.4524291455745697,
+      "trained_state_update_effect": 0.4444549083709717,
+      "training_seconds": 30.39917366602458,
+      "validation_accuracy": 0.8466257668711656,
+      "validation_correct": 690,
+      "validation_cross_entropy": 0.47644409928585124
+    },
+    "valid": false
+  },
+  "evaluator_calls_cumulative": 43,
+  "evaluator_calls_increment": 1,
+  "evaluator_seconds_cumulative": 4139.46054925397,
+  "evaluator_seconds_increment": 41.644637959077954,
+  "event": "proposal_completed",
+  "evicted_candidate_id": null,
+  "evidence": "The verified 21-step design achieved 85.15%, while three 20-step schedules and width-57 failed; preserving all recurrent computation is therefore lower risk. LayerNorm\u2019s affine transform is representationally redundant before the GRU\u2019s learned input weights and biases.",
+  "hypothesis": "Disabling LayerNorm\u2019s learned affine terms will preserve at least 85% accuracy and identical MACs and recurrent steps while reducing parameters from 14,896 to 14,856.",
+  "incumbent_after": "a3bc1e8f9a18dd2a8d038893c6ca86dd87844ff3716c0fab9746add45b661b33",
+  "intended_edit": "Retain input normalization but remove its 20 learned scales and 20 learned biases.",
+  "mechanism": "Absorb redundant normalization affine into GRU input weights",
+  "opportunity": 43,
+  "parent_ids": [
+    "a3bc1e8f9a18dd2a8d038893c6ca86dd87844ff3716c0fab9746add45b661b33"
+  ],
+  "portfolio_after": [
+    "a3bc1e8f9a18dd2a8d038893c6ca86dd87844ff3716c0fab9746add45b661b33"
+  ],
+  "prompt_hashes": {
+    "common_template_sha256": "dee04faf4c430276c1036ba97f5705a339857dbdf19117dac88952a5a3a47e9d",
+    "prompt_sha256": "961c0cbfc9206d06d97adc606ac7eab3c29759404fc5cc6a6b897e177f236e9f",
+    "proposal_policy_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "search_state_sha256": "04e5eb078ae1964e4ec65bfeeeb1acd0ffa246e7d54d5e0f997f81f602da28c5",
+    "treatment_skeleton_sha256": "b2d272578a4f00d019fa692e998e5b908b2a15251b4c20ae8a3110877f6607f0"
+  },
+  "proposal_type": "ordinary",
+  "proposals_cumulative": 43,
+  "remaining_budget": {
+    "evaluations": 157,
+    "evaluator_seconds": 55860.53945074603,
+    "proposals": 157,
+    "tokens": 99080724
+  },
+  "retained": false,
+  "retention_decision": "invalid",
+  "run_id": "tiny-kws-rnn-openevolve-v2-1-cpu-tiny_kws_rnn_source_only_cpu-openevolve-b05-c0",
+  "schema_version": "1.0",
+  "selected_parent_ids": [
+    "a3bc1e8f9a18dd2a8d038893c6ca86dd87844ff3716c0fab9746add45b661b33"
+  ],
+  "timestamp": "2026-09-04T04:35:33.793684+00:00",
+  "usage_cumulative": {
+    "cached_input_tokens": 480256,
+    "input_tokens": 859492,
+    "output_tokens": 59784,
+    "reasoning_output_tokens": 48810,
+    "total_tokens": 919276
+  },
+  "usage_increment": {
+    "cached_input_tokens": 10752,
+    "input_tokens": 20277,
+    "output_tokens": 4091,
+    "reasoning_output_tokens": 3914,
+    "total_tokens": 24368
+  },
+  "visible_candidate_ids": [
+    "a3bc1e8f9a18dd2a8d038893c6ca86dd87844ff3716c0fab9746add45b661b33"
+  ]
+}

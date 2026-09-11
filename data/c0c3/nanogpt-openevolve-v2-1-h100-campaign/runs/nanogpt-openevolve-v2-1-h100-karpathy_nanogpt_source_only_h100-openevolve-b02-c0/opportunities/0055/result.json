@@ -1,0 +1,82 @@
+{
+  "artifact_path": "candidates/6d3d1fb1a160d1c48233037e708ae0426469bb031dae00fae462d3d3c5c1d223",
+  "candidate_id": "6d3d1fb1a160d1c48233037e708ae0426469bb031dae00fae462d3d3c5c1d223",
+  "codex_service_tier": "default",
+  "condition": "C0",
+  "conversation_session_id": null,
+  "evaluation": {
+    "evaluator_calls": 1,
+    "evaluator_seconds": 393.233831971,
+    "failure_kind": null,
+    "fitness": -0.983403,
+    "metrics": {
+      "depth": 8.0,
+      "mfu_percent": 36.08,
+      "num_params_M": 50.3,
+      "num_steps": 1921.0,
+      "peak_vram_mb": 44908.2,
+      "total_tokens_M": 503.6,
+      "training_seconds": 300.1,
+      "val_bpb": 0.983403
+    },
+    "valid": true
+  },
+  "evaluator_calls_cumulative": 54,
+  "evaluator_calls_increment": 1,
+  "evaluator_seconds_cumulative": 19595.70484590606,
+  "evaluator_seconds_increment": 393.233831971,
+  "event": "proposal_completed",
+  "evicted_candidate_id": "1a957435453b673de507d26680878fb2e78cf015c6cfa1cc23349f68cdecad53",
+  "evidence": "Compressing only post-global windows from 424 to 320 improved val_bpb from 0.983635 to 0.983497 and increased tokens from 506.2M to 510.1M, whereas compressing early layers instead regressed to 0.984264; this motivates testing whether later local context can be reduced further.",
+  "hypothesis": "Reducing post-global local-attention windows from 320 to 256 tokens will lower val_bpb below 0.983497 by increasing training throughput while the depth-4 global layer already supplies long-range context.",
+  "incumbent_after": "6d3d1fb1a160d1c48233037e708ae0426469bb031dae00fae462d3d3c5c1d223",
+  "intended_edit": "Keep the first three local layers at 424 tokens and both global layers unchanged, while shortening the three local layers after the first global layer to 256 tokens.",
+  "mechanism": "Stronger post-global attention-window compression",
+  "opportunity": 55,
+  "parent_ids": [
+    "1a957435453b673de507d26680878fb2e78cf015c6cfa1cc23349f68cdecad53"
+  ],
+  "portfolio_after": [
+    "6d3d1fb1a160d1c48233037e708ae0426469bb031dae00fae462d3d3c5c1d223"
+  ],
+  "prompt_hashes": {
+    "common_template_sha256": "ba85b39aa7288f4f48475376da6cff65661f39cfeb7ac7cde15b2a9a2e692fde",
+    "prompt_sha256": "9ebca8a9f3140262f1dbd454369475847f9138736a38ef2d1519d8625553cd2f",
+    "proposal_policy_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "search_state_sha256": "04e5eb078ae1964e4ec65bfeeeb1acd0ffa246e7d54d5e0f997f81f602da28c5",
+    "treatment_skeleton_sha256": "af4cc58ac5b2dea732ee77416fdbc666017e1dadc025d6fbd01adb3c29b79111"
+  },
+  "proposal_type": "ordinary",
+  "proposals_cumulative": 55,
+  "remaining_budget": {
+    "evaluations": 146,
+    "evaluator_seconds": 700404.295154094,
+    "proposals": 145,
+    "tokens": 98596488
+  },
+  "retained": true,
+  "retention_decision": "strict_incumbent_improvement",
+  "run_id": "nanogpt-openevolve-v2-1-h100-karpathy_nanogpt_source_only_h100-openevolve-b02-c0",
+  "schema_version": "1.0",
+  "selected_parent_ids": [
+    "1a957435453b673de507d26680878fb2e78cf015c6cfa1cc23349f68cdecad53"
+  ],
+  "timestamp": "2026-08-24T13:48:55.583902+00:00",
+  "usage_cumulative": {
+    "cached_input_tokens": 609024,
+    "input_tokens": 1317504,
+    "output_tokens": 86008,
+    "reasoning_output_tokens": 73159,
+    "total_tokens": 1403512
+  },
+  "usage_increment": {
+    "cached_input_tokens": 12032,
+    "input_tokens": 24490,
+    "output_tokens": 699,
+    "reasoning_output_tokens": 490,
+    "total_tokens": 25189
+  },
+  "visible_candidate_ids": [
+    "1a957435453b673de507d26680878fb2e78cf015c6cfa1cc23349f68cdecad53"
+  ]
+}

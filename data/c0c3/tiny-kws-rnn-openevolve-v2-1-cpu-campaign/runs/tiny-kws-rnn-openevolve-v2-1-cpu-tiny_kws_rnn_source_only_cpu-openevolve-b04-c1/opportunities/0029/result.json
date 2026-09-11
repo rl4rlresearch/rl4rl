@@ -1,0 +1,99 @@
+{
+  "artifact_path": "candidates/8c61bdc7f38c1ef37da82644b0bb8179b7ccfa41869f5b7ba1fd3830651953fd",
+  "candidate_id": "8c61bdc7f38c1ef37da82644b0bb8179b7ccfa41869f5b7ba1fd3830651953fd",
+  "codex_service_tier": "default",
+  "condition": "C1",
+  "conversation_session_id": null,
+  "evaluation": {
+    "evaluator_calls": 1,
+    "evaluator_seconds": 59.92409895802848,
+    "failure_kind": null,
+    "fitness": -1621427965471528900,
+    "metrics": {
+      "batch_size": 128,
+      "evaluation_cases": 815,
+      "evaluation_split": "public_speaker_disjoint_validation",
+      "examples_processed": 50000,
+      "inference_cost": 1621427965471528900,
+      "maximum_recurrent_steps": 28,
+      "mean_recurrent_steps": 28.0,
+      "median_recurrent_steps": 28,
+      "optimizer_steps": 397,
+      "p95_recurrent_steps": 28,
+      "parameters": 15360,
+      "peak_hidden_elements": 89600,
+      "recurrent_logit_effect": 0.09453175216913223,
+      "recurrent_macs": 309713040,
+      "recurrent_steps": 22820,
+      "state_dependence_effect": 0.32782500982284546,
+      "state_update_effect": 0.35305407643318176,
+      "total_inference_macs": 310847520,
+      "trained_recurrent_logit_effect": 0.6589226126670837,
+      "trained_state_dependence_effect": 0.3758239150047302,
+      "trained_state_update_effect": 0.4179469048976898,
+      "training_seconds": 42.28234770800918,
+      "validation_accuracy": 0.8699386503067484,
+      "validation_correct": 709,
+      "validation_cross_entropy": 0.42989435488460986
+    },
+    "valid": true
+  },
+  "evaluator_calls_cumulative": 29,
+  "evaluator_calls_increment": 1,
+  "evaluator_seconds_cumulative": 3420.2359130410478,
+  "evaluator_seconds_increment": 59.92409895802848,
+  "event": "proposal_completed",
+  "evicted_candidate_id": "063350ba2dd304d74ec0f3c39f897aaa1bc1391a83a2fbc2369dfcdee81f6d94",
+  "evidence": "The central 30-step model achieved 85.77% accuracy and the 29-step model achieved 85.64%; both passed, indicating that boundary-frame pruning has preserved accuracy so far and motivating the complementary boundary removal.",
+  "hypothesis": "Processing the 28 contiguous central frames (indices 2\u201329) will retain at least 85% validation accuracy while reducing recurrent steps and dense MACs by approximately 3.4% versus the verified 29-step model.",
+  "incumbent_after": "8c61bdc7f38c1ef37da82644b0bb8179b7ccfa41869f5b7ba1fd3830651953fd",
+  "intended_edit": "Reduce the causal schedule from 29 to 28 steps, removing the latest remaining boundary frame while preserving the 58-unit GRU, temporal pooling, and training procedure.",
+  "mechanism": "Symmetric boundary-frame temporal pruning",
+  "opportunity": 29,
+  "parent_ids": [
+    "063350ba2dd304d74ec0f3c39f897aaa1bc1391a83a2fbc2369dfcdee81f6d94"
+  ],
+  "portfolio_after": [
+    "8c61bdc7f38c1ef37da82644b0bb8179b7ccfa41869f5b7ba1fd3830651953fd"
+  ],
+  "prompt_hashes": {
+    "common_template_sha256": "dee04faf4c430276c1036ba97f5705a339857dbdf19117dac88952a5a3a47e9d",
+    "prompt_sha256": "87be8d1fc7d0c52c5b171778dcf54337194bc84288f54d0d4d048afcecea8763",
+    "proposal_policy_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "search_state_sha256": "04e5eb078ae1964e4ec65bfeeeb1acd0ffa246e7d54d5e0f997f81f602da28c5",
+    "treatment_skeleton_sha256": "97e92d1a099d0ce699548929644db9a90d28af74957c86bebd106f1c385a0011"
+  },
+  "proposal_type": "ordinary",
+  "proposals_cumulative": 29,
+  "remaining_budget": {
+    "evaluations": 171,
+    "evaluator_seconds": 56579.76408695895,
+    "proposals": 171,
+    "tokens": 99398999
+  },
+  "retained": true,
+  "retention_decision": "strict_incumbent_improvement",
+  "run_id": "tiny-kws-rnn-openevolve-v2-1-cpu-tiny_kws_rnn_source_only_cpu-openevolve-b04-c1",
+  "schema_version": "1.0",
+  "selected_parent_ids": [
+    "063350ba2dd304d74ec0f3c39f897aaa1bc1391a83a2fbc2369dfcdee81f6d94"
+  ],
+  "timestamp": "2026-09-04T04:00:30.701655+00:00",
+  "usage_cumulative": {
+    "cached_input_tokens": 311808,
+    "input_tokens": 565583,
+    "output_tokens": 35418,
+    "reasoning_output_tokens": 23895,
+    "total_tokens": 601001
+  },
+  "usage_increment": {
+    "cached_input_tokens": 10752,
+    "input_tokens": 20417,
+    "output_tokens": 471,
+    "reasoning_output_tokens": 289,
+    "total_tokens": 20888
+  },
+  "visible_candidate_ids": [
+    "063350ba2dd304d74ec0f3c39f897aaa1bc1391a83a2fbc2369dfcdee81f6d94"
+  ]
+}

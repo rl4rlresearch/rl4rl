@@ -1,0 +1,185 @@
+# Optimize a transformer for 10-digit addition
+
+You are an autonomous ML engineer improving the source code for an
+autoregressive transformer that adds two 10-digit numbers.
+
+## Goal
+
+Minimize the actual number of deduplicated learned model parameters while
+maintaining at least 99% accuracy under the fixed verification process. A
+smaller implementation is useful only when it meets that accuracy requirement.
+Every submitted implementation is trained from a fresh initialization.
+
+## Learned-model requirement
+
+Produce a smaller trained autoregressive transformer, not a hand-coded addition
+program. The submitted implementation must:
+
+- have nonzero trainable parameters;
+- contain and use at least one learned causal self-attention module;
+- map token inputs to token logits through the learned model;
+- train from a fresh initialization during verification;
+- write both `checkpoints/best.pt` and a positive-step `checkpoints/last.pt`;
+- keep source code unchanged while training; and
+- use the protected generic decoding interface exactly as supplied.
+
+Do not implement or embed decimal arithmetic, carry propagation, place-value
+rules, digit lookup tables, finite-state addition transitions, fixed answer
+rules, or input-dependent Python logic that directly computes the sum. Do not
+hide such a solver in model generation, token processing, training, or saved
+weights. Do not add dummy or zero-length parameters to disguise a fixed
+algorithm as a learned model.
+
+Do not modify protected files. Do not perform post-training state-dictionary
+surgery, substitute a different saved model, truncate weights after training,
+or report a parameter count that differs from the submitted model.
+
+## Work boundaries
+
+Minimize parameters. Required result: accuracy >= 0.99.
+Editable source files: src/model.py, src/train.py.
+Results reported after each verification: accuracy, parameters, training_steps.
+
+Propose changes through exact SEARCH/REPLACE blocks. The patching interface applies them to the supplied editable source.
+
+The editable source and any reference source are included below. Do not access
+parent directories, home directories, shared temporary directories, global
+session history, online sources, or any surrounding repository. Do not run
+training or verification yourself and do not generate hidden alternatives.
+Return one patch for one implementation; verification happens after you finish.
+
+## Available designs
+
+The current editable design is provided. No reference design is available.
+
+CURRENT DESIGN
+verified_results: {"accuracy": 0.9913, "parameters": 1577, "training_steps": 4999}
+prior_hypothesis: Fixing `qkv.weight[7,0]` at 0.02 with reciprocal scaling of head-1 key row 7 will produce a 1577-parameter model with at least 99% accuracy; this tests whether the failed fourth head-0 anchor was head-specific rather than a general four-anchor limit.
+
+## Recent verification evidence
+
+RECENT RESULT
+hypothesis: Fixing `qkv.weight[0,2]` alongside `qkv.weight[0,0]` will reduce the model to 1584 parameters while retaining at least 99% accuracy, because a query-basis covector can be oriented orthogonally to two input-column vectors without suppressing a second query coordinate.
+change: Reconstruct flattened QKV weights 0 and 2 as zeros while learning the other 190 weights and preserving ordinary initialization random-number consumption.
+mechanism: Two-column query-row gauge anchoring
+evidence_used: The first query anchor achieved 99.55% at 1585 parameters, whereas anchoring a second query coordinate on the same input column reached only 97.17%; anchoring a second input column on the already-constrained query coordinate tests a distinct gauge layout, and input coordinate 2 has already tolerated a fixed first-LayerNorm gain.
+result: met the accuracy requirement and became an available design
+reported_values: {"accuracy": 1.0, "parameters": 1584, "training_steps": 4999}
+
+RECENT RESULT
+hypothesis: Fixing `qkv.weight[0,4]` alongside `qkv.weight[0,0]` and `qkv.weight[0,2]` will reduce the model to 1583 parameters while retaining at least 99% accuracy, because a four-dimensional query-basis covector can be oriented orthogonally to three input-column vectors.
+change: Store 189 learned QKV weights, reconstruct flattened QKV weights 0, 2, and 4 as zeros, and preserve ordinary initialization random-number consumption.
+mechanism: Third same-row query-basis gauge anchor
+evidence_used: Anchoring weights 0 and 2 in the same query row achieved 100% accuracy at 1584 parameters, whereas anchoring a second query coordinate on input column 0 reached only 97.17%; extending the successful same-row layout to coordinate 4 is the most direct capacity test.
+result: did not meet the accuracy requirement
+reported_values: {"accuracy": 0.4131, "parameters": 1583, "training_steps": 4999}
+
+RECENT RESULT
+hypothesis: Fixing `qkv.weight[4,0]` in the previously unconstrained second attention head will reduce the model to 1583 parameters while retaining at least 99% accuracy, because each head has an independent query-key basis gauge and the unsuccessful anchors constrained additional structure within the first head.
+change: Store 189 learned QKV weights and reconstruct flattened weights 0, 2, and 32 as zeros while preserving ordinary initialization random-number consumption.
+mechanism: Independent-head query-basis gauge anchoring
+evidence_used: Anchoring weights 0 and 2 in head 0 achieved 100% accuracy, whereas anchoring row 1 of that same head reached 97.17% and adding a third same-row constraint reached 41.31%; testing the untouched head isolates an independent gauge redundancy.
+result: did not meet the accuracy requirement
+reported_values: {"accuracy": 0.7390000000000001, "parameters": 1583, "training_steps": 4999}
+
+RECENT RESULT
+hypothesis: Reducing the model to 1583 parameters by fixing `qkv.weight[0,4]` will retain at least 99% accuracy when initialization orthogonally transforms both head-0 query and key bases, preserving their initial attention scores instead of simply deleting a random query coefficient.
+change: Fix flattened QKV weights 0, 2, and 4, store the remaining 189 weights, and initialize the constrained head through a joint orthogonal query-key basis transformation.
+mechanism: Function-preserving third query-basis gauge anchor
+evidence_used: The two-anchor layout at weights 0 and 2 achieved 100% accuracy, while naively adding weight 4 fell to 41.31%; preserving the unconstrained initialization’s attention function directly tests whether that failure arose from the uncompensated initialization disturbance rather than the gauge constraint itself.
+result: did not meet the accuracy requirement
+reported_values: {"accuracy": 0.7356, "parameters": 1583, "training_steps": 4999}
+
+RECENT RESULT
+hypothesis: Fixing `qkv.weight[0,4]` at 0.02 while inversely rescaling head-0 key row 0 will reduce the model to 1583 parameters and retain at least 99% accuracy, because this consumes the remaining query-key scale gauge without eliminating another query input direction.
+change: Store 189 learned QKV weights, reconstruct weights 0 and 2 as zeros and weight 4 as 0.02, and initialize the corresponding query/key rows with reciprocal scaling that preserves the successful 1584-parameter model’s initial attention scores.
+mechanism: Nonzero query-key scale-gauge anchoring
+evidence_used: The two-zero layout reached 100% at 1584 parameters, whereas making weight 4 a third zero reached 41.31% and function-preserving orthogonal initialization only recovered 73.56%. A nonzero anchor preserves weight 4’s contribution while using scale rather than another directional constraint.
+result: met the accuracy requirement and became an available design
+reported_values: {"accuracy": 0.9979, "parameters": 1583, "training_steps": 4999}
+
+RECENT RESULT
+hypothesis: Fixing `qkv.weight[1,0]` at 0.02 with reciprocal scaling of head-0 key row 1 will reduce the model to 1582 parameters while retaining at least 99% accuracy, because it preserves initial attention scores without eliminating the query direction that the prior zero anchor removed.
+change: Store 188 learned QKV weights, reconstruct weights 0 and 2 as zero and weights 4 and 8 as 0.02, then initialize query/key row 1 with reciprocal scaling.
+mechanism: Second nonzero query–key scale-gauge anchor
+evidence_used: The nonzero scale anchor at `qkv.weight[0,4]` achieved 99.79% at 1583 parameters, whereas making that coefficient zero achieved 41.31%; similarly, zeroing `qkv.weight[1,0]` reached only 97.17%, motivating a function-preserving nonzero anchor instead.
+result: met the accuracy requirement and became an available design
+reported_values: {"accuracy": 0.9993000000000001, "parameters": 1582, "training_steps": 4999}
+
+RECENT RESULT
+hypothesis: Fixing `qkv.weight[2,0]` at 0.02 with reciprocal scaling of head-0 key row 2 will reduce the model to 1581 parameters while retaining at least 99% accuracy, because it preserves initial attention scores and extends the scale-gauge mechanism that succeeded for query rows 0 and 1.
+change: Store 187 learned QKV weights, reconstruct weights 0 and 2 as zero and weights 4, 8, and 16 as 0.02, then initialize query row 2 and key row 10 with reciprocal scaling.
+mechanism: Third nonzero query–key scale-gauge anchor
+evidence_used: Nonzero scale anchoring at weight 4 achieved 99.79% with 1583 parameters, and adding the same function-preserving mechanism at weight 8 achieved 99.93% with 1582 parameters; applying it to the next head-0 query/key coordinate is the most direct test of another independent scale redundancy.
+result: met the accuracy requirement and became an available design
+reported_values: {"accuracy": 0.9986, "parameters": 1581, "training_steps": 4999}
+
+RECENT RESULT
+hypothesis: Fixing `qkv.weight[3,0]` at 0.02 with reciprocal scaling of head-0 key row 3 will reduce the model to 1580 parameters while retaining at least 99% accuracy, because it uses the fourth independent coordinate-scale gauge in the same head whose first three nonzero anchors all passed verification.
+change: Store 186 learned QKV weights, reconstruct weights 0 and 2 as zero and weights 4, 8, 16, and 24 as 0.02, then initialize query row 3 and key row 11 with reciprocal scaling.
+mechanism: Fourth query–key coordinate scale-gauge anchor
+evidence_used: The successive nonzero anchors at query rows 0, 1, and 2 achieved 99.79%, 99.93%, and 99.86% respectively while reducing the model from 1583 to 1581 parameters; applying the identical function-preserving mechanism to the remaining head-0 coordinate is the most direct next reduction.
+result: did not meet the accuracy requirement
+reported_values: {"accuracy": 0.7161, "parameters": 1580, "training_steps": 4999}
+
+RECENT RESULT
+hypothesis: Fixing `qkv.weight[4,0]` at 0.02 with reciprocal scaling of head-1 key row 4 will reduce the model to 1580 parameters while retaining at least 99% accuracy, because it preserves initial attention scores and uses an independent head’s coordinate-scale gauge rather than the head-0 coordinate whose fourth anchor failed.
+change: Store 186 learned QKV weights, reconstruct weights 0 and 2 as zero and weights 4, 8, 16, and 32 as 0.02, then initialize query row 4 and key row 12 with reciprocal scaling.
+mechanism: Independent-head nonzero query–key scale-gauge anchor
+evidence_used: Three successive nonzero head-0 scale anchors passed at 99.79%, 99.93%, and 99.86%, while a zero anchor in head 1 reached only 73.90%; testing a function-preserving nonzero anchor in that independent head directly distinguishes loss of the query coefficient from head-specific optimization sensitivity.
+result: met the accuracy requirement and became an available design
+reported_values: {"accuracy": 0.9995, "parameters": 1580, "training_steps": 4999}
+
+RECENT RESULT
+hypothesis: Fixing `qkv.weight[5,0]` at 0.02 with reciprocal scaling of head-1 key row 5 will reduce the model to 1579 parameters while retaining at least 99% accuracy, because the first function-preserving nonzero scale anchor in head 1 achieved 99.95% and this applies the same gauge mechanism to its next coordinate.
+change: Store 185 learned QKV weights, reconstruct weights 0 and 2 as zero and weights 4, 8, 16, 32, and 40 as 0.02, then initialize query row 5 and key row 13 with reciprocal scaling.
+mechanism: Second head-1 query–key coordinate scale-gauge anchor
+evidence_used: The head-1 nonzero anchor at `qkv.weight[4,0]` met the requirement with 99.95% accuracy and 1580 parameters, whereas a zero anchor in that head reached only 73.90%; extending the successful function-preserving scale anchor is the most informative next reduction.
+result: met the accuracy requirement and became an available design
+reported_values: {"accuracy": 0.9989, "parameters": 1579, "training_steps": 4999}
+
+RECENT RESULT
+hypothesis: Fixing `qkv.weight[6,0]` at 0.02 with reciprocal scaling of head-1 key row 6 will reduce the model to 1578 parameters while retaining at least 99% accuracy, because the first two function-preserving scale anchors in head 1 achieved 99.95% and 99.89%.
+change: Store 184 learned QKV weights, reconstruct weights 0 and 2 as zero and weights 4, 8, 16, 32, 40, and 48 as 0.02, then initialize query row 6 and key row 14 with reciprocal scaling.
+mechanism: Third head-1 query–key coordinate scale-gauge anchor
+evidence_used: Adding the second head-1 nonzero scale anchor reduced the model to 1579 parameters while achieving 99.89%; extending the same initialization-preserving gauge mechanism to the next coordinate is the most direct capacity test.
+result: met the accuracy requirement and became an available design
+reported_values: {"accuracy": 0.9994, "parameters": 1578, "training_steps": 4999}
+
+RECENT RESULT
+hypothesis: Fixing `qkv.weight[7,0]` at 0.02 with reciprocal scaling of head-1 key row 7 will produce a 1577-parameter model with at least 99% accuracy; this tests whether the failed fourth head-0 anchor was head-specific rather than a general four-anchor limit.
+change: Store 183 learned QKV weights, reconstruct weights 0 and 2 as zero and weights 4, 8, 16, 32, 40, 48, and 56 as 0.02, and initialize query row 7 and key row 15 with reciprocal scaling.
+mechanism: Fourth head-1 query–key coordinate scale-gauge anchor
+evidence_used: Three successive head-1 scale anchors achieved 99.95%, 99.89%, and 99.94%, while the fourth head-0 anchor achieved only 71.61%; applying the same fourth-coordinate test to head 1 directly distinguishes head-specific sensitivity from scale-gauge saturation.
+result: met the accuracy requirement and became an available design
+reported_values: {"accuracy": 0.9913, "parameters": 1577, "training_steps": 4999}
+
+
+
+Use the available technical evidence to choose the most informative next
+change. Treat unsuccessful or malformed work as evidence when a useful
+subject-level reason is provided. Do not invent missing evidence.
+
+## Response
+
+Return these short metadata lines followed by one or more exact
+`SEARCH`/`REPLACE` blocks that together produce one implementation:
+
+`MECHANISM: <a concise free-form name for the computational idea>`
+
+`HYPOTHESIS: <a falsifiable claim grounded in the evidence above>`
+
+`INTENDED_EDIT: <what this patch changes>`
+
+`EVIDENCE: <the most relevant prior result and why it motivates this patch>`
+
+Start each block with `<<<<<<< SEARCH`, put the exact existing lines next, use a
+line containing `=======` as the divider, put the replacement lines after it,
+and finish the block with `>>>>>>> REPLACE`.
+
+Every `SEARCH` section must be nonempty and match exactly once after earlier
+blocks have been applied. All blocks must apply. They may edit either or both
+editable files, but together they must describe one implementation ready for
+verification. The mechanism name is descriptive, not chosen from a fixed list.
+Do not paste whole files, lengthy logs, or routine progress reports outside the
+patch.

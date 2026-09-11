@@ -1,0 +1,82 @@
+{
+  "artifact_path": "candidates/be65d07f39f3d69a2f17af04e29de44ef6da70cd724f1ca2be2690b3992149da",
+  "candidate_id": "be65d07f39f3d69a2f17af04e29de44ef6da70cd724f1ca2be2690b3992149da",
+  "codex_service_tier": "fast",
+  "condition": "C0",
+  "conversation_session_id": null,
+  "evaluation": {
+    "evaluator_calls": 1,
+    "evaluator_seconds": 362.47307252500013,
+    "failure_kind": null,
+    "fitness": -0.986873,
+    "metrics": {
+      "depth": 8.0,
+      "mfu_percent": 38.3,
+      "num_params_M": 50.3,
+      "num_steps": 2429.0,
+      "peak_vram_mb": 33806.7,
+      "total_tokens_M": 477.6,
+      "training_seconds": 300.0,
+      "val_bpb": 0.986873
+    },
+    "valid": true
+  },
+  "evaluator_calls_cumulative": 11,
+  "evaluator_calls_increment": 1,
+  "evaluator_seconds_cumulative": 9379.33587481892,
+  "evaluator_seconds_increment": 362.47307252500013,
+  "event": "proposal_completed",
+  "evicted_candidate_id": null,
+  "evidence": "Shortening warmdown to 40% regressed `val_bpb` from `0.986636` to `0.988601` with essentially unchanged throughput, providing directional evidence that the best 96-sequence design benefits from more\u2014not less\u2014annealing.",
+  "hypothesis": "Extending warmdown from 50% to 60% of training will achieve `val_bpb < 0.986636` by improving late-stage convergence without changing throughput or model capacity.",
+  "incumbent_after": "bf6ebaac3fac73e8785bcfb3207309a75749488997e42bd5f846e5c073ac252c",
+  "intended_edit": "Increase `WARMDOWN_RATIO` from `0.5` to `0.6`, starting linear decay at 40% of the fixed training window.",
+  "mechanism": "Earlier linear learning-rate annealing",
+  "opportunity": 11,
+  "parent_ids": [
+    "bf6ebaac3fac73e8785bcfb3207309a75749488997e42bd5f846e5c073ac252c"
+  ],
+  "portfolio_after": [
+    "bf6ebaac3fac73e8785bcfb3207309a75749488997e42bd5f846e5c073ac252c"
+  ],
+  "prompt_hashes": {
+    "common_template_sha256": "ba85b39aa7288f4f48475376da6cff65661f39cfeb7ac7cde15b2a9a2e692fde",
+    "prompt_sha256": "bd8613b5b12feb494d98fbdb8f1e9dbb82b9ae0d1f1a0edb20c0edc4d1389f01",
+    "proposal_policy_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "search_state_sha256": "04e5eb078ae1964e4ec65bfeeeb1acd0ffa246e7d54d5e0f997f81f602da28c5",
+    "treatment_skeleton_sha256": "602e2e4b89bc4bd0dee414a4e9a8338e90a65c3d23ee680d1e5165ad38b1a6be"
+  },
+  "proposal_type": "ordinary",
+  "proposals_cumulative": 11,
+  "remaining_budget": {
+    "evaluations": 189,
+    "evaluator_seconds": 710620.664125181,
+    "proposals": 189,
+    "tokens": 99719405
+  },
+  "retained": false,
+  "retention_decision": "not_strictly_better_than_incumbent",
+  "run_id": "nanogpt-openevolve-v2-1-h100-karpathy_nanogpt_source_only_h100-openevolve-b03-c0",
+  "schema_version": "1.0",
+  "selected_parent_ids": [
+    "bf6ebaac3fac73e8785bcfb3207309a75749488997e42bd5f846e5c073ac252c"
+  ],
+  "timestamp": "2026-08-23T20:35:38.804729+00:00",
+  "usage_cumulative": {
+    "cached_input_tokens": 127232,
+    "input_tokens": 253962,
+    "output_tokens": 26633,
+    "reasoning_output_tokens": 24157,
+    "total_tokens": 280595
+  },
+  "usage_increment": {
+    "cached_input_tokens": 12032,
+    "input_tokens": 24174,
+    "output_tokens": 555,
+    "reasoning_output_tokens": 353,
+    "total_tokens": 24729
+  },
+  "visible_candidate_ids": [
+    "bf6ebaac3fac73e8785bcfb3207309a75749488997e42bd5f846e5c073ac252c"
+  ]
+}

@@ -1,0 +1,79 @@
+{
+  "artifact_path": "candidates/657f02a57711033a66023ae9497ec6f1bfbee9f4b452a6db29f5fa110150fb42",
+  "candidate_id": "657f02a57711033a66023ae9497ec6f1bfbee9f4b452a6db29f5fa110150fb42",
+  "codex_service_tier": "default",
+  "condition": "C0",
+  "conversation_session_id": null,
+  "evaluation": {
+    "evaluator_calls": 1,
+    "evaluator_seconds": 352.4705774160102,
+    "failure_kind": "nonqualification",
+    "fitness": null,
+    "metrics": {
+      "accuracy": 0.732,
+      "cases": 10010,
+      "correct": 7327,
+      "parameters": 1612,
+      "training_steps": 4999
+    },
+    "valid": false
+  },
+  "evaluator_calls_cumulative": 74,
+  "evaluator_calls_increment": 1,
+  "evaluator_seconds_cumulative": 40657.32291811996,
+  "evaluator_seconds_increment": 352.4705774160102,
+  "event": "proposal_completed",
+  "evicted_candidate_id": null,
+  "evidence": "Successive LayerNorm-2 bias reductions reached 99.96% at 1613 parameters; coordinate 6 is an untested retained coordinate that avoids feature 5\u2019s empirically essential value-bias pathway and feature 7\u2019s use as the embedding and QKV gauge anchor.",
+  "hypothesis": "Fixing second-LayerNorm bias coordinate 6 will reduce the model from 1613 to 1612 parameters while retaining at least 99% accuracy, because its constant contribution can be absorbed by `fc1.bias`.",
+  "incumbent_after": "debab8c19269a100dde6eb9d2a100c4ffbc71520eac3bcaa962211d924665b24",
+  "intended_edit": "Remove LayerNorm-2 bias coordinate 6 alongside coordinates 0, 2, 3, and 4, reconstructing all five as zeros during forward passes.",
+  "mechanism": "Fifth LayerNorm-bias/downstream-affine gauge at coordinate 6",
+  "opportunity": 75,
+  "parent_ids": [
+    "debab8c19269a100dde6eb9d2a100c4ffbc71520eac3bcaa962211d924665b24"
+  ],
+  "portfolio_after": [
+    "debab8c19269a100dde6eb9d2a100c4ffbc71520eac3bcaa962211d924665b24"
+  ],
+  "prompt_hashes": {
+    "common_template_sha256": "3f2bea6418b6969c4bf2aa1df18dcda8a3a4ac075bf20c79068c754698b6be5e",
+    "prompt_sha256": "ac88a2ed70e94d2ec0d5b1e03d04ce34ae74048adfc88ed02afb493e8ba5b50c",
+    "proposal_policy_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "search_state_sha256": "04e5eb078ae1964e4ec65bfeeeb1acd0ffa246e7d54d5e0f997f81f602da28c5",
+    "treatment_skeleton_sha256": "b763b82fb851b278342d0d0cb05d057e8485b0fb65e1d27ca2daa4e1630d363d"
+  },
+  "proposal_type": "ordinary",
+  "proposals_cumulative": 75,
+  "remaining_budget": {
+    "evaluations": 126,
+    "evaluator_seconds": 319342.67708188004,
+    "proposals": 125,
+    "tokens": 97875997
+  },
+  "retained": false,
+  "retention_decision": "invalid",
+  "run_id": "controlled-openevolve-transformer-v2-1-source-only-ten-digit-addition-pair-transformer-openevolve-v2-1-mps-openevolve-b05-c0",
+  "schema_version": "1.0",
+  "selected_parent_ids": [
+    "debab8c19269a100dde6eb9d2a100c4ffbc71520eac3bcaa962211d924665b24"
+  ],
+  "timestamp": "2026-08-26T03:07:58.337157+00:00",
+  "usage_cumulative": {
+    "cached_input_tokens": 798720,
+    "input_tokens": 1792600,
+    "output_tokens": 331403,
+    "reasoning_output_tokens": 261034,
+    "total_tokens": 2124003
+  },
+  "usage_increment": {
+    "cached_input_tokens": 6912,
+    "input_tokens": 26578,
+    "output_tokens": 1901,
+    "reasoning_output_tokens": 1231,
+    "total_tokens": 28479
+  },
+  "visible_candidate_ids": [
+    "debab8c19269a100dde6eb9d2a100c4ffbc71520eac3bcaa962211d924665b24"
+  ]
+}

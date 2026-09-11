@@ -1,0 +1,1234 @@
+{
+  "active": {
+    "index": 120,
+    "selected_parent_id": "dd3c357b59bb0327ec8c12e92067c4de852548fe2c3f73583d0560dc0abbf356",
+    "started_at": "2026-09-04T04:46:12.360815+00:00",
+    "transition_active": true,
+    "visible_ids": [
+      "dd3c357b59bb0327ec8c12e92067c4de852548fe2c3f73583d0560dc0abbf356"
+    ]
+  },
+  "candidates": {
+    "011cfe37c5bb024318afd61e9c5fd405b589f43f3d417957552c9b5cbdc9f5b0": {
+      "artifact_path": "candidates/011cfe37c5bb024318afd61e9c5fd405b589f43f3d417957552c9b5cbdc9f5b0",
+      "candidate_id": "011cfe37c5bb024318afd61e9c5fd405b589f43f3d417957552c9b5cbdc9f5b0",
+      "created_opportunity": 6,
+      "fitness": -1612.0,
+      "hypothesis": "Removing the second LayerNorm\u2019s 16 affine parameters will reduce the model from 1,628 to 1,612 parameters while retaining at least 99% accuracy, because its learned scale and shift can be absorbed exactly into the following MLP input weights and bias.",
+      "intended_edit": "Make the LayerNorm immediately before the MLP non-affine; leave all attention, embeddings, residual width, and MLP capacity unchanged.",
+      "metrics": {
+        "accuracy": 0.9992,
+        "cases": 10010,
+        "correct": 10002,
+        "parameters": 1612,
+        "training_steps": 4999
+      },
+      "parent_ids": [
+        "4bb266c45c95c1a4f8856648e3fce9f5d20ddb90c851a54730657eba0a43a068"
+      ],
+      "retained_order": 6,
+      "selected_count": 1
+    },
+    "0432d1ebb464494548c460f222a7110504acc34967c2bd9cc243f67f6108ae75": {
+      "artifact_path": "candidates/0432d1ebb464494548c460f222a7110504acc34967c2bd9cc243f67f6108ae75",
+      "candidate_id": "0432d1ebb464494548c460f222a7110504acc34967c2bd9cc243f67f6108ae75",
+      "created_opportunity": 88,
+      "fitness": -997.0,
+      "hypothesis": "Sharing the third and fourth effective MLP input coefficients in addition to the successful fifth/sixth pair will reduce the model from 998 to 997 parameters while retaining at least 99% accuracy, because it preserves the first two score-basis coefficients and the reference-sensitive seventh coefficient independently.",
+      "intended_edit": "Store five `fc1` coefficients and reconstruct effective pairs at channels three/four and five/six, while preserving constructor and initialization RNG streams.",
+      "metrics": {
+        "accuracy": 0.9995999999999999,
+        "cases": 10010,
+        "correct": 10006,
+        "parameters": 997,
+        "training_steps": 4999
+      },
+      "parent_ids": [
+        "c3743b359b2b0dbef6fe32eec0b8adecfe4442dcd1d9cf0e08e06f5d726762b8"
+      ],
+      "retained_order": 88,
+      "selected_count": 1
+    },
+    "05249880814dbfc3f42dc095bebd773aa8df9c61d1df10fde7d6694a4c7a4653": {
+      "artifact_path": "candidates/05249880814dbfc3f42dc095bebd773aa8df9c61d1df10fde7d6694a4c7a4653",
+      "candidate_id": "05249880814dbfc3f42dc095bebd773aa8df9c61d1df10fde7d6694a4c7a4653",
+      "created_opportunity": 92,
+      "fitness": -989.0,
+      "hypothesis": "Fixing the second tail coefficient of head 1\u2019s first key channel will reduce the model from 990 to 989 parameters while retaining at least 99% accuracy, because fixing its adjacent leading coefficient achieved 99.97% without reducing the proven two-dimensional attention score rank.",
+      "intended_edit": "Omit the first two tail coefficients from head 1\u2019s first key channel, reconstruct them as zeros, and project the virtual optimizer state onto this extended constraint after every update.",
+      "metrics": {
+        "accuracy": 0.9998,
+        "cases": 10010,
+        "correct": 10008,
+        "parameters": 989,
+        "training_steps": 4999
+      },
+      "parent_ids": [
+        "e85f49c404744a12e02d01b3d5d9ae77dd7736d5cfda44016a4bc7a7728af747"
+      ],
+      "retained_order": 92,
+      "selected_count": 4
+    },
+    "11bd948a74d8b328426c2eb2a37a69bb1147d7bcf20a5781f1532c5ece32b688": {
+      "artifact_path": "candidates/11bd948a74d8b328426c2eb2a37a69bb1147d7bcf20a5781f1532c5ece32b688",
+      "candidate_id": "11bd948a74d8b328426c2eb2a37a69bb1147d7bcf20a5781f1532c5ece32b688",
+      "created_opportunity": 31,
+      "fitness": -1283.0,
+      "hypothesis": "Fixing one common-mode coordinate of the final LayerNorm bias will reduce the model from 1,284 to 1,283 parameters while retaining at least 99% accuracy, because the centered tied classifier exactly annihilates uniform hidden-state shifts.",
+      "intended_edit": "Store seven final-LayerNorm bias differences, reconstruct an eighth zero reference coordinate during inference, and preserve full-width AdamW moments through the existing quotient optimizer.",
+      "metrics": {
+        "accuracy": 0.9993000000000001,
+        "cases": 10010,
+        "correct": 10003,
+        "parameters": 1283,
+        "training_steps": 4999
+      },
+      "parent_ids": [
+        "289aa3c75fc6e696fff563a7e396ddff42b4e917fc3a2ef9829be17db237b9f8"
+      ],
+      "retained_order": 31,
+      "selected_count": 1
+    },
+    "12b61f04aa2d633fdd6e552f8a5242bf8270d2d86b9826ef6ff827e997429c5d": {
+      "artifact_path": "candidates/12b61f04aa2d633fdd6e552f8a5242bf8270d2d86b9826ef6ff827e997429c5d",
+      "candidate_id": "12b61f04aa2d633fdd6e552f8a5242bf8270d2d86b9826ef6ff827e997429c5d",
+      "created_opportunity": 3,
+      "fitness": -1636.0,
+      "hypothesis": "Removing only the attention key bias will preserve at least 99% accuracy while reducing parameters from 1,644 to 1,636, because a shared key bias adds the same score offset to every visible key and therefore cancels exactly in the attention softmax.",
+      "intended_edit": "Replace the fused QKV bias with learned query and value biases, leaving keys unbiased while preserving the attention computation and residual width.",
+      "metrics": {
+        "accuracy": 0.9939,
+        "cases": 10010,
+        "correct": 9949,
+        "parameters": 1636,
+        "training_steps": 4999
+      },
+      "parent_ids": [
+        "2b9cea175ed60b009337ac54f6e8ad23bf2c014eb4080237777bfb70bfd9fd5b"
+      ],
+      "retained_order": 3,
+      "selected_count": 2
+    },
+    "154dea352b04a38e049f31f8ceb2a26c9840f01fb6fd5daf284718025b4c253f": {
+      "artifact_path": "candidates/154dea352b04a38e049f31f8ceb2a26c9840f01fb6fd5daf284718025b4c253f",
+      "candidate_id": "154dea352b04a38e049f31f8ceb2a26c9840f01fb6fd5daf284718025b4c253f",
+      "created_opportunity": 51,
+      "fitness": -1046.0,
+      "hypothesis": "Removing the seven-parameter MLP residual bias will reduce the model from 1,053 to 1,046 parameters while retaining at least 99% accuracy, because the width-1 model achieved 100% and the failed bias-only limit indicates the nonlinear neuron\u2014not the standalone bias\u2014is the load-bearing component.",
+      "intended_edit": "Delete the learned residual bias from the final one-neuron MLP while preserving its learned GELU input and output projections.",
+      "metrics": {
+        "accuracy": 0.9995,
+        "cases": 10010,
+        "correct": 10005,
+        "parameters": 1046,
+        "training_steps": 4999
+      },
+      "parent_ids": [
+        "736e8f8c94e7baed5520aca51c5c3fc61a3dda3a663f36b0449dd6f32378e95e"
+      ],
+      "retained_order": 51,
+      "selected_count": 4
+    },
+    "245d2df7f54126ef90c40eccf35b5bc95c2df31e988ed264d97e7f90aa5e14f7": {
+      "artifact_path": "candidates/245d2df7f54126ef90c40eccf35b5bc95c2df31e988ed264d97e7f90aa5e14f7",
+      "candidate_id": "245d2df7f54126ef90c40eccf35b5bc95c2df31e988ed264d97e7f90aa5e14f7",
+      "created_opportunity": 108,
+      "fitness": -982.0,
+      "hypothesis": "Tying head 0\u2019s four farthest relative-distance biases will reduce the model from 983 to 982 parameters while retaining at least 99% accuracy, because extending its tied region from two to three distances achieved 99.98% and head 1 already tolerates broader far-distance sharing.",
+      "intended_edit": "Store one fewer head-0 relative-bias parameter and reconstruct its four farthest distances with the shared zero reference.",
+      "metrics": {
+        "accuracy": 0.9997,
+        "cases": 10010,
+        "correct": 10007,
+        "parameters": 982,
+        "training_steps": 4999
+      },
+      "parent_ids": [
+        "646bc223ff444798f98f046e523fc5b4b46f17580b47c50281b051e89d3a14d6"
+      ],
+      "retained_order": 108,
+      "selected_count": 1
+    },
+    "289aa3c75fc6e696fff563a7e396ddff42b4e917fc3a2ef9829be17db237b9f8": {
+      "artifact_path": "candidates/289aa3c75fc6e696fff563a7e396ddff42b4e917fc3a2ef9829be17db237b9f8",
+      "candidate_id": "289aa3c75fc6e696fff563a7e396ddff42b4e917fc3a2ef9829be17db237b9f8",
+      "created_opportunity": 30,
+      "fitness": -1284.0,
+      "hypothesis": "Centering the final hidden state before the tied output projection makes each token embedding\u2019s scalar row offset exactly unobservable, allowing 113 embedding parameters to be removed while the remaining seven-dimensional learned contrasts retain at least 99% accuracy; the resulting model has 1,284 parameters.",
+      "intended_edit": "Store seven within-row embedding differences per token instead of one globally gauge-fixed flattened table, center the learned final representation before computing logits, and preserve full-width AdamW geometry with one virtual reference coordinate per token.",
+      "metrics": {
+        "accuracy": 1.0,
+        "cases": 10010,
+        "correct": 10010,
+        "parameters": 1284,
+        "training_steps": 4999
+      },
+      "parent_ids": [
+        "a58c3f080d8c6136f97be4239fa23cb9809b1f0827f1f762f672194e30bd5efa"
+      ],
+      "retained_order": 30,
+      "selected_count": 1
+    },
+    "2b9cea175ed60b009337ac54f6e8ad23bf2c014eb4080237777bfb70bfd9fd5b": {
+      "artifact_path": "candidates/2b9cea175ed60b009337ac54f6e8ad23bf2c014eb4080237777bfb70bfd9fd5b",
+      "candidate_id": "2b9cea175ed60b009337ac54f6e8ad23bf2c014eb4080237777bfb70bfd9fd5b",
+      "created_opportunity": 0,
+      "fitness": -1644.0,
+      "hypothesis": "frozen seed baseline",
+      "intended_edit": "none",
+      "metrics": {
+        "accuracy": 0.9995999999999999,
+        "cases": 10010,
+        "correct": 10006,
+        "parameters": 1644,
+        "training_steps": 4999
+      },
+      "parent_ids": [],
+      "retained_order": 0,
+      "selected_count": 3
+    },
+    "2f56448ab38ea474c66ccd624521cfe3f2af4653c2aba565814b2c3cbced1452": {
+      "artifact_path": "candidates/2f56448ab38ea474c66ccd624521cfe3f2af4653c2aba565814b2c3cbced1452",
+      "candidate_id": "2f56448ab38ea474c66ccd624521cfe3f2af4653c2aba565814b2c3cbced1452",
+      "created_opportunity": 96,
+      "fitness": -988.0,
+      "hypothesis": "Sharing the final three nonreference LayerNorm bias coordinates will reduce the model from 989 to 988 parameters while retaining at least 99% accuracy, because terminal bias-pair sharing previously achieved 99.98% and this leaves the sensitive attention and MLP coordinates unchanged.",
+      "intended_edit": "Store five rather than six final-LayerNorm bias contrasts and reuse the fifth across the final three nonreference residual channels.",
+      "metrics": {
+        "accuracy": 0.9997,
+        "cases": 10010,
+        "correct": 10007,
+        "parameters": 988,
+        "training_steps": 4999
+      },
+      "parent_ids": [
+        "05249880814dbfc3f42dc095bebd773aa8df9c61d1df10fde7d6694a4c7a4653"
+      ],
+      "retained_order": 96,
+      "selected_count": 1
+    },
+    "37f12df3a91a4ae522366f78205fdc98ca059dfabb716170021bd9ed0b3c96fa": {
+      "artifact_path": "candidates/37f12df3a91a4ae522366f78205fdc98ca059dfabb716170021bd9ed0b3c96fa",
+      "candidate_id": "37f12df3a91a4ae522366f78205fdc98ca059dfabb716170021bd9ed0b3c96fa",
+      "created_opportunity": 47,
+      "fitness": -1068.0,
+      "hypothesis": "Reducing the MLP width from 3 to 2 will lower the model from 1,083 to 1,068 learned parameters while retaining at least 99% accuracy, because nine consecutive one-neuron reductions have met the requirement and the width-3 model achieved 99.94%.",
+      "intended_edit": "Change the default feed-forward width from 3 to 2 while leaving attention, optimization, checkpointing, and protected generation unchanged.",
+      "metrics": {
+        "accuracy": 0.9978,
+        "cases": 10010,
+        "correct": 9988,
+        "parameters": 1068,
+        "training_steps": 4999
+      },
+      "parent_ids": [
+        "8323015c8a03d8c13f69258fe6bb360fe27cba4251840a00ad0433cbdbee237c"
+      ],
+      "retained_order": 47,
+      "selected_count": 1
+    },
+    "3d1e4d5afc9c700ac70c893b68190e54239482a794e83d8b5fbf11eb3799b422": {
+      "artifact_path": "candidates/3d1e4d5afc9c700ac70c893b68190e54239482a794e83d8b5fbf11eb3799b422",
+      "candidate_id": "3d1e4d5afc9c700ac70c893b68190e54239482a794e83d8b5fbf11eb3799b422",
+      "created_opportunity": 36,
+      "fitness": -1218.0,
+      "hypothesis": "Fixing the final LayerNorm\u2019s eighth scale coordinate to one will reduce the model from 1,219 to 1,218 parameters while retaining at least 99% accuracy, because any positive value of that coordinate can be absorbed by globally scaling the tied embedding and residual-branch outputs while inversely scaling the final LayerNorm affine output.",
+      "intended_edit": "Store seven learned final-LayerNorm scale coordinates and reconstruct the eighth as the constant one; leave the protected decoding path and all other learned modules unchanged.",
+      "metrics": {
+        "accuracy": 0.9998999999999999,
+        "cases": 10010,
+        "correct": 10009,
+        "parameters": 1218,
+        "training_steps": 4999
+      },
+      "parent_ids": [
+        "6030db8e3a652ff7c6db68224a8ab5611b919fc60c01ab73219fa6e5cce1631a"
+      ],
+      "retained_order": 36,
+      "selected_count": 1
+    },
+    "480fba7266d702ef137fd4d98817cd39def54fb9a43314bacaa817ee32c2a9ef": {
+      "artifact_path": "candidates/480fba7266d702ef137fd4d98817cd39def54fb9a43314bacaa817ee32c2a9ef",
+      "candidate_id": "480fba7266d702ef137fd4d98817cd39def54fb9a43314bacaa817ee32c2a9ef",
+      "created_opportunity": 70,
+      "fitness": -1022.0,
+      "hypothesis": "Decoupling each attention head\u2019s query/key score rank from four to three will reduce the model from 1,038 to 1,022 parameters while retaining at least 99% accuracy, because positional routing remains independently learned and four-dimensional value transport remains intact.",
+      "intended_edit": "Represent each head\u2019s content-dependent attention scores with three learned query/key factors while preserving four-dimensional values, projections, relative-bias tables, gauge-aware virtual optimization, initialization stream, and decoding behavior.",
+      "metrics": {
+        "accuracy": 0.9984999999999999,
+        "cases": 10010,
+        "correct": 9995,
+        "parameters": 1022,
+        "training_steps": 4999
+      },
+      "parent_ids": [
+        "96faa8d00e29083177a290d87f5b024702a3707ce42c16dd6983ed10a58aee57"
+      ],
+      "retained_order": 70,
+      "selected_count": 1
+    },
+    "484411cba4199cf12ff6b52638e5f7b68912f5683d92b8173d6683ca3dc361a4": {
+      "artifact_path": "candidates/484411cba4199cf12ff6b52638e5f7b68912f5683d92b8173d6683ca3dc361a4",
+      "candidate_id": "484411cba4199cf12ff6b52638e5f7b68912f5683d92b8173d6683ca3dc361a4",
+      "created_opportunity": 21,
+      "fitness": -1447.0,
+      "hypothesis": "Fixing one relative-attention bias per head at zero and training the remaining differences with virtual full-width AdamW moments will reduce the model from 1,449 to 1,447 parameters while retaining at least 99% accuracy.",
+      "intended_edit": "Store 22 relative-distance bias differences per head instead of 23, reconstruct a fixed zero reference bias, and generalize the quotient-aware optimizer to preserve the omitted biases\u2019 gradients and AdamW moments.",
+      "metrics": {
+        "accuracy": 0.9997,
+        "cases": 10010,
+        "correct": 10007,
+        "parameters": 1447,
+        "training_steps": 4999
+      },
+      "parent_ids": [
+        "bebc14f1a475854b1d662a0cfc50ad82465dd9090199c77a6913c1c7608d5c36"
+      ],
+      "retained_order": 21,
+      "selected_count": 1
+    },
+    "4bb266c45c95c1a4f8856648e3fce9f5d20ddb90c851a54730657eba0a43a068": {
+      "artifact_path": "candidates/4bb266c45c95c1a4f8856648e3fce9f5d20ddb90c851a54730657eba0a43a068",
+      "candidate_id": "4bb266c45c95c1a4f8856648e3fce9f5d20ddb90c851a54730657eba0a43a068",
+      "created_opportunity": 5,
+      "fitness": -1628.0,
+      "hypothesis": "Reusing the learned output-projection bias as the attention value bias will reduce parameters from 1,636 to 1,628 while reaching at least 99% accuracy, because it restores the value-bias optimization path without adding an independently learned vector.",
+      "intended_edit": "Replace the independent query/value bias matrix with a query-only bias and use the projection layer\u2019s existing bias as the value bias.",
+      "metrics": {
+        "accuracy": 0.9998999999999999,
+        "cases": 10010,
+        "correct": 10009,
+        "parameters": 1628,
+        "training_steps": 4999
+      },
+      "parent_ids": [
+        "12b61f04aa2d633fdd6e552f8a5242bf8270d2d86b9826ef6ff827e997429c5d"
+      ],
+      "retained_order": 5,
+      "selected_count": 1
+    },
+    "547ccf2eb9101a7c626a2728fff0ccba7e5d847073ee8a0bd7e48f914a685ac2": {
+      "artifact_path": "candidates/547ccf2eb9101a7c626a2728fff0ccba7e5d847073ee8a0bd7e48f914a685ac2",
+      "candidate_id": "547ccf2eb9101a7c626a2728fff0ccba7e5d847073ee8a0bd7e48f914a685ac2",
+      "created_opportunity": 45,
+      "fitness": -1098.0,
+      "hypothesis": "Reducing the MLP width from 5 to 4 will lower the model from 1,113 to 1,098 learned parameters while retaining at least 99% accuracy, because seven consecutive one-neuron reductions have met the requirement and the width-5 model achieved 99.92%.",
+      "intended_edit": "Change the default feed-forward width from 5 to 4 while leaving attention, optimization, checkpointing, and protected generation unchanged.",
+      "metrics": {
+        "accuracy": 0.9995999999999999,
+        "cases": 10010,
+        "correct": 10006,
+        "parameters": 1098,
+        "training_steps": 4999
+      },
+      "parent_ids": [
+        "fcac31c88051f3cc8120bbe59ad9b2ed169e08b49c519479e0dcda7325a91211"
+      ],
+      "retained_order": 45,
+      "selected_count": 1
+    },
+    "5873591efdf8e6cfa167095b7c8e67366026bc1b59d98babe75e598f24f74b2f": {
+      "artifact_path": "candidates/5873591efdf8e6cfa167095b7c8e67366026bc1b59d98babe75e598f24f74b2f",
+      "candidate_id": "5873591efdf8e6cfa167095b7c8e67366026bc1b59d98babe75e598f24f74b2f",
+      "created_opportunity": 61,
+      "fitness": -1041.0,
+      "hypothesis": "Sharing head 1\u2019s fourth-, fifth-, and sixth-farthest learned relative biases will reduce the model from 1,042 to 1,041 parameters while retaining at least 99% accuracy, because sharing the fourth and fifth biases already achieved 99.38%, whereas forcing the fourth-farthest bias to the fixed reference failed.",
+      "intended_edit": "Shorten head 1\u2019s relative-bias parameter by one coordinate and reconstruct its two following boundary biases from the final learned value; leave head 0 and all other behavior unchanged.",
+      "metrics": {
+        "accuracy": 0.9981,
+        "cases": 10010,
+        "correct": 9991,
+        "parameters": 1041,
+        "training_steps": 4999
+      },
+      "parent_ids": [
+        "bba4d7277397e9167bd8525f7b28f2cf8ab92e0b354ffedc749a1a863adf0984"
+      ],
+      "retained_order": 61,
+      "selected_count": 1
+    },
+    "5e0719c81527ccf008b1df1fa3e312223ab6bdf8520cc52098d0e63e9f52b28d": {
+      "artifact_path": "candidates/5e0719c81527ccf008b1df1fa3e312223ab6bdf8520cc52098d0e63e9f52b28d",
+      "candidate_id": "5e0719c81527ccf008b1df1fa3e312223ab6bdf8520cc52098d0e63e9f52b28d",
+      "created_opportunity": 97,
+      "fitness": -987.0,
+      "hypothesis": "Sharing the final four nonreference LayerNorm bias coordinates will reduce the model from 988 to 987 parameters while retaining at least 99% accuracy, because sharing the final three achieved 99.97% and this extends only the same successful isolated constraint.",
+      "intended_edit": "Store four rather than five final-LayerNorm bias contrasts and reuse the fourth across the final four nonreference residual channels.",
+      "metrics": {
+        "accuracy": 0.9998,
+        "cases": 10010,
+        "correct": 10008,
+        "parameters": 987,
+        "training_steps": 4999
+      },
+      "parent_ids": [
+        "2f56448ab38ea474c66ccd624521cfe3f2af4653c2aba565814b2c3cbced1452"
+      ],
+      "retained_order": 97,
+      "selected_count": 1
+    },
+    "5e3746b867818d4a768a3e29db86724faded7131db87ab6834fd4b2df5a2b8bf": {
+      "artifact_path": "candidates/5e3746b867818d4a768a3e29db86724faded7131db87ab6834fd4b2df5a2b8bf",
+      "candidate_id": "5e3746b867818d4a768a3e29db86724faded7131db87ab6834fd4b2df5a2b8bf",
+      "created_opportunity": 98,
+      "fitness": -986.0,
+      "hypothesis": "Sharing the final five nonreference LayerNorm bias coordinates will reduce the model from 987 to 986 parameters while retaining at least 99% accuracy, because the immediately preceding four-way sharing constraint achieved 99.98%.",
+      "intended_edit": "Store three rather than four final-LayerNorm bias contrasts and reuse the third across the final five nonreference residual channels.",
+      "metrics": {
+        "accuracy": 0.9997,
+        "cases": 10010,
+        "correct": 10007,
+        "parameters": 986,
+        "training_steps": 4999
+      },
+      "parent_ids": [
+        "5e0719c81527ccf008b1df1fa3e312223ab6bdf8520cc52098d0e63e9f52b28d"
+      ],
+      "retained_order": 98,
+      "selected_count": 1
+    },
+    "6030db8e3a652ff7c6db68224a8ab5611b919fc60c01ab73219fa6e5cce1631a": {
+      "artifact_path": "candidates/6030db8e3a652ff7c6db68224a8ab5611b919fc60c01ab73219fa6e5cce1631a",
+      "candidate_id": "6030db8e3a652ff7c6db68224a8ab5611b919fc60c01ab73219fa6e5cce1631a",
+      "created_opportunity": 35,
+      "fitness": -1219.0,
+      "hypothesis": "Canonicalizing each head\u2019s value projection while retaining the pre-canonical projection differences and reconstructing their joint virtual gradients will reduce the model from 1,251 to 1,219 parameters while maintaining at least 99% accuracy.",
+      "intended_edit": "Store only each value head\u2019s three-column canonical tail, absorb its learned four-dimensional basis into the corresponding output-projection columns, and update the original virtual value, LayerNorm, projection, and bias parameters before recanonicalizing after every optimizer step.",
+      "metrics": {
+        "accuracy": 0.9997,
+        "cases": 10010,
+        "correct": 10007,
+        "parameters": 1219,
+        "training_steps": 4999
+      },
+      "parent_ids": [
+        "fe3ec1ad7f364d5a063003feda7427ee53a36f45d56be5dfc20974a66c98515d"
+      ],
+      "retained_order": 35,
+      "selected_count": 1
+    },
+    "646bc223ff444798f98f046e523fc5b4b46f17580b47c50281b051e89d3a14d6": {
+      "artifact_path": "candidates/646bc223ff444798f98f046e523fc5b4b46f17580b47c50281b051e89d3a14d6",
+      "candidate_id": "646bc223ff444798f98f046e523fc5b4b46f17580b47c50281b051e89d3a14d6",
+      "created_opportunity": 107,
+      "fitness": -983.0,
+      "hypothesis": "Tying head 0\u2019s three farthest relative-distance biases will reduce the model from 984 to 983 parameters while retaining at least 99% accuracy, because the verified design already ties its two farthest biases and head 1 tolerates substantially broader far-distance sharing.",
+      "intended_edit": "Store one fewer head-0 relative-bias parameter and reconstruct its three farthest distances with the shared zero reference.",
+      "metrics": {
+        "accuracy": 0.9998,
+        "cases": 10010,
+        "correct": 10008,
+        "parameters": 983,
+        "training_steps": 4999
+      },
+      "parent_ids": [
+        "fc33fce5fac10d9ceafc9dca7dc0cd90b09bb82fec34df10d9e0b52641483663"
+      ],
+      "retained_order": 107,
+      "selected_count": 1
+    },
+    "67119ecb64f7065a543c741525cca0613f7cc6099a9415bba1fa6fa4c1f29b19": {
+      "artifact_path": "candidates/67119ecb64f7065a543c741525cca0613f7cc6099a9415bba1fa6fa4c1f29b19",
+      "candidate_id": "67119ecb64f7065a543c741525cca0613f7cc6099a9415bba1fa6fa4c1f29b19",
+      "created_opportunity": 89,
+      "fitness": -996.0,
+      "hypothesis": "Sharing the first and second effective MLP input coefficients alongside the successful third/fourth and fifth/sixth pairs will reduce the model from 997 to 996 parameters while retaining at least 99% accuracy, because all three constraints remain disjoint and preserve the reference-sensitive seventh coefficient independently.",
+      "intended_edit": "Store four `fc1` coefficients and reconstruct effective pairs at channels one/two, three/four, and five/six, while preserving the seventh coefficient and the original constructor and initialization RNG streams.",
+      "metrics": {
+        "accuracy": 0.9993000000000001,
+        "cases": 10010,
+        "correct": 10003,
+        "parameters": 996,
+        "training_steps": 4999
+      },
+      "parent_ids": [
+        "0432d1ebb464494548c460f222a7110504acc34967c2bd9cc243f67f6108ae75"
+      ],
+      "retained_order": 89,
+      "selected_count": 1
+    },
+    "736e8f8c94e7baed5520aca51c5c3fc61a3dda3a663f36b0449dd6f32378e95e": {
+      "artifact_path": "candidates/736e8f8c94e7baed5520aca51c5c3fc61a3dda3a663f36b0449dd6f32378e95e",
+      "candidate_id": "736e8f8c94e7baed5520aca51c5c3fc61a3dda3a663f36b0449dd6f32378e95e",
+      "created_opportunity": 48,
+      "fitness": -1053.0,
+      "hypothesis": "Reducing the MLP width from 2 to 1 will lower the model from 1,068 to 1,053 learned parameters while retaining at least 99% accuracy, because all ten preceding one-neuron reductions met the requirement and the width-2 model achieved 99.78%.",
+      "intended_edit": "Change the default feed-forward width from 2 to 1 while leaving attention, optimization, checkpointing, and protected generation unchanged.",
+      "metrics": {
+        "accuracy": 1.0,
+        "cases": 10010,
+        "correct": 10010,
+        "parameters": 1053,
+        "training_steps": 4999
+      },
+      "parent_ids": [
+        "37f12df3a91a4ae522366f78205fdc98ca059dfabb716170021bd9ed0b3c96fa"
+      ],
+      "retained_order": 48,
+      "selected_count": 3
+    },
+    "76b97f86106e95c0d08006431a7de2cf711e4263ba2fab90c7642c9392b030c0": {
+      "artifact_path": "candidates/76b97f86106e95c0d08006431a7de2cf711e4263ba2fab90c7642c9392b030c0",
+      "candidate_id": "76b97f86106e95c0d08006431a7de2cf711e4263ba2fab90c7642c9392b030c0",
+      "created_opportunity": 38,
+      "fitness": -1188.0,
+      "hypothesis": "Reducing the MLP width from 11 to 10 will lower the model from 1,203 to 1,188 learned parameters while retaining at least 99% accuracy, because the width-11 model achieved 99.91% without changing the attention or decoding pathways.",
+      "intended_edit": "Change the default feed-forward width from 11 to 10; leave training, optimizer behavior, checkpointing, and protected generation unchanged.",
+      "metrics": {
+        "accuracy": 0.9995999999999999,
+        "cases": 10010,
+        "correct": 10006,
+        "parameters": 1188,
+        "training_steps": 4999
+      },
+      "parent_ids": [
+        "78feb180b3f54f4d39f6315717764f3deedaee3a9a71c84a3c42228431ed4179"
+      ],
+      "retained_order": 38,
+      "selected_count": 1
+    },
+    "771cad800771e295223337768cf55255c514226fdf9acfdf12f4f135316bcc85": {
+      "artifact_path": "candidates/771cad800771e295223337768cf55255c514226fdf9acfdf12f4f135316bcc85",
+      "candidate_id": "771cad800771e295223337768cf55255c514226fdf9acfdf12f4f135316bcc85",
+      "created_opportunity": 25,
+      "fitness": -1422.0,
+      "hypothesis": "Reparameterizing queries on seven zero-mean LayerNorm coordinates will reduce the model from 1,430 to 1,422 parameters while maintaining at least 99% accuracy, because the learned affine transformation can be absorbed into query weights and the independent query bias, while virtual full-width AdamW moments preserve optimization geometry.",
+      "intended_edit": "Split QKV storage into seven-coordinate query and key projections plus a full-width affine value projection, and add the omitted query coordinates to quotient-aware optimization.",
+      "metrics": {
+        "accuracy": 0.9998,
+        "cases": 10010,
+        "correct": 10008,
+        "parameters": 1422,
+        "training_steps": 4999
+      },
+      "parent_ids": [
+        "be2ae3738759baf3b85a65ff9284a03fb5818ca437ddc9416cee5f93caa87bdd"
+      ],
+      "retained_order": 25,
+      "selected_count": 1
+    },
+    "78a320e26c7fb822d9827be87b61cd274d5fdee73f3d6995fb12425fcae89452": {
+      "artifact_path": "candidates/78a320e26c7fb822d9827be87b61cd274d5fdee73f3d6995fb12425fcae89452",
+      "candidate_id": "78a320e26c7fb822d9827be87b61cd274d5fdee73f3d6995fb12425fcae89452",
+      "created_opportunity": 57,
+      "fitness": -1043.0,
+      "hypothesis": "Tying the third-farthest relative-distance bias in only one attention head will reduce the model from 1,044 to 1,043 parameters while retaining at least 99% accuracy, because the other head retains the positional degree of freedom whose removal from both heads caused failure.",
+      "intended_edit": "Give the two heads separate relative-bias parameters, retaining the current two-distance tie for head 0 while tying three farthest distances for head 1; update reconstruction and quotient optimization accordingly.",
+      "metrics": {
+        "accuracy": 0.9973000000000001,
+        "cases": 10010,
+        "correct": 9983,
+        "parameters": 1043,
+        "training_steps": 4999
+      },
+      "parent_ids": [
+        "a5405bc641cb9e77c4ea2c72571bdde73e034d4a2bd4d638def800654def7ff3"
+      ],
+      "retained_order": 57,
+      "selected_count": 2
+    },
+    "78feb180b3f54f4d39f6315717764f3deedaee3a9a71c84a3c42228431ed4179": {
+      "artifact_path": "candidates/78feb180b3f54f4d39f6315717764f3deedaee3a9a71c84a3c42228431ed4179",
+      "candidate_id": "78feb180b3f54f4d39f6315717764f3deedaee3a9a71c84a3c42228431ed4179",
+      "created_opportunity": 37,
+      "fitness": -1203.0,
+      "hypothesis": "Reducing the MLP width from 12 to 11 will lower the model from 1,218 to 1,203 learned parameters while retaining at least 99% accuracy, because the current model reaches 99.99% and the change removes only one of twelve nonlinear hidden units without altering attention or decoding.",
+      "intended_edit": "Change the default feed-forward width to 11; training, optimizer behavior, checkpointing, and the protected generation interface remain unchanged.",
+      "metrics": {
+        "accuracy": 0.9991,
+        "cases": 10010,
+        "correct": 10001,
+        "parameters": 1203,
+        "training_steps": 4999
+      },
+      "parent_ids": [
+        "3d1e4d5afc9c700ac70c893b68190e54239482a794e83d8b5fbf11eb3799b422"
+      ],
+      "retained_order": 37,
+      "selected_count": 1
+    },
+    "7f5533d9108cb3b125e66ac51bf98fe4a89a8f9bf669ba9655fc8aff1ea4e29d": {
+      "artifact_path": "candidates/7f5533d9108cb3b125e66ac51bf98fe4a89a8f9bf669ba9655fc8aff1ea4e29d",
+      "candidate_id": "7f5533d9108cb3b125e66ac51bf98fe4a89a8f9bf669ba9655fc8aff1ea4e29d",
+      "created_opportunity": 41,
+      "fitness": -1158.0,
+      "hypothesis": "Reducing the MLP width from 9 to 8 will lower the model from 1,173 to 1,158 learned parameters while retaining at least 99% accuracy, because the width-9 model achieved 99.98% and three consecutive one-neuron reductions preserved the required accuracy.",
+      "intended_edit": "Change the default feed-forward width from 9 to 8 while leaving attention, optimization, checkpointing, and protected generation unchanged.",
+      "metrics": {
+        "accuracy": 0.9998999999999999,
+        "cases": 10010,
+        "correct": 10009,
+        "parameters": 1158,
+        "training_steps": 4999
+      },
+      "parent_ids": [
+        "82fd2c98dedb65725a4a424db48d59b2e8966efa70df44ec0fef3b1bce5e4c02"
+      ],
+      "retained_order": 41,
+      "selected_count": 1
+    },
+    "82fd2c98dedb65725a4a424db48d59b2e8966efa70df44ec0fef3b1bce5e4c02": {
+      "artifact_path": "candidates/82fd2c98dedb65725a4a424db48d59b2e8966efa70df44ec0fef3b1bce5e4c02",
+      "candidate_id": "82fd2c98dedb65725a4a424db48d59b2e8966efa70df44ec0fef3b1bce5e4c02",
+      "created_opportunity": 39,
+      "fitness": -1173.0,
+      "hypothesis": "Reducing the MLP width from 10 to 9 will lower the model from 1,188 to 1,173 learned parameters while retaining at least 99% accuracy, because the width-10 model achieved 99.96% without changing the attention or decoding pathways.",
+      "intended_edit": "Change the default feed-forward width from 10 to 9; leave training, optimizer behavior, checkpointing, and protected generation unchanged.",
+      "metrics": {
+        "accuracy": 0.9998,
+        "cases": 10010,
+        "correct": 10008,
+        "parameters": 1173,
+        "training_steps": 4999
+      },
+      "parent_ids": [
+        "76b97f86106e95c0d08006431a7de2cf711e4263ba2fab90c7642c9392b030c0"
+      ],
+      "retained_order": 39,
+      "selected_count": 2
+    },
+    "8323015c8a03d8c13f69258fe6bb360fe27cba4251840a00ad0433cbdbee237c": {
+      "artifact_path": "candidates/8323015c8a03d8c13f69258fe6bb360fe27cba4251840a00ad0433cbdbee237c",
+      "candidate_id": "8323015c8a03d8c13f69258fe6bb360fe27cba4251840a00ad0433cbdbee237c",
+      "created_opportunity": 46,
+      "fitness": -1083.0,
+      "hypothesis": "Reducing the MLP width from 4 to 3 will lower the model from 1,098 to 1,083 learned parameters while retaining at least 99% accuracy, because eight consecutive one-neuron reductions have met the requirement and the width-4 model achieved 99.96%.",
+      "intended_edit": "Change the default feed-forward width from 4 to 3 while leaving attention, optimization, checkpointing, and protected generation unchanged.",
+      "metrics": {
+        "accuracy": 0.9994,
+        "cases": 10010,
+        "correct": 10004,
+        "parameters": 1083,
+        "training_steps": 4999
+      },
+      "parent_ids": [
+        "547ccf2eb9101a7c626a2728fff0ccba7e5d847073ee8a0bd7e48f914a685ac2"
+      ],
+      "retained_order": 46,
+      "selected_count": 1
+    },
+    "8a75ab0747eff645a420cee91d06ec671cea46fbd6f57f07e6244bff6829cac0": {
+      "artifact_path": "candidates/8a75ab0747eff645a420cee91d06ec671cea46fbd6f57f07e6244bff6829cac0",
+      "candidate_id": "8a75ab0747eff645a420cee91d06ec671cea46fbd6f57f07e6244bff6829cac0",
+      "created_opportunity": 67,
+      "fitness": -1039.0,
+      "hypothesis": "Sharing the final LayerNorm\u2019s last two learned scale coordinates will reduce the model from 1,040 to 1,039 parameters while retaining at least 99% accuracy, because both coordinates remain adaptively scaled while all load-bearing normalization offsets remain independent.",
+      "intended_edit": "Store six final LayerNorm scale coordinates and reconstruct the seventh from its adjacent predecessor; retain the eighth coordinate as the fixed residual-scale reference.",
+      "metrics": {
+        "accuracy": 0.9995,
+        "cases": 10010,
+        "correct": 10005,
+        "parameters": 1039,
+        "training_steps": 4999
+      },
+      "parent_ids": [
+        "a44a7891176ed5b5052e1c0a92126d2dd6e4c93be8ededb95efdc6ab28e30dc9"
+      ],
+      "retained_order": 67,
+      "selected_count": 2
+    },
+    "8b28e1ebded5a2abe659a0600b4539e3df0e1595636ff7c3bb295af4b420c210": {
+      "artifact_path": "candidates/8b28e1ebded5a2abe659a0600b4539e3df0e1595636ff7c3bb295af4b420c210",
+      "candidate_id": "8b28e1ebded5a2abe659a0600b4539e3df0e1595636ff7c3bb295af4b420c210",
+      "created_opportunity": 82,
+      "fitness": -1000.0,
+      "hypothesis": "Sharing the final two learned LayerNorm bias coordinates will reduce the model from 1,001 to 1,000 parameters while retaining at least 99% accuracy, because the corresponding terminal scale pair already tolerates sharing.",
+      "intended_edit": "Store six final LayerNorm bias values and reuse the last value for the seventh coordinate, while retaining the fixed eighth-coordinate reference.",
+      "metrics": {
+        "accuracy": 0.9998,
+        "cases": 10010,
+        "correct": 10008,
+        "parameters": 1000,
+        "training_steps": 4999
+      },
+      "parent_ids": [
+        "fc3847c54036ce13479b64bb479c02cb4b68d6d380b375e1e2b6b32b837be2bf"
+      ],
+      "retained_order": 82,
+      "selected_count": 1
+    },
+    "96faa8d00e29083177a290d87f5b024702a3707ce42c16dd6983ed10a58aee57": {
+      "artifact_path": "candidates/96faa8d00e29083177a290d87f5b024702a3707ce42c16dd6983ed10a58aee57",
+      "candidate_id": "96faa8d00e29083177a290d87f5b024702a3707ce42c16dd6983ed10a58aee57",
+      "created_opportunity": 69,
+      "fitness": -1038.0,
+      "hypothesis": "Reconstructing head 1\u2019s fifth boundary bias as the midpoint of its learned neighbors will reduce the model from 1,039 to 1,038 parameters while retaining at least 99% accuracy, because it preserves a distinct transition value that direct quintuplet sharing eliminated.",
+      "intended_edit": "Shorten head 1\u2019s relative-bias parameter by one coordinate and interpolate the removed pre-boundary bias between the preceding independent bias and the successful shared quadruplet.",
+      "metrics": {
+        "accuracy": 0.9967,
+        "cases": 10010,
+        "correct": 9977,
+        "parameters": 1038,
+        "training_steps": 4999
+      },
+      "parent_ids": [
+        "8a75ab0747eff645a420cee91d06ec671cea46fbd6f57f07e6244bff6829cac0"
+      ],
+      "retained_order": 69,
+      "selected_count": 1
+    },
+    "97fe6bb7cb173ab63bceec820c5b4c0b24cb82a5b4521d265843bfdf9ef6caed": {
+      "artifact_path": "candidates/97fe6bb7cb173ab63bceec820c5b4c0b24cb82a5b4521d265843bfdf9ef6caed",
+      "candidate_id": "97fe6bb7cb173ab63bceec820c5b4c0b24cb82a5b4521d265843bfdf9ef6caed",
+      "created_opportunity": 90,
+      "fitness": -991.0,
+      "hypothesis": "Fixing head 1\u2019s second key projection to a residual coordinate will reduce the model from 996 to 991 parameters while retaining at least 99% accuracy, because it preserves two-dimensional content scoring and lets the learned embedding align the required source feature with that coordinate.",
+      "intended_edit": "Remove the five learned tail coefficients from head 1\u2019s second key channel, reconstruct that channel with an identity prefix and zero tail, and project the virtual optimizer state back onto this constraint after every update.",
+      "metrics": {
+        "accuracy": 0.9994,
+        "cases": 10010,
+        "correct": 10004,
+        "parameters": 991,
+        "training_steps": 4999
+      },
+      "parent_ids": [
+        "67119ecb64f7065a543c741525cca0613f7cc6099a9415bba1fa6fa4c1f29b19"
+      ],
+      "retained_order": 90,
+      "selected_count": 1
+    },
+    "98030ee87028d53dc4f9f909ee6e6ce3cd48ad9e5797d5f561456a90db1bebf6": {
+      "artifact_path": "candidates/98030ee87028d53dc4f9f909ee6e6ce3cd48ad9e5797d5f561456a90db1bebf6",
+      "candidate_id": "98030ee87028d53dc4f9f909ee6e6ce3cd48ad9e5797d5f561456a90db1bebf6",
+      "created_opportunity": 22,
+      "fitness": -1446.0,
+      "hypothesis": "Removing the single global additive degree of freedom shared by every tied embedding coordinate will reduce the model from 1,447 to 1,446 parameters while retaining at least 99% accuracy, because it changes input residuals only by LayerNorm-invisible scalar shifts and output logits only by a softmax-invisible common shift.",
+      "intended_edit": "Store all but one flattened embedding coordinate as differences from a fixed reference, reconstruct the tied input/output weight dynamically, preserve the original initialization RNG stream, and include the omitted coordinate in quotient-aware AdamW moments and gradient clipping.",
+      "metrics": {
+        "accuracy": 0.9993000000000001,
+        "cases": 10010,
+        "correct": 10003,
+        "parameters": 1446,
+        "training_steps": 4999
+      },
+      "parent_ids": [
+        "484411cba4199cf12ff6b52638e5f7b68912f5683d92b8173d6683ca3dc361a4"
+      ],
+      "retained_order": 22,
+      "selected_count": 1
+    },
+    "99aa54fbccd0cec5a7f3f2f3f706b69ac02e642b7bd988b47e51de979555cf2f": {
+      "artifact_path": "candidates/99aa54fbccd0cec5a7f3f2f3f706b69ac02e642b7bd988b47e51de979555cf2f",
+      "candidate_id": "99aa54fbccd0cec5a7f3f2f3f706b69ac02e642b7bd988b47e51de979555cf2f",
+      "created_opportunity": 43,
+      "fitness": -1128.0,
+      "hypothesis": "Reducing the MLP width from 7 to 6 will lower the model from 1,143 to 1,128 learned parameters while retaining at least 99% accuracy, because the width-7 model achieved 100% accuracy after five consecutive successful one-neuron reductions.",
+      "intended_edit": "Change the default feed-forward width from 7 to 6 while leaving attention, optimization, checkpointing, and protected generation unchanged.",
+      "metrics": {
+        "accuracy": 0.9987999999999999,
+        "cases": 10010,
+        "correct": 9998,
+        "parameters": 1128,
+        "training_steps": 4999
+      },
+      "parent_ids": [
+        "d5e7fd0e4981f06059f71496a1e4114352f4737adac8900704741188850e0835"
+      ],
+      "retained_order": 43,
+      "selected_count": 1
+    },
+    "a44a7891176ed5b5052e1c0a92126d2dd6e4c93be8ededb95efdc6ab28e30dc9": {
+      "artifact_path": "candidates/a44a7891176ed5b5052e1c0a92126d2dd6e4c93be8ededb95efdc6ab28e30dc9",
+      "candidate_id": "a44a7891176ed5b5052e1c0a92126d2dd6e4c93be8ededb95efdc6ab28e30dc9",
+      "created_opportunity": 62,
+      "fitness": -1040.0,
+      "hypothesis": "Sharing head 1\u2019s fourth- through seventh-farthest relative biases will reduce the model from 1,041 to 1,040 parameters while retaining at least 99% accuracy, because the adjacent-boundary triplet achieved 99.81% and this removes only one neighboring positional degree of freedom.",
+      "intended_edit": "Shorten head 1\u2019s relative-bias parameter by one coordinate and extend its final learned boundary value across three following distances, leaving head 0 and all other behavior unchanged.",
+      "metrics": {
+        "accuracy": 0.9968,
+        "cases": 10010,
+        "correct": 9978,
+        "parameters": 1040,
+        "training_steps": 4999
+      },
+      "parent_ids": [
+        "5873591efdf8e6cfa167095b7c8e67366026bc1b59d98babe75e598f24f74b2f"
+      ],
+      "retained_order": 62,
+      "selected_count": 5
+    },
+    "a5405bc641cb9e77c4ea2c72571bdde73e034d4a2bd4d638def800654def7ff3": {
+      "artifact_path": "candidates/a5405bc641cb9e77c4ea2c72571bdde73e034d4a2bd4d638def800654def7ff3",
+      "candidate_id": "a5405bc641cb9e77c4ea2c72571bdde73e034d4a2bd4d638def800654def7ff3",
+      "created_opportunity": 55,
+      "fitness": -1044.0,
+      "hypothesis": "Tying each head\u2019s two farthest relative-distance biases will reduce the model from 1,046 to 1,044 parameters while retaining at least 99% accuracy, because it preserves independent, otherwise unconstrained positional tables and alters only the two sparsest causal distances.",
+      "intended_edit": "Store two fewer relative-bias coordinates and reconstruct both farthest distances from each head\u2019s existing omitted reference; the quotient optimizer continues to train the resulting per-head virtual reference automatically.",
+      "metrics": {
+        "accuracy": 0.9979,
+        "cases": 10010,
+        "correct": 9989,
+        "parameters": 1044,
+        "training_steps": 4999
+      },
+      "parent_ids": [
+        "154dea352b04a38e049f31f8ceb2a26c9840f01fb6fd5daf284718025b4c253f"
+      ],
+      "retained_order": 55,
+      "selected_count": 2
+    },
+    "a58c3f080d8c6136f97be4239fa23cb9809b1f0827f1f762f672194e30bd5efa": {
+      "artifact_path": "candidates/a58c3f080d8c6136f97be4239fa23cb9809b1f0827f1f762f672194e30bd5efa",
+      "candidate_id": "a58c3f080d8c6136f97be4239fa23cb9809b1f0827f1f762f672194e30bd5efa",
+      "created_opportunity": 29,
+      "fitness": -1397.0,
+      "hypothesis": "Folding the value/output constant into the seven observable residual-bias coordinates will produce a 1,397-parameter model with at least 99% accuracy when gradients for the virtual value, LayerNorm, projection-weight, and shared-bias parameters are reconstructed jointly.",
+      "intended_edit": "Remove the eight-parameter value bias, store only the folded residual constant, and extend quotient-aware AdamW to reconstruct and update every virtual parameter contributing to that constant.",
+      "metrics": {
+        "accuracy": 0.9993000000000001,
+        "cases": 10010,
+        "correct": 10003,
+        "parameters": 1397,
+        "training_steps": 4999
+      },
+      "parent_ids": [
+        "bf77af9fc9071be900ae219f78fc317a2efb9e8a877ea117e0865a802041bd45"
+      ],
+      "retained_order": 29,
+      "selected_count": 1
+    },
+    "bba4d7277397e9167bd8525f7b28f2cf8ab92e0b354ffedc749a1a863adf0984": {
+      "artifact_path": "candidates/bba4d7277397e9167bd8525f7b28f2cf8ab92e0b354ffedc749a1a863adf0984",
+      "candidate_id": "bba4d7277397e9167bd8525f7b28f2cf8ab92e0b354ffedc749a1a863adf0984",
+      "created_opportunity": 59,
+      "fitness": -1042.0,
+      "hypothesis": "Sharing head 1\u2019s fourth- and fifth-farthest learned relative biases will reduce the model from 1,043 to 1,042 parameters while retaining at least 99% accuracy, because it preserves an adaptive boundary value instead of forcing the load-bearing fourth-farthest bias to the softmax reference.",
+      "intended_edit": "Shorten head 1\u2019s relative-bias parameter by one coordinate and reconstruct its fourth-farthest bias from the neighboring fifth-farthest learned value; leave head 0 and all other behavior unchanged.",
+      "metrics": {
+        "accuracy": 0.9937999999999999,
+        "cases": 10010,
+        "correct": 9948,
+        "parameters": 1042,
+        "training_steps": 4999
+      },
+      "parent_ids": [
+        "78a320e26c7fb822d9827be87b61cd274d5fdee73f3d6995fb12425fcae89452"
+      ],
+      "retained_order": 59,
+      "selected_count": 2
+    },
+    "be2ae3738759baf3b85a65ff9284a03fb5818ca437ddc9416cee5f93caa87bdd": {
+      "artifact_path": "candidates/be2ae3738759baf3b85a65ff9284a03fb5818ca437ddc9416cee5f93caa87bdd",
+      "candidate_id": "be2ae3738759baf3b85a65ff9284a03fb5818ca437ddc9416cee5f93caa87bdd",
+      "created_opportunity": 24,
+      "fitness": -1430.0,
+      "hypothesis": "Reparameterizing all key projections on seven zero-mean LayerNorm coordinates will reduce the model from 1,438 to 1,430 parameters while retaining at least 99% accuracy, because key constants are softmax-invisible and virtual full-width AdamW moments preserve the successful optimization geometry.",
+      "intended_edit": "Replace the full-width key portion of QKV with an eight-by-seven learned projection over non-affine LayerNorm outputs, retain full-width query/value projections and `ln1` affine parameters, and add the omitted key coordinates to quotient-aware optimization.",
+      "metrics": {
+        "accuracy": 0.9995,
+        "cases": 10010,
+        "correct": 10005,
+        "parameters": 1430,
+        "training_steps": 4999
+      },
+      "parent_ids": [
+        "e65cb2f7d8ca2c801253eea43c01b7ac44610ecfc8407de7c102b8cc5d1b0790"
+      ],
+      "retained_order": 24,
+      "selected_count": 1
+    },
+    "bebc14f1a475854b1d662a0cfc50ad82465dd9090199c77a6913c1c7608d5c36": {
+      "artifact_path": "candidates/bebc14f1a475854b1d662a0cfc50ad82465dd9090199c77a6913c1c7608d5c36",
+      "candidate_id": "bebc14f1a475854b1d662a0cfc50ad82465dd9090199c77a6913c1c7608d5c36",
+      "created_opportunity": 20,
+      "fitness": -1449.0,
+      "hypothesis": "Replacing the 161-parameter absolute positional table with 46 learned causal distance logits will produce a 1,449-parameter transformer with at least 99% accuracy, because addition\u2019s reusable token alignments can be represented directly by attention offsets rather than reconstructed from absolute position vectors.",
+      "intended_edit": "Remove absolute positional embeddings and give each attention head a learned bias for every causal relative distance, while preserving the existing model\u2019s initialization RNG stream for a clean comparison.",
+      "metrics": {
+        "accuracy": 0.9998999999999999,
+        "cases": 10010,
+        "correct": 10009,
+        "parameters": 1449,
+        "training_steps": 4999
+      },
+      "parent_ids": [
+        "f61041b67e4f0cec78ed61f8b8b44fdee0a5a82d3440d34dc0582a0487e801ac"
+      ],
+      "retained_order": 20,
+      "selected_count": 1
+    },
+    "bf77af9fc9071be900ae219f78fc317a2efb9e8a877ea117e0865a802041bd45": {
+      "artifact_path": "candidates/bf77af9fc9071be900ae219f78fc317a2efb9e8a877ea117e0865a802041bd45",
+      "candidate_id": "bf77af9fc9071be900ae219f78fc317a2efb9e8a877ea117e0865a802041bd45",
+      "created_opportunity": 27,
+      "fitness": -1405.0,
+      "hypothesis": "Fixing one coordinate of the shared attention projection bias while compensating it in the value constant will reduce the model from 1,406 to 1,405 parameters and maintain at least 99% accuracy, because the transformation changes the residual only by a LayerNorm-invisible common shift and virtual full-width AdamW preserves the successful optimization geometry.",
+      "intended_edit": "Store seven projection-bias differences, reconstruct the eighth as zero, compensate its virtual reference coordinate in the value bias, and train both original full bias pathways with reconstructed AdamW gradients and moments.",
+      "metrics": {
+        "accuracy": 0.9997,
+        "cases": 10010,
+        "correct": 10007,
+        "parameters": 1405,
+        "training_steps": 4999
+      },
+      "parent_ids": [
+        "c60aff08420e89f1e2de439a585291c7399f835487049ffb65442e2fa146fd5d"
+      ],
+      "retained_order": 27,
+      "selected_count": 2
+    },
+    "c3743b359b2b0dbef6fe32eec0b8adecfe4442dcd1d9cf0e08e06f5d726762b8": {
+      "artifact_path": "candidates/c3743b359b2b0dbef6fe32eec0b8adecfe4442dcd1d9cf0e08e06f5d726762b8",
+      "candidate_id": "c3743b359b2b0dbef6fe32eec0b8adecfe4442dcd1d9cf0e08e06f5d726762b8",
+      "created_opportunity": 87,
+      "fitness": -998.0,
+      "hypothesis": "Sharing the fifth and sixth effective MLP input coefficients while keeping the seventh coefficient independent will reduce the model from 999 to 998 parameters and retain at least 99% accuracy.",
+      "intended_edit": "Store six `fc1` coefficients, reuse the fifth for the sixth effective input channel, preserve the terminal coefficient, and consume constructor and initialization draws for the removed parameter.",
+      "metrics": {
+        "accuracy": 0.9983,
+        "cases": 10010,
+        "correct": 9993,
+        "parameters": 998,
+        "training_steps": 4999
+      },
+      "parent_ids": [
+        "cbcecd6616ddc578ddb0a7b91d6e73840f8f0e4356574d2e38ae6db006271783"
+      ],
+      "retained_order": 87,
+      "selected_count": 1
+    },
+    "c60aff08420e89f1e2de439a585291c7399f835487049ffb65442e2fa146fd5d": {
+      "artifact_path": "candidates/c60aff08420e89f1e2de439a585291c7399f835487049ffb65442e2fa146fd5d",
+      "candidate_id": "c60aff08420e89f1e2de439a585291c7399f835487049ffb65442e2fa146fd5d",
+      "created_opportunity": 26,
+      "fitness": -1406.0,
+      "hypothesis": "Collapsing the affine first LayerNorm and full value projection into 56 zero-mean-coordinate weights plus an 8-coordinate value constant will reduce the model from 1,422 to 1,406 parameters while maintaining at least 99% accuracy, because virtual full-width AdamW updates preserve the successful value-path optimization geometry.",
+      "intended_edit": "Replace the affine value pathway with its exact composite representation, retain the shared value/output bias, and train the compressed value parameters through virtual full value weights and LayerNorm scale/shift states.",
+      "metrics": {
+        "accuracy": 0.9998999999999999,
+        "cases": 10010,
+        "correct": 10009,
+        "parameters": 1406,
+        "training_steps": 4999
+      },
+      "parent_ids": [
+        "771cad800771e295223337768cf55255c514226fdf9acfdf12f4f135316bcc85"
+      ],
+      "retained_order": 26,
+      "selected_count": 1
+    },
+    "cbcecd6616ddc578ddb0a7b91d6e73840f8f0e4356574d2e38ae6db006271783": {
+      "artifact_path": "candidates/cbcecd6616ddc578ddb0a7b91d6e73840f8f0e4356574d2e38ae6db006271783",
+      "candidate_id": "cbcecd6616ddc578ddb0a7b91d6e73840f8f0e4356574d2e38ae6db006271783",
+      "created_opportunity": 83,
+      "fitness": -999.0,
+      "hypothesis": "Fixing the width-one MLP\u2019s hidden bias at zero will reduce the model from 1,000 to 999 parameters while retaining at least 99% accuracy, because it preserves the learned nonlinear MLP weights and all demonstrated load-bearing rank-two and relative-position attention pathways.",
+      "intended_edit": "Remove the single trainable `fc1` bias while consuming its constructor-equivalent random draw to preserve initialization of subsequent parameters.",
+      "metrics": {
+        "accuracy": 0.9998,
+        "cases": 10010,
+        "correct": 10008,
+        "parameters": 999,
+        "training_steps": 4999
+      },
+      "parent_ids": [
+        "8b28e1ebded5a2abe659a0600b4539e3df0e1595636ff7c3bb295af4b420c210"
+      ],
+      "retained_order": 83,
+      "selected_count": 4
+    },
+    "cf419633ce544ef7b605b579ca98dada2e0b298e8284de8d3a2e05c3d74199ea": {
+      "artifact_path": "candidates/cf419633ce544ef7b605b579ca98dada2e0b298e8284de8d3a2e05c3d74199ea",
+      "candidate_id": "cf419633ce544ef7b605b579ca98dada2e0b298e8284de8d3a2e05c3d74199ea",
+      "created_opportunity": 11,
+      "fitness": -1576.0,
+      "hypothesis": "Removing the unobservable all-ones component from every positional embedding and from the MLP output bias will reduce the model from 1,600 to 1,576 parameters while preserving at least 99% accuracy, because all subsequent pre-LayerNorm computations and the final LayerNorm are invariant to per-position scalar residual shifts.",
+      "intended_edit": "Store seven learned coordinates per positional embedding and seven learned coordinates for the MLP output bias, padding each with a fixed zero eighth coordinate in the residual stream.",
+      "metrics": {
+        "accuracy": 0.9982,
+        "cases": 10010,
+        "correct": 9992,
+        "parameters": 1576,
+        "training_steps": 4999
+      },
+      "parent_ids": [
+        "dfd60da0e2966ac09fa94a167e97bcaa6b5c92d6b0518bfe59e3acb8831cfc4c"
+      ],
+      "retained_order": 11,
+      "selected_count": 8
+    },
+    "d21ef38e71730128d26b74f87d3ba87c4bfda40eb40747b6c9022f3be14c13d7": {
+      "artifact_path": "candidates/d21ef38e71730128d26b74f87d3ba87c4bfda40eb40747b6c9022f3be14c13d7",
+      "candidate_id": "d21ef38e71730128d26b74f87d3ba87c4bfda40eb40747b6c9022f3be14c13d7",
+      "created_opportunity": 71,
+      "fitness": -1002.0,
+      "hypothesis": "Reducing both heads\u2019 query/key score rank from three to two will lower the model from 1,022 to 1,002 parameters while retaining at least 99% accuracy, because rank-three routing achieved 99.85% and the evidence identifies the independently learned relative-position biases\u2014not high-rank content scores\u2014as the load-bearing attention pathway.",
+      "intended_edit": "Use two learned query/key factors per attention head while preserving four-dimensional values, relative-bias tables, score-factor gauge optimization, initialization behavior, and generic autoregressive decoding.",
+      "metrics": {
+        "accuracy": 0.9993000000000001,
+        "cases": 10010,
+        "correct": 10003,
+        "parameters": 1002,
+        "training_steps": 4999
+      },
+      "parent_ids": [
+        "480fba7266d702ef137fd4d98817cd39def54fb9a43314bacaa817ee32c2a9ef"
+      ],
+      "retained_order": 71,
+      "selected_count": 7
+    },
+    "d5e7fd0e4981f06059f71496a1e4114352f4737adac8900704741188850e0835": {
+      "artifact_path": "candidates/d5e7fd0e4981f06059f71496a1e4114352f4737adac8900704741188850e0835",
+      "candidate_id": "d5e7fd0e4981f06059f71496a1e4114352f4737adac8900704741188850e0835",
+      "created_opportunity": 42,
+      "fitness": -1143.0,
+      "hypothesis": "Reducing the MLP width from 8 to 7 will lower the model from 1,158 to 1,143 learned parameters while retaining at least 99% accuracy, because four consecutive one-neuron reductions preserved at least 99.91% accuracy and the width-8 model achieved 99.99%.",
+      "intended_edit": "Change the default feed-forward width from 8 to 7 while leaving attention, optimization, checkpointing, and protected generation unchanged.",
+      "metrics": {
+        "accuracy": 1.0,
+        "cases": 10010,
+        "correct": 10010,
+        "parameters": 1143,
+        "training_steps": 4999
+      },
+      "parent_ids": [
+        "7f5533d9108cb3b125e66ac51bf98fe4a89a8f9bf669ba9655fc8aff1ea4e29d"
+      ],
+      "retained_order": 42,
+      "selected_count": 1
+    },
+    "da78350eef1ec9629aa8c62a2cc618e69f171a73c5deb13c0e4b039e1f9a45a3": {
+      "artifact_path": "candidates/da78350eef1ec9629aa8c62a2cc618e69f171a73c5deb13c0e4b039e1f9a45a3",
+      "candidate_id": "da78350eef1ec9629aa8c62a2cc618e69f171a73c5deb13c0e4b039e1f9a45a3",
+      "created_opportunity": 99,
+      "fitness": -985.0,
+      "hypothesis": "Sharing the final six nonreference LayerNorm bias coordinates will reduce the model from 986 to 985 parameters while retaining at least 99% accuracy, because each successive extension from three-way through five-way sharing maintained at least 99.97% accuracy.",
+      "intended_edit": "Store two rather than three final-LayerNorm bias contrasts and reuse the second across the final six nonreference residual channels.",
+      "metrics": {
+        "accuracy": 0.9998,
+        "cases": 10010,
+        "correct": 10008,
+        "parameters": 985,
+        "training_steps": 4999
+      },
+      "parent_ids": [
+        "5e3746b867818d4a768a3e29db86724faded7131db87ab6834fd4b2df5a2b8bf"
+      ],
+      "retained_order": 99,
+      "selected_count": 4
+    },
+    "dd3c357b59bb0327ec8c12e92067c4de852548fe2c3f73583d0560dc0abbf356": {
+      "artifact_path": "candidates/dd3c357b59bb0327ec8c12e92067c4de852548fe2c3f73583d0560dc0abbf356",
+      "candidate_id": "dd3c357b59bb0327ec8c12e92067c4de852548fe2c3f73583d0560dc0abbf356",
+      "created_opportunity": 109,
+      "fitness": -981.0,
+      "hypothesis": "Tying head 0\u2019s five farthest relative-distance biases will reduce the model from 982 to 981 parameters while retaining at least 99% accuracy, because successive extensions from two through four tied farthest distances achieved at least 99.97%.",
+      "intended_edit": "Store one fewer head-0 relative-bias parameter and reconstruct its five farthest distances with the shared zero reference.",
+      "metrics": {
+        "accuracy": 0.9989,
+        "cases": 10010,
+        "correct": 9999,
+        "parameters": 981,
+        "training_steps": 4999
+      },
+      "parent_ids": [
+        "245d2df7f54126ef90c40eccf35b5bc95c2df31e988ed264d97e7f90aa5e14f7"
+      ],
+      "retained_order": 109,
+      "selected_count": 11
+    },
+    "dfd60da0e2966ac09fa94a167e97bcaa6b5c92d6b0518bfe59e3acb8831cfc4c": {
+      "artifact_path": "candidates/dfd60da0e2966ac09fa94a167e97bcaa6b5c92d6b0518bfe59e3acb8831cfc4c",
+      "candidate_id": "dfd60da0e2966ac09fa94a167e97bcaa6b5c92d6b0518bfe59e3acb8831cfc4c",
+      "created_opportunity": 7,
+      "fitness": -1600.0,
+      "hypothesis": "Because non-affine LayerNorm outputs sum to zero across the eight residual dimensions, the MLP input projection needs only seven coordinates; reducing `fc1` by 12 parameters to produce a 1,600-parameter model will preserve at least 99% accuracy.",
+      "intended_edit": "Replace the MLP\u2019s eight-input projection with a seven-input projection and omit the linearly dependent final normalized coordinate.",
+      "metrics": {
+        "accuracy": 0.9998999999999999,
+        "cases": 10010,
+        "correct": 10009,
+        "parameters": 1600,
+        "training_steps": 4999
+      },
+      "parent_ids": [
+        "011cfe37c5bb024318afd61e9c5fd405b589f43f3d417957552c9b5cbdc9f5b0"
+      ],
+      "retained_order": 7,
+      "selected_count": 4
+    },
+    "e65cb2f7d8ca2c801253eea43c01b7ac44610ecfc8407de7c102b8cc5d1b0790": {
+      "artifact_path": "candidates/e65cb2f7d8ca2c801253eea43c01b7ac44610ecfc8407de7c102b8cc5d1b0790",
+      "candidate_id": "e65cb2f7d8ca2c801253eea43c01b7ac44610ecfc8407de7c102b8cc5d1b0790",
+      "created_opportunity": 23,
+      "fitness": -1438.0,
+      "hypothesis": "Removing the eight LayerNorm-invisible common-mode weights from the attention output projection will reduce the model from 1,446 to 1,438 parameters while retaining at least 99% accuracy when full-width initialization and virtual AdamW moments are preserved.",
+      "intended_edit": "Store seven output rows for the attention projection, reconstruct an eighth zero row, retain its full-width shared value/output bias, and train the omitted row through the existing quotient-aware optimizer.",
+      "metrics": {
+        "accuracy": 0.9993000000000001,
+        "cases": 10010,
+        "correct": 10003,
+        "parameters": 1438,
+        "training_steps": 4999
+      },
+      "parent_ids": [
+        "98030ee87028d53dc4f9f909ee6e6ce3cd48ad9e5797d5f561456a90db1bebf6"
+      ],
+      "retained_order": 23,
+      "selected_count": 1
+    },
+    "e85f49c404744a12e02d01b3d5d9ae77dd7736d5cfda44016a4bc7a7728af747": {
+      "artifact_path": "candidates/e85f49c404744a12e02d01b3d5d9ae77dd7736d5cfda44016a4bc7a7728af747",
+      "candidate_id": "e85f49c404744a12e02d01b3d5d9ae77dd7736d5cfda44016a4bc7a7728af747",
+      "created_opportunity": 91,
+      "fitness": -990.0,
+      "hypothesis": "Fixing the leading tail coefficient of head 1\u2019s first key channel will reduce the model from 991 to 990 parameters while retaining at least 99% accuracy, because it incrementally extends the successful coordinate-aligned key constraint without reducing the two-dimensional score rank.",
+      "intended_edit": "Omit one coefficient from head 1\u2019s first key-tail row, reconstruct it as zero, and project the virtual optimizer state onto both key constraints after every update.",
+      "metrics": {
+        "accuracy": 0.9997,
+        "cases": 10010,
+        "correct": 10007,
+        "parameters": 990,
+        "training_steps": 4999
+      },
+      "parent_ids": [
+        "97fe6bb7cb173ab63bceec820c5b4c0b24cb82a5b4521d265843bfdf9ef6caed"
+      ],
+      "retained_order": 91,
+      "selected_count": 1
+    },
+    "f61041b67e4f0cec78ed61f8b8b44fdee0a5a82d3440d34dc0582a0487e801ac": {
+      "artifact_path": "candidates/f61041b67e4f0cec78ed61f8b8b44fdee0a5a82d3440d34dc0582a0487e801ac",
+      "candidate_id": "f61041b67e4f0cec78ed61f8b8b44fdee0a5a82d3440d34dc0582a0487e801ac",
+      "created_opportunity": 19,
+      "fitness": -1564.0,
+      "hypothesis": "Eliminating the 12 LayerNorm-invisible common-mode `fc2` weights while initializing from full-width weight differences and emulating the omitted row\u2019s AdamW moments will produce a 1,564-parameter model with at least 99% accuracy.",
+      "intended_edit": "Reduce `fc2` to seven residual coordinates, preserve the successful full-width observable initialization, and train it with quotient-aware AdamW updates and gradient clipping.",
+      "metrics": {
+        "accuracy": 0.9975,
+        "cases": 10010,
+        "correct": 9985,
+        "parameters": 1564,
+        "training_steps": 4999
+      },
+      "parent_ids": [
+        "cf419633ce544ef7b605b579ca98dada2e0b298e8284de8d3a2e05c3d74199ea"
+      ],
+      "retained_order": 19,
+      "selected_count": 1
+    },
+    "fc33fce5fac10d9ceafc9dca7dc0cd90b09bb82fec34df10d9e0b52641483663": {
+      "artifact_path": "candidates/fc33fce5fac10d9ceafc9dca7dc0cd90b09bb82fec34df10d9e0b52641483663",
+      "candidate_id": "fc33fce5fac10d9ceafc9dca7dc0cd90b09bb82fec34df10d9e0b52641483663",
+      "created_opportunity": 103,
+      "fitness": -984.0,
+      "hypothesis": "Sharing final-LayerNorm scales for residual coordinates two and three will reduce the model from 985 to 984 parameters while retaining at least 99% accuracy, because those coordinates already share an MLP input coefficient and tolerate zero companion-key contributions, while the sensitive later coordinates remain independent.",
+      "intended_edit": "Store five final-LayerNorm scales instead of six and reuse the third scale for coordinates two and three, preserving the existing scale sharing for coordinates five and six.",
+      "metrics": {
+        "accuracy": 0.9975,
+        "cases": 10010,
+        "correct": 9985,
+        "parameters": 984,
+        "training_steps": 4999
+      },
+      "parent_ids": [
+        "da78350eef1ec9629aa8c62a2cc618e69f171a73c5deb13c0e4b039e1f9a45a3"
+      ],
+      "retained_order": 103,
+      "selected_count": 4
+    },
+    "fc3847c54036ce13479b64bb479c02cb4b68d6d380b375e1e2b6b32b837be2bf": {
+      "artifact_path": "candidates/fc3847c54036ce13479b64bb479c02cb4b68d6d380b375e1e2b6b32b837be2bf",
+      "candidate_id": "fc3847c54036ce13479b64bb479c02cb4b68d6d380b375e1e2b6b32b837be2bf",
+      "created_opportunity": 78,
+      "fitness": -1001.0,
+      "hypothesis": "Reconstructing head 1\u2019s two transition biases at one-quarter and five-eighths between learned endpoints will reduce the model from 1,002 to 1,001 parameters while achieving at least 99% accuracy, because it preserves the successful midpoint hierarchy while separating the transition more strongly from the plateau than the 98.31%-accurate equal-thirds reconstruction.",
+      "intended_edit": "Remove one head-1 relative-bias parameter and derive the two preceding plateau-transition biases using quarter-step interpolation followed by a midpoint to the plateau.",
+      "metrics": {
+        "accuracy": 0.9997,
+        "cases": 10010,
+        "correct": 10007,
+        "parameters": 1001,
+        "training_steps": 4999
+      },
+      "parent_ids": [
+        "d21ef38e71730128d26b74f87d3ba87c4bfda40eb40747b6c9022f3be14c13d7"
+      ],
+      "retained_order": 78,
+      "selected_count": 4
+    },
+    "fc636717d0218108093fe760bac31ff23c36ad236942f4e38aeb8d9cc4a00045": {
+      "artifact_path": "candidates/fc636717d0218108093fe760bac31ff23c36ad236942f4e38aeb8d9cc4a00045",
+      "candidate_id": "fc636717d0218108093fe760bac31ff23c36ad236942f4e38aeb8d9cc4a00045",
+      "created_opportunity": 32,
+      "fitness": -1275.0,
+      "hypothesis": "Folding query weights, key weights, and query bias into learned bilinear attention scores will reduce the model from 1,283 to 1,275 parameters while retaining at least 99% accuracy, because it preserves the exact attention function and reconstructs the successful full-width AdamW updates through the composite\u2019s chain rule.",
+      "intended_edit": "Replace explicit query/key projections with per-head bilinear and linear score parameters, while maintaining virtual query, key, and query-bias states solely inside the quotient-aware optimizer.",
+      "metrics": {
+        "accuracy": 0.9998999999999999,
+        "cases": 10010,
+        "correct": 10009,
+        "parameters": 1275,
+        "training_steps": 4999
+      },
+      "parent_ids": [
+        "11bd948a74d8b328426c2eb2a37a69bb1147d7bcf20a5781f1532c5ece32b688"
+      ],
+      "retained_order": 32,
+      "selected_count": 1
+    },
+    "fcac31c88051f3cc8120bbe59ad9b2ed169e08b49c519479e0dcda7325a91211": {
+      "artifact_path": "candidates/fcac31c88051f3cc8120bbe59ad9b2ed169e08b49c519479e0dcda7325a91211",
+      "candidate_id": "fcac31c88051f3cc8120bbe59ad9b2ed169e08b49c519479e0dcda7325a91211",
+      "created_opportunity": 44,
+      "fitness": -1113.0,
+      "hypothesis": "Reducing the MLP width from 6 to 5 will lower the model from 1,128 to 1,113 learned parameters while retaining at least 99% accuracy, because six consecutive one-neuron reductions have preserved the requirement and the width-6 model achieved 99.88%.",
+      "intended_edit": "Change the default feed-forward width from 6 to 5 while leaving attention, optimization, checkpointing, and protected generation unchanged.",
+      "metrics": {
+        "accuracy": 0.9992,
+        "cases": 10010,
+        "correct": 10002,
+        "parameters": 1113,
+        "training_steps": 4999
+      },
+      "parent_ids": [
+        "99aa54fbccd0cec5a7f3f2f3f706b69ac02e642b7bd988b47e51de979555cf2f"
+      ],
+      "retained_order": 44,
+      "selected_count": 1
+    },
+    "fe3ec1ad7f364d5a063003feda7427ee53a36f45d56be5dfc20974a66c98515d": {
+      "artifact_path": "candidates/fe3ec1ad7f364d5a063003feda7427ee53a36f45d56be5dfc20974a66c98515d",
+      "candidate_id": "fe3ec1ad7f364d5a063003feda7427ee53a36f45d56be5dfc20974a66c98515d",
+      "created_opportunity": 33,
+      "fitness": -1251.0,
+      "hypothesis": "Canonicalizing each head\u2019s rank-four key projection to an identity basis will reduce the model from 1,275 to 1,251 parameters while retaining at least 99% accuracy, because it preserves the exact attention scores and reconstructs the successful virtual Q/K AdamW gradients through the gauge transformation.",
+      "intended_edit": "Replace the 112 stored bilinear-score parameters with 88 canonical query, key-tail, and query-bias parameters, while retaining full virtual query/key optimizer states and recanonicalizing after every update.",
+      "metrics": {
+        "accuracy": 0.9998,
+        "cases": 10010,
+        "correct": 10008,
+        "parameters": 1251,
+        "training_steps": 4999
+      },
+      "parent_ids": [
+        "fc636717d0218108093fe760bac31ff23c36ad236942f4e38aeb8d9cc4a00045"
+      ],
+      "retained_order": 33,
+      "selected_count": 2
+    }
+  },
+  "condition": "C1",
+  "conversation_session_id": null,
+  "evaluations_used": 119,
+  "evaluator_seconds_used": 82633.19060678175,
+  "incumbent_id": "dd3c357b59bb0327ec8c12e92067c4de852548fe2c3f73583d0560dc0abbf356",
+  "next_opportunity": 120,
+  "no_search": false,
+  "portfolio_ids": [
+    "dd3c357b59bb0327ec8c12e92067c4de852548fe2c3f73583d0560dc0abbf356"
+  ],
+  "proposals_used": 119,
+  "protocol_hash": "0247b4415c62d35b231e3347f31a3f63cd54eb4ec6bb2441bfc209e0ee2d3cc4",
+  "revision": 329,
+  "run_id": "controlled-openevolve-transformer-v2-1-source-only-ten-digit-addition-pair-transformer-openevolve-v2-1-mps-openevolve-b02-c1",
+  "schema_version": "1.0",
+  "status": "running",
+  "token_budget_continuation_notice_sent": false,
+  "usage": {
+    "cached_input_tokens": 1143552,
+    "input_tokens": 3227486,
+    "output_tokens": 490204,
+    "reasoning_output_tokens": 398815
+  }
+}

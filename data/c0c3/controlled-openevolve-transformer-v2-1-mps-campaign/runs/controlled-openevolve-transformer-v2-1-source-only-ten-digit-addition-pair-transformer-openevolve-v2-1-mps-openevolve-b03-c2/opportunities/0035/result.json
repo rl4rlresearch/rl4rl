@@ -1,0 +1,85 @@
+{
+  "artifact_path": "candidates/09dda3e1f6b5ce7ca26147ebf5c4e50887d43ded45323c67f4ae8037ecede281",
+  "candidate_id": "09dda3e1f6b5ce7ca26147ebf5c4e50887d43ded45323c67f4ae8037ecede281",
+  "codex_service_tier": "default",
+  "condition": "C2",
+  "conversation_session_id": null,
+  "evaluation": {
+    "evaluator_calls": 1,
+    "evaluator_seconds": 825.8962623339612,
+    "failure_kind": null,
+    "fitness": -1571.0,
+    "metrics": {
+      "accuracy": 0.9989,
+      "cases": 10010,
+      "correct": 9999,
+      "parameters": 1571,
+      "training_steps": 4999
+    },
+    "valid": true
+  },
+  "evaluator_calls_cumulative": 35,
+  "evaluator_calls_increment": 1,
+  "evaluator_seconds_cumulative": 13495.329836333985,
+  "evaluator_seconds_increment": 825.8962623339612,
+  "event": "proposal_completed",
+  "evicted_candidate_id": "dcb8542d7afae7da0473c0c79d4f21af24d8d58b188dc81deab45e8cdafa4da6",
+  "evidence": "Folding all eight `ln2` scales into `fc1.weight` with factor-aware AdamW and clipping achieved 99.75% accuracy at 1579 parameters; `ln1` has the same columnwise multiplicative redundancy with its downstream QKV projection.",
+  "hypothesis": "Folding all eight `ln1` scales into `qkv.weight` while reproducing their AdamW and clipping dynamics will reduce the verified 1579-parameter model to 1571 parameters while retaining at least 99% accuracy.",
+  "incumbent_after": "09dda3e1f6b5ce7ca26147ebf5c4e50887d43ded45323c67f4ae8037ecede281",
+  "intended_edit": "Make `ln1` non-affine and add each attention QKV weight to the optimizer\u2019s existing folded-factor path alongside `fc1.weight`.",
+  "mechanism": "Trajectory-preserving LayerNorm-scale folding into attention QKV weights",
+  "opportunity": 35,
+  "parent_ids": [
+    "dcb8542d7afae7da0473c0c79d4f21af24d8d58b188dc81deab45e8cdafa4da6"
+  ],
+  "portfolio_after": [
+    "2b9cea175ed60b009337ac54f6e8ad23bf2c014eb4080237777bfb70bfd9fd5b",
+    "09dda3e1f6b5ce7ca26147ebf5c4e50887d43ded45323c67f4ae8037ecede281",
+    "8ee486ff56b7d48c60896324daa549cd96bce1293507adb191294105c249a9c1",
+    "0f9739ff7e3d82e2427899d045f380fd4d3f32d7d62b79f54ee5e4bd5afd7ab5"
+  ],
+  "prompt_hashes": {
+    "common_template_sha256": "3f2bea6418b6969c4bf2aa1df18dcda8a3a4ac075bf20c79068c754698b6be5e",
+    "prompt_sha256": "a8d806af127d5bb7141a39110c156c92ca5d9c217906dc2b231658bb1cb76f59",
+    "proposal_policy_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "search_state_sha256": "c938ac007bf70fe8d27f64661175531e51fcb16b38318c328493c32ee292e27e",
+    "treatment_skeleton_sha256": "5d90dd5f96d2201e756844b7dc7f38d0b09addeff9753ceed519372f8e9b5852"
+  },
+  "proposal_type": "ordinary",
+  "proposals_cumulative": 35,
+  "remaining_budget": {
+    "evaluations": 165,
+    "evaluator_seconds": 346504.670163666,
+    "proposals": 165,
+    "tokens": 98731436
+  },
+  "retained": true,
+  "retention_decision": "replaced_selected_parent_on_strict_improvement",
+  "run_id": "controlled-openevolve-transformer-v2-1-source-only-ten-digit-addition-pair-transformer-openevolve-v2-1-mps-openevolve-b03-c2",
+  "schema_version": "1.0",
+  "selected_parent_ids": [
+    "dcb8542d7afae7da0473c0c79d4f21af24d8d58b188dc81deab45e8cdafa4da6"
+  ],
+  "timestamp": "2026-08-24T04:49:56.303983+00:00",
+  "usage_cumulative": {
+    "cached_input_tokens": 404736,
+    "input_tokens": 1124121,
+    "output_tokens": 144443,
+    "reasoning_output_tokens": 115996,
+    "total_tokens": 1268564
+  },
+  "usage_increment": {
+    "cached_input_tokens": 12032,
+    "input_tokens": 40053,
+    "output_tokens": 1479,
+    "reasoning_output_tokens": 1034,
+    "total_tokens": 41532
+  },
+  "visible_candidate_ids": [
+    "2b9cea175ed60b009337ac54f6e8ad23bf2c014eb4080237777bfb70bfd9fd5b",
+    "dcb8542d7afae7da0473c0c79d4f21af24d8d58b188dc81deab45e8cdafa4da6",
+    "8ee486ff56b7d48c60896324daa549cd96bce1293507adb191294105c249a9c1",
+    "0f9739ff7e3d82e2427899d045f380fd4d3f32d7d62b79f54ee5e4bd5afd7ab5"
+  ]
+}

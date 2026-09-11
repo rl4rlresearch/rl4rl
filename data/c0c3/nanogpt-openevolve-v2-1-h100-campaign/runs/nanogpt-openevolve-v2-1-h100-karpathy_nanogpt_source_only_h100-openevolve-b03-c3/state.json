@@ -1,0 +1,1340 @@
+{
+  "active": null,
+  "candidates": {
+    "0040bc663f5a8e0ede9bd8da536131af0af8314e4567a0880782d357323279af": {
+      "artifact_path": "candidates/0040bc663f5a8e0ede9bd8da536131af0af8314e4567a0880782d357323279af",
+      "candidate_id": "0040bc663f5a8e0ede9bd8da536131af0af8314e4567a0880782d357323279af",
+      "created_opportunity": 25,
+      "fitness": -0.993768,
+      "hypothesis": "Restricting output gates to the two short-context layers immediately preceding full-context layers will lower val_bpb below 0.992110 while processing more than 477.1M tokens.",
+      "intended_edit": "Remove output gates from the full-context layers while retaining the proven two-lag embedding FIR and predecessor-layer gates.",
+      "metrics": {
+        "depth": 8.0,
+        "mfu_percent": 38.08,
+        "num_params_M": 50.3,
+        "num_steps": 912.0,
+        "peak_vram_mb": 45832.5,
+        "total_tokens_M": 478.2,
+        "training_seconds": 300.0,
+        "val_bpb": 0.993768
+      },
+      "parent_ids": [
+        "528755766b20deef30a32a5dd29aae232775b7555dc993f76a9a5bd80f1a972d"
+      ],
+      "retained_order": 25,
+      "selected_count": 0
+    },
+    "005b27c638e8ced7b681518a1df47186e926fc1a87b4dda0797371df3c14496a": {
+      "artifact_path": "candidates/005b27c638e8ced7b681518a1df47186e926fc1a87b4dda0797371df3c14496a",
+      "candidate_id": "005b27c638e8ced7b681518a1df47186e926fc1a87b4dda0797371df3c14496a",
+      "created_opportunity": 3,
+      "fitness": -1.001276,
+      "hypothesis": "Halving the optimizer batch to 262,144 tokens will provide nearly twice as many parameter updates within five minutes and reduce val_bpb below 0.995558 despite modest optimizer overhead.",
+      "intended_edit": "Reduce gradient accumulation from two microbatches to one while retaining the 128-sequence device batch and all model, loss, and learning-rate settings.",
+      "metrics": {
+        "depth": 8.0,
+        "mfu_percent": 30.08,
+        "num_params_M": 50.3,
+        "num_steps": 1435.0,
+        "peak_vram_mb": 44908.2,
+        "total_tokens_M": 376.2,
+        "training_seconds": 300.1,
+        "val_bpb": 1.001276
+      },
+      "parent_ids": [
+        "2865e528e18dc51191e4037eaeb5824cb0ea83ede79061b59b8f3caac686da6b"
+      ],
+      "retained_order": 3,
+      "selected_count": 2
+    },
+    "021833cad0c0546a7f0b572151648095ee7bb0de7c565cf4face4171caa2b92e": {
+      "artifact_path": "candidates/021833cad0c0546a7f0b572151648095ee7bb0de7c565cf4face4171caa2b92e",
+      "candidate_id": "021833cad0c0546a7f0b572151648095ee7bb0de7c565cf4face4171caa2b92e",
+      "created_opportunity": 26,
+      "fitness": -0.99236,
+      "hypothesis": "Restoring the best two-lag receptive field and dynamically scaling each lag from the current token will lower val_bpb below 0.992110 while retaining at least 470M trained tokens.",
+      "intended_edit": "Remove the regressive third lag and add a neutral-initialized, first-32-channel gate that independently modulates the two channel-wise causal embedding paths.",
+      "metrics": {
+        "depth": 8.0,
+        "mfu_percent": 37.74,
+        "num_params_M": 50.3,
+        "num_steps": 904.0,
+        "peak_vram_mb": 46349.5,
+        "total_tokens_M": 474.0,
+        "training_seconds": 300.1,
+        "val_bpb": 0.99236
+      },
+      "parent_ids": [
+        "3e4e39b024acb43ec694e138159642fb1943bf91abd7c24d580ad02531da1a49"
+      ],
+      "retained_order": 26,
+      "selected_count": 9
+    },
+    "046c3b8e033a4cef5cbc155638ec3137239cf5fb8d2ed72828a88f566570ab90": {
+      "artifact_path": "candidates/046c3b8e033a4cef5cbc155638ec3137239cf5fb8d2ed72828a88f566570ab90",
+      "candidate_id": "046c3b8e033a4cef5cbc155638ec3137239cf5fb8d2ed72828a88f566570ab90",
+      "created_opportunity": 43,
+      "fitness": -0.991889,
+      "hypothesis": "Optimizing only the four output-gate matrices with AdamW at 0.015 on the proven 704/1024/1344 backbone will lower val_bpb below 0.991514 while retaining at least 470M trained tokens.",
+      "intended_edit": "Restore the best staged-attention schedule, exclude output gates from Muon, and raise their dedicated AdamW learning rate from the previously successful 0.01 to 0.015.",
+      "metrics": {
+        "depth": 8.0,
+        "mfu_percent": 37.93,
+        "num_params_M": 50.3,
+        "num_steps": 909.0,
+        "peak_vram_mb": 46348.5,
+        "total_tokens_M": 476.6,
+        "training_seconds": 300.2,
+        "val_bpb": 0.991889
+      },
+      "parent_ids": [
+        "668a76aa8c1fd930ae5b19f3b218c1978e02a0ee04714d0df7698e1fd36246ce"
+      ],
+      "retained_order": 43,
+      "selected_count": 12
+    },
+    "04acca2a31436c6e41bcd89d8ecde70af7c0f3140ea24c9e64238ab1b018e4ca": {
+      "artifact_path": "candidates/04acca2a31436c6e41bcd89d8ecde70af7c0f3140ea24c9e64238ab1b018e4ca",
+      "candidate_id": "04acca2a31436c6e41bcd89d8ecde70af7c0f3140ea24c9e64238ab1b018e4ca",
+      "created_opportunity": 52,
+      "fitness": -0.991917,
+      "hypothesis": "Using AdamW at 0.0115 for full-context output gates and 0.0100 for pre-handoff short-context gates will lower val_bpb below 0.991177 while retaining at least 470M training tokens.",
+      "intended_edit": "Split the four output-gate matrices into full-context and pre-handoff optimizer groups, preserving the best verified rate for global branches while applying the proven conservative rate to short-context branches.",
+      "metrics": {
+        "depth": 8.0,
+        "mfu_percent": 37.74,
+        "num_params_M": 50.3,
+        "num_steps": 904.0,
+        "peak_vram_mb": 46348.5,
+        "total_tokens_M": 474.0,
+        "training_seconds": 300.1,
+        "val_bpb": 0.991917
+      },
+      "parent_ids": [
+        "ff987b2a05efb35a90626e7dbe0f50c617bba791c9f324ea76d5597bc38297c1"
+      ],
+      "retained_order": 52,
+      "selected_count": 14
+    },
+    "073c0c20ffce9f9c7373a4c08fde16f87d5b194ad21c03d8a86866625dafc42b": {
+      "artifact_path": "candidates/073c0c20ffce9f9c7373a4c08fde16f87d5b194ad21c03d8a86866625dafc42b",
+      "candidate_id": "073c0c20ffce9f9c7373a4c08fde16f87d5b194ad21c03d8a86866625dafc42b",
+      "created_opportunity": 22,
+      "fitness": -0.992949,
+      "hypothesis": "Applying the learned two-lag embedding convolution while retaining output gates only in full-context layers will lower val_bpb below 0.992628 and restore training volume to roughly 480M tokens or more.",
+      "intended_edit": "Add the proven channel-wise two-lag causal embedding convolution and remove attention-output gates from the six short-context layers.",
+      "metrics": {
+        "depth": 8.0,
+        "mfu_percent": 37.84,
+        "num_params_M": 50.3,
+        "num_steps": 907.0,
+        "peak_vram_mb": 45832.5,
+        "total_tokens_M": 475.5,
+        "training_seconds": 300.3,
+        "val_bpb": 0.992949
+      },
+      "parent_ids": [
+        "dc725a877809c8c9b98a82241aae181de0c7f1b656d987c1c5f1a6364c0eeb4a"
+      ],
+      "retained_order": 22,
+      "selected_count": 8
+    },
+    "0a6bacd34756636ca41cdd0973f5c21d309d5f764ac99212b352903a65b40cea": {
+      "artifact_path": "candidates/0a6bacd34756636ca41cdd0973f5c21d309d5f764ac99212b352903a65b40cea",
+      "candidate_id": "0a6bacd34756636ca41cdd0973f5c21d309d5f764ac99212b352903a65b40cea",
+      "created_opportunity": 45,
+      "fitness": -0.991177,
+      "hypothesis": "AdamW at 0.0115 for only the four output-gate matrices will lower val_bpb below 0.991514 while retaining at least 470M trained tokens.",
+      "intended_edit": "Raise the dedicated output-gate AdamW learning rate from 0.0100 to 0.0115 without changing the proven 704/1024/1344 backbone or other optimizer groups.",
+      "metrics": {
+        "depth": 8.0,
+        "mfu_percent": 38.24,
+        "num_params_M": 50.3,
+        "num_steps": 916.0,
+        "peak_vram_mb": 46348.5,
+        "total_tokens_M": 480.2,
+        "training_seconds": 300.2,
+        "val_bpb": 0.991177
+      },
+      "parent_ids": [
+        "17e260cc0ca61470b0afef8fd2f0bd896cc12b744533dc0e52707f52d2756ad8"
+      ],
+      "retained_order": 45,
+      "selected_count": 15
+    },
+    "1533d562d84b2fca1e0eb45870815abb4e691e66b0aeedd9b7b12be99fdc85ce": {
+      "artifact_path": "candidates/1533d562d84b2fca1e0eb45870815abb4e691e66b0aeedd9b7b12be99fdc85ce",
+      "candidate_id": "1533d562d84b2fca1e0eb45870815abb4e691e66b0aeedd9b7b12be99fdc85ce",
+      "created_opportunity": 17,
+      "fitness": -0.994766,
+      "hypothesis": "Preserving the proven gate\u2019s neutral slope while limiting each head\u2019s multiplier to 0.5\u20131.5 will prevent excessive head suppression or amplification and lower val_bpb below 0.993637 without reducing throughput.",
+      "intended_edit": "Replace the 0\u20132 sigmoid output gate with a neutral, equal-slope 0.5\u20131.5 tanh gate; batching, conditioning channels, softcap, and optimization remain unchanged.",
+      "metrics": {
+        "depth": 8.0,
+        "mfu_percent": 37.88,
+        "num_params_M": 50.3,
+        "num_steps": 907.0,
+        "peak_vram_mb": 47124.2,
+        "total_tokens_M": 475.5,
+        "training_seconds": 300.0,
+        "val_bpb": 0.994766
+      },
+      "parent_ids": [
+        "dc725a877809c8c9b98a82241aae181de0c7f1b656d987c1c5f1a6364c0eeb4a"
+      ],
+      "retained_order": 17,
+      "selected_count": 0
+    },
+    "17e260cc0ca61470b0afef8fd2f0bd896cc12b744533dc0e52707f52d2756ad8": {
+      "artifact_path": "candidates/17e260cc0ca61470b0afef8fd2f0bd896cc12b744533dc0e52707f52d2756ad8",
+      "candidate_id": "17e260cc0ca61470b0afef8fd2f0bd896cc12b744533dc0e52707f52d2756ad8",
+      "created_opportunity": 41,
+      "fitness": -0.991514,
+      "hypothesis": "Optimizing the four sigmoid output-gate matrices with AdamW at 0.01 instead of Muon will lower val_bpb below 0.991729 while retaining at least 475M trained tokens.",
+      "intended_edit": "Separate handoff output-gate weights from transformer matrices and optimize them with the same adaptive learning rate used by the successful embedding-context coefficients.",
+      "metrics": {
+        "depth": 8.0,
+        "mfu_percent": 37.93,
+        "num_params_M": 50.3,
+        "num_steps": 909.0,
+        "peak_vram_mb": 46348.5,
+        "total_tokens_M": 476.6,
+        "training_seconds": 300.2,
+        "val_bpb": 0.991514
+      },
+      "parent_ids": [
+        "fd87e46558e5b5165a3ef2b4520e844455b98914bbe06c5bc8dab0df2d4d7b44"
+      ],
+      "retained_order": 41,
+      "selected_count": 12
+    },
+    "1a4558241207bb635da8e50871ccd6a56ceeafa7329ab2fda5787ff31e862a81": {
+      "artifact_path": "candidates/1a4558241207bb635da8e50871ccd6a56ceeafa7329ab2fda5787ff31e862a81",
+      "candidate_id": "1a4558241207bb635da8e50871ccd6a56ceeafa7329ab2fda5787ff31e862a81",
+      "created_opportunity": 57,
+      "fitness": -0.992626,
+      "hypothesis": "Adding an exact three-token-back embedding tap will lower val_bpb below 0.991177 while retaining at least 470M trained tokens.",
+      "intended_edit": "Extend the learned causal embedding mixer from two to three previous-token taps, preserving the current model and optimizer otherwise.",
+      "metrics": {
+        "depth": 8.0,
+        "mfu_percent": 37.47,
+        "num_params_M": 50.3,
+        "num_steps": 898.0,
+        "peak_vram_mb": 46348.6,
+        "total_tokens_M": 470.8,
+        "training_seconds": 300.2,
+        "val_bpb": 0.992626
+      },
+      "parent_ids": [
+        "0a6bacd34756636ca41cdd0973f5c21d309d5f764ac99212b352903a65b40cea"
+      ],
+      "retained_order": 57,
+      "selected_count": 0
+    },
+    "2865e528e18dc51191e4037eaeb5824cb0ea83ede79061b59b8f3caac686da6b": {
+      "artifact_path": "candidates/2865e528e18dc51191e4037eaeb5824cb0ea83ede79061b59b8f3caac686da6b",
+      "candidate_id": "2865e528e18dc51191e4037eaeb5824cb0ea83ede79061b59b8f3caac686da6b",
+      "created_opportunity": 0,
+      "fitness": -0.995558,
+      "hypothesis": "frozen seed baseline",
+      "intended_edit": "none",
+      "metrics": {
+        "depth": 8.0,
+        "mfu_percent": 39.58,
+        "num_params_M": 50.3,
+        "num_steps": 948.0,
+        "peak_vram_mb": 45060.2,
+        "total_tokens_M": 497.0,
+        "training_seconds": 300.2,
+        "val_bpb": 0.995558
+      },
+      "parent_ids": [],
+      "retained_order": 0,
+      "selected_count": 5
+    },
+    "294f8441fb3137249baea6f2bf52232cc791b6829087b0da19592d2b384d4c61": {
+      "artifact_path": "candidates/294f8441fb3137249baea6f2bf52232cc791b6829087b0da19592d2b384d4c61",
+      "candidate_id": "294f8441fb3137249baea6f2bf52232cc791b6829087b0da19592d2b384d4c61",
+      "created_opportunity": 16,
+      "fitness": -0.996193,
+      "hypothesis": "Increasing the proven first-32-channel output gate\u2019s neutral slope by 50% will improve head specialization within the fixed training window and lower val_bpb below 0.993637 while retaining roughly 482M trained tokens.",
+      "intended_edit": "Restore per-head attention-output gating and the 11.75 softcap, but replace the 2\u00d7sigmoid gate with an equal-range, neutral tanh gate whose slope is 0.75 instead of 0.5.",
+      "metrics": {
+        "depth": 8.0,
+        "mfu_percent": 37.79,
+        "num_params_M": 50.3,
+        "num_steps": 905.0,
+        "peak_vram_mb": 47124.2,
+        "total_tokens_M": 474.5,
+        "training_seconds": 300.0,
+        "val_bpb": 0.996193
+      },
+      "parent_ids": [
+        "2865e528e18dc51191e4037eaeb5824cb0ea83ede79061b59b8f3caac686da6b"
+      ],
+      "retained_order": 16,
+      "selected_count": 0
+    },
+    "2dce12e370b2bf7f61e5f41544e752f16aed4a8c5d4663bbc6982649fffe0c46": {
+      "artifact_path": "candidates/2dce12e370b2bf7f61e5f41544e752f16aed4a8c5d4663bbc6982649fffe0c46",
+      "candidate_id": "2dce12e370b2bf7f61e5f41544e752f16aed4a8c5d4663bbc6982649fffe0c46",
+      "created_opportunity": 58,
+      "fitness": -0.991878,
+      "hypothesis": "Reallocating another 64 tokens from the earliest short-context layer to the pre-handoff layer, producing 640/1024/1408 windows, will lower val_bpb below 0.991177 while retaining at least 470M trained tokens.",
+      "intended_edit": "Preserve total short-attention FLOPs and the proven output-gate optimizer while increasing the staged window progression.",
+      "metrics": {
+        "depth": 8.0,
+        "mfu_percent": 38.0,
+        "num_params_M": 50.3,
+        "num_steps": 911.0,
+        "peak_vram_mb": 46348.5,
+        "total_tokens_M": 477.6,
+        "training_seconds": 300.3,
+        "val_bpb": 0.991878
+      },
+      "parent_ids": [
+        "981b844585e17d25d1a50d2ac2673b3a7f76519c3b170ad8030a328a91cba2cf"
+      ],
+      "retained_order": 58,
+      "selected_count": 0
+    },
+    "334d61009240f1cbd87f82b26b788890633ebf2546e181bce3c1b55e34dfcba5": {
+      "artifact_path": "candidates/334d61009240f1cbd87f82b26b788890633ebf2546e181bce3c1b55e34dfcba5",
+      "candidate_id": "334d61009240f1cbd87f82b26b788890633ebf2546e181bce3c1b55e34dfcba5",
+      "created_opportunity": 11,
+      "fitness": -0.998184,
+      "hypothesis": "Conditioning the proven per-head attention-output gates on all 512 hidden channels instead of an arbitrary 32-channel slice will lower val_bpb below 0.993637 while retaining roughly 480M trained tokens.",
+      "intended_edit": "Add neutral-initialized per-head attention-output gates using the full normalized token state, and use the 11.75 softcap from the strongest gated reference design.",
+      "metrics": {
+        "depth": 8.0,
+        "mfu_percent": 37.24,
+        "num_params_M": 50.3,
+        "num_steps": 892.0,
+        "peak_vram_mb": 47124.4,
+        "total_tokens_M": 467.7,
+        "training_seconds": 300.1,
+        "val_bpb": 0.998184
+      },
+      "parent_ids": [
+        "3d0984c417edfa34c39b8016244d3bbf5f1d7050ef6de35c69d1dd306e084003"
+      ],
+      "retained_order": 11,
+      "selected_count": 0
+    },
+    "34e99b300145a428ae979269f047edfa15b433213ccc2ecb55cbeff2db00cc5f": {
+      "artifact_path": "candidates/34e99b300145a428ae979269f047edfa15b433213ccc2ecb55cbeff2db00cc5f",
+      "candidate_id": "34e99b300145a428ae979269f047edfa15b433213ccc2ecb55cbeff2db00cc5f",
+      "created_opportunity": 39,
+      "fitness": -0.992112,
+      "hypothesis": "Using the milder 768/1024/1280 schedule for the first handoff and the steeper 640/1024/1408 schedule for the second will lower val_bpb below 0.991729 while retaining at least 475M trained tokens.",
+      "intended_edit": "Replace the repeated 640/1024/1408 schedule with complementary compute-neutral schedules, assigning greater early-layer context to the first cycle and greater immediate-predecessor context to the second.",
+      "metrics": {
+        "depth": 8.0,
+        "mfu_percent": 38.06,
+        "num_params_M": 50.3,
+        "num_steps": 912.0,
+        "peak_vram_mb": 46348.5,
+        "total_tokens_M": 478.2,
+        "training_seconds": 300.2,
+        "val_bpb": 0.992112
+      },
+      "parent_ids": [
+        "668a76aa8c1fd930ae5b19f3b218c1978e02a0ee04714d0df7698e1fd36246ce"
+      ],
+      "retained_order": 39,
+      "selected_count": 0
+    },
+    "35761743bbc0a84747b59e6f60bc8c7270e1c714ea4a1107082e1772427746f7": {
+      "artifact_path": "candidates/35761743bbc0a84747b59e6f60bc8c7270e1c714ea4a1107082e1772427746f7",
+      "candidate_id": "35761743bbc0a84747b59e6f60bc8c7270e1c714ea4a1107082e1772427746f7",
+      "created_opportunity": 19,
+      "fitness": -0.994766,
+      "hypothesis": "Restoring the proven unfused first-32-channel output gates and optimizing only those tiny gate matrices with AdamW at 0.01 will lower val_bpb below 0.993637 while retaining at least 480M trained tokens.",
+      "intended_edit": "Undo the unsuccessful value/output forward fusion, exclude output-gate matrices from Muon, and place them in a dedicated AdamW parameter group.",
+      "metrics": {
+        "depth": 8.0,
+        "mfu_percent": 37.76,
+        "num_params_M": 50.3,
+        "num_steps": 905.0,
+        "peak_vram_mb": 47124.2,
+        "total_tokens_M": 474.5,
+        "training_seconds": 300.2,
+        "val_bpb": 0.994766
+      },
+      "parent_ids": [
+        "eae6d6f6e71f7c40476d436f13b811436a914f2aadd4ccb896baad1149666905"
+      ],
+      "retained_order": 19,
+      "selected_count": 0
+    },
+    "3d0984c417edfa34c39b8016244d3bbf5f1d7050ef6de35c69d1dd306e084003": {
+      "artifact_path": "candidates/3d0984c417edfa34c39b8016244d3bbf5f1d7050ef6de35c69d1dd306e084003",
+      "candidate_id": "3d0984c417edfa34c39b8016244d3bbf5f1d7050ef6de35c69d1dd306e084003",
+      "created_opportunity": 8,
+      "fitness": -0.99523,
+      "hypothesis": "A softcap of 12 will lower val_bpb below 0.995334 at comparable throughput by relaxing cap 10 slightly without approaching the weaker regularization of cap 15.",
+      "intended_edit": "Change the FP32 training-and-validation logit softcap from 9 to 12, leaving architecture, batching, and optimization unchanged.",
+      "metrics": {
+        "depth": 8.0,
+        "mfu_percent": 39.26,
+        "num_params_M": 50.3,
+        "num_steps": 940.0,
+        "peak_vram_mb": 45060.2,
+        "total_tokens_M": 492.8,
+        "training_seconds": 300.1,
+        "val_bpb": 0.99523
+      },
+      "parent_ids": [
+        "80b6d63707b210110e40807601c49b1d958d1662caa52d18c3677543f42851e4"
+      ],
+      "retained_order": 8,
+      "selected_count": 4
+    },
+    "3e4e39b024acb43ec694e138159642fb1943bf91abd7c24d580ad02531da1a49": {
+      "artifact_path": "candidates/3e4e39b024acb43ec694e138159642fb1943bf91abd7c24d580ad02531da1a49",
+      "candidate_id": "3e4e39b024acb43ec694e138159642fb1943bf91abd7c24d580ad02531da1a49",
+      "created_opportunity": 24,
+      "fitness": -0.992455,
+      "hypothesis": "Extending the best two-lag embedding FIR to three learned lags will lower val_bpb below 0.992110 while preserving at least 470M trained tokens.",
+      "intended_edit": "Restore the best four-layer handoff-gated design, add a neutral-initialized third causal embedding lag, and optimize all three channel-wise coefficients with AdamW.",
+      "metrics": {
+        "depth": 8.0,
+        "mfu_percent": 37.94,
+        "num_params_M": 50.3,
+        "num_steps": 909.0,
+        "peak_vram_mb": 46348.6,
+        "total_tokens_M": 476.6,
+        "training_seconds": 300.2,
+        "val_bpb": 0.992455
+      },
+      "parent_ids": [
+        "eae6d6f6e71f7c40476d436f13b811436a914f2aadd4ccb896baad1149666905"
+      ],
+      "retained_order": 24,
+      "selected_count": 7
+    },
+    "49430dbb3ceb3519883177627f5686ca87f24e0ba8e73b868c0af466c528ec2d": {
+      "artifact_path": "candidates/49430dbb3ceb3519883177627f5686ca87f24e0ba8e73b868c0af466c528ec2d",
+      "candidate_id": "49430dbb3ceb3519883177627f5686ca87f24e0ba8e73b868c0af466c528ec2d",
+      "created_opportunity": 40,
+      "fitness": -0.992264,
+      "hypothesis": "Leaving half of each full-context layer\u2019s query/key channels unrotated, while restoring the proven 704/1024/1344 short-window progression, will lower val_bpb below 0.991729 while retaining at least 475M training tokens.",
+      "intended_edit": "Use full RoPE in short-context layers but a mixed positional/content subspace in full-context layers, allowing their learned projections to perform position-independent semantic retrieval without weakening local order modeling.",
+      "metrics": {
+        "depth": 8.0,
+        "mfu_percent": 37.53,
+        "num_params_M": 50.3,
+        "num_steps": 899.0,
+        "peak_vram_mb": 46348.5,
+        "total_tokens_M": 471.3,
+        "training_seconds": 300.1,
+        "val_bpb": 0.992264
+      },
+      "parent_ids": [
+        "528755766b20deef30a32a5dd29aae232775b7555dc993f76a9a5bd80f1a972d"
+      ],
+      "retained_order": 40,
+      "selected_count": 0
+    },
+    "527028f3b302d06fb4a431bbb3f2b311bf4db7e77ee41ff03039a0e4bbf79212": {
+      "artifact_path": "candidates/527028f3b302d06fb4a431bbb3f2b311bf4db7e77ee41ff03039a0e4bbf79212",
+      "candidate_id": "527028f3b302d06fb4a431bbb3f2b311bf4db7e77ee41ff03039a0e4bbf79212",
+      "created_opportunity": 4,
+      "fitness": -0.995334,
+      "hypothesis": "Applying a tanh softcap of 10 will reduce val_bpb below 0.995558 by more strongly suppressing overconfident logits than the successful cap of 15.",
+      "intended_edit": "Replace uncapped FP32 logits with softcapped FP32 logits during both training and validation.",
+      "metrics": {
+        "depth": 8.0,
+        "mfu_percent": 39.28,
+        "num_params_M": 50.3,
+        "num_steps": 941.0,
+        "peak_vram_mb": 45060.2,
+        "total_tokens_M": 493.4,
+        "training_seconds": 300.3,
+        "val_bpb": 0.995334
+      },
+      "parent_ids": [
+        "a39023afe78be1039b829ba49590675b384d0dddbd6f197a410265a2d08ef6a2"
+      ],
+      "retained_order": 4,
+      "selected_count": 3
+    },
+    "528755766b20deef30a32a5dd29aae232775b7555dc993f76a9a5bd80f1a972d": {
+      "artifact_path": "candidates/528755766b20deef30a32a5dd29aae232775b7555dc993f76a9a5bd80f1a972d",
+      "candidate_id": "528755766b20deef30a32a5dd29aae232775b7555dc993f76a9a5bd80f1a972d",
+      "created_opportunity": 23,
+      "fitness": -0.99211,
+      "hypothesis": "Combining the learned two-lag embedding convolution with output gates on each full-context layer and its immediately preceding short-context layer will lower val_bpb below 0.992628 while processing more than 467.1M tokens.",
+      "intended_edit": "Add the proven causal embedding convolution and expand long-layer-only gating from two layers to the four S-L handoff layers, targeting the midpoint between the accurate all-layer design and faster long-only design.",
+      "metrics": {
+        "depth": 8.0,
+        "mfu_percent": 38.0,
+        "num_params_M": 50.3,
+        "num_steps": 910.0,
+        "peak_vram_mb": 46348.5,
+        "total_tokens_M": 477.1,
+        "training_seconds": 300.0,
+        "val_bpb": 0.99211
+      },
+      "parent_ids": [
+        "adbcaf376f067b374df266afee3cd44b703d9549b00595d1bcf57d210f51b5e7"
+      ],
+      "retained_order": 23,
+      "selected_count": 11
+    },
+    "546547ccdafdd5df8bd45df5adfa945dda16c55898258a152a58cdd5087e65f0": {
+      "artifact_path": "candidates/546547ccdafdd5df8bd45df5adfa945dda16c55898258a152a58cdd5087e65f0",
+      "candidate_id": "546547ccdafdd5df8bd45df5adfa945dda16c55898258a152a58cdd5087e65f0",
+      "created_opportunity": 13,
+      "fitness": -0.995123,
+      "hypothesis": "Conditioning each attention-output gate exclusively on 32 channels from its corresponding head will lower val_bpb below 0.993637 while retaining roughly 480M trained tokens.",
+      "intended_edit": "Reuse the existing gate weights and compute each head\u2019s gate from its own normalized hidden-state slice instead of applying a dense gate to the shared first 32 channels.",
+      "metrics": {
+        "depth": 8.0,
+        "mfu_percent": 37.63,
+        "num_params_M": 50.3,
+        "num_steps": 902.0,
+        "peak_vram_mb": 47140.2,
+        "total_tokens_M": 472.9,
+        "training_seconds": 300.3,
+        "val_bpb": 0.995123
+      },
+      "parent_ids": [
+        "dc725a877809c8c9b98a82241aae181de0c7f1b656d987c1c5f1a6364c0eeb4a"
+      ],
+      "retained_order": 13,
+      "selected_count": 0
+    },
+    "6083a9c87946d8b171186a1c321e519f3a24d2b7ca14a062fb1687d4e7ae2c3c": {
+      "artifact_path": "candidates/6083a9c87946d8b171186a1c321e519f3a24d2b7ca14a062fb1687d4e7ae2c3c",
+      "candidate_id": "6083a9c87946d8b171186a1c321e519f3a24d2b7ca14a062fb1687d4e7ae2c3c",
+      "created_opportunity": 38,
+      "fitness": -0.992249,
+      "hypothesis": "Using the steeper 640/1024/1408 schedule for the first short-to-long handoff and the milder 768/1024/1280 schedule for the second will lower val_bpb below 0.991729 while retaining at least 475M trained tokens.",
+      "intended_edit": "Replace the repeated short-window schedule with complementary, compute-neutral schedules that allocate more predecessor context to the empirically more informative first handoff.",
+      "metrics": {
+        "depth": 8.0,
+        "mfu_percent": 37.95,
+        "num_params_M": 50.3,
+        "num_steps": 909.0,
+        "peak_vram_mb": 46348.5,
+        "total_tokens_M": 476.6,
+        "training_seconds": 300.1,
+        "val_bpb": 0.992249
+      },
+      "parent_ids": [
+        "69a781d3c501ec298e2ac042b4908eea0334d1eefe548cab394e7d3affbd52bd"
+      ],
+      "retained_order": 38,
+      "selected_count": 0
+    },
+    "644c161a7821902d31c35093060680565292083af10df741e92ce39bcaebe85f": {
+      "artifact_path": "candidates/644c161a7821902d31c35093060680565292083af10df741e92ce39bcaebe85f",
+      "candidate_id": "644c161a7821902d31c35093060680565292083af10df741e92ce39bcaebe85f",
+      "created_opportunity": 44,
+      "fitness": -0.992015,
+      "hypothesis": "Optimizing only the four output-gate matrices with AdamW at 0.0075 on the proven 704/1024/1344 backbone will lower val_bpb below 0.991514 while retaining at least 470M trained tokens.",
+      "intended_edit": "Restore the best staged short-attention schedule, exclude output gates from Muon, and assign those gates a dedicated AdamW learning rate of 0.0075.",
+      "metrics": {
+        "depth": 8.0,
+        "mfu_percent": 37.91,
+        "num_params_M": 50.3,
+        "num_steps": 908.0,
+        "peak_vram_mb": 46348.5,
+        "total_tokens_M": 476.1,
+        "training_seconds": 300.0,
+        "val_bpb": 0.992015
+      },
+      "parent_ids": [
+        "528755766b20deef30a32a5dd29aae232775b7555dc993f76a9a5bd80f1a972d"
+      ],
+      "retained_order": 44,
+      "selected_count": 12
+    },
+    "668a76aa8c1fd930ae5b19f3b218c1978e02a0ee04714d0df7698e1fd36246ce": {
+      "artifact_path": "candidates/668a76aa8c1fd930ae5b19f3b218c1978e02a0ee04714d0df7698e1fd36246ce",
+      "candidate_id": "668a76aa8c1fd930ae5b19f3b218c1978e02a0ee04714d0df7698e1fd36246ce",
+      "created_opportunity": 35,
+      "fitness": -0.991994,
+      "hypothesis": "A 640/1024/1408-token progression will lower val_bpb below 0.991835 while retaining at least 475M training tokens.",
+      "intended_edit": "Replace the overly steep 512/1024/1536 schedule with the midpoint between it and the best 768/1024/1280 schedule, preserving total short-attention FLOPs.",
+      "metrics": {
+        "depth": 8.0,
+        "mfu_percent": 38.19,
+        "num_params_M": 50.3,
+        "num_steps": 915.0,
+        "peak_vram_mb": 46348.5,
+        "total_tokens_M": 479.7,
+        "training_seconds": 300.2,
+        "val_bpb": 0.991994
+      },
+      "parent_ids": [
+        "a732e034556a32f3185275f13a402a54a45792754eac7ef70d4b8ad42e05e531"
+      ],
+      "retained_order": 35,
+      "selected_count": 11
+    },
+    "69a781d3c501ec298e2ac042b4908eea0334d1eefe548cab394e7d3affbd52bd": {
+      "artifact_path": "candidates/69a781d3c501ec298e2ac042b4908eea0334d1eefe548cab394e7d3affbd52bd",
+      "candidate_id": "69a781d3c501ec298e2ac042b4908eea0334d1eefe548cab394e7d3affbd52bd",
+      "created_opportunity": 31,
+      "fitness": -0.991835,
+      "hypothesis": "Reallocating the uniform short-layer attention budget from 1024/1024/1024 to 768/1024/1280 tokens before each full-context layer will lower val_bpb below 0.992110 while retaining at least 470M training tokens.",
+      "intended_edit": "Restore the best four handoff-layer output gates and progressively expand short-context windows toward each full-context transition without changing total attention-window FLOPs.",
+      "metrics": {
+        "depth": 8.0,
+        "mfu_percent": 38.24,
+        "num_params_M": 50.3,
+        "num_steps": 916.0,
+        "peak_vram_mb": 46348.5,
+        "total_tokens_M": 480.2,
+        "training_seconds": 300.2,
+        "val_bpb": 0.991835
+      },
+      "parent_ids": [
+        "9931424bd937324c0b9cc3301f65f06033626b33e060d110d5f4424b73c546cd"
+      ],
+      "retained_order": 31,
+      "selected_count": 14
+    },
+    "6ed34a97dda4c61a14f48ffc7b64ef52a56bd3622ccaaeb29384b9e1387f88f8": {
+      "artifact_path": "candidates/6ed34a97dda4c61a14f48ffc7b64ef52a56bd3622ccaaeb29384b9e1387f88f8",
+      "candidate_id": "6ed34a97dda4c61a14f48ffc7b64ef52a56bd3622ccaaeb29384b9e1387f88f8",
+      "created_opportunity": 49,
+      "fitness": -0.991861,
+      "hypothesis": "Adding zero-initialized per-head biases to the four output gates will lower val_bpb below 0.991177 while retaining at least 470M trained tokens.",
+      "intended_edit": "Give each output gate an input-independent headwise scale parameter and optimize its bias alongside its weight with the best-verified 0.0115 AdamW learning rate.",
+      "metrics": {
+        "depth": 8.0,
+        "mfu_percent": 37.86,
+        "num_params_M": 50.3,
+        "num_steps": 907.0,
+        "peak_vram_mb": 46348.5,
+        "total_tokens_M": 475.5,
+        "training_seconds": 300.2,
+        "val_bpb": 0.991861
+      },
+      "parent_ids": [
+        "0a6bacd34756636ca41cdd0973f5c21d309d5f764ac99212b352903a65b40cea"
+      ],
+      "retained_order": 49,
+      "selected_count": 0
+    },
+    "795d1ed0c9da8873b6bd9403bdc04207a17a8e9fc8f8d2e1baf85038c583b24f": {
+      "artifact_path": "candidates/795d1ed0c9da8873b6bd9403bdc04207a17a8e9fc8f8d2e1baf85038c583b24f",
+      "candidate_id": "795d1ed0c9da8873b6bd9403bdc04207a17a8e9fc8f8d2e1baf85038c583b24f",
+      "created_opportunity": 34,
+      "fitness": -0.992309,
+      "hypothesis": "A 832/1024/1216-token progression will lower val_bpb below 0.991835 while retaining at least 475M training tokens.",
+      "intended_edit": "Redistribute each three-layer short-attention budget from uniform 1024-token windows to a milder staged progression without changing total attention-window FLOPs.",
+      "metrics": {
+        "depth": 8.0,
+        "mfu_percent": 37.91,
+        "num_params_M": 50.3,
+        "num_steps": 908.0,
+        "peak_vram_mb": 46348.5,
+        "total_tokens_M": 476.1,
+        "training_seconds": 300.1,
+        "val_bpb": 0.992309
+      },
+      "parent_ids": [
+        "528755766b20deef30a32a5dd29aae232775b7555dc993f76a9a5bd80f1a972d"
+      ],
+      "retained_order": 34,
+      "selected_count": 0
+    },
+    "80b6d63707b210110e40807601c49b1d958d1662caa52d18c3677543f42851e4": {
+      "artifact_path": "candidates/80b6d63707b210110e40807601c49b1d958d1662caa52d18c3677543f42851e4",
+      "candidate_id": "80b6d63707b210110e40807601c49b1d958d1662caa52d18c3677543f42851e4",
+      "created_opportunity": 6,
+      "fitness": -0.995704,
+      "hypothesis": "Restoring the proven 1024-token short window and using a softcap of 9 will lower val_bpb below 0.995334 by strengthening the beneficial cap-10 regularization without the excessive restriction observed at cap 7.5.",
+      "intended_edit": "Restore half-context sliding attention and change the FP32 training-and-validation logit softcap from 15 to 9.",
+      "metrics": {
+        "depth": 8.0,
+        "mfu_percent": 39.26,
+        "num_params_M": 50.3,
+        "num_steps": 940.0,
+        "peak_vram_mb": 45060.2,
+        "total_tokens_M": 492.8,
+        "training_seconds": 300.1,
+        "val_bpb": 0.995704
+      },
+      "parent_ids": [
+        "ee1f1cf686a479f175a9b2178602df52386a3561e80b0612b88ccd725e447c2e"
+      ],
+      "retained_order": 6,
+      "selected_count": 2
+    },
+    "8391b57bb847aa7b0dacbb46d5cf594f66c39e22fe861abdb707ab9f528ed792": {
+      "artifact_path": "candidates/8391b57bb847aa7b0dacbb46d5cf594f66c39e22fe861abdb707ab9f528ed792",
+      "candidate_id": "8391b57bb847aa7b0dacbb46d5cf594f66c39e22fe861abdb707ab9f528ed792",
+      "created_opportunity": 54,
+      "fitness": -0.991622,
+      "hypothesis": "Extending the proven 32-channel output gate to all eight attention layers, while retaining dedicated AdamW at 0.0115 and leaving value-residual gates on Muon, will lower val_bpb below 0.991177 while retaining at least 470M trained tokens.",
+      "intended_edit": "Replace handoff-only output gating with neutral-initialized output gating on every attention branch; the existing optimizer discovery automatically places all eight output-gate matrices in the dedicated AdamW group.",
+      "metrics": {
+        "depth": 8.0,
+        "mfu_percent": 37.51,
+        "num_params_M": 50.3,
+        "num_steps": 899.0,
+        "peak_vram_mb": 47380.5,
+        "total_tokens_M": 471.3,
+        "training_seconds": 300.3,
+        "val_bpb": 0.991622
+      },
+      "parent_ids": [
+        "981b844585e17d25d1a50d2ac2673b3a7f76519c3b170ad8030a328a91cba2cf"
+      ],
+      "retained_order": 54,
+      "selected_count": 0
+    },
+    "84aeffc89f975ca9e9690fe249f59a81dc2615dc82fc73a876aec946464646bb": {
+      "artifact_path": "candidates/84aeffc89f975ca9e9690fe249f59a81dc2615dc82fc73a876aec946464646bb",
+      "candidate_id": "84aeffc89f975ca9e9690fe249f59a81dc2615dc82fc73a876aec946464646bb",
+      "created_opportunity": 29,
+      "fitness": -0.992459,
+      "hypothesis": "Initializing the proven two-lag FIR with small decaying coefficients will lower val_bpb below 0.992110 while retaining at least 470M tokens by exposing useful local context immediately instead of learning both lag paths from zero.",
+      "intended_edit": "Preserve the best four handoff gates and two-lag architecture, but initialize the one-token and two-token embedding coefficients to 0.10 and 0.05 respectively.",
+      "metrics": {
+        "depth": 8.0,
+        "mfu_percent": 38.2,
+        "num_params_M": 50.3,
+        "num_steps": 915.0,
+        "peak_vram_mb": 46348.5,
+        "total_tokens_M": 479.7,
+        "training_seconds": 300.1,
+        "val_bpb": 0.992459
+      },
+      "parent_ids": [
+        "528755766b20deef30a32a5dd29aae232775b7555dc993f76a9a5bd80f1a972d"
+      ],
+      "retained_order": 29,
+      "selected_count": 0
+    },
+    "88b03e92cf37c14fc539f9cabbf96c9717ba36fb6b2677b6953a83f85ebc02bb": {
+      "artifact_path": "candidates/88b03e92cf37c14fc539f9cabbf96c9717ba36fb6b2677b6953a83f85ebc02bb",
+      "candidate_id": "88b03e92cf37c14fc539f9cabbf96c9717ba36fb6b2677b6953a83f85ebc02bb",
+      "created_opportunity": 30,
+      "fitness": -0.994246,
+      "hypothesis": "Replacing token-conditioned lag scaling with a learned 32-dimensional summary of all preceding embeddings, while restoring the best fixed two-lag FIR and four handoff gates, will lower val_bpb below 0.992110 while retaining at least 465M trained tokens.",
+      "intended_edit": "Restore fixed two-lag embedding mixing and add a neutral-initialized low-rank nonlinear projection of the causal running-mean embedding history before the transformer.",
+      "metrics": {
+        "depth": 8.0,
+        "mfu_percent": 37.36,
+        "num_params_M": 50.4,
+        "num_steps": 895.0,
+        "peak_vram_mb": 47406.0,
+        "total_tokens_M": 469.2,
+        "training_seconds": 300.3,
+        "val_bpb": 0.994246
+      },
+      "parent_ids": [
+        "021833cad0c0546a7f0b572151648095ee7bb0de7c565cf4face4171caa2b92e"
+      ],
+      "retained_order": 30,
+      "selected_count": 0
+    },
+    "8a7abbbdbcb3eea231a8f338ee7439c753ca5e85b508425a326e8294c6d6d8f9": {
+      "artifact_path": "candidates/8a7abbbdbcb3eea231a8f338ee7439c753ca5e85b508425a326e8294c6d6d8f9",
+      "candidate_id": "8a7abbbdbcb3eea231a8f338ee7439c753ca5e85b508425a326e8294c6d6d8f9",
+      "created_opportunity": 12,
+      "fitness": -0.994195,
+      "hypothesis": "Sampling 32 channels across the full normalized token state will preserve the proven gate\u2019s throughput while lowering val_bpb below 0.993637 by providing broader conditioning than the first-channel slice.",
+      "intended_edit": "Add neutral-initialized per-head attention-output gates conditioned on 32 evenly spaced hidden channels and use the strongest gated design\u2019s 11.75 softcap.",
+      "metrics": {
+        "depth": 8.0,
+        "mfu_percent": 38.03,
+        "num_params_M": 50.3,
+        "num_steps": 911.0,
+        "peak_vram_mb": 47124.2,
+        "total_tokens_M": 477.6,
+        "training_seconds": 300.1,
+        "val_bpb": 0.994195
+      },
+      "parent_ids": [
+        "527028f3b302d06fb4a431bbb3f2b311bf4db7e77ee41ff03039a0e4bbf79212"
+      ],
+      "retained_order": 12,
+      "selected_count": 4
+    },
+    "981b844585e17d25d1a50d2ac2673b3a7f76519c3b170ad8030a328a91cba2cf": {
+      "artifact_path": "candidates/981b844585e17d25d1a50d2ac2673b3a7f76519c3b170ad8030a328a91cba2cf",
+      "candidate_id": "981b844585e17d25d1a50d2ac2673b3a7f76519c3b170ad8030a328a91cba2cf",
+      "created_opportunity": 47,
+      "fitness": -0.991333,
+      "hypothesis": "Restoring the output-gate AdamW learning rate to 0.0115 will lower val_bpb below 0.991889 while retaining at least 470M trained tokens.",
+      "intended_edit": "Reduce the dedicated learning rate for the four output-gate matrices from 0.015 to the best-verified 0.0115, preserving the 704/1024/1344 backbone and all other optimizer groups.",
+      "metrics": {
+        "depth": 8.0,
+        "mfu_percent": 38.08,
+        "num_params_M": 50.3,
+        "num_steps": 912.0,
+        "peak_vram_mb": 46348.5,
+        "total_tokens_M": 478.2,
+        "training_seconds": 300.0,
+        "val_bpb": 0.991333
+      },
+      "parent_ids": [
+        "046c3b8e033a4cef5cbc155638ec3137239cf5fb8d2ed72828a88f566570ab90"
+      ],
+      "retained_order": 47,
+      "selected_count": 15
+    },
+    "9931424bd937324c0b9cc3301f65f06033626b33e060d110d5f4424b73c546cd": {
+      "artifact_path": "candidates/9931424bd937324c0b9cc3301f65f06033626b33e060d110d5f4424b73c546cd",
+      "candidate_id": "9931424bd937324c0b9cc3301f65f06033626b33e060d110d5f4424b73c546cd",
+      "created_opportunity": 21,
+      "fitness": -0.992628,
+      "hypothesis": "Combining the best learned two-lag embedding convolution with proven all-layer attention-output gates will lower val_bpb below 0.993485 while retaining roughly 470M or more training tokens because the mechanisms control complementary local and retrieved context paths.",
+      "intended_edit": "Preserve the current causal embedding convolution and add neutral-initialized, first-32-channel per-head output gates to every attention layer.",
+      "metrics": {
+        "depth": 8.0,
+        "mfu_percent": 37.17,
+        "num_params_M": 50.3,
+        "num_steps": 891.0,
+        "peak_vram_mb": 47380.5,
+        "total_tokens_M": 467.1,
+        "training_seconds": 300.2,
+        "val_bpb": 0.992628
+      },
+      "parent_ids": [
+        "e884daeef8c3e012079f3331e3b6697706c6368120031dcc8bb7a9422283ec2e"
+      ],
+      "retained_order": 21,
+      "selected_count": 8
+    },
+    "a39023afe78be1039b829ba49590675b384d0dddbd6f197a410265a2d08ef6a2": {
+      "artifact_path": "candidates/a39023afe78be1039b829ba49590675b384d0dddbd6f197a410265a2d08ef6a2",
+      "candidate_id": "a39023afe78be1039b829ba49590675b384d0dddbd6f197a410265a2d08ef6a2",
+      "created_opportunity": 2,
+      "fitness": -1.000923,
+      "hypothesis": "Removing the vocabulary-wide tanh softcap will increase trained tokens without destabilizing the five-minute run and reduce val_bpb below 0.995558.",
+      "intended_edit": "Replace softcapped logits with direct FP32 logits for both training and validation.",
+      "metrics": {
+        "depth": 8.0,
+        "mfu_percent": 39.88,
+        "num_params_M": 50.3,
+        "num_steps": 955.0,
+        "peak_vram_mb": 45060.2,
+        "total_tokens_M": 500.7,
+        "training_seconds": 300.2,
+        "val_bpb": 1.000923
+      },
+      "parent_ids": [
+        "2865e528e18dc51191e4037eaeb5824cb0ea83ede79061b59b8f3caac686da6b"
+      ],
+      "retained_order": 2,
+      "selected_count": 1
+    },
+    "a732e034556a32f3185275f13a402a54a45792754eac7ef70d4b8ad42e05e531": {
+      "artifact_path": "candidates/a732e034556a32f3185275f13a402a54a45792754eac7ef70d4b8ad42e05e531",
+      "candidate_id": "a732e034556a32f3185275f13a402a54a45792754eac7ef70d4b8ad42e05e531",
+      "created_opportunity": 32,
+      "fitness": -0.992198,
+      "hypothesis": "Using 512/1024/1536-token short windows before each full-context layer, together with the proven four handoff gates, will lower val_bpb below 0.991835 while retaining at least 480M training tokens.",
+      "intended_edit": "Restore output gating on full-context layers and their immediate predecessors, then redistribute each three-layer short-attention budget from 1024/1024/1024 to 512/1024/1536 tokens.",
+      "metrics": {
+        "depth": 8.0,
+        "mfu_percent": 38.05,
+        "num_params_M": 50.3,
+        "num_steps": 912.0,
+        "peak_vram_mb": 46348.5,
+        "total_tokens_M": 478.2,
+        "training_seconds": 300.3,
+        "val_bpb": 0.992198
+      },
+      "parent_ids": [
+        "073c0c20ffce9f9c7373a4c08fde16f87d5b194ad21c03d8a86866625dafc42b"
+      ],
+      "retained_order": 32,
+      "selected_count": 9
+    },
+    "adb7ce38a9e3a7856b6fefebd60d389690a085832aebeedc59dc81ecb5fdb299": {
+      "artifact_path": "candidates/adb7ce38a9e3a7856b6fefebd60d389690a085832aebeedc59dc81ecb5fdb299",
+      "candidate_id": "adb7ce38a9e3a7856b6fefebd60d389690a085832aebeedc59dc81ecb5fdb299",
+      "created_opportunity": 33,
+      "fitness": -0.992861,
+      "hypothesis": "Redistributing the middle short layer\u2019s context to the immediate pre-long layer, while preserving the successful 768-token first window, will lower val_bpb below 0.991835 while retaining at least 475M training tokens.",
+      "intended_edit": "Change each compute-neutral short-window schedule from 768/1024/1280 to 768/896/1408 tokens.",
+      "metrics": {
+        "depth": 8.0,
+        "mfu_percent": 37.73,
+        "num_params_M": 50.3,
+        "num_steps": 904.0,
+        "peak_vram_mb": 46348.5,
+        "total_tokens_M": 474.0,
+        "training_seconds": 300.2,
+        "val_bpb": 0.992861
+      },
+      "parent_ids": [
+        "69a781d3c501ec298e2ac042b4908eea0334d1eefe548cab394e7d3affbd52bd"
+      ],
+      "retained_order": 33,
+      "selected_count": 0
+    },
+    "adbcaf376f067b374df266afee3cd44b703d9549b00595d1bcf57d210f51b5e7": {
+      "artifact_path": "candidates/adbcaf376f067b374df266afee3cd44b703d9549b00595d1bcf57d210f51b5e7",
+      "candidate_id": "adbcaf376f067b374df266afee3cd44b703d9549b00595d1bcf57d210f51b5e7",
+      "created_opportunity": 18,
+      "fitness": -0.993865,
+      "hypothesis": "Restricting neutral per-head output gates to the two full-context layers will lower val_bpb below 0.993637 while restoring training volume toward 490M tokens.",
+      "intended_edit": "Remove the unsuccessful MLP gates and apply the proven first-32-channel attention-output gate only on layers whose effective attention window is full context.",
+      "metrics": {
+        "depth": 8.0,
+        "mfu_percent": 38.71,
+        "num_params_M": 50.3,
+        "num_steps": 927.0,
+        "peak_vram_mb": 45576.2,
+        "total_tokens_M": 486.0,
+        "training_seconds": 300.1,
+        "val_bpb": 0.993865
+      },
+      "parent_ids": [
+        "af099c1e5833ed09c2eef778dbc8248d8162ae106aa291d1a9b5b78c0fb16662"
+      ],
+      "retained_order": 18,
+      "selected_count": 6
+    },
+    "af099c1e5833ed09c2eef778dbc8248d8162ae106aa291d1a9b5b78c0fb16662": {
+      "artifact_path": "candidates/af099c1e5833ed09c2eef778dbc8248d8162ae106aa291d1a9b5b78c0fb16662",
+      "candidate_id": "af099c1e5833ed09c2eef778dbc8248d8162ae106aa291d1a9b5b78c0fb16662",
+      "created_opportunity": 14,
+      "fitness": -0.994155,
+      "hypothesis": "Extending the proven first-slice attention gate with a neutral token-dependent MLP-branch gate will lower val_bpb below 0.993637 while retaining roughly 470M or more trained tokens.",
+      "intended_edit": "Restore first-32-channel attention gating and add a zero-initialized scalar sigmoid gate to each MLP residual branch.",
+      "metrics": {
+        "depth": 8.0,
+        "mfu_percent": 37.98,
+        "num_params_M": 50.3,
+        "num_steps": 910.0,
+        "peak_vram_mb": 49176.2,
+        "total_tokens_M": 477.1,
+        "training_seconds": 300.2,
+        "val_bpb": 0.994155
+      },
+      "parent_ids": [
+        "8a7abbbdbcb3eea231a8f338ee7439c753ca5e85b508425a326e8294c6d6d8f9"
+      ],
+      "retained_order": 14,
+      "selected_count": 5
+    },
+    "b75dbbe530b729db1a83c90e0a564ccea2a1ef3549a8c7aeeb11a090f047f2ae": {
+      "artifact_path": "candidates/b75dbbe530b729db1a83c90e0a564ccea2a1ef3549a8c7aeeb11a090f047f2ae",
+      "candidate_id": "b75dbbe530b729db1a83c90e0a564ccea2a1ef3549a8c7aeeb11a090f047f2ae",
+      "created_opportunity": 42,
+      "fitness": -0.992169,
+      "hypothesis": "Extending the successful AdamW treatment from output gates to value-residual gates will lower val_bpb below 0.991514 while retaining at least 470M trained tokens.",
+      "intended_edit": "Restore the best 704/1024/1344 staged-attention backbone and optimize all eight sigmoid gate matrices with AdamW at 0.01 instead of Muon.",
+      "metrics": {
+        "depth": 8.0,
+        "mfu_percent": 37.95,
+        "num_params_M": 50.3,
+        "num_steps": 909.0,
+        "peak_vram_mb": 46348.5,
+        "total_tokens_M": 476.6,
+        "training_seconds": 300.1,
+        "val_bpb": 0.992169
+      },
+      "parent_ids": [
+        "69a781d3c501ec298e2ac042b4908eea0334d1eefe548cab394e7d3affbd52bd"
+      ],
+      "retained_order": 42,
+      "selected_count": 0
+    },
+    "ba73cbf0bf34205a20f97f1763f38b44028756f1997651baeb7f1846d60e2f39": {
+      "artifact_path": "candidates/ba73cbf0bf34205a20f97f1763f38b44028756f1997651baeb7f1846d60e2f39",
+      "candidate_id": "ba73cbf0bf34205a20f97f1763f38b44028756f1997651baeb7f1846d60e2f39",
+      "created_opportunity": 9,
+      "fitness": -0.9952,
+      "hypothesis": "A softcap of 11.75 on the proven 524,288-token batch will lower val_bpb below 0.995230 by refining the apparent optimum just below cap 12.",
+      "intended_edit": "Restore two-microbatch gradient accumulation and change the training-and-validation FP32 logit softcap from 15 to 11.75.",
+      "metrics": {
+        "depth": 8.0,
+        "mfu_percent": 39.26,
+        "num_params_M": 50.3,
+        "num_steps": 940.0,
+        "peak_vram_mb": 45060.2,
+        "total_tokens_M": 492.8,
+        "training_seconds": 300.0,
+        "val_bpb": 0.9952
+      },
+      "parent_ids": [
+        "005b27c638e8ced7b681518a1df47186e926fc1a87b4dda0797371df3c14496a"
+      ],
+      "retained_order": 9,
+      "selected_count": 3
+    },
+    "bf7f40179933c9be8cd0fc014e9553e93764acc51714a721206a8a3dd33f3e58": {
+      "artifact_path": "candidates/bf7f40179933c9be8cd0fc014e9553e93764acc51714a721206a8a3dd33f3e58",
+      "candidate_id": "bf7f40179933c9be8cd0fc014e9553e93764acc51714a721206a8a3dd33f3e58",
+      "created_opportunity": 51,
+      "fitness": -0.996952,
+      "hypothesis": "Conditioning the four output gates on all residual channels with best-verified AdamW at 0.0115 will lower val_bpb below 0.991177 while retaining at least 470M training tokens.",
+      "intended_edit": "Restore the proven 704/1024/1344 attention schedule and dedicated output-gate AdamW group, while widening each output gate\u2019s input from the first 32 channels to the full 512-channel residual stream.",
+      "metrics": {
+        "depth": 8.0,
+        "mfu_percent": 37.71,
+        "num_params_M": 50.3,
+        "num_steps": 903.0,
+        "peak_vram_mb": 46348.6,
+        "total_tokens_M": 473.4,
+        "training_seconds": 300.0,
+        "val_bpb": 0.996952
+      },
+      "parent_ids": [
+        "69a781d3c501ec298e2ac042b4908eea0334d1eefe548cab394e7d3affbd52bd"
+      ],
+      "retained_order": 51,
+      "selected_count": 0
+    },
+    "c07163687076d54aa60f235e2acfc0b5a8623755bf3265117ea2d777cccaa38b": {
+      "artifact_path": "candidates/c07163687076d54aa60f235e2acfc0b5a8623755bf3265117ea2d777cccaa38b",
+      "candidate_id": "c07163687076d54aa60f235e2acfc0b5a8623755bf3265117ea2d777cccaa38b",
+      "created_opportunity": 7,
+      "fitness": -1.009914,
+      "hypothesis": "Raising the softcap from 10 to 11 will preserve beneficial confidence control while slightly reducing saturation, lowering val_bpb below 0.995334.",
+      "intended_edit": "Change the FP32 training-and-validation logit softcap from 10 to 11, leaving architecture, batching, and optimization unchanged.",
+      "metrics": {
+        "depth": 8.0,
+        "mfu_percent": 31.34,
+        "num_params_M": 50.3,
+        "num_steps": 753.0,
+        "peak_vram_mb": 45060.2,
+        "total_tokens_M": 394.8,
+        "training_seconds": 300.3,
+        "val_bpb": 1.009914
+      },
+      "parent_ids": [
+        "527028f3b302d06fb4a431bbb3f2b311bf4db7e77ee41ff03039a0e4bbf79212"
+      ],
+      "retained_order": 7,
+      "selected_count": 0
+    },
+    "c321453a446535f2519748dba0243aef6d1fdf6c8d1feb33ff18b022aa7962c0": {
+      "artifact_path": "candidates/c321453a446535f2519748dba0243aef6d1fdf6c8d1feb33ff18b022aa7962c0",
+      "candidate_id": "c321453a446535f2519748dba0243aef6d1fdf6c8d1feb33ff18b022aa7962c0",
+      "created_opportunity": 27,
+      "fitness": -0.993029,
+      "hypothesis": "Retaining output gates only on the final short-context predecessor and full-context layer will preserve the complementary S-L gating benefit while processing more than 477.1M tokens, lowering val_bpb below 0.992110.",
+      "intended_edit": "Restore selective gating around only the final S-L handoff, removing gates and their computation from the first six layers while preserving the fixed two-lag embedding FIR.",
+      "metrics": {
+        "depth": 8.0,
+        "mfu_percent": 38.18,
+        "num_params_M": 50.3,
+        "num_steps": 915.0,
+        "peak_vram_mb": 45832.5,
+        "total_tokens_M": 479.7,
+        "training_seconds": 300.3,
+        "val_bpb": 0.993029
+      },
+      "parent_ids": [
+        "9931424bd937324c0b9cc3301f65f06033626b33e060d110d5f4424b73c546cd"
+      ],
+      "retained_order": 27,
+      "selected_count": 0
+    },
+    "d17dedb16f45d66f60b9212ee1c70bef3fd95b015da50bdbfcefb29f8e184aa3": {
+      "artifact_path": "candidates/d17dedb16f45d66f60b9212ee1c70bef3fd95b015da50bdbfcefb29f8e184aa3",
+      "candidate_id": "d17dedb16f45d66f60b9212ee1c70bef3fd95b015da50bdbfcefb29f8e184aa3",
+      "created_opportunity": 5,
+      "fitness": -1.013318,
+      "hypothesis": "On the proven 524,288-token batch, reducing the tanh softcap from 10 to 7.5 will extend the improvement from cap 15 to cap 10 and lower val_bpb below 0.995334.",
+      "intended_edit": "Restore the higher-throughput 524,288-token optimizer batch and apply a 7.5 FP32 logit softcap during training and validation.",
+      "metrics": {
+        "depth": 8.0,
+        "mfu_percent": 31.14,
+        "num_params_M": 50.3,
+        "num_steps": 748.0,
+        "peak_vram_mb": 45060.2,
+        "total_tokens_M": 392.2,
+        "training_seconds": 300.2,
+        "val_bpb": 1.013318
+      },
+      "parent_ids": [
+        "005b27c638e8ced7b681518a1df47186e926fc1a87b4dda0797371df3c14496a"
+      ],
+      "retained_order": 5,
+      "selected_count": 0
+    },
+    "d9f06375984182d57346cc01f4ed56b7e75a6aa4244546c6f638bd236b2caadf": {
+      "artifact_path": "candidates/d9f06375984182d57346cc01f4ed56b7e75a6aa4244546c6f638bd236b2caadf",
+      "candidate_id": "d9f06375984182d57346cc01f4ed56b7e75a6aa4244546c6f638bd236b2caadf",
+      "created_opportunity": 37,
+      "fitness": -0.992742,
+      "hypothesis": "A 720/1024/1328-token progression will lower val_bpb below 0.991729 while retaining at least 475M trained tokens.",
+      "intended_edit": "Shift 16 tokens of context from the final short layer to the first short layer, preserving the total short-attention FLOPs and all other proven components.",
+      "metrics": {
+        "depth": 8.0,
+        "mfu_percent": 37.62,
+        "num_params_M": 50.3,
+        "num_steps": 901.0,
+        "peak_vram_mb": 46348.5,
+        "total_tokens_M": 472.4,
+        "training_seconds": 300.0,
+        "val_bpb": 0.992742
+      },
+      "parent_ids": [
+        "fd87e46558e5b5165a3ef2b4520e844455b98914bbe06c5bc8dab0df2d4d7b44"
+      ],
+      "retained_order": 37,
+      "selected_count": 0
+    },
+    "dc725a877809c8c9b98a82241aae181de0c7f1b656d987c1c5f1a6364c0eeb4a": {
+      "artifact_path": "candidates/dc725a877809c8c9b98a82241aae181de0c7f1b656d987c1c5f1a6364c0eeb4a",
+      "candidate_id": "dc725a877809c8c9b98a82241aae181de0c7f1b656d987c1c5f1a6364c0eeb4a",
+      "created_opportunity": 10,
+      "fitness": -0.993637,
+      "hypothesis": "Replacing fixed-amplitude attention outputs with lightweight, token-dependent per-head gates will improve context selection and lower val_bpb below 0.995200 without materially reducing the roughly 493M-token training volume.",
+      "intended_edit": "Add a zero-initialized sigmoid gate to every attention layer that conditionally attenuates or amplifies each retrieved head. The old assumption is that attention weights alone adequately control contextual influence; the new approach separately learns whether each head\u2019s retrieved context should enter the residual stream.",
+      "metrics": {
+        "depth": 8.0,
+        "mfu_percent": 38.41,
+        "num_params_M": 50.3,
+        "num_steps": 920.0,
+        "peak_vram_mb": 47124.2,
+        "total_tokens_M": 482.3,
+        "training_seconds": 300.1,
+        "val_bpb": 0.993637
+      },
+      "parent_ids": [
+        "ba73cbf0bf34205a20f97f1763f38b44028756f1997651baeb7f1846d60e2f39"
+      ],
+      "retained_order": 10,
+      "selected_count": 6
+    },
+    "e390e5dbc5ebc645ac251b64141fa3b2adc4a614adebbf3a5b2af8d06cf89946": {
+      "artifact_path": "candidates/e390e5dbc5ebc645ac251b64141fa3b2adc4a614adebbf3a5b2af8d06cf89946",
+      "candidate_id": "e390e5dbc5ebc645ac251b64141fa3b2adc4a614adebbf3a5b2af8d06cf89946",
+      "created_opportunity": 28,
+      "fitness": -0.993023,
+      "hypothesis": "Adding the first short-context predecessor gate to both full-context gates will lower val_bpb below 0.992110 while retaining more than 477M training tokens.",
+      "intended_edit": "Gate layers 2, 3, and 7: both full-context layers plus only the short-context layer preceding the first full-context transition.",
+      "metrics": {
+        "depth": 8.0,
+        "mfu_percent": 37.79,
+        "num_params_M": 50.3,
+        "num_steps": 906.0,
+        "peak_vram_mb": 46090.5,
+        "total_tokens_M": 475.0,
+        "training_seconds": 300.3,
+        "val_bpb": 0.993023
+      },
+      "parent_ids": [
+        "073c0c20ffce9f9c7373a4c08fde16f87d5b194ad21c03d8a86866625dafc42b"
+      ],
+      "retained_order": 28,
+      "selected_count": 0
+    },
+    "e884daeef8c3e012079f3331e3b6697706c6368120031dcc8bb7a9422283ec2e": {
+      "artifact_path": "candidates/e884daeef8c3e012079f3331e3b6697706c6368120031dcc8bb7a9422283ec2e",
+      "candidate_id": "e884daeef8c3e012079f3331e3b6697706c6368120031dcc8bb7a9422283ec2e",
+      "created_opportunity": 20,
+      "fitness": -0.993485,
+      "hypothesis": "A learned two-lag embedding convolution will lower val_bpb below 0.993637 while retaining at least 490M training tokens by supplying exact short-range context without reducing attention windows or adding per-layer projections.",
+      "intended_edit": "Replace the shared assumption that token representations remain context-free until attention with a zero-initialized, channel-wise causal FIR over the preceding two token embeddings; optimize its coefficients with AdamW and use the proven 11.75 logit softcap.",
+      "metrics": {
+        "depth": 8.0,
+        "mfu_percent": 38.66,
+        "num_params_M": 50.3,
+        "num_steps": 926.0,
+        "peak_vram_mb": 45316.5,
+        "total_tokens_M": 485.5,
+        "training_seconds": 300.1,
+        "val_bpb": 0.993485
+      },
+      "parent_ids": [
+        "2865e528e18dc51191e4037eaeb5824cb0ea83ede79061b59b8f3caac686da6b"
+      ],
+      "retained_order": 20,
+      "selected_count": 6
+    },
+    "eae6d6f6e71f7c40476d436f13b811436a914f2aadd4ccb896baad1149666905": {
+      "artifact_path": "candidates/eae6d6f6e71f7c40476d436f13b811436a914f2aadd4ccb896baad1149666905",
+      "candidate_id": "eae6d6f6e71f7c40476d436f13b811436a914f2aadd4ccb896baad1149666905",
+      "created_opportunity": 15,
+      "fitness": -0.994532,
+      "hypothesis": "Fusing the proven first-32-channel attention-output gate with the existing value gate will lower val_bpb below 0.993637 while retaining at least roughly 482M trained tokens.",
+      "intended_edit": "Add neutral per-head attention-output gates, jointly compute value and output gate logits on value-embedding layers to reduce tiny-projection overhead, and use the strongest gated design\u2019s 11.75 softcap.",
+      "metrics": {
+        "depth": 8.0,
+        "mfu_percent": 37.74,
+        "num_params_M": 50.3,
+        "num_steps": 904.0,
+        "peak_vram_mb": 47124.2,
+        "total_tokens_M": 474.0,
+        "training_seconds": 300.1,
+        "val_bpb": 0.994532
+      },
+      "parent_ids": [
+        "3d0984c417edfa34c39b8016244d3bbf5f1d7050ef6de35c69d1dd306e084003"
+      ],
+      "retained_order": 15,
+      "selected_count": 6
+    },
+    "ebb527e47af2e27fa52ce8faef868265b7362ce9a4484bdf878fb2efba52322a": {
+      "artifact_path": "candidates/ebb527e47af2e27fa52ce8faef868265b7362ce9a4484bdf878fb2efba52322a",
+      "candidate_id": "ebb527e47af2e27fa52ce8faef868265b7362ce9a4484bdf878fb2efba52322a",
+      "created_opportunity": 46,
+      "fitness": -0.992081,
+      "hypothesis": "AdamW at 0.012 for only the four output-gate matrices on the proven 704/1024/1344 backbone will lower val_bpb below 0.991177 while retaining at least 470M trained tokens.",
+      "intended_edit": "Restore the best staged-attention schedule, exclude output-gate matrices from Muon, and optimize them with dedicated AdamW at 0.012.",
+      "metrics": {
+        "depth": 8.0,
+        "mfu_percent": 37.72,
+        "num_params_M": 50.3,
+        "num_steps": 904.0,
+        "peak_vram_mb": 46348.5,
+        "total_tokens_M": 474.0,
+        "training_seconds": 300.2,
+        "val_bpb": 0.992081
+      },
+      "parent_ids": [
+        "69a781d3c501ec298e2ac042b4908eea0334d1eefe548cab394e7d3affbd52bd"
+      ],
+      "retained_order": 46,
+      "selected_count": 0
+    },
+    "ee1f1cf686a479f175a9b2178602df52386a3561e80b0612b88ccd725e447c2e": {
+      "artifact_path": "candidates/ee1f1cf686a479f175a9b2178602df52386a3561e80b0612b88ccd725e447c2e",
+      "candidate_id": "ee1f1cf686a479f175a9b2178602df52386a3561e80b0612b88ccd725e447c2e",
+      "created_opportunity": 1,
+      "fitness": -1.009577,
+      "hypothesis": "Reducing short-layer attention from 1024 to 512 tokens while retaining full-context layers every fourth block will increase tokens trained in five minutes and lower val_bpb below 0.995558.",
+      "intended_edit": "Change only the short attention window from half to one quarter of the 2048-token sequence.",
+      "metrics": {
+        "depth": 8.0,
+        "mfu_percent": 29.33,
+        "num_params_M": 50.3,
+        "num_steps": 765.0,
+        "peak_vram_mb": 45060.2,
+        "total_tokens_M": 401.1,
+        "training_seconds": 300.4,
+        "val_bpb": 1.009577
+      },
+      "parent_ids": [
+        "2865e528e18dc51191e4037eaeb5824cb0ea83ede79061b59b8f3caac686da6b"
+      ],
+      "retained_order": 1,
+      "selected_count": 1
+    },
+    "f3f9807a60a70b724b0b025f5150d4a1f49c4fbcae5d1c065b13e84e1ad4478b": {
+      "artifact_path": "candidates/f3f9807a60a70b724b0b025f5150d4a1f49c4fbcae5d1c065b13e84e1ad4478b",
+      "candidate_id": "f3f9807a60a70b724b0b025f5150d4a1f49c4fbcae5d1c065b13e84e1ad4478b",
+      "created_opportunity": 50,
+      "fitness": -0.997007,
+      "hypothesis": "Replacing the single-branch ReLU\u00b2 MLPs with 64-aligned, nearly parameter-neutral SwiGLU blocks will lower val_bpb below 0.991177 while retaining at least 470M trained tokens.",
+      "intended_edit": "Keep the proven 704/1024/1344 attention backbone and 0.0115 output-gate AdamW rate, but factor every MLP expansion into learned gate and value streams whose multiplicative interaction controls features at each token.",
+      "metrics": {
+        "depth": 8.0,
+        "mfu_percent": 36.04,
+        "num_params_M": 50.1,
+        "num_steps": 870.0,
+        "peak_vram_mb": 46093.5,
+        "total_tokens_M": 456.1,
+        "training_seconds": 300.3,
+        "val_bpb": 0.997007
+      },
+      "parent_ids": [
+        "981b844585e17d25d1a50d2ac2673b3a7f76519c3b170ad8030a328a91cba2cf"
+      ],
+      "retained_order": 50,
+      "selected_count": 0
+    },
+    "fb1f706bfebd7b53d6308c6201cec7ce647744ec7d8305407cc1cd6b36940ca9": {
+      "artifact_path": "candidates/fb1f706bfebd7b53d6308c6201cec7ce647744ec7d8305407cc1cd6b36940ca9",
+      "candidate_id": "fb1f706bfebd7b53d6308c6201cec7ce647744ec7d8305407cc1cd6b36940ca9",
+      "created_opportunity": 53,
+      "fitness": -0.991382,
+      "hypothesis": "AdamW at 0.0100 for full-context output gates and 0.0115 for pre-handoff gates will lower val_bpb below 0.991177 while retaining at least 470M trained tokens.",
+      "intended_edit": "Split output gates by attention role, lowering only the two full-context gates to 0.0100 while preserving 0.0115 for the two pre-handoff gates.",
+      "metrics": {
+        "depth": 8.0,
+        "mfu_percent": 38.04,
+        "num_params_M": 50.3,
+        "num_steps": 911.0,
+        "peak_vram_mb": 46348.5,
+        "total_tokens_M": 477.6,
+        "training_seconds": 300.0,
+        "val_bpb": 0.991382
+      },
+      "parent_ids": [
+        "0a6bacd34756636ca41cdd0973f5c21d309d5f764ac99212b352903a65b40cea"
+      ],
+      "retained_order": 53,
+      "selected_count": 0
+    },
+    "fd87e46558e5b5165a3ef2b4520e844455b98914bbe06c5bc8dab0df2d4d7b44": {
+      "artifact_path": "candidates/fd87e46558e5b5165a3ef2b4520e844455b98914bbe06c5bc8dab0df2d4d7b44",
+      "candidate_id": "fd87e46558e5b5165a3ef2b4520e844455b98914bbe06c5bc8dab0df2d4d7b44",
+      "created_opportunity": 36,
+      "fitness": -0.991729,
+      "hypothesis": "A 704/1024/1344-token progression will lower val_bpb below 0.991835 while retaining at least 475M trained tokens.",
+      "intended_edit": "Restore the proven fixed two-lag embedding FIR and four handoff gates, then use the untested midpoint between the 768/1024/1280 and 640/1024/1408 short-window schedules.",
+      "metrics": {
+        "depth": 8.0,
+        "mfu_percent": 38.24,
+        "num_params_M": 50.3,
+        "num_steps": 916.0,
+        "peak_vram_mb": 46348.5,
+        "total_tokens_M": 480.2,
+        "training_seconds": 300.1,
+        "val_bpb": 0.991729
+      },
+      "parent_ids": [
+        "021833cad0c0546a7f0b572151648095ee7bb0de7c565cf4face4171caa2b92e"
+      ],
+      "retained_order": 36,
+      "selected_count": 11
+    },
+    "ff987b2a05efb35a90626e7dbe0f50c617bba791c9f324ea76d5597bc38297c1": {
+      "artifact_path": "candidates/ff987b2a05efb35a90626e7dbe0f50c617bba791c9f324ea76d5597bc38297c1",
+      "candidate_id": "ff987b2a05efb35a90626e7dbe0f50c617bba791c9f324ea76d5597bc38297c1",
+      "created_opportunity": 48,
+      "fitness": -0.991926,
+      "hypothesis": "AdamW at 0.01125 for only the four output-gate matrices will lower val_bpb below 0.991177 while retaining at least 470M trained tokens.",
+      "intended_edit": "Raise the dedicated output-gate AdamW learning rate from 0.0075 to the untested 0.01125 midpoint between 0.0100 and the best-verified 0.0115, preserving the 704/1024/1344 backbone and all other optimizer groups.",
+      "metrics": {
+        "depth": 8.0,
+        "mfu_percent": 37.7,
+        "num_params_M": 50.3,
+        "num_steps": 903.0,
+        "peak_vram_mb": 46348.5,
+        "total_tokens_M": 473.4,
+        "training_seconds": 300.0,
+        "val_bpb": 0.991926
+      },
+      "parent_ids": [
+        "644c161a7821902d31c35093060680565292083af10df741e92ce39bcaebe85f"
+      ],
+      "retained_order": 48,
+      "selected_count": 13
+    }
+  },
+  "condition": "C3",
+  "conversation_session_id": null,
+  "evaluations_used": 57,
+  "evaluator_seconds_used": 21065.52240006599,
+  "incumbent_id": "0a6bacd34756636ca41cdd0973f5c21d309d5f764ac99212b352903a65b40cea",
+  "next_opportunity": 59,
+  "no_search": false,
+  "portfolio_ids": [
+    "69a781d3c501ec298e2ac042b4908eea0334d1eefe548cab394e7d3affbd52bd",
+    "0a6bacd34756636ca41cdd0973f5c21d309d5f764ac99212b352903a65b40cea",
+    "04acca2a31436c6e41bcd89d8ecde70af7c0f3140ea24c9e64238ab1b018e4ca",
+    "981b844585e17d25d1a50d2ac2673b3a7f76519c3b170ad8030a328a91cba2cf"
+  ],
+  "proposals_used": 58,
+  "protocol_hash": "d93f667ff4268b72857a7b8dd52642e7eab9babee32c11ebec5bda120d8aa246",
+  "revision": 117,
+  "run_id": "nanogpt-openevolve-v2-1-h100-karpathy_nanogpt_source_only_h100-openevolve-b03-c3",
+  "schema_version": "1.0",
+  "status": "running",
+  "token_budget_continuation_notice_sent": false,
+  "usage": {
+    "cached_input_tokens": 644608,
+    "input_tokens": 2691175,
+    "output_tokens": 171349,
+    "reasoning_output_tokens": 137410
+  }
+}

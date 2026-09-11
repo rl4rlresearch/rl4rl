@@ -1,0 +1,79 @@
+{
+  "artifact_path": "candidates/e0033d9c8be46fd8040c58706cfc878be666b2c694da085bae57440c97b01abc",
+  "candidate_id": "e0033d9c8be46fd8040c58706cfc878be666b2c694da085bae57440c97b01abc",
+  "codex_service_tier": "default",
+  "condition": "C1",
+  "conversation_session_id": null,
+  "evaluation": {
+    "evaluator_calls": 1,
+    "evaluator_seconds": 839.9462618341204,
+    "failure_kind": null,
+    "fitness": -875.0,
+    "metrics": {
+      "accuracy": 0.9992,
+      "cases": 10010,
+      "correct": 10002,
+      "parameters": 875,
+      "training_steps": 4999
+    },
+    "valid": true
+  },
+  "evaluator_calls_cumulative": 92,
+  "evaluator_calls_increment": 1,
+  "evaluator_seconds_cumulative": 49925.12255650351,
+  "evaluator_seconds_increment": 839.9462618341204,
+  "event": "proposal_completed",
+  "evicted_candidate_id": "31638026cd5d371df6106e296548e5e8a61e353ac243a3aaaffee04f65128c56",
+  "evidence": "Gauge-fixing every narrow-QKV row retained 99.92% accuracy in the current design; `fc1` has the same exact input-shift symmetry because it consumes non-affine LayerNorm output.",
+  "hypothesis": "Gauge-fixing all 12 `fc1` weight rows will reduce the model from 887 to 875 learned parameters while retaining at least 99% accuracy, because non-affine `ln2` produces zero-mean inputs, making each row\u2019s common-mode weight exactly unobservable.",
+  "incumbent_after": "e0033d9c8be46fd8040c58706cfc878be666b2c694da085bae57440c97b01abc",
+  "intended_edit": "Replace `fc1` with a row-wise Householder gauge-fixed linear layer, preserve the original conceptual initialization stream and bias, and optimize its coordinates with ambient AdamW.",
+  "mechanism": "Full MLP input-shift quotient",
+  "opportunity": 92,
+  "parent_ids": [
+    "31638026cd5d371df6106e296548e5e8a61e353ac243a3aaaffee04f65128c56"
+  ],
+  "portfolio_after": [
+    "e0033d9c8be46fd8040c58706cfc878be666b2c694da085bae57440c97b01abc"
+  ],
+  "prompt_hashes": {
+    "common_template_sha256": "3f2bea6418b6969c4bf2aa1df18dcda8a3a4ac075bf20c79068c754698b6be5e",
+    "prompt_sha256": "049c215b65ff0dd308bd575187c4b1c00526eb8263f45b1765f3fbe2b5fbf926",
+    "proposal_policy_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "search_state_sha256": "04e5eb078ae1964e4ec65bfeeeb1acd0ffa246e7d54d5e0f997f81f602da28c5",
+    "treatment_skeleton_sha256": "4b103b6dd6c2413932cd42d80461547bebbe88ad6d0183bc0eb4163eb4c93cfb"
+  },
+  "proposal_type": "ordinary",
+  "proposals_cumulative": 92,
+  "remaining_budget": {
+    "evaluations": 108,
+    "evaluator_seconds": 310074.8774434965,
+    "proposals": 108,
+    "tokens": 97611618
+  },
+  "retained": true,
+  "retention_decision": "strict_incumbent_improvement",
+  "run_id": "controlled-openevolve-transformer-v2-1-source-only-ten-digit-addition-pair-transformer-openevolve-v2-1-mps-openevolve-b04-c1",
+  "schema_version": "1.0",
+  "selected_parent_ids": [
+    "31638026cd5d371df6106e296548e5e8a61e353ac243a3aaaffee04f65128c56"
+  ],
+  "timestamp": "2026-09-03T08:27:57.239108+00:00",
+  "usage_cumulative": {
+    "cached_input_tokens": 953600,
+    "input_tokens": 2152891,
+    "output_tokens": 235491,
+    "reasoning_output_tokens": 183641,
+    "total_tokens": 2388382
+  },
+  "usage_increment": {
+    "cached_input_tokens": 10752,
+    "input_tokens": 28272,
+    "output_tokens": 3500,
+    "reasoning_output_tokens": 2588,
+    "total_tokens": 31772
+  },
+  "visible_candidate_ids": [
+    "31638026cd5d371df6106e296548e5e8a61e353ac243a3aaaffee04f65128c56"
+  ]
+}

@@ -1,0 +1,79 @@
+{
+  "artifact_path": "candidates/ba0974c2694ba4fb4446c9a13e236bbeae51948ae38896eefaeac5d32f31115a",
+  "candidate_id": "ba0974c2694ba4fb4446c9a13e236bbeae51948ae38896eefaeac5d32f31115a",
+  "codex_service_tier": "fast",
+  "condition": "C0",
+  "conversation_session_id": null,
+  "evaluation": {
+    "evaluator_calls": 1,
+    "evaluator_seconds": 277.30730504204985,
+    "failure_kind": null,
+    "fitness": -1636.0,
+    "metrics": {
+      "accuracy": 0.9981,
+      "cases": 10010,
+      "correct": 9991,
+      "parameters": 1636,
+      "training_steps": 4999
+    },
+    "valid": true
+  },
+  "evaluator_calls_cumulative": 5,
+  "evaluator_calls_increment": 1,
+  "evaluator_seconds_cumulative": 1185.065269668121,
+  "evaluator_seconds_increment": 277.30730504204985,
+  "event": "proposal_completed",
+  "evicted_candidate_id": "2b9cea175ed60b009337ac54f6e8ad23bf2c014eb4080237777bfb70bfd9fd5b",
+  "evidence": "The baseline reached 99.96%, while narrowing the MLP and deleting QKV biases caused large failures; this motivates preserving core capacity and biases while testing a minimal eight-parameter sharing constraint.",
+  "hypothesis": "Sharing the two block LayerNorm bias vectors will reduce deduplicated parameters from 1,644 to 1,636 while retaining at least 99% accuracy because both normalization sites keep learned affine transformations and all attention and MLP capacity remains intact.",
+  "incumbent_after": "ba0974c2694ba4fb4446c9a13e236bbeae51948ae38896eefaeac5d32f31115a",
+  "intended_edit": "Tie `ln2.bias` to `ln1.bias` within the transformer block, leaving their scale parameters and all training settings unchanged.",
+  "mechanism": "Shared pre-sublayer normalization offset",
+  "opportunity": 5,
+  "parent_ids": [
+    "2b9cea175ed60b009337ac54f6e8ad23bf2c014eb4080237777bfb70bfd9fd5b"
+  ],
+  "portfolio_after": [
+    "ba0974c2694ba4fb4446c9a13e236bbeae51948ae38896eefaeac5d32f31115a"
+  ],
+  "prompt_hashes": {
+    "common_template_sha256": "3f2bea6418b6969c4bf2aa1df18dcda8a3a4ac075bf20c79068c754698b6be5e",
+    "prompt_sha256": "db35aa80bd4cdc0cb662d9b45049a0a84ba1c85781708b80134483f1d948ffd4",
+    "proposal_policy_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "search_state_sha256": "04e5eb078ae1964e4ec65bfeeeb1acd0ffa246e7d54d5e0f997f81f602da28c5",
+    "treatment_skeleton_sha256": "bd13d4acc684df65a7c10d31cdcac10bf17b0870a59c8cdba806cb38b2eac6f0"
+  },
+  "proposal_type": "ordinary",
+  "proposals_cumulative": 5,
+  "remaining_budget": {
+    "evaluations": 195,
+    "evaluator_seconds": 358814.9347303319,
+    "proposals": 195,
+    "tokens": 99897078
+  },
+  "retained": true,
+  "retention_decision": "strict_incumbent_improvement",
+  "run_id": "controlled-openevolve-transformer-v2-1-source-only-ten-digit-addition-pair-transformer-openevolve-v2-1-mps-openevolve-b03-c0",
+  "schema_version": "1.0",
+  "selected_parent_ids": [
+    "2b9cea175ed60b009337ac54f6e8ad23bf2c014eb4080237777bfb70bfd9fd5b"
+  ],
+  "timestamp": "2026-08-23T10:37:54.979192+00:00",
+  "usage_cumulative": {
+    "cached_input_tokens": 55040,
+    "input_tokens": 94917,
+    "output_tokens": 8005,
+    "reasoning_output_tokens": 7046,
+    "total_tokens": 102922
+  },
+  "usage_increment": {
+    "cached_input_tokens": 12032,
+    "input_tokens": 19358,
+    "output_tokens": 3381,
+    "reasoning_output_tokens": 3076,
+    "total_tokens": 22739
+  },
+  "visible_candidate_ids": [
+    "2b9cea175ed60b009337ac54f6e8ad23bf2c014eb4080237777bfb70bfd9fd5b"
+  ]
+}

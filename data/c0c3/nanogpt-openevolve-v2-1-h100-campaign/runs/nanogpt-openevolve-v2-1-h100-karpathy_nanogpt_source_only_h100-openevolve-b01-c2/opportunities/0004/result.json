@@ -1,0 +1,88 @@
+{
+  "artifact_path": "candidates/c5e882edefa1fa6b8ad2a6d7a63c8737fd88e498a4b87e086824213445403646",
+  "candidate_id": "c5e882edefa1fa6b8ad2a6d7a63c8737fd88e498a4b87e086824213445403646",
+  "codex_service_tier": "fast",
+  "condition": "C2",
+  "conversation_session_id": null,
+  "evaluation": {
+    "evaluator_calls": 1,
+    "evaluator_seconds": 360.3022696419994,
+    "failure_kind": null,
+    "fitness": -1.011302,
+    "metrics": {
+      "depth": 8.0,
+      "mfu_percent": 37.11,
+      "num_params_M": 50.3,
+      "num_steps": 770.0,
+      "peak_vram_mb": 45060.2,
+      "total_tokens_M": 403.7,
+      "training_seconds": 300.4,
+      "val_bpb": 1.011302
+    },
+    "valid": true
+  },
+  "evaluator_calls_cumulative": 4,
+  "evaluator_calls_increment": 1,
+  "evaluator_seconds_cumulative": 1750.7911051390004,
+  "evaluator_seconds_increment": 360.3022696419994,
+  "event": "proposal_completed",
+  "evicted_candidate_id": null,
+  "evidence": "Reference Design 1 reached 0.995558 val_bpb and 497.0M tokens with ReLU-squared, while SwiGLU worsened to 1.008305 on 402.7M tokens; Reference Design 3 further showed that adding a half-context layer unexpectedly reduced throughput and worsened val_bpb to 1.008991.",
+  "hypothesis": "Reverting the slower SwiGLU MLP and making all eight layers full-context will beat 0.995558 val_bpb because the controlled SSSS result showed that replacing one full-context layer with half-context attention reduced throughput from 497.0M to 413.7M tokens, while full context also preserves more information.",
+  "incumbent_after": "2865e528e18dc51191e4037eaeb5824cb0ea83ede79061b59b8f3caac686da6b",
+  "intended_edit": "Restore the best-performing ReLU-squared MLP and change the attention pattern from six half-context layers plus two full-context layers to eight full-context layers.",
+  "mechanism": "Dense full-context FlashAttention",
+  "opportunity": 4,
+  "parent_ids": [
+    "3f86c29c7b170f9b5dd7ccebde668fea2f9f9bc32c149a3e774ae1f52f25cd9d"
+  ],
+  "portfolio_after": [
+    "2865e528e18dc51191e4037eaeb5824cb0ea83ede79061b59b8f3caac686da6b",
+    "ee1f1cf686a479f175a9b2178602df52386a3561e80b0612b88ccd725e447c2e",
+    "992a5ebc7bdd4076d4778d36c84d4c890a0888b5a62ba4959a5125a6aa9af5ec",
+    "3f86c29c7b170f9b5dd7ccebde668fea2f9f9bc32c149a3e774ae1f52f25cd9d"
+  ],
+  "prompt_hashes": {
+    "common_template_sha256": "ba85b39aa7288f4f48475376da6cff65661f39cfeb7ac7cde15b2a9a2e692fde",
+    "prompt_sha256": "b73c4950864a0d0f9f34842105541a212305f42dcbefbcd24e6aa80fdbce0643",
+    "proposal_policy_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "search_state_sha256": "c938ac007bf70fe8d27f64661175531e51fcb16b38318c328493c32ee292e27e",
+    "treatment_skeleton_sha256": "75f680d6ef7439198b188f6fb9b3b1ef308bf9aeec7bc45380f5793bfe57dd35"
+  },
+  "proposal_type": "ordinary",
+  "proposals_cumulative": 4,
+  "remaining_budget": {
+    "evaluations": 196,
+    "evaluator_seconds": 718249.208894861,
+    "proposals": 196,
+    "tokens": 99855748
+  },
+  "retained": false,
+  "retention_decision": "not_strictly_better_than_selected_parent",
+  "run_id": "nanogpt-openevolve-v2-1-h100-karpathy_nanogpt_source_only_h100-openevolve-b01-c2",
+  "schema_version": "1.0",
+  "selected_parent_ids": [
+    "3f86c29c7b170f9b5dd7ccebde668fea2f9f9bc32c149a3e774ae1f52f25cd9d"
+  ],
+  "timestamp": "2026-08-23T13:53:16.008287+00:00",
+  "usage_cumulative": {
+    "cached_input_tokens": 48128,
+    "input_tokens": 133068,
+    "output_tokens": 11184,
+    "reasoning_output_tokens": 9889,
+    "total_tokens": 144252
+  },
+  "usage_increment": {
+    "cached_input_tokens": 12032,
+    "input_tokens": 44719,
+    "output_tokens": 2558,
+    "reasoning_output_tokens": 2070,
+    "total_tokens": 47277
+  },
+  "visible_candidate_ids": [
+    "2865e528e18dc51191e4037eaeb5824cb0ea83ede79061b59b8f3caac686da6b",
+    "ee1f1cf686a479f175a9b2178602df52386a3561e80b0612b88ccd725e447c2e",
+    "992a5ebc7bdd4076d4778d36c84d4c890a0888b5a62ba4959a5125a6aa9af5ec",
+    "3f86c29c7b170f9b5dd7ccebde668fea2f9f9bc32c149a3e774ae1f52f25cd9d"
+  ]
+}

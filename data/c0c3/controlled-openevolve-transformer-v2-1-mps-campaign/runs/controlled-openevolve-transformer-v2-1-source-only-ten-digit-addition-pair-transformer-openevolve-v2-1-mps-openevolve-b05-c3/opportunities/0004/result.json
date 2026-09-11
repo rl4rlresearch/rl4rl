@@ -1,0 +1,79 @@
+{
+  "artifact_path": "candidates/95a3d3c3e21c19744e84d199862a1ec9e8620c6635610ddcf65da2501e01d5d2",
+  "candidate_id": "95a3d3c3e21c19744e84d199862a1ec9e8620c6635610ddcf65da2501e01d5d2",
+  "codex_service_tier": "fast",
+  "condition": "C3",
+  "conversation_session_id": null,
+  "evaluation": {
+    "evaluator_calls": 1,
+    "evaluator_seconds": 200.21167187497485,
+    "failure_kind": "nonqualification",
+    "fitness": null,
+    "metrics": {
+      "accuracy": 0.045,
+      "cases": 10010,
+      "correct": 450,
+      "parameters": 1643,
+      "training_steps": 4999
+    },
+    "valid": false
+  },
+  "evaluator_calls_cumulative": 4,
+  "evaluator_calls_increment": 1,
+  "evaluator_seconds_cumulative": 851.6202677499969,
+  "evaluator_seconds_increment": 200.21167187497485,
+  "event": "proposal_completed",
+  "evicted_candidate_id": null,
+  "evidence": "The d_ff=12 baseline reached 99.96% accuracy, whereas reducing nonlinear capacity or changing attention biases failed; this motivates preserving the proven architecture and function class while removing only a LayerNorm-invisible positional degree of freedom.",
+  "hypothesis": "Removing one common-mode degree of freedom from the final positional embedding will reduce parameters from 1644 to 1643 while retaining at least 99% accuracy, because every LayerNorm is invariant to per-token shifts shared across all eight residual channels.",
+  "incumbent_after": "2b9cea175ed60b009337ac54f6e8ad23bf2c014eb4080237777bfb70bfd9fd5b",
+  "intended_edit": "Replace the positional embedding with an otherwise identical learned embedding whose final row fixes its last coordinate to zero, while initializing that row to a functionally equivalent gauge transformation of the baseline initialization.",
+  "mechanism": "Gauge-fix one functionally redundant positional-embedding scalar",
+  "opportunity": 4,
+  "parent_ids": [
+    "2b9cea175ed60b009337ac54f6e8ad23bf2c014eb4080237777bfb70bfd9fd5b"
+  ],
+  "portfolio_after": [
+    "2b9cea175ed60b009337ac54f6e8ad23bf2c014eb4080237777bfb70bfd9fd5b"
+  ],
+  "prompt_hashes": {
+    "common_template_sha256": "3f2bea6418b6969c4bf2aa1df18dcda8a3a4ac075bf20c79068c754698b6be5e",
+    "prompt_sha256": "837be40384d148efe52dd836c89187564cfc274dadaafe8b528dbbf90c43608a",
+    "proposal_policy_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "search_state_sha256": "c938ac007bf70fe8d27f64661175531e51fcb16b38318c328493c32ee292e27e",
+    "treatment_skeleton_sha256": "21ea6ae6d910c5985a42f219b723749eb4d09e055a019567c07ab6842308c11c"
+  },
+  "proposal_type": "ordinary",
+  "proposals_cumulative": 4,
+  "remaining_budget": {
+    "evaluations": 196,
+    "evaluator_seconds": 359148.37973225,
+    "proposals": 196,
+    "tokens": 99912305
+  },
+  "retained": false,
+  "retention_decision": "invalid",
+  "run_id": "controlled-openevolve-transformer-v2-1-source-only-ten-digit-addition-pair-transformer-openevolve-v2-1-mps-openevolve-b05-c3",
+  "schema_version": "1.0",
+  "selected_parent_ids": [
+    "2b9cea175ed60b009337ac54f6e8ad23bf2c014eb4080237777bfb70bfd9fd5b"
+  ],
+  "timestamp": "2026-08-23T09:48:38.473804+00:00",
+  "usage_cumulative": {
+    "cached_input_tokens": 46080,
+    "input_tokens": 75805,
+    "output_tokens": 11890,
+    "reasoning_output_tokens": 9887,
+    "total_tokens": 87695
+  },
+  "usage_increment": {
+    "cached_input_tokens": 12032,
+    "input_tokens": 19160,
+    "output_tokens": 5937,
+    "reasoning_output_tokens": 5178,
+    "total_tokens": 25097
+  },
+  "visible_candidate_ids": [
+    "2b9cea175ed60b009337ac54f6e8ad23bf2c014eb4080237777bfb70bfd9fd5b"
+  ]
+}

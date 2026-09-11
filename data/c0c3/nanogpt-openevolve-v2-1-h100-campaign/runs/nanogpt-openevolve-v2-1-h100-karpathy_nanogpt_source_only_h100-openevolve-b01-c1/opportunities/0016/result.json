@@ -1,0 +1,82 @@
+{
+  "artifact_path": "candidates/7f217ecd2d7c3632fd49b4c0d941e6efeef03ef6931cab675825a8d45d8de49e",
+  "candidate_id": "7f217ecd2d7c3632fd49b4c0d941e6efeef03ef6931cab675825a8d45d8de49e",
+  "codex_service_tier": "fast",
+  "condition": "C1",
+  "conversation_session_id": null,
+  "evaluation": {
+    "evaluator_calls": 1,
+    "evaluator_seconds": 368.9101735100003,
+    "failure_kind": null,
+    "fitness": -0.995025,
+    "metrics": {
+      "depth": 8.0,
+      "mfu_percent": 34.14,
+      "num_params_M": 50.3,
+      "num_steps": 978.0,
+      "peak_vram_mb": 45160.7,
+      "total_tokens_M": 512.8,
+      "training_seconds": 300.1,
+      "val_bpb": 0.995025
+    },
+    "valid": true
+  },
+  "evaluator_calls_cumulative": 16,
+  "evaluator_calls_increment": 1,
+  "evaluator_seconds_cumulative": 9515.48766502408,
+  "evaluator_seconds_increment": 368.9101735100003,
+  "event": "proposal_completed",
+  "evicted_candidate_id": null,
+  "evidence": "Two-to-one grouped-query attention reduced KV capacity and regressed val_bpb to 0.996550 despite higher throughput; repartitioning the unchanged full KV width into more heads tests richer attention structure without that capacity loss.",
+  "hypothesis": "Halving head dimension from 128 to 64 will increase the 512-wide model from four to eight full query/KV heads without reducing parameters or context, lowering val_bpb below 0.992286.",
+  "incumbent_after": "a1a9234027b48bc7b7b3915b2e809e849b6afedfe79a9a211f23947b1f8adec9",
+  "intended_edit": "Set the target attention head dimension to 64 while preserving model width, depth, value-embedding width, and the final full-context layer.",
+  "mechanism": "Finer-grained eight-head attention",
+  "opportunity": 16,
+  "parent_ids": [
+    "a1a9234027b48bc7b7b3915b2e809e849b6afedfe79a9a211f23947b1f8adec9"
+  ],
+  "portfolio_after": [
+    "a1a9234027b48bc7b7b3915b2e809e849b6afedfe79a9a211f23947b1f8adec9"
+  ],
+  "prompt_hashes": {
+    "common_template_sha256": "ba85b39aa7288f4f48475376da6cff65661f39cfeb7ac7cde15b2a9a2e692fde",
+    "prompt_sha256": "5c52b625449c993642eab3fe0e872c355048e4c35d75df6012a9c4d47a4eebbf",
+    "proposal_policy_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "search_state_sha256": "04e5eb078ae1964e4ec65bfeeeb1acd0ffa246e7d54d5e0f997f81f602da28c5",
+    "treatment_skeleton_sha256": "8659366d3064501331a599e0d1fa797df8b1ca62f95c7b68b398afb72e99ba56"
+  },
+  "proposal_type": "ordinary",
+  "proposals_cumulative": 16,
+  "remaining_budget": {
+    "evaluations": 184,
+    "evaluator_seconds": 710484.5123349759,
+    "proposals": 184,
+    "tokens": 99573637
+  },
+  "retained": false,
+  "retention_decision": "not_strictly_better_than_incumbent",
+  "run_id": "nanogpt-openevolve-v2-1-h100-karpathy_nanogpt_source_only_h100-openevolve-b01-c1",
+  "schema_version": "1.0",
+  "selected_parent_ids": [
+    "a1a9234027b48bc7b7b3915b2e809e849b6afedfe79a9a211f23947b1f8adec9"
+  ],
+  "timestamp": "2026-08-23T22:54:41.013181+00:00",
+  "usage_cumulative": {
+    "cached_input_tokens": 184576,
+    "input_tokens": 376459,
+    "output_tokens": 49904,
+    "reasoning_output_tokens": 45921,
+    "total_tokens": 426363
+  },
+  "usage_increment": {
+    "cached_input_tokens": 12032,
+    "input_tokens": 24545,
+    "output_tokens": 4181,
+    "reasoning_output_tokens": 3997,
+    "total_tokens": 28726
+  },
+  "visible_candidate_ids": [
+    "a1a9234027b48bc7b7b3915b2e809e849b6afedfe79a9a211f23947b1f8adec9"
+  ]
+}

@@ -1,0 +1,82 @@
+{
+  "artifact_path": "candidates/ba49b57d408e652912fd1682ecc8bf5bbdad614c2eb3230b6bd8fb4ddca49615",
+  "candidate_id": "ba49b57d408e652912fd1682ecc8bf5bbdad614c2eb3230b6bd8fb4ddca49615",
+  "codex_service_tier": "fast",
+  "condition": "C1",
+  "conversation_session_id": null,
+  "evaluation": {
+    "evaluator_calls": 1,
+    "evaluator_seconds": 427.96367904,
+    "failure_kind": null,
+    "fitness": -1.008973,
+    "metrics": {
+      "depth": 8.0,
+      "mfu_percent": 38.44,
+      "num_params_M": 50.3,
+      "num_steps": 797.0,
+      "peak_vram_mb": 45060.2,
+      "total_tokens_M": 417.9,
+      "training_seconds": 300.3,
+      "val_bpb": 1.008973
+    },
+    "valid": true
+  },
+  "evaluator_calls_cumulative": 3,
+  "evaluator_calls_increment": 1,
+  "evaluator_seconds_cumulative": 1148.2406525919996,
+  "evaluator_seconds_increment": 427.96367904,
+  "event": "proposal_completed",
+  "evicted_candidate_id": null,
+  "evidence": "Reducing the short window from 1,024 to 512 decreased throughput from 497.0M to 390.1M tokens and worsened val_bpb to 1.011628, indicating narrower local attention is counterproductive on this workload.",
+  "hypothesis": "Replacing sliding-window attention with FlashAttention\u2019s native full-causal path will avoid the hardware-efficiency loss seen when windows were shortened and improve context modeling enough to reduce val_bpb below 0.995558.",
+  "incumbent_after": "2865e528e18dc51191e4037eaeb5824cb0ea83ede79061b59b8f3caac686da6b",
+  "intended_edit": "Use full-context attention in all layers and represent it with FlashAttention\u2019s optimized `(-1, -1)` window sentinel.",
+  "mechanism": "Native dense causal attention on every layer",
+  "opportunity": 3,
+  "parent_ids": [
+    "2865e528e18dc51191e4037eaeb5824cb0ea83ede79061b59b8f3caac686da6b"
+  ],
+  "portfolio_after": [
+    "2865e528e18dc51191e4037eaeb5824cb0ea83ede79061b59b8f3caac686da6b"
+  ],
+  "prompt_hashes": {
+    "common_template_sha256": "ba85b39aa7288f4f48475376da6cff65661f39cfeb7ac7cde15b2a9a2e692fde",
+    "prompt_sha256": "0bf4af43cf96ec80cbdc1d30c1a68c8475f5670890d9aef905b0bbf5b309339d",
+    "proposal_policy_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "search_state_sha256": "04e5eb078ae1964e4ec65bfeeeb1acd0ffa246e7d54d5e0f997f81f602da28c5",
+    "treatment_skeleton_sha256": "b301533f0200b57a2b10ba239418543a198d75c2365c4060b401c42da9d51a7e"
+  },
+  "proposal_type": "ordinary",
+  "proposals_cumulative": 3,
+  "remaining_budget": {
+    "evaluations": 197,
+    "evaluator_seconds": 718851.759347408,
+    "proposals": 197,
+    "tokens": 99920973
+  },
+  "retained": false,
+  "retention_decision": "not_strictly_better_than_incumbent",
+  "run_id": "nanogpt-openevolve-v2-1-h100-karpathy_nanogpt_source_only_h100-openevolve-b02-c1",
+  "schema_version": "1.0",
+  "selected_parent_ids": [
+    "2865e528e18dc51191e4037eaeb5824cb0ea83ede79061b59b8f3caac686da6b"
+  ],
+  "timestamp": "2026-08-23T13:03:20.612738+00:00",
+  "usage_cumulative": {
+    "cached_input_tokens": 36096,
+    "input_tokens": 66280,
+    "output_tokens": 12747,
+    "reasoning_output_tokens": 11693,
+    "total_tokens": 79027
+  },
+  "usage_increment": {
+    "cached_input_tokens": 12032,
+    "input_tokens": 22360,
+    "output_tokens": 3294,
+    "reasoning_output_tokens": 2944,
+    "total_tokens": 25654
+  },
+  "visible_candidate_ids": [
+    "2865e528e18dc51191e4037eaeb5824cb0ea83ede79061b59b8f3caac686da6b"
+  ]
+}

@@ -1,0 +1,79 @@
+{
+  "artifact_path": "candidates/fddfab89d1fd0018adda05925e2347c9a442dd15af698a5bc7a001f6edbbb4f0",
+  "candidate_id": "fddfab89d1fd0018adda05925e2347c9a442dd15af698a5bc7a001f6edbbb4f0",
+  "codex_service_tier": "fast",
+  "condition": "C0",
+  "conversation_session_id": null,
+  "evaluation": {
+    "evaluator_calls": 1,
+    "evaluator_seconds": 229.74047158309259,
+    "failure_kind": null,
+    "fitness": -1628.0,
+    "metrics": {
+      "accuracy": 0.9959,
+      "cases": 10010,
+      "correct": 9969,
+      "parameters": 1628,
+      "training_steps": 4999
+    },
+    "valid": true
+  },
+  "evaluator_calls_cumulative": 6,
+  "evaluator_calls_increment": 1,
+  "evaluator_seconds_cumulative": 1414.8057412512135,
+  "evaluator_seconds_increment": 229.74047158309259,
+  "event": "proposal_completed",
+  "evicted_candidate_id": "ba0974c2694ba4fb4446c9a13e236bbeae51948ae38896eefaeac5d32f31115a",
+  "evidence": "Sharing the two LayerNorm biases achieved 99.81% accuracy with 1,636 parameters, while narrowing the MLP or removing QKV biases failed; this motivates another isolated eight-parameter sharing constraint within the already validated normalization pair.",
+  "hypothesis": "Tying `ln2.weight` to `ln1.weight` will reduce deduplicated parameters from 1,636 to 1,628 while retaining at least 99% accuracy because the validated shared-bias design indicates both normalization sites can share affine structure without removing attention or MLP capacity.",
+  "incumbent_after": "fddfab89d1fd0018adda05925e2347c9a442dd15af698a5bc7a001f6edbbb4f0",
+  "intended_edit": "Tie both the scale and bias parameters of the block\u2019s two LayerNorm modules.",
+  "mechanism": "Shared pre-sublayer normalization affine parameters",
+  "opportunity": 6,
+  "parent_ids": [
+    "ba0974c2694ba4fb4446c9a13e236bbeae51948ae38896eefaeac5d32f31115a"
+  ],
+  "portfolio_after": [
+    "fddfab89d1fd0018adda05925e2347c9a442dd15af698a5bc7a001f6edbbb4f0"
+  ],
+  "prompt_hashes": {
+    "common_template_sha256": "3f2bea6418b6969c4bf2aa1df18dcda8a3a4ac075bf20c79068c754698b6be5e",
+    "prompt_sha256": "83c512b52dfa82fef14e7685d214b8a6fb93b811ad883076aa8ca6f11b9d396d",
+    "proposal_policy_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "search_state_sha256": "04e5eb078ae1964e4ec65bfeeeb1acd0ffa246e7d54d5e0f997f81f602da28c5",
+    "treatment_skeleton_sha256": "8544464f5afce40a399da0f8a85b396c0c34ad3aa6bdebf90c1f93e916a663b8"
+  },
+  "proposal_type": "ordinary",
+  "proposals_cumulative": 6,
+  "remaining_budget": {
+    "evaluations": 194,
+    "evaluator_seconds": 358585.1942587488,
+    "proposals": 194,
+    "tokens": 99877086
+  },
+  "retained": true,
+  "retention_decision": "strict_incumbent_improvement",
+  "run_id": "controlled-openevolve-transformer-v2-1-source-only-ten-digit-addition-pair-transformer-openevolve-v2-1-mps-openevolve-b03-c0",
+  "schema_version": "1.0",
+  "selected_parent_ids": [
+    "ba0974c2694ba4fb4446c9a13e236bbeae51948ae38896eefaeac5d32f31115a"
+  ],
+  "timestamp": "2026-08-23T10:57:25.658415+00:00",
+  "usage_cumulative": {
+    "cached_input_tokens": 57856,
+    "input_tokens": 114395,
+    "output_tokens": 8519,
+    "reasoning_output_tokens": 7296,
+    "total_tokens": 122914
+  },
+  "usage_increment": {
+    "cached_input_tokens": 2816,
+    "input_tokens": 19478,
+    "output_tokens": 514,
+    "reasoning_output_tokens": 250,
+    "total_tokens": 19992
+  },
+  "visible_candidate_ids": [
+    "ba0974c2694ba4fb4446c9a13e236bbeae51948ae38896eefaeac5d32f31115a"
+  ]
+}

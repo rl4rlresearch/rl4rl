@@ -1,0 +1,79 @@
+{
+  "artifact_path": "candidates/9398359eb731d8adc3d11240344b2b66f0426a12503dad8dc48d36eba0cbed30",
+  "candidate_id": "9398359eb731d8adc3d11240344b2b66f0426a12503dad8dc48d36eba0cbed30",
+  "codex_service_tier": "default",
+  "condition": "C0",
+  "conversation_session_id": null,
+  "evaluation": {
+    "evaluator_calls": 1,
+    "evaluator_seconds": 321.56791233294643,
+    "failure_kind": null,
+    "fitness": -1572.0,
+    "metrics": {
+      "accuracy": 0.9959,
+      "cases": 10010,
+      "correct": 9969,
+      "parameters": 1572,
+      "training_steps": 4999
+    },
+    "valid": true
+  },
+  "evaluator_calls_cumulative": 109,
+  "evaluator_calls_increment": 1,
+  "evaluator_seconds_cumulative": 44481.01149508159,
+  "evaluator_seconds_increment": 321.56791233294643,
+  "event": "proposal_completed",
+  "evicted_candidate_id": "a2d5c47506492914eff40ede728fa60a9f9c089a191ca63ce0d4bcd383ba6c4b",
+  "evidence": "The first shear anchor achieved 99.69% at 1573 parameters, while repeated scale, norm, and second-shear constraints specifically targeting query row 3 failed. Applying the same stable row-0 shear to the previously successful scale-anchored row 2 tests whether the last failure was row-3-specific.",
+  "hypothesis": "Fixing `qkv.weight[2,4]` at zero through a shear against query row 0 will produce a 1572-parameter model with at least 99% accuracy, because row 2 already tolerates its scale anchor and the transformation uses the stable fixed `qkv.weight[0,4] = 0.02` pivot while exactly preserving attention scores.",
+  "incumbent_after": "9398359eb731d8adc3d11240344b2b66f0426a12503dad8dc48d36eba0cbed30",
+  "intended_edit": "Store 181 learned QKV weights, reconstruct `qkv.weight[2,4]` as zero, and initialize it by shearing query row 2 against query row 0 while applying the inverse shear to key row 8.",
+  "mechanism": "Stable-pivot head-0 query/key shear gauge anchor",
+  "opportunity": 109,
+  "parent_ids": [
+    "a2d5c47506492914eff40ede728fa60a9f9c089a191ca63ce0d4bcd383ba6c4b"
+  ],
+  "portfolio_after": [
+    "9398359eb731d8adc3d11240344b2b66f0426a12503dad8dc48d36eba0cbed30"
+  ],
+  "prompt_hashes": {
+    "common_template_sha256": "3f2bea6418b6969c4bf2aa1df18dcda8a3a4ac075bf20c79068c754698b6be5e",
+    "prompt_sha256": "fd2e3ebd82dc7ef8d95ab0d4a83db0bfe6680878ebe5ca26cd8ac97b11e5e09e",
+    "proposal_policy_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "search_state_sha256": "04e5eb078ae1964e4ec65bfeeeb1acd0ffa246e7d54d5e0f997f81f602da28c5",
+    "treatment_skeleton_sha256": "6c4e1e5eb527ca63cb087c95dbca40efa3e1d788ecbdeeb10558568bab16ca33"
+  },
+  "proposal_type": "ordinary",
+  "proposals_cumulative": 109,
+  "remaining_budget": {
+    "evaluations": 91,
+    "evaluator_seconds": 315518.9885049184,
+    "proposals": 91,
+    "tokens": 97237493
+  },
+  "retained": true,
+  "retention_decision": "strict_incumbent_improvement",
+  "run_id": "controlled-openevolve-transformer-v2-1-source-only-ten-digit-addition-pair-transformer-openevolve-v2-1-mps-openevolve-b04-c0",
+  "schema_version": "1.0",
+  "selected_parent_ids": [
+    "a2d5c47506492914eff40ede728fa60a9f9c089a191ca63ce0d4bcd383ba6c4b"
+  ],
+  "timestamp": "2026-09-03T10:23:04.170627+00:00",
+  "usage_cumulative": {
+    "cached_input_tokens": 1090560,
+    "input_tokens": 2480050,
+    "output_tokens": 282457,
+    "reasoning_output_tokens": 217468,
+    "total_tokens": 2762507
+  },
+  "usage_increment": {
+    "cached_input_tokens": 10752,
+    "input_tokens": 24418,
+    "output_tokens": 12008,
+    "reasoning_output_tokens": 11135,
+    "total_tokens": 36426
+  },
+  "visible_candidate_ids": [
+    "a2d5c47506492914eff40ede728fa60a9f9c089a191ca63ce0d4bcd383ba6c4b"
+  ]
+}

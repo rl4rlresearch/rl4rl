@@ -1,0 +1,44 @@
+
+2026-09-04T02:10:49.194841+00:00 START ["/Users/utshaho/Documents/GitHub/rl4rl/architecture_discovery/.venv/bin/python", "-c", "\nimport importlib.util\nimport os\nfrom pathlib import Path\n\nfrom experiments.c0c3_factorial import codex_cli, evaluator, runner, state\n\n_provider_guard_path = Path('/Users/utshaho/Documents/GitHub/rl4rl/experiments/c0c3_provider_guard.py')\n_provider_guard_spec = importlib.util.spec_from_file_location(\n    \"rl4rl_c0c3_provider_guard\", _provider_guard_path\n)\nif _provider_guard_spec is None or _provider_guard_spec.loader is None:\n    raise RuntimeError(f\"cannot load provider guard: {_provider_guard_path}\")\n_provider_guard = importlib.util.module_from_spec(_provider_guard_spec)\n_provider_guard_spec.loader.exec_module(_provider_guard)\n_provider_guard.install_provider_retry_guard(codex_cli)\n\n_duplicate_guard_path = Path('/Users/utshaho/Documents/GitHub/rl4rl/experiments/c0c3_duplicate_guard.py')\n_duplicate_guard_spec = importlib.util.spec_from_file_location(\n    \"rl4rl_c0c3_duplicate_guard\", _duplicate_guard_path\n)\nif _duplicate_guard_spec is None or _duplicate_guard_spec.loader is None:\n    raise RuntimeError(f\"cannot load duplicate guard: {_duplicate_guard_path}\")\n_duplicate_guard = importlib.util.module_from_spec(_duplicate_guard_spec)\n_duplicate_guard_spec.loader.exec_module(_duplicate_guard)\n_duplicate_guard.install_duplicate_guard(runner, state, evaluator)\n\n_c4_guard_path = Path('/Users/utshaho/Documents/GitHub/rl4rl/experiments/c0c3_v21_c4_guard.py')\n_c4_guard_spec = importlib.util.spec_from_file_location(\n    \"rl4rl_c0c3_v21_c4_guard\", _c4_guard_path\n)\nif _c4_guard_spec is None or _c4_guard_spec.loader is None:\n    raise RuntimeError(f\"cannot load C4 guard: {_c4_guard_path}\")\n_c4_guard = importlib.util.module_from_spec(_c4_guard_spec)\n_c4_guard_spec.loader.exec_module(_c4_guard)\n_c4_guard.install_v21_c4_guard(runner, state)\n\nevaluator.SHARED_LOCAL_EVALUATOR_CAPACITY = int(\n    os.environ['RL4RL_SHARED_LOCAL_EVALUATOR_CAPACITY']\n)\n_campaign_capacity = os.environ.get('RL4RL_CAMPAIGN_LOCAL_EVALUATOR_CAPACITY')\nif _campaign_capacity is not None:\n    _original_make_command_evaluator = runner.make_command_evaluator\n    runner.make_command_evaluator = lambda **kwargs: _original_make_command_evaluator(\n        **(kwargs | {\"max_parallel_evaluators\": int(_campaign_capacity)})\n    )\n\nfrom experiments.c0c3_factorial.cli import main\n\nraise SystemExit(main())\n", "start-staged-trajectory", "--campaign", "/Users/utshaho/Documents/GitHub/rl4rl/data/c0c3/tiny-kws-rnn-openevolve-v2-1-cpu-campaign", "--python-bin", "/Users/utshaho/Documents/GitHub/rl4rl/architecture_discovery/.venv/bin/python", "--codex-binary", "/Users/utshaho/.local/bin/codex", "--run-id", "tiny-kws-rnn-openevolve-v2-1-cpu-tiny_kws_rnn_source_only_cpu-openevolve-b02-c3"]
+Traceback (most recent call last):
+  File "<string>", line 50, in <module>
+  File "/private/tmp/rl4rl-c0c3-openevolve-v2-1-tiny-kws-rnn/experiments/c0c3_factorial/cli.py", line 830, in main
+    return int(args.handler(args))
+               ^^^^^^^^^^^^^^^^^^
+  File "/private/tmp/rl4rl-c0c3-openevolve-v2-1-tiny-kws-rnn/experiments/c0c3_factorial/cli.py", line 374, in command_start_staged_trajectory
+    record = run_staged_individual_trajectory(
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/private/tmp/rl4rl-c0c3-openevolve-v2-1-tiny-kws-rnn/experiments/c0c3_factorial/orchestration.py", line 864, in run_staged_individual_trajectory
+    else run_one_opportunity(
+         ^^^^^^^^^^^^^^^^^^^^
+  File "/private/tmp/rl4rl-c0c3-openevolve-v2-1-tiny-kws-rnn/experiments/c0c3_factorial/runner.py", line 1402, in run_one_opportunity
+    return _run_one_opportunity_unlocked(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/utshaho/Documents/GitHub/rl4rl/experiments/c0c3_v21_c4_guard.py", line 413, in run_one_opportunity_unlocked
+    return original_unlocked(resolved, *args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/private/tmp/rl4rl-c0c3-openevolve-v2-1-tiny-kws-rnn/experiments/c0c3_factorial/runner.py", line 859, in _run_one_opportunity_unlocked
+    _mechanism_ledger(
+TypeError: install_v21_c4_guard.<locals>.mechanism_ledger() got an unexpected keyword argument 'minimum_opportunity'
+
+2026-09-04T02:11:06.780110+00:00 START ["/Users/utshaho/Documents/GitHub/rl4rl/architecture_discovery/.venv/bin/python", "-c", "\nimport importlib.util\nimport os\nfrom pathlib import Path\n\nfrom experiments.c0c3_factorial import codex_cli, evaluator, runner, state\n\n_provider_guard_path = Path('/Users/utshaho/Documents/GitHub/rl4rl/experiments/c0c3_provider_guard.py')\n_provider_guard_spec = importlib.util.spec_from_file_location(\n    \"rl4rl_c0c3_provider_guard\", _provider_guard_path\n)\nif _provider_guard_spec is None or _provider_guard_spec.loader is None:\n    raise RuntimeError(f\"cannot load provider guard: {_provider_guard_path}\")\n_provider_guard = importlib.util.module_from_spec(_provider_guard_spec)\n_provider_guard_spec.loader.exec_module(_provider_guard)\n_provider_guard.install_provider_retry_guard(codex_cli)\n\n_duplicate_guard_path = Path('/Users/utshaho/Documents/GitHub/rl4rl/experiments/c0c3_duplicate_guard.py')\n_duplicate_guard_spec = importlib.util.spec_from_file_location(\n    \"rl4rl_c0c3_duplicate_guard\", _duplicate_guard_path\n)\nif _duplicate_guard_spec is None or _duplicate_guard_spec.loader is None:\n    raise RuntimeError(f\"cannot load duplicate guard: {_duplicate_guard_path}\")\n_duplicate_guard = importlib.util.module_from_spec(_duplicate_guard_spec)\n_duplicate_guard_spec.loader.exec_module(_duplicate_guard)\n_duplicate_guard.install_duplicate_guard(runner, state, evaluator)\n\n_c4_guard_path = Path('/Users/utshaho/Documents/GitHub/rl4rl/experiments/c0c3_v21_c4_guard.py')\n_c4_guard_spec = importlib.util.spec_from_file_location(\n    \"rl4rl_c0c3_v21_c4_guard\", _c4_guard_path\n)\nif _c4_guard_spec is None or _c4_guard_spec.loader is None:\n    raise RuntimeError(f\"cannot load C4 guard: {_c4_guard_path}\")\n_c4_guard = importlib.util.module_from_spec(_c4_guard_spec)\n_c4_guard_spec.loader.exec_module(_c4_guard)\n_c4_guard.install_v21_c4_guard(runner, state)\n\nevaluator.SHARED_LOCAL_EVALUATOR_CAPACITY = int(\n    os.environ['RL4RL_SHARED_LOCAL_EVALUATOR_CAPACITY']\n)\n_campaign_capacity = os.environ.get('RL4RL_CAMPAIGN_LOCAL_EVALUATOR_CAPACITY')\nif _campaign_capacity is not None:\n    _original_make_command_evaluator = runner.make_command_evaluator\n    runner.make_command_evaluator = lambda **kwargs: _original_make_command_evaluator(\n        **(kwargs | {\"max_parallel_evaluators\": int(_campaign_capacity)})\n    )\n\nfrom experiments.c0c3_factorial.cli import main\n\nraise SystemExit(main())\n", "resume-staged-trajectory", "--campaign", "/Users/utshaho/Documents/GitHub/rl4rl/data/c0c3/tiny-kws-rnn-openevolve-v2-1-cpu-campaign", "--python-bin", "/Users/utshaho/Documents/GitHub/rl4rl/architecture_discovery/.venv/bin/python", "--codex-binary", "/Users/utshaho/.local/bin/codex", "--run-id", "tiny-kws-rnn-openevolve-v2-1-cpu-tiny_kws_rnn_source_only_cpu-openevolve-b02-c3"]
+Traceback (most recent call last):
+  File "<string>", line 50, in <module>
+  File "/private/tmp/rl4rl-c0c3-openevolve-v2-1-tiny-kws-rnn/experiments/c0c3_factorial/cli.py", line 830, in main
+    return int(args.handler(args))
+               ^^^^^^^^^^^^^^^^^^
+  File "/private/tmp/rl4rl-c0c3-openevolve-v2-1-tiny-kws-rnn/experiments/c0c3_factorial/cli.py", line 393, in command_resume_staged_trajectory
+    record = run_staged_individual_trajectory(
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/private/tmp/rl4rl-c0c3-openevolve-v2-1-tiny-kws-rnn/experiments/c0c3_factorial/orchestration.py", line 864, in run_staged_individual_trajectory
+    else run_one_opportunity(
+         ^^^^^^^^^^^^^^^^^^^^
+  File "/private/tmp/rl4rl-c0c3-openevolve-v2-1-tiny-kws-rnn/experiments/c0c3_factorial/runner.py", line 1402, in run_one_opportunity
+    return _run_one_opportunity_unlocked(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/utshaho/Documents/GitHub/rl4rl/experiments/c0c3_v21_c4_guard.py", line 413, in run_one_opportunity_unlocked
+    return original_unlocked(resolved, *args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/private/tmp/rl4rl-c0c3-openevolve-v2-1-tiny-kws-rnn/experiments/c0c3_factorial/runner.py", line 859, in _run_one_opportunity_unlocked
+    _mechanism_ledger(
+TypeError: install_v21_c4_guard.<locals>.mechanism_ledger() got an unexpected keyword argument 'minimum_opportunity'

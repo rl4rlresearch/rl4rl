@@ -1,0 +1,88 @@
+{
+  "artifact_path": "candidates/84dda2c03881ec4256d09602022fcf3a777d586f97a22d02a405fdea93d7f096",
+  "candidate_id": "84dda2c03881ec4256d09602022fcf3a777d586f97a22d02a405fdea93d7f096",
+  "codex_service_tier": "default",
+  "condition": "C2",
+  "conversation_session_id": null,
+  "evaluation": {
+    "evaluator_calls": 1,
+    "evaluator_seconds": 362.03423367100186,
+    "failure_kind": null,
+    "fitness": -0.984213,
+    "metrics": {
+      "depth": 8.0,
+      "mfu_percent": 36.75,
+      "num_params_M": 50.3,
+      "num_steps": 1942.0,
+      "peak_vram_mb": 44908.2,
+      "total_tokens_M": 509.1,
+      "training_seconds": 300.1,
+      "val_bpb": 0.984213
+    },
+    "valid": true
+  },
+  "evaluator_calls_cumulative": 44,
+  "evaluator_calls_increment": 1,
+  "evaluator_seconds_cumulative": 15214.167793109975,
+  "evaluator_seconds_increment": 362.03423367100186,
+  "event": "proposal_completed",
+  "evicted_candidate_id": "2515f13a9036af26b934d2aa8ddb7b6e10ab08251ee1b6a88a19ba39b375c200",
+  "evidence": "Uniform 384-token attention achieved the best val_bpb of 0.983618, while uniform 256 and 512 produced similar regressions of 0.984221 and 0.984156; combining those endpoints preserves the winning design\u2019s attention compute while testing whether context is more valuable after the intermediate global layer. Removing that global layer regressed to 0.985116, so both verified full-context layers are retained.",
+  "hypothesis": "Compute-neutral 256-token early local attention and 512-token late local attention, with full context at layers 4 and 8, will reduce val_bpb below 0.983618 by using early layers for cheap feature extraction and allocating wider context to later refinement.",
+  "incumbent_after": "68e4c0a093d8469cbb6dbc35418542522419bf7bea6f8075ef469190949e1a93",
+  "intended_edit": "Restore the best shared 35% AdamW schedule and replace uniform short attention with a 256/512-token stagewise split whose average local window remains 384 tokens.",
+  "mechanism": "Stagewise context reallocation",
+  "opportunity": 44,
+  "parent_ids": [
+    "2515f13a9036af26b934d2aa8ddb7b6e10ab08251ee1b6a88a19ba39b375c200"
+  ],
+  "portfolio_after": [
+    "68e4c0a093d8469cbb6dbc35418542522419bf7bea6f8075ef469190949e1a93",
+    "84dda2c03881ec4256d09602022fcf3a777d586f97a22d02a405fdea93d7f096",
+    "903eb902e4af9012416a318e30198ac4964cc9719e148b94823dd853653ca8d0",
+    "9ee58ae85f4632d6308bfd3a0587b6b89c9874509338ea355d4772c8d457d231"
+  ],
+  "prompt_hashes": {
+    "common_template_sha256": "ba85b39aa7288f4f48475376da6cff65661f39cfeb7ac7cde15b2a9a2e692fde",
+    "prompt_sha256": "45ee8c815c61fd2585a4ab52667319166a512868801ec2cf77481e278d0e0ab1",
+    "proposal_policy_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "search_state_sha256": "c938ac007bf70fe8d27f64661175531e51fcb16b38318c328493c32ee292e27e",
+    "treatment_skeleton_sha256": "814929b6b7a937d2bb2adc66080208fd68135d8b330ae13e2ed4a93d50b85868"
+  },
+  "proposal_type": "ordinary",
+  "proposals_cumulative": 44,
+  "remaining_budget": {
+    "evaluations": 156,
+    "evaluator_seconds": 704785.83220689,
+    "proposals": 156,
+    "tokens": 97894157
+  },
+  "retained": true,
+  "retention_decision": "replaced_selected_parent_on_strict_improvement",
+  "run_id": "nanogpt-openevolve-v2-1-h100-karpathy_nanogpt_source_only_h100-openevolve-b03-c2",
+  "schema_version": "1.0",
+  "selected_parent_ids": [
+    "2515f13a9036af26b934d2aa8ddb7b6e10ab08251ee1b6a88a19ba39b375c200"
+  ],
+  "timestamp": "2026-08-24T09:02:55.630400+00:00",
+  "usage_cumulative": {
+    "cached_input_tokens": 498944,
+    "input_tokens": 2009248,
+    "output_tokens": 96595,
+    "reasoning_output_tokens": 78812,
+    "total_tokens": 2105843
+  },
+  "usage_increment": {
+    "cached_input_tokens": 12032,
+    "input_tokens": 47464,
+    "output_tokens": 2645,
+    "reasoning_output_tokens": 1552,
+    "total_tokens": 50109
+  },
+  "visible_candidate_ids": [
+    "68e4c0a093d8469cbb6dbc35418542522419bf7bea6f8075ef469190949e1a93",
+    "2515f13a9036af26b934d2aa8ddb7b6e10ab08251ee1b6a88a19ba39b375c200",
+    "903eb902e4af9012416a318e30198ac4964cc9719e148b94823dd853653ca8d0",
+    "9ee58ae85f4632d6308bfd3a0587b6b89c9874509338ea355d4772c8d457d231"
+  ]
+}

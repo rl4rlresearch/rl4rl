@@ -1,0 +1,91 @@
+{
+  "artifact_path": "candidates/7f1d9665e7b623199061571c8806897c3c1eac8b5cd7ba42053aeeef0c75e608",
+  "candidate_id": "7f1d9665e7b623199061571c8806897c3c1eac8b5cd7ba42053aeeef0c75e608",
+  "codex_service_tier": "default",
+  "condition": "C3",
+  "conversation_session_id": null,
+  "evaluation": {
+    "evaluator_calls": 1,
+    "evaluator_seconds": 77.94545662496239,
+    "failure_kind": null,
+    "fitness": 9141.402251732847,
+    "metrics": {
+      "batch_size": 64,
+      "evaluation_cases": 10000,
+      "evaluation_split": "public_validation",
+      "examples_processed": 100000,
+      "optimizer_steps": 1564,
+      "parameters": 245818,
+      "training_seconds": 67.55882224999368,
+      "validation_accuracy": 0.9141,
+      "validation_correct": 9141,
+      "validation_cross_entropy": 0.24300272483825683,
+      "validation_score": 9141.402251732847
+    },
+    "valid": true
+  },
+  "evaluator_calls_cumulative": 11,
+  "evaluator_calls_increment": 1,
+  "evaluator_seconds_cumulative": 760.3572788753081,
+  "evaluator_seconds_increment": 77.94545662496239,
+  "event": "proposal_completed",
+  "evicted_candidate_id": "9555df9858170cea172676b2173698af4a110fbdd0ca630a4ff84cc300107a40",
+  "evidence": "Batch size 64 achieved the best result at 9,128 correct, while adding diagonal inference views reduced correct predictions from 9,125 to 9,119; this motivates retaining the proven optimizer configuration and aligning EMA-dominant late training with the successful center/cardinal ensemble.",
+  "hypothesis": "Using the validated batch-64 configuration while restricting the final quarter of training to the five center/cardinal one-pixel views used by inference will exceed 9,128 correct predictions by preserving early translation regularization and eliminating late optimization on the diagonal and two-pixel views that are mismatched with the best ensemble.",
+  "incumbent_after": "7f1d9665e7b623199061571c8806897c3c1eac8b5cd7ba42053aeeef0c75e608",
+  "intended_edit": "Switch to batch size 64 with exposure-matched AdamW decay and EMA momentum, and replace uniform \u00b12 translation augmentation during the final training quarter with uniform center/cardinal one-pixel translations while retaining horizontal flips.",
+  "mechanism": "Late-phase inference-aligned cardinal augmentation",
+  "opportunity": 11,
+  "parent_ids": [
+    "9555df9858170cea172676b2173698af4a110fbdd0ca630a4ff84cc300107a40"
+  ],
+  "portfolio_after": [
+    "1519f52d28c6c739b31c8d221690983a68a7059a34bf6272219d467f90e88386",
+    "0620d0d3baff9770e27848d23ce79cda36d8ae5fb33ae453c6cb5f30486ff3fb",
+    "e6a5975cb2d6284cd548529be64bc68f94fa953a67a2d87565666ff929fa19d2",
+    "7f1d9665e7b623199061571c8806897c3c1eac8b5cd7ba42053aeeef0c75e608"
+  ],
+  "prompt_hashes": {
+    "common_template_sha256": "e8327ba94bab12abc7c7ec7c6615378a3ae62434efb944d4a7d9492f1d19bc14",
+    "prompt_sha256": "7ad73366d9f81c337dc139bc720e625006e7dbafdd18841c6c9e91dc2ca7ce26",
+    "proposal_policy_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "search_state_sha256": "c938ac007bf70fe8d27f64661175531e51fcb16b38318c328493c32ee292e27e",
+    "treatment_skeleton_sha256": "1d3810bfc829ddcad5614effab2df3b801f475eb2a9f38ff56d0f2cbfcff6b3c"
+  },
+  "proposal_type": "ordinary",
+  "proposals_cumulative": 11,
+  "remaining_budget": {
+    "evaluations": 189,
+    "evaluator_seconds": 23239.642721124692,
+    "proposals": 189,
+    "tokens": 99742911
+  },
+  "retained": true,
+  "retention_decision": "replaced_selected_parent_on_strict_improvement",
+  "run_id": "fashion-mnist-openevolve-v2-1-mps-fashion_mnist_source_only_mps-openevolve-b05-c3",
+  "schema_version": "1.0",
+  "selected_parent_ids": [
+    "9555df9858170cea172676b2173698af4a110fbdd0ca630a4ff84cc300107a40"
+  ],
+  "timestamp": "2026-08-24T03:42:05.814079+00:00",
+  "usage_cumulative": {
+    "cached_input_tokens": 119296,
+    "input_tokens": 222456,
+    "output_tokens": 34633,
+    "reasoning_output_tokens": 25761,
+    "total_tokens": 257089
+  },
+  "usage_increment": {
+    "cached_input_tokens": 12032,
+    "input_tokens": 21936,
+    "output_tokens": 5368,
+    "reasoning_output_tokens": 4660,
+    "total_tokens": 27304
+  },
+  "visible_candidate_ids": [
+    "1519f52d28c6c739b31c8d221690983a68a7059a34bf6272219d467f90e88386",
+    "0620d0d3baff9770e27848d23ce79cda36d8ae5fb33ae453c6cb5f30486ff3fb",
+    "e6a5975cb2d6284cd548529be64bc68f94fa953a67a2d87565666ff929fa19d2",
+    "9555df9858170cea172676b2173698af4a110fbdd0ca630a4ff84cc300107a40"
+  ]
+}

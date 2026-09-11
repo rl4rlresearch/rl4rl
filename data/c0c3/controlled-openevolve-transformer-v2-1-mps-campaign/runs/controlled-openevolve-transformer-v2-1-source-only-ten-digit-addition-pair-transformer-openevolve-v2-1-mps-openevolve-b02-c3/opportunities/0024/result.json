@@ -1,0 +1,85 @@
+{
+  "artifact_path": "candidates/16b1c2397ca7f6a29fc67c0898f1d5ff526dd87f087dbd05653b0f1988f69ef1",
+  "candidate_id": "16b1c2397ca7f6a29fc67c0898f1d5ff526dd87f087dbd05653b0f1988f69ef1",
+  "codex_service_tier": "fast",
+  "condition": "C3",
+  "conversation_session_id": null,
+  "evaluation": {
+    "evaluator_calls": 1,
+    "evaluator_seconds": 420.6334797090385,
+    "failure_kind": null,
+    "fitness": -1293.0,
+    "metrics": {
+      "accuracy": 0.9959,
+      "cases": 10010,
+      "correct": 9969,
+      "parameters": 1293,
+      "training_steps": 4999
+    },
+    "valid": true
+  },
+  "evaluator_calls_cumulative": 24,
+  "evaluator_calls_increment": 1,
+  "evaluator_seconds_cumulative": 7505.78854595602,
+  "evaluator_seconds_increment": 420.6334797090385,
+  "event": "proposal_completed",
+  "evicted_candidate_id": "0b9117c53d86c5be8ea95087a7519896ca05b1f1d100794546ec7ac56b097c5b",
+  "evidence": "The current 1,317-parameter design achieved 100% accuracy after fixing both pre-attention and pre-MLP LayerNorm scales. Its pre-attention bias is also expressed entirely in a zero-mean basis, making the QKV input\u2019s all-ones direction exactly unobservable; the orthonormal reparameterization preserves the initialized function distribution.",
+  "hypothesis": "Replacing the attention QKV map\u2019s eight-dimensional input with its seven-dimensional zero-mean quotient will reduce the verified model from 1,317 to 1,293 parameters while retaining at least 99% accuracy, because `GaugeFixedLayerNorm` always produces zero-mean vectors and the removed QKV weight direction therefore receives neither activation nor gradient.",
+  "incumbent_after": "16b1c2397ca7f6a29fc67c0898f1d5ff526dd87f087dbd05653b0f1988f69ef1",
+  "intended_edit": "Add a quotient-input linear layer and use it for the learned QKV projection, removing 24 functionally inactive weights without changing attention behavior or decoding.",
+  "mechanism": "Zero-mean attention-input quotient",
+  "opportunity": 24,
+  "parent_ids": [
+    "0b9117c53d86c5be8ea95087a7519896ca05b1f1d100794546ec7ac56b097c5b"
+  ],
+  "portfolio_after": [
+    "2b9cea175ed60b009337ac54f6e8ad23bf2c014eb4080237777bfb70bfd9fd5b",
+    "2d3f1d12d1d92f9f89a5bbee993442b57e9e3cbd688704f873f9719986a8c34e",
+    "0593cb1d44a10aa195d47eb646d2b5b366c384bbc64480528b11b6132a62f046",
+    "16b1c2397ca7f6a29fc67c0898f1d5ff526dd87f087dbd05653b0f1988f69ef1"
+  ],
+  "prompt_hashes": {
+    "common_template_sha256": "3f2bea6418b6969c4bf2aa1df18dcda8a3a4ac075bf20c79068c754698b6be5e",
+    "prompt_sha256": "f0c5fed6837f0908a620ca0bd3fd89d0ae09c47cfaded9dbeb7df31272906e07",
+    "proposal_policy_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "search_state_sha256": "c938ac007bf70fe8d27f64661175531e51fcb16b38318c328493c32ee292e27e",
+    "treatment_skeleton_sha256": "e3be29a3337fc845a97f8601528639dcd0f4fc8f49a3ab6d27aa11beb5d0f3bb"
+  },
+  "proposal_type": "ordinary",
+  "proposals_cumulative": 24,
+  "remaining_budget": {
+    "evaluations": 176,
+    "evaluator_seconds": 352494.211454044,
+    "proposals": 176,
+    "tokens": 99160664
+  },
+  "retained": true,
+  "retention_decision": "replaced_selected_parent_on_strict_improvement",
+  "run_id": "controlled-openevolve-transformer-v2-1-source-only-ten-digit-addition-pair-transformer-openevolve-v2-1-mps-openevolve-b02-c3",
+  "schema_version": "1.0",
+  "selected_parent_ids": [
+    "0b9117c53d86c5be8ea95087a7519896ca05b1f1d100794546ec7ac56b097c5b"
+  ],
+  "timestamp": "2026-08-23T17:36:26.673503+00:00",
+  "usage_cumulative": {
+    "cached_input_tokens": 266240,
+    "input_tokens": 746148,
+    "output_tokens": 93188,
+    "reasoning_output_tokens": 74632,
+    "total_tokens": 839336
+  },
+  "usage_increment": {
+    "cached_input_tokens": 12032,
+    "input_tokens": 37200,
+    "output_tokens": 4180,
+    "reasoning_output_tokens": 3624,
+    "total_tokens": 41380
+  },
+  "visible_candidate_ids": [
+    "2b9cea175ed60b009337ac54f6e8ad23bf2c014eb4080237777bfb70bfd9fd5b",
+    "2d3f1d12d1d92f9f89a5bbee993442b57e9e3cbd688704f873f9719986a8c34e",
+    "0593cb1d44a10aa195d47eb646d2b5b366c384bbc64480528b11b6132a62f046",
+    "0b9117c53d86c5be8ea95087a7519896ca05b1f1d100794546ec7ac56b097c5b"
+  ]
+}

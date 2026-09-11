@@ -1,0 +1,1054 @@
+{
+  "active": {
+    "index": 100,
+    "selected_parent_id": "6076f91a93149f75ada80c961bece7477ead20aac969984913b4bc930459d76f",
+    "started_at": "2026-09-04T04:44:22.036046+00:00",
+    "transition_active": false,
+    "visible_ids": [
+      "6076f91a93149f75ada80c961bece7477ead20aac969984913b4bc930459d76f"
+    ]
+  },
+  "candidates": {
+    "0369fbe9f3b6b2d970c4315b2d8253c97fdd6689240f9ec6d191c848c22bf6cd": {
+      "artifact_path": "candidates/0369fbe9f3b6b2d970c4315b2d8253c97fdd6689240f9ec6d191c848c22bf6cd",
+      "candidate_id": "0369fbe9f3b6b2d970c4315b2d8253c97fdd6689240f9ec6d191c848c22bf6cd",
+      "created_opportunity": 46,
+      "fitness": -1604.0,
+      "hypothesis": "Removing the remaining singleton value-bias scalar will reduce the model from 1,605 to 1,604 parameters while retaining at least 99% accuracy after 12,000 steps, because its position-independent attention contribution can be absorbed by the learned output-projection bias.",
+      "intended_edit": "Store 10 QKV bias parameters, reconstruct value coordinate 6 as zero while preserving all other bias mappings, and add 1,000 low-learning-rate refinement steps.",
+      "metrics": {
+        "accuracy": 0.9934999999999999,
+        "cases": 10010,
+        "correct": 9945,
+        "parameters": 1604,
+        "training_steps": 11999
+      },
+      "parent_ids": [
+        "84ca3f937838f713fa2f68e83a7e8c71f58d95dc94b3cd2eec0f3238560fedfb"
+      ],
+      "retained_order": 46,
+      "selected_count": 1
+    },
+    "052fc2597cdb160d3bc04bf263732309791fd02e2950e5e821e0acef6456ef07": {
+      "artifact_path": "candidates/052fc2597cdb160d3bc04bf263732309791fd02e2950e5e821e0acef6456ef07",
+      "candidate_id": "052fc2597cdb160d3bc04bf263732309791fd02e2950e5e821e0acef6456ef07",
+      "created_opportunity": 48,
+      "fitness": -1602.0,
+      "hypothesis": "Removing the last learned value-bias scalar will reduce the model from 1,603 to 1,602 parameters while retaining at least 99% accuracy after 14,000 steps, because its position-independent contribution can be absorbed by the learned output-projection bias.",
+      "intended_edit": "Store only the eight query-bias parameters, reconstruct the entire value bias as zero, and add 1,000 minimum-learning-rate refinement steps.",
+      "metrics": {
+        "accuracy": 1.0,
+        "cases": 10010,
+        "correct": 10010,
+        "parameters": 1602,
+        "training_steps": 13999
+      },
+      "parent_ids": [
+        "59f39fafd3fdc7079ee46ca9a86edf661cb15da3b7bde249ae07b1e78f0e0131"
+      ],
+      "retained_order": 48,
+      "selected_count": 2
+    },
+    "053dbc28e154eef5b7afa9ea1b5846c6449e91955b8dd95d70f9966e5bf7690c": {
+      "artifact_path": "candidates/053dbc28e154eef5b7afa9ea1b5846c6449e91955b8dd95d70f9966e5bf7690c",
+      "candidate_id": "053dbc28e154eef5b7afa9ea1b5846c6449e91955b8dd95d70f9966e5bf7690c",
+      "created_opportunity": 22,
+      "fitness": -1615.0,
+      "hypothesis": "Tying value-bias coordinates 2 and `head_dim + 2` will reduce the model from 1,616 to 1,615 parameters while retaining at least 99% accuracy, because the successful cross-head tie at coordinate 1 shows that symmetric per-head value offsets can share a learned degree of freedom without imposing a fixed-zero constraint.",
+      "intended_edit": "Store 19 QKV bias parameters and reconstruct the second head\u2019s value-bias coordinates 1 and 2 from the corresponding learned coordinates of the first head.",
+      "metrics": {
+        "accuracy": 0.9975,
+        "cases": 10010,
+        "correct": 9985,
+        "parameters": 1615,
+        "training_steps": 4999
+      },
+      "parent_ids": [
+        "a8a82ba1986c9eca2b9a20356b89f7b9e57acd48954e51fc72ada3ad65b69d1d"
+      ],
+      "retained_order": 22,
+      "selected_count": 2
+    },
+    "099ef7e93317dcebbc8489d1b9b409cf72db599ddca5fe26fc6d58ddbba3070b": {
+      "artifact_path": "candidates/099ef7e93317dcebbc8489d1b9b409cf72db599ddca5fe26fc6d58ddbba3070b",
+      "candidate_id": "099ef7e93317dcebbc8489d1b9b409cf72db599ddca5fe26fc6d58ddbba3070b",
+      "created_opportunity": 43,
+      "fitness": -1606.0,
+      "hypothesis": "Anchoring one `fc1` weight coordinate at zero will reduce the model from 1,607 to 1,606 parameters while retaining at least 99% accuracy after 10,000 steps, because LayerNorm confines each MLP input to a seven-dimensional affine hyperplane and the retained `fc1` bias preserves the omitted direction\u2019s constant component.",
+      "intended_edit": "Store 95 of the 96 `fc1` weights, reconstruct the final coordinate as zero during forward passes, and add 1,000 low-learning-rate refinement steps.",
+      "metrics": {
+        "accuracy": 0.998,
+        "cases": 10010,
+        "correct": 9990,
+        "parameters": 1606,
+        "training_steps": 9999
+      },
+      "parent_ids": [
+        "80d862b993daeaac7259afbf033ff96c4105b21beee7abb996aa6e54835c8ebd"
+      ],
+      "retained_order": 43,
+      "selected_count": 2
+    },
+    "09cb45da9e666b639debbc788f3bfd3a37c8a5774702c923c5cfb8f5f097e78e": {
+      "artifact_path": "candidates/09cb45da9e666b639debbc788f3bfd3a37c8a5774702c923c5cfb8f5f097e78e",
+      "candidate_id": "09cb45da9e666b639debbc788f3bfd3a37c8a5774702c923c5cfb8f5f097e78e",
+      "created_opportunity": 62,
+      "fitness": -1593.0,
+      "hypothesis": "Gauge-anchoring a third `fc2` column after the successful initialization draw stream has been generated will reduce the model from 1,594 to 1,593 parameters while retaining at least 99% accuracy after 21,000 steps.",
+      "intended_edit": "Split the third-to-last initialized `fc2` column into seven relative coordinates plus a zero anchor, reconstruct it during forward passes, and train it with `GaugeAdamW`.",
+      "metrics": {
+        "accuracy": 0.9998999999999999,
+        "cases": 10010,
+        "correct": 10009,
+        "parameters": 1593,
+        "training_steps": 20999
+      },
+      "parent_ids": [
+        "d58b0be3db480083b86408051085cc36330fb62822fbfd294cd418273093366a"
+      ],
+      "retained_order": 62,
+      "selected_count": 1
+    },
+    "0c9feacb0e1130fe4d982e0ab9d96f011b7eea1c3980b9ad3ce1cccdd108f2de": {
+      "artifact_path": "candidates/0c9feacb0e1130fe4d982e0ab9d96f011b7eea1c3980b9ad3ce1cccdd108f2de",
+      "candidate_id": "0c9feacb0e1130fe4d982e0ab9d96f011b7eea1c3980b9ad3ce1cccdd108f2de",
+      "created_opportunity": 68,
+      "fitness": -1588.0,
+      "hypothesis": "Gauge-anchoring initialized `fc2` column 1 will reduce the model from 1,589 to 1,588 parameters while retaining at least 99% accuracy after 21,000 steps.",
+      "intended_edit": "Split `fc2` column 1 into seven relative coordinates plus a zero anchor after initialization, reconstruct the original column order in forward passes, and optimize it with `GaugeAdamW`.",
+      "metrics": {
+        "accuracy": 0.9994,
+        "cases": 10010,
+        "correct": 10004,
+        "parameters": 1588,
+        "training_steps": 20999
+      },
+      "parent_ids": [
+        "20658954ea3627ffb63b80e4de7b3f507f396d676b934db5186633d46fdcec01"
+      ],
+      "retained_order": 68,
+      "selected_count": 1
+    },
+    "20658954ea3627ffb63b80e4de7b3f507f396d676b934db5186633d46fdcec01": {
+      "artifact_path": "candidates/20658954ea3627ffb63b80e4de7b3f507f396d676b934db5186633d46fdcec01",
+      "candidate_id": "20658954ea3627ffb63b80e4de7b3f507f396d676b934db5186633d46fdcec01",
+      "created_opportunity": 67,
+      "fitness": -1589.0,
+      "hypothesis": "Gauge-anchoring initialized `fc2` column 3 will reduce the model from 1,590 to 1,589 parameters while retaining at least 99% accuracy after 21,000 steps.",
+      "intended_edit": "Split nonadjacent interior `fc2` column 3 into seven relative coordinates plus a zero anchor after initialization, reconstruct the original column order during forward passes, and optimize it with `GaugeAdamW`.",
+      "metrics": {
+        "accuracy": 0.9993000000000001,
+        "cases": 10010,
+        "correct": 10003,
+        "parameters": 1589,
+        "training_steps": 20999
+      },
+      "parent_ids": [
+        "ac59ca65a485fdf60001ba1dea89cf63fa073af2ff306902f22398e4a91bd99c"
+      ],
+      "retained_order": 67,
+      "selected_count": 1
+    },
+    "20a838382931e0b9375fc30f30a0554694460ff975cfd86d4af8210d6400532b": {
+      "artifact_path": "candidates/20a838382931e0b9375fc30f30a0554694460ff975cfd86d4af8210d6400532b",
+      "candidate_id": "20a838382931e0b9375fc30f30a0554694460ff975cfd86d4af8210d6400532b",
+      "created_opportunity": 80,
+      "fitness": -1578.0,
+      "hypothesis": "Gauge-anchoring initialized positional row `max_seq_len // 2 + 2` will reduce the model from 1,579 to 1,578 parameters while retaining at least 99% accuracy after 21,000 steps.",
+      "intended_edit": "Split the second row after the midpoint into seven learned relative coordinates plus a zero anchor, reconstruct it in place, and optimize it with `GaugeAdamW`.",
+      "metrics": {
+        "accuracy": 0.9987999999999999,
+        "cases": 10010,
+        "correct": 9998,
+        "parameters": 1578,
+        "training_steps": 20999
+      },
+      "parent_ids": [
+        "bb998ce491ce3d15fd5421b56f447594ec8684e342e3bb290839b58cae057146"
+      ],
+      "retained_order": 80,
+      "selected_count": 1
+    },
+    "20f5d026a3e263a6687688fe12054bb7e5af8c9de7cdeec563d303feb05d43fc": {
+      "artifact_path": "candidates/20f5d026a3e263a6687688fe12054bb7e5af8c9de7cdeec563d303feb05d43fc",
+      "candidate_id": "20f5d026a3e263a6687688fe12054bb7e5af8c9de7cdeec563d303feb05d43fc",
+      "created_opportunity": 52,
+      "fitness": -1599.0,
+      "hypothesis": "Anchoring a second attention-projection input column with equivalent full eight-coordinate initialization and implicit AdamW updates will reduce the model from 1,600 to 1,599 parameters while retaining at least 99% accuracy after 17,000 steps.",
+      "intended_edit": "Split another projection column into seven learned relative coordinates plus a zero anchor, initialize both anchored columns from full i.i.d. columns, optimize each with GaugeAdamW, and add 1,000 low-rate refinement steps.",
+      "metrics": {
+        "accuracy": 0.9995999999999999,
+        "cases": 10010,
+        "correct": 10006,
+        "parameters": 1599,
+        "training_steps": 16999
+      },
+      "parent_ids": [
+        "3524931ee8745bc999ae998a21ce51af1898730cd0aa31d0672c74a52a6b9914"
+      ],
+      "retained_order": 52,
+      "selected_count": 2
+    },
+    "2b9cea175ed60b009337ac54f6e8ad23bf2c014eb4080237777bfb70bfd9fd5b": {
+      "artifact_path": "candidates/2b9cea175ed60b009337ac54f6e8ad23bf2c014eb4080237777bfb70bfd9fd5b",
+      "candidate_id": "2b9cea175ed60b009337ac54f6e8ad23bf2c014eb4080237777bfb70bfd9fd5b",
+      "created_opportunity": 0,
+      "fitness": -1644.0,
+      "hypothesis": "frozen seed baseline",
+      "intended_edit": "none",
+      "metrics": {
+        "accuracy": 0.9995999999999999,
+        "cases": 10010,
+        "correct": 10006,
+        "parameters": 1644,
+        "training_steps": 4999
+      },
+      "parent_ids": [],
+      "retained_order": 0,
+      "selected_count": 5
+    },
+    "3524931ee8745bc999ae998a21ce51af1898730cd0aa31d0672c74a52a6b9914": {
+      "artifact_path": "candidates/3524931ee8745bc999ae998a21ce51af1898730cd0aa31d0672c74a52a6b9914",
+      "candidate_id": "3524931ee8745bc999ae998a21ce51af1898730cd0aa31d0672c74a52a6b9914",
+      "created_opportunity": 51,
+      "fitness": -1600.0,
+      "hypothesis": "Anchoring one uniform-output gauge coordinate in an attention-projection weight column, while preserving equivalent full initialization and implicit eight-coordinate AdamW updates, will reduce the model from 1,601 to 1,600 parameters and retain at least 99% accuracy after 16,000 steps.",
+      "intended_edit": "Split the final attention-projection input column into seven learned relative coordinates plus a zero anchor, initialize it from an eight-coordinate i.i.d. column, optimize it with GaugeAdamW, and add 1,000 low-rate refinement steps.",
+      "metrics": {
+        "accuracy": 0.9998,
+        "cases": 10010,
+        "correct": 10008,
+        "parameters": 1600,
+        "training_steps": 15999
+      },
+      "parent_ids": [
+        "cf7a4827224ec2f36754a2a68dd8a8a9f7bcb68e57d8f31bbac2356453cb1c56"
+      ],
+      "retained_order": 51,
+      "selected_count": 1
+    },
+    "39c721caafc4532032de15ea5f6cd06aada49c5bbc8b8ec56201111c216b0a3d": {
+      "artifact_path": "candidates/39c721caafc4532032de15ea5f6cd06aada49c5bbc8b8ec56201111c216b0a3d",
+      "candidate_id": "39c721caafc4532032de15ea5f6cd06aada49c5bbc8b8ec56201111c216b0a3d",
+      "created_opportunity": 70,
+      "fitness": -1586.0,
+      "hypothesis": "Gauge-anchoring initialized `fc2` column 4 will reduce the model from 1,587 to 1,586 parameters while retaining at least 99% accuracy after 21,000 steps.",
+      "intended_edit": "Split original `fc2` column 4 into seven relative coordinates plus a zero anchor after initialization, reconstruct it in its original position, and optimize it with `GaugeAdamW`.",
+      "metrics": {
+        "accuracy": 0.9994,
+        "cases": 10010,
+        "correct": 10004,
+        "parameters": 1586,
+        "training_steps": 20999
+      },
+      "parent_ids": [
+        "911b885e6c8f90c2f195d61ee52182ae4364130b4f9d515a0865a9bdc8bdcf3d"
+      ],
+      "retained_order": 70,
+      "selected_count": 1
+    },
+    "419db62c9573e679953365485f258f46ae3e418dda7a434b489e95ec38a68e38": {
+      "artifact_path": "candidates/419db62c9573e679953365485f258f46ae3e418dda7a434b489e95ec38a68e38",
+      "candidate_id": "419db62c9573e679953365485f258f46ae3e418dda7a434b489e95ec38a68e38",
+      "created_opportunity": 73,
+      "fitness": -1583.0,
+      "hypothesis": "Gauge-anchoring the initialized fourth-to-last positional embedding row will reduce the model from 1,584 to 1,583 parameters while retaining at least 99% accuracy after 21,000 steps.",
+      "intended_edit": "Split the fourth-to-last positional row into seven learned relative coordinates plus a zero anchor after initialization, reconstruct it during forward passes, and optimize it with GaugeAdamW.",
+      "metrics": {
+        "accuracy": 0.9995999999999999,
+        "cases": 10010,
+        "correct": 10006,
+        "parameters": 1583,
+        "training_steps": 20999
+      },
+      "parent_ids": [
+        "9f222dd07611f4f7b79b9bdc1b85a7abf855fe9f3df1d556bd829268ad6d4fde"
+      ],
+      "retained_order": 73,
+      "selected_count": 2
+    },
+    "59f39fafd3fdc7079ee46ca9a86edf661cb15da3b7bde249ae07b1e78f0e0131": {
+      "artifact_path": "candidates/59f39fafd3fdc7079ee46ca9a86edf661cb15da3b7bde249ae07b1e78f0e0131",
+      "candidate_id": "59f39fafd3fdc7079ee46ca9a86edf661cb15da3b7bde249ae07b1e78f0e0131",
+      "created_opportunity": 47,
+      "fitness": -1603.0,
+      "hypothesis": "Removing the value-bias scalar shared by coordinates 4 and 5 will reduce the model from 1,604 to 1,603 parameters while retaining at least 99% accuracy after 13,000 steps, because its position-independent attention contribution can be absorbed by the learned output-projection bias.",
+      "intended_edit": "Store nine QKV bias parameters, reconstruct value coordinates 4 and 5 as zero while preserving the remaining validated mappings, and add 1,000 low-learning-rate refinement steps.",
+      "metrics": {
+        "accuracy": 0.9990000000000001,
+        "cases": 10010,
+        "correct": 10000,
+        "parameters": 1603,
+        "training_steps": 12999
+      },
+      "parent_ids": [
+        "0369fbe9f3b6b2d970c4315b2d8253c97fdd6689240f9ec6d191c848c22bf6cd"
+      ],
+      "retained_order": 47,
+      "selected_count": 1
+    },
+    "5f270717af7129047240532eae29e2bdffb93575a25d6e03ddbfdf0bcf4ea03a": {
+      "artifact_path": "candidates/5f270717af7129047240532eae29e2bdffb93575a25d6e03ddbfdf0bcf4ea03a",
+      "candidate_id": "5f270717af7129047240532eae29e2bdffb93575a25d6e03ddbfdf0bcf4ea03a",
+      "created_opportunity": 12,
+      "fitness": -1619.0,
+      "hypothesis": "Removing one key-projection bias coordinate while preserving the original layer-construction RNG trajectory will reduce the model from 1,620 to 1,619 parameters and retain at least 99% accuracy.",
+      "intended_edit": "Store 23 learned QKV bias values and reconstruct one fixed-zero key-bias coordinate during attention.",
+      "metrics": {
+        "accuracy": 0.9974,
+        "cases": 10010,
+        "correct": 9984,
+        "parameters": 1619,
+        "training_steps": 4999
+      },
+      "parent_ids": [
+        "cb09b6c2cab34a4b2bf3505fae7ac309525b96cd7cb935313b006993b946a0c2"
+      ],
+      "retained_order": 12,
+      "selected_count": 2
+    },
+    "5f2c8843dfcf3aba956e75d3154654d8c5cf67c5ecbb87a6eeb4ff3f1f28495e": {
+      "artifact_path": "candidates/5f2c8843dfcf3aba956e75d3154654d8c5cf67c5ecbb87a6eeb4ff3f1f28495e",
+      "candidate_id": "5f2c8843dfcf3aba956e75d3154654d8c5cf67c5ecbb87a6eeb4ff3f1f28495e",
+      "created_opportunity": 31,
+      "fitness": -1612.0,
+      "hypothesis": "Tying the first head\u2019s key-bias coordinates 2 and 3 will reduce the model from 1,613 to 1,612 parameters while retaining at least 99% accuracy, because key biases are softmax-invariant and the successful within-head tie indicates that avoiding additional cross-head coupling preserves optimization.",
+      "intended_edit": "Store 16 QKV bias values and reconstruct the first head\u2019s key coordinate 3 from its independently learned coordinate 2, preserving the successful second-head key tie and all value-bias constraints.",
+      "metrics": {
+        "accuracy": 0.9998,
+        "cases": 10010,
+        "correct": 10008,
+        "parameters": 1612,
+        "training_steps": 4999
+      },
+      "parent_ids": [
+        "8e26a11cce4b87a923cada7fe9be6cf0b8e0f8ce0792a608c34df43b2945db69"
+      ],
+      "retained_order": 31,
+      "selected_count": 2
+    },
+    "6076f91a93149f75ada80c961bece7477ead20aac969984913b4bc930459d76f": {
+      "artifact_path": "candidates/6076f91a93149f75ada80c961bece7477ead20aac969984913b4bc930459d76f",
+      "candidate_id": "6076f91a93149f75ada80c961bece7477ead20aac969984913b4bc930459d76f",
+      "created_opportunity": 85,
+      "fitness": -1573.0,
+      "hypothesis": "Gauge-anchoring initialized positional row `max_seq_len // 2 + 7` will reduce the model from 1,574 to 1,573 parameters while retaining at least 99% accuracy after 21,000 steps.",
+      "intended_edit": "Split the seventh row after the midpoint into seven learned relative coordinates plus a zero anchor, reconstruct it in place, and optimize it with `GaugeAdamW`.",
+      "metrics": {
+        "accuracy": 0.9998,
+        "cases": 10010,
+        "correct": 10008,
+        "parameters": 1573,
+        "training_steps": 20999
+      },
+      "parent_ids": [
+        "8b2a258ea2b2f5ee32d70eed528f66ee1dd1295f9d11c4953419301eebf06ab9"
+      ],
+      "retained_order": 85,
+      "selected_count": 15
+    },
+    "631142751b73dfb7aaf2281360bb97bf9827394f32578f4f199fad50b23628f6": {
+      "artifact_path": "candidates/631142751b73dfb7aaf2281360bb97bf9827394f32578f4f199fad50b23628f6",
+      "candidate_id": "631142751b73dfb7aaf2281360bb97bf9827394f32578f4f199fad50b23628f6",
+      "created_opportunity": 54,
+      "fitness": -1598.0,
+      "hypothesis": "Anchoring one positional-embedding row\u2019s uniform-shift coordinate while preserving its full initialization and implicit eight-coordinate AdamW updates will reduce the model from 1,599 to 1,598 parameters and retain at least 99% accuracy after 18,000 steps.",
+      "intended_edit": "Store the final positional row as seven relative coordinates plus a zero anchor, reconstruct it during forward passes, optimize it with GaugeAdamW, and add 1,000 low-rate refinement steps.",
+      "metrics": {
+        "accuracy": 0.9994,
+        "cases": 10010,
+        "correct": 10004,
+        "parameters": 1598,
+        "training_steps": 17999
+      },
+      "parent_ids": [
+        "20f5d026a3e263a6687688fe12054bb7e5af8c9de7cdeec563d303feb05d43fc"
+      ],
+      "retained_order": 54,
+      "selected_count": 1
+    },
+    "69b43cda44d440305a8958ce00fab465e3e07b5491e7353663f7f8eabfe8af22": {
+      "artifact_path": "candidates/69b43cda44d440305a8958ce00fab465e3e07b5491e7353663f7f8eabfe8af22",
+      "candidate_id": "69b43cda44d440305a8958ce00fab465e3e07b5491e7353663f7f8eabfe8af22",
+      "created_opportunity": 24,
+      "fitness": -1614.0,
+      "hypothesis": "Tying key-bias coordinates 1 and `head_dim + 1` will reduce the model from 1,615 to 1,614 parameters while retaining at least 99% accuracy, because key biases are softmax-invariant and a learned symmetric tie preserves more optimization freedom than fixing a second key coordinate at zero.",
+      "intended_edit": "Store 18 QKV bias parameters and reconstruct the second head\u2019s key-bias coordinate 1 from the corresponding learned coordinate of the first head, retaining the validated value-bias zeros and ties.",
+      "metrics": {
+        "accuracy": 0.9991,
+        "cases": 10010,
+        "correct": 10001,
+        "parameters": 1614,
+        "training_steps": 4999
+      },
+      "parent_ids": [
+        "053dbc28e154eef5b7afa9ea1b5846c6449e91955b8dd95d70f9966e5bf7690c"
+      ],
+      "retained_order": 24,
+      "selected_count": 6
+    },
+    "719d439f6ffad1ec2ac921fa25fa27466778f561c84111d96a7031986682d755": {
+      "artifact_path": "candidates/719d439f6ffad1ec2ac921fa25fa27466778f561c84111d96a7031986682d755",
+      "candidate_id": "719d439f6ffad1ec2ac921fa25fa27466778f561c84111d96a7031986682d755",
+      "created_opportunity": 57,
+      "fitness": -1596.0,
+      "hypothesis": "Anchoring the uniform-shift coordinate of the final MLP bias will reduce the model from 1,597 to 1,596 parameters while retaining at least 99% accuracy after 20,000 steps, because this shift is removed by the final LayerNorm.",
+      "intended_edit": "Store seven relative `fc2` bias coordinates, reconstruct an eighth zero anchor, train them with implicit eight-coordinate GaugeAdamW, and add 1,000 low-rate refinement steps.",
+      "metrics": {
+        "accuracy": 0.9995999999999999,
+        "cases": 10010,
+        "correct": 10006,
+        "parameters": 1596,
+        "training_steps": 19999
+      },
+      "parent_ids": [
+        "c7b8bcffbc1ba94256b5a82b4f0ebcd7dc9cf6b3e62bdbb94fbf02843f572592"
+      ],
+      "retained_order": 57,
+      "selected_count": 1
+    },
+    "80d862b993daeaac7259afbf033ff96c4105b21beee7abb996aa6e54835c8ebd": {
+      "artifact_path": "candidates/80d862b993daeaac7259afbf033ff96c4105b21beee7abb996aa6e54835c8ebd",
+      "candidate_id": "80d862b993daeaac7259afbf033ff96c4105b21beee7abb996aa6e54835c8ebd",
+      "created_opportunity": 39,
+      "fitness": -1607.0,
+      "hypothesis": "Representing the shift-invariant eight-dimensional attention projection bias with seven relative coordinates and updating them with an implicit eight-coordinate AdamW state will reduce the model from 1,608 to 1,607 parameters while retaining at least 99% accuracy after 9,000 steps.",
+      "intended_edit": "Anchor the final projection-bias coordinate at zero, reconstruct it during inference, and use a gauge-aware optimizer that preserves the relative updates of the original eight-coordinate AdamW optimization.",
+      "metrics": {
+        "accuracy": 0.9989,
+        "cases": 10010,
+        "correct": 9999,
+        "parameters": 1607,
+        "training_steps": 8999
+      },
+      "parent_ids": [
+        "95880cdea00fa7b9dcfa6b9bc58e1c2e746e48a0028f71c869db0ffd50596cd3"
+      ],
+      "retained_order": 39,
+      "selected_count": 4
+    },
+    "84ca3f937838f713fa2f68e83a7e8c71f58d95dc94b3cd2eec0f3238560fedfb": {
+      "artifact_path": "candidates/84ca3f937838f713fa2f68e83a7e8c71f58d95dc94b3cd2eec0f3238560fedfb",
+      "candidate_id": "84ca3f937838f713fa2f68e83a7e8c71f58d95dc94b3cd2eec0f3238560fedfb",
+      "created_opportunity": 45,
+      "fitness": -1605.0,
+      "hypothesis": "Removing the final singleton value-bias coordinate will reduce the model from 1,606 to 1,605 parameters while retaining at least 99% accuracy after 11,000 steps, because a position-independent value bias contributes only a constant after attention and can be represented by the learned output-projection bias.",
+      "intended_edit": "Store 11 QKV bias parameters, reconstruct the final value-bias coordinate as zero while preserving every other validated bias mapping, and add 1,000 low-learning-rate refinement steps.",
+      "metrics": {
+        "accuracy": 0.9997,
+        "cases": 10010,
+        "correct": 10007,
+        "parameters": 1605,
+        "training_steps": 10999
+      },
+      "parent_ids": [
+        "099ef7e93317dcebbc8489d1b9b409cf72db599ddca5fe26fc6d58ddbba3070b"
+      ],
+      "retained_order": 45,
+      "selected_count": 1
+    },
+    "8886820ec418179a596d3a78fe56536d5b130f251a7997e918c78cf694167762": {
+      "artifact_path": "candidates/8886820ec418179a596d3a78fe56536d5b130f251a7997e918c78cf694167762",
+      "candidate_id": "8886820ec418179a596d3a78fe56536d5b130f251a7997e918c78cf694167762",
+      "created_opportunity": 64,
+      "fitness": -1591.0,
+      "hypothesis": "Gauge-anchoring a fifth `fc2` column after generating the successful initialization draw stream will reduce the model from 1,592 to 1,591 parameters while retaining at least 99% accuracy after 21,000 steps.",
+      "intended_edit": "Split the fifth-to-last initialized `fc2` column into seven learned relative coordinates plus a zero anchor, reconstruct it during forward passes, and optimize it with `GaugeAdamW`.",
+      "metrics": {
+        "accuracy": 0.9993000000000001,
+        "cases": 10010,
+        "correct": 10003,
+        "parameters": 1591,
+        "training_steps": 20999
+      },
+      "parent_ids": [
+        "cab8bb41795771fc45e2cfd9cf65f055f5341c37390d802335c08ca0e1cb99ba"
+      ],
+      "retained_order": 64,
+      "selected_count": 2
+    },
+    "8b2a258ea2b2f5ee32d70eed528f66ee1dd1295f9d11c4953419301eebf06ab9": {
+      "artifact_path": "candidates/8b2a258ea2b2f5ee32d70eed528f66ee1dd1295f9d11c4953419301eebf06ab9",
+      "candidate_id": "8b2a258ea2b2f5ee32d70eed528f66ee1dd1295f9d11c4953419301eebf06ab9",
+      "created_opportunity": 84,
+      "fitness": -1574.0,
+      "hypothesis": "Gauge-anchoring initialized positional row `max_seq_len // 2 + 6` will reduce the model from 1,575 to 1,574 parameters while retaining at least 99% accuracy after 21,000 steps.",
+      "intended_edit": "Split the sixth row after the midpoint into seven learned relative coordinates plus a zero anchor, reconstruct it in place, and optimize it with `GaugeAdamW`.",
+      "metrics": {
+        "accuracy": 0.9997,
+        "cases": 10010,
+        "correct": 10007,
+        "parameters": 1574,
+        "training_steps": 20999
+      },
+      "parent_ids": [
+        "f8053f4a07c7dea107a9437dc7824844e703ca8749b7363c1d2eca5f2a3f0cd0"
+      ],
+      "retained_order": 84,
+      "selected_count": 1
+    },
+    "8e26a11cce4b87a923cada7fe9be6cf0b8e0f8ce0792a608c34df43b2945db69": {
+      "artifact_path": "candidates/8e26a11cce4b87a923cada7fe9be6cf0b8e0f8ce0792a608c34df43b2945db69",
+      "candidate_id": "8e26a11cce4b87a923cada7fe9be6cf0b8e0f8ce0792a608c34df43b2945db69",
+      "created_opportunity": 30,
+      "fitness": -1613.0,
+      "hypothesis": "Tying the second head\u2019s key-bias coordinates 0 and 2 will reduce the model from 1,614 to 1,613 parameters while retaining at least 99% accuracy, because key biases are softmax-invariant and this avoids the cross-head coupling that failed for additional coordinate-aligned ties.",
+      "intended_edit": "Store 17 QKV bias parameters and reconstruct the second head\u2019s key coordinate 0 from its independently stored coordinate 2, while preserving the validated key-coordinate-1 tie and all value-bias constraints.",
+      "metrics": {
+        "accuracy": 0.9987999999999999,
+        "cases": 10010,
+        "correct": 9998,
+        "parameters": 1613,
+        "training_steps": 4999
+      },
+      "parent_ids": [
+        "69b43cda44d440305a8958ce00fab465e3e07b5491e7353663f7f8eabfe8af22"
+      ],
+      "retained_order": 30,
+      "selected_count": 1
+    },
+    "8e87ac6d7583163abcb6cad418a91feb561c2183161df4b04d8b77273eacab04": {
+      "artifact_path": "candidates/8e87ac6d7583163abcb6cad418a91feb561c2183161df4b04d8b77273eacab04",
+      "candidate_id": "8e87ac6d7583163abcb6cad418a91feb561c2183161df4b04d8b77273eacab04",
+      "created_opportunity": 37,
+      "fitness": -1609.0,
+      "hypothesis": "Replacing the remaining independent key-bias group with detached views of the surviving learned key scalar and adding 1,000 low-rate steps will reduce the model from 1,610 to 1,609 parameters while retaining at least 99% accuracy, because the reconstructed offsets remain softmax-invariant without adding the failed group\u2019s gradients to the surviving scalar.",
+      "intended_edit": "Store 13 QKV bias parameters, reconstruct the removed key-bias group from detached views of the surviving key scalar, shift value-bias slices to preserve their mapping, and train for 7,000 steps on the existing 5,000-step cosine schedule.",
+      "metrics": {
+        "accuracy": 0.9995,
+        "cases": 10010,
+        "correct": 10005,
+        "parameters": 1609,
+        "training_steps": 6999
+      },
+      "parent_ids": [
+        "d83e15f32ccbdb580213e9634e0ea7932456ee6450883740875f98662138d203"
+      ],
+      "retained_order": 37,
+      "selected_count": 1
+    },
+    "911b885e6c8f90c2f195d61ee52182ae4364130b4f9d515a0865a9bdc8bdcf3d": {
+      "artifact_path": "candidates/911b885e6c8f90c2f195d61ee52182ae4364130b4f9d515a0865a9bdc8bdcf3d",
+      "candidate_id": "911b885e6c8f90c2f195d61ee52182ae4364130b4f9d515a0865a9bdc8bdcf3d",
+      "created_opportunity": 69,
+      "fitness": -1587.0,
+      "hypothesis": "Gauge-anchoring initialized `fc2` column 2 will reduce the model from 1,588 to 1,587 parameters while retaining at least 99% accuracy after 21,000 steps.",
+      "intended_edit": "Split original `fc2` column 2 into seven relative coordinates plus a zero anchor after initialization, reconstruct its original position during forward passes, and optimize it with `GaugeAdamW`.",
+      "metrics": {
+        "accuracy": 0.9992,
+        "cases": 10010,
+        "correct": 10002,
+        "parameters": 1587,
+        "training_steps": 20999
+      },
+      "parent_ids": [
+        "0c9feacb0e1130fe4d982e0ab9d96f011b7eea1c3980b9ad3ce1cccdd108f2de"
+      ],
+      "retained_order": 69,
+      "selected_count": 1
+    },
+    "95880cdea00fa7b9dcfa6b9bc58e1c2e746e48a0028f71c869db0ffd50596cd3": {
+      "artifact_path": "candidates/95880cdea00fa7b9dcfa6b9bc58e1c2e746e48a0028f71c869db0ffd50596cd3",
+      "candidate_id": "95880cdea00fa7b9dcfa6b9bc58e1c2e746e48a0028f71c869db0ffd50596cd3",
+      "created_opportunity": 38,
+      "fitness": -1608.0,
+      "hypothesis": "Reconstructing all remaining learned key-bias offsets from a detached query-bias scalar will reduce the model from 1,609 to 1,608 parameters while retaining at least 99% accuracy after 1,000 additional low-rate steps, because key offsets are softmax-invariant and detachment prevents the gradient coupling implicated by the failed direct query/key reuse.",
+      "intended_edit": "Remove the final dedicated key-bias scalar, derive its key offsets from a detached query-bias view, shift value-bias slices to preserve their validated mapping, and train for 8,000 steps on the existing 5,000-step cosine schedule.",
+      "metrics": {
+        "accuracy": 0.9991,
+        "cases": 10010,
+        "correct": 10001,
+        "parameters": 1608,
+        "training_steps": 7999
+      },
+      "parent_ids": [
+        "8e87ac6d7583163abcb6cad418a91feb561c2183161df4b04d8b77273eacab04"
+      ],
+      "retained_order": 38,
+      "selected_count": 1
+    },
+    "9f222dd07611f4f7b79b9bdc1b85a7abf855fe9f3df1d556bd829268ad6d4fde": {
+      "artifact_path": "candidates/9f222dd07611f4f7b79b9bdc1b85a7abf855fe9f3df1d556bd829268ad6d4fde",
+      "candidate_id": "9f222dd07611f4f7b79b9bdc1b85a7abf855fe9f3df1d556bd829268ad6d4fde",
+      "created_opportunity": 72,
+      "fitness": -1584.0,
+      "hypothesis": "Gauge-anchoring the initialized third-to-last positional embedding row will reduce the model from 1,585 to 1,584 parameters while retaining at least 99% accuracy after 21,000 steps.",
+      "intended_edit": "Split the third-to-last positional row into seven learned relative coordinates plus a zero anchor after initialization, reconstruct it during forward passes, and optimize it with GaugeAdamW.",
+      "metrics": {
+        "accuracy": 0.9998,
+        "cases": 10010,
+        "correct": 10008,
+        "parameters": 1584,
+        "training_steps": 20999
+      },
+      "parent_ids": [
+        "c9a47cbd5f693e890f078b80329ff8e202bf4ad0a7a5e70e11b529e671f70045"
+      ],
+      "retained_order": 72,
+      "selected_count": 1
+    },
+    "a4b6c5531d49bb471e37cfca9332a5c5dc53a3da91c578fb8c08b4d049ef82ed": {
+      "artifact_path": "candidates/a4b6c5531d49bb471e37cfca9332a5c5dc53a3da91c578fb8c08b4d049ef82ed",
+      "candidate_id": "a4b6c5531d49bb471e37cfca9332a5c5dc53a3da91c578fb8c08b4d049ef82ed",
+      "created_opportunity": 33,
+      "fitness": -1611.0,
+      "hypothesis": "Sharing the scalar for first-head key coordinates 2/3 with second-head coordinates 0/2 will reduce the model from 1,612 to 1,611 parameters while retaining at least 99% accuracy, because it preserves both successful within-head tying patterns without further collapsing coordinates within either head.",
+      "intended_edit": "Store 15 QKV bias values, merge the two previously validated within-head key-bias groups, and shift the value-bias slices so their existing mapping remains unchanged.",
+      "metrics": {
+        "accuracy": 0.9995999999999999,
+        "cases": 10010,
+        "correct": 10006,
+        "parameters": 1611,
+        "training_steps": 4999
+      },
+      "parent_ids": [
+        "5f2c8843dfcf3aba956e75d3154654d8c5cf67c5ecbb87a6eeb4ff3f1f28495e"
+      ],
+      "retained_order": 33,
+      "selected_count": 3
+    },
+    "a8a82ba1986c9eca2b9a20356b89f7b9e57acd48954e51fc72ada3ad65b69d1d": {
+      "artifact_path": "candidates/a8a82ba1986c9eca2b9a20356b89f7b9e57acd48954e51fc72ada3ad65b69d1d",
+      "candidate_id": "a8a82ba1986c9eca2b9a20356b89f7b9e57acd48954e51fc72ada3ad65b69d1d",
+      "created_opportunity": 21,
+      "fitness": -1616.0,
+      "hypothesis": "Tying value-bias coordinates 1 and `head_dim + 1` will reduce the model to 1,616 parameters while retaining at least 99% accuracy, because both coordinates represent constant per-head offsets absorbable by the output-projection bias, while a learned symmetric tie preserves more optimization freedom than fixing another coordinate to zero.",
+      "intended_edit": "Store 20 QKV bias parameters and reconstruct the first learned value-bias coordinate of the second head from the corresponding coordinate of the first head, retaining the validated zero key coordinate and balanced zero value coordinates.",
+      "metrics": {
+        "accuracy": 0.9986,
+        "cases": 10010,
+        "correct": 9996,
+        "parameters": 1616,
+        "training_steps": 4999
+      },
+      "parent_ids": [
+        "df4a1ed4a7fb6467e52005ec2e93a6fa7ff2fcfb1ca0892cd47fdfd354acf9b3"
+      ],
+      "retained_order": 21,
+      "selected_count": 1
+    },
+    "ac59ca65a485fdf60001ba1dea89cf63fa073af2ff306902f22398e4a91bd99c": {
+      "artifact_path": "candidates/ac59ca65a485fdf60001ba1dea89cf63fa073af2ff306902f22398e4a91bd99c",
+      "candidate_id": "ac59ca65a485fdf60001ba1dea89cf63fa073af2ff306902f22398e4a91bd99c",
+      "created_opportunity": 66,
+      "fitness": -1590.0,
+      "hypothesis": "Gauge-anchoring `fc2` column 0 instead of the failed adjacent sixth column will reduce the model from 1,591 to 1,590 parameters while retaining at least 99% accuracy after 21,000 steps.",
+      "intended_edit": "Preserve the successful initialization draw stream, split initialized `fc2` column 0 into seven relative coordinates plus a zero anchor, reconstruct it during forward passes, and optimize it with `GaugeAdamW`.",
+      "metrics": {
+        "accuracy": 0.9995,
+        "cases": 10010,
+        "correct": 10005,
+        "parameters": 1590,
+        "training_steps": 20999
+      },
+      "parent_ids": [
+        "8886820ec418179a596d3a78fe56536d5b130f251a7997e918c78cf694167762"
+      ],
+      "retained_order": 66,
+      "selected_count": 1
+    },
+    "ba0974c2694ba4fb4446c9a13e236bbeae51948ae38896eefaeac5d32f31115a": {
+      "artifact_path": "candidates/ba0974c2694ba4fb4446c9a13e236bbeae51948ae38896eefaeac5d32f31115a",
+      "candidate_id": "ba0974c2694ba4fb4446c9a13e236bbeae51948ae38896eefaeac5d32f31115a",
+      "created_opportunity": 5,
+      "fitness": -1636.0,
+      "hypothesis": "Sharing the two block LayerNorm bias vectors will reduce deduplicated parameters from 1,644 to 1,636 while retaining at least 99% accuracy because both normalization sites keep learned affine transformations and all attention and MLP capacity remains intact.",
+      "intended_edit": "Tie `ln2.bias` to `ln1.bias` within the transformer block, leaving their scale parameters and all training settings unchanged.",
+      "metrics": {
+        "accuracy": 0.9981,
+        "cases": 10010,
+        "correct": 9991,
+        "parameters": 1636,
+        "training_steps": 4999
+      },
+      "parent_ids": [
+        "2b9cea175ed60b009337ac54f6e8ad23bf2c014eb4080237777bfb70bfd9fd5b"
+      ],
+      "retained_order": 5,
+      "selected_count": 1
+    },
+    "bb998ce491ce3d15fd5421b56f447594ec8684e342e3bb290839b58cae057146": {
+      "artifact_path": "candidates/bb998ce491ce3d15fd5421b56f447594ec8684e342e3bb290839b58cae057146",
+      "candidate_id": "bb998ce491ce3d15fd5421b56f447594ec8684e342e3bb290839b58cae057146",
+      "created_opportunity": 79,
+      "fitness": -1579.0,
+      "hypothesis": "Gauge-anchoring initialized positional row `max_seq_len // 2 + 1` will reduce the model from 1,580 to 1,579 parameters while retaining at least 99% accuracy after 21,000 steps.",
+      "intended_edit": "Split the row immediately after the successful midpoint row into seven learned relative coordinates plus a zero anchor, reconstruct it in place, and optimize it with `GaugeAdamW`.",
+      "metrics": {
+        "accuracy": 0.9992,
+        "cases": 10010,
+        "correct": 10002,
+        "parameters": 1579,
+        "training_steps": 20999
+      },
+      "parent_ids": [
+        "da1d21bf9904e291f86ef5741f38b99765fc80f6f0933a63b94a26ff4266583b"
+      ],
+      "retained_order": 79,
+      "selected_count": 1
+    },
+    "bf25e9647a5fd0fd3509195328d5d4814278ccbd600e71d687871c25d47b4b8d": {
+      "artifact_path": "candidates/bf25e9647a5fd0fd3509195328d5d4814278ccbd600e71d687871c25d47b4b8d",
+      "candidate_id": "bf25e9647a5fd0fd3509195328d5d4814278ccbd600e71d687871c25d47b4b8d",
+      "created_opportunity": 82,
+      "fitness": -1576.0,
+      "hypothesis": "Gauge-anchoring initialized positional row `max_seq_len // 2 + 4` will reduce the model from 1,577 to 1,576 parameters while retaining at least 99% accuracy after 21,000 steps.",
+      "intended_edit": "Split the fourth row after the midpoint into seven learned relative coordinates plus a zero anchor, reconstruct it in place, and optimize it with `GaugeAdamW`.",
+      "metrics": {
+        "accuracy": 0.9983,
+        "cases": 10010,
+        "correct": 9993,
+        "parameters": 1576,
+        "training_steps": 20999
+      },
+      "parent_ids": [
+        "fead8eb8e3388ebcdb7875e4af10cff171e7803dc496604cb8072ea454ad2c6a"
+      ],
+      "retained_order": 82,
+      "selected_count": 1
+    },
+    "c7b8bcffbc1ba94256b5a82b4f0ebcd7dc9cf6b3e62bdbb94fbf02843f572592": {
+      "artifact_path": "candidates/c7b8bcffbc1ba94256b5a82b4f0ebcd7dc9cf6b3e62bdbb94fbf02843f572592",
+      "candidate_id": "c7b8bcffbc1ba94256b5a82b4f0ebcd7dc9cf6b3e62bdbb94fbf02843f572592",
+      "created_opportunity": 55,
+      "fitness": -1597.0,
+      "hypothesis": "Anchoring a second positional-embedding row\u2019s uniform-shift coordinate will reduce the model from 1,598 to 1,597 parameters while retaining at least 99% accuracy after 19,000 steps, because each positional row has the same exact shift symmetry and the first anchored row achieved 99.94%.",
+      "intended_edit": "Store the penultimate positional row as seven relative coordinates plus a zero anchor, preserve its full initialization and implicit eight-coordinate AdamW updates, and add 1,000 low-rate refinement steps.",
+      "metrics": {
+        "accuracy": 0.9997,
+        "cases": 10010,
+        "correct": 10007,
+        "parameters": 1597,
+        "training_steps": 18999
+      },
+      "parent_ids": [
+        "631142751b73dfb7aaf2281360bb97bf9827394f32578f4f199fad50b23628f6"
+      ],
+      "retained_order": 55,
+      "selected_count": 2
+    },
+    "c8829789a9a11785fb460ef9a67466a96806245357b56229618133e01aeb554b": {
+      "artifact_path": "candidates/c8829789a9a11785fb460ef9a67466a96806245357b56229618133e01aeb554b",
+      "candidate_id": "c8829789a9a11785fb460ef9a67466a96806245357b56229618133e01aeb554b",
+      "created_opportunity": 58,
+      "fitness": -1595.0,
+      "hypothesis": "Anchoring one `fc2` input column\u2019s uniform-output coordinate will reduce the model from 1,596 to 1,595 parameters while retaining at least 99% accuracy after 21,000 steps, because adding a uniform vector to that column only creates positionwise residual shifts removed by subsequent LayerNorm.",
+      "intended_edit": "Store the final `fc2` column as seven relative coordinates plus a zero anchor, initialize it from an equivalent full eight-coordinate column, optimize it with GaugeAdamW, and add 1,000 low-rate refinement steps.",
+      "metrics": {
+        "accuracy": 1.0,
+        "cases": 10010,
+        "correct": 10010,
+        "parameters": 1595,
+        "training_steps": 20999
+      },
+      "parent_ids": [
+        "719d439f6ffad1ec2ac921fa25fa27466778f561c84111d96a7031986682d755"
+      ],
+      "retained_order": 58,
+      "selected_count": 3
+    },
+    "c9a47cbd5f693e890f078b80329ff8e202bf4ad0a7a5e70e11b529e671f70045": {
+      "artifact_path": "candidates/c9a47cbd5f693e890f078b80329ff8e202bf4ad0a7a5e70e11b529e671f70045",
+      "candidate_id": "c9a47cbd5f693e890f078b80329ff8e202bf4ad0a7a5e70e11b529e671f70045",
+      "created_opportunity": 71,
+      "fitness": -1585.0,
+      "hypothesis": "Gauge-anchoring initialized `fc2` column 5 will reduce the model from 1,586 to 1,585 parameters while retaining at least 99% accuracy after 21,000 steps.",
+      "intended_edit": "Split original `fc2` column 5 into seven learned relative coordinates plus a zero anchor after initialization, reconstruct it in its original position, and optimize it with `GaugeAdamW`.",
+      "metrics": {
+        "accuracy": 0.9994,
+        "cases": 10010,
+        "correct": 10004,
+        "parameters": 1585,
+        "training_steps": 20999
+      },
+      "parent_ids": [
+        "39c721caafc4532032de15ea5f6cd06aada49c5bbc8b8ec56201111c216b0a3d"
+      ],
+      "retained_order": 71,
+      "selected_count": 1
+    },
+    "cab8bb41795771fc45e2cfd9cf65f055f5341c37390d802335c08ca0e1cb99ba": {
+      "artifact_path": "candidates/cab8bb41795771fc45e2cfd9cf65f055f5341c37390d802335c08ca0e1cb99ba",
+      "candidate_id": "cab8bb41795771fc45e2cfd9cf65f055f5341c37390d802335c08ca0e1cb99ba",
+      "created_opportunity": 63,
+      "fitness": -1592.0,
+      "hypothesis": "Gauge-anchoring a fourth `fc2` column after the successful initialization draw stream has been generated will reduce the model from 1,593 to 1,592 parameters while retaining at least 99% accuracy after 21,000 steps.",
+      "intended_edit": "Split the fourth-to-last initialized `fc2` column into seven relative coordinates plus a zero anchor, reconstruct it during forward passes, and optimize it with `GaugeAdamW`.",
+      "metrics": {
+        "accuracy": 0.9995,
+        "cases": 10010,
+        "correct": 10005,
+        "parameters": 1592,
+        "training_steps": 20999
+      },
+      "parent_ids": [
+        "09cb45da9e666b639debbc788f3bfd3a37c8a5774702c923c5cfb8f5f097e78e"
+      ],
+      "retained_order": 63,
+      "selected_count": 1
+    },
+    "cb09b6c2cab34a4b2bf3505fae7ac309525b96cd7cb935313b006993b946a0c2": {
+      "artifact_path": "candidates/cb09b6c2cab34a4b2bf3505fae7ac309525b96cd7cb935313b006993b946a0c2",
+      "candidate_id": "cb09b6c2cab34a4b2bf3505fae7ac309525b96cd7cb935313b006993b946a0c2",
+      "created_opportunity": 7,
+      "fitness": -1620.0,
+      "hypothesis": "Tying `ln_f.bias` to the already shared block LayerNorm bias will reduce deduplicated parameters from 1,628 to 1,620 while retaining at least 99% accuracy.",
+      "intended_edit": "Share the final LayerNorm bias with `blocks[0].ln1.bias`, preserving separate normalization scales and all attention and MLP capacity.",
+      "metrics": {
+        "accuracy": 0.9940000000000001,
+        "cases": 10010,
+        "correct": 9950,
+        "parameters": 1620,
+        "training_steps": 4999
+      },
+      "parent_ids": [
+        "fddfab89d1fd0018adda05925e2347c9a442dd15af698a5bc7a001f6edbbb4f0"
+      ],
+      "retained_order": 7,
+      "selected_count": 5
+    },
+    "cf7a4827224ec2f36754a2a68dd8a8a9f7bcb68e57d8f31bbac2356453cb1c56": {
+      "artifact_path": "candidates/cf7a4827224ec2f36754a2a68dd8a8a9f7bcb68e57d8f31bbac2356453cb1c56",
+      "candidate_id": "cf7a4827224ec2f36754a2a68dd8a8a9f7bcb68e57d8f31bbac2356453cb1c56",
+      "created_opportunity": 50,
+      "fitness": -1601.0,
+      "hypothesis": "Anchoring one scalar of the tied token-embedding/output matrix, while sampling an equivalent full initialization and preserving implicit full-coordinate AdamW updates, will reduce the model from 1,602 to 1,601 parameters and retain at least 99% accuracy after 15,000 steps.",
+      "intended_edit": "Store 103 of the 104 tied embedding coordinates, reconstruct the final coordinate as zero for both input embedding and output logits, initialize the anchored representation from a full i.i.d. matrix, optimize it with GaugeAdamW, and add 1,000 low-rate refinement steps.",
+      "metrics": {
+        "accuracy": 0.9998999999999999,
+        "cases": 10010,
+        "correct": 10009,
+        "parameters": 1601,
+        "training_steps": 14999
+      },
+      "parent_ids": [
+        "052fc2597cdb160d3bc04bf263732309791fd02e2950e5e821e0acef6456ef07"
+      ],
+      "retained_order": 50,
+      "selected_count": 1
+    },
+    "d460a9b2db5f3b2a9a724e6794070cc29ca7c1d57827d0aadc76754454723b89": {
+      "artifact_path": "candidates/d460a9b2db5f3b2a9a724e6794070cc29ca7c1d57827d0aadc76754454723b89",
+      "candidate_id": "d460a9b2db5f3b2a9a724e6794070cc29ca7c1d57827d0aadc76754454723b89",
+      "created_opportunity": 76,
+      "fitness": -1581.0,
+      "hypothesis": "Gauge-anchoring initialized positional row 1 will reduce the model from 1,582 to 1,581 parameters while retaining at least 99% accuracy after 21,000 steps.",
+      "intended_edit": "Split positional row 1 into seven learned relative coordinates plus a zero anchor after initialization, reconstruct it in its original position, and optimize it with GaugeAdamW.",
+      "metrics": {
+        "accuracy": 0.9994,
+        "cases": 10010,
+        "correct": 10004,
+        "parameters": 1581,
+        "training_steps": 20999
+      },
+      "parent_ids": [
+        "e3e5f723c5ae8e5969ebd8e7ddbd8555286d9ff19d7e9fa617335216922aa737"
+      ],
+      "retained_order": 76,
+      "selected_count": 2
+    },
+    "d58b0be3db480083b86408051085cc36330fb62822fbfd294cd418273093366a": {
+      "artifact_path": "candidates/d58b0be3db480083b86408051085cc36330fb62822fbfd294cd418273093366a",
+      "candidate_id": "d58b0be3db480083b86408051085cc36330fb62822fbfd294cd418273093366a",
+      "created_opportunity": 61,
+      "fitness": -1594.0,
+      "hypothesis": "Gauge-anchoring a second `fc2` column while exactly preserving the successful 1,595-parameter design\u2019s initialization draw stream will retain at least 99% accuracy at 1,594 parameters after 21,000 steps.",
+      "intended_edit": "Initialize `fc2` in the current storage geometry, split its final two columns into gauge coordinates only afterward, and train both with `GaugeAdamW`.",
+      "metrics": {
+        "accuracy": 0.9997,
+        "cases": 10010,
+        "correct": 10007,
+        "parameters": 1594,
+        "training_steps": 20999
+      },
+      "parent_ids": [
+        "c8829789a9a11785fb460ef9a67466a96806245357b56229618133e01aeb554b"
+      ],
+      "retained_order": 61,
+      "selected_count": 1
+    },
+    "d83e15f32ccbdb580213e9634e0ea7932456ee6450883740875f98662138d203": {
+      "artifact_path": "candidates/d83e15f32ccbdb580213e9634e0ea7932456ee6450883740875f98662138d203",
+      "candidate_id": "d83e15f32ccbdb580213e9634e0ea7932456ee6450883740875f98662138d203",
+      "created_opportunity": 36,
+      "fitness": -1610.0,
+      "hypothesis": "Tying the second head\u2019s remaining key-bias coordinate to the validated coordinate-1 group and extending training with 1,000 minimum-learning-rate steps will reduce the model to 1,610 parameters while raising the prior 98.92% result above 99%.",
+      "intended_edit": "Store 14 QKV bias parameters, reconstruct the second head\u2019s final key bias from the shared coordinate-1 scalar, preserve the existing value-bias mapping, and train for 6,000 steps while retaining the original 5,000-step cosine schedule.",
+      "metrics": {
+        "accuracy": 0.9987999999999999,
+        "cases": 10010,
+        "correct": 9998,
+        "parameters": 1610,
+        "training_steps": 5999
+      },
+      "parent_ids": [
+        "a4b6c5531d49bb471e37cfca9332a5c5dc53a3da91c578fb8c08b4d049ef82ed"
+      ],
+      "retained_order": 36,
+      "selected_count": 1
+    },
+    "da1d21bf9904e291f86ef5741f38b99765fc80f6f0933a63b94a26ff4266583b": {
+      "artifact_path": "candidates/da1d21bf9904e291f86ef5741f38b99765fc80f6f0933a63b94a26ff4266583b",
+      "candidate_id": "da1d21bf9904e291f86ef5741f38b99765fc80f6f0933a63b94a26ff4266583b",
+      "created_opportunity": 78,
+      "fitness": -1580.0,
+      "hypothesis": "Gauge-anchoring the initialized midpoint positional row will reduce the model from 1,581 to 1,580 parameters while retaining at least 99% accuracy after 21,000 steps.",
+      "intended_edit": "Split positional row `max_seq_len // 2` into seven learned relative coordinates plus a zero anchor, reconstruct it in place during forward passes, and optimize it with `GaugeAdamW`.",
+      "metrics": {
+        "accuracy": 0.9984000000000001,
+        "cases": 10010,
+        "correct": 9994,
+        "parameters": 1580,
+        "training_steps": 20999
+      },
+      "parent_ids": [
+        "d460a9b2db5f3b2a9a724e6794070cc29ca7c1d57827d0aadc76754454723b89"
+      ],
+      "retained_order": 78,
+      "selected_count": 1
+    },
+    "df4a1ed4a7fb6467e52005ec2e93a6fa7ff2fcfb1ca0892cd47fdfd354acf9b3": {
+      "artifact_path": "candidates/df4a1ed4a7fb6467e52005ec2e93a6fa7ff2fcfb1ca0892cd47fdfd354acf9b3",
+      "candidate_id": "df4a1ed4a7fb6467e52005ec2e93a6fa7ff2fcfb1ca0892cd47fdfd354acf9b3",
+      "created_opportunity": 19,
+      "fitness": -1617.0,
+      "hypothesis": "Removing the first value-bias coordinate of the second attention head, instead of a second coordinate from the first head, will reduce the model to 1,617 parameters while retaining at least 99% accuracy by distributing the exact value/output-bias redundancy evenly across heads.",
+      "intended_edit": "Store 21 QKV bias values and reconstruct fixed-zero key coordinate 0 plus value coordinates 0 and `head_dim`, preserving the original layer-construction RNG trajectory and all training settings.",
+      "metrics": {
+        "accuracy": 0.9997,
+        "cases": 10010,
+        "correct": 10007,
+        "parameters": 1617,
+        "training_steps": 4999
+      },
+      "parent_ids": [
+        "e26dd5f04cdc6b5989fe9226decc7b034421d922893f44fe00b0a12c083cdffe"
+      ],
+      "retained_order": 19,
+      "selected_count": 2
+    },
+    "e26dd5f04cdc6b5989fe9226decc7b034421d922893f44fe00b0a12c083cdffe": {
+      "artifact_path": "candidates/e26dd5f04cdc6b5989fe9226decc7b034421d922893f44fe00b0a12c083cdffe",
+      "candidate_id": "e26dd5f04cdc6b5989fe9226decc7b034421d922893f44fe00b0a12c083cdffe",
+      "created_opportunity": 14,
+      "fitness": -1618.0,
+      "hypothesis": "Removing one value-projection bias coordinate alongside the validated missing key-bias coordinate will reduce parameters from 1,619 to 1,618 while retaining at least 99% accuracy, because the attention output-projection bias can learn the equivalent constant offset.",
+      "intended_edit": "Store 22 learned QKV bias values and reconstruct fixed-zero first key and first value bias coordinates, preserving the original linear-layer construction and all other model and training settings.",
+      "metrics": {
+        "accuracy": 0.9995999999999999,
+        "cases": 10010,
+        "correct": 10006,
+        "parameters": 1618,
+        "training_steps": 4999
+      },
+      "parent_ids": [
+        "5f270717af7129047240532eae29e2bdffb93575a25d6e03ddbfdf0bcf4ea03a"
+      ],
+      "retained_order": 14,
+      "selected_count": 5
+    },
+    "e3e5f723c5ae8e5969ebd8e7ddbd8555286d9ff19d7e9fa617335216922aa737": {
+      "artifact_path": "candidates/e3e5f723c5ae8e5969ebd8e7ddbd8555286d9ff19d7e9fa617335216922aa737",
+      "candidate_id": "e3e5f723c5ae8e5969ebd8e7ddbd8555286d9ff19d7e9fa617335216922aa737",
+      "created_opportunity": 75,
+      "fitness": -1582.0,
+      "hypothesis": "Gauge-anchoring initialized positional row 0 will reduce the model from 1,583 to 1,582 parameters while retaining at least 99% accuracy after 21,000 steps.",
+      "intended_edit": "Split positional row 0 into seven learned relative coordinates plus a zero anchor after initialization, reconstruct it before the remaining positional rows, and optimize it with GaugeAdamW.",
+      "metrics": {
+        "accuracy": 0.9998,
+        "cases": 10010,
+        "correct": 10008,
+        "parameters": 1582,
+        "training_steps": 20999
+      },
+      "parent_ids": [
+        "419db62c9573e679953365485f258f46ae3e418dda7a434b489e95ec38a68e38"
+      ],
+      "retained_order": 75,
+      "selected_count": 1
+    },
+    "f8053f4a07c7dea107a9437dc7824844e703ca8749b7363c1d2eca5f2a3f0cd0": {
+      "artifact_path": "candidates/f8053f4a07c7dea107a9437dc7824844e703ca8749b7363c1d2eca5f2a3f0cd0",
+      "candidate_id": "f8053f4a07c7dea107a9437dc7824844e703ca8749b7363c1d2eca5f2a3f0cd0",
+      "created_opportunity": 83,
+      "fitness": -1575.0,
+      "hypothesis": "Gauge-anchoring initialized positional row `max_seq_len // 2 + 5` will reduce the model from 1,576 to 1,575 parameters while retaining at least 99% accuracy after 21,000 steps.",
+      "intended_edit": "Split the fifth row after the midpoint into seven learned relative coordinates plus a zero anchor, reconstruct it in place, and optimize it with `GaugeAdamW`.",
+      "metrics": {
+        "accuracy": 0.9998,
+        "cases": 10010,
+        "correct": 10008,
+        "parameters": 1575,
+        "training_steps": 20999
+      },
+      "parent_ids": [
+        "bf25e9647a5fd0fd3509195328d5d4814278ccbd600e71d687871c25d47b4b8d"
+      ],
+      "retained_order": 83,
+      "selected_count": 1
+    },
+    "fddfab89d1fd0018adda05925e2347c9a442dd15af698a5bc7a001f6edbbb4f0": {
+      "artifact_path": "candidates/fddfab89d1fd0018adda05925e2347c9a442dd15af698a5bc7a001f6edbbb4f0",
+      "candidate_id": "fddfab89d1fd0018adda05925e2347c9a442dd15af698a5bc7a001f6edbbb4f0",
+      "created_opportunity": 6,
+      "fitness": -1628.0,
+      "hypothesis": "Tying `ln2.weight` to `ln1.weight` will reduce deduplicated parameters from 1,636 to 1,628 while retaining at least 99% accuracy because the validated shared-bias design indicates both normalization sites can share affine structure without removing attention or MLP capacity.",
+      "intended_edit": "Tie both the scale and bias parameters of the block\u2019s two LayerNorm modules.",
+      "metrics": {
+        "accuracy": 0.9959,
+        "cases": 10010,
+        "correct": 9969,
+        "parameters": 1628,
+        "training_steps": 4999
+      },
+      "parent_ids": [
+        "ba0974c2694ba4fb4446c9a13e236bbeae51948ae38896eefaeac5d32f31115a"
+      ],
+      "retained_order": 6,
+      "selected_count": 1
+    },
+    "fead8eb8e3388ebcdb7875e4af10cff171e7803dc496604cb8072ea454ad2c6a": {
+      "artifact_path": "candidates/fead8eb8e3388ebcdb7875e4af10cff171e7803dc496604cb8072ea454ad2c6a",
+      "candidate_id": "fead8eb8e3388ebcdb7875e4af10cff171e7803dc496604cb8072ea454ad2c6a",
+      "created_opportunity": 81,
+      "fitness": -1577.0,
+      "hypothesis": "Gauge-anchoring initialized positional row `max_seq_len // 2 + 3` will reduce the model from 1,578 to 1,577 parameters while retaining at least 99% accuracy after 21,000 steps.",
+      "intended_edit": "Split the third row after the midpoint into seven learned relative coordinates plus a zero anchor, reconstruct it in place, and optimize it with `GaugeAdamW`.",
+      "metrics": {
+        "accuracy": 0.9992,
+        "cases": 10010,
+        "correct": 10002,
+        "parameters": 1577,
+        "training_steps": 20999
+      },
+      "parent_ids": [
+        "20a838382931e0b9375fc30f30a0554694460ff975cfd86d4af8210d6400532b"
+      ],
+      "retained_order": 81,
+      "selected_count": 1
+    }
+  },
+  "condition": "C0",
+  "conversation_session_id": null,
+  "evaluations_used": 97,
+  "evaluator_seconds_used": 84732.33977987361,
+  "incumbent_id": "6076f91a93149f75ada80c961bece7477ead20aac969984913b4bc930459d76f",
+  "next_opportunity": 100,
+  "no_search": false,
+  "portfolio_ids": [
+    "6076f91a93149f75ada80c961bece7477ead20aac969984913b4bc930459d76f"
+  ],
+  "proposals_used": 99,
+  "protocol_hash": "0247b4415c62d35b231e3347f31a3f63cd54eb4ec6bb2441bfc209e0ee2d3cc4",
+  "revision": 361,
+  "run_id": "controlled-openevolve-transformer-v2-1-source-only-ten-digit-addition-pair-transformer-openevolve-v2-1-mps-openevolve-b03-c0",
+  "schema_version": "1.0",
+  "status": "running",
+  "token_budget_continuation_notice_sent": false,
+  "usage": {
+    "cached_input_tokens": 977408,
+    "input_tokens": 2284869,
+    "output_tokens": 315824,
+    "reasoning_output_tokens": 248816
+  }
+}

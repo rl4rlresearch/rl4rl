@@ -1,0 +1,88 @@
+{
+  "artifact_path": "candidates/761bdc3a9986715bde68aade4ce376169df271d89ccd1075361a8e0bfb4c2d40",
+  "candidate_id": "761bdc3a9986715bde68aade4ce376169df271d89ccd1075361a8e0bfb4c2d40",
+  "codex_service_tier": "default",
+  "condition": "C2",
+  "conversation_session_id": null,
+  "evaluation": {
+    "evaluator_calls": 1,
+    "evaluator_seconds": 361.005617125993,
+    "failure_kind": null,
+    "fitness": -0.982455,
+    "metrics": {
+      "depth": 8.0,
+      "mfu_percent": 35.86,
+      "num_params_M": 50.3,
+      "num_steps": 1978.0,
+      "peak_vram_mb": 44908.2,
+      "total_tokens_M": 518.5,
+      "training_seconds": 300.0,
+      "val_bpb": 0.982455
+    },
+    "valid": true
+  },
+  "evaluator_calls_cumulative": 45,
+  "evaluator_calls_increment": 1,
+  "evaluator_seconds_cumulative": 15949.236011735991,
+  "evaluator_seconds_increment": 361.005617125993,
+  "event": "proposal_completed",
+  "evicted_candidate_id": "690b4834a299848eab5a3ec7a1387a8748309de700b8ef809ecc5e1e9cd29bcf",
+  "evidence": "Expanding layer 4 alone from 136 to 144 worsened val_bpb from 0.982662 to 0.982881, while the compute-matched layer-4 expansion plus layer-7 pruning scored 0.982945; this motivates reallocating context away from layer 4 rather than adding more there.",
+  "hypothesis": "Moving eight local-window tokens from layer 4 to layer 5 will lower val_bpb below 0.982662 by reducing context in the layer where isolated expansion regressed while strengthening the following transformation, without changing attention compute.",
+  "incumbent_after": "761bdc3a9986715bde68aade4ce376169df271d89ccd1075361a8e0bfb4c2d40",
+  "intended_edit": "Change the local-window schedule from 144/144/136/136/128/128 to 144/144/128/144/128/128, retaining full-context layers 3 and 8 and all optimizer settings.",
+  "mechanism": "Delayed post-global context allocation",
+  "opportunity": 45,
+  "parent_ids": [
+    "690b4834a299848eab5a3ec7a1387a8748309de700b8ef809ecc5e1e9cd29bcf"
+  ],
+  "portfolio_after": [
+    "761bdc3a9986715bde68aade4ce376169df271d89ccd1075361a8e0bfb4c2d40",
+    "9f59648b4f8178a85ae03a874b0ce203517a0e860b3d82c10a24502203ff22c4",
+    "2d34182cae9e76e95f4a36b4c7c1915a3b31874bfa158ac4e257bb7a68049156",
+    "668e4a8eb9addff07c0ea19c69f44df9e7c96f796a33fe29b6e513cce7f9dac1"
+  ],
+  "prompt_hashes": {
+    "common_template_sha256": "ba85b39aa7288f4f48475376da6cff65661f39cfeb7ac7cde15b2a9a2e692fde",
+    "prompt_sha256": "b6c13809927806ec3a092058e4bf1502f35e77ef466e9ef50924f8143509fc92",
+    "proposal_policy_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "search_state_sha256": "c938ac007bf70fe8d27f64661175531e51fcb16b38318c328493c32ee292e27e",
+    "treatment_skeleton_sha256": "76aef96c947d2db50eb1aedaf4f668020320c7657d44fa0e683b6bfb73817e31"
+  },
+  "proposal_type": "ordinary",
+  "proposals_cumulative": 45,
+  "remaining_budget": {
+    "evaluations": 155,
+    "evaluator_seconds": 704050.763988264,
+    "proposals": 155,
+    "tokens": 97854885
+  },
+  "retained": true,
+  "retention_decision": "replaced_selected_parent_on_strict_improvement",
+  "run_id": "nanogpt-openevolve-v2-1-h100-karpathy_nanogpt_source_only_h100-openevolve-b02-c2",
+  "schema_version": "1.0",
+  "selected_parent_ids": [
+    "690b4834a299848eab5a3ec7a1387a8748309de700b8ef809ecc5e1e9cd29bcf"
+  ],
+  "timestamp": "2026-08-24T09:55:47.931910+00:00",
+  "usage_cumulative": {
+    "cached_input_tokens": 486400,
+    "input_tokens": 2057998,
+    "output_tokens": 87117,
+    "reasoning_output_tokens": 68569,
+    "total_tokens": 2145115
+  },
+  "usage_increment": {
+    "cached_input_tokens": 5888,
+    "input_tokens": 47519,
+    "output_tokens": 1896,
+    "reasoning_output_tokens": 1505,
+    "total_tokens": 49415
+  },
+  "visible_candidate_ids": [
+    "690b4834a299848eab5a3ec7a1387a8748309de700b8ef809ecc5e1e9cd29bcf",
+    "9f59648b4f8178a85ae03a874b0ce203517a0e860b3d82c10a24502203ff22c4",
+    "2d34182cae9e76e95f4a36b4c7c1915a3b31874bfa158ac4e257bb7a68049156",
+    "668e4a8eb9addff07c0ea19c69f44df9e7c96f796a33fe29b6e513cce7f9dac1"
+  ]
+}

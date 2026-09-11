@@ -1,0 +1,174 @@
+# Improve fixed-exposure image classification
+
+You are an autonomous ML engineer improving a learned classifier for 28×28
+grayscale images in ten classes.
+
+## Goal
+
+Maximize `validation_score`. It ranks implementations first by the exact number
+of correct predictions on the fixed 10,000-image validation set, then—only when
+correct counts tie—by lower validation cross-entropy. Every verification starts
+from a fresh initialization and presents exactly 100,000 examples from the
+fixed 50,000-image training split.
+
+You may change the model architecture, optimizer, loss, augmentation, batch
+size, gradient handling, schedule, and other contents of `train.py`. The fixed
+data split, normalization, example accounting, validation calculation,
+250,000-learned-parameter ceiling, and device are not editable. The protected
+loop calls the functions already defined in `train.py`; keep that interface
+intact. The model must return one ten-class logit vector per image.
+
+## Work boundaries
+
+Maximize validation_score. No additional accuracy threshold.
+Editable source files: train.py.
+Results reported after each verification: validation_score, validation_correct, validation_accuracy, validation_cross_entropy, parameters, examples_processed, optimizer_steps, training_seconds, batch_size.
+
+Propose changes through exact SEARCH/REPLACE blocks. The patching interface applies them to the supplied editable source.
+
+The editable source and any reference source are included below. Do not access
+parent directories, home directories, shared temporary directories, global
+session history, online sources, external datasets, pretrained weights, or any
+surrounding repository. Do not run training or validation yourself and do not
+generate hidden alternatives. Return one patch for one implementation;
+verification happens after you finish.
+
+## Available designs
+
+The current editable design and the qualified reference designs below are available as technical evidence. Edit only the current workspace.
+
+CURRENT DESIGN
+verified_results: {"batch_size": 128, "examples_processed": 100000, "optimizer_steps": 782, "parameters": 249961, "training_seconds": 67.66874208394438, "validation_accuracy": 0.9287, "validation_correct": 9287, "validation_cross_entropy": 0.20670596809387207, "validation_score": 9287.414351145366}
+prior_hypothesis: A 1.552032470703125× center-view weight will retain all 9,287 correct predictions while reducing validation cross-entropy below 0.2067059761.
+
+REFERENCE DESIGN 1
+verified_results: {"batch_size": 128, "examples_processed": 100000, "optimizer_steps": 782, "parameters": 249961, "training_seconds": 72.95156274992041, "validation_accuracy": 0.9287, "validation_correct": 9287, "validation_cross_entropy": 0.20670594635009765, "validation_score": 9287.414351152833}
+prior_hypothesis: A 1.55548757314682× center-view weight will retain all 9,287 correct predictions while reducing validation cross-entropy below 0.2067059532.
+
+REFERENCE DESIGN 2
+verified_results: {"batch_size": 128, "examples_processed": 100000, "optimizer_steps": 782, "parameters": 249961, "training_seconds": 76.57101987511851, "validation_accuracy": 0.9287, "validation_correct": 9287, "validation_cross_entropy": 0.2067059928894043, "validation_score": 9287.414351136853}
+prior_hypothesis: A 1.548828125× center-view weight will retain all 9,287 correct predictions while reducing validation cross-entropy below 0.2067060093.
+
+REFERENCE DESIGN 3
+verified_results: {"batch_size": 128, "examples_processed": 100000, "optimizer_steps": 782, "parameters": 249961, "training_seconds": 55.823656832799315, "validation_accuracy": 0.9287, "validation_correct": 9287, "validation_cross_entropy": 0.20670595321655275, "validation_score": 9287.414351150475}
+prior_hypothesis: A 1.5544857978820801× center-view weight will retain all 9,287 correct predictions while reducing validation cross-entropy below 0.2067059601.
+
+## Recent verification evidence
+
+RECENT RESULT
+hypothesis: A 1.550537109375× center-view weight will retain 9,287 correct predictions while reducing validation cross-entropy below 0.2067059929.
+change: Increase the center-view pooling weight one eighth of the remaining distance from the best verified-safe setting toward the accuracy-losing setting, retaining the calibrated 1.22775 logit scale.
+mechanism: Conservative center-view accuracy-boundary refinement
+evidence_used: A 1.548828125× center weight retained 9,287 correct at 0.2067059929 cross-entropy, while 1.5625× lost one prediction; the nearby 1.55078125 probe timed out and provided no contrary accuracy evidence.
+result: improved the objective and became an available design
+reported_values: {"batch_size": 128, "examples_processed": 100000, "optimizer_steps": 782, "parameters": 249961, "training_seconds": 68.773385041859, "validation_accuracy": 0.9287, "validation_correct": 9287, "validation_cross_entropy": 0.20670597610473632, "validation_score": 9287.414351142615}
+
+RECENT RESULT
+hypothesis: A 1.552032470703125× center-view weight with 1.22775 logit scaling will retain all 9,287 correct predictions while reducing validation cross-entropy below 0.2067059761.
+change: Replace uniform ten-view averaging with center-biased pooling one eighth of the remaining distance toward the accuracy-losing 1.5625× boundary, using the best-verified calibration.
+mechanism: Conservative center-view accuracy-boundary refinement
+evidence_used: A 1.550537109375× center weight retained 9,287 correct and improved cross-entropy to 0.2067059761, while 1.5625× lost one prediction; the same conservative one-eighth refinement previously improved the score.
+result: training did not finish within the verification time limit
+
+RECENT RESULT
+hypothesis: A 1.552032470703125× center-view weight will retain all 9,287 correct predictions while reducing validation cross-entropy below 0.2067059761.
+change: Increase only the centered-view pooling weight and matching normalization denominator, preserving the verified 1.22775 logit calibration.
+mechanism: Conservative center-view accuracy-boundary refinement
+evidence_used: The current 1.550537109375× weight retained 9,287 correct and improved cross-entropy, while 1.5625× lost one prediction; the intermediate 1.552032470703125× probe produced no accuracy evidence because verification timed out.
+result: improved the objective and became an available design
+reported_values: {"batch_size": 128, "examples_processed": 100000, "optimizer_steps": 782, "parameters": 249961, "training_seconds": 67.66874208394438, "validation_accuracy": 0.9287, "validation_correct": 9287, "validation_cross_entropy": 0.20670596809387207, "validation_score": 9287.414351145366}
+
+RECENT RESULT
+hypothesis: A 1.5533409118652344× center-view weight will retain all 9,287 correct predictions while reducing validation cross-entropy below 0.2067059681.
+change: Increase only the centered-view pooling weight and matching normalization denominator, preserving the verified 1.22775 logit calibration.
+mechanism: Conservative center-view accuracy-boundary refinement
+evidence_used: The verified 1.552032470703125× weight retained 9,287 correct and improved cross-entropy to 0.2067059681, while 1.5625× lost one prediction; advancing one eighth of the remaining interval continues the previously successful conservative boundary search.
+result: training did not finish within the verification time limit
+
+RECENT RESULT
+hypothesis: A 1.5533409118652344× center-view weight will retain all 9,287 correct predictions while reducing validation cross-entropy below 0.2067059681.
+change: Increase only the centered-view pooling weight and matching normalization denominator, preserving the verified 1.22775 logit calibration.
+mechanism: Conservative center-view accuracy-boundary refinement
+evidence_used: The verified 1.552032470703125× weight retained 9,287 correct and improved cross-entropy, while 1.5625× lost one prediction; the 1.5533409118652344× probe timed out and therefore remains unresolved without contrary accuracy evidence.
+result: improved the objective and became an available design
+reported_values: {"batch_size": 128, "examples_processed": 100000, "optimizer_steps": 782, "parameters": 249961, "training_seconds": 72.66687808395363, "validation_accuracy": 0.9287, "validation_correct": 9287, "validation_cross_entropy": 0.20670596008300782, "validation_score": 9287.414351148116}
+
+RECENT RESULT
+hypothesis: A 1.5544857978820801× center-view weight will retain all 9,287 correct predictions while reducing validation cross-entropy below 0.2067059601.
+change: Replace uniform ten-view averaging with center-biased pooling one eighth of the remaining distance toward the accuracy-losing 1.5625× boundary, retaining the verified 1.22775 calibration.
+mechanism: Conservative center-view accuracy-boundary refinement
+evidence_used: The verified 1.5533409118652344× weight retained 9,287 correct and achieved the best available cross-entropy, while 1.5625× lost one prediction; prior one-eighth boundary refinements repeatedly improved cross-entropy without changing correctness.
+result: training did not finish within the verification time limit
+
+RECENT RESULT
+hypothesis: A 1.5544857978820801× center-view weight will retain all 9,287 correct predictions while reducing validation cross-entropy below 0.2067059601.
+change: Increase only the centered-view pooling weight and matching normalization denominator, preserving the verified 1.22775 logit calibration.
+mechanism: Conservative center-view accuracy-boundary refinement
+evidence_used: The verified 1.5533409118652344× weight retained 9,287 correct with the best available cross-entropy, while 1.5625× lost one prediction; the prior 1.5544857978820801× verification timed out and supplied no contrary accuracy evidence.
+result: improved the objective and became an available design
+reported_values: {"batch_size": 128, "examples_processed": 100000, "optimizer_steps": 782, "parameters": 249961, "training_seconds": 55.823656832799315, "validation_accuracy": 0.9287, "validation_correct": 9287, "validation_cross_entropy": 0.20670595321655275, "validation_score": 9287.414351150475}
+
+RECENT RESULT
+hypothesis: A five-parameter channel-attention gate will exceed 9,287 correct predictions by dynamically emphasizing class-relevant late features for each image, while preserving the baseline computation at initialization and staying below 250,000 parameters.
+change: Challenge the assumption that late feature channels should have fixed, sample-independent relevance by adding local cross-channel attention before global mean/max pooling; the zero-initialized residual scaling begins as an exact identity and adds only five learned parameters.
+mechanism: Identity-initialized input-conditioned channel recalibration
+evidence_used: Repeated center-view weighting refinements plateaued at exactly 9,287 correct and produced only microscopic cross-entropy gains, indicating that evaluation aggregation is saturated. The learned mixed-downsampling attempt timed out, so this tests a genuinely different adaptive representation mechanism only on the compact 7×7 late feature map with negligible overhead.
+result: training did not finish within the verification time limit
+
+RECENT RESULT
+hypothesis: A 1.55548757314682× center-view weight will retain all 9,287 correct predictions while reducing validation cross-entropy below 0.2067059532.
+change: Increase only the centered-view pooling weight and matching normalization denominator, preserving the verified 1.22775 logit calibration.
+mechanism: Conservative center-view accuracy-boundary refinement
+evidence_used: Reference Design 2 verified that 1.5544857978820801× retained 9,287 correct with the best available cross-entropy, while 1.5625× lost one prediction; advancing one eighth of the remaining interval continues the repeatedly successful conservative boundary search.
+result: training did not finish within the verification time limit
+
+RECENT RESULT
+hypothesis: A 1.55548757314682× center-view weight will retain all 9,287 correct predictions while reducing validation cross-entropy below 0.2067059532.
+change: Replace uniform ten-view averaging with center-biased pooling one eighth closer to the known accuracy-loss boundary, and use the best-verified 1.22775 logit calibration.
+mechanism: Conservative center-view accuracy-boundary refinement
+evidence_used: Reference Design 2 retained 9,287 correct with the best available cross-entropy at a 1.5544857978820801× center weight, while 1.5625× lost one prediction; the 1.55548757314682× probe timed out and remains the nearest unresolved conservative refinement.
+result: improved the objective and became an available design
+reported_values: {"batch_size": 128, "examples_processed": 100000, "optimizer_steps": 782, "parameters": 249961, "training_seconds": 72.95156274992041, "validation_accuracy": 0.9287, "validation_correct": 9287, "validation_cross_entropy": 0.20670594635009765, "validation_score": 9287.414351152833}
+
+RECENT RESULT
+hypothesis: A 1.5563641265034675× center-view weight will retain all 9,287 correct predictions while reducing validation cross-entropy below 0.2067059464.
+change: Increase only the centered-view pooling weight and matching normalization denominator, preserving the verified 1.22775 logit calibration.
+mechanism: Conservative center-view accuracy-boundary refinement
+evidence_used: The verified 1.55548757314682× weight retained 9,287 correct with the best available cross-entropy, while 1.5625× lost one prediction; another one-eighth advance toward that boundary follows the repeatedly successful refinement sequence.
+result: training did not finish within the verification time limit
+
+RECENT RESULT
+hypothesis: A 1.5563641265034675× center-view weight will retain all 9,287 correct predictions while reducing validation cross-entropy below 0.2067059464.
+change: Increase only the centered-view pooling weight and matching normalization denominator, preserving the verified 1.22775 logit calibration.
+mechanism: Conservative center-view accuracy-boundary refinement
+evidence_used: The verified 1.55548757314682× weight retained 9,287 correct with the best available cross-entropy, while 1.5625× lost one prediction; the intermediate 1.5563641265034675× probe timed out and therefore remains unresolved without contrary accuracy evidence.
+result: training did not finish within the verification time limit
+
+
+
+Use the available technical evidence to choose the most informative next
+change. Treat unsuccessful or malformed work as evidence when a useful
+subject-level reason is provided. Do not invent missing evidence.
+
+## Response
+
+Return these short metadata lines followed by one or more exact
+`SEARCH`/`REPLACE` blocks that together produce one implementation:
+
+`MECHANISM: <a concise free-form name for the computational idea>`
+
+`HYPOTHESIS: <a falsifiable claim grounded in the evidence above>`
+
+`INTENDED_EDIT: <what this patch changes>`
+
+`EVIDENCE: <the most relevant prior result and why it motivates this patch>`
+
+Start each block with `<<<<<<< SEARCH`, put the exact existing lines next, use a
+line containing `=======` as the divider, put the replacement lines after it,
+and finish the block with `>>>>>>> REPLACE`.
+
+Every `SEARCH` section must be nonempty and match exactly once after earlier
+blocks have been applied. All blocks must apply. Together they must describe
+one implementation ready for verification. The mechanism name is descriptive,
+not chosen from a fixed list. Do not paste whole files, lengthy logs, or routine
+progress reports outside the patch.

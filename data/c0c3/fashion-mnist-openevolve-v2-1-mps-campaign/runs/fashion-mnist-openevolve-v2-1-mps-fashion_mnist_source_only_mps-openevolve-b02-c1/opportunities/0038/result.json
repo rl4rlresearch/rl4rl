@@ -1,0 +1,73 @@
+{
+  "artifact_path": "candidates/9c6c7eebf75daa594d93897158fa5d3999b44e17067151b6133e62ad704f28fd",
+  "candidate_id": "9c6c7eebf75daa594d93897158fa5d3999b44e17067151b6133e62ad704f28fd",
+  "codex_service_tier": "default",
+  "condition": "C1",
+  "conversation_session_id": null,
+  "evaluation": {
+    "evaluator_calls": 1,
+    "evaluator_seconds": 90.03794087516144,
+    "failure_kind": "timeout",
+    "fitness": null,
+    "metrics": {},
+    "valid": false
+  },
+  "evaluator_calls_cumulative": 38,
+  "evaluator_calls_increment": 1,
+  "evaluator_seconds_cumulative": 2970.7978284126148,
+  "evaluator_seconds_increment": 90.03794087516144,
+  "event": "proposal_completed",
+  "evicted_candidate_id": null,
+  "evidence": "Half-strength parameter averaging improved validation_correct from 9,280 to 9,286, but the current implementation leaves BatchNorm running statistics at their noisy final values; aligning those statistics targets the remaining evaluation-state mismatch without changing training or parameter count.",
+  "hypothesis": "Blending BatchNorm running statistics alongside the learned parameters will exceed 9,286 correct predictions by making the averaged weights and evaluation-time normalization state consistent.",
+  "incumbent_after": "5e0f26110458a07b11bbcc46416afef73fa8576230dd7e30bb84f3cbbfeb3571",
+  "intended_edit": "Track a sparse tail mean of every BatchNorm running mean and variance, then blend those buffers 50:50 at the final step with the existing parameter blend.",
+  "mechanism": "BatchNorm-statistic-aligned tail averaging",
+  "opportunity": 38,
+  "parent_ids": [
+    "5e0f26110458a07b11bbcc46416afef73fa8576230dd7e30bb84f3cbbfeb3571"
+  ],
+  "portfolio_after": [
+    "5e0f26110458a07b11bbcc46416afef73fa8576230dd7e30bb84f3cbbfeb3571"
+  ],
+  "prompt_hashes": {
+    "common_template_sha256": "e8327ba94bab12abc7c7ec7c6615378a3ae62434efb944d4a7d9492f1d19bc14",
+    "prompt_sha256": "64c17f4899f2237f93cd9484e6282357c65757415bf06c28666b3a07f1b02883",
+    "proposal_policy_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "search_state_sha256": "04e5eb078ae1964e4ec65bfeeeb1acd0ffa246e7d54d5e0f997f81f602da28c5",
+    "treatment_skeleton_sha256": "617e622b755833f882d292eedfaaab523541b0a31ec878141954427c697abe8e"
+  },
+  "proposal_type": "ordinary",
+  "proposals_cumulative": 38,
+  "remaining_budget": {
+    "evaluations": 162,
+    "evaluator_seconds": 21029.202171587385,
+    "proposals": 162,
+    "tokens": 99211835
+  },
+  "retained": false,
+  "retention_decision": "invalid",
+  "run_id": "fashion-mnist-openevolve-v2-1-mps-fashion_mnist_source_only_mps-openevolve-b02-c1",
+  "schema_version": "1.0",
+  "selected_parent_ids": [
+    "5e0f26110458a07b11bbcc46416afef73fa8576230dd7e30bb84f3cbbfeb3571"
+  ],
+  "timestamp": "2026-08-24T04:39:55.417686+00:00",
+  "usage_cumulative": {
+    "cached_input_tokens": 380416,
+    "input_tokens": 680250,
+    "output_tokens": 107915,
+    "reasoning_output_tokens": 93480,
+    "total_tokens": 788165
+  },
+  "usage_increment": {
+    "cached_input_tokens": 0,
+    "input_tokens": 18289,
+    "output_tokens": 3796,
+    "reasoning_output_tokens": 3030,
+    "total_tokens": 22085
+  },
+  "visible_candidate_ids": [
+    "5e0f26110458a07b11bbcc46416afef73fa8576230dd7e30bb84f3cbbfeb3571"
+  ]
+}

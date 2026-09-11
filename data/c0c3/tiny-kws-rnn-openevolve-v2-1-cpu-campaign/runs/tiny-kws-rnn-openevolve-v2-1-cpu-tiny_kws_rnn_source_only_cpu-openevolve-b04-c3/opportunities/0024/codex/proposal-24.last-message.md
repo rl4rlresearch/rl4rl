@@ -1,0 +1,66 @@
+MECHANISM: Deep-supervised adjacent-width reduction
+
+HYPOTHESIS: A 122-unit GRU with the qualified 27-frame schedule and training-only mean/terminal supervision will retain at least 85% validation accuracy while reducing total inference MACs below the qualified 123-unit design’s 1.163B.
+
+INTENDED_EDIT: Reduce recurrent and readout width to 122 units and add the qualified training-only auxiliary mean-state and terminal-state classifiers.
+
+EVIDENCE: The otherwise identical deep-supervised 123-unit design achieved 85.77% accuracy at 1.163B MACs, leaving 0.77 percentage points of margin for an adjacent structural width reduction.
+
+<<<<<<< SEARCH
+        self.gru = nn.GRU(20, 125, num_layers=1, batch_first=True)
+        self.classifier = nn.Linear(250, 8)
+=======
+        self.gru = nn.GRU(20, 122, num_layers=1, batch_first=True)
+        self.classifier = nn.Linear(244, 8)
+        self.mean_aux = nn.Linear(122, 8)
+        self.terminal_aux = nn.Linear(122, 8)
+        self._aux_logits = None
+>>>>>>> REPLACE
+
+<<<<<<< SEARCH
+        hidden = torch.zeros(batch_size, 1, 125, device=device, dtype=dtype)
+        summary = torch.zeros(batch_size, 125, device=device, dtype=dtype)
+=======
+        hidden = torch.zeros(batch_size, 1, 122, device=device, dtype=dtype)
+        summary = torch.zeros(batch_size, 122, device=device, dtype=dtype)
+>>>>>>> REPLACE
+
+<<<<<<< SEARCH
+        hidden, summary, count = state
+        features = torch.cat(
+            (summary / count.clamp_min(1.0), hidden[:, 0, :]), dim=-1
+        )
+        return self.classifier(features)
+=======
+        hidden, summary, count = state
+        mean = summary / count.clamp_min(1.0)
+        terminal = hidden[:, 0, :]
+        logits = self.classifier(torch.cat((mean, terminal), dim=-1))
+        if self.training:
+            self._aux_logits = (
+                self.mean_aux(mean),
+                self.terminal_aux(terminal),
+            )
+        else:
+            self._aux_logits = None
+        return logits
+>>>>>>> REPLACE
+
+<<<<<<< SEARCH
+    del model, step, total_steps
+    return F.cross_entropy(logits, labels, label_smoothing=0.03)
+=======
+    del step, total_steps
+    main_loss = F.cross_entropy(logits, labels, label_smoothing=0.03)
+    aux_logits = getattr(model, "_aux_logits", None)
+    if aux_logits is None:
+        return main_loss
+    mean_logits, terminal_logits = aux_logits
+    mean_loss = F.cross_entropy(
+        mean_logits, labels, label_smoothing=0.03
+    )
+    terminal_loss = F.cross_entropy(
+        terminal_logits, labels, label_smoothing=0.03
+    )
+    return (main_loss + 0.1 * mean_loss + 0.1 * terminal_loss) / 1.2
+>>>>>>> REPLACE

@@ -1,0 +1,85 @@
+{
+  "artifact_path": "candidates/56556004ce5e1bfca74c697b68ac0cf2e94004ee31927f5d74d51d39a1aad7e3",
+  "candidate_id": "56556004ce5e1bfca74c697b68ac0cf2e94004ee31927f5d74d51d39a1aad7e3",
+  "codex_service_tier": "default",
+  "condition": "C2",
+  "conversation_session_id": null,
+  "evaluation": {
+    "evaluator_calls": 1,
+    "evaluator_seconds": 957.3990267501213,
+    "failure_kind": null,
+    "fitness": -1613.0,
+    "metrics": {
+      "accuracy": 0.9984000000000001,
+      "cases": 10010,
+      "correct": 9994,
+      "parameters": 1613,
+      "training_steps": 4999
+    },
+    "valid": true
+  },
+  "evaluator_calls_cumulative": 24,
+  "evaluator_calls_increment": 1,
+  "evaluator_seconds_cumulative": 8851.124510958209,
+  "evaluator_seconds_increment": 957.3990267501213,
+  "event": "proposal_completed",
+  "evicted_candidate_id": "1d655001f73123835d0d287bcc762c0f67163c095c5de6a22d9246941df1d93e",
+  "evidence": "The 1,621-parameter design removed all value-bias parameters and retained 99.93% accuracy. Unlike the failed positional and final-LayerNorm reductions, eliminating query bias preserves initialization exactly and tests a distinct affine redundancy through `ln1.bias` and the query weight.",
+  "hypothesis": "Removing the remaining zero-initialized query bias from the verified 1,621-parameter design will produce a 1,613-parameter model with at least 99% accuracy, because a learned pre-attention LayerNorm bias and query projection can jointly represent a constant query offset without changing the initial forward pass.",
+  "incumbent_after": "56556004ce5e1bfca74c697b68ac0cf2e94004ee31927f5d74d51d39a1aad7e3",
+  "intended_edit": "Apply the verified value-bias removal and final-four positional quotient, then remove the query bias so the QKV projection is entirely bias-free.",
+  "mechanism": "Bias-free attention with verified tail positional quotient",
+  "opportunity": 24,
+  "parent_ids": [
+    "1d655001f73123835d0d287bcc762c0f67163c095c5de6a22d9246941df1d93e"
+  ],
+  "portfolio_after": [
+    "2b9cea175ed60b009337ac54f6e8ad23bf2c014eb4080237777bfb70bfd9fd5b",
+    "56556004ce5e1bfca74c697b68ac0cf2e94004ee31927f5d74d51d39a1aad7e3",
+    "7e092aae48439a081c92528fbc85f6580ce350808619f2e80436fc10c4d76f76",
+    "aa011b96e4af8de4be63a50985f2c698878b814b3e2bfd243cc5943394255ca5"
+  ],
+  "prompt_hashes": {
+    "common_template_sha256": "3f2bea6418b6969c4bf2aa1df18dcda8a3a4ac075bf20c79068c754698b6be5e",
+    "prompt_sha256": "2ba85e00f6910fbcbd992403afdc867f8d8a77476f211827083c0e9e55ad195d",
+    "proposal_policy_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "search_state_sha256": "c938ac007bf70fe8d27f64661175531e51fcb16b38318c328493c32ee292e27e",
+    "treatment_skeleton_sha256": "b55f545357bdf7f21cb2ae4f8e61e30ea32b8b71438b400041f3fb3293d8740d"
+  },
+  "proposal_type": "ordinary",
+  "proposals_cumulative": 24,
+  "remaining_budget": {
+    "evaluations": 176,
+    "evaluator_seconds": 351148.8754890418,
+    "proposals": 176,
+    "tokens": 99168166
+  },
+  "retained": true,
+  "retention_decision": "replaced_selected_parent_on_strict_improvement",
+  "run_id": "controlled-openevolve-transformer-v2-1-source-only-ten-digit-addition-pair-transformer-openevolve-v2-1-mps-openevolve-b04-c2",
+  "schema_version": "1.0",
+  "selected_parent_ids": [
+    "1d655001f73123835d0d287bcc762c0f67163c095c5de6a22d9246941df1d93e"
+  ],
+  "timestamp": "2026-09-04T00:43:36.856463+00:00",
+  "usage_cumulative": {
+    "cached_input_tokens": 284160,
+    "input_tokens": 722714,
+    "output_tokens": 109120,
+    "reasoning_output_tokens": 82071,
+    "total_tokens": 831834
+  },
+  "usage_increment": {
+    "cached_input_tokens": 37888,
+    "input_tokens": 41172,
+    "output_tokens": 4053,
+    "reasoning_output_tokens": 3192,
+    "total_tokens": 45225
+  },
+  "visible_candidate_ids": [
+    "2b9cea175ed60b009337ac54f6e8ad23bf2c014eb4080237777bfb70bfd9fd5b",
+    "1d655001f73123835d0d287bcc762c0f67163c095c5de6a22d9246941df1d93e",
+    "7e092aae48439a081c92528fbc85f6580ce350808619f2e80436fc10c4d76f76",
+    "aa011b96e4af8de4be63a50985f2c698878b814b3e2bfd243cc5943394255ca5"
+  ]
+}

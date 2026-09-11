@@ -1,0 +1,85 @@
+{
+  "artifact_path": "candidates/247295203bf6556614f88465b88eb9335c6b8412c806615537b392d02e8b9fb0",
+  "candidate_id": "247295203bf6556614f88465b88eb9335c6b8412c806615537b392d02e8b9fb0",
+  "codex_service_tier": "fast",
+  "condition": "C2",
+  "conversation_session_id": null,
+  "evaluation": {
+    "evaluator_calls": 1,
+    "evaluator_seconds": 443.0059039579937,
+    "failure_kind": "nonqualification",
+    "fitness": null,
+    "metrics": {
+      "accuracy": 0.9052,
+      "cases": 10010,
+      "correct": 9061,
+      "parameters": 1613,
+      "training_steps": 4999
+    },
+    "valid": false
+  },
+  "evaluator_calls_cumulative": 22,
+  "evaluator_calls_increment": 1,
+  "evaluator_seconds_cumulative": 7146.6792396240635,
+  "evaluator_seconds_increment": 443.0059039579937,
+  "event": "proposal_completed",
+  "evicted_candidate_id": null,
+  "evidence": "The 1,621-parameter query-only attention-bias design achieved 99.98% accuracy, demonstrating substantial margin after an exact bias absorption; `ln2.bias` has the same direct redundancy since `fc1(W)` maps its position-independent shift into the unrestricted learned `fc1.bias`.",
+  "hypothesis": "Combining the verified value-bias removal with elimination of the eight-dimensional pre-MLP LayerNorm bias will yield 1,613 parameters and at least 99% accuracy, because that LayerNorm shift is exactly absorbable by the retained `fc1` bias.",
+  "incumbent_after": "bf6939ff1f41c9e95596455cbf58c1772e228828563b1c3a887eb69e8a5871f6",
+  "intended_edit": "Retain only the learned attention query bias, then remove `ln2.bias` while preserving module initialization and all downstream learned weights and biases.",
+  "mechanism": "Pre-MLP LayerNorm bias absorption",
+  "opportunity": 23,
+  "parent_ids": [
+    "a7fafe5e629bbd2d2a47705794bc725be552924afc51639a7f8d6477232acfc8"
+  ],
+  "portfolio_after": [
+    "2b9cea175ed60b009337ac54f6e8ad23bf2c014eb4080237777bfb70bfd9fd5b",
+    "a7fafe5e629bbd2d2a47705794bc725be552924afc51639a7f8d6477232acfc8",
+    "bf6939ff1f41c9e95596455cbf58c1772e228828563b1c3a887eb69e8a5871f6",
+    "aa011b96e4af8de4be63a50985f2c698878b814b3e2bfd243cc5943394255ca5"
+  ],
+  "prompt_hashes": {
+    "common_template_sha256": "3f2bea6418b6969c4bf2aa1df18dcda8a3a4ac075bf20c79068c754698b6be5e",
+    "prompt_sha256": "d7607ea7e6a90af48ff2e37c3f881b74282d70a8c17ef4004730ee82dee73f03",
+    "proposal_policy_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "search_state_sha256": "c938ac007bf70fe8d27f64661175531e51fcb16b38318c328493c32ee292e27e",
+    "treatment_skeleton_sha256": "b07b259f9a9ba0a736ea7797913df8faffe00ed13a54f8d2239200c0077f3847"
+  },
+  "proposal_type": "ordinary",
+  "proposals_cumulative": 23,
+  "remaining_budget": {
+    "evaluations": 178,
+    "evaluator_seconds": 352853.32076037594,
+    "proposals": 177,
+    "tokens": 99235789
+  },
+  "retained": false,
+  "retention_decision": "invalid",
+  "run_id": "controlled-openevolve-transformer-v2-1-source-only-ten-digit-addition-pair-transformer-openevolve-v2-1-mps-openevolve-b04-c2",
+  "schema_version": "1.0",
+  "selected_parent_ids": [
+    "a7fafe5e629bbd2d2a47705794bc725be552924afc51639a7f8d6477232acfc8"
+  ],
+  "timestamp": "2026-08-23T18:56:57.975240+00:00",
+  "usage_cumulative": {
+    "cached_input_tokens": 251392,
+    "input_tokens": 680759,
+    "output_tokens": 83452,
+    "reasoning_output_tokens": 59778,
+    "total_tokens": 764211
+  },
+  "usage_increment": {
+    "cached_input_tokens": 12032,
+    "input_tokens": 37859,
+    "output_tokens": 2717,
+    "reasoning_output_tokens": 2229,
+    "total_tokens": 40576
+  },
+  "visible_candidate_ids": [
+    "2b9cea175ed60b009337ac54f6e8ad23bf2c014eb4080237777bfb70bfd9fd5b",
+    "a7fafe5e629bbd2d2a47705794bc725be552924afc51639a7f8d6477232acfc8",
+    "bf6939ff1f41c9e95596455cbf58c1772e228828563b1c3a887eb69e8a5871f6",
+    "aa011b96e4af8de4be63a50985f2c698878b814b3e2bfd243cc5943394255ca5"
+  ]
+}

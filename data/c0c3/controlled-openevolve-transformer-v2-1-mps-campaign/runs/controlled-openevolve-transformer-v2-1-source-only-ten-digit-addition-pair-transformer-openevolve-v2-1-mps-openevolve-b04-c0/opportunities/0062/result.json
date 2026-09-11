@@ -1,0 +1,79 @@
+{
+  "artifact_path": "candidates/8e30732ea093b61dbd97138b28bdeaddd69ad13c8788e978c1aeca330e2a1734",
+  "candidate_id": "8e30732ea093b61dbd97138b28bdeaddd69ad13c8788e978c1aeca330e2a1734",
+  "codex_service_tier": "default",
+  "condition": "C0",
+  "conversation_session_id": null,
+  "evaluation": {
+    "evaluator_calls": 1,
+    "evaluator_seconds": 596.1741252921056,
+    "failure_kind": null,
+    "fitness": -1595.0,
+    "metrics": {
+      "accuracy": 0.9956,
+      "cases": 10010,
+      "correct": 9966,
+      "parameters": 1595,
+      "training_steps": 4999
+    },
+    "valid": true
+  },
+  "evaluator_calls_cumulative": 62,
+  "evaluator_calls_increment": 1,
+  "evaluator_seconds_cumulative": 31000.035240703844,
+  "evaluator_seconds_increment": 596.1741252921056,
+  "event": "proposal_completed",
+  "evicted_candidate_id": "c9ddbedd33342e885277e9c9267940611f564e5b74071fa34c1010b220309d28",
+  "evidence": "The 1596-parameter design achieved 99.94%, while removing the sole remaining `fc1.bias[8]` previously collapsed accuracy to 77.57%; this motivates leaving that initialization-sensitive parameter intact and testing an untouched attention-side redundancy instead.",
+  "hypothesis": "Fixing `q_bias[0]` at zero will reduce the model from 1596 to 1595 parameters while retaining at least 99% accuracy, because one query-shift direction is invisible to attention softmax and the remaining seven query-bias coordinates preserve trainable content-independent attention control.",
+  "incumbent_after": "8e30732ea093b61dbd97138b28bdeaddd69ad13c8788e978c1aeca330e2a1734",
+  "intended_edit": "Replace the eight-parameter query bias with seven learned coordinates, reconstructing coordinate 0 as a fixed zero while preserving the existing zero initialization.",
+  "mechanism": "Query-bias softmax-gauge anchoring",
+  "opportunity": 62,
+  "parent_ids": [
+    "c9ddbedd33342e885277e9c9267940611f564e5b74071fa34c1010b220309d28"
+  ],
+  "portfolio_after": [
+    "8e30732ea093b61dbd97138b28bdeaddd69ad13c8788e978c1aeca330e2a1734"
+  ],
+  "prompt_hashes": {
+    "common_template_sha256": "3f2bea6418b6969c4bf2aa1df18dcda8a3a4ac075bf20c79068c754698b6be5e",
+    "prompt_sha256": "226cf7c11b6913254dbdc04528822037f4570482daf8cd7abd89941d84979134",
+    "proposal_policy_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "search_state_sha256": "04e5eb078ae1964e4ec65bfeeeb1acd0ffa246e7d54d5e0f997f81f602da28c5",
+    "treatment_skeleton_sha256": "6519bf12c97d000d64fd00462845f24c86139acca1a3c0c06a96db5eeb6fcd8b"
+  },
+  "proposal_type": "ordinary",
+  "proposals_cumulative": 62,
+  "remaining_budget": {
+    "evaluations": 138,
+    "evaluator_seconds": 328999.96475929616,
+    "proposals": 138,
+    "tokens": 98490815
+  },
+  "retained": true,
+  "retention_decision": "strict_incumbent_improvement",
+  "run_id": "controlled-openevolve-transformer-v2-1-source-only-ten-digit-addition-pair-transformer-openevolve-v2-1-mps-openevolve-b04-c0",
+  "schema_version": "1.0",
+  "selected_parent_ids": [
+    "c9ddbedd33342e885277e9c9267940611f564e5b74071fa34c1010b220309d28"
+  ],
+  "timestamp": "2026-08-25T08:36:28.835725+00:00",
+  "usage_cumulative": {
+    "cached_input_tokens": 657408,
+    "input_tokens": 1366101,
+    "output_tokens": 143084,
+    "reasoning_output_tokens": 105129,
+    "total_tokens": 1509185
+  },
+  "usage_increment": {
+    "cached_input_tokens": 12032,
+    "input_tokens": 22999,
+    "output_tokens": 3994,
+    "reasoning_output_tokens": 3624,
+    "total_tokens": 26993
+  },
+  "visible_candidate_ids": [
+    "c9ddbedd33342e885277e9c9267940611f564e5b74071fa34c1010b220309d28"
+  ]
+}

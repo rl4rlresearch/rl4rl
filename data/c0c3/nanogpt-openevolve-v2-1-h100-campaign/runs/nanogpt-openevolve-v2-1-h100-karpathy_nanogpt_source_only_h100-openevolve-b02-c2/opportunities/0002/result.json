@@ -1,0 +1,85 @@
+{
+  "artifact_path": "candidates/d0ec96492b2bd25858ba4c893141ba9416341caf95a78956aaa11e6b213713bb",
+  "candidate_id": "d0ec96492b2bd25858ba4c893141ba9416341caf95a78956aaa11e6b213713bb",
+  "codex_service_tier": "fast",
+  "condition": "C2",
+  "conversation_session_id": null,
+  "evaluation": {
+    "evaluator_calls": 1,
+    "evaluator_seconds": 361.94844283900056,
+    "failure_kind": null,
+    "fitness": -1.000238,
+    "metrics": {
+      "depth": 8.0,
+      "mfu_percent": 38.31,
+      "num_params_M": 50.3,
+      "num_steps": 918.0,
+      "peak_vram_mb": 47114.7,
+      "total_tokens_M": 481.3,
+      "training_seconds": 300.2,
+      "val_bpb": 1.000238
+    },
+    "valid": true
+  },
+  "evaluator_calls_cumulative": 2,
+  "evaluator_calls_increment": 1,
+  "evaluator_seconds_cumulative": 728.1990752270003,
+  "evaluator_seconds_increment": 361.94844283900056,
+  "event": "proposal_completed",
+  "evicted_candidate_id": null,
+  "evidence": "Quarter-context attention reduced throughput from 497.0M to 385.4M tokens and worsened val_bpb to 1.012584, motivating an execution-level optimization that retains the successful 1024/2048-token attention pattern.",
+  "hypothesis": "Fusing each layer\u2019s three attention input projections into one GEMM will preserve model capacity and Muon\u2019s per-matrix updates while increasing throughput beyond 497.0M tokens, lowering val_bpb below 0.995558.",
+  "incumbent_after": "2865e528e18dc51191e4037eaeb5824cb0ea83ede79061b59b8f3caac686da6b",
+  "intended_edit": "Replace separate Q, K, and V linear layers with one fused projection, then reshape fused gradients into three independent matrices during Muon orthogonalization.",
+  "mechanism": "Optimizer-preserving fused QKV projection",
+  "opportunity": 2,
+  "parent_ids": [
+    "2865e528e18dc51191e4037eaeb5824cb0ea83ede79061b59b8f3caac686da6b"
+  ],
+  "portfolio_after": [
+    "2865e528e18dc51191e4037eaeb5824cb0ea83ede79061b59b8f3caac686da6b",
+    "ee1f1cf686a479f175a9b2178602df52386a3561e80b0612b88ccd725e447c2e",
+    "d0ec96492b2bd25858ba4c893141ba9416341caf95a78956aaa11e6b213713bb"
+  ],
+  "prompt_hashes": {
+    "common_template_sha256": "ba85b39aa7288f4f48475376da6cff65661f39cfeb7ac7cde15b2a9a2e692fde",
+    "prompt_sha256": "6dd31b4e7138c397fa8a8757f2beb70209895b97ad563edda46f8cfe3cbd9ff4",
+    "proposal_policy_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "search_state_sha256": "c938ac007bf70fe8d27f64661175531e51fcb16b38318c328493c32ee292e27e",
+    "treatment_skeleton_sha256": "9742797e33444bda20eef4fa6a6cd3a2dc506784e57a5ac0d967adabb95e9a3b"
+  },
+  "proposal_type": "ordinary",
+  "proposals_cumulative": 2,
+  "remaining_budget": {
+    "evaluations": 198,
+    "evaluator_seconds": 719271.800924773,
+    "proposals": 198,
+    "tokens": 99935591
+  },
+  "retained": true,
+  "retention_decision": "filled_open_portfolio_slot",
+  "run_id": "nanogpt-openevolve-v2-1-h100-karpathy_nanogpt_source_only_h100-openevolve-b02-c2",
+  "schema_version": "1.0",
+  "selected_parent_ids": [
+    "2865e528e18dc51191e4037eaeb5824cb0ea83ede79061b59b8f3caac686da6b"
+  ],
+  "timestamp": "2026-08-23T14:23:25.678209+00:00",
+  "usage_cumulative": {
+    "cached_input_tokens": 12032,
+    "input_tokens": 51263,
+    "output_tokens": 13146,
+    "reasoning_output_tokens": 11378,
+    "total_tokens": 64409
+  },
+  "usage_increment": {
+    "cached_input_tokens": 12032,
+    "input_tokens": 29420,
+    "output_tokens": 7536,
+    "reasoning_output_tokens": 5928,
+    "total_tokens": 36956
+  },
+  "visible_candidate_ids": [
+    "2865e528e18dc51191e4037eaeb5824cb0ea83ede79061b59b8f3caac686da6b",
+    "ee1f1cf686a479f175a9b2178602df52386a3561e80b0612b88ccd725e447c2e"
+  ]
+}

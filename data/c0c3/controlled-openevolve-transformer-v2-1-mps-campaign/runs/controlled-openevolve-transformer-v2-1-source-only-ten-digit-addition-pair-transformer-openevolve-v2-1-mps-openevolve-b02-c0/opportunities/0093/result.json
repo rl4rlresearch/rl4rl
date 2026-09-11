@@ -1,0 +1,79 @@
+{
+  "artifact_path": "candidates/99eed2df1fb2ab10d7c79bae48a905f698d51c568e50348c75fd62ebe7c18338",
+  "candidate_id": "99eed2df1fb2ab10d7c79bae48a905f698d51c568e50348c75fd62ebe7c18338",
+  "codex_service_tier": "default",
+  "condition": "C0",
+  "conversation_session_id": null,
+  "evaluation": {
+    "evaluator_calls": 1,
+    "evaluator_seconds": 251.71420879196376,
+    "failure_kind": "nonqualification",
+    "fitness": null,
+    "metrics": {
+      "accuracy": 0.927,
+      "cases": 10010,
+      "correct": 9279,
+      "parameters": 1579,
+      "training_steps": 4999
+    },
+    "valid": false
+  },
+  "evaluator_calls_cumulative": 93,
+  "evaluator_calls_increment": 1,
+  "evaluator_seconds_cumulative": 41391.90328996023,
+  "evaluator_seconds_increment": 251.71420879196376,
+  "event": "proposal_completed",
+  "evicted_candidate_id": null,
+  "evidence": "The verified 1,580-parameter design achieves 99.89% accuracy with four `ln2` scales already fixed at one, while the analogous normalized-input gauge removed one `fc1` weight per row and previously retained 99.93%; this makes one more pre-MLP scale constraint an independent, initialization-preserving reduction.",
+  "hypothesis": "Fixing a fifth `ln2` scale at one will reduce the model to 1,579 parameters while retaining at least 99% accuracy, because the following learned `fc1` weights can absorb that coordinate\u2019s scale and the initialization remains functionally and RNG-identical.",
+  "incumbent_after": "de1e104447845422b02e0220b9e106530ea1ca86ecfd80b038b17cd6a5255cc4",
+  "intended_edit": "Store three rather than four learned `BiasAnchoredLayerNorm` scales and reconstruct its final five scales as ones.",
+  "mechanism": "Pre-MLP LayerNorm scale absorption",
+  "opportunity": 93,
+  "parent_ids": [
+    "de1e104447845422b02e0220b9e106530ea1ca86ecfd80b038b17cd6a5255cc4"
+  ],
+  "portfolio_after": [
+    "de1e104447845422b02e0220b9e106530ea1ca86ecfd80b038b17cd6a5255cc4"
+  ],
+  "prompt_hashes": {
+    "common_template_sha256": "3f2bea6418b6969c4bf2aa1df18dcda8a3a4ac075bf20c79068c754698b6be5e",
+    "prompt_sha256": "89a6586c33372daf856d1bec3a48c9264151503c6a46b8aa49497323451e898d",
+    "proposal_policy_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "search_state_sha256": "04e5eb078ae1964e4ec65bfeeeb1acd0ffa246e7d54d5e0f997f81f602da28c5",
+    "treatment_skeleton_sha256": "69339e3b44671605f77cd354bdc544a4b02bf686e1bb748f4793991c9d27d8ad"
+  },
+  "proposal_type": "ordinary",
+  "proposals_cumulative": 93,
+  "remaining_budget": {
+    "evaluations": 107,
+    "evaluator_seconds": 318608.09671003977,
+    "proposals": 107,
+    "tokens": 97647715
+  },
+  "retained": false,
+  "retention_decision": "invalid",
+  "run_id": "controlled-openevolve-transformer-v2-1-source-only-ten-digit-addition-pair-transformer-openevolve-v2-1-mps-openevolve-b02-c0",
+  "schema_version": "1.0",
+  "selected_parent_ids": [
+    "de1e104447845422b02e0220b9e106530ea1ca86ecfd80b038b17cd6a5255cc4"
+  ],
+  "timestamp": "2026-08-26T01:27:46.324489+00:00",
+  "usage_cumulative": {
+    "cached_input_tokens": 929024,
+    "input_tokens": 2118415,
+    "output_tokens": 233870,
+    "reasoning_output_tokens": 178292,
+    "total_tokens": 2352285
+  },
+  "usage_increment": {
+    "cached_input_tokens": 12032,
+    "input_tokens": 24916,
+    "output_tokens": 4414,
+    "reasoning_output_tokens": 3999,
+    "total_tokens": 29330
+  },
+  "visible_candidate_ids": [
+    "de1e104447845422b02e0220b9e106530ea1ca86ecfd80b038b17cd6a5255cc4"
+  ]
+}

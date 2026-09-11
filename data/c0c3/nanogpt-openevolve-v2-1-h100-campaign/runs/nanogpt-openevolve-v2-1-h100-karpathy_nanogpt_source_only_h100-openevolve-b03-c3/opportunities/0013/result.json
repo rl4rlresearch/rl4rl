@@ -1,0 +1,88 @@
+{
+  "artifact_path": "candidates/546547ccdafdd5df8bd45df5adfa945dda16c55898258a152a58cdd5087e65f0",
+  "candidate_id": "546547ccdafdd5df8bd45df5adfa945dda16c55898258a152a58cdd5087e65f0",
+  "codex_service_tier": "fast",
+  "condition": "C3",
+  "conversation_session_id": null,
+  "evaluation": {
+    "evaluator_calls": 1,
+    "evaluator_seconds": 367.6866747739996,
+    "failure_kind": null,
+    "fitness": -0.995123,
+    "metrics": {
+      "depth": 8.0,
+      "mfu_percent": 37.63,
+      "num_params_M": 50.3,
+      "num_steps": 902.0,
+      "peak_vram_mb": 47140.2,
+      "total_tokens_M": 472.9,
+      "training_seconds": 300.3,
+      "val_bpb": 0.995123
+    },
+    "valid": true
+  },
+  "evaluator_calls_cumulative": 13,
+  "evaluator_calls_increment": 1,
+  "evaluator_seconds_cumulative": 4852.150812364997,
+  "evaluator_seconds_increment": 367.6866747739996,
+  "event": "proposal_completed",
+  "evicted_candidate_id": null,
+  "evidence": "Shared first-slice gating achieved 0.993637, while full-state conditioning regressed to 0.998184 and globally stratified conditioning reached 0.994195; this motivates distributing gate inputs across the state while avoiding cross-head global mixing.",
+  "hypothesis": "Conditioning each attention-output gate exclusively on 32 channels from its corresponding head will lower val_bpb below 0.993637 while retaining roughly 480M trained tokens.",
+  "incumbent_after": "dc725a877809c8c9b98a82241aae181de0c7f1b656d987c1c5f1a6364c0eeb4a",
+  "intended_edit": "Reuse the existing gate weights and compute each head\u2019s gate from its own normalized hidden-state slice instead of applying a dense gate to the shared first 32 channels.",
+  "mechanism": "Head-aligned local attention-output gating",
+  "opportunity": 13,
+  "parent_ids": [
+    "dc725a877809c8c9b98a82241aae181de0c7f1b656d987c1c5f1a6364c0eeb4a"
+  ],
+  "portfolio_after": [
+    "2865e528e18dc51191e4037eaeb5824cb0ea83ede79061b59b8f3caac686da6b",
+    "3d0984c417edfa34c39b8016244d3bbf5f1d7050ef6de35c69d1dd306e084003",
+    "8a7abbbdbcb3eea231a8f338ee7439c753ca5e85b508425a326e8294c6d6d8f9",
+    "dc725a877809c8c9b98a82241aae181de0c7f1b656d987c1c5f1a6364c0eeb4a"
+  ],
+  "prompt_hashes": {
+    "common_template_sha256": "ba85b39aa7288f4f48475376da6cff65661f39cfeb7ac7cde15b2a9a2e692fde",
+    "prompt_sha256": "1dece9624f8f827378c3801cf4ef5ab190d4592ab75a0417db47446c6df38321",
+    "proposal_policy_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "search_state_sha256": "c938ac007bf70fe8d27f64661175531e51fcb16b38318c328493c32ee292e27e",
+    "treatment_skeleton_sha256": "c2ef729e1a62f88dff535611fd7dd2cb1833dcae9c921520dc013868c77284ce"
+  },
+  "proposal_type": "ordinary",
+  "proposals_cumulative": 13,
+  "remaining_budget": {
+    "evaluations": 187,
+    "evaluator_seconds": 715147.849187635,
+    "proposals": 187,
+    "tokens": 99420052
+  },
+  "retained": false,
+  "retention_decision": "not_strictly_better_than_selected_parent",
+  "run_id": "nanogpt-openevolve-v2-1-h100-karpathy_nanogpt_source_only_h100-openevolve-b03-c3",
+  "schema_version": "1.0",
+  "selected_parent_ids": [
+    "dc725a877809c8c9b98a82241aae181de0c7f1b656d987c1c5f1a6364c0eeb4a"
+  ],
+  "timestamp": "2026-08-23T21:16:46.330358+00:00",
+  "usage_cumulative": {
+    "cached_input_tokens": 184064,
+    "input_tokens": 551648,
+    "output_tokens": 28300,
+    "reasoning_output_tokens": 24136,
+    "total_tokens": 579948
+  },
+  "usage_increment": {
+    "cached_input_tokens": 12032,
+    "input_tokens": 47032,
+    "output_tokens": 3430,
+    "reasoning_output_tokens": 3106,
+    "total_tokens": 50462
+  },
+  "visible_candidate_ids": [
+    "2865e528e18dc51191e4037eaeb5824cb0ea83ede79061b59b8f3caac686da6b",
+    "3d0984c417edfa34c39b8016244d3bbf5f1d7050ef6de35c69d1dd306e084003",
+    "8a7abbbdbcb3eea231a8f338ee7439c753ca5e85b508425a326e8294c6d6d8f9",
+    "dc725a877809c8c9b98a82241aae181de0c7f1b656d987c1c5f1a6364c0eeb4a"
+  ]
+}

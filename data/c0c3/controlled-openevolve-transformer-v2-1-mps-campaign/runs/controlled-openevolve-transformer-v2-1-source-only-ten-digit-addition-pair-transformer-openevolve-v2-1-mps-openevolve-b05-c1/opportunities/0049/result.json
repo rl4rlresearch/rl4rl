@@ -1,0 +1,79 @@
+{
+  "artifact_path": "candidates/d933ebd57cf1b03fc1d2803cc2f7777995dce8f4bd52d6e42368dd257c66d788",
+  "candidate_id": "d933ebd57cf1b03fc1d2803cc2f7777995dce8f4bd52d6e42368dd257c66d788",
+  "codex_service_tier": "default",
+  "condition": "C1",
+  "conversation_session_id": null,
+  "evaluation": {
+    "evaluator_calls": 1,
+    "evaluator_seconds": 1527.482082542032,
+    "failure_kind": null,
+    "fitness": -1372.0,
+    "metrics": {
+      "accuracy": 1.0,
+      "cases": 10010,
+      "correct": 10010,
+      "parameters": 1372,
+      "training_steps": 49999
+    },
+    "valid": true
+  },
+  "evaluator_calls_cumulative": 49,
+  "evaluator_calls_increment": 1,
+  "evaluator_seconds_cumulative": 56527.58623004507,
+  "evaluator_seconds_increment": 1527.482082542032,
+  "event": "proposal_completed",
+  "evicted_candidate_id": "c3a41fb73e2308c443afad1f8091b2848fc2466d1faeec80b346f57605b68a97",
+  "evidence": "The 1,373-parameter model achieved 100% accuracy after reusing the MLP output-bias mean as its hidden bias, and the 1,376-parameter model achieved 100% after reusing the attention output-bias mean as its query offset; sharing one coordinate across these proven learned-bias mechanisms is the smallest direct next reduction.",
+  "hypothesis": "Sharing one MLP output-bias coordinate with the learned attention query offset will reduce the model from 1,373 to 1,372 parameters while retaining at least 99% accuracy within 50,000 steps, because both successful 1,373- and 1,376-parameter designs already use bias coordinates for multiple roles without changing their zero initialization.",
+  "incumbent_after": "d933ebd57cf1b03fc1d2803cc2f7777995dce8f4bd52d6e42368dd257c66d788",
+  "intended_edit": "Replace the seven-parameter `fc2` bias with six dedicated coordinates plus the attention projection-bias mean as the seventh coordinate, while preserving the same seven-coordinate MLP output, derived hidden bias, and optimized `F.linear` computation.",
+  "mechanism": "Cross-branch bias-coordinate sharing",
+  "opportunity": 49,
+  "parent_ids": [
+    "c3a41fb73e2308c443afad1f8091b2848fc2466d1faeec80b346f57605b68a97"
+  ],
+  "portfolio_after": [
+    "d933ebd57cf1b03fc1d2803cc2f7777995dce8f4bd52d6e42368dd257c66d788"
+  ],
+  "prompt_hashes": {
+    "common_template_sha256": "3f2bea6418b6969c4bf2aa1df18dcda8a3a4ac075bf20c79068c754698b6be5e",
+    "prompt_sha256": "7673998403c1dc8151d2d34aca6c734f9f0398da2e1c2fe042f2f49447284053",
+    "proposal_policy_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "search_state_sha256": "04e5eb078ae1964e4ec65bfeeeb1acd0ffa246e7d54d5e0f997f81f602da28c5",
+    "treatment_skeleton_sha256": "79acdaa7bc0adb63b94fbbc31adbfb53cc0abb7c3a8ea1ba1e4ca2de7e6826d8"
+  },
+  "proposal_type": "ordinary",
+  "proposals_cumulative": 49,
+  "remaining_budget": {
+    "evaluations": 151,
+    "evaluator_seconds": 303472.41376995493,
+    "proposals": 151,
+    "tokens": 98811602
+  },
+  "retained": true,
+  "retention_decision": "strict_incumbent_improvement",
+  "run_id": "controlled-openevolve-transformer-v2-1-source-only-ten-digit-addition-pair-transformer-openevolve-v2-1-mps-openevolve-b05-c1",
+  "schema_version": "1.0",
+  "selected_parent_ids": [
+    "c3a41fb73e2308c443afad1f8091b2848fc2466d1faeec80b346f57605b68a97"
+  ],
+  "timestamp": "2026-08-25T04:45:52.396107+00:00",
+  "usage_cumulative": {
+    "cached_input_tokens": 552960,
+    "input_tokens": 1021379,
+    "output_tokens": 167019,
+    "reasoning_output_tokens": 146601,
+    "total_tokens": 1188398
+  },
+  "usage_increment": {
+    "cached_input_tokens": 12032,
+    "input_tokens": 21197,
+    "output_tokens": 2213,
+    "reasoning_output_tokens": 1552,
+    "total_tokens": 23410
+  },
+  "visible_candidate_ids": [
+    "c3a41fb73e2308c443afad1f8091b2848fc2466d1faeec80b346f57605b68a97"
+  ]
+}

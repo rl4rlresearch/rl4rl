@@ -1,0 +1,99 @@
+{
+  "artifact_path": "candidates/ebcd32b048f4422d432e7b69b2adad64fdb49cb08496c410c7be65a44e783c62",
+  "candidate_id": "ebcd32b048f4422d432e7b69b2adad64fdb49cb08496c410c7be65a44e783c62",
+  "codex_service_tier": "default",
+  "condition": "C1",
+  "conversation_session_id": null,
+  "evaluation": {
+    "evaluator_calls": 1,
+    "evaluator_seconds": 98.2591784580145,
+    "failure_kind": "nonqualification",
+    "fitness": null,
+    "metrics": {
+      "batch_size": 128,
+      "evaluation_cases": 815,
+      "evaluation_split": "public_speaker_disjoint_validation",
+      "examples_processed": 50000,
+      "inference_cost": 3366611564273013929,
+      "maximum_recurrent_steps": 29,
+      "mean_recurrent_steps": 29.0,
+      "median_recurrent_steps": 29,
+      "optimizer_steps": 397,
+      "p95_recurrent_steps": 29,
+      "parameters": 28989,
+      "peak_hidden_elements": 122368,
+      "recurrent_logit_effect": 0.048283882439136505,
+      "recurrent_macs": 644644625,
+      "recurrent_steps": 23635,
+      "state_dependence_effect": 0.2946595549583435,
+      "state_update_effect": 0.30191928148269653,
+      "total_inference_macs": 645420505,
+      "trained_recurrent_logit_effect": 0.7714201211929321,
+      "trained_state_dependence_effect": 0.3749922513961792,
+      "trained_state_update_effect": 0.38482439517974854,
+      "training_seconds": 78.76660037506372,
+      "validation_accuracy": 0.841717791411043,
+      "validation_correct": 686,
+      "validation_cross_entropy": 0.4927171110375527
+    },
+    "valid": false
+  },
+  "evaluator_calls_cumulative": 22,
+  "evaluator_calls_increment": 1,
+  "evaluator_seconds_cumulative": 2736.410529125016,
+  "evaluator_seconds_increment": 98.2591784580145,
+  "event": "proposal_completed",
+  "evicted_candidate_id": null,
+  "evidence": "The 60+59 model over frames 3\u201331 achieved 85.03%, while reducing hidden width to 59+59 failed at 84.29%; this motivates reducing input-side matrix rank without removing recurrent state capacity or additional temporal evidence.",
+  "hypothesis": "Compressing each normalized 20-band frame to 16 learned features while preserving the verified 60+59 hidden capacity and 29-step schedule will retain at least 85% validation accuracy and reduce total inference MACs below 646 million.",
+  "incumbent_after": "ac21c3198549f046b2738837fd9f39d002d3990f83bba5f6c0a5bf7a4b3dd98f",
+  "intended_edit": "Add a shared bias-free 20-to-16 linear projection and change both GRUs to consume its output, leaving recurrent width, pooling, classifier, training, and frame schedule unchanged.",
+  "mechanism": "Learned low-rank mel input projection",
+  "opportunity": 22,
+  "parent_ids": [
+    "ac21c3198549f046b2738837fd9f39d002d3990f83bba5f6c0a5bf7a4b3dd98f"
+  ],
+  "portfolio_after": [
+    "ac21c3198549f046b2738837fd9f39d002d3990f83bba5f6c0a5bf7a4b3dd98f"
+  ],
+  "prompt_hashes": {
+    "common_template_sha256": "dee04faf4c430276c1036ba97f5705a339857dbdf19117dac88952a5a3a47e9d",
+    "prompt_sha256": "52f6d8657a57d05a3a7f4c97a180059328a3606e05aa20a410f98f357c1491e5",
+    "proposal_policy_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "search_state_sha256": "04e5eb078ae1964e4ec65bfeeeb1acd0ffa246e7d54d5e0f997f81f602da28c5",
+    "treatment_skeleton_sha256": "2cea3280c8615f94d19b6097aae186c73a6810d110568c899c620483fee1ade5"
+  },
+  "proposal_type": "ordinary",
+  "proposals_cumulative": 22,
+  "remaining_budget": {
+    "evaluations": 178,
+    "evaluator_seconds": 57263.589470874984,
+    "proposals": 178,
+    "tokens": 99531826
+  },
+  "retained": false,
+  "retention_decision": "invalid",
+  "run_id": "tiny-kws-rnn-openevolve-v2-1-cpu-tiny_kws_rnn_source_only_cpu-openevolve-b02-c1",
+  "schema_version": "1.0",
+  "selected_parent_ids": [
+    "ac21c3198549f046b2738837fd9f39d002d3990f83bba5f6c0a5bf7a4b3dd98f"
+  ],
+  "timestamp": "2026-09-04T03:57:49.108385+00:00",
+  "usage_cumulative": {
+    "cached_input_tokens": 236544,
+    "input_tokens": 416955,
+    "output_tokens": 51219,
+    "reasoning_output_tokens": 41216,
+    "total_tokens": 468174
+  },
+  "usage_increment": {
+    "cached_input_tokens": 10752,
+    "input_tokens": 20155,
+    "output_tokens": 3506,
+    "reasoning_output_tokens": 3106,
+    "total_tokens": 23661
+  },
+  "visible_candidate_ids": [
+    "ac21c3198549f046b2738837fd9f39d002d3990f83bba5f6c0a5bf7a4b3dd98f"
+  ]
+}

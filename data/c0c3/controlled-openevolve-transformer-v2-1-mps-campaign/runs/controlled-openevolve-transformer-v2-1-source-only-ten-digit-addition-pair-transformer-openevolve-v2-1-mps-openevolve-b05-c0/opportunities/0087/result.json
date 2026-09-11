@@ -1,0 +1,79 @@
+{
+  "artifact_path": "candidates/5842fd76b6b4f34f10de3fcc9a1ae26827d5c5b9b04d5f1a7c57c9bb76f541fc",
+  "candidate_id": "5842fd76b6b4f34f10de3fcc9a1ae26827d5c5b9b04d5f1a7c57c9bb76f541fc",
+  "codex_service_tier": "default",
+  "condition": "C0",
+  "conversation_session_id": null,
+  "evaluation": {
+    "evaluator_calls": 1,
+    "evaluator_seconds": 589.5475940420292,
+    "failure_kind": "nonqualification",
+    "fitness": null,
+    "metrics": {
+      "accuracy": 0.5781000000000001,
+      "cases": 10010,
+      "correct": 5787,
+      "parameters": 1606,
+      "training_steps": 4999
+    },
+    "valid": false
+  },
+  "evaluator_calls_cumulative": 86,
+  "evaluator_calls_increment": 1,
+  "evaluator_seconds_cumulative": 47630.24364382855,
+  "evaluator_seconds_increment": 589.5475940420292,
+  "event": "proposal_completed",
+  "evicted_candidate_id": null,
+  "evidence": "The 1607-parameter model achieved 99.97% accuracy while fixing three LayerNorm-2 scale coordinates, and the cited coordinate-1 LayerNorm-scale reduction independently reached 99.81%; coordinate 2 also has zero fixed bias, making it the cleanest remaining multiplicative downstream gauge.",
+  "hypothesis": "Fixing LayerNorm-2 scale coordinate 2 will reduce the model from 1607 to 1606 parameters while retaining at least 99% accuracy, because its bias is already fixed at zero and its scale can be absorbed exactly into the corresponding `fc1` input column.",
+  "incumbent_after": "f32aaca27b8dd993b5e7fa1c51132bbda41dee3c83365c761f0fee772267fcbf",
+  "intended_edit": "Remove LayerNorm-2 scale coordinate 2 and reconstruct it as one, extending the existing fixed scale set from coordinates 0, 1, and 4 to 0, 1, 2, and 4.",
+  "mechanism": "Fourth downstream-absorbable LayerNorm-scale gauge",
+  "opportunity": 87,
+  "parent_ids": [
+    "f32aaca27b8dd993b5e7fa1c51132bbda41dee3c83365c761f0fee772267fcbf"
+  ],
+  "portfolio_after": [
+    "f32aaca27b8dd993b5e7fa1c51132bbda41dee3c83365c761f0fee772267fcbf"
+  ],
+  "prompt_hashes": {
+    "common_template_sha256": "3f2bea6418b6969c4bf2aa1df18dcda8a3a4ac075bf20c79068c754698b6be5e",
+    "prompt_sha256": "2ac188293e820ab71343f042f553568f66d8697c720be497f471acc83009fe9e",
+    "proposal_policy_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "search_state_sha256": "04e5eb078ae1964e4ec65bfeeeb1acd0ffa246e7d54d5e0f997f81f602da28c5",
+    "treatment_skeleton_sha256": "55392811a6c8124434da56926d344643990cb5e4a9fa05ab4b30ae0a14668bd0"
+  },
+  "proposal_type": "ordinary",
+  "proposals_cumulative": 87,
+  "remaining_budget": {
+    "evaluations": 114,
+    "evaluator_seconds": 312369.75635617145,
+    "proposals": 113,
+    "tokens": 97475844
+  },
+  "retained": false,
+  "retention_decision": "invalid",
+  "run_id": "controlled-openevolve-transformer-v2-1-source-only-ten-digit-addition-pair-transformer-openevolve-v2-1-mps-openevolve-b05-c0",
+  "schema_version": "1.0",
+  "selected_parent_ids": [
+    "f32aaca27b8dd993b5e7fa1c51132bbda41dee3c83365c761f0fee772267fcbf"
+  ],
+  "timestamp": "2026-09-03T10:06:40.312964+00:00",
+  "usage_cumulative": {
+    "cached_input_tokens": 914688,
+    "input_tokens": 2139728,
+    "output_tokens": 384428,
+    "reasoning_output_tokens": 297100,
+    "total_tokens": 2524156
+  },
+  "usage_increment": {
+    "cached_input_tokens": 10752,
+    "input_tokens": 30054,
+    "output_tokens": 5270,
+    "reasoning_output_tokens": 4660,
+    "total_tokens": 35324
+  },
+  "visible_candidate_ids": [
+    "f32aaca27b8dd993b5e7fa1c51132bbda41dee3c83365c761f0fee772267fcbf"
+  ]
+}

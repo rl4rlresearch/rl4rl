@@ -1,0 +1,79 @@
+{
+  "artifact_path": "candidates/b4a37d58b315598e982509f03c42dd0de26043c1245617da10a8723e7a92dada",
+  "candidate_id": "b4a37d58b315598e982509f03c42dd0de26043c1245617da10a8723e7a92dada",
+  "codex_service_tier": "fast",
+  "condition": "C0",
+  "conversation_session_id": null,
+  "evaluation": {
+    "evaluator_calls": 1,
+    "evaluator_seconds": 366.6475777910091,
+    "failure_kind": "nonqualification",
+    "fitness": null,
+    "metrics": {
+      "accuracy": 0.2797,
+      "cases": 10010,
+      "correct": 2800,
+      "parameters": 1627,
+      "training_steps": 4999
+    },
+    "valid": false
+  },
+  "evaluator_calls_cumulative": 12,
+  "evaluator_calls_increment": 1,
+  "evaluator_seconds_cumulative": 3021.090564874932,
+  "evaluator_seconds_increment": 366.6475777910091,
+  "event": "proposal_completed",
+  "evicted_candidate_id": null,
+  "evidence": "Sharing all eight `ln2` coordinates with `fc1.bias` scored 15.44%, while deleting all eight scored 14.87%; the successful attention-bias tie shows pathway-preserving sharing can work, so a one-coordinate tie tests whether the earlier failure came from imposing eight coupled constraints at once.",
+  "hypothesis": "Sharing one `ln2` bias coordinate with one `fc1` bias coordinate will reduce the model from 1628 to 1627 parameters while retaining at least 99% accuracy, because both biases affect only the same pre-GELU activations, the remaining seven LayerNorm bias coordinates stay independent, and both gradient pathways remain active.",
+  "incumbent_after": "ade72cf1d02e97b76dbd2f5fa1ee53d63a77cbe0a373f323c143e054f9851e05",
+  "intended_edit": "Replace `ln2` with a LayerNorm whose final bias coordinate reuses `mlp.fc1.bias[0]`, eliminating one learned scalar without narrowing the model.",
+  "mechanism": "Single-coordinate pre-MLP bias sharing",
+  "opportunity": 12,
+  "parent_ids": [
+    "ade72cf1d02e97b76dbd2f5fa1ee53d63a77cbe0a373f323c143e054f9851e05"
+  ],
+  "portfolio_after": [
+    "ade72cf1d02e97b76dbd2f5fa1ee53d63a77cbe0a373f323c143e054f9851e05"
+  ],
+  "prompt_hashes": {
+    "common_template_sha256": "3f2bea6418b6969c4bf2aa1df18dcda8a3a4ac075bf20c79068c754698b6be5e",
+    "prompt_sha256": "558b4f57260ab17fd91ee2946cd41532886741f8a2f7abaf3c32f6ec77cbfedf",
+    "proposal_policy_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "search_state_sha256": "04e5eb078ae1964e4ec65bfeeeb1acd0ffa246e7d54d5e0f997f81f602da28c5",
+    "treatment_skeleton_sha256": "6c4d62ad01b0b3bd6c81c442ee164703ac653b4597f4b7e48ed353f2e1d67f04"
+  },
+  "proposal_type": "ordinary",
+  "proposals_cumulative": 12,
+  "remaining_budget": {
+    "evaluations": 188,
+    "evaluator_seconds": 356978.90943512507,
+    "proposals": 188,
+    "tokens": 99727591
+  },
+  "retained": false,
+  "retention_decision": "invalid",
+  "run_id": "controlled-openevolve-transformer-v2-1-source-only-ten-digit-addition-pair-transformer-openevolve-v2-1-mps-openevolve-b04-c0",
+  "schema_version": "1.0",
+  "selected_parent_ids": [
+    "ade72cf1d02e97b76dbd2f5fa1ee53d63a77cbe0a373f323c143e054f9851e05"
+  ],
+  "timestamp": "2026-08-23T14:11:32.575634+00:00",
+  "usage_cumulative": {
+    "cached_input_tokens": 121088,
+    "input_tokens": 237527,
+    "output_tokens": 34882,
+    "reasoning_output_tokens": 29453,
+    "total_tokens": 272409
+  },
+  "usage_increment": {
+    "cached_input_tokens": 9984,
+    "input_tokens": 20975,
+    "output_tokens": 3739,
+    "reasoning_output_tokens": 3106,
+    "total_tokens": 24714
+  },
+  "visible_candidate_ids": [
+    "ade72cf1d02e97b76dbd2f5fa1ee53d63a77cbe0a373f323c143e054f9851e05"
+  ]
+}

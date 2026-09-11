@@ -1,0 +1,185 @@
+# Optimize a transformer for 10-digit addition
+
+You are an autonomous ML engineer improving the source code for an
+autoregressive transformer that adds two 10-digit numbers.
+
+## Goal
+
+Minimize the actual number of deduplicated learned model parameters while
+maintaining at least 99% accuracy under the fixed verification process. A
+smaller implementation is useful only when it meets that accuracy requirement.
+Every submitted implementation is trained from a fresh initialization.
+
+## Learned-model requirement
+
+Produce a smaller trained autoregressive transformer, not a hand-coded addition
+program. The submitted implementation must:
+
+- have nonzero trainable parameters;
+- contain and use at least one learned causal self-attention module;
+- map token inputs to token logits through the learned model;
+- train from a fresh initialization during verification;
+- write both `checkpoints/best.pt` and a positive-step `checkpoints/last.pt`;
+- keep source code unchanged while training; and
+- use the protected generic decoding interface exactly as supplied.
+
+Do not implement or embed decimal arithmetic, carry propagation, place-value
+rules, digit lookup tables, finite-state addition transitions, fixed answer
+rules, or input-dependent Python logic that directly computes the sum. Do not
+hide such a solver in model generation, token processing, training, or saved
+weights. Do not add dummy or zero-length parameters to disguise a fixed
+algorithm as a learned model.
+
+Do not modify protected files. Do not perform post-training state-dictionary
+surgery, substitute a different saved model, truncate weights after training,
+or report a parameter count that differs from the submitted model.
+
+## Work boundaries
+
+Minimize parameters. Required result: accuracy >= 0.99.
+Editable source files: src/model.py, src/train.py.
+Results reported after each verification: accuracy, parameters, training_steps.
+
+Propose changes through exact SEARCH/REPLACE blocks. The patching interface applies them to the supplied editable source.
+
+The editable source and any reference source are included below. Do not access
+parent directories, home directories, shared temporary directories, global
+session history, online sources, or any surrounding repository. Do not run
+training or verification yourself and do not generate hidden alternatives.
+Return one patch for one implementation; verification happens after you finish.
+
+## Available designs
+
+The current editable design is provided. No reference design is available.
+
+CURRENT DESIGN
+verified_results: {"accuracy": 0.9937, "parameters": 1604, "training_steps": 4999}
+prior_hypothesis: Removing the eight zero-initialized attention output-projection bias parameters will reduce the model from 1,612 to 1,604 parameters while retaining at least 99% accuracy, because the retained value bias can supply a position-independent vector through the output projection.
+
+## Recent verification evidence
+
+RECENT RESULT
+hypothesis: Removing only the key-projection bias will reduce parameters from 1,644 to 1,636 while retaining at least 99% accuracy because a position-independent key bias adds the same constant to every unmasked attention score and therefore cannot change softmax attention weights.
+change: Replace the combined QKV bias with learned query and value biases, preserving the full d_ff=12 architecture while eliminating the redundant eight-parameter key bias.
+mechanism: Remove softmax-invariant key bias
+evidence_used: The 1,644-parameter d_ff=12 model achieved 99.96% accuracy, whereas narrowing d_ff to 8 reduced accuracy to 71%; this motivates preserving feed-forward capacity and removing a mathematically redundant attention parameter instead.
+result: did not meet the accuracy requirement
+reported_values: {"accuracy": 0.9593, "parameters": 1636, "training_steps": 4999}
+
+RECENT RESULT
+hypothesis: Reducing `d_ff` from 12 to 11 will lower parameters from 1,644 to 1,627 while retaining at least 99% accuracy.
+change: Remove one feed-forward hidden unit while preserving the attention architecture and training procedure.
+mechanism: Single-neuron feed-forward narrowing
+evidence_used: The `d_ff=12` baseline reached 99.96%, while the larger reduction to `d_ff=8` fell to 71%; testing the smallest possible width reduction is the most informative next capacity-boundary experiment.
+result: did not meet the accuracy requirement
+reported_values: {"accuracy": 0.7413, "parameters": 1627, "training_steps": 4999}
+
+RECENT RESULT
+hypothesis: Removing the eight key-bias parameters while preserving the baseline constructor RNG stream and parameter ordering will retain at least 99% accuracy with 1,636 parameters.
+change: Retain the combined QKV weight, replace its 24-element bias with 16 learned query/value biases, and apply those biases explicitly.
+mechanism: RNG-aligned removal of softmax-invariant key bias
+evidence_used: The 1,644-parameter baseline reached 99.96%; the prior key-bias removal reached 95.93% despite key bias being mathematically irrelevant, motivating an initialization-aligned implementation that isolates the parameter removal from an RNG-trajectory change.
+result: met the accuracy requirement and became an available design
+reported_values: {"accuracy": 0.9909, "parameters": 1636, "training_steps": 4999}
+
+RECENT RESULT
+hypothesis: Disabling the second LayerNorm bias will reduce parameters from 1,636 to 1,628 while retaining at least 99% accuracy, because the following `fc1` bias can represent the same pre-GELU offset.
+change: Construct `ln2` without a learned bias while preserving its learned scale, the full `d_ff=12` capacity, initialization RNG stream, and training procedure.
+mechanism: Remove affine redundancy before the MLP
+evidence_used: The 1,636-parameter RNG-aligned design achieved 99.09%, while reducing feed-forward width to 11 or 8 failed badly; this motivates removing an exactly absorbable affine parameter instead of reducing MLP capacity.
+result: met the accuracy requirement and became an available design
+reported_values: {"accuracy": 0.9976999999999999, "parameters": 1628, "training_steps": 4999}
+
+RECENT RESULT
+hypothesis: Removing the eight value-projection bias parameters will reduce the model from 1,628 to 1,620 parameters while retaining at least 99% accuracy, because attention weights sum to one and therefore the value bias contributes a position-independent vector that the following output-projection bias can represent exactly.
+change: Retain only the learned query bias in the RNG-aligned combined QKV module and stop adding a separate value bias.
+mechanism: Remove output-bias-redundant value bias
+evidence_used: The current RNG-aligned 1,628-parameter design achieved 99.77% accuracy, and the successful LayerNorm-bias removal shows that eliminating exactly absorbable affine parameters can preserve accuracy without narrowing the capacity-critical feed-forward network.
+result: did not meet the accuracy requirement
+reported_values: {"accuracy": 0.3085, "parameters": 1620, "training_steps": 4999}
+
+RECENT RESULT
+hypothesis: Disabling the first LayerNorm bias will reduce parameters from 1,628 to 1,620 while retaining at least 99% accuracy, because its query and value offsets can be represented by the existing Q/V biases while its key offset is softmax-invariant.
+change: Construct `ln1` without a learned bias while preserving its learned scale, attention dimensions, Q/V biases, feed-forward capacity, initialization, and training procedure.
+mechanism: Remove attention-input affine redundancy
+evidence_used: Removing the analogous `ln2` bias improved the available design to 1,628 parameters with 99.77% accuracy; unlike the failed value-bias removal, this edit preserves the attention biases that appear important for optimization.
+result: did not meet the accuracy requirement
+reported_values: {"accuracy": 0.7582, "parameters": 1620, "training_steps": 4999}
+
+RECENT RESULT
+hypothesis: Removing the eight learned `ln2` scale parameters will reduce the model from 1,628 to 1,620 parameters while retaining at least 99% accuracy, because with no `ln2` bias its elementwise scale can be represented exactly by rescaling the columns of `fc1.weight`.
+change: Disable all affine parameters in `ln2` while preserving the full `d_ff=12` MLP, attention architecture, initialization RNG stream, and training procedure.
+mechanism: Absorb pre-MLP normalization scale into the first linear projection
+evidence_used: The current 1,628-parameter model reached 99.77% after successfully removing `ln2` bias, while reducing feed-forward width failed badly; removing the remaining mathematically absorbable `ln2` scale tests a redundant parameterization without reducing MLP width.
+result: met the accuracy requirement and became an available design
+reported_values: {"accuracy": 0.9995999999999999, "parameters": 1620, "training_steps": 4999}
+
+RECENT RESULT
+hypothesis: Removing the eight learned `ln1` scale parameters while retaining a learned `ln1` bias will reduce the model from 1,620 to 1,612 parameters and preserve at least 99% accuracy.
+change: Make `ln1` non-affine, add a standalone learned bias, and apply that bias before causal self-attention.
+mechanism: Absorb pre-attention normalization scale into attention projections
+evidence_used: Removing the absorbable `ln2` scale retained 99.96% accuracy, while removing `ln1` bias fell to 75.82%; this tests the analogous absorbable scale without discarding the optimization-critical bias.
+result: met the accuracy requirement and became an available design
+reported_values: {"accuracy": 0.9995999999999999, "parameters": 1612, "training_steps": 4999}
+
+RECENT RESULT
+hypothesis: The model does not require a separate key subspace for each attention head: sharing one learned 4-dimensional key projection while retaining head-specific queries and values will reduce parameters from 1,612 to 1,580 and maintain at least 99% accuracy.
+change: Replace the 24-row QKV weight with compact query, shared-key, and value projections; broadcast the shared keys across heads; and preserve the original initialization RNG stream.
+mechanism: RNG-aligned shared-key multi-head attention
+evidence_used: Narrowing the feed-forward network caused severe accuracy loss, while the current full-width model reached 99.96%. The key-bias experiments also showed initialization alignment matters, motivating a different attention mechanism that preserves MLP capacity, query/value diversity, and downstream initialization.
+result: did not meet the accuracy requirement
+reported_values: {"accuracy": 0.36450000000000005, "parameters": 1580, "training_steps": 4999}
+
+RECENT RESULT
+hypothesis: Removing the eight zero-initialized attention output-projection bias parameters will reduce the model from 1,612 to 1,604 parameters while retaining at least 99% accuracy, because the retained value bias can supply a position-independent vector through the output projection.
+change: Construct the attention output projection normally to preserve initialization ordering, then remove only its learned bias.
+mechanism: Remove value-bias-representable attention output bias
+evidence_used: The 1,612-parameter model achieved 99.96% accuracy. Although removing value bias failed, that result motivates preserving the optimization-critical value bias and testing the converse redundant parameter: the downstream projection bias.
+result: met the accuracy requirement and became an available design
+reported_values: {"accuracy": 0.9937, "parameters": 1604, "training_steps": 4999}
+
+RECENT RESULT
+hypothesis: Removing the explicit eight-parameter query bias will reduce the model from 1,604 to 1,596 parameters while retaining at least 99% accuracy, because the learned `ln1_bias` can produce query offsets through the query projection, the retained value bias can compensate its value-side effect, and its key-side effect is softmax-invariant.
+change: Retain only the value portion of the RNG-aligned QKV bias and stop adding a separate query bias.
+mechanism: Absorb query offset into the learned pre-attention bias
+evidence_used: The 1,604-parameter design achieved 99.37% accuracy; removing value bias collapsed accuracy to 30.85%, while removing `ln1` bias reached only 75.82%, motivating preservation of both and elimination of the query bias they can jointly represent.
+result: did not meet the accuracy requirement
+reported_values: {"accuracy": 0.9561, "parameters": 1596, "training_steps": 4999}
+
+RECENT RESULT
+hypothesis: Fixing one coordinate of the MLP output bias at zero will reduce the model from 1,604 to 1,603 parameters while retaining at least 99% accuracy, because any omitted bias vector is equivalent up to an all-coordinate shift erased by the final LayerNorm.
+change: Preserve the full 12-unit MLP and initialization ordering, but learn only seven `fc2` bias coordinates and pad the eighth with zero during the forward pass.
+mechanism: Final-LayerNorm bias gauge fixing
+evidence_used: The 1,604-parameter design achieved 99.37%, while removing an entire feed-forward unit caused severe accuracy loss; this removes only a one-dimensional LayerNorm-invariant redundancy without narrowing the capacity-critical MLP.
+result: did not meet the accuracy requirement
+reported_values: {"accuracy": 0.9823999999999999, "parameters": 1603, "training_steps": 4999}
+
+
+
+Use the available technical evidence to choose the most informative next
+change. Treat unsuccessful or malformed work as evidence when a useful
+subject-level reason is provided. Do not invent missing evidence.
+
+## Response
+
+Return these short metadata lines followed by one or more exact
+`SEARCH`/`REPLACE` blocks that together produce one implementation:
+
+`MECHANISM: <a concise free-form name for the computational idea>`
+
+`HYPOTHESIS: <a falsifiable claim grounded in the evidence above>`
+
+`INTENDED_EDIT: <what this patch changes>`
+
+`EVIDENCE: <the most relevant prior result and why it motivates this patch>`
+
+Start each block with `<<<<<<< SEARCH`, put the exact existing lines next, use a
+line containing `=======` as the divider, put the replacement lines after it,
+and finish the block with `>>>>>>> REPLACE`.
+
+Every `SEARCH` section must be nonempty and match exactly once after earlier
+blocks have been applied. All blocks must apply. They may edit either or both
+editable files, but together they must describe one implementation ready for
+verification. The mechanism name is descriptive, not chosen from a fixed list.
+Do not paste whole files, lengthy logs, or routine progress reports outside the
+patch.

@@ -1,0 +1,82 @@
+{
+  "artifact_path": "candidates/780217735e34c5f342a1350b96989bc0b2c045fc22f4236a63a912e8e115a52f",
+  "candidate_id": "780217735e34c5f342a1350b96989bc0b2c045fc22f4236a63a912e8e115a52f",
+  "codex_service_tier": "fast",
+  "condition": "C1",
+  "conversation_session_id": null,
+  "evaluation": {
+    "evaluator_calls": 1,
+    "evaluator_seconds": 373.0510566030007,
+    "failure_kind": null,
+    "fitness": -0.995511,
+    "metrics": {
+      "depth": 8.0,
+      "mfu_percent": 38.46,
+      "num_params_M": 50.3,
+      "num_steps": 921.0,
+      "peak_vram_mb": 45061.2,
+      "total_tokens_M": 482.9,
+      "training_seconds": 300.1,
+      "val_bpb": 0.995511
+    },
+    "valid": true
+  },
+  "evaluator_calls_cumulative": 10,
+  "evaluator_calls_increment": 1,
+  "evaluator_seconds_cumulative": 3697.7665707399974,
+  "evaluator_seconds_increment": 373.0510566030007,
+  "event": "proposal_completed",
+  "evicted_candidate_id": "2865e528e18dc51191e4037eaeb5824cb0ea83ede79061b59b8f3caac686da6b",
+  "evidence": "Grouped-query attention increased training volume to 511.7M tokens but worsened val_bpb to 0.999976, suggesting value-path expressivity is more important than another small throughput gain. This reuses the full-capacity value representation while leaving the successful attention topology unchanged.",
+  "hypothesis": "Adding a learned low-rank bigram expert from the final value embedding directly to the pre-logit state will reduce val_bpb below 0.995558 without materially reducing throughput.",
+  "incumbent_after": "780217735e34c5f342a1350b96989bc0b2c045fc22f4236a63a912e8e115a52f",
+  "intended_edit": "Challenge the assumption that prediction should depend solely on the fully transformed contextual stream; preserve the baseline transformer and blend its final token-value embedding into the readout using four learned per-head coefficients.",
+  "mechanism": "Per-head lexical-residual readout",
+  "opportunity": 10,
+  "parent_ids": [
+    "2865e528e18dc51191e4037eaeb5824cb0ea83ede79061b59b8f3caac686da6b"
+  ],
+  "portfolio_after": [
+    "780217735e34c5f342a1350b96989bc0b2c045fc22f4236a63a912e8e115a52f"
+  ],
+  "prompt_hashes": {
+    "common_template_sha256": "ba85b39aa7288f4f48475376da6cff65661f39cfeb7ac7cde15b2a9a2e692fde",
+    "prompt_sha256": "9f86b0f1a40e96239bcbe0c4b43f447f17e9a5fdd531ae7fb80082c622c86908",
+    "proposal_policy_sha256": "cd7b9ba20a1cd1edd0663b5e3652baa9cd3c81925074103fe47e66c021d61a4a",
+    "search_state_sha256": "04e5eb078ae1964e4ec65bfeeeb1acd0ffa246e7d54d5e0f997f81f602da28c5",
+    "treatment_skeleton_sha256": "8b01d1ad87f75a5fe5a3a0c3ecd5cf6812e992837543a7b55271d1190333212b"
+  },
+  "proposal_type": "assumption_changing",
+  "proposals_cumulative": 10,
+  "remaining_budget": {
+    "evaluations": 190,
+    "evaluator_seconds": 716302.23342926,
+    "proposals": 190,
+    "tokens": 99728342
+  },
+  "retained": true,
+  "retention_decision": "strict_incumbent_improvement",
+  "run_id": "nanogpt-openevolve-v2-1-h100-karpathy_nanogpt_source_only_h100-openevolve-b02-c1",
+  "schema_version": "1.0",
+  "selected_parent_ids": [
+    "2865e528e18dc51191e4037eaeb5824cb0ea83ede79061b59b8f3caac686da6b"
+  ],
+  "timestamp": "2026-08-23T20:59:23.491570+00:00",
+  "usage_cumulative": {
+    "cached_input_tokens": 103424,
+    "input_tokens": 232007,
+    "output_tokens": 39651,
+    "reasoning_output_tokens": 36469,
+    "total_tokens": 271658
+  },
+  "usage_increment": {
+    "cached_input_tokens": 12032,
+    "input_tokens": 24205,
+    "output_tokens": 7270,
+    "reasoning_output_tokens": 6489,
+    "total_tokens": 31475
+  },
+  "visible_candidate_ids": [
+    "2865e528e18dc51191e4037eaeb5824cb0ea83ede79061b59b8f3caac686da6b"
+  ]
+}

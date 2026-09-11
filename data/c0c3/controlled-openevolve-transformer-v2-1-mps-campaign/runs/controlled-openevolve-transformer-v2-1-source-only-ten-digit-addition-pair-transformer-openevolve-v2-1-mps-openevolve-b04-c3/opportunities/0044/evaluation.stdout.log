@@ -1,0 +1,57 @@
+Run: repro_l1_d8_ff12
+Params: 1395
+Device: mps
+step= 44999 loss=0.3999 val_exact=0.12000 val_tok=0.80627 lr=3.00e-04 t=1490.2s
+{
+  "run_name": "repro_l1_d8_ff12",
+  "params": 1395,
+  "best_val_exact": 0.12,
+  "best_step": 44999,
+  "train_steps": 45000,
+  "elapsed_sec": 1490.2519948482513,
+  "metrics_csv": "results/runs/repro_l1_d8_ff12/metrics.csv",
+  "best_ckpt": "checkpoints/best.pt",
+  "last_ckpt": "checkpoints/last.pt"
+}
+Model: 10-digit addition transformer
+Author: autonomous optimization run
+Parameters (unique): 1395
+Architecture: trained autoregressive transformer with pair-column input tokens d=8, h=2, L=1, ff=12
+Tricks: generic greedy decoding, freshly trained checkpoint
+
+  Progress: 1000/10010 (117/1000 correct) [20.4s]
+  Progress: 2000/10010 (240/2000 correct) [41.6s]
+  Progress: 3000/10010 (352/3000 correct) [65.2s]
+  Progress: 4000/10010 (475/4000 correct) [90.8s]
+  Progress: 5000/10010 (577/5000 correct) [116.0s]
+  Progress: 6000/10010 (688/6000 correct) [138.4s]
+  Progress: 7000/10010 (798/7000 correct) [2085.3s]
+  Progress: 8000/10010 (909/8000 correct) [3351.8s]
+  Progress: 9000/10010 (1046/9000 correct) [3366.5s]
+  Progress: 10000/10010 (1160/10000 correct) [3379.1s]
+
+Results: 1161/10010 correct (11.60%)
+Time: 3379.2s (3 additions/sec)
+Status: NOT QUALIFIED (threshold: 99%)
+
+First 20 failures (of 8849):
+  0 + 0 = 0, got 1111011110
+  0 + 1 = 1, got 1111011111
+  9999999999 + 9999999999 = 19999999998, got 88888918898
+  5000000000 + 5000000000 = 10000000000, got 10111011110
+  1234567890 + 9876543210 = 11111111100, got 10111111110
+  9999999999 + 9999999999 = 19999999998, got 88888918898
+  2395527356 + 9334186774 = 11729714130, got 11729713130
+  4296888873 + 8475224721 = 12772113594, got 13672113594
+  2446880696 + 4577514554 = 7024395250, got 7023394250
+  3295396137 + 8512642381 = 11808038518, got 11807939518
+  4721664841 + 8801376086 = 13523040927, got 12633041927
+  8709633390 + 2191376109 = 10901009499, got 10901010499
+  813236058 + 3041824170 = 3855060228, got 3865060218
+  7038162399 + 8251837442 = 15289999841, got 16289999841
+  3917771074 + 2558389380 = 6476160454, got 5466061454
+  2345623234 + 894115330 = 3239738564, got 2239848564
+  9635552803 + 139097711 = 9774650514, got 10774649514
+  3369214745 + 1580376784 = 4949591529, got 4949590529
+  5487960534 + 2479695299 = 7967655833, got 7956655833
+  9981988602 + 6255527173 = 16237515775, got 16137515775

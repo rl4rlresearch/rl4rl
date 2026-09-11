@@ -1,0 +1,79 @@
+{
+  "artifact_path": "candidates/099ef7e93317dcebbc8489d1b9b409cf72db599ddca5fe26fc6d58ddbba3070b",
+  "candidate_id": "099ef7e93317dcebbc8489d1b9b409cf72db599ddca5fe26fc6d58ddbba3070b",
+  "codex_service_tier": "default",
+  "condition": "C0",
+  "conversation_session_id": null,
+  "evaluation": {
+    "evaluator_calls": 1,
+    "evaluator_seconds": 852.3229222497903,
+    "failure_kind": null,
+    "fitness": -1606.0,
+    "metrics": {
+      "accuracy": 0.998,
+      "cases": 10010,
+      "correct": 9990,
+      "parameters": 1606,
+      "training_steps": 9999
+    },
+    "valid": true
+  },
+  "evaluator_calls_cumulative": 43,
+  "evaluator_calls_increment": 1,
+  "evaluator_seconds_cumulative": 18285.466242250055,
+  "evaluator_seconds_increment": 852.3229222497903,
+  "event": "proposal_completed",
+  "evicted_candidate_id": "80d862b993daeaac7259afbf033ff96c4105b21beee7abb996aa6e54835c8ebd",
+  "evidence": "The current 1,607-parameter model achieved 99.89% after 9,000 steps. The failed attention-projection weight gauge motivates testing a distinct redundancy localized to one MLP neuron, whose LayerNorm-constrained input and retained bias preserve representational capacity without another gauge-aware optimizer.",
+  "hypothesis": "Anchoring one `fc1` weight coordinate at zero will reduce the model from 1,607 to 1,606 parameters while retaining at least 99% accuracy after 10,000 steps, because LayerNorm confines each MLP input to a seven-dimensional affine hyperplane and the retained `fc1` bias preserves the omitted direction\u2019s constant component.",
+  "incumbent_after": "099ef7e93317dcebbc8489d1b9b409cf72db599ddca5fe26fc6d58ddbba3070b",
+  "intended_edit": "Store 95 of the 96 `fc1` weights, reconstruct the final coordinate as zero during forward passes, and add 1,000 low-learning-rate refinement steps.",
+  "mechanism": "LayerNorm-hyperplane anchoring of one MLP input weight",
+  "opportunity": 43,
+  "parent_ids": [
+    "80d862b993daeaac7259afbf033ff96c4105b21beee7abb996aa6e54835c8ebd"
+  ],
+  "portfolio_after": [
+    "099ef7e93317dcebbc8489d1b9b409cf72db599ddca5fe26fc6d58ddbba3070b"
+  ],
+  "prompt_hashes": {
+    "common_template_sha256": "3f2bea6418b6969c4bf2aa1df18dcda8a3a4ac075bf20c79068c754698b6be5e",
+    "prompt_sha256": "6e4ec3e9d1d3dfc2da7e1dfe15ca7f81f1b2409ad2830252457a0305384c407d",
+    "proposal_policy_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "search_state_sha256": "04e5eb078ae1964e4ec65bfeeeb1acd0ffa246e7d54d5e0f997f81f602da28c5",
+    "treatment_skeleton_sha256": "94f75d09876f3629122f8ab94b4a814df366cf56c29aceb8a2780ae2efe22fe7"
+  },
+  "proposal_type": "ordinary",
+  "proposals_cumulative": 43,
+  "remaining_budget": {
+    "evaluations": 157,
+    "evaluator_seconds": 341714.53375774994,
+    "proposals": 157,
+    "tokens": 98950223
+  },
+  "retained": true,
+  "retention_decision": "strict_incumbent_improvement",
+  "run_id": "controlled-openevolve-transformer-v2-1-source-only-ten-digit-addition-pair-transformer-openevolve-v2-1-mps-openevolve-b03-c0",
+  "schema_version": "1.0",
+  "selected_parent_ids": [
+    "80d862b993daeaac7259afbf033ff96c4105b21beee7abb996aa6e54835c8ebd"
+  ],
+  "timestamp": "2026-08-24T11:04:26.339952+00:00",
+  "usage_cumulative": {
+    "cached_input_tokens": 476416,
+    "input_tokens": 904463,
+    "output_tokens": 145314,
+    "reasoning_output_tokens": 125009,
+    "total_tokens": 1049777
+  },
+  "usage_increment": {
+    "cached_input_tokens": 12032,
+    "input_tokens": 22485,
+    "output_tokens": 6074,
+    "reasoning_output_tokens": 5555,
+    "total_tokens": 28559
+  },
+  "visible_candidate_ids": [
+    "80d862b993daeaac7259afbf033ff96c4105b21beee7abb996aa6e54835c8ebd"
+  ]
+}

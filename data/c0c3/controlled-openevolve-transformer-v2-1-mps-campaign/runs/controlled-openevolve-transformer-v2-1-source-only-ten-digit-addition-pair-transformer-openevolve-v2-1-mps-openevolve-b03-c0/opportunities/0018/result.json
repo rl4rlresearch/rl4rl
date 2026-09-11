@@ -1,0 +1,79 @@
+{
+  "artifact_path": "candidates/5a0c4edb715aa8d8b32d7bff4d98c3de824b8c8bd72ea6c3da770804477ea5a0",
+  "candidate_id": "5a0c4edb715aa8d8b32d7bff4d98c3de824b8c8bd72ea6c3da770804477ea5a0",
+  "codex_service_tier": "fast",
+  "condition": "C0",
+  "conversation_session_id": null,
+  "evaluation": {
+    "evaluator_calls": 1,
+    "evaluator_seconds": 338.8763765420299,
+    "failure_kind": "nonqualification",
+    "fitness": null,
+    "metrics": {
+      "accuracy": 0.4841,
+      "cases": 10010,
+      "correct": 4846,
+      "parameters": 1617,
+      "training_steps": 4999
+    },
+    "valid": false
+  },
+  "evaluator_calls_cumulative": 18,
+  "evaluator_calls_increment": 1,
+  "evaluator_seconds_cumulative": 5252.929115126259,
+  "evaluator_seconds_increment": 338.8763765420299,
+  "event": "proposal_completed",
+  "evicted_candidate_id": null,
+  "evidence": "The current one-key/one-value-bias design reached 99.96% at 1,618 parameters. Since additional QKV, positional-embedding, and MLP-input reductions failed, this tests a distinct exact one-parameter redundancy: LayerNorm makes uniform residual shifts invisible between the attention and MLP sublayers.",
+  "hypothesis": "Fixing one attention output-projection bias coordinate at zero will reduce the model from 1,618 to 1,617 parameters while retaining at least 99% accuracy, because a uniform shift of that bias can be absorbed by the MLP output bias without changing the block\u2019s function.",
+  "incumbent_after": "e26dd5f04cdc6b5989fe9226decc7b034421d922893f44fe00b0a12c083cdffe",
+  "intended_edit": "Preserve the original projection-layer construction, store seven learned output biases, and reconstruct a fixed-zero first coordinate during attention.",
+  "mechanism": "Residual-stream bias gauge elimination",
+  "opportunity": 18,
+  "parent_ids": [
+    "e26dd5f04cdc6b5989fe9226decc7b034421d922893f44fe00b0a12c083cdffe"
+  ],
+  "portfolio_after": [
+    "e26dd5f04cdc6b5989fe9226decc7b034421d922893f44fe00b0a12c083cdffe"
+  ],
+  "prompt_hashes": {
+    "common_template_sha256": "3f2bea6418b6969c4bf2aa1df18dcda8a3a4ac075bf20c79068c754698b6be5e",
+    "prompt_sha256": "06984931f696e342242530ecd4d78da63f478c9343ea0107a3f4a2e8a47ed549",
+    "proposal_policy_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "search_state_sha256": "04e5eb078ae1964e4ec65bfeeeb1acd0ffa246e7d54d5e0f997f81f602da28c5",
+    "treatment_skeleton_sha256": "eb427cf92485b0b989662c3896506252fac83e019c1135063b6b225085b35538"
+  },
+  "proposal_type": "ordinary",
+  "proposals_cumulative": 18,
+  "remaining_budget": {
+    "evaluations": 182,
+    "evaluator_seconds": 354747.07088487374,
+    "proposals": 182,
+    "tokens": 99599819
+  },
+  "retained": false,
+  "retention_decision": "invalid",
+  "run_id": "controlled-openevolve-transformer-v2-1-source-only-ten-digit-addition-pair-transformer-openevolve-v2-1-mps-openevolve-b03-c0",
+  "schema_version": "1.0",
+  "selected_parent_ids": [
+    "e26dd5f04cdc6b5989fe9226decc7b034421d922893f44fe00b0a12c083cdffe"
+  ],
+  "timestamp": "2026-08-23T15:49:26.843235+00:00",
+  "usage_cumulative": {
+    "cached_input_tokens": 187904,
+    "input_tokens": 361607,
+    "output_tokens": 38574,
+    "reasoning_output_tokens": 33188,
+    "total_tokens": 400181
+  },
+  "usage_increment": {
+    "cached_input_tokens": 12032,
+    "input_tokens": 21100,
+    "output_tokens": 3044,
+    "reasoning_output_tokens": 2724,
+    "total_tokens": 24144
+  },
+  "visible_candidate_ids": [
+    "e26dd5f04cdc6b5989fe9226decc7b034421d922893f44fe00b0a12c083cdffe"
+  ]
+}

@@ -1,0 +1,88 @@
+{
+  "artifact_path": "candidates/073c0c20ffce9f9c7373a4c08fde16f87d5b194ad21c03d8a86866625dafc42b",
+  "candidate_id": "073c0c20ffce9f9c7373a4c08fde16f87d5b194ad21c03d8a86866625dafc42b",
+  "codex_service_tier": "fast",
+  "condition": "C3",
+  "conversation_session_id": null,
+  "evaluation": {
+    "evaluator_calls": 1,
+    "evaluator_seconds": 369.32988493099947,
+    "failure_kind": null,
+    "fitness": -0.992949,
+    "metrics": {
+      "depth": 8.0,
+      "mfu_percent": 37.84,
+      "num_params_M": 50.3,
+      "num_steps": 907.0,
+      "peak_vram_mb": 45832.5,
+      "total_tokens_M": 475.5,
+      "training_seconds": 300.3,
+      "val_bpb": 0.992949
+    },
+    "valid": true
+  },
+  "evaluator_calls_cumulative": 22,
+  "evaluator_calls_increment": 1,
+  "evaluator_seconds_cumulative": 8183.036205027998,
+  "evaluator_seconds_increment": 369.32988493099947,
+  "event": "proposal_completed",
+  "evicted_candidate_id": "dc725a877809c8c9b98a82241aae181de0c7f1b656d987c1c5f1a6364c0eeb4a",
+  "evidence": "The full convolution-plus-gating design achieved the best val_bpb, 0.992628, but processed only 467.1M tokens; long-context-only gating was just 0.000228 worse than all-layer gating while increasing training volume, suggesting short-layer gates may not justify their fixed-time cost.",
+  "hypothesis": "Applying the learned two-lag embedding convolution while retaining output gates only in full-context layers will lower val_bpb below 0.992628 and restore training volume to roughly 480M tokens or more.",
+  "incumbent_after": "9931424bd937324c0b9cc3301f65f06033626b33e060d110d5f4424b73c546cd",
+  "intended_edit": "Add the proven channel-wise two-lag causal embedding convolution and remove attention-output gates from the six short-context layers.",
+  "mechanism": "Long-context-selective gating with causal embedding mixing",
+  "opportunity": 22,
+  "parent_ids": [
+    "dc725a877809c8c9b98a82241aae181de0c7f1b656d987c1c5f1a6364c0eeb4a"
+  ],
+  "portfolio_after": [
+    "9931424bd937324c0b9cc3301f65f06033626b33e060d110d5f4424b73c546cd",
+    "eae6d6f6e71f7c40476d436f13b811436a914f2aadd4ccb896baad1149666905",
+    "adbcaf376f067b374df266afee3cd44b703d9549b00595d1bcf57d210f51b5e7",
+    "073c0c20ffce9f9c7373a4c08fde16f87d5b194ad21c03d8a86866625dafc42b"
+  ],
+  "prompt_hashes": {
+    "common_template_sha256": "ba85b39aa7288f4f48475376da6cff65661f39cfeb7ac7cde15b2a9a2e692fde",
+    "prompt_sha256": "d18baf1facef61fafc54e41a437fc1af65c3e4c3919d1867846844e70ea70f1d",
+    "proposal_policy_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "search_state_sha256": "c938ac007bf70fe8d27f64661175531e51fcb16b38318c328493c32ee292e27e",
+    "treatment_skeleton_sha256": "c1d601b7fe0419de91b6c4f8a9f5d27aec1f73714e6d2f588316e0efb4fa786e"
+  },
+  "proposal_type": "ordinary",
+  "proposals_cumulative": 22,
+  "remaining_budget": {
+    "evaluations": 178,
+    "evaluator_seconds": 711816.963794972,
+    "proposals": 178,
+    "tokens": 98955668
+  },
+  "retained": true,
+  "retention_decision": "replaced_selected_parent_on_strict_improvement",
+  "run_id": "nanogpt-openevolve-v2-1-h100-karpathy_nanogpt_source_only_h100-openevolve-b03-c3",
+  "schema_version": "1.0",
+  "selected_parent_ids": [
+    "dc725a877809c8c9b98a82241aae181de0c7f1b656d987c1c5f1a6364c0eeb4a"
+  ],
+  "timestamp": "2026-08-24T00:51:48.090275+00:00",
+  "usage_cumulative": {
+    "cached_input_tokens": 292352,
+    "input_tokens": 977765,
+    "output_tokens": 66567,
+    "reasoning_output_tokens": 54006,
+    "total_tokens": 1044332
+  },
+  "usage_increment": {
+    "cached_input_tokens": 12032,
+    "input_tokens": 47649,
+    "output_tokens": 3982,
+    "reasoning_output_tokens": 2218,
+    "total_tokens": 51631
+  },
+  "visible_candidate_ids": [
+    "9931424bd937324c0b9cc3301f65f06033626b33e060d110d5f4424b73c546cd",
+    "eae6d6f6e71f7c40476d436f13b811436a914f2aadd4ccb896baad1149666905",
+    "adbcaf376f067b374df266afee3cd44b703d9549b00595d1bcf57d210f51b5e7",
+    "dc725a877809c8c9b98a82241aae181de0c7f1b656d987c1c5f1a6364c0eeb4a"
+  ]
+}

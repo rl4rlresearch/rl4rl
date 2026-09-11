@@ -1,0 +1,82 @@
+{
+  "artifact_path": "candidates/ee35625843d51bbe2c58c9324898942328f7f13b7b7e829494fdeb96f13cdc58",
+  "candidate_id": "ee35625843d51bbe2c58c9324898942328f7f13b7b7e829494fdeb96f13cdc58",
+  "codex_service_tier": "default",
+  "condition": "C1",
+  "conversation_session_id": null,
+  "evaluation": {
+    "evaluator_calls": 1,
+    "evaluator_seconds": 361.2526698490001,
+    "failure_kind": null,
+    "fitness": -0.990109,
+    "metrics": {
+      "depth": 8.0,
+      "mfu_percent": 37.04,
+      "num_params_M": 50.3,
+      "num_steps": 2098.0,
+      "peak_vram_mb": 39448.0,
+      "total_tokens_M": 481.2,
+      "training_seconds": 300.1,
+      "val_bpb": 0.990109
+    },
+    "valid": true
+  },
+  "evaluator_calls_cumulative": 35,
+  "evaluator_calls_increment": 1,
+  "evaluator_seconds_cumulative": 16734.900499135023,
+  "evaluator_seconds_increment": 361.2526698490001,
+  "event": "proposal_completed",
+  "evicted_candidate_id": null,
+  "evidence": "Adding a third global-attention layer improved val_bpb from 0.984312 to 0.984227 despite processing fewer tokens, indicating attention representation capacity is limiting; finer head partitioning tests additional relational subspaces without adding attention FLOPs or parameters.",
+  "hypothesis": "Splitting the unchanged 512-dimensional attention space into eight 64-dimensional heads will reduce val_bpb below 0.984227 without materially reducing throughput or changing parameter count.",
+  "incumbent_after": "fec1ef429620b33ffdd89eedd4dc590b06e3b24777b48f242296b09bba44638b",
+  "intended_edit": "Change HEAD_DIM from 128 to 64, increasing query and key/value heads from four to eight while preserving model width, depth, context windows, optimizer, and schedule.",
+  "mechanism": "Finer-grained attention-head factorization",
+  "opportunity": 35,
+  "parent_ids": [
+    "fec1ef429620b33ffdd89eedd4dc590b06e3b24777b48f242296b09bba44638b"
+  ],
+  "portfolio_after": [
+    "fec1ef429620b33ffdd89eedd4dc590b06e3b24777b48f242296b09bba44638b"
+  ],
+  "prompt_hashes": {
+    "common_template_sha256": "ba85b39aa7288f4f48475376da6cff65661f39cfeb7ac7cde15b2a9a2e692fde",
+    "prompt_sha256": "5b05e7b7be6818be623e508b49d88a0b9adbcce560b7629f668a11273b7e3ebd",
+    "proposal_policy_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "search_state_sha256": "04e5eb078ae1964e4ec65bfeeeb1acd0ffa246e7d54d5e0f997f81f602da28c5",
+    "treatment_skeleton_sha256": "99ac86e2f0d3119aa18448eccfb5804a3c78e7a3625dd7c0e1871eef59c847df"
+  },
+  "proposal_type": "ordinary",
+  "proposals_cumulative": 35,
+  "remaining_budget": {
+    "evaluations": 165,
+    "evaluator_seconds": 703265.099500865,
+    "proposals": 165,
+    "tokens": 99076852
+  },
+  "retained": false,
+  "retention_decision": "not_strictly_better_than_incumbent",
+  "run_id": "nanogpt-openevolve-v2-1-h100-karpathy_nanogpt_source_only_h100-openevolve-b03-c1",
+  "schema_version": "1.0",
+  "selected_parent_ids": [
+    "fec1ef429620b33ffdd89eedd4dc590b06e3b24777b48f242296b09bba44638b"
+  ],
+  "timestamp": "2026-08-24T05:07:29.269972+00:00",
+  "usage_cumulative": {
+    "cached_input_tokens": 411136,
+    "input_tokens": 848645,
+    "output_tokens": 74503,
+    "reasoning_output_tokens": 65262,
+    "total_tokens": 923148
+  },
+  "usage_increment": {
+    "cached_input_tokens": 12032,
+    "input_tokens": 24862,
+    "output_tokens": 3820,
+    "reasoning_output_tokens": 3624,
+    "total_tokens": 28682
+  },
+  "visible_candidate_ids": [
+    "fec1ef429620b33ffdd89eedd4dc590b06e3b24777b48f242296b09bba44638b"
+  ]
+}

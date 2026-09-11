@@ -1,0 +1,79 @@
+{
+  "artifact_path": "candidates/bbe0ade2b1b5fd84e535e5b3a44b7109299df9b19f71166d8915b0c6c1d92ac7",
+  "candidate_id": "bbe0ade2b1b5fd84e535e5b3a44b7109299df9b19f71166d8915b0c6c1d92ac7",
+  "codex_service_tier": "fast",
+  "condition": "C1",
+  "conversation_session_id": null,
+  "evaluation": {
+    "evaluator_calls": 1,
+    "evaluator_seconds": 233.0157981250668,
+    "failure_kind": "nonqualification",
+    "fitness": null,
+    "metrics": {
+      "accuracy": 0.36450000000000005,
+      "cases": 10010,
+      "correct": 3649,
+      "parameters": 1580,
+      "training_steps": 4999
+    },
+    "valid": false
+  },
+  "evaluator_calls_cumulative": 10,
+  "evaluator_calls_increment": 1,
+  "evaluator_seconds_cumulative": 2297.50902758108,
+  "evaluator_seconds_increment": 233.0157981250668,
+  "event": "proposal_completed",
+  "evicted_candidate_id": null,
+  "evidence": "Narrowing the feed-forward network caused severe accuracy loss, while the current full-width model reached 99.96%. The key-bias experiments also showed initialization alignment matters, motivating a different attention mechanism that preserves MLP capacity, query/value diversity, and downstream initialization.",
+  "hypothesis": "The model does not require a separate key subspace for each attention head: sharing one learned 4-dimensional key projection while retaining head-specific queries and values will reduce parameters from 1,612 to 1,580 and maintain at least 99% accuracy.",
+  "incumbent_after": "530a473c4550adc9e7cfa3af8efb61c886ee59f95aa5c98474065ec0280d8aac",
+  "intended_edit": "Replace the 24-row QKV weight with compact query, shared-key, and value projections; broadcast the shared keys across heads; and preserve the original initialization RNG stream.",
+  "mechanism": "RNG-aligned shared-key multi-head attention",
+  "opportunity": 10,
+  "parent_ids": [
+    "530a473c4550adc9e7cfa3af8efb61c886ee59f95aa5c98474065ec0280d8aac"
+  ],
+  "portfolio_after": [
+    "530a473c4550adc9e7cfa3af8efb61c886ee59f95aa5c98474065ec0280d8aac"
+  ],
+  "prompt_hashes": {
+    "common_template_sha256": "3f2bea6418b6969c4bf2aa1df18dcda8a3a4ac075bf20c79068c754698b6be5e",
+    "prompt_sha256": "fd810735f67eb93832de8cd678db2a7d6088813301f0f2114b7b5af943fe3513",
+    "proposal_policy_sha256": "4a27c08e098e719db007f4d6b37fabe2967b41836bb9070e2513a8a24ff7ce90",
+    "search_state_sha256": "04e5eb078ae1964e4ec65bfeeeb1acd0ffa246e7d54d5e0f997f81f602da28c5",
+    "treatment_skeleton_sha256": "26f1b435a3e74ccaad55932418a1c42c61719a813066075e29272add2f0f8a5d"
+  },
+  "proposal_type": "assumption_changing",
+  "proposals_cumulative": 10,
+  "remaining_budget": {
+    "evaluations": 190,
+    "evaluator_seconds": 357702.4909724189,
+    "proposals": 190,
+    "tokens": 99780459
+  },
+  "retained": false,
+  "retention_decision": "invalid",
+  "run_id": "controlled-openevolve-transformer-v2-1-source-only-ten-digit-addition-pair-transformer-openevolve-v2-1-mps-openevolve-b03-c1",
+  "schema_version": "1.0",
+  "selected_parent_ids": [
+    "530a473c4550adc9e7cfa3af8efb61c886ee59f95aa5c98474065ec0280d8aac"
+  ],
+  "timestamp": "2026-08-23T11:51:43.855661+00:00",
+  "usage_cumulative": {
+    "cached_input_tokens": 118272,
+    "input_tokens": 195679,
+    "output_tokens": 23862,
+    "reasoning_output_tokens": 20240,
+    "total_tokens": 219541
+  },
+  "usage_increment": {
+    "cached_input_tokens": 12032,
+    "input_tokens": 20748,
+    "output_tokens": 7211,
+    "reasoning_output_tokens": 6214,
+    "total_tokens": 27959
+  },
+  "visible_candidate_ids": [
+    "530a473c4550adc9e7cfa3af8efb61c886ee59f95aa5c98474065ec0280d8aac"
+  ]
+}

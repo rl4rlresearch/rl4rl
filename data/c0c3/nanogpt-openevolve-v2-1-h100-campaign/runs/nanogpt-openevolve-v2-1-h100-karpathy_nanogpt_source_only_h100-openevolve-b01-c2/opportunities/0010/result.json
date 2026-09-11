@@ -1,0 +1,88 @@
+{
+  "artifact_path": "candidates/a74bd2d61d3740929c76c3a1e35e85e31b7fd2b6844eb9aff9e9f81a9b65c9f0",
+  "candidate_id": "a74bd2d61d3740929c76c3a1e35e85e31b7fd2b6844eb9aff9e9f81a9b65c9f0",
+  "codex_service_tier": "fast",
+  "condition": "C2",
+  "conversation_session_id": null,
+  "evaluation": {
+    "evaluator_calls": 1,
+    "evaluator_seconds": 357.1871282710017,
+    "failure_kind": null,
+    "fitness": -1.00116,
+    "metrics": {
+      "depth": 8.0,
+      "mfu_percent": 30.18,
+      "num_params_M": 50.3,
+      "num_steps": 1440.0,
+      "peak_vram_mb": 44908.2,
+      "total_tokens_M": 377.5,
+      "training_seconds": 300.1,
+      "val_bpb": 1.00116
+    },
+    "valid": true
+  },
+  "evaluator_calls_cumulative": 10,
+  "evaluator_calls_increment": 1,
+  "evaluator_seconds_cumulative": 3976.7299710600073,
+  "evaluator_seconds_increment": 357.1871282710017,
+  "event": "proposal_completed",
+  "evicted_candidate_id": null,
+  "evidence": "The current 262K-token design nearly matched the best result (0.996687 versus 0.995558) despite processing only 408.9M versus 497.0M tokens, but made 1,560 versus 948 optimizer updates using unchanged per-step learning rates; this motivates retuning update magnitude rather than abandoning the higher-frequency regime.",
+  "hypothesis": "Scaling all optimizer learning rates by \\(1/\\sqrt{2}\\) for the halved 262K-token batch will retain its useful 1,560-update regime while reducing update noise and overshoot, lowering val_bpb below 0.995558.",
+  "incumbent_after": "2865e528e18dc51191e4037eaeb5824cb0ea83ede79061b59b8f3caac686da6b",
+  "intended_edit": "Keep the current SSSL architecture and single-microbatch training, but reduce Adam and Muon learning rates by \\(1/\\sqrt{2}\\).",
+  "mechanism": "Square-root batch-aware learning-rate scaling",
+  "opportunity": 10,
+  "parent_ids": [
+    "751f6421ee699b4c6ae86e4cb2e4fb251857399c2f9b5720235c590a65eaf50a"
+  ],
+  "portfolio_after": [
+    "2865e528e18dc51191e4037eaeb5824cb0ea83ede79061b59b8f3caac686da6b",
+    "751f6421ee699b4c6ae86e4cb2e4fb251857399c2f9b5720235c590a65eaf50a",
+    "2e2cbe56bf689ee5b5413e2bfb8ea74ccfb21838ac3e2da0a617dbfd5a7e1d4e",
+    "3f86c29c7b170f9b5dd7ccebde668fea2f9f9bc32c149a3e774ae1f52f25cd9d"
+  ],
+  "prompt_hashes": {
+    "common_template_sha256": "ba85b39aa7288f4f48475376da6cff65661f39cfeb7ac7cde15b2a9a2e692fde",
+    "prompt_sha256": "407a80f7211df04610d97ace8a3a242d0696c3e985e455aa1461e1de0933e218",
+    "proposal_policy_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "search_state_sha256": "c938ac007bf70fe8d27f64661175531e51fcb16b38318c328493c32ee292e27e",
+    "treatment_skeleton_sha256": "3c7d5cbd3fbe24af2aa63759f089be8643eb3aff35dfb76ec4cf750ed005d907"
+  },
+  "proposal_type": "ordinary",
+  "proposals_cumulative": 10,
+  "remaining_budget": {
+    "evaluations": 190,
+    "evaluator_seconds": 716023.2700289399,
+    "proposals": 190,
+    "tokens": 99548322
+  },
+  "retained": false,
+  "retention_decision": "not_strictly_better_than_selected_parent",
+  "run_id": "nanogpt-openevolve-v2-1-h100-karpathy_nanogpt_source_only_h100-openevolve-b01-c2",
+  "schema_version": "1.0",
+  "selected_parent_ids": [
+    "751f6421ee699b4c6ae86e4cb2e4fb251857399c2f9b5720235c590a65eaf50a"
+  ],
+  "timestamp": "2026-08-23T18:38:16.305787+00:00",
+  "usage_cumulative": {
+    "cached_input_tokens": 94208,
+    "input_tokens": 407424,
+    "output_tokens": 44254,
+    "reasoning_output_tokens": 40359,
+    "total_tokens": 451678
+  },
+  "usage_increment": {
+    "cached_input_tokens": 12032,
+    "input_tokens": 46359,
+    "output_tokens": 4514,
+    "reasoning_output_tokens": 4142,
+    "total_tokens": 50873
+  },
+  "visible_candidate_ids": [
+    "2865e528e18dc51191e4037eaeb5824cb0ea83ede79061b59b8f3caac686da6b",
+    "751f6421ee699b4c6ae86e4cb2e4fb251857399c2f9b5720235c590a65eaf50a",
+    "2e2cbe56bf689ee5b5413e2bfb8ea74ccfb21838ac3e2da0a617dbfd5a7e1d4e",
+    "3f86c29c7b170f9b5dd7ccebde668fea2f9f9bc32c149a3e774ae1f52f25cd9d"
+  ]
+}

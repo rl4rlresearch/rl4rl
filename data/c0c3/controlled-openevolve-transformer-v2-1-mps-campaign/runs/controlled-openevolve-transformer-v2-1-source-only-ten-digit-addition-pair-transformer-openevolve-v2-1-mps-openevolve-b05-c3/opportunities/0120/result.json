@@ -1,0 +1,85 @@
+{
+  "artifact_path": "candidates/84041da5125a228f6071df4d6ff8cb49422ac5c26d008d290313abcca9ee73db",
+  "candidate_id": "84041da5125a228f6071df4d6ff8cb49422ac5c26d008d290313abcca9ee73db",
+  "codex_service_tier": "default",
+  "condition": "C3",
+  "conversation_session_id": null,
+  "evaluation": {
+    "evaluator_calls": 1,
+    "evaluator_seconds": 346.3798879168462,
+    "failure_kind": "nonqualification",
+    "fitness": null,
+    "metrics": {
+      "accuracy": 0.0001,
+      "cases": 10010,
+      "correct": 1,
+      "parameters": 1109,
+      "training_steps": 4999
+    },
+    "valid": false
+  },
+  "evaluator_calls_cumulative": 120,
+  "evaluator_calls_increment": 1,
+  "evaluator_seconds_cumulative": 49321.171495803865,
+  "evaluator_seconds_increment": 346.3798879168462,
+  "event": "proposal_completed",
+  "evicted_candidate_id": null,
+  "evidence": "The fully tied final-bias model reached 99.84%\u201399.85% with 1,124 parameters. MLP output-bias tying collapsed to 91.52%, so this patch preserves every residual-bias coordinate and instead tests the previously unchallenged assumption that the pointwise computation requires a 12-unit hidden bank.",
+  "hypothesis": "Starting from the qualified fully tied final-bias design, reducing the GELU MLP from 12 to 11 units will lower the model from 1,124 to 1,109 parameters while retaining at least 99% accuracy; the old designs assumed all 12 nonlinear units were load-bearing, while this tests a narrower learned representation without constraining the sensitive MLP output bias, attention bias, value maps, routing kernel, or adaptive scale.",
+  "incumbent_after": "da1a76b5fb420db5514e07dbc05d623164d95d03e51797078203e8331077c3d7",
+  "intended_edit": "Adopt the verified zero-bias final LayerNorm and reduce `d_ff` by one, removing 15 learned MLP parameters while leaving training, checkpoints, causal attention, and decoding unchanged.",
+  "mechanism": "Eleven-unit learned nonlinear bottleneck",
+  "opportunity": 120,
+  "parent_ids": [
+    "9e9069f8bc74855f7bde2cbfb994ca1fd7a8fbcc470308e109262c7b4bc505be"
+  ],
+  "portfolio_after": [
+    "39d83fefc328238bbe42d117096e2979bab1777600777d13070fda75f2289469",
+    "da1a76b5fb420db5514e07dbc05d623164d95d03e51797078203e8331077c3d7",
+    "9e9069f8bc74855f7bde2cbfb994ca1fd7a8fbcc470308e109262c7b4bc505be",
+    "11d4f21f9507caf674a7e3c53eb3930090d05956d98e0ac49867894d44855dd7"
+  ],
+  "prompt_hashes": {
+    "common_template_sha256": "3f2bea6418b6969c4bf2aa1df18dcda8a3a4ac075bf20c79068c754698b6be5e",
+    "prompt_sha256": "cdb8ee07f86b048095c3026dcaec717f1d00d6c28e8388f6f3a3a25b501ffedb",
+    "proposal_policy_sha256": "4a27c08e098e719db007f4d6b37fabe2967b41836bb9070e2513a8a24ff7ce90",
+    "search_state_sha256": "c938ac007bf70fe8d27f64661175531e51fcb16b38318c328493c32ee292e27e",
+    "treatment_skeleton_sha256": "eb3721b1375a2b35b9c4665eda131bfcbbd5e5f804a9383bb2364d444c307526"
+  },
+  "proposal_type": "assumption_changing",
+  "proposals_cumulative": 120,
+  "remaining_budget": {
+    "evaluations": 80,
+    "evaluator_seconds": 310678.82850419614,
+    "proposals": 80,
+    "tokens": 93309276
+  },
+  "retained": false,
+  "retention_decision": "invalid",
+  "run_id": "controlled-openevolve-transformer-v2-1-source-only-ten-digit-addition-pair-transformer-openevolve-v2-1-mps-openevolve-b05-c3",
+  "schema_version": "1.0",
+  "selected_parent_ids": [
+    "9e9069f8bc74855f7bde2cbfb994ca1fd7a8fbcc470308e109262c7b4bc505be"
+  ],
+  "timestamp": "2026-09-03T09:51:08.317236+00:00",
+  "usage_cumulative": {
+    "cached_input_tokens": 1273088,
+    "input_tokens": 6049162,
+    "output_tokens": 641562,
+    "reasoning_output_tokens": 457023,
+    "total_tokens": 6690724
+  },
+  "usage_increment": {
+    "cached_input_tokens": 10752,
+    "input_tokens": 65800,
+    "output_tokens": 5402,
+    "reasoning_output_tokens": 4708,
+    "total_tokens": 71202
+  },
+  "visible_candidate_ids": [
+    "39d83fefc328238bbe42d117096e2979bab1777600777d13070fda75f2289469",
+    "da1a76b5fb420db5514e07dbc05d623164d95d03e51797078203e8331077c3d7",
+    "9e9069f8bc74855f7bde2cbfb994ca1fd7a8fbcc470308e109262c7b4bc505be",
+    "11d4f21f9507caf674a7e3c53eb3930090d05956d98e0ac49867894d44855dd7"
+  ]
+}

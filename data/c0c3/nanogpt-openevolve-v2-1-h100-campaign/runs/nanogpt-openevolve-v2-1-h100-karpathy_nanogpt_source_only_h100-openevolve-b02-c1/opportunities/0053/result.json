@@ -1,0 +1,82 @@
+{
+  "artifact_path": "candidates/69d8152f1bc2b81c0fba0968823d375f62c9e5b647526f5a72e88793179dbf00",
+  "candidate_id": "69d8152f1bc2b81c0fba0968823d375f62c9e5b647526f5a72e88793179dbf00",
+  "codex_service_tier": "default",
+  "condition": "C1",
+  "conversation_session_id": null,
+  "evaluation": {
+    "evaluator_calls": 1,
+    "evaluator_seconds": 379.326818173,
+    "failure_kind": null,
+    "fitness": -0.982921,
+    "metrics": {
+      "depth": 8.0,
+      "mfu_percent": 36.68,
+      "num_params_M": 50.3,
+      "num_steps": 2537.0,
+      "peak_vram_mb": 33847.2,
+      "total_tokens_M": 457.2,
+      "training_seconds": 300.0,
+      "val_bpb": 0.982921
+    },
+    "valid": true
+  },
+  "evaluator_calls_cumulative": 52,
+  "evaluator_calls_increment": 1,
+  "evaluator_seconds_cumulative": 18623.123873701952,
+  "evaluator_seconds_increment": 379.326818173,
+  "event": "proposal_completed",
+  "evicted_candidate_id": null,
+  "evidence": "The per-channel one-token MLP tap improved val_bpb from 0.982406 to 0.982171 despite processing fewer tokens; the current post-normalization addition changes MLP input scale as the tap grows, motivating a scale-controlled version of the same demonstrated mechanism.",
+  "hypothesis": "Applying the learned one-token mixture before RMS normalization will lower val_bpb below 0.982171 by preserving the successful contextual pathway while preventing its learned magnitude from destabilizing each MLP\u2019s input scale.",
+  "incumbent_after": "84908c078ae5a03f53949a74352ae2b105beb141d2766c3ad29d63f332ef1909",
+  "intended_edit": "Shift the raw residual state, combine it with the previous-token state, and RMS-normalize the resulting mixture once before the MLP.",
+  "mechanism": "Pre-normalized causal depthwise MLP tap",
+  "opportunity": 53,
+  "parent_ids": [
+    "84908c078ae5a03f53949a74352ae2b105beb141d2766c3ad29d63f332ef1909"
+  ],
+  "portfolio_after": [
+    "84908c078ae5a03f53949a74352ae2b105beb141d2766c3ad29d63f332ef1909"
+  ],
+  "prompt_hashes": {
+    "common_template_sha256": "ba85b39aa7288f4f48475376da6cff65661f39cfeb7ac7cde15b2a9a2e692fde",
+    "prompt_sha256": "67b32498c913ca7600625e73ff8bf3781b865ff96232caadc2f223566840def0",
+    "proposal_policy_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "search_state_sha256": "04e5eb078ae1964e4ec65bfeeeb1acd0ffa246e7d54d5e0f997f81f602da28c5",
+    "treatment_skeleton_sha256": "564fc50cf635bbb409d323668c74f147fe867463e60a17a66f0680461d51534d"
+  },
+  "proposal_type": "ordinary",
+  "proposals_cumulative": 53,
+  "remaining_budget": {
+    "evaluations": 148,
+    "evaluator_seconds": 701376.8761262981,
+    "proposals": 147,
+    "tokens": 98569931
+  },
+  "retained": false,
+  "retention_decision": "not_strictly_better_than_incumbent",
+  "run_id": "nanogpt-openevolve-v2-1-h100-karpathy_nanogpt_source_only_h100-openevolve-b02-c1",
+  "schema_version": "1.0",
+  "selected_parent_ids": [
+    "84908c078ae5a03f53949a74352ae2b105beb141d2766c3ad29d63f332ef1909"
+  ],
+  "timestamp": "2026-08-24T13:42:15.720921+00:00",
+  "usage_cumulative": {
+    "cached_input_tokens": 532480,
+    "input_tokens": 1282426,
+    "output_tokens": 147643,
+    "reasoning_output_tokens": 128401,
+    "total_tokens": 1430069
+  },
+  "usage_increment": {
+    "cached_input_tokens": 2816,
+    "input_tokens": 24633,
+    "output_tokens": 1629,
+    "reasoning_output_tokens": 1324,
+    "total_tokens": 26262
+  },
+  "visible_candidate_ids": [
+    "84908c078ae5a03f53949a74352ae2b105beb141d2766c3ad29d63f332ef1909"
+  ]
+}

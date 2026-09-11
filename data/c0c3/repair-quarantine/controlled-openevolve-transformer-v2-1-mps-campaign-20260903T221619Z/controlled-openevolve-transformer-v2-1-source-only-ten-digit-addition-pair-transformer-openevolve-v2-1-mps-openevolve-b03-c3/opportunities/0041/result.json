@@ -1,0 +1,85 @@
+{
+  "artifact_path": "candidates/0826338009e62d6cb88030d8e2fc47a8eb9bd2a46bfdb01abc403f3d5b0a9034",
+  "candidate_id": "0826338009e62d6cb88030d8e2fc47a8eb9bd2a46bfdb01abc403f3d5b0a9034",
+  "codex_service_tier": "default",
+  "condition": "C3",
+  "conversation_session_id": null,
+  "evaluation": {
+    "evaluator_calls": 1,
+    "evaluator_seconds": 690.6809603329748,
+    "failure_kind": null,
+    "fitness": -1539.0,
+    "metrics": {
+      "accuracy": 0.9993000000000001,
+      "cases": 10010,
+      "correct": 10003,
+      "parameters": 1539,
+      "training_steps": 4999
+    },
+    "valid": true
+  },
+  "evaluator_calls_cumulative": 41,
+  "evaluator_calls_increment": 1,
+  "evaluator_seconds_cumulative": 18900.998725836398,
+  "evaluator_seconds_increment": 690.6809603329748,
+  "event": "proposal_completed",
+  "evicted_candidate_id": "51f19755bd05315390eddf0d462a8d5421cd9aaed2c4bdcec9a6c085c4c026ab",
+  "evidence": "Removing all eight `ln2` scales collapsed accuracy to 73.68%, whereas the current 1,540-parameter model achieved 99.99%; removing only one scale is the smallest controlled test of whether the failure resulted from simultaneous loss of all eight optimization degrees of freedom.",
+  "hypothesis": "Fixing one `ln2` scale to one will reduce the model from 1,540 to 1,539 parameters while retaining at least 99% accuracy, because the following `fc1` weight column can absorb that coordinate\u2019s learned scaling without reducing functional capacity.",
+  "incumbent_after": "0826338009e62d6cb88030d8e2fc47a8eb9bd2a46bfdb01abc403f3d5b0a9034",
+  "intended_edit": "Replace `ln2` with a LayerNorm that learns seven scales and fixes the eighth to one, while leaving all other qualified components and training behavior unchanged.",
+  "mechanism": "Single-coordinate second-pre-norm scale absorption",
+  "opportunity": 41,
+  "parent_ids": [
+    "51f19755bd05315390eddf0d462a8d5421cd9aaed2c4bdcec9a6c085c4c026ab"
+  ],
+  "portfolio_after": [
+    "2b9cea175ed60b009337ac54f6e8ad23bf2c014eb4080237777bfb70bfd9fd5b",
+    "b4a21570cab95320208e1ad0c75ead10cad3a2f08b2749f6f3b2eecabdb7f3a7",
+    "d04555510b37b64a9830fd92d373493ddd090fdedf89c88a79c398a21614bc52",
+    "0826338009e62d6cb88030d8e2fc47a8eb9bd2a46bfdb01abc403f3d5b0a9034"
+  ],
+  "prompt_hashes": {
+    "common_template_sha256": "3f2bea6418b6969c4bf2aa1df18dcda8a3a4ac075bf20c79068c754698b6be5e",
+    "prompt_sha256": "bcf5cbff06e963df23f229f67d261835de34f1a645e3a6f7f2ebb6722aff3f8f",
+    "proposal_policy_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "search_state_sha256": "c938ac007bf70fe8d27f64661175531e51fcb16b38318c328493c32ee292e27e",
+    "treatment_skeleton_sha256": "a44db5edcec8b6d07196dc9f54248c67e0adf12777c59e0b36e5794c2cf1d3cd"
+  },
+  "proposal_type": "ordinary",
+  "proposals_cumulative": 41,
+  "remaining_budget": {
+    "evaluations": 159,
+    "evaluator_seconds": 341099.0012741636,
+    "proposals": 159,
+    "tokens": 98472808
+  },
+  "retained": true,
+  "retention_decision": "replaced_selected_parent_on_strict_improvement",
+  "run_id": "controlled-openevolve-transformer-v2-1-source-only-ten-digit-addition-pair-transformer-openevolve-v2-1-mps-openevolve-b03-c3",
+  "schema_version": "1.0",
+  "selected_parent_ids": [
+    "51f19755bd05315390eddf0d462a8d5421cd9aaed2c4bdcec9a6c085c4c026ab"
+  ],
+  "timestamp": "2026-08-24T12:07:42.417635+00:00",
+  "usage_cumulative": {
+    "cached_input_tokens": 476928,
+    "input_tokens": 1343337,
+    "output_tokens": 183855,
+    "reasoning_output_tokens": 140998,
+    "total_tokens": 1527192
+  },
+  "usage_increment": {
+    "cached_input_tokens": 12032,
+    "input_tokens": 38500,
+    "output_tokens": 2422,
+    "reasoning_output_tokens": 2051,
+    "total_tokens": 40922
+  },
+  "visible_candidate_ids": [
+    "2b9cea175ed60b009337ac54f6e8ad23bf2c014eb4080237777bfb70bfd9fd5b",
+    "b4a21570cab95320208e1ad0c75ead10cad3a2f08b2749f6f3b2eecabdb7f3a7",
+    "d04555510b37b64a9830fd92d373493ddd090fdedf89c88a79c398a21614bc52",
+    "51f19755bd05315390eddf0d462a8d5421cd9aaed2c4bdcec9a6c085c4c026ab"
+  ]
+}

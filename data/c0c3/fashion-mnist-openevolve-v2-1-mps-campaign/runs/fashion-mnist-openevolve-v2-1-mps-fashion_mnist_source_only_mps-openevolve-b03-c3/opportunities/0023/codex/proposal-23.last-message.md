@@ -1,0 +1,13 @@
+MECHANISM: Mid-width progressive flip-orbit supervision
+
+HYPOTHESIS: A cosine curriculum from 57.5% to 92.5% flip-ensemble weight will exceed 9,237 correct predictions by interpolating between the two strongest schedules while avoiding both the inferior narrow and widest regimes.
+
+INTENDED_EDIT: Widen the current 65%–85% curriculum to 57.5%–92.5%, preserving its 75% center and progression direction.
+
+EVIDENCE: The 60%–90% and 55%–95% schedules both reached 9,237 correct, with 55%–95% achieving lower cross-entropy; 65%–85% fell to 9,229 and 50%–100% reached 9,235, motivating a midpoint within the strongest observed width interval.
+
+<<<<<<< SEARCH
+    ensemble_weight = 0.75 - 0.10 * math.cos(math.pi * progress)
+=======
+    ensemble_weight = 0.75 - 0.175 * math.cos(math.pi * progress)
+>>>>>>> REPLACE

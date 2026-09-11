@@ -1,0 +1,79 @@
+{
+  "artifact_path": "candidates/7afb0e1bab280e8f89ffc16cad1fb14500fce31771280fce71fa186a9a879f50",
+  "candidate_id": "7afb0e1bab280e8f89ffc16cad1fb14500fce31771280fce71fa186a9a879f50",
+  "codex_service_tier": "default",
+  "condition": "C0",
+  "conversation_session_id": null,
+  "evaluation": {
+    "evaluator_calls": 1,
+    "evaluator_seconds": 1040.983334959019,
+    "failure_kind": null,
+    "fitness": -1561.0,
+    "metrics": {
+      "accuracy": 0.9993000000000001,
+      "cases": 10010,
+      "correct": 10003,
+      "parameters": 1561,
+      "training_steps": 4999
+    },
+    "valid": true
+  },
+  "evaluator_calls_cumulative": 126,
+  "evaluator_calls_increment": 1,
+  "evaluator_seconds_cumulative": 53500.777392248274,
+  "evaluator_seconds_increment": 1040.983334959019,
+  "event": "proposal_completed",
+  "evicted_candidate_id": "fc6333a6c6fb283013aceb58daecab8c57f1e3fa8a5e1d25fd1bebc53df31ed3",
+  "evidence": "The current design achieved 99.98% with existing shear eliminations at `qkv.weight[2,4]` and `[3,0]`; component-two projection and key anchors also succeeded, while fixing the remaining query scale collapsed to 76.75%, motivating another shear rather than another scale constraint.",
+  "hypothesis": "Fixing `qkv.weight[1,2]` at zero through a reciprocal query/key shear will produce a 1561-parameter model with at least 99% accuracy, because the 99.98%-accurate 1562-parameter design already contains two successful query\u2013key shear anchors, and this component-two reduction leaves query row 3\u2019s scale unconstrained unlike the failed eighth scale anchor.",
+  "incumbent_after": "7afb0e1bab280e8f89ffc16cad1fb14500fce31771280fce71fa186a9a879f50",
+  "intended_edit": "Store 176 learned QKV weights, reconstruct `qkv.weight[1,2]` as zero, and canonicalize initialization by shearing query row 1 against row 3 while applying the inverse shear to key row 11.",
+  "mechanism": "Additional head-0 query\u2013key shear gauge",
+  "opportunity": 126,
+  "parent_ids": [
+    "fc6333a6c6fb283013aceb58daecab8c57f1e3fa8a5e1d25fd1bebc53df31ed3"
+  ],
+  "portfolio_after": [
+    "7afb0e1bab280e8f89ffc16cad1fb14500fce31771280fce71fa186a9a879f50"
+  ],
+  "prompt_hashes": {
+    "common_template_sha256": "3f2bea6418b6969c4bf2aa1df18dcda8a3a4ac075bf20c79068c754698b6be5e",
+    "prompt_sha256": "4a6c1f7ede3e4151c61b01aa6815b9f227e30da38ca08617b621f3f4b8c66950",
+    "proposal_policy_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "search_state_sha256": "04e5eb078ae1964e4ec65bfeeeb1acd0ffa246e7d54d5e0f997f81f602da28c5",
+    "treatment_skeleton_sha256": "044f6ff8a29e769ea6cfe62d476e326faba4e1b8bfc072594cb123626324a558"
+  },
+  "proposal_type": "ordinary",
+  "proposals_cumulative": 126,
+  "remaining_budget": {
+    "evaluations": 74,
+    "evaluator_seconds": 306499.2226077517,
+    "proposals": 74,
+    "tokens": 96737932
+  },
+  "retained": true,
+  "retention_decision": "strict_incumbent_improvement",
+  "run_id": "controlled-openevolve-transformer-v2-1-source-only-ten-digit-addition-pair-transformer-openevolve-v2-1-mps-openevolve-b04-c0",
+  "schema_version": "1.0",
+  "selected_parent_ids": [
+    "fc6333a6c6fb283013aceb58daecab8c57f1e3fa8a5e1d25fd1bebc53df31ed3"
+  ],
+  "timestamp": "2026-09-04T01:15:23.164219+00:00",
+  "usage_cumulative": {
+    "cached_input_tokens": 1288064,
+    "input_tokens": 2909978,
+    "output_tokens": 352090,
+    "reasoning_output_tokens": 273547,
+    "total_tokens": 3262068
+  },
+  "usage_increment": {
+    "cached_input_tokens": 10752,
+    "input_tokens": 25614,
+    "output_tokens": 6789,
+    "reasoning_output_tokens": 5696,
+    "total_tokens": 32403
+  },
+  "visible_candidate_ids": [
+    "fc6333a6c6fb283013aceb58daecab8c57f1e3fa8a5e1d25fd1bebc53df31ed3"
+  ]
+}

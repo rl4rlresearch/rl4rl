@@ -1,0 +1,85 @@
+{
+  "artifact_path": "candidates/75cfef9d9bff5c78daafc5c25c517f018342fb74c89af7e9976dfc0ecd97f623",
+  "candidate_id": "75cfef9d9bff5c78daafc5c25c517f018342fb74c89af7e9976dfc0ecd97f623",
+  "codex_service_tier": "default",
+  "condition": "C3",
+  "conversation_session_id": null,
+  "evaluation": {
+    "evaluator_calls": 1,
+    "evaluator_seconds": 665.889480457874,
+    "failure_kind": null,
+    "fitness": -1538.0,
+    "metrics": {
+      "accuracy": 0.9994,
+      "cases": 10010,
+      "correct": 10004,
+      "parameters": 1538,
+      "training_steps": 4999
+    },
+    "valid": true
+  },
+  "evaluator_calls_cumulative": 45,
+  "evaluator_calls_increment": 1,
+  "evaluator_seconds_cumulative": 22010.49863596144,
+  "evaluator_seconds_increment": 665.889480457874,
+  "event": "proposal_completed",
+  "evicted_candidate_id": "d04555510b37b64a9830fd92d373493ddd090fdedf89c88a79c398a21614bc52",
+  "evidence": "The full-scale 1,540-parameter attention-gauged design achieved 99.99%, whereas directly fixing a second `ln2` scale fell to 80.28%; since each scale is functionally absorbable into the following `fc1` column, this isolates and restores the lost optimizer dynamics while removing both parameters.",
+  "hypothesis": "A 1,538-parameter model will retain at least 99% accuracy because the two omitted `ln2` scales are exactly absorbed into their `fc1` columns, while optimizer-side factorization reproduces the full model\u2019s separate AdamW updates instead of the optimization geometry that caused the naive two-scale design to reach only 80.28%.",
+  "incumbent_after": "75cfef9d9bff5c78daafc5c25c517f018342fb74c89af7e9976dfc0ecd97f623",
+  "intended_edit": "Reproduce the qualified attention projection bias/first-column gauges, replace `ln2` with a six-scale LayerNorm, and train the two absorbed scale/weight factorizations in ambient coordinates while continuously materializing only their products in the learned model.",
+  "mechanism": "Ambient AdamW for two multiplicatively absorbed LayerNorm scales",
+  "opportunity": 45,
+  "parent_ids": [
+    "d04555510b37b64a9830fd92d373493ddd090fdedf89c88a79c398a21614bc52"
+  ],
+  "portfolio_after": [
+    "2b9cea175ed60b009337ac54f6e8ad23bf2c014eb4080237777bfb70bfd9fd5b",
+    "b4a21570cab95320208e1ad0c75ead10cad3a2f08b2749f6f3b2eecabdb7f3a7",
+    "75cfef9d9bff5c78daafc5c25c517f018342fb74c89af7e9976dfc0ecd97f623",
+    "0826338009e62d6cb88030d8e2fc47a8eb9bd2a46bfdb01abc403f3d5b0a9034"
+  ],
+  "prompt_hashes": {
+    "common_template_sha256": "3f2bea6418b6969c4bf2aa1df18dcda8a3a4ac075bf20c79068c754698b6be5e",
+    "prompt_sha256": "9190ee3530dd1456d2441f41b87088f951942cd711e496439424c0d0c7f046fc",
+    "proposal_policy_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "search_state_sha256": "c938ac007bf70fe8d27f64661175531e51fcb16b38318c328493c32ee292e27e",
+    "treatment_skeleton_sha256": "f23abb6b3ca3eb2fa7120dc7409bb4593c005ecb7c00d5795795c1062e07ea05"
+  },
+  "proposal_type": "ordinary",
+  "proposals_cumulative": 45,
+  "remaining_budget": {
+    "evaluations": 155,
+    "evaluator_seconds": 337989.50136403856,
+    "proposals": 155,
+    "tokens": 98296905
+  },
+  "retained": true,
+  "retention_decision": "replaced_selected_parent_on_strict_improvement",
+  "run_id": "controlled-openevolve-transformer-v2-1-source-only-ten-digit-addition-pair-transformer-openevolve-v2-1-mps-openevolve-b03-c3",
+  "schema_version": "1.0",
+  "selected_parent_ids": [
+    "d04555510b37b64a9830fd92d373493ddd090fdedf89c88a79c398a21614bc52"
+  ],
+  "timestamp": "2026-08-24T17:03:00.155112+00:00",
+  "usage_cumulative": {
+    "cached_input_tokens": 538624,
+    "input_tokens": 1497828,
+    "output_tokens": 205267,
+    "reasoning_output_tokens": 155454,
+    "total_tokens": 1703095
+  },
+  "usage_increment": {
+    "cached_input_tokens": 37632,
+    "input_tokens": 38617,
+    "output_tokens": 11833,
+    "reasoning_output_tokens": 8804,
+    "total_tokens": 50450
+  },
+  "visible_candidate_ids": [
+    "2b9cea175ed60b009337ac54f6e8ad23bf2c014eb4080237777bfb70bfd9fd5b",
+    "b4a21570cab95320208e1ad0c75ead10cad3a2f08b2749f6f3b2eecabdb7f3a7",
+    "d04555510b37b64a9830fd92d373493ddd090fdedf89c88a79c398a21614bc52",
+    "0826338009e62d6cb88030d8e2fc47a8eb9bd2a46bfdb01abc403f3d5b0a9034"
+  ]
+}

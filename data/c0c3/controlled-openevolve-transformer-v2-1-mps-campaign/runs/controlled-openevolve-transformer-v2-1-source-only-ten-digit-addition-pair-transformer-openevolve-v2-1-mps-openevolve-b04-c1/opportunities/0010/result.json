@@ -1,0 +1,79 @@
+{
+  "artifact_path": "candidates/72d1f5f621084da9b892439a2822fb06c593c50ee1ae7171a44b1eb1e54c9920",
+  "candidate_id": "72d1f5f621084da9b892439a2822fb06c593c50ee1ae7171a44b1eb1e54c9920",
+  "codex_service_tier": "fast",
+  "condition": "C1",
+  "conversation_session_id": null,
+  "evaluation": {
+    "evaluator_calls": 1,
+    "evaluator_seconds": 335.01504229195416,
+    "failure_kind": "nonqualification",
+    "fitness": null,
+    "metrics": {
+      "accuracy": 0.005600000000000001,
+      "cases": 10010,
+      "correct": 56,
+      "parameters": 1594,
+      "training_steps": 4999
+    },
+    "valid": false
+  },
+  "evaluator_calls_cumulative": 10,
+  "evaluator_calls_increment": 1,
+  "evaluator_seconds_cumulative": 2803.2024002089165,
+  "evaluator_seconds_increment": 335.01504229195416,
+  "event": "proposal_completed",
+  "evicted_candidate_id": null,
+  "evidence": "Reducing the entire residual width to six collapsed accuracy to 0.01%, while the eight-wide model reaches 99.91%. Prior designs assumed positional and computational widths must match; this patch preserves all attention and MLP capacity while removing a functionally redundant positional degree of freedom.",
+  "hypothesis": "Representing each learned position with seven coordinates and padding an eighth zero will remove `max_seq_len` parameters while retaining at least 99% accuracy, because position-dependent shifts along the all-ones direction are invisible to every pre-LayerNorm sublayer and the final LayerNorm.",
+  "incumbent_after": "8696054230ad283a09d8445182411035dad2b80d3685331fd24c9b78e8efbb24",
+  "intended_edit": "Decouple positional-code width from the load-bearing eight-dimensional residual stream by using a seven-dimensional learned positional embedding with a fixed zero gauge coordinate.",
+  "mechanism": "LayerNorm-gauge-fixed positional codes",
+  "opportunity": 10,
+  "parent_ids": [
+    "8696054230ad283a09d8445182411035dad2b80d3685331fd24c9b78e8efbb24"
+  ],
+  "portfolio_after": [
+    "8696054230ad283a09d8445182411035dad2b80d3685331fd24c9b78e8efbb24"
+  ],
+  "prompt_hashes": {
+    "common_template_sha256": "3f2bea6418b6969c4bf2aa1df18dcda8a3a4ac075bf20c79068c754698b6be5e",
+    "prompt_sha256": "a9d1529fb11d74b80672cbf9e2b94ea6f7d7a7c11bd9bb7965adaca01d07d7e8",
+    "proposal_policy_sha256": "4a27c08e098e719db007f4d6b37fabe2967b41836bb9070e2513a8a24ff7ce90",
+    "search_state_sha256": "04e5eb078ae1964e4ec65bfeeeb1acd0ffa246e7d54d5e0f997f81f602da28c5",
+    "treatment_skeleton_sha256": "6a4e592f58f5b984deae4df27d880606c0afe6a0f86f582ad8a225b0ff1c2e1a"
+  },
+  "proposal_type": "assumption_changing",
+  "proposals_cumulative": 10,
+  "remaining_budget": {
+    "evaluations": 190,
+    "evaluator_seconds": 357196.7975997911,
+    "proposals": 190,
+    "tokens": 99784824
+  },
+  "retained": false,
+  "retention_decision": "invalid",
+  "run_id": "controlled-openevolve-transformer-v2-1-source-only-ten-digit-addition-pair-transformer-openevolve-v2-1-mps-openevolve-b04-c1",
+  "schema_version": "1.0",
+  "selected_parent_ids": [
+    "8696054230ad283a09d8445182411035dad2b80d3685331fd24c9b78e8efbb24"
+  ],
+  "timestamp": "2026-08-23T14:19:54.946313+00:00",
+  "usage_cumulative": {
+    "cached_input_tokens": 116224,
+    "input_tokens": 196035,
+    "output_tokens": 19141,
+    "reasoning_output_tokens": 16472,
+    "total_tokens": 215176
+  },
+  "usage_increment": {
+    "cached_input_tokens": 12032,
+    "input_tokens": 20622,
+    "output_tokens": 7046,
+    "reasoning_output_tokens": 6732,
+    "total_tokens": 27668
+  },
+  "visible_candidate_ids": [
+    "8696054230ad283a09d8445182411035dad2b80d3685331fd24c9b78e8efbb24"
+  ]
+}

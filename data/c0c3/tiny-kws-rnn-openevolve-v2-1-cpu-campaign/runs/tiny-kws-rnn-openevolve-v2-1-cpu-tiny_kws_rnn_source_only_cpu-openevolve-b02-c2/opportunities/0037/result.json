@@ -1,0 +1,105 @@
+{
+  "artifact_path": "candidates/34d5883f0b15646ce900f6b01e80070e7ed228caa52325ad71e731085a15b39b",
+  "candidate_id": "34d5883f0b15646ce900f6b01e80070e7ed228caa52325ad71e731085a15b39b",
+  "codex_service_tier": "default",
+  "condition": "C2",
+  "conversation_session_id": null,
+  "evaluation": {
+    "evaluator_calls": 1,
+    "evaluator_seconds": 59.0391198748257,
+    "failure_kind": "nonqualification",
+    "fitness": null,
+    "metrics": {
+      "batch_size": 128,
+      "evaluation_cases": 815,
+      "evaluation_split": "public_speaker_disjoint_validation",
+      "examples_processed": 50000,
+      "inference_cost": 3171742457162927479,
+      "maximum_recurrent_steps": 29,
+      "mean_recurrent_steps": 29.0,
+      "median_recurrent_steps": 29,
+      "optimizer_steps": 397,
+      "p95_recurrent_steps": 29,
+      "parameters": 26924,
+      "peak_hidden_elements": 86528,
+      "recurrent_logit_effect": 0.061931513249874115,
+      "recurrent_macs": 607514040,
+      "recurrent_steps": 23635,
+      "state_dependence_effect": 0.40250447392463684,
+      "state_update_effect": 0.40133926272392273,
+      "total_inference_macs": 608061720,
+      "trained_recurrent_logit_effect": 0.35701802372932434,
+      "trained_state_dependence_effect": 0.4432346820831299,
+      "trained_state_update_effect": 0.44070208072662354,
+      "training_seconds": 43.2407687921077,
+      "validation_accuracy": 0.8466257668711656,
+      "validation_correct": 690,
+      "validation_cross_entropy": 0.45419027878462903
+    },
+    "valid": false
+  },
+  "evaluator_calls_cumulative": 36,
+  "evaluator_calls_increment": 1,
+  "evaluator_seconds_cumulative": 4254.936179830227,
+  "evaluator_seconds_increment": 59.0391198748257,
+  "event": "proposal_completed",
+  "evicted_candidate_id": null,
+  "evidence": "The current 84-unit, 18-band model already meets the threshold at 85.03%; unlike another spectral or recurrent-width reduction, this preserves both qualified recurrent representations and all 29 recurrent steps while removing only redundant classifier-side dimensionality.",
+  "hypothesis": "Averaging the mean recurrent output with the final hidden state before classification will retain at least 85% validation accuracy while halving classifier MACs, reducing total inference MACs from 608,609,400 to approximately 608,061,720.",
+  "incumbent_after": "ed96eefbb76698aba94b12118dc134b04967b7013297357cdc43b1f2caa9b75e",
+  "intended_edit": "Replace the 168-to-8 classifier over concatenated recurrent views with an 84-to-8 classifier over their elementwise average.",
+  "mechanism": "Parameter-free fusion of temporal and final-state views",
+  "opportunity": 37,
+  "parent_ids": [
+    "ed96eefbb76698aba94b12118dc134b04967b7013297357cdc43b1f2caa9b75e"
+  ],
+  "portfolio_after": [
+    "3e3f710bf673b43c81269743582d9c5a0f9d8a2f2dadfde9b7a29c6f4ed42eff",
+    "f18d7feaa3bce23dd7a70f3b7be305e186aa74c0adb6626a295f4710b62be885",
+    "ed96eefbb76698aba94b12118dc134b04967b7013297357cdc43b1f2caa9b75e",
+    "16e54c9e634bc8ca37befc9ef94a131a991fba3072c1a0dbca5ee60d992488a2"
+  ],
+  "prompt_hashes": {
+    "common_template_sha256": "dee04faf4c430276c1036ba97f5705a339857dbdf19117dac88952a5a3a47e9d",
+    "prompt_sha256": "69f098ad08b99ea8d7ecbc7d3218ffd7ea4db9bf231bac8202948a77574f8b70",
+    "proposal_policy_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "search_state_sha256": "c938ac007bf70fe8d27f64661175531e51fcb16b38318c328493c32ee292e27e",
+    "treatment_skeleton_sha256": "cb29e49d6b5970379dd71095581ca53f879d8b22b79eb74ff08ee3da4fb1c5ed"
+  },
+  "proposal_type": "ordinary",
+  "proposals_cumulative": 37,
+  "remaining_budget": {
+    "evaluations": 164,
+    "evaluator_seconds": 55745.06382016977,
+    "proposals": 163,
+    "tokens": 99041408
+  },
+  "retained": false,
+  "retention_decision": "invalid",
+  "run_id": "tiny-kws-rnn-openevolve-v2-1-cpu-tiny_kws_rnn_source_only_cpu-openevolve-b02-c2",
+  "schema_version": "1.0",
+  "selected_parent_ids": [
+    "ed96eefbb76698aba94b12118dc134b04967b7013297357cdc43b1f2caa9b75e"
+  ],
+  "timestamp": "2026-09-04T04:30:31.476544+00:00",
+  "usage_cumulative": {
+    "cached_input_tokens": 467584,
+    "input_tokens": 904582,
+    "output_tokens": 54010,
+    "reasoning_output_tokens": 40644,
+    "total_tokens": 958592
+  },
+  "usage_increment": {
+    "cached_input_tokens": 10752,
+    "input_tokens": 23822,
+    "output_tokens": 1289,
+    "reasoning_output_tokens": 1034,
+    "total_tokens": 25111
+  },
+  "visible_candidate_ids": [
+    "3e3f710bf673b43c81269743582d9c5a0f9d8a2f2dadfde9b7a29c6f4ed42eff",
+    "f18d7feaa3bce23dd7a70f3b7be305e186aa74c0adb6626a295f4710b62be885",
+    "ed96eefbb76698aba94b12118dc134b04967b7013297357cdc43b1f2caa9b75e",
+    "16e54c9e634bc8ca37befc9ef94a131a991fba3072c1a0dbca5ee60d992488a2"
+  ]
+}

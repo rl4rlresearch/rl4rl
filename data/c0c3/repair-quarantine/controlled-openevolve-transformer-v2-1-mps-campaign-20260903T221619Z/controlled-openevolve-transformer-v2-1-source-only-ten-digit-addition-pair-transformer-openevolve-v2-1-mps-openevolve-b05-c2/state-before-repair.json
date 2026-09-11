@@ -1,0 +1,1369 @@
+{
+  "active": null,
+  "candidates": {
+    "00f916320c236965ffed4248a214adcdc1bc3fca295eab3c1f8dacdcb69d4291": {
+      "artifact_path": "candidates/00f916320c236965ffed4248a214adcdc1bc3fca295eab3c1f8dacdcb69d4291",
+      "candidate_id": "00f916320c236965ffed4248a214adcdc1bc3fca295eab3c1f8dacdcb69d4291",
+      "created_opportunity": 32,
+      "fitness": -1539.0,
+      "hypothesis": "Extending the qualified three-coordinate `ln1` scale anchor to four coordinates will produce a 1539-parameter model with at least 99% accuracy, because the additional fixed scale can be absorbed into the corresponding unrestricted `qkv` input column while four learned scales remain.",
+      "intended_edit": "Reproduce the qualified 1540-parameter design\u2019s folded attention bias, mean-zero `fc1`, affine-free `ln2`, and three embedding gauges, then fix a fourth `ln1` scale coordinate at one.",
+      "metrics": {
+        "accuracy": 0.9995,
+        "cases": 10010,
+        "correct": 10005,
+        "parameters": 1539,
+        "training_steps": 4999
+      },
+      "parent_ids": [
+        "809c2b0cea7b44944012a473197732ad4b5e460e7aa91cebab1cfbc2d3c15a7e"
+      ],
+      "retained_order": 32,
+      "selected_count": 2
+    },
+    "16b402fcddd52640df931ef4bd811f12c17b33d96eae38cfc003818d6fe23e7c": {
+      "artifact_path": "candidates/16b402fcddd52640df931ef4bd811f12c17b33d96eae38cfc003818d6fe23e7c",
+      "candidate_id": "16b402fcddd52640df931ef4bd811f12c17b33d96eae38cfc003818d6fe23e7c",
+      "created_opportunity": 41,
+      "fitness": -1533.0,
+      "hypothesis": "Adding a second sequential rotation within the second attention head will reduce the model to 1533 parameters while retaining at least 99% accuracy, because it removes another exact query-key rotational gauge without changing initialized attention scores.",
+      "intended_edit": "Rotate second-head query/key channels 1\u20132 after its existing rotation, fix the resulting query coefficient to zero, and omit that coefficient from the trainable QKV parameterization.",
+      "metrics": {
+        "accuracy": 0.9952,
+        "cases": 10010,
+        "correct": 9962,
+        "parameters": 1533,
+        "training_steps": 4999
+      },
+      "parent_ids": [
+        "26e2aae577e488f89986622a9b82129ef5cd3591c7779e0c708a1534712ff177"
+      ],
+      "retained_order": 41,
+      "selected_count": 2
+    },
+    "17dc36ef99e8b6c833d532f8ac445effa35351bbd78778812d6c125b99fd1ddd": {
+      "artifact_path": "candidates/17dc36ef99e8b6c833d532f8ac445effa35351bbd78778812d6c125b99fd1ddd",
+      "candidate_id": "17dc36ef99e8b6c833d532f8ac445effa35351bbd78778812d6c125b99fd1ddd",
+      "created_opportunity": 39,
+      "fitness": -1535.0,
+      "hypothesis": "Adding a second sequential query-key rotation within the first attention head will produce a 1535-parameter model with at least 99% accuracy because it fixes one additional query coefficient while preserving attention scores.",
+      "intended_edit": "Reproduce the qualified 1536-parameter four-anchor, single-row QKV design and add one further orthogonal query-key rotation in the first head.",
+      "metrics": {
+        "accuracy": 0.9984000000000001,
+        "cases": 10010,
+        "correct": 9994,
+        "parameters": 1535,
+        "training_steps": 4999
+      },
+      "parent_ids": [
+        "34a33ec7f27736f58826d454ee396cb0c7ff23fc37574b36d5620a6df1a7a825"
+      ],
+      "retained_order": 39,
+      "selected_count": 1
+    },
+    "18b361585979143c095cd687dd133f7e2be3083adf64d6cf370c5c01daa5540e": {
+      "artifact_path": "candidates/18b361585979143c095cd687dd133f7e2be3083adf64d6cf370c5c01daa5540e",
+      "candidate_id": "18b361585979143c095cd687dd133f7e2be3083adf64d6cf370c5c01daa5540e",
+      "created_opportunity": 30,
+      "fitness": -1541.0,
+      "hypothesis": "Combining the qualified mean-zero `fc1` parameterization with two fixed `ln1` scale coordinates will produce a 1541-parameter model with at least 99% accuracy, because the second fixed scale can be absorbed into its unrestricted `qkv` input column while six learned scales remain.",
+      "intended_edit": "Reproduce the qualified `fc1` null-space reduction and extend the successful single-coordinate `ln1` scale anchor to the final two coordinates.",
+      "metrics": {
+        "accuracy": 0.9982,
+        "cases": 10010,
+        "correct": 9992,
+        "parameters": 1541,
+        "training_steps": 4999
+      },
+      "parent_ids": [
+        "20486edf57b4c1718e88dab0663298cb58b0c14f0dfa6bcff86d3ad71937c42a"
+      ],
+      "retained_order": 30,
+      "selected_count": 1
+    },
+    "1939ee4b6814b48a9e3b8d986849c35deda6a11fe67804f30bbfadab8d0423d2": {
+      "artifact_path": "candidates/1939ee4b6814b48a9e3b8d986849c35deda6a11fe67804f30bbfadab8d0423d2",
+      "candidate_id": "1939ee4b6814b48a9e3b8d986849c35deda6a11fe67804f30bbfadab8d0423d2",
+      "created_opportunity": 103,
+      "fitness": -1496.0,
+      "hypothesis": "Starting from the qualified 1497-parameter design, fixing its sole remaining pre-attention LayerNorm scale at one will yield 1496 parameters while maintaining at least 99% accuracy.",
+      "intended_edit": "Reproduce the qualified MLP output-bias anchors at coordinates 0, 1, 2, and 5, then remove the remaining learned `ln1` scale so all eight pre-attention scales are fixed at one.",
+      "metrics": {
+        "accuracy": 0.9995999999999999,
+        "cases": 10010,
+        "correct": 10006,
+        "parameters": 1496,
+        "training_steps": 4999
+      },
+      "parent_ids": [
+        "89793786f66b7e41447698ec92481dd17f13d24e0e4890625103bf9af3b1d7ac"
+      ],
+      "retained_order": 103,
+      "selected_count": 1
+    },
+    "20486edf57b4c1718e88dab0663298cb58b0c14f0dfa6bcff86d3ad71937c42a": {
+      "artifact_path": "candidates/20486edf57b4c1718e88dab0663298cb58b0c14f0dfa6bcff86d3ad71937c42a",
+      "candidate_id": "20486edf57b4c1718e88dab0663298cb58b0c14f0dfa6bcff86d3ad71937c42a",
+      "created_opportunity": 26,
+      "fitness": -1555.0,
+      "hypothesis": "Combining the qualified 1563-parameter design with an affine-free `ln2` will produce a 1555-parameter model with at least 99% accuracy, because `ln2`\u2019s learned scale can be absorbed exactly into the unconstrained input columns of `fc1`.",
+      "intended_edit": "Apply the qualified three-coordinate token/position gauge and bias-free `ln1`, then remove the eight redundant `ln2` scale parameters.",
+      "metrics": {
+        "accuracy": 0.9989,
+        "cases": 10010,
+        "correct": 9999,
+        "parameters": 1555,
+        "training_steps": 4999
+      },
+      "parent_ids": [
+        "5e001540cf235394715a067f6c00b36653873358e401685925ce2e052c4e8ed9"
+      ],
+      "retained_order": 26,
+      "selected_count": 1
+    },
+    "20e75552043db56d50d7820572eba88015b37c3a974ec707f82062a9229af28b": {
+      "artifact_path": "candidates/20e75552043db56d50d7820572eba88015b37c3a974ec707f82062a9229af28b",
+      "candidate_id": "20e75552043db56d50d7820572eba88015b37c3a974ec707f82062a9229af28b",
+      "created_opportunity": 97,
+      "fitness": -1498.0,
+      "hypothesis": "Extending the qualified 1499-parameter design by fixing reduced MLP output-bias coordinate 2 will yield 1498 parameters while maintaining at least 99% accuracy.",
+      "intended_edit": "Reconstruct MLP output-bias coordinates 0, 1, and 2 as zero while learning the remaining four reduced coordinates.",
+      "metrics": {
+        "accuracy": 0.9994,
+        "cases": 10010,
+        "correct": 10004,
+        "parameters": 1498,
+        "training_steps": 4999
+      },
+      "parent_ids": [
+        "42af2786c074043aee969e2b8d81d847d6d4049c6a3f92b001514231995003fb"
+      ],
+      "retained_order": 97,
+      "selected_count": 3
+    },
+    "23b97b67fe8ddc679ea0f3b13e327d4baea3a2634fe51a43002c7d7849fc2ef3": {
+      "artifact_path": "candidates/23b97b67fe8ddc679ea0f3b13e327d4baea3a2634fe51a43002c7d7849fc2ef3",
+      "candidate_id": "23b97b67fe8ddc679ea0f3b13e327d4baea3a2634fe51a43002c7d7849fc2ef3",
+      "created_opportunity": 91,
+      "fitness": -1503.0,
+      "hypothesis": "Fixing the first reduced attention-output bias coordinate while retaining the two qualified final anchors will yield 1503 parameters and maintain at least 99% accuracy.",
+      "intended_edit": "Replace the twice-anchored attention projection with a three-anchor variant that reconstructs reduced bias coordinates 0, 5, and 6 as zero while learning coordinates 1\u20134.",
+      "metrics": {
+        "accuracy": 0.9993000000000001,
+        "cases": 10010,
+        "correct": 10003,
+        "parameters": 1503,
+        "training_steps": 4999
+      },
+      "parent_ids": [
+        "8441f59c9889bc17e384da4be5c58664be0c244c8057e89ffa630b53652bc900"
+      ],
+      "retained_order": 91,
+      "selected_count": 1
+    },
+    "26e2aae577e488f89986622a9b82129ef5cd3591c7779e0c708a1534712ff177": {
+      "artifact_path": "candidates/26e2aae577e488f89986622a9b82129ef5cd3591c7779e0c708a1534712ff177",
+      "candidate_id": "26e2aae577e488f89986622a9b82129ef5cd3591c7779e0c708a1534712ff177",
+      "created_opportunity": 40,
+      "fitness": -1534.0,
+      "hypothesis": "Adding a third sequential rotation within the first attention head will produce a 1534-parameter model with at least 99% accuracy because it removes another exact query-key rotational gauge while preserving attention scores.",
+      "intended_edit": "Reproduce the qualified four-scale anchor, single mean-zero QKV row, and three rotations, then rotate first-head query/key channels 2\u20133 and omit the resulting fixed query coefficient.",
+      "metrics": {
+        "accuracy": 0.9926,
+        "cases": 10010,
+        "correct": 9936,
+        "parameters": 1534,
+        "training_steps": 4999
+      },
+      "parent_ids": [
+        "4770acb9d2055008939576ea1229c8b802d9d6c3de997d58aef1252465ad2cba"
+      ],
+      "retained_order": 40,
+      "selected_count": 1
+    },
+    "2b9cea175ed60b009337ac54f6e8ad23bf2c014eb4080237777bfb70bfd9fd5b": {
+      "artifact_path": "candidates/2b9cea175ed60b009337ac54f6e8ad23bf2c014eb4080237777bfb70bfd9fd5b",
+      "candidate_id": "2b9cea175ed60b009337ac54f6e8ad23bf2c014eb4080237777bfb70bfd9fd5b",
+      "created_opportunity": 0,
+      "fitness": -1644.0,
+      "hypothesis": "frozen seed baseline",
+      "intended_edit": "none",
+      "metrics": {
+        "accuracy": 0.9995999999999999,
+        "cases": 10010,
+        "correct": 10006,
+        "parameters": 1644,
+        "training_steps": 4999
+      },
+      "parent_ids": [],
+      "retained_order": 0,
+      "selected_count": 6
+    },
+    "308822369c8424c2ac12012a2c50ef5ebd5a0d883a2fcca770db38d43b385040": {
+      "artifact_path": "candidates/308822369c8424c2ac12012a2c50ef5ebd5a0d883a2fcca770db38d43b385040",
+      "candidate_id": "308822369c8424c2ac12012a2c50ef5ebd5a0d883a2fcca770db38d43b385040",
+      "created_opportunity": 35,
+      "fitness": -1538.0,
+      "hypothesis": "Applying one mean-zero QKV-row gauge to the qualified 1539-parameter four-anchor design will produce a 1538-parameter model with at least 99% accuracy, because it removes one LayerNorm-null direction while avoiding the optimization disruption caused by constraining all 24 rows.",
+      "intended_edit": "Extend `ln1` from two to four fixed scales and represent only the final QKV weight row in the seven-dimensional mean-zero basis, preserving full-sized initialization draws.",
+      "metrics": {
+        "accuracy": 0.9976999999999999,
+        "cases": 10010,
+        "correct": 9987,
+        "parameters": 1538,
+        "training_steps": 4999
+      },
+      "parent_ids": [
+        "18b361585979143c095cd687dd133f7e2be3083adf64d6cf370c5c01daa5540e"
+      ],
+      "retained_order": 35,
+      "selected_count": 1
+    },
+    "331df860edbbd8f9e05b6e3dde6fe5ab15b43138656587fc1ebbba2141b7544b": {
+      "artifact_path": "candidates/331df860edbbd8f9e05b6e3dde6fe5ab15b43138656587fc1ebbba2141b7544b",
+      "candidate_id": "331df860edbbd8f9e05b6e3dde6fe5ab15b43138656587fc1ebbba2141b7544b",
+      "created_opportunity": 92,
+      "fitness": -1502.0,
+      "hypothesis": "Extending the qualified 1503-parameter design by fixing reduced attention-output bias coordinate 1 will yield 1502 parameters while maintaining at least 99% accuracy.",
+      "intended_edit": "Reproduce the qualified `q_bias[6]` anchor and fix reduced projection-bias coordinates 0, 1, 5, and 6, leaving coordinates 2\u20134 learned.",
+      "metrics": {
+        "accuracy": 0.9995,
+        "cases": 10010,
+        "correct": 10005,
+        "parameters": 1502,
+        "training_steps": 4999
+      },
+      "parent_ids": [
+        "618d17424655b2322d10baca4c57f7c16125324829339191482740c100be0569"
+      ],
+      "retained_order": 92,
+      "selected_count": 2
+    },
+    "349ca395bcc6512a4be1e5c08f151576be20227d64e932f1774df6a0a4ee83aa": {
+      "artifact_path": "candidates/349ca395bcc6512a4be1e5c08f151576be20227d64e932f1774df6a0a4ee83aa",
+      "candidate_id": "349ca395bcc6512a4be1e5c08f151576be20227d64e932f1774df6a0a4ee83aa",
+      "created_opportunity": 18,
+      "fitness": -1578.0,
+      "hypothesis": "Fixing a second mean-zero token/position shift coordinate will reduce the qualified 1579-parameter model to 1578 parameters while retaining at least 99% accuracy.",
+      "intended_edit": "Remove another coordinate from the final token embedding row and transfer its initialized two-coordinate contribution into every positional embedding, leaving the initialized input function and output probabilities unchanged.",
+      "metrics": {
+        "accuracy": 0.9995,
+        "cases": 10010,
+        "correct": 10005,
+        "parameters": 1578,
+        "training_steps": 4999
+      },
+      "parent_ids": [
+        "af3f278f54db6bcda9bf2859627646d7c992bf2ac6cdcfca07dda6472f361ccd"
+      ],
+      "retained_order": 18,
+      "selected_count": 2
+    },
+    "34a33ec7f27736f58826d454ee396cb0c7ff23fc37574b36d5620a6df1a7a825": {
+      "artifact_path": "candidates/34a33ec7f27736f58826d454ee396cb0c7ff23fc37574b36d5620a6df1a7a825",
+      "candidate_id": "34a33ec7f27736f58826d454ee396cb0c7ff23fc37574b36d5620a6df1a7a825",
+      "created_opportunity": 31,
+      "fitness": -1540.0,
+      "hypothesis": "Extending the qualified two-coordinate `ln1` scale anchor to three coordinates will produce a 1540-parameter model with at least 99% accuracy, because the third fixed scale can be absorbed into the corresponding unrestricted `qkv` input column while five learned scales remain.",
+      "intended_edit": "Reproduce the qualified mean-zero `fc1` and affine-free `ln2` reductions, then fix the final three `ln1` scale coordinates at one.",
+      "metrics": {
+        "accuracy": 0.9962000000000001,
+        "cases": 10010,
+        "correct": 9972,
+        "parameters": 1540,
+        "training_steps": 4999
+      },
+      "parent_ids": [
+        "ab5b466fe7bc1bfedbecb51a7e3df6a7f508053f2b556cba9ce843042e3616a9"
+      ],
+      "retained_order": 31,
+      "selected_count": 2
+    },
+    "3a554d10f298ec0389db3b9a2704c4d542ee00a7592f9d944cedbb3927179042": {
+      "artifact_path": "candidates/3a554d10f298ec0389db3b9a2704c4d542ee00a7592f9d944cedbb3927179042",
+      "candidate_id": "3a554d10f298ec0389db3b9a2704c4d542ee00a7592f9d944cedbb3927179042",
+      "created_opportunity": 105,
+      "fitness": -1495.0,
+      "hypothesis": "Fixing final LayerNorm bias coordinate 0 at zero will reduce the qualified model from 1496 to 1495 parameters while maintaining at least 99% accuracy.",
+      "intended_edit": "Replace the final LayerNorm with an equivalent module whose scale and bias coordinates 1\u20137 remain learned while bias coordinate 0 is reconstructed as zero.",
+      "metrics": {
+        "accuracy": 0.9983,
+        "cases": 10010,
+        "correct": 9993,
+        "parameters": 1495,
+        "training_steps": 4999
+      },
+      "parent_ids": [
+        "1939ee4b6814b48a9e3b8d986849c35deda6a11fe67804f30bbfadab8d0423d2"
+      ],
+      "retained_order": 105,
+      "selected_count": 3
+    },
+    "3cdd11699c8769109e5c1a5c79b8ea546ea0a53f46432d0d7b40847f45a44343": {
+      "artifact_path": "candidates/3cdd11699c8769109e5c1a5c79b8ea546ea0a53f46432d0d7b40847f45a44343",
+      "candidate_id": "3cdd11699c8769109e5c1a5c79b8ea546ea0a53f46432d0d7b40847f45a44343",
+      "created_opportunity": 55,
+      "fitness": -1522.0,
+      "hypothesis": "Rotating first-head value channels 2\u20133 on input column 1 will produce a 1522-parameter model with at least 99% accuracy while preserving the initialized model function and all four qualified value anchors.",
+      "intended_edit": "Reproduce the qualified 1523-parameter four-value-gauge design, add an orthogonal rotation confined to first-head value rows 2\u20133, omit the resulting fixed `value_weight[2, 1]` coefficient, and inversely rotate projection columns 2\u20133.",
+      "metrics": {
+        "accuracy": 0.9995,
+        "cases": 10010,
+        "correct": 10005,
+        "parameters": 1522,
+        "training_steps": 4999
+      },
+      "parent_ids": [
+        "f3911326255f269ac9b1d1308af0dee62910545a400c8d5f39235e4d550dc65b"
+      ],
+      "retained_order": 55,
+      "selected_count": 1
+    },
+    "3e0a8fbde59f999f65b955dcbffa6519791e907a242fe51bf769d356324297c8": {
+      "artifact_path": "candidates/3e0a8fbde59f999f65b955dcbffa6519791e907a242fe51bf769d356324297c8",
+      "candidate_id": "3e0a8fbde59f999f65b955dcbffa6519791e907a242fe51bf769d356324297c8",
+      "created_opportunity": 75,
+      "fitness": -1508.0,
+      "hypothesis": "Reproducing the qualified 1509-parameter design and replacing its three second-head value gauges with four triangular, initialization-preserving rotations will yield 1508 parameters with at least 99% accuracy.",
+      "intended_edit": "Retain the qualified adaptive LayerNorm scale and query-bias coordinates, while imposing one additional second-head value-weight zero and compensating it in the attention output projection.",
+      "metrics": {
+        "accuracy": 0.9998,
+        "cases": 10010,
+        "correct": 10008,
+        "parameters": 1508,
+        "training_steps": 4999
+      },
+      "parent_ids": [
+        "79235474a15d7c7ee558187516158f8a629ebb3e83717f1246ac3c82a7b64111"
+      ],
+      "retained_order": 75,
+      "selected_count": 3
+    },
+    "42af2786c074043aee969e2b8d81d847d6d4049c6a3f92b001514231995003fb": {
+      "artifact_path": "candidates/42af2786c074043aee969e2b8d81d847d6d4049c6a3f92b001514231995003fb",
+      "candidate_id": "42af2786c074043aee969e2b8d81d847d6d4049c6a3f92b001514231995003fb",
+      "created_opportunity": 96,
+      "fitness": -1499.0,
+      "hypothesis": "Extending the qualified 1500-parameter design by fixing reduced MLP output-bias coordinate 1 will yield 1499 parameters while maintaining at least 99% accuracy.",
+      "intended_edit": "Reproduce the qualified attention projection with only reduced bias coordinates 2 and 4 learned, then reconstruct MLP output-bias coordinates 0 and 1 as zero.",
+      "metrics": {
+        "accuracy": 0.9984000000000001,
+        "cases": 10010,
+        "correct": 9994,
+        "parameters": 1499,
+        "training_steps": 4999
+      },
+      "parent_ids": [
+        "ff2587e5cafb5893052241248556d2e5a58086986751fa929dae89a328da3cd1"
+      ],
+      "retained_order": 96,
+      "selected_count": 1
+    },
+    "464f8fb97ed0c5f424676ef6828bfc79a15fdf26eab39e6b244e3954f6ea1264": {
+      "artifact_path": "candidates/464f8fb97ed0c5f424676ef6828bfc79a15fdf26eab39e6b244e3954f6ea1264",
+      "candidate_id": "464f8fb97ed0c5f424676ef6828bfc79a15fdf26eab39e6b244e3954f6ea1264",
+      "created_opportunity": 71,
+      "fitness": -1510.0,
+      "hypothesis": "Reproducing the qualified 1511-parameter design and fixing `q_bias[1]` will yield a 1510-parameter model with at least 99% accuracy.",
+      "intended_edit": "Fix seven `ln1` scales while retaining its sole learned scale, and reconstruct query-bias coordinates 0, 1, and 4 as zero.",
+      "metrics": {
+        "accuracy": 0.9989,
+        "cases": 10010,
+        "correct": 9999,
+        "parameters": 1510,
+        "training_steps": 4999
+      },
+      "parent_ids": [
+        "46a244f0580499bdd92b9bd188a2448921066aa821fa5c62088113b665bab9f3"
+      ],
+      "retained_order": 71,
+      "selected_count": 1
+    },
+    "46a244f0580499bdd92b9bd188a2448921066aa821fa5c62088113b665bab9f3": {
+      "artifact_path": "candidates/46a244f0580499bdd92b9bd188a2448921066aa821fa5c62088113b665bab9f3",
+      "candidate_id": "46a244f0580499bdd92b9bd188a2448921066aa821fa5c62088113b665bab9f3",
+      "created_opportunity": 65,
+      "fitness": -1514.0,
+      "hypothesis": "Fixing a fifth `ln1` scale will reduce the qualified model to 1514 parameters while retaining at least 99% accuracy.",
+      "intended_edit": "Replace the four-parameter `ln1` scale vector with three learned scales and five fixed unit scales.",
+      "metrics": {
+        "accuracy": 0.9984000000000001,
+        "cases": 10010,
+        "correct": 9994,
+        "parameters": 1514,
+        "training_steps": 4999
+      },
+      "parent_ids": [
+        "d7b15a2d28ff0c4f098f81f87be240aafad74eab877ace3988afde7a46e1362c"
+      ],
+      "retained_order": 65,
+      "selected_count": 1
+    },
+    "4770acb9d2055008939576ea1229c8b802d9d6c3de997d58aef1252465ad2cba": {
+      "artifact_path": "candidates/4770acb9d2055008939576ea1229c8b802d9d6c3de997d58aef1252465ad2cba",
+      "candidate_id": "4770acb9d2055008939576ea1229c8b802d9d6c3de997d58aef1252465ad2cba",
+      "created_opportunity": 29,
+      "fitness": -1542.0,
+      "hypothesis": "Fixing one `ln1` scale coordinate at its initialized value will produce a 1542-parameter model with at least 99% accuracy, because that scale can be absorbed into the corresponding unrestricted `qkv` input column while retaining seven learned normalization scales.",
+      "intended_edit": "Replace `ln1` with a LayerNorm whose final scale is fixed to one and whose other seven scales remain trainable, preserving the freshly initialized function.",
+      "metrics": {
+        "accuracy": 0.9976,
+        "cases": 10010,
+        "correct": 9986,
+        "parameters": 1542,
+        "training_steps": 4999
+      },
+      "parent_ids": [
+        "cc52629316e9749c7804ec8eb734f647580f77158e444b3f374daca43687280d"
+      ],
+      "retained_order": 29,
+      "selected_count": 2
+    },
+    "485d08959a42d59bbe2c87606f38e3b0bdf445b4029cdfa376868bef162c03c5": {
+      "artifact_path": "candidates/485d08959a42d59bbe2c87606f38e3b0bdf445b4029cdfa376868bef162c03c5",
+      "candidate_id": "485d08959a42d59bbe2c87606f38e3b0bdf445b4029cdfa376868bef162c03c5",
+      "created_opportunity": 13,
+      "fitness": -1581.0,
+      "hypothesis": "Restoring the qualified 1582-parameter design\u2019s full value bias while fixing one attention output-projection bias coordinate will retain at least 99% accuracy with 1581 parameters, because the missing mean-zero output bias component can be represented through the learned value bias.",
+      "intended_edit": "Adopt the qualified bias-free-ln2 and globally gauge-fixed tied embedding, restore all eight value-bias coordinates, and remove one coordinate only from the attention projection bias.",
+      "metrics": {
+        "accuracy": 0.9979,
+        "cases": 10010,
+        "correct": 9989,
+        "parameters": 1581,
+        "training_steps": 4999
+      },
+      "parent_ids": [
+        "738c4540e0389bf570fe040492c6c5ee53768b4aaac6de5ff1911c58b296fe69"
+      ],
+      "retained_order": 13,
+      "selected_count": 3
+    },
+    "4e37262b6b7a8c931117a60228d442adffcce1c26b90395e36a7e6c62f0fae63": {
+      "artifact_path": "candidates/4e37262b6b7a8c931117a60228d442adffcce1c26b90395e36a7e6c62f0fae63",
+      "candidate_id": "4e37262b6b7a8c931117a60228d442adffcce1c26b90395e36a7e6c62f0fae63",
+      "created_opportunity": 59,
+      "fitness": -1519.0,
+      "hypothesis": "Extending the 1520-parameter qualified design with one additional exact token/position common-shift gauge will produce a 1519-parameter model with at least 99% accuracy.",
+      "intended_edit": "Reproduce the qualified seven-value QKV parameterization, then fix a fourth mean-zero coordinate of the anchor token embedding and compensate it in the positional embedding.",
+      "metrics": {
+        "accuracy": 0.9974,
+        "cases": 10010,
+        "correct": 9984,
+        "parameters": 1519,
+        "training_steps": 4999
+      },
+      "parent_ids": [
+        "d9a44f61e65fc5fbd42b6c490d4164397be0f559add7c139e3d7f869e157e018"
+      ],
+      "retained_order": 59,
+      "selected_count": 1
+    },
+    "5142ffc3538e8a28f1c17705dab2af18984c8310168162e744ba18c7fc2cfa9e": {
+      "artifact_path": "candidates/5142ffc3538e8a28f1c17705dab2af18984c8310168162e744ba18c7fc2cfa9e",
+      "candidate_id": "5142ffc3538e8a28f1c17705dab2af18984c8310168162e744ba18c7fc2cfa9e",
+      "created_opportunity": 50,
+      "fitness": -1525.0,
+      "hypothesis": "Extending the qualified 1526-parameter value-output design with a second first-head value rotation will produce a 1525-parameter model with at least 99% accuracy while preserving the initialized model function.",
+      "intended_edit": "Incorporate the qualified eleventh query-key anchor and first value-output gauge, then rotate first-head value channels 1\u20132, omit the resulting second fixed value coefficient, and inversely rotate the matching projection columns.",
+      "metrics": {
+        "accuracy": 0.9971,
+        "cases": 10010,
+        "correct": 9981,
+        "parameters": 1525,
+        "training_steps": 4999
+      },
+      "parent_ids": [
+        "75ce400acccc58256f8051871af9e1a9fbc8d41823fe2a68c775d9acd3c6c5b8"
+      ],
+      "retained_order": 50,
+      "selected_count": 1
+    },
+    "5ad905c3febc491c0c8d905fdda9673f3e985486a6136109daeca1b9daf4a7ac": {
+      "artifact_path": "candidates/5ad905c3febc491c0c8d905fdda9673f3e985486a6136109daeca1b9daf4a7ac",
+      "candidate_id": "5ad905c3febc491c0c8d905fdda9673f3e985486a6136109daeca1b9daf4a7ac",
+      "created_opportunity": 100,
+      "fitness": -1497.0,
+      "hypothesis": "Fixing reduced MLP output-bias coordinate 5 while preserving coordinates 3 and 4 will yield 1497 parameters and maintain at least 99% accuracy.",
+      "intended_edit": "Reproduce the qualified 1498-parameter attention and MLP bias pattern, then reconstruct MLP output-bias coordinates 0, 1, 2, and 5 as zero while learning coordinates 3, 4, and 6.",
+      "metrics": {
+        "accuracy": 0.9981,
+        "cases": 10010,
+        "correct": 9991,
+        "parameters": 1497,
+        "training_steps": 4999
+      },
+      "parent_ids": [
+        "331df860edbbd8f9e05b6e3dde6fe5ab15b43138656587fc1ebbba2141b7544b"
+      ],
+      "retained_order": 100,
+      "selected_count": 3
+    },
+    "5c650a041948a642cc5d2c2bbe85def8db9ed5fd2ee2ed9d3f9930d7666f9b9c": {
+      "artifact_path": "candidates/5c650a041948a642cc5d2c2bbe85def8db9ed5fd2ee2ed9d3f9930d7666f9b9c",
+      "candidate_id": "5c650a041948a642cc5d2c2bbe85def8db9ed5fd2ee2ed9d3f9930d7666f9b9c",
+      "created_opportunity": 58,
+      "fitness": -1520.0,
+      "hypothesis": "Anchoring the residual second-head rows 5 and 7 on input column 2 will produce a 1520-parameter model with at least 99% accuracy while preserving the initialized function and all six qualified value anchors.",
+      "intended_edit": "Extend the current model with the qualified second-head complement rotation, then add a nonadjacent rows-5/7 column-two rotation and inverse output-projection compensation.",
+      "metrics": {
+        "accuracy": 0.9995999999999999,
+        "cases": 10010,
+        "correct": 10006,
+        "parameters": 1520,
+        "training_steps": 4999
+      },
+      "parent_ids": [
+        "3cdd11699c8769109e5c1a5c79b8ea546ea0a53f46432d0d7b40847f45a44343"
+      ],
+      "retained_order": 58,
+      "selected_count": 1
+    },
+    "5e001540cf235394715a067f6c00b36653873358e401685925ce2e052c4e8ed9": {
+      "artifact_path": "candidates/5e001540cf235394715a067f6c00b36653873358e401685925ce2e052c4e8ed9",
+      "candidate_id": "5e001540cf235394715a067f6c00b36653873358e401685925ce2e052c4e8ed9",
+      "created_opportunity": 23,
+      "fitness": -1574.0,
+      "hypothesis": "Replacing the redundant value bias plus anchored projection bias with one full mean-zero projection bias will produce a 1574-parameter model with at least 99% accuracy while preserving the initialized function.",
+      "intended_edit": "Remove the eight-coordinate value bias, retain the query bias, and restore all seven direct mean-zero attention output-bias coordinates.",
+      "metrics": {
+        "accuracy": 0.9998,
+        "cases": 10010,
+        "correct": 10008,
+        "parameters": 1574,
+        "training_steps": 4999
+      },
+      "parent_ids": [
+        "485d08959a42d59bbe2c87606f38e3b0bdf445b4029cdfa376868bef162c03c5"
+      ],
+      "retained_order": 23,
+      "selected_count": 1
+    },
+    "5fa243bd9261c5c863838fd0d980f1f47bb9efd91beb90308c503ed7b2a4f364": {
+      "artifact_path": "candidates/5fa243bd9261c5c863838fd0d980f1f47bb9efd91beb90308c503ed7b2a4f364",
+      "candidate_id": "5fa243bd9261c5c863838fd0d980f1f47bb9efd91beb90308c503ed7b2a4f364",
+      "created_opportunity": 45,
+      "fitness": -1529.0,
+      "hypothesis": "Adding a ninth Givens rotation on first-head query/key channels 1\u20132 using input column 1 will produce a 1529-parameter model with at least 99% accuracy, because it preserves attention scores and all eight existing anchors while eliminating one additional query coefficient.",
+      "intended_edit": "Extend the eight-rotation QKV parameterization with a first-head `(1, 1)` stabilizer rotation and omit the resulting fixed `q_weight[1, 1]` coefficient.",
+      "metrics": {
+        "accuracy": 0.9993000000000001,
+        "cases": 10010,
+        "correct": 10003,
+        "parameters": 1529,
+        "training_steps": 4999
+      },
+      "parent_ids": [
+        "a31d87f7e8fdb7911cb7d0d96bd522be195500a30d30d7f1b64a7dd77473bc4b"
+      ],
+      "retained_order": 45,
+      "selected_count": 2
+    },
+    "6100cf3aec2655990999bafb4ff3c739bf90a924e47844042be81b78fd5b3640": {
+      "artifact_path": "candidates/6100cf3aec2655990999bafb4ff3c739bf90a924e47844042be81b78fd5b3640",
+      "candidate_id": "6100cf3aec2655990999bafb4ff3c739bf90a924e47844042be81b78fd5b3640",
+      "created_opportunity": 43,
+      "fitness": -1531.0,
+      "hypothesis": "Adding a seventh Givens rotation on first-head query/key channels 0\u20131 using input column 1 will produce a 1531-parameter model with at least 99% accuracy, because it preserves attention scores and the six existing column-zero anchors while eliminating one additional query coefficient.",
+      "intended_edit": "Reproduce the qualified six-rotation QKV parameterization, apply one stabilizer rotation within the first head, and omit the resulting fixed `q_weight[0, 1]` coefficient while preserving full-sized initialization draws.",
+      "metrics": {
+        "accuracy": 0.9994,
+        "cases": 10010,
+        "correct": 10004,
+        "parameters": 1531,
+        "training_steps": 4999
+      },
+      "parent_ids": [
+        "e3a36ae637723c80747d676fb8db4cb2c2c4197d7af370d7ec3f9c0bfaad7306"
+      ],
+      "retained_order": 43,
+      "selected_count": 1
+    },
+    "618d17424655b2322d10baca4c57f7c16125324829339191482740c100be0569": {
+      "artifact_path": "candidates/618d17424655b2322d10baca4c57f7c16125324829339191482740c100be0569",
+      "candidate_id": "618d17424655b2322d10baca4c57f7c16125324829339191482740c100be0569",
+      "created_opportunity": 76,
+      "fitness": -1507.0,
+      "hypothesis": "Reproducing the qualified 1508-parameter design and triangularizing one additional second-head value coordinate will yield 1507 parameters while retaining at least 99% accuracy.",
+      "intended_edit": "Complete the token-position embedding gauge, retain one learned pre-attention LayerNorm scale, fix query-bias coordinates 0, 1, 2, and 4, and replace four second-head value rotations with five initialization-preserving triangular rotations compensated in the output projection.",
+      "metrics": {
+        "accuracy": 0.9991,
+        "cases": 10010,
+        "correct": 10001,
+        "parameters": 1507,
+        "training_steps": 4999
+      },
+      "parent_ids": [
+        "7529e579e280dd27c2686565caf60e53a0e7843cb980c133cbabc2b7a3b3c68d"
+      ],
+      "retained_order": 76,
+      "selected_count": 4
+    },
+    "629ff45e7140677c956a4dc4ea8d3e8586b8b86830f0a21eb44781736dcf5c2b": {
+      "artifact_path": "candidates/629ff45e7140677c956a4dc4ea8d3e8586b8b86830f0a21eb44781736dcf5c2b",
+      "candidate_id": "629ff45e7140677c956a4dc4ea8d3e8586b8b86830f0a21eb44781736dcf5c2b",
+      "created_opportunity": 113,
+      "fitness": -1483.0,
+      "hypothesis": "Reproducing the qualified 1494-parameter design and projecting all eleven unconstrained QKV rows onto the mean-zero basis will yield 1483 parameters while maintaining at least 99% accuracy, because fixed-scale pre-attention LayerNorm makes every removed common-mode weight component functionally invisible.",
+      "intended_edit": "Apply the qualified MLP-bias, fixed pre-attention normalization, and endpoint final-bias reductions, then store the unconstrained query, key, and value rows in the existing seven-dimensional mean-zero basis.",
+      "metrics": {
+        "accuracy": 0.9998999999999999,
+        "cases": 10010,
+        "correct": 10009,
+        "parameters": 1483,
+        "training_steps": 4999
+      },
+      "parent_ids": [
+        "20e75552043db56d50d7820572eba88015b37c3a974ec707f82062a9229af28b"
+      ],
+      "retained_order": 113,
+      "selected_count": 4
+    },
+    "663ebf8c20dfb099e630631f48328bb89305e7ae48892dae43750c8792b4d0a0": {
+      "artifact_path": "candidates/663ebf8c20dfb099e630631f48328bb89305e7ae48892dae43750c8792b4d0a0",
+      "candidate_id": "663ebf8c20dfb099e630631f48328bb89305e7ae48892dae43750c8792b4d0a0",
+      "created_opportunity": 47,
+      "fitness": -1527.0,
+      "hypothesis": "Adding a first-head channels 0\u20131 rotation on input column 2 will produce a 1527-parameter model with at least 99% accuracy, because it preserves attention scores and all ten qualified anchors while removing one exact query coefficient.",
+      "intended_edit": "Upgrade the current six-rotation QKV parameterization to eleven sequential rotations, incorporating the qualified column-one rotations and adding a first-head column-two stabilizer rotation while preserving full-sized initialization draws.",
+      "metrics": {
+        "accuracy": 0.9992,
+        "cases": 10010,
+        "correct": 10002,
+        "parameters": 1527,
+        "training_steps": 4999
+      },
+      "parent_ids": [
+        "b19528a82af2beb01d7c93dfff342599bc0eb706f66a875d4a76cd97577f134e"
+      ],
+      "retained_order": 47,
+      "selected_count": 1
+    },
+    "728b6df5e2153add6218b6734d23e6d365ecbf15b9628201d4648b3c7e9d2957": {
+      "artifact_path": "candidates/728b6df5e2153add6218b6734d23e6d365ecbf15b9628201d4648b3c7e9d2957",
+      "candidate_id": "728b6df5e2153add6218b6734d23e6d365ecbf15b9628201d4648b3c7e9d2957",
+      "created_opportunity": 4,
+      "fitness": -1591.0,
+      "hypothesis": "Removing functionally invisible all-ones components from positional embeddings and residual-branch output projections, while retaining the qualified key-bias removal and full 12-unit MLP, will achieve at least 99% accuracy with `1614 - INPUT_LEN` learned parameters.",
+      "intended_edit": "Represent positional embeddings and attention/MLP residual outputs in the seven-dimensional mean-zero subspace, and replace the redundant key bias with learned query/value biases.",
+      "metrics": {
+        "accuracy": 0.9995999999999999,
+        "cases": 10010,
+        "correct": 10006,
+        "parameters": 1591,
+        "training_steps": 4999
+      },
+      "parent_ids": [
+        "2b9cea175ed60b009337ac54f6e8ad23bf2c014eb4080237777bfb70bfd9fd5b"
+      ],
+      "retained_order": 4,
+      "selected_count": 1
+    },
+    "738c4540e0389bf570fe040492c6c5ee53768b4aaac6de5ff1911c58b296fe69": {
+      "artifact_path": "candidates/738c4540e0389bf570fe040492c6c5ee53768b4aaac6de5ff1911c58b296fe69",
+      "candidate_id": "738c4540e0389bf570fe040492c6c5ee53768b4aaac6de5ff1911c58b296fe69",
+      "created_opportunity": 5,
+      "fitness": -1590.0,
+      "hypothesis": "Compressing the qualified model into LayerNorm-invisible mean-zero subspaces and retaining seven of eight learned value-bias coordinates will achieve at least 99% accuracy with 1590 parameters.",
+      "intended_edit": "Apply the verified mean-zero positional/residual parameterization and key-bias removal, then fix one functionally absorbable value-bias coordinate to zero while retaining the other seven.",
+      "metrics": {
+        "accuracy": 0.9994,
+        "cases": 10010,
+        "correct": 10004,
+        "parameters": 1590,
+        "training_steps": 4999
+      },
+      "parent_ids": [
+        "2b9cea175ed60b009337ac54f6e8ad23bf2c014eb4080237777bfb70bfd9fd5b"
+      ],
+      "retained_order": 5,
+      "selected_count": 3
+    },
+    "7529e579e280dd27c2686565caf60e53a0e7843cb980c133cbabc2b7a3b3c68d": {
+      "artifact_path": "candidates/7529e579e280dd27c2686565caf60e53a0e7843cb980c133cbabc2b7a3b3c68d",
+      "candidate_id": "7529e579e280dd27c2686565caf60e53a0e7843cb980c133cbabc2b7a3b3c68d",
+      "created_opportunity": 56,
+      "fitness": -1521.0,
+      "hypothesis": "Rotating second-head value channels 2\u20133 on input column 1 will produce a 1521-parameter model with at least 99% accuracy while preserving the initialized function and all five qualified value anchors.",
+      "intended_edit": "Reproduce the qualified eleven query-key and five value-output gauges, then add an inverse-compensated rotation of second-head value rows 6\u20137 that fixes `value_weight[6, 1]`.",
+      "metrics": {
+        "accuracy": 0.9989,
+        "cases": 10010,
+        "correct": 9999,
+        "parameters": 1521,
+        "training_steps": 4999
+      },
+      "parent_ids": [
+        "5fa243bd9261c5c863838fd0d980f1f47bb9efd91beb90308c503ed7b2a4f364"
+      ],
+      "retained_order": 56,
+      "selected_count": 5
+    },
+    "75ce400acccc58256f8051871af9e1a9fbc8d41823fe2a68c775d9acd3c6c5b8": {
+      "artifact_path": "candidates/75ce400acccc58256f8051871af9e1a9fbc8d41823fe2a68c775d9acd3c6c5b8",
+      "candidate_id": "75ce400acccc58256f8051871af9e1a9fbc8d41823fe2a68c775d9acd3c6c5b8",
+      "created_opportunity": 46,
+      "fitness": -1528.0,
+      "hypothesis": "Extending the qualified nine-rotation 1529-parameter design with a second-head channels 1\u20132 rotation on input column 1 will produce a 1528-parameter model with at least 99% accuracy, because it preserves attention scores and all nine existing anchors while removing one exact query coefficient.",
+      "intended_edit": "Upgrade the current QKV parameterization to ten sequential Givens rotations, incorporating the qualified eighth and ninth rotations and adding the mirrored second-head tenth rotation while preserving full-sized initialization draws.",
+      "metrics": {
+        "accuracy": 0.9992,
+        "cases": 10010,
+        "correct": 10002,
+        "parameters": 1528,
+        "training_steps": 4999
+      },
+      "parent_ids": [
+        "6100cf3aec2655990999bafb4ff3c739bf90a924e47844042be81b78fd5b3640"
+      ],
+      "retained_order": 46,
+      "selected_count": 1
+    },
+    "79235474a15d7c7ee558187516158f8a629ebb3e83717f1246ac3c82a7b64111": {
+      "artifact_path": "candidates/79235474a15d7c7ee558187516158f8a629ebb3e83717f1246ac3c82a7b64111",
+      "candidate_id": "79235474a15d7c7ee558187516158f8a629ebb3e83717f1246ac3c82a7b64111",
+      "created_opportunity": 66,
+      "fitness": -1513.0,
+      "hypothesis": "Reproducing the qualified query-bias and five-scale gauges, then fixing a sixth `ln1` scale, will yield a 1513-parameter model with at least 99% accuracy.",
+      "intended_edit": "Omit `q_bias[4]` as in the qualified 1514-parameter design and replace the four learned `ln1` scales with two learned scales and six fixed unit scales.",
+      "metrics": {
+        "accuracy": 0.9991,
+        "cases": 10010,
+        "correct": 10001,
+        "parameters": 1513,
+        "training_steps": 4999
+      },
+      "parent_ids": [
+        "dc9f2f503a7961d338f78ba5841a625fa33aef120766265630edba6b8f3260c0"
+      ],
+      "retained_order": 66,
+      "selected_count": 2
+    },
+    "8095d35d723ebf890ae8a90ca5c0391621afe298ce736aa6809df25e66fb98b3": {
+      "artifact_path": "candidates/8095d35d723ebf890ae8a90ca5c0391621afe298ce736aa6809df25e66fb98b3",
+      "candidate_id": "8095d35d723ebf890ae8a90ca5c0391621afe298ce736aa6809df25e66fb98b3",
+      "created_opportunity": 67,
+      "fitness": -1512.0,
+      "hypothesis": "Reproducing the qualified 1513-parameter design and fixing a seventh `ln1` scale will yield a 1512-parameter model with at least 99% accuracy.",
+      "intended_edit": "Complete the token-position embedding gauge, omit `q_bias[4]`, and replace four learned `ln1` scales with one learned scale and seven fixed unit scales.",
+      "metrics": {
+        "accuracy": 0.9995999999999999,
+        "cases": 10010,
+        "correct": 10006,
+        "parameters": 1512,
+        "training_steps": 4999
+      },
+      "parent_ids": [
+        "ffcd630edf41650d49107f3ce651077184db91b66390274cddb7fcecbc22386b"
+      ],
+      "retained_order": 67,
+      "selected_count": 1
+    },
+    "809c2b0cea7b44944012a473197732ad4b5e460e7aa91cebab1cfbc2d3c15a7e": {
+      "artifact_path": "candidates/809c2b0cea7b44944012a473197732ad4b5e460e7aa91cebab1cfbc2d3c15a7e",
+      "candidate_id": "809c2b0cea7b44944012a473197732ad4b5e460e7aa91cebab1cfbc2d3c15a7e",
+      "created_opportunity": 19,
+      "fitness": -1577.0,
+      "hypothesis": "Extending the qualified two-coordinate gauge constraint by one coordinate will produce a 1577-parameter model with at least 99% accuracy while preserving the initialized input function and output probabilities.",
+      "intended_edit": "Fix the final three mean-zero coordinates of the last token embedding row and transfer their initialized contribution into every positional embedding.",
+      "metrics": {
+        "accuracy": 0.998,
+        "cases": 10010,
+        "correct": 9990,
+        "parameters": 1577,
+        "training_steps": 4999
+      },
+      "parent_ids": [
+        "dd4fa8d019485dd413dedecd6c53f99a70a006aea6df98a8dec9d416b35eafcd"
+      ],
+      "retained_order": 19,
+      "selected_count": 3
+    },
+    "8441f59c9889bc17e384da4be5c58664be0c244c8057e89ffa630b53652bc900": {
+      "artifact_path": "candidates/8441f59c9889bc17e384da4be5c58664be0c244c8057e89ffa630b53652bc900",
+      "candidate_id": "8441f59c9889bc17e384da4be5c58664be0c244c8057e89ffa630b53652bc900",
+      "created_opportunity": 84,
+      "fitness": -1506.0,
+      "hypothesis": "Extending the qualified 1507-parameter nine-value-gauge model by fixing `q_bias[6]`, the counterpart of the successfully fixed `q_bias[2]`, will yield 1506 parameters while retaining at least 99% accuracy.",
+      "intended_edit": "Reproduce the qualified nine-value-rotation parameterization and reconstruct query-bias coordinates 0, 1, 2, 4, and 6 as zero.",
+      "metrics": {
+        "accuracy": 0.9978,
+        "cases": 10010,
+        "correct": 9988,
+        "parameters": 1506,
+        "training_steps": 4999
+      },
+      "parent_ids": [
+        "9cf0b021ababcdebac4e826e7aa99c018b1cb82d726c566bc1844efc5026372a"
+      ],
+      "retained_order": 84,
+      "selected_count": 2
+    },
+    "84d852d7b211af6cca9edbe18dea2e873861d8a4cc1e81dfdd48b9c8c835c2d2": {
+      "artifact_path": "candidates/84d852d7b211af6cca9edbe18dea2e873861d8a4cc1e81dfdd48b9c8c835c2d2",
+      "candidate_id": "84d852d7b211af6cca9edbe18dea2e873861d8a4cc1e81dfdd48b9c8c835c2d2",
+      "created_opportunity": 37,
+      "fitness": -1537.0,
+      "hypothesis": "Fixing one query-weight coefficient through a shared orthogonal rotation of two query/key channels will produce a 1537-parameter model with at least 99% accuracy because it preserves initialized attention scores and removes only an exact attention-basis symmetry.",
+      "intended_edit": "Retain the qualified single mean-zero QKV row, rotate the first two query channels and their paired key channels so the first query coefficient is zero, and omit that fixed coefficient from the trainable parameterization.",
+      "metrics": {
+        "accuracy": 0.9995999999999999,
+        "cases": 10010,
+        "correct": 10006,
+        "parameters": 1537,
+        "training_steps": 4999
+      },
+      "parent_ids": [
+        "308822369c8424c2ac12012a2c50ef5ebd5a0d883a2fcca770db38d43b385040"
+      ],
+      "retained_order": 37,
+      "selected_count": 1
+    },
+    "89793786f66b7e41447698ec92481dd17f13d24e0e4890625103bf9af3b1d7ac": {
+      "artifact_path": "candidates/89793786f66b7e41447698ec92481dd17f13d24e0e4890625103bf9af3b1d7ac",
+      "candidate_id": "89793786f66b7e41447698ec92481dd17f13d24e0e4890625103bf9af3b1d7ac",
+      "created_opportunity": 95,
+      "fitness": -1500.0,
+      "hypothesis": "Reproducing the qualified 1501-parameter attention-bias pattern and fixing reduced MLP output-bias coordinate 0 will yield 1500 parameters while maintaining at least 99% accuracy.",
+      "intended_edit": "Keep only attention projection-bias coordinates 2 and 4, then reconstruct MLP output-bias coordinate 0 as zero while learning the remaining six coordinates.",
+      "metrics": {
+        "accuracy": 0.9987,
+        "cases": 10010,
+        "correct": 9997,
+        "parameters": 1500,
+        "training_steps": 4999
+      },
+      "parent_ids": [
+        "8f850662dd31590be6a7ae6620ea6075034c66309cf5e842bd4bf729725a2688"
+      ],
+      "retained_order": 95,
+      "selected_count": 2
+    },
+    "8b372e19fbbe1080ccd65d860fa4b53ce88863fc40fd09460950e9aeb4090483": {
+      "artifact_path": "candidates/8b372e19fbbe1080ccd65d860fa4b53ce88863fc40fd09460950e9aeb4090483",
+      "candidate_id": "8b372e19fbbe1080ccd65d860fa4b53ce88863fc40fd09460950e9aeb4090483",
+      "created_opportunity": 52,
+      "fitness": -1524.0,
+      "hypothesis": "Adding the first value-output rotation to the less-constrained second head will produce a 1524-parameter model with at least 99% accuracy while preserving the initialized model function.",
+      "intended_edit": "Reproduce the qualified eleven query-key and two first-head value-output gauges, then rotate second-head value channels 0\u20131, omit the resulting fixed coefficient, and inversely rotate projection columns 4\u20135.",
+      "metrics": {
+        "accuracy": 0.9972,
+        "cases": 10010,
+        "correct": 9982,
+        "parameters": 1524,
+        "training_steps": 4999
+      },
+      "parent_ids": [
+        "16b402fcddd52640df931ef4bd811f12c17b33d96eae38cfc003818d6fe23e7c"
+      ],
+      "retained_order": 52,
+      "selected_count": 2
+    },
+    "8f850662dd31590be6a7ae6620ea6075034c66309cf5e842bd4bf729725a2688": {
+      "artifact_path": "candidates/8f850662dd31590be6a7ae6620ea6075034c66309cf5e842bd4bf729725a2688",
+      "candidate_id": "8f850662dd31590be6a7ae6620ea6075034c66309cf5e842bd4bf729725a2688",
+      "created_opportunity": 88,
+      "fitness": -1504.0,
+      "hypothesis": "Extending the qualified 1505-parameter design by fixing a second zero-initialized reduced attention-output bias coordinate will yield 1504 parameters while retaining at least 99% accuracy.",
+      "intended_edit": "Reproduce the qualified nine-value-rotation and `q_bias[6]`-anchored model, then retain only five of the seven reduced attention-output bias coordinates.",
+      "metrics": {
+        "accuracy": 0.9997,
+        "cases": 10010,
+        "correct": 10007,
+        "parameters": 1504,
+        "training_steps": 4999
+      },
+      "parent_ids": [
+        "ed95b25bd4fedf80129d892e1a0f5de560157694535aed0d4b7baea0506b6f45"
+      ],
+      "retained_order": 88,
+      "selected_count": 2
+    },
+    "9c82633bd7c3e4e86d88a07e2ed421991dda8946086fdcc6f52334253bb393c4": {
+      "artifact_path": "candidates/9c82633bd7c3e4e86d88a07e2ed421991dda8946086fdcc6f52334253bb393c4",
+      "candidate_id": "9c82633bd7c3e4e86d88a07e2ed421991dda8946086fdcc6f52334253bb393c4",
+      "created_opportunity": 87,
+      "fitness": -1505.0,
+      "hypothesis": "Reproducing the qualified 1506-parameter nine-value-gauge and `q_bias[6]`-anchored design, then fixing one zero-initialized attention-output bias coordinate, will yield 1505 parameters while retaining at least 99% accuracy.",
+      "intended_edit": "Upgrade the current model to nine value-output rotations, anchor `q_bias[6]` as in the qualified design, and remove one reduced-coordinate bias parameter from the attention output projection.",
+      "metrics": {
+        "accuracy": 0.9995,
+        "cases": 10010,
+        "correct": 10005,
+        "parameters": 1505,
+        "training_steps": 4999
+      },
+      "parent_ids": [
+        "3e0a8fbde59f999f65b955dcbffa6519791e907a242fe51bf769d356324297c8"
+      ],
+      "retained_order": 87,
+      "selected_count": 1
+    },
+    "9cf0b021ababcdebac4e826e7aa99c018b1cb82d726c566bc1844efc5026372a": {
+      "artifact_path": "candidates/9cf0b021ababcdebac4e826e7aa99c018b1cb82d726c566bc1844efc5026372a",
+      "candidate_id": "9cf0b021ababcdebac4e826e7aa99c018b1cb82d726c566bc1844efc5026372a",
+      "created_opportunity": 69,
+      "fitness": -1511.0,
+      "hypothesis": "Fixing `q_bias[0]` alongside the qualified fixed `q_bias[4]` will reduce the model to 1511 parameters while retaining at least 99% accuracy.",
+      "intended_edit": "Remove one learned query-bias scalar and reconstruct the first coordinate of each attention head as zero.",
+      "metrics": {
+        "accuracy": 0.9995999999999999,
+        "cases": 10010,
+        "correct": 10006,
+        "parameters": 1511,
+        "training_steps": 4999
+      },
+      "parent_ids": [
+        "8095d35d723ebf890ae8a90ca5c0391621afe298ce736aa6809df25e66fb98b3"
+      ],
+      "retained_order": 69,
+      "selected_count": 3
+    },
+    "a31d87f7e8fdb7911cb7d0d96bd522be195500a30d30d7f1b64a7dd77473bc4b": {
+      "artifact_path": "candidates/a31d87f7e8fdb7911cb7d0d96bd522be195500a30d30d7f1b64a7dd77473bc4b",
+      "candidate_id": "a31d87f7e8fdb7911cb7d0d96bd522be195500a30d30d7f1b64a7dd77473bc4b",
+      "created_opportunity": 44,
+      "fitness": -1530.0,
+      "hypothesis": "Adding the qualified column-one stabilizer rotation to the second attention head will produce a 1530-parameter model with at least 99% accuracy because it preserves attention scores and all seven existing anchors while removing one additional query coefficient.",
+      "intended_edit": "Replace the single-rotation QKV parameterization with eight sequential Givens rotations: three column-zero anchors per head and one column-one anchor per head, preserving full-sized initialization draws.",
+      "metrics": {
+        "accuracy": 0.9984000000000001,
+        "cases": 10010,
+        "correct": 9994,
+        "parameters": 1530,
+        "training_steps": 4999
+      },
+      "parent_ids": [
+        "84d852d7b211af6cca9edbe18dea2e873861d8a4cc1e81dfdd48b9c8c835c2d2"
+      ],
+      "retained_order": 44,
+      "selected_count": 1
+    },
+    "ab5b466fe7bc1bfedbecb51a7e3df6a7f508053f2b556cba9ce843042e3616a9": {
+      "artifact_path": "candidates/ab5b466fe7bc1bfedbecb51a7e3df6a7f508053f2b556cba9ce843042e3616a9",
+      "candidate_id": "ab5b466fe7bc1bfedbecb51a7e3df6a7f508053f2b556cba9ce843042e3616a9",
+      "created_opportunity": 25,
+      "fitness": -1563.0,
+      "hypothesis": "Removing the eight-parameter `ln1` bias will produce a 1563-parameter model with at least 99% accuracy because its query shift is representable by `q_bias`, its key shift cancels in softmax, and its value shift folds into the learned projection bias.",
+      "intended_edit": "Make the pre-attention LayerNorm bias-free while retaining the full query and mean-zero attention projection biases.",
+      "metrics": {
+        "accuracy": 0.9994,
+        "cases": 10010,
+        "correct": 10004,
+        "parameters": 1563,
+        "training_steps": 4999
+      },
+      "parent_ids": [
+        "ac5eb22b2645a59b6b9ca6c8d831e580551313fdef0af9b3f60b28a509acb6b9"
+      ],
+      "retained_order": 25,
+      "selected_count": 1
+    },
+    "ac5eb22b2645a59b6b9ca6c8d831e580551313fdef0af9b3f60b28a509acb6b9": {
+      "artifact_path": "candidates/ac5eb22b2645a59b6b9ca6c8d831e580551313fdef0af9b3f60b28a509acb6b9",
+      "candidate_id": "ac5eb22b2645a59b6b9ca6c8d831e580551313fdef0af9b3f60b28a509acb6b9",
+      "created_opportunity": 24,
+      "fitness": -1571.0,
+      "hypothesis": "Combining the qualified 1574-parameter attention-bias folding design with the qualified three-coordinate token/position gauge will produce a 1571-parameter model with at least 99% accuracy.",
+      "intended_edit": "Remove value bias in favor of a full mean-zero attention projection bias, apply mean-zero residual parameterizations and bias-free ln2, and compensate three tied-embedding gauge coordinates through positional embeddings.",
+      "metrics": {
+        "accuracy": 0.9995,
+        "cases": 10010,
+        "correct": 10005,
+        "parameters": 1571,
+        "training_steps": 4999
+      },
+      "parent_ids": [
+        "2b9cea175ed60b009337ac54f6e8ad23bf2c014eb4080237777bfb70bfd9fd5b"
+      ],
+      "retained_order": 24,
+      "selected_count": 1
+    },
+    "af3f278f54db6bcda9bf2859627646d7c992bf2ac6cdcfca07dda6472f361ccd": {
+      "artifact_path": "candidates/af3f278f54db6bcda9bf2859627646d7c992bf2ac6cdcfca07dda6472f361ccd",
+      "candidate_id": "af3f278f54db6bcda9bf2859627646d7c992bf2ac6cdcfca07dda6472f361ccd",
+      "created_opportunity": 17,
+      "fitness": -1579.0,
+      "hypothesis": "Adding one exactly compensated mean-zero token/position gauge constraint to the qualified 1580-parameter two-anchor model will retain at least 99% accuracy with 1579 parameters.",
+      "intended_edit": "Use the qualified twice-anchored attention projection, then remove one coordinate from the final token embedding row while transferring its initialized contribution into every positional embedding.",
+      "metrics": {
+        "accuracy": 0.9997,
+        "cases": 10010,
+        "correct": 10007,
+        "parameters": 1579,
+        "training_steps": 4999
+      },
+      "parent_ids": [
+        "e701e0526fac268240057994e8e65bedf6f1408d340e311f3051beb010c0a771"
+      ],
+      "retained_order": 17,
+      "selected_count": 1
+    },
+    "b19528a82af2beb01d7c93dfff342599bc0eb706f66a875d4a76cd97577f134e": {
+      "artifact_path": "candidates/b19528a82af2beb01d7c93dfff342599bc0eb706f66a875d4a76cd97577f134e",
+      "candidate_id": "b19528a82af2beb01d7c93dfff342599bc0eb706f66a875d4a76cd97577f134e",
+      "created_opportunity": 42,
+      "fitness": -1532.0,
+      "hypothesis": "Extending the qualified five-rotation 1533-parameter design with a third sequential rotation in the second attention head will produce a 1532-parameter model with at least 99% accuracy, because it removes one additional exact query-key rotational gauge while preserving initialized attention scores.",
+      "intended_edit": "Reproduce the qualified five-rotation parameterization, then rotate second-head query/key channels 2\u20133 and omit the resulting fixed query coefficient.",
+      "metrics": {
+        "accuracy": 0.9997,
+        "cases": 10010,
+        "correct": 10007,
+        "parameters": 1532,
+        "training_steps": 4999
+      },
+      "parent_ids": [
+        "17dc36ef99e8b6c833d532f8ac445effa35351bbd78778812d6c125b99fd1ddd"
+      ],
+      "retained_order": 42,
+      "selected_count": 1
+    },
+    "b39950a5ccc87ef48424b3ae942dd7a5b76b24afff96395f094ac5a3b33a43df": {
+      "artifact_path": "candidates/b39950a5ccc87ef48424b3ae942dd7a5b76b24afff96395f094ac5a3b33a43df",
+      "candidate_id": "b39950a5ccc87ef48424b3ae942dd7a5b76b24afff96395f094ac5a3b33a43df",
+      "created_opportunity": 7,
+      "fitness": -1583.0,
+      "hypothesis": "Removing the 8-parameter `ln2` bias will reduce the model from 1591 to 1583 parameters while retaining at least 99% accuracy, because its contribution is exactly absorbable by the existing `fc1` bias without reducing MLP width.",
+      "intended_edit": "Disable only the second LayerNorm\u2019s learned bias while preserving all attention value-bias coordinates, weight matrices, training settings, and decoding behavior.",
+      "metrics": {
+        "accuracy": 0.9995999999999999,
+        "cases": 10010,
+        "correct": 10006,
+        "parameters": 1583,
+        "training_steps": 4999
+      },
+      "parent_ids": [
+        "728b6df5e2153add6218b6734d23e6d365ecbf15b9628201d4648b3c7e9d2957"
+      ],
+      "retained_order": 7,
+      "selected_count": 2
+    },
+    "cc52629316e9749c7804ec8eb734f647580f77158e444b3f374daca43687280d": {
+      "artifact_path": "candidates/cc52629316e9749c7804ec8eb734f647580f77158e444b3f374daca43687280d",
+      "candidate_id": "cc52629316e9749c7804ec8eb734f647580f77158e444b3f374daca43687280d",
+      "created_opportunity": 28,
+      "fitness": -1543.0,
+      "hypothesis": "The qualified 1555-parameter design plus a mean-zero input parameterization for `fc1` will achieve at least 99% accuracy with 1543 parameters, because affine-free `ln2` always supplies zero-mean features, making one common-mode weight per `fc1` output exactly unobservable.",
+      "intended_edit": "Reproduce the qualified three-gauge, folded-attention-bias, bias-free `ln1`, affine-free `ln2` design, then represent each `fc1` weight row in the seven-dimensional mean-zero basis while preserving full-size initialization draws.",
+      "metrics": {
+        "accuracy": 0.9983,
+        "cases": 10010,
+        "correct": 9993,
+        "parameters": 1543,
+        "training_steps": 4999
+      },
+      "parent_ids": [
+        "349ca395bcc6512a4be1e5c08f151576be20227d64e932f1774df6a0a4ee83aa"
+      ],
+      "retained_order": 28,
+      "selected_count": 1
+    },
+    "d7b15a2d28ff0c4f098f81f87be240aafad74eab877ace3988afde7a46e1362c": {
+      "artifact_path": "candidates/d7b15a2d28ff0c4f098f81f87be240aafad74eab877ace3988afde7a46e1362c",
+      "candidate_id": "d7b15a2d28ff0c4f098f81f87be240aafad74eab877ace3988afde7a46e1362c",
+      "created_opportunity": 63,
+      "fitness": -1515.0,
+      "hypothesis": "Completing the proven embedding gauge and fixing one query-bias coordinate through the remaining second-head query-key rotation will produce a 1515-parameter model with at least 99% accuracy.",
+      "intended_edit": "Remove the anchor token\u2019s remaining four coordinates, compensate all seven positional coordinates, and omit `q_bias[4]`, reconstructed as zero within the residual rows-4/5 query-key gauge.",
+      "metrics": {
+        "accuracy": 0.9987999999999999,
+        "cases": 10010,
+        "correct": 9998,
+        "parameters": 1515,
+        "training_steps": 4999
+      },
+      "parent_ids": [
+        "5c650a041948a642cc5d2c2bbe85def8db9ed5fd2ee2ed9d3f9930d7666f9b9c"
+      ],
+      "retained_order": 63,
+      "selected_count": 1
+    },
+    "d87a444532fd3e1e62b888e30a164ec5dda2eb61962a8705f42bd77273bccef9": {
+      "artifact_path": "candidates/d87a444532fd3e1e62b888e30a164ec5dda2eb61962a8705f42bd77273bccef9",
+      "candidate_id": "d87a444532fd3e1e62b888e30a164ec5dda2eb61962a8705f42bd77273bccef9",
+      "created_opportunity": 60,
+      "fitness": -1518.0,
+      "hypothesis": "Extending the qualified 1519-parameter design with a fifth exact token-position common-shift gauge will produce a 1518-parameter model with at least 99% accuracy.",
+      "intended_edit": "Reproduce the qualified seven-value QKV parameterization, then remove a fifth anchor-token embedding coordinate and compensate it in the positional embedding.",
+      "metrics": {
+        "accuracy": 1.0,
+        "cases": 10010,
+        "correct": 10010,
+        "parameters": 1518,
+        "training_steps": 4999
+      },
+      "parent_ids": [
+        "8b372e19fbbe1080ccd65d860fa4b53ce88863fc40fd09460950e9aeb4090483"
+      ],
+      "retained_order": 60,
+      "selected_count": 1
+    },
+    "d9a44f61e65fc5fbd42b6c490d4164397be0f559add7c139e3d7f869e157e018": {
+      "artifact_path": "candidates/d9a44f61e65fc5fbd42b6c490d4164397be0f559add7c139e3d7f869e157e018",
+      "candidate_id": "d9a44f61e65fc5fbd42b6c490d4164397be0f559add7c139e3d7f869e157e018",
+      "created_opportunity": 54,
+      "fitness": -1523.0,
+      "hypothesis": "Adding a column-one stabilizer rotation within the already column-zero-anchored first-head value subspace to the qualified 1524-parameter mirrored-head design will produce a 1523-parameter model with at least 99% accuracy.",
+      "intended_edit": "Retain the two qualified first-head value rotations, add the qualified first second-head rotation, then rotate first-head value channels 0\u20131 on input column 1 and omit the resulting fixed coefficient while inversely rotating the matching projection columns.",
+      "metrics": {
+        "accuracy": 0.9956999999999999,
+        "cases": 10010,
+        "correct": 9967,
+        "parameters": 1523,
+        "training_steps": 4999
+      },
+      "parent_ids": [
+        "5142ffc3538e8a28f1c17705dab2af18984c8310168162e744ba18c7fc2cfa9e"
+      ],
+      "retained_order": 54,
+      "selected_count": 1
+    },
+    "dc9f2f503a7961d338f78ba5841a625fa33aef120766265630edba6b8f3260c0": {
+      "artifact_path": "candidates/dc9f2f503a7961d338f78ba5841a625fa33aef120766265630edba6b8f3260c0",
+      "candidate_id": "dc9f2f503a7961d338f78ba5841a625fa33aef120766265630edba6b8f3260c0",
+      "created_opportunity": 62,
+      "fitness": -1516.0,
+      "hypothesis": "Fixing the seventh and final mean-zero coordinate of the anchor token will produce a 1516-parameter model with at least 99% accuracy while preserving initialized inputs and output softmax probabilities.",
+      "intended_edit": "Extend the qualified six-coordinate embedding gauge to all seven mean-zero coordinates, remove the now-empty anchor parameter entirely, reconstruct the anchor row as zero, and compensate the full shift in positional embeddings.",
+      "metrics": {
+        "accuracy": 0.9979,
+        "cases": 10010,
+        "correct": 9989,
+        "parameters": 1516,
+        "training_steps": 4999
+      },
+      "parent_ids": [
+        "4e37262b6b7a8c931117a60228d442adffcce1c26b90395e36a7e6c62f0fae63"
+      ],
+      "retained_order": 62,
+      "selected_count": 1
+    },
+    "dd4fa8d019485dd413dedecd6c53f99a70a006aea6df98a8dec9d416b35eafcd": {
+      "artifact_path": "candidates/dd4fa8d019485dd413dedecd6c53f99a70a006aea6df98a8dec9d416b35eafcd",
+      "candidate_id": "dd4fa8d019485dd413dedecd6c53f99a70a006aea6df98a8dec9d416b35eafcd",
+      "created_opportunity": 14,
+      "fitness": -1580.0,
+      "hypothesis": "Fixing a second mean-zero attention projection-bias coordinate while retaining all eight value-bias coordinates will produce a 1580-parameter model with at least 99% accuracy.",
+      "intended_edit": "Apply the qualified mean-zero residual parameterization, bias-free `ln2`, and globally gauge-fixed tied embedding, then reconstruct the final two attention projection-bias coordinates as zero.",
+      "metrics": {
+        "accuracy": 0.9997,
+        "cases": 10010,
+        "correct": 10007,
+        "parameters": 1580,
+        "training_steps": 4999
+      },
+      "parent_ids": [
+        "fc16eb97d62a27abb264a28fc872bb8b0a1bc9f97fc65e62a25a9df868d618fa"
+      ],
+      "retained_order": 14,
+      "selected_count": 2
+    },
+    "e3a36ae637723c80747d676fb8db4cb2c2c4197d7af370d7ec3f9c0bfaad7306": {
+      "artifact_path": "candidates/e3a36ae637723c80747d676fb8db4cb2c2c4197d7af370d7ec3f9c0bfaad7306",
+      "candidate_id": "e3a36ae637723c80747d676fb8db4cb2c2c4197d7af370d7ec3f9c0bfaad7306",
+      "created_opportunity": 38,
+      "fitness": -1536.0,
+      "hypothesis": "Extending the qualified 1537-parameter design with an independent query-key rotation in the second attention head will produce a 1536-parameter model with at least 99% accuracy, because the rotation preserves attention scores while fixing one additional query coefficient.",
+      "intended_edit": "Reproduce the qualified single-row QKV input gauge and first-head rotation, then rotate the second head\u2019s first two query/key channels and omit its fixed query coefficient.",
+      "metrics": {
+        "accuracy": 0.9956999999999999,
+        "cases": 10010,
+        "correct": 9967,
+        "parameters": 1536,
+        "training_steps": 4999
+      },
+      "parent_ids": [
+        "00f916320c236965ffed4248a214adcdc1bc3fca295eab3c1f8dacdcb69d4291"
+      ],
+      "retained_order": 38,
+      "selected_count": 1
+    },
+    "e701e0526fac268240057994e8e65bedf6f1408d340e311f3051beb010c0a771": {
+      "artifact_path": "candidates/e701e0526fac268240057994e8e65bedf6f1408d340e311f3051beb010c0a771",
+      "candidate_id": "e701e0526fac268240057994e8e65bedf6f1408d340e311f3051beb010c0a771",
+      "created_opportunity": 12,
+      "fitness": -1582.0,
+      "hypothesis": "Removing the single global all-ones component of the tied token/output embedding will reduce the qualified model from 1583 to 1582 parameters while retaining at least 99% accuracy, because it only shifts residual streams by a LayerNorm-invisible constant and shifts every output logit equally.",
+      "intended_edit": "Replace the tied embedding with a gauge-fixed parameterization in which the final token vector is mean-zero, using the exact global shift symmetry to remove one scalar while preserving initialization and weight tying.",
+      "metrics": {
+        "accuracy": 0.9998999999999999,
+        "cases": 10010,
+        "correct": 10009,
+        "parameters": 1582,
+        "training_steps": 4999
+      },
+      "parent_ids": [
+        "b39950a5ccc87ef48424b3ae942dd7a5b76b24afff96395f094ac5a3b33a43df"
+      ],
+      "retained_order": 12,
+      "selected_count": 1
+    },
+    "e717fbeba7d292e27cd852b27e8c1970daacb79da991ddecb2c8ac10143355e4": {
+      "artifact_path": "candidates/e717fbeba7d292e27cd852b27e8c1970daacb79da991ddecb2c8ac10143355e4",
+      "candidate_id": "e717fbeba7d292e27cd852b27e8c1970daacb79da991ddecb2c8ac10143355e4",
+      "created_opportunity": 112,
+      "fitness": -1494.0,
+      "hypothesis": "Reproducing the qualified 1495-parameter design and fixing final LayerNorm bias coordinate 7 while preserving coordinates 1\u20136 will yield 1494 parameters and maintain at least 99% accuracy.",
+      "intended_edit": "Fix all pre-attention LayerNorm scales at one, then reconstruct final LayerNorm bias coordinates 0 and 7 as zero while learning all eight scales and bias coordinates 1\u20136.",
+      "metrics": {
+        "accuracy": 0.9994,
+        "cases": 10010,
+        "correct": 10004,
+        "parameters": 1494,
+        "training_steps": 4999
+      },
+      "parent_ids": [
+        "5ad905c3febc491c0c8d905fdda9673f3e985486a6136109daeca1b9daf4a7ac"
+      ],
+      "retained_order": 112,
+      "selected_count": 3
+    },
+    "ed95b25bd4fedf80129d892e1a0f5de560157694535aed0d4b7baea0506b6f45": {
+      "artifact_path": "candidates/ed95b25bd4fedf80129d892e1a0f5de560157694535aed0d4b7baea0506b6f45",
+      "candidate_id": "ed95b25bd4fedf80129d892e1a0f5de560157694535aed0d4b7baea0506b6f45",
+      "created_opportunity": 73,
+      "fitness": -1509.0,
+      "hypothesis": "Fixing `q_bias[2]` in the qualified 1510-parameter design will yield 1509 parameters while retaining at least 99% accuracy.",
+      "intended_edit": "Reconstruct query-bias coordinates 0, 1, 2, and 4 as zero while retaining the sole learned `ln1` scale and all remaining query biases.",
+      "metrics": {
+        "accuracy": 0.9992,
+        "cases": 10010,
+        "correct": 10002,
+        "parameters": 1509,
+        "training_steps": 4999
+      },
+      "parent_ids": [
+        "464f8fb97ed0c5f424676ef6828bfc79a15fdf26eab39e6b244e3954f6ea1264"
+      ],
+      "retained_order": 73,
+      "selected_count": 3
+    },
+    "ef2b23e3473d2b1267d38851eb50330c07b24fbfcb6c727ca61c18dfbcc783c6": {
+      "artifact_path": "candidates/ef2b23e3473d2b1267d38851eb50330c07b24fbfcb6c727ca61c18dfbcc783c6",
+      "candidate_id": "ef2b23e3473d2b1267d38851eb50330c07b24fbfcb6c727ca61c18dfbcc783c6",
+      "created_opportunity": 94,
+      "fitness": -1501.0,
+      "hypothesis": "Fixing reduced attention-output bias coordinate 3 in the qualified 1502-parameter design will yield 1501 parameters while maintaining at least 99% accuracy.",
+      "intended_edit": "Reconstruct reduced projection-bias coordinates 0, 1, 3, 5, and 6 as zero, leaving only coordinates 2 and 4 learned.",
+      "metrics": {
+        "accuracy": 0.9995999999999999,
+        "cases": 10010,
+        "correct": 10006,
+        "parameters": 1501,
+        "training_steps": 4999
+      },
+      "parent_ids": [
+        "23b97b67fe8ddc679ea0f3b13e327d4baea3a2634fe51a43002c7d7849fc2ef3"
+      ],
+      "retained_order": 94,
+      "selected_count": 3
+    },
+    "f3911326255f269ac9b1d1308af0dee62910545a400c8d5f39235e4d550dc65b": {
+      "artifact_path": "candidates/f3911326255f269ac9b1d1308af0dee62910545a400c8d5f39235e4d550dc65b",
+      "candidate_id": "f3911326255f269ac9b1d1308af0dee62910545a400c8d5f39235e4d550dc65b",
+      "created_opportunity": 49,
+      "fitness": -1526.0,
+      "hypothesis": "Fixing one first-head value coefficient through a shared rotation of the value rows and output-projection columns will produce a 1526-parameter model with at least 99% accuracy while preserving the initialized model function.",
+      "intended_edit": "Retain the qualified eleven query-key rotations, rotate first-head value channels 0\u20131 to eliminate `value_weight[0, 0]`, omit that coefficient, and apply the inverse rotation to the corresponding attention-output projection columns.",
+      "metrics": {
+        "accuracy": 0.9995999999999999,
+        "cases": 10010,
+        "correct": 10006,
+        "parameters": 1526,
+        "training_steps": 4999
+      },
+      "parent_ids": [
+        "663ebf8c20dfb099e630631f48328bb89305e7ae48892dae43750c8792b4d0a0"
+      ],
+      "retained_order": 49,
+      "selected_count": 1
+    },
+    "fc16eb97d62a27abb264a28fc872bb8b0a1bc9f97fc65e62a25a9df868d618fa": {
+      "artifact_path": "candidates/fc16eb97d62a27abb264a28fc872bb8b0a1bc9f97fc65e62a25a9df868d618fa",
+      "candidate_id": "fc16eb97d62a27abb264a28fc872bb8b0a1bc9f97fc65e62a25a9df868d618fa",
+      "created_opportunity": 2,
+      "fitness": -1636.0,
+      "hypothesis": "Removing only the attention key bias will reduce parameters from 1644 to 1636 while preserving at least 99% accuracy because adding the same bias to every key changes each query\u2019s attention logits by a row-wise constant, which softmax cancels exactly.",
+      "intended_edit": "Replace the fused 24-element QKV bias with learned query and value biases while fixing the functionally redundant key bias to zero; preserve the feed-forward width of 12.",
+      "metrics": {
+        "accuracy": 0.9984000000000001,
+        "cases": 10010,
+        "correct": 9994,
+        "parameters": 1636,
+        "training_steps": 4999
+      },
+      "parent_ids": [
+        "2b9cea175ed60b009337ac54f6e8ad23bf2c014eb4080237777bfb70bfd9fd5b"
+      ],
+      "retained_order": 2,
+      "selected_count": 3
+    },
+    "ff2587e5cafb5893052241248556d2e5a58086986751fa929dae89a328da3cd1": {
+      "artifact_path": "candidates/ff2587e5cafb5893052241248556d2e5a58086986751fa929dae89a328da3cd1",
+      "candidate_id": "ff2587e5cafb5893052241248556d2e5a58086986751fa929dae89a328da3cd1",
+      "created_opportunity": 90,
+      "fitness": -1504.0,
+      "hypothesis": "Fixing a second reduced attention-output bias coordinate will produce a 1504-parameter model with at least 99% accuracy.",
+      "intended_edit": "Retain five of seven reduced attention-output bias coordinates, reconstruct the final two as zero, and use this twice-anchored projection in causal self-attention.",
+      "metrics": {
+        "accuracy": 0.9995,
+        "cases": 10010,
+        "correct": 10005,
+        "parameters": 1504,
+        "training_steps": 4999
+      },
+      "parent_ids": [
+        "9c82633bd7c3e4e86d88a07e2ed421991dda8946086fdcc6f52334253bb393c4"
+      ],
+      "retained_order": 90,
+      "selected_count": 1
+    },
+    "ffcd630edf41650d49107f3ce651077184db91b66390274cddb7fcecbc22386b": {
+      "artifact_path": "candidates/ffcd630edf41650d49107f3ce651077184db91b66390274cddb7fcecbc22386b",
+      "candidate_id": "ffcd630edf41650d49107f3ce651077184db91b66390274cddb7fcecbc22386b",
+      "created_opportunity": 61,
+      "fitness": -1517.0,
+      "hypothesis": "Extending the qualified 1518-parameter design with a sixth exact token-position common-shift gauge will produce a 1517-parameter model with at least 99% accuracy.",
+      "intended_edit": "Remove a sixth anchor-token embedding coordinate, compensate it in the positional embedding, and preserve the initialized input function and softmax probabilities.",
+      "metrics": {
+        "accuracy": 0.9998999999999999,
+        "cases": 10010,
+        "correct": 10009,
+        "parameters": 1517,
+        "training_steps": 4999
+      },
+      "parent_ids": [
+        "d87a444532fd3e1e62b888e30a164ec5dda2eb61962a8705f42bd77273bccef9"
+      ],
+      "retained_order": 61,
+      "selected_count": 1
+    }
+  },
+  "condition": "C2",
+  "conversation_session_id": null,
+  "evaluations_used": 112,
+  "evaluator_seconds_used": 51604.46809728979,
+  "incumbent_id": "629ff45e7140677c956a4dc4ea8d3e8586b8b86830f0a21eb44781736dcf5c2b",
+  "next_opportunity": 115,
+  "no_search": false,
+  "portfolio_ids": [
+    "3a554d10f298ec0389db3b9a2704c4d542ee00a7592f9d944cedbb3927179042",
+    "629ff45e7140677c956a4dc4ea8d3e8586b8b86830f0a21eb44781736dcf5c2b",
+    "ef2b23e3473d2b1267d38851eb50330c07b24fbfcb6c727ca61c18dfbcc783c6",
+    "e717fbeba7d292e27cd852b27e8c1970daacb79da991ddecb2c8ac10143355e4"
+  ],
+  "proposals_used": 114,
+  "protocol_hash": "0247b4415c62d35b231e3347f31a3f63cd54eb4ec6bb2441bfc209e0ee2d3cc4",
+  "revision": 277,
+  "run_id": "controlled-openevolve-transformer-v2-1-source-only-ten-digit-addition-pair-transformer-openevolve-v2-1-mps-openevolve-b05-c2",
+  "schema_version": "1.0",
+  "status": "running",
+  "token_budget_continuation_notice_sent": false,
+  "usage": {
+    "cached_input_tokens": 1215488,
+    "input_tokens": 5303619,
+    "output_tokens": 576886,
+    "reasoning_output_tokens": 410965
+  }
+}

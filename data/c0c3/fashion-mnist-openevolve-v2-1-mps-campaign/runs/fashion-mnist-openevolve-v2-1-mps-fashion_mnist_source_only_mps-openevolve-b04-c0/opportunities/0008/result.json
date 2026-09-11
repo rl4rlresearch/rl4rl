@@ -1,0 +1,85 @@
+{
+  "artifact_path": "candidates/c59b64a913f15d063f1624ced6c02ae840fd145c4b731dd742e53c6cc5729767",
+  "candidate_id": "c59b64a913f15d063f1624ced6c02ae840fd145c4b731dd742e53c6cc5729767",
+  "codex_service_tier": "default",
+  "condition": "C0",
+  "conversation_session_id": null,
+  "evaluation": {
+    "evaluator_calls": 1,
+    "evaluator_seconds": 78.18140995805152,
+    "failure_kind": null,
+    "fitness": 9335.418605971814,
+    "metrics": {
+      "batch_size": 128,
+      "evaluation_cases": 10000,
+      "evaluation_split": "public_validation",
+      "examples_processed": 100000,
+      "optimizer_steps": 782,
+      "parameters": 237818,
+      "training_seconds": 70.98462549992837,
+      "validation_accuracy": 0.9335,
+      "validation_correct": 9335,
+      "validation_cross_entropy": 0.19444067611694335,
+      "validation_score": 9335.418605971814
+    },
+    "valid": true
+  },
+  "evaluator_calls_cumulative": 8,
+  "evaluator_calls_increment": 1,
+  "evaluator_seconds_cumulative": 477.1213504981715,
+  "evaluator_seconds_increment": 78.18140995805152,
+  "event": "proposal_completed",
+  "evicted_candidate_id": "e4ddd10be457826566ffa3afce478f5cea9b072fb2a499a5512b56aec6a966f5",
+  "evidence": "Parameter EMA improved validation_correct from 9,322 to 9,323 and cross-entropy from 0.19535 to 0.19251; the current implementation averages BatchNorm parameters but leaves their running statistics from the unaveraged final model, motivating a coherence fix without altering exposure or architecture.",
+  "hypothesis": "Averaging BatchNorm running means and variances alongside the already successful parameter EMA will exceed 9,323 correct predictions by eliminating the evaluation mismatch between averaged weights and final-step normalization statistics.",
+  "incumbent_after": "c59b64a913f15d063f1624ced6c02ae840fd145c4b731dd742e53c6cc5729767",
+  "intended_edit": "Extend the second-half 0.99-decay EMA to floating-point model buffers and install those averaged buffers with the averaged parameters at the final step.",
+  "mechanism": "EMA-consistent BatchNorm statistics",
+  "opportunity": 8,
+  "parent_ids": [
+    "e4ddd10be457826566ffa3afce478f5cea9b072fb2a499a5512b56aec6a966f5"
+  ],
+  "portfolio_after": [
+    "c59b64a913f15d063f1624ced6c02ae840fd145c4b731dd742e53c6cc5729767"
+  ],
+  "prompt_hashes": {
+    "common_template_sha256": "e8327ba94bab12abc7c7ec7c6615378a3ae62434efb944d4a7d9492f1d19bc14",
+    "prompt_sha256": "cb309976e31378e15c134ea11e87c2a21598fe41f6ba7956c26d57b6788f5aa2",
+    "proposal_policy_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "search_state_sha256": "04e5eb078ae1964e4ec65bfeeeb1acd0ffa246e7d54d5e0f997f81f602da28c5",
+    "treatment_skeleton_sha256": "d8a05faf0239000d4dbe4cc980ccfa2c7ef48631c7f0ac9a675476a17291af2d"
+  },
+  "proposal_type": "ordinary",
+  "proposals_cumulative": 8,
+  "remaining_budget": {
+    "evaluations": 192,
+    "evaluator_seconds": 23522.87864950183,
+    "proposals": 192,
+    "tokens": 99848332
+  },
+  "retained": true,
+  "retention_decision": "strict_incumbent_improvement",
+  "run_id": "fashion-mnist-openevolve-v2-1-mps-fashion_mnist_source_only_mps-openevolve-b04-c0",
+  "schema_version": "1.0",
+  "selected_parent_ids": [
+    "e4ddd10be457826566ffa3afce478f5cea9b072fb2a499a5512b56aec6a966f5"
+  ],
+  "timestamp": "2026-08-24T03:23:42.782450+00:00",
+  "usage_cumulative": {
+    "cached_input_tokens": 84224,
+    "input_tokens": 130923,
+    "output_tokens": 20745,
+    "reasoning_output_tokens": 16465,
+    "total_tokens": 151668
+  },
+  "usage_increment": {
+    "cached_input_tokens": 0,
+    "input_tokens": 17478,
+    "output_tokens": 1317,
+    "reasoning_output_tokens": 656,
+    "total_tokens": 18795
+  },
+  "visible_candidate_ids": [
+    "e4ddd10be457826566ffa3afce478f5cea9b072fb2a499a5512b56aec6a966f5"
+  ]
+}

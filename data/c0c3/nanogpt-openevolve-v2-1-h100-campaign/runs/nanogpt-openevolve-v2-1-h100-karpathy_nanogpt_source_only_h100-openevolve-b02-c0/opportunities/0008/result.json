@@ -1,0 +1,82 @@
+{
+  "artifact_path": "candidates/b18081ca158f1667a579c47781a7a0a020d032b4cadd7ca33f74f26681e9304a",
+  "candidate_id": "b18081ca158f1667a579c47781a7a0a020d032b4cadd7ca33f74f26681e9304a",
+  "codex_service_tier": "fast",
+  "condition": "C0",
+  "conversation_session_id": null,
+  "evaluation": {
+    "evaluator_calls": 1,
+    "evaluator_seconds": 340.86127530799786,
+    "failure_kind": null,
+    "fitness": -0.999549,
+    "metrics": {
+      "depth": 8.0,
+      "mfu_percent": 37.99,
+      "num_params_M": 50.3,
+      "num_steps": 3810.0,
+      "peak_vram_mb": 22701.2,
+      "total_tokens_M": 499.4,
+      "training_seconds": 300.1,
+      "val_bpb": 0.999549
+    },
+    "valid": true
+  },
+  "evaluator_calls_cumulative": 8,
+  "evaluator_calls_increment": 1,
+  "evaluator_seconds_cumulative": 2567.975844737003,
+  "evaluator_seconds_increment": 340.86127530799786,
+  "event": "proposal_completed",
+  "evicted_candidate_id": null,
+  "evidence": "The 262K-token batch with 128 sequences achieved 489.9M tokens and val_bpb 0.987174, whereas reducing the same 2,048-token workload to 64 or 96 sequences cut throughput to 366.9M and 374.1M tokens; shortening sequences preserves the proven 128-sequence launch while increasing update frequency.",
+  "hypothesis": "Training on 1,024-token sequences with 128 sequences per step will beat val_bpb 0.987174 by approximately doubling update frequency while avoiding the throughput collapse seen when the 131K-token batch used only 64 sequences.",
+  "incumbent_after": "005b27c638e8ced7b681518a1df47186e926fc1a87b4dda0797371df3c14496a",
+  "intended_edit": "Use 1,024-token sequences and a 131,072-token single-microbatch training step, retain the fixed 2,048-token model and validation context, and calculate MFU from the actual training sequence length.",
+  "mechanism": "Shorter training sequences with occupancy-preserving microbatches",
+  "opportunity": 8,
+  "parent_ids": [
+    "005b27c638e8ced7b681518a1df47186e926fc1a87b4dda0797371df3c14496a"
+  ],
+  "portfolio_after": [
+    "005b27c638e8ced7b681518a1df47186e926fc1a87b4dda0797371df3c14496a"
+  ],
+  "prompt_hashes": {
+    "common_template_sha256": "ba85b39aa7288f4f48475376da6cff65661f39cfeb7ac7cde15b2a9a2e692fde",
+    "prompt_sha256": "dd2085e4a689662bd28e9b13f5074409755efd4843d5f0c83a4fe885b47fb050",
+    "proposal_policy_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "search_state_sha256": "04e5eb078ae1964e4ec65bfeeeb1acd0ffa246e7d54d5e0f997f81f602da28c5",
+    "treatment_skeleton_sha256": "f1040dea4a064b81e0eda2cb03ad1fc123d6a9d6a645db12b11b270d6db63ae8"
+  },
+  "proposal_type": "ordinary",
+  "proposals_cumulative": 8,
+  "remaining_budget": {
+    "evaluations": 192,
+    "evaluator_seconds": 717432.024155263,
+    "proposals": 192,
+    "tokens": 99792451
+  },
+  "retained": false,
+  "retention_decision": "not_strictly_better_than_incumbent",
+  "run_id": "nanogpt-openevolve-v2-1-h100-karpathy_nanogpt_source_only_h100-openevolve-b02-c0",
+  "schema_version": "1.0",
+  "selected_parent_ids": [
+    "005b27c638e8ced7b681518a1df47186e926fc1a87b4dda0797371df3c14496a"
+  ],
+  "timestamp": "2026-08-23T18:51:55.945832+00:00",
+  "usage_cumulative": {
+    "cached_input_tokens": 82944,
+    "input_tokens": 181075,
+    "output_tokens": 26474,
+    "reasoning_output_tokens": 23923,
+    "total_tokens": 207549
+  },
+  "usage_increment": {
+    "cached_input_tokens": 9984,
+    "input_tokens": 23491,
+    "output_tokens": 3318,
+    "reasoning_output_tokens": 2588,
+    "total_tokens": 26809
+  },
+  "visible_candidate_ids": [
+    "005b27c638e8ced7b681518a1df47186e926fc1a87b4dda0797371df3c14496a"
+  ]
+}

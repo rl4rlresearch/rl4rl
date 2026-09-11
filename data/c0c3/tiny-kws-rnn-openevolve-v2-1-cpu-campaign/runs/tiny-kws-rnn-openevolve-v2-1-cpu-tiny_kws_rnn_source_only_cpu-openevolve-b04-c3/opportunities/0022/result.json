@@ -1,0 +1,105 @@
+{
+  "artifact_path": "candidates/56b51147789168abc0113dc65c665a6fcd918d52d03db07053a02554338c1e32",
+  "candidate_id": "56b51147789168abc0113dc65c665a6fcd918d52d03db07053a02554338c1e32",
+  "codex_service_tier": "default",
+  "condition": "C3",
+  "conversation_session_id": null,
+  "evaluation": {
+    "evaluator_calls": 1,
+    "evaluator_seconds": 94.92393920803443,
+    "failure_kind": null,
+    "fitness": -6157045862923489149,
+    "metrics": {
+      "batch_size": 128,
+      "evaluation_cases": 815,
+      "evaluation_split": "public_speaker_disjoint_validation",
+      "examples_processed": 50000,
+      "inference_cost": 6157045862923489149,
+      "maximum_recurrent_steps": 27,
+      "mean_recurrent_steps": 27.0,
+      "median_recurrent_steps": 27,
+      "optimizer_steps": 397,
+      "p95_recurrent_steps": 27,
+      "parameters": 58344,
+      "peak_hidden_elements": 127488,
+      "recurrent_logit_effect": 0.07114501297473907,
+      "recurrent_macs": 1178763840,
+      "recurrent_steps": 22005,
+      "state_dependence_effect": 0.3938485383987427,
+      "state_update_effect": 0.39441514015197754,
+      "total_inference_macs": 1180380800,
+      "trained_recurrent_logit_effect": 0.3455761671066284,
+      "trained_state_dependence_effect": 0.4325235188007355,
+      "trained_state_update_effect": 0.42949000000953674,
+      "training_seconds": 81.08205604203977,
+      "validation_accuracy": 0.8638036809815951,
+      "validation_correct": 704,
+      "validation_cross_entropy": 0.3916617364239839
+    },
+    "valid": true
+  },
+  "evaluator_calls_cumulative": 22,
+  "evaluator_calls_increment": 1,
+  "evaluator_seconds_cumulative": 2804.7771595017985,
+  "evaluator_seconds_increment": 94.92393920803443,
+  "event": "proposal_completed",
+  "evicted_candidate_id": "878c9d61b0a1da28f1fe9d9c556fd116eca2bc30e06a2ce41c978967f5abf104",
+  "evidence": "The prior 124-unit dual-readout model missed qualification by only two examples with 0.3884 cross-entropy, while adding terminal information previously raised the 127-unit design from 84.91% to 85.40%; direct training supervision for both predictive views targets that narrow optimization gap without adding validation MACs.",
+  "hypothesis": "Independently supervising the mean and terminal recurrent views of a 124-unit, 27-step GRU will recover the two validation examples needed for at least 85% accuracy while retaining the approximately 1.180B inference-MAC cost of the prior 124-unit dual-readout design.",
+  "incumbent_after": "56b51147789168abc0113dc65c665a6fcd918d52d03db07053a02554338c1e32",
+  "intended_edit": "Use the lower-cost 124-unit GRU and qualified early-drop schedule, classify from concatenated mean and terminal states, and add two auxiliary classifiers that execute only during training.",
+  "mechanism": "Training-only dual-view deep supervision",
+  "opportunity": 22,
+  "parent_ids": [
+    "878c9d61b0a1da28f1fe9d9c556fd116eca2bc30e06a2ce41c978967f5abf104"
+  ],
+  "portfolio_after": [
+    "016d906da09d1fe9115b3d48dd009dea2faccbbb35792057b39773f1cdb8582b",
+    "cbce7a524a9f6541f15e5224d047683d0964b0c475834882b4420c51390c8e05",
+    "56b51147789168abc0113dc65c665a6fcd918d52d03db07053a02554338c1e32",
+    "43a862b25bfa3093b08476bd79caa6f103d0408dd5249508edea26f5adeae542"
+  ],
+  "prompt_hashes": {
+    "common_template_sha256": "dee04faf4c430276c1036ba97f5705a339857dbdf19117dac88952a5a3a47e9d",
+    "prompt_sha256": "47061bfb62801b102fc3bce9c990593486e1c36d451f23ceabfb0a5d25f709c7",
+    "proposal_policy_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "search_state_sha256": "c938ac007bf70fe8d27f64661175531e51fcb16b38318c328493c32ee292e27e",
+    "treatment_skeleton_sha256": "58312f0edc2f97ee68aa2eb4dbca3d89dc1dd71622ab35722868abc1c6e93e41"
+  },
+  "proposal_type": "ordinary",
+  "proposals_cumulative": 22,
+  "remaining_budget": {
+    "evaluations": 178,
+    "evaluator_seconds": 57195.2228404982,
+    "proposals": 178,
+    "tokens": 99399041
+  },
+  "retained": true,
+  "retention_decision": "replaced_selected_parent_on_strict_improvement",
+  "run_id": "tiny-kws-rnn-openevolve-v2-1-cpu-tiny_kws_rnn_source_only_cpu-openevolve-b04-c3",
+  "schema_version": "1.0",
+  "selected_parent_ids": [
+    "878c9d61b0a1da28f1fe9d9c556fd116eca2bc30e06a2ce41c978967f5abf104"
+  ],
+  "timestamp": "2026-09-04T04:15:43.256627+00:00",
+  "usage_cumulative": {
+    "cached_input_tokens": 270720,
+    "input_tokens": 525415,
+    "output_tokens": 75544,
+    "reasoning_output_tokens": 64878,
+    "total_tokens": 600959
+  },
+  "usage_increment": {
+    "cached_input_tokens": 10752,
+    "input_tokens": 23753,
+    "output_tokens": 3317,
+    "reasoning_output_tokens": 2497,
+    "total_tokens": 27070
+  },
+  "visible_candidate_ids": [
+    "016d906da09d1fe9115b3d48dd009dea2faccbbb35792057b39773f1cdb8582b",
+    "cbce7a524a9f6541f15e5224d047683d0964b0c475834882b4420c51390c8e05",
+    "878c9d61b0a1da28f1fe9d9c556fd116eca2bc30e06a2ce41c978967f5abf104",
+    "43a862b25bfa3093b08476bd79caa6f103d0408dd5249508edea26f5adeae542"
+  ]
+}

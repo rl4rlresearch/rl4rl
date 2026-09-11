@@ -1,0 +1,79 @@
+{
+  "artifact_path": "candidates/908377c4e43c6380e01215a3abe985beeda6b819eeed1286c4cffb1442f16acd",
+  "candidate_id": "908377c4e43c6380e01215a3abe985beeda6b819eeed1286c4cffb1442f16acd",
+  "codex_service_tier": "fast",
+  "condition": "C0",
+  "conversation_session_id": null,
+  "evaluation": {
+    "evaluator_calls": 1,
+    "evaluator_seconds": 256.3193774999818,
+    "failure_kind": "nonqualification",
+    "fitness": null,
+    "metrics": {
+      "accuracy": 0.848,
+      "cases": 10010,
+      "correct": 8488,
+      "parameters": 1628,
+      "training_steps": 4999
+    },
+    "valid": false
+  },
+  "evaluator_calls_cumulative": 5,
+  "evaluator_calls_increment": 1,
+  "evaluator_seconds_cumulative": 1145.0306757090148,
+  "evaluator_seconds_increment": 256.3193774999818,
+  "event": "proposal_completed",
+  "evicted_candidate_id": null,
+  "evidence": "Removing both block LayerNorm biases reached only 91.12%, but that experiment confounded the attention and fragile MLP paths; the 1636-parameter model reached 99.84%, so isolating the theoretically redundant attention-side offset is the most informative smaller change.",
+  "hypothesis": "Removing only the 8-parameter attention LayerNorm bias will reduce the model from 1636 to 1628 parameters while retaining at least 99% accuracy, because its query and value effects are absorbable by the retained biases and its key effect cancels under softmax.",
+  "incumbent_after": "0c5739da9f29148e1e6269ddc9aed365a62c24fd7d53dc756ee0ead7226bed9b",
+  "intended_edit": "Disable the learned bias only in `ln1`, preserving `ln2` and every other successful architectural and training setting.",
+  "mechanism": "Attention-LayerNorm offset absorption",
+  "opportunity": 5,
+  "parent_ids": [
+    "0c5739da9f29148e1e6269ddc9aed365a62c24fd7d53dc756ee0ead7226bed9b"
+  ],
+  "portfolio_after": [
+    "0c5739da9f29148e1e6269ddc9aed365a62c24fd7d53dc756ee0ead7226bed9b"
+  ],
+  "prompt_hashes": {
+    "common_template_sha256": "3f2bea6418b6969c4bf2aa1df18dcda8a3a4ac075bf20c79068c754698b6be5e",
+    "prompt_sha256": "618be5509df6d08b78dbcace0795bff6d1e77168244c679736c3990ef48caadc",
+    "proposal_policy_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "search_state_sha256": "04e5eb078ae1964e4ec65bfeeeb1acd0ffa246e7d54d5e0f997f81f602da28c5",
+    "treatment_skeleton_sha256": "065017c594eb3b8b98a6ab68a08a71e13545f6070fd7f60ff2c71a147255f4d7"
+  },
+  "proposal_type": "ordinary",
+  "proposals_cumulative": 5,
+  "remaining_budget": {
+    "evaluations": 195,
+    "evaluator_seconds": 358854.969324291,
+    "proposals": 195,
+    "tokens": 99894285
+  },
+  "retained": false,
+  "retention_decision": "invalid",
+  "run_id": "controlled-openevolve-transformer-v2-1-source-only-ten-digit-addition-pair-transformer-openevolve-v2-1-mps-openevolve-b05-c0",
+  "schema_version": "1.0",
+  "selected_parent_ids": [
+    "0c5739da9f29148e1e6269ddc9aed365a62c24fd7d53dc756ee0ead7226bed9b"
+  ],
+  "timestamp": "2026-08-23T11:37:04.175460+00:00",
+  "usage_cumulative": {
+    "cached_input_tokens": 55040,
+    "input_tokens": 95240,
+    "output_tokens": 10475,
+    "reasoning_output_tokens": 9118,
+    "total_tokens": 105715
+  },
+  "usage_increment": {
+    "cached_input_tokens": 12032,
+    "input_tokens": 19442,
+    "output_tokens": 910,
+    "reasoning_output_tokens": 709,
+    "total_tokens": 20352
+  },
+  "visible_candidate_ids": [
+    "0c5739da9f29148e1e6269ddc9aed365a62c24fd7d53dc756ee0ead7226bed9b"
+  ]
+}

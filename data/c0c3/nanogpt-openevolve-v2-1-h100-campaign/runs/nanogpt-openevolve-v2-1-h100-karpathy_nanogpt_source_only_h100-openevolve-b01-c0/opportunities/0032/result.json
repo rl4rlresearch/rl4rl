@@ -1,0 +1,82 @@
+{
+  "artifact_path": "candidates/90d9d51de9441d522988ac2ea9e62218c9e5c78de4f72aaee641f98c6614114d",
+  "candidate_id": "90d9d51de9441d522988ac2ea9e62218c9e5c78de4f72aaee641f98c6614114d",
+  "codex_service_tier": "default",
+  "condition": "C0",
+  "conversation_session_id": null,
+  "evaluation": {
+    "evaluator_calls": 1,
+    "evaluator_seconds": 367.628516064,
+    "failure_kind": null,
+    "fitness": -0.985327,
+    "metrics": {
+      "depth": 8.0,
+      "mfu_percent": 38.14,
+      "num_params_M": 50.3,
+      "num_steps": 1891.0,
+      "peak_vram_mb": 44908.2,
+      "total_tokens_M": 495.7,
+      "training_seconds": 300.1,
+      "val_bpb": 0.985327
+    },
+    "valid": true
+  },
+  "evaluator_calls_cumulative": 32,
+  "evaluator_calls_increment": 1,
+  "evaluator_seconds_cumulative": 11850.881452865964,
+  "evaluator_seconds_increment": 367.628516064,
+  "event": "proposal_completed",
+  "evicted_candidate_id": null,
+  "evidence": "Full-attention layers at 4, 6, and 8 achieved 0.984244, whereas adding an early full-attention layer at depth 2 regressed to 0.985402; relocating rather than adding a layer isolates whether later placement drives the benefit.",
+  "hypothesis": "Moving the third full-attention layer from depth 6 to depth 7 will beat 0.984244 val_bpb because the depth-6 addition helped while the depth-2 addition hurt, suggesting global attention is more useful later in the stack.",
+  "incumbent_after": "be47281268d3a5ad394ffe7831fd3891cde2f28384246d3c42403c8ba1545de5",
+  "intended_edit": "Use full attention at layers 4, 7, and 8 while preserving compute scale, optimizer, batching, and schedule.",
+  "mechanism": "Late-stack global-context concentration",
+  "opportunity": 32,
+  "parent_ids": [
+    "be47281268d3a5ad394ffe7831fd3891cde2f28384246d3c42403c8ba1545de5"
+  ],
+  "portfolio_after": [
+    "be47281268d3a5ad394ffe7831fd3891cde2f28384246d3c42403c8ba1545de5"
+  ],
+  "prompt_hashes": {
+    "common_template_sha256": "ba85b39aa7288f4f48475376da6cff65661f39cfeb7ac7cde15b2a9a2e692fde",
+    "prompt_sha256": "448fc337fddf923d8d4cbb624db71a16e84d458651cace90ca3e0fd477b90162",
+    "proposal_policy_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "search_state_sha256": "04e5eb078ae1964e4ec65bfeeeb1acd0ffa246e7d54d5e0f997f81f602da28c5",
+    "treatment_skeleton_sha256": "8b9c170fba6e7574f0d70e01fe4354fc3dad17dbbcb8e75bf21e1f677948b95b"
+  },
+  "proposal_type": "ordinary",
+  "proposals_cumulative": 32,
+  "remaining_budget": {
+    "evaluations": 168,
+    "evaluator_seconds": 708149.118547134,
+    "proposals": 168,
+    "tokens": 99169089
+  },
+  "retained": false,
+  "retention_decision": "not_strictly_better_than_incumbent",
+  "run_id": "nanogpt-openevolve-v2-1-h100-karpathy_nanogpt_source_only_h100-openevolve-b01-c0",
+  "schema_version": "1.0",
+  "selected_parent_ids": [
+    "be47281268d3a5ad394ffe7831fd3891cde2f28384246d3c42403c8ba1545de5"
+  ],
+  "timestamp": "2026-08-24T05:42:36.767836+00:00",
+  "usage_cumulative": {
+    "cached_input_tokens": 368640,
+    "input_tokens": 772916,
+    "output_tokens": 57995,
+    "reasoning_output_tokens": 50738,
+    "total_tokens": 830911
+  },
+  "usage_increment": {
+    "cached_input_tokens": 12032,
+    "input_tokens": 24752,
+    "output_tokens": 1081,
+    "reasoning_output_tokens": 863,
+    "total_tokens": 25833
+  },
+  "visible_candidate_ids": [
+    "be47281268d3a5ad394ffe7831fd3891cde2f28384246d3c42403c8ba1545de5"
+  ]
+}

@@ -1,0 +1,83 @@
+{
+  "artifact_path": "candidates/61d0a2e35f933744ccc75e4274a2c449a722a6282304d9b30384b51bc2549281",
+  "candidate_id": "61d0a2e35f933744ccc75e4274a2c449a722a6282304d9b30384b51bc2549281",
+  "codex_service_tier": "fast",
+  "condition": "C3",
+  "conversation_session_id": null,
+  "evaluation": {
+    "evaluator_calls": 1,
+    "evaluator_seconds": 349.357608124963,
+    "failure_kind": "nonqualification",
+    "fitness": null,
+    "metrics": {
+      "accuracy": 0.34159999999999996,
+      "cases": 10010,
+      "correct": 3419,
+      "parameters": 1627,
+      "training_steps": 4999
+    },
+    "valid": false
+  },
+  "evaluator_calls_cumulative": 9,
+  "evaluator_calls_increment": 1,
+  "evaluator_seconds_cumulative": 2331.9060922909994,
+  "evaluator_seconds_increment": 349.357608124963,
+  "event": "proposal_completed",
+  "evicted_candidate_id": null,
+  "evidence": "The 1,628-parameter design reached 99.95%; removing all eight `ln1` bias coordinates collapsed accuracy to 33.96%, so a one-coordinate ablation tests the same structural redundancy with minimal optimization disruption.",
+  "hypothesis": "Removing one coordinate of the first LayerNorm bias from the verified 1,628-parameter design will retain at least 99% accuracy with 1,627 parameters, because its query/value effects can be absorbed by retained projection biases and its key effect is softmax-invariant, while preserving seven of eight optimization-sensitive bias coordinates.",
+  "incumbent_after": "a4a0981ef54a0ebd6b6a4a125141c00f870580eca3ab3a62726138e415641ce7",
+  "intended_edit": "Remove the key-projection and `ln2` biases as in the verified 1,628-parameter design, then replace `ln1` with an equivalent LayerNorm whose final bias coordinate is fixed at zero.",
+  "mechanism": "Single-coordinate redundant normalization-offset removal",
+  "opportunity": 9,
+  "parent_ids": [
+    "2b9cea175ed60b009337ac54f6e8ad23bf2c014eb4080237777bfb70bfd9fd5b"
+  ],
+  "portfolio_after": [
+    "2b9cea175ed60b009337ac54f6e8ad23bf2c014eb4080237777bfb70bfd9fd5b",
+    "0c5739da9f29148e1e6269ddc9aed365a62c24fd7d53dc756ee0ead7226bed9b",
+    "a4a0981ef54a0ebd6b6a4a125141c00f870580eca3ab3a62726138e415641ce7"
+  ],
+  "prompt_hashes": {
+    "common_template_sha256": "3f2bea6418b6969c4bf2aa1df18dcda8a3a4ac075bf20c79068c754698b6be5e",
+    "prompt_sha256": "e4920592579125e3a391f6e93a242766a0016a49a2eb2617aa25c82da00ffe1f",
+    "proposal_policy_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "search_state_sha256": "c938ac007bf70fe8d27f64661175531e51fcb16b38318c328493c32ee292e27e",
+    "treatment_skeleton_sha256": "4d39a66b58b5e14f6b51ae28423ceb88dc8ef87687aef5456fa5dea5a17e124f"
+  },
+  "proposal_type": "ordinary",
+  "proposals_cumulative": 9,
+  "remaining_budget": {
+    "evaluations": 191,
+    "evaluator_seconds": 357668.093907709,
+    "proposals": 191,
+    "tokens": 99745910
+  },
+  "retained": false,
+  "retention_decision": "invalid",
+  "run_id": "controlled-openevolve-transformer-v2-1-source-only-ten-digit-addition-pair-transformer-openevolve-v2-1-mps-openevolve-b03-c3",
+  "schema_version": "1.0",
+  "selected_parent_ids": [
+    "2b9cea175ed60b009337ac54f6e8ad23bf2c014eb4080237777bfb70bfd9fd5b"
+  ],
+  "timestamp": "2026-08-23T13:04:48.137528+00:00",
+  "usage_cumulative": {
+    "cached_input_tokens": 106240,
+    "input_tokens": 219019,
+    "output_tokens": 35071,
+    "reasoning_output_tokens": 30308,
+    "total_tokens": 254090
+  },
+  "usage_increment": {
+    "cached_input_tokens": 12032,
+    "input_tokens": 28238,
+    "output_tokens": 2258,
+    "reasoning_output_tokens": 1552,
+    "total_tokens": 30496
+  },
+  "visible_candidate_ids": [
+    "2b9cea175ed60b009337ac54f6e8ad23bf2c014eb4080237777bfb70bfd9fd5b",
+    "0c5739da9f29148e1e6269ddc9aed365a62c24fd7d53dc756ee0ead7226bed9b",
+    "a4a0981ef54a0ebd6b6a4a125141c00f870580eca3ab3a62726138e415641ce7"
+  ]
+}

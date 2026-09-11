@@ -1,0 +1,91 @@
+{
+  "artifact_path": "candidates/5b6d1f13c725ab2ecd7efb2ec58c00d5fc21e40a7a4201d8fb7714be8e1db75b",
+  "candidate_id": "5b6d1f13c725ab2ecd7efb2ec58c00d5fc21e40a7a4201d8fb7714be8e1db75b",
+  "codex_service_tier": "default",
+  "condition": "C3",
+  "conversation_session_id": null,
+  "evaluation": {
+    "evaluator_calls": 1,
+    "evaluator_seconds": 61.307351999916136,
+    "failure_kind": null,
+    "fitness": 9283.413837405084,
+    "metrics": {
+      "batch_size": 192,
+      "evaluation_cases": 10000,
+      "evaluation_split": "public_validation",
+      "examples_processed": 100000,
+      "optimizer_steps": 522,
+      "parameters": 245152,
+      "training_seconds": 42.5811313749291,
+      "validation_accuracy": 0.9283,
+      "validation_correct": 9283,
+      "validation_cross_entropy": 0.20820398025512696,
+      "validation_score": 9283.413837405084
+    },
+    "valid": true
+  },
+  "evaluator_calls_cumulative": 137,
+  "evaluator_calls_increment": 1,
+  "evaluator_seconds_cumulative": 8342.217302540317,
+  "evaluator_seconds_increment": 61.307351999916136,
+  "event": "proposal_completed",
+  "evicted_candidate_id": "ad9ddc8db86497c2b58901a403fb7429ef5d8eb38b244d65086cb571700ecb27",
+  "evidence": "Independent scalar mixed pooling achieved the best result at 9,284 correct, while channelwise pooling fell to 9,281 and probability-space TTA fell to 9,280; this motivates restoring the proven representation and testing only whether exact augmentation-matched logit weights improve inference.",
+  "hypothesis": "Restoring independent scalar 90%-max pooling and weighting validation translations exactly like the training augmentation distribution will exceed 9,284 correct predictions by removing an untrained directional and distance-dependent inference bias while preserving logit-space averaging.",
+  "incumbent_after": "bfa787adb7b0c634a55b2fcc09d23b34805aa0707e24c45a94235d2a1e67b0eb",
+  "intended_edit": "Replace the regressed channelwise pooling gates with the best verified stage-specific scalar gates, then use 0.09 for all radius-one cardinal shifts, 0.045 for diagonals, and 0.00625 for every radius-two shift.",
+  "mechanism": "Training-distribution-matched logit TTA",
+  "opportunity": 143,
+  "parent_ids": [
+    "ad9ddc8db86497c2b58901a403fb7429ef5d8eb38b244d65086cb571700ecb27"
+  ],
+  "portfolio_after": [
+    "001519910a731ff64c845322a0c4479626e8f916673cc6f32b7dc1f93e4783dd",
+    "bfa787adb7b0c634a55b2fcc09d23b34805aa0707e24c45a94235d2a1e67b0eb",
+    "a47a8e96ab3dff5d43f046a91dedf71452d9ec3b08c3c07ae9b9675ac281e206",
+    "5b6d1f13c725ab2ecd7efb2ec58c00d5fc21e40a7a4201d8fb7714be8e1db75b"
+  ],
+  "prompt_hashes": {
+    "common_template_sha256": "e8327ba94bab12abc7c7ec7c6615378a3ae62434efb944d4a7d9492f1d19bc14",
+    "prompt_sha256": "ec3f7b550edddcd9ebb35843504ea3f5f4c1cb5ea5a66a061a43b5f51a13319a",
+    "proposal_policy_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "search_state_sha256": "c938ac007bf70fe8d27f64661175531e51fcb16b38318c328493c32ee292e27e",
+    "treatment_skeleton_sha256": "fd4c0c9d147f41f2b29fca33b0642faa37419c77be34d284752d2a6681d53da3"
+  },
+  "proposal_type": "ordinary",
+  "proposals_cumulative": 143,
+  "remaining_budget": {
+    "evaluations": 63,
+    "evaluator_seconds": 15657.782697459683,
+    "proposals": 57,
+    "tokens": 95903665
+  },
+  "retained": true,
+  "retention_decision": "replaced_selected_parent_on_strict_improvement",
+  "run_id": "fashion-mnist-openevolve-v2-1-mps-fashion_mnist_source_only_mps-openevolve-b03-c3",
+  "schema_version": "1.0",
+  "selected_parent_ids": [
+    "ad9ddc8db86497c2b58901a403fb7429ef5d8eb38b244d65086cb571700ecb27"
+  ],
+  "timestamp": "2026-08-25T02:00:47.252902+00:00",
+  "usage_cumulative": {
+    "cached_input_tokens": 1552128,
+    "input_tokens": 3690584,
+    "output_tokens": 405751,
+    "reasoning_output_tokens": 329934,
+    "total_tokens": 4096335
+  },
+  "usage_increment": {
+    "cached_input_tokens": 2816,
+    "input_tokens": 27461,
+    "output_tokens": 2123,
+    "reasoning_output_tokens": 1378,
+    "total_tokens": 29584
+  },
+  "visible_candidate_ids": [
+    "001519910a731ff64c845322a0c4479626e8f916673cc6f32b7dc1f93e4783dd",
+    "bfa787adb7b0c634a55b2fcc09d23b34805aa0707e24c45a94235d2a1e67b0eb",
+    "a47a8e96ab3dff5d43f046a91dedf71452d9ec3b08c3c07ae9b9675ac281e206",
+    "ad9ddc8db86497c2b58901a403fb7429ef5d8eb38b244d65086cb571700ecb27"
+  ]
+}

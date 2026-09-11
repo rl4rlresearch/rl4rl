@@ -1,0 +1,79 @@
+{
+  "artifact_path": "candidates/eb686c500a5cf802c86a94b4b4796134c7db9e0f49112d31b736e9ace84df333",
+  "candidate_id": "eb686c500a5cf802c86a94b4b4796134c7db9e0f49112d31b736e9ace84df333",
+  "codex_service_tier": "fast",
+  "condition": "C0",
+  "conversation_session_id": null,
+  "evaluation": {
+    "evaluator_calls": 1,
+    "evaluator_seconds": 442.9569370410172,
+    "failure_kind": "nonqualification",
+    "fitness": null,
+    "metrics": {
+      "accuracy": 0.5386,
+      "cases": 10010,
+      "correct": 5391,
+      "parameters": 1626,
+      "training_steps": 4999
+    },
+    "valid": false
+  },
+  "evaluator_calls_cumulative": 18,
+  "evaluator_calls_increment": 1,
+  "evaluator_seconds_cumulative": 5959.597759164055,
+  "evaluator_seconds_increment": 442.9569370410172,
+  "event": "proposal_completed",
+  "evicted_candidate_id": null,
+  "evidence": "The quotient-aware attention-bias model achieved 99.85% at 1634 parameters and the tied-embedding scalar quotient achieved 99.72% at 1633, showing virtual full-coordinate AdamW can preserve accuracy across exact gauges. The independent positional gauge failed at 68.31%, motivating this coupled gauge, which leaves the summed token-plus-position input unchanged rather than quotienting position embeddings alone.",
+  "hypothesis": "Fixing the final token-embedding row to zero will reduce the model from 1633 to 1626 parameters while retaining at least 99% accuracy, because any removed eight-dimensional row can be transferred to every positional vector without changing transformer inputs, while it changes output logits only by a vocabulary-wide constant; coupled virtual AdamW preserves the full-coordinate optimization dynamics.",
+  "incumbent_after": "129e9aa93501f4713a12f77856a102142fc7658b1b77d3fe132ca1400efb4590",
+  "intended_edit": "Replace the single-scalar tied-embedding gauge with an eight-coordinate row gauge, transfer its initialization anchor into the positional embedding, and jointly optimize token and positional embeddings using reconstructed full gradients, moments, weight decay, and clipping.",
+  "mechanism": "Coupled tied-token/position row-gauge quotient",
+  "opportunity": 18,
+  "parent_ids": [
+    "129e9aa93501f4713a12f77856a102142fc7658b1b77d3fe132ca1400efb4590"
+  ],
+  "portfolio_after": [
+    "129e9aa93501f4713a12f77856a102142fc7658b1b77d3fe132ca1400efb4590"
+  ],
+  "prompt_hashes": {
+    "common_template_sha256": "3f2bea6418b6969c4bf2aa1df18dcda8a3a4ac075bf20c79068c754698b6be5e",
+    "prompt_sha256": "1f307a05c4deb2a5d96d45a0d17239dc07e950ec49ba96b909bce27a9bdc7cdf",
+    "proposal_policy_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "search_state_sha256": "04e5eb078ae1964e4ec65bfeeeb1acd0ffa246e7d54d5e0f997f81f602da28c5",
+    "treatment_skeleton_sha256": "7e58768029017c068aafeeadccc9498b90e6cae9e5b2196830922d6802ed7b92"
+  },
+  "proposal_type": "ordinary",
+  "proposals_cumulative": 18,
+  "remaining_budget": {
+    "evaluations": 182,
+    "evaluator_seconds": 354040.40224083595,
+    "proposals": 182,
+    "tokens": 99563971
+  },
+  "retained": false,
+  "retention_decision": "invalid",
+  "run_id": "controlled-openevolve-transformer-v2-1-source-only-ten-digit-addition-pair-transformer-openevolve-v2-1-mps-openevolve-b05-c0",
+  "schema_version": "1.0",
+  "selected_parent_ids": [
+    "129e9aa93501f4713a12f77856a102142fc7658b1b77d3fe132ca1400efb4590"
+  ],
+  "timestamp": "2026-08-23T19:20:32.698227+00:00",
+  "usage_cumulative": {
+    "cached_input_tokens": 207360,
+    "input_tokens": 368408,
+    "output_tokens": 67621,
+    "reasoning_output_tokens": 57408,
+    "total_tokens": 436029
+  },
+  "usage_increment": {
+    "cached_input_tokens": 12032,
+    "input_tokens": 22466,
+    "output_tokens": 9884,
+    "reasoning_output_tokens": 7432,
+    "total_tokens": 32350
+  },
+  "visible_candidate_ids": [
+    "129e9aa93501f4713a12f77856a102142fc7658b1b77d3fe132ca1400efb4590"
+  ]
+}

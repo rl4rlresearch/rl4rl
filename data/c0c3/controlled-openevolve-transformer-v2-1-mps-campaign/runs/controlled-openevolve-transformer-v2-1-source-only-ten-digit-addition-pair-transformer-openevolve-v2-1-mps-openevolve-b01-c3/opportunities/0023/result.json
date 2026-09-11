@@ -1,0 +1,85 @@
+{
+  "artifact_path": "candidates/ae7e3cde81e4e5de3df778dd7554946c218d1e0e14fbbfede89b8ff5fcdf4332",
+  "candidate_id": "ae7e3cde81e4e5de3df778dd7554946c218d1e0e14fbbfede89b8ff5fcdf4332",
+  "codex_service_tier": "fast",
+  "condition": "C3",
+  "conversation_session_id": null,
+  "evaluation": {
+    "evaluator_calls": 1,
+    "evaluator_seconds": 368.2082435830962,
+    "failure_kind": null,
+    "fitness": -1419.0,
+    "metrics": {
+      "accuracy": 0.9934000000000001,
+      "cases": 10010,
+      "correct": 9944,
+      "parameters": 1419,
+      "training_steps": 4999
+    },
+    "valid": true
+  },
+  "evaluator_calls_cumulative": 23,
+  "evaluator_calls_increment": 1,
+  "evaluator_seconds_cumulative": 7237.54240725236,
+  "evaluator_seconds_increment": 368.2082435830962,
+  "event": "proposal_completed",
+  "evicted_candidate_id": "a79e5ed68799e61e422a3549ab8b8ee4e9903a49d43f20c6a42a7de7d0b5ef68",
+  "evidence": "The 1,532-parameter current design achieved 99.94% accuracy with mean-zero positional embeddings and residual projections plus affine-free internal normalization. Unlike the failed asymmetric QKV and MLP reductions, this uses orthonormal coordinates on both sides and gives the same initialization distribution as projecting the existing embedding matrix onto its usable feature subspace.",
+  "hypothesis": "Constraining tied token embeddings to the feature-mean-zero subspace will reduce the current 1,532-parameter model to 1,520 parameters while retaining at least 99% accuracy, because affine-free LayerNorm makes each token-dependent all-ones feature component invisible throughout the residual stack and terminal normalization, while terminal hidden states are mean-zero and therefore cannot use that component in output logits.",
+  "incumbent_after": "ae7e3cde81e4e5de3df778dd7554946c218d1e0e14fbbfede89b8ff5fcdf4332",
+  "intended_edit": "Parameterize the tied embedding matrix with orthonormal bases across both vocabulary and feature dimensions, removing one functionally null feature coordinate for each of the twelve vocabulary-basis rows while preserving the current successful six-parameter query-bias design.",
+  "mechanism": "Two-sided orthonormal centering of tied token embeddings",
+  "opportunity": 23,
+  "parent_ids": [
+    "a79e5ed68799e61e422a3549ab8b8ee4e9903a49d43f20c6a42a7de7d0b5ef68"
+  ],
+  "portfolio_after": [
+    "2b9cea175ed60b009337ac54f6e8ad23bf2c014eb4080237777bfb70bfd9fd5b",
+    "ae7e3cde81e4e5de3df778dd7554946c218d1e0e14fbbfede89b8ff5fcdf4332",
+    "85cfbf1e294cb0819ff3a8a764095809458ecc15429088b650547e7373655b24",
+    "9cfe5cb5c3f3ec5093ff19b675a161f66440f594027b82ad004b23c4e7f1ab37"
+  ],
+  "prompt_hashes": {
+    "common_template_sha256": "3f2bea6418b6969c4bf2aa1df18dcda8a3a4ac075bf20c79068c754698b6be5e",
+    "prompt_sha256": "77d66227940926cd1a2c92631463e028a3a9097469f3aaef84a1c9c54e55f032",
+    "proposal_policy_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "search_state_sha256": "c938ac007bf70fe8d27f64661175531e51fcb16b38318c328493c32ee292e27e",
+    "treatment_skeleton_sha256": "afa37f052a85c25ccc1a4e75a5f7ea5309e2bb4cc5cd4b738ddd1a959b379238"
+  },
+  "proposal_type": "ordinary",
+  "proposals_cumulative": 23,
+  "remaining_budget": {
+    "evaluations": 177,
+    "evaluator_seconds": 352762.45759274764,
+    "proposals": 177,
+    "tokens": 99189323
+  },
+  "retained": true,
+  "retention_decision": "replaced_selected_parent_on_strict_improvement",
+  "run_id": "controlled-openevolve-transformer-v2-1-source-only-ten-digit-addition-pair-transformer-openevolve-v2-1-mps-openevolve-b01-c3",
+  "schema_version": "1.0",
+  "selected_parent_ids": [
+    "a79e5ed68799e61e422a3549ab8b8ee4e9903a49d43f20c6a42a7de7d0b5ef68"
+  ],
+  "timestamp": "2026-08-23T17:29:02.851082+00:00",
+  "usage_cumulative": {
+    "cached_input_tokens": 252416,
+    "input_tokens": 717876,
+    "output_tokens": 92801,
+    "reasoning_output_tokens": 78798,
+    "total_tokens": 810677
+  },
+  "usage_increment": {
+    "cached_input_tokens": 12032,
+    "input_tokens": 34723,
+    "output_tokens": 2054,
+    "reasoning_output_tokens": 1552,
+    "total_tokens": 36777
+  },
+  "visible_candidate_ids": [
+    "2b9cea175ed60b009337ac54f6e8ad23bf2c014eb4080237777bfb70bfd9fd5b",
+    "a79e5ed68799e61e422a3549ab8b8ee4e9903a49d43f20c6a42a7de7d0b5ef68",
+    "85cfbf1e294cb0819ff3a8a764095809458ecc15429088b650547e7373655b24",
+    "9cfe5cb5c3f3ec5093ff19b675a161f66440f594027b82ad004b23c4e7f1ab37"
+  ]
+}

@@ -1,0 +1,88 @@
+{
+  "artifact_path": "candidates/de5375379986f5107403e668002cce25495843a2784b330c878bad00e6ccf205",
+  "candidate_id": "de5375379986f5107403e668002cce25495843a2784b330c878bad00e6ccf205",
+  "codex_service_tier": "fast",
+  "condition": "C3",
+  "conversation_session_id": null,
+  "evaluation": {
+    "evaluator_calls": 1,
+    "evaluator_seconds": 363.7108211670002,
+    "failure_kind": null,
+    "fitness": -0.996996,
+    "metrics": {
+      "depth": 8.0,
+      "mfu_percent": 36.18,
+      "num_params_M": 46.1,
+      "num_steps": 1061.0,
+      "peak_vram_mb": 40913.2,
+      "total_tokens_M": 556.3,
+      "training_seconds": 300.2,
+      "val_bpb": 0.996996
+    },
+    "valid": true
+  },
+  "evaluator_calls_cumulative": 14,
+  "evaluator_calls_increment": 1,
+  "evaluator_seconds_cumulative": 5285.519469068007,
+  "evaluator_seconds_increment": 363.7108211670002,
+  "event": "proposal_completed",
+  "evicted_candidate_id": null,
+  "evidence": "The 512-token SSSL design with 50% linear warmdown achieved the best val_bpb, 0.993287 at 513.3M tokens; doubling the batch reached 519.0M but regressed to 1.015936 because it halved update frequency, motivating throughput gains from cheaper dense layers instead.",
+  "hypothesis": "Narrowing each MLP from 4\u00d7 to 3\u00d7 while restoring the proven 50% linear warmdown will preserve the established attention geometry, exceed 513.3M training tokens without reducing optimizer-step frequency, and lower val_bpb below 0.993287.",
+  "incumbent_after": "ee1f1cf686a479f175a9b2178602df52386a3561e80b0612b88ccd725e447c2e",
+  "intended_edit": "Reduce MLP hidden width from 4\u00d7 to 3\u00d7 model dimension and restore WARMDOWN_RATIO from 0.6 to the best verified value of 0.5.",
+  "mechanism": "Three-times-width ReLU\u00b2 feed-forward compute rebalancing",
+  "opportunity": 14,
+  "parent_ids": [
+    "8739f3a112cc296b7e52346edda0d7c193dbfb73b3aec6a3e9ed03bb18a2b8f5"
+  ],
+  "portfolio_after": [
+    "2865e528e18dc51191e4037eaeb5824cb0ea83ede79061b59b8f3caac686da6b",
+    "ee1f1cf686a479f175a9b2178602df52386a3561e80b0612b88ccd725e447c2e",
+    "8739f3a112cc296b7e52346edda0d7c193dbfb73b3aec6a3e9ed03bb18a2b8f5",
+    "2d771edf47265f31291fbb34e32f91548e44b43045421f48f01ac9a7b05d9d0f"
+  ],
+  "prompt_hashes": {
+    "common_template_sha256": "ba85b39aa7288f4f48475376da6cff65661f39cfeb7ac7cde15b2a9a2e692fde",
+    "prompt_sha256": "4355e870e1a3017c836690c9be6e22c9ce713b46dddf6dd6832facfae440bff5",
+    "proposal_policy_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "search_state_sha256": "c938ac007bf70fe8d27f64661175531e51fcb16b38318c328493c32ee292e27e",
+    "treatment_skeleton_sha256": "b163c83771ea228ef6796949302f07fae4047001b183246b3a905ec2cffbde4a"
+  },
+  "proposal_type": "ordinary",
+  "proposals_cumulative": 14,
+  "remaining_budget": {
+    "evaluations": 186,
+    "evaluator_seconds": 714714.480530932,
+    "proposals": 186,
+    "tokens": 99366284
+  },
+  "retained": false,
+  "retention_decision": "not_strictly_better_than_selected_parent",
+  "run_id": "nanogpt-openevolve-v2-1-h100-karpathy_nanogpt_source_only_h100-openevolve-b02-c3",
+  "schema_version": "1.0",
+  "selected_parent_ids": [
+    "8739f3a112cc296b7e52346edda0d7c193dbfb73b3aec6a3e9ed03bb18a2b8f5"
+  ],
+  "timestamp": "2026-08-23T21:43:08.738125+00:00",
+  "usage_cumulative": {
+    "cached_input_tokens": 168448,
+    "input_tokens": 593671,
+    "output_tokens": 40045,
+    "reasoning_output_tokens": 35294,
+    "total_tokens": 633716
+  },
+  "usage_increment": {
+    "cached_input_tokens": 12032,
+    "input_tokens": 46907,
+    "output_tokens": 3450,
+    "reasoning_output_tokens": 3106,
+    "total_tokens": 50357
+  },
+  "visible_candidate_ids": [
+    "2865e528e18dc51191e4037eaeb5824cb0ea83ede79061b59b8f3caac686da6b",
+    "ee1f1cf686a479f175a9b2178602df52386a3561e80b0612b88ccd725e447c2e",
+    "8739f3a112cc296b7e52346edda0d7c193dbfb73b3aec6a3e9ed03bb18a2b8f5",
+    "2d771edf47265f31291fbb34e32f91548e44b43045421f48f01ac9a7b05d9d0f"
+  ]
+}

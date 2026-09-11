@@ -1,0 +1,91 @@
+{
+  "artifact_path": "candidates/9f83416d32d3a99654643c13dcd1f34ee87d947eb7d11d5c373a79ca09fde4cb",
+  "candidate_id": "9f83416d32d3a99654643c13dcd1f34ee87d947eb7d11d5c373a79ca09fde4cb",
+  "codex_service_tier": "default",
+  "condition": "C2",
+  "conversation_session_id": null,
+  "evaluation": {
+    "evaluator_calls": 1,
+    "evaluator_seconds": 85.49842629209161,
+    "failure_kind": null,
+    "fitness": 9320.419369696472,
+    "metrics": {
+      "batch_size": 128,
+      "evaluation_cases": 10000,
+      "evaluation_split": "public_validation",
+      "examples_processed": 100000,
+      "optimizer_steps": 782,
+      "parameters": 249855,
+      "training_seconds": 78.09728554193862,
+      "validation_accuracy": 0.932,
+      "validation_correct": 9320,
+      "validation_cross_entropy": 0.19226545028686523,
+      "validation_score": 9320.419369696472
+    },
+    "valid": true
+  },
+  "evaluator_calls_cumulative": 58,
+  "evaluator_calls_increment": 1,
+  "evaluator_seconds_cumulative": 4742.2585804555565,
+  "evaluator_seconds_increment": 85.49842629209161,
+  "event": "proposal_completed",
+  "evicted_candidate_id": "9e7e5a1c45489d38e79c3a506eb93cd173241f85d4a8d90c9fc9c0e86a114f7d",
+  "evidence": "Hard-maximum attention reached 9,320 correct in 75.3 seconds, outperforming the current local-patch model\u2019s 9,312 while leaving runtime headroom; the recent BatchNorm hypothesis identified undersized tail batches as a parameter-neutral source of evaluation noise.",
+  "hypothesis": "Restoring hard-maximum attention and weighting BatchNorm updates by actual batch size will exceed 9,322 correct predictions by retaining the 9,320-correct fast architecture while preventing the two 80-example tail batches from disproportionately shifting evaluation statistics.",
+  "incumbent_after": "cea074c987f9ccfcd7fabbea1b96c3b6d5fe503a77d9cab9441e6227abe2ff63",
+  "intended_edit": "Replace strongest-local-patch attention with verified global-maximum attention and scale BatchNorm momentum on each step to preserve approximately equal running-stat influence per example.",
+  "mechanism": "Sample-weighted BatchNorm with fast peak attention",
+  "opportunity": 59,
+  "parent_ids": [
+    "9e7e5a1c45489d38e79c3a506eb93cd173241f85d4a8d90c9fc9c0e86a114f7d"
+  ],
+  "portfolio_after": [
+    "9f83416d32d3a99654643c13dcd1f34ee87d947eb7d11d5c373a79ca09fde4cb",
+    "4ba035895a76a27e9091e0727f914908930d22bd441dc1c5d997164dea8269e6",
+    "cea074c987f9ccfcd7fabbea1b96c3b6d5fe503a77d9cab9441e6227abe2ff63",
+    "43b0bdb6911510ccb44c9b5dc1e1926c6d17977baae444733e979b9ab5e38582"
+  ],
+  "prompt_hashes": {
+    "common_template_sha256": "e8327ba94bab12abc7c7ec7c6615378a3ae62434efb944d4a7d9492f1d19bc14",
+    "prompt_sha256": "921b628c72452fb0351358b671b3a5fadf3d0ae7691bd5398c0eec3c4f603027",
+    "proposal_policy_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "search_state_sha256": "c938ac007bf70fe8d27f64661175531e51fcb16b38318c328493c32ee292e27e",
+    "treatment_skeleton_sha256": "c471d96166df98264ff6684d7661244a61be987a95d175664cb0fa8184e9f03a"
+  },
+  "proposal_type": "ordinary",
+  "proposals_cumulative": 59,
+  "remaining_budget": {
+    "evaluations": 142,
+    "evaluator_seconds": 19257.741419544443,
+    "proposals": 141,
+    "tokens": 98366238
+  },
+  "retained": true,
+  "retention_decision": "replaced_selected_parent_on_strict_improvement",
+  "run_id": "fashion-mnist-openevolve-v2-1-mps-fashion_mnist_source_only_mps-openevolve-b02-c2",
+  "schema_version": "1.0",
+  "selected_parent_ids": [
+    "9e7e5a1c45489d38e79c3a506eb93cd173241f85d4a8d90c9fc9c0e86a114f7d"
+  ],
+  "timestamp": "2026-08-24T07:52:15.610015+00:00",
+  "usage_cumulative": {
+    "cached_input_tokens": 628992,
+    "input_tokens": 1408134,
+    "output_tokens": 225628,
+    "reasoning_output_tokens": 190867,
+    "total_tokens": 1633762
+  },
+  "usage_increment": {
+    "cached_input_tokens": 6912,
+    "input_tokens": 24363,
+    "output_tokens": 3530,
+    "reasoning_output_tokens": 2994,
+    "total_tokens": 27893
+  },
+  "visible_candidate_ids": [
+    "9e7e5a1c45489d38e79c3a506eb93cd173241f85d4a8d90c9fc9c0e86a114f7d",
+    "4ba035895a76a27e9091e0727f914908930d22bd441dc1c5d997164dea8269e6",
+    "cea074c987f9ccfcd7fabbea1b96c3b6d5fe503a77d9cab9441e6227abe2ff63",
+    "43b0bdb6911510ccb44c9b5dc1e1926c6d17977baae444733e979b9ab5e38582"
+  ]
+}

@@ -1,0 +1,91 @@
+{
+  "artifact_path": "candidates/c915abf51b4b797000eb51b18b91e6d6629dc44f4bc8df6022072ec78f0133df",
+  "candidate_id": "c915abf51b4b797000eb51b18b91e6d6629dc44f4bc8df6022072ec78f0133df",
+  "codex_service_tier": "default",
+  "condition": "C3",
+  "conversation_session_id": null,
+  "evaluation": {
+    "evaluator_calls": 1,
+    "evaluator_seconds": 90.09767000004649,
+    "failure_kind": "timeout",
+    "fitness": null,
+    "metrics": {
+      "batch_size": 128,
+      "evaluation_cases": 10000,
+      "evaluation_split": "public_validation",
+      "examples_processed": 100000,
+      "optimizer_steps": 782,
+      "parameters": 249961,
+      "training_seconds": 76.54996758303605,
+      "validation_accuracy": 0.9278,
+      "validation_correct": 9278,
+      "validation_cross_entropy": 0.2175780204772949,
+      "validation_score": 9278.410651302496
+    },
+    "valid": false
+  },
+  "evaluator_calls_cumulative": 74,
+  "evaluator_calls_increment": 1,
+  "evaluator_seconds_cumulative": 5708.872727124253,
+  "evaluator_seconds_increment": 90.09767000004649,
+  "event": "proposal_completed",
+  "evicted_candidate_id": null,
+  "evidence": "Recency exponents 0.5, 0.75, and 1.0 all plateaued at 9,287 correct, while later-biased variants fell to 9,286; the current code averages BatchNorm affine parameters but retains terminal running statistics, leaving an untested source of tail-ensemble mismatch.",
+  "hypothesis": "Averaging BatchNorm running statistics with the same recency-weighted tail ensemble as the trainable parameters will exceed 9,287 correct predictions by reducing parameter/statistic mismatch at evaluation.",
+  "incumbent_after": "7e14e9ec5e9190a2927df1d207a97eae89c4e274c0d207789e52fa52c8df7f08",
+  "intended_edit": "Preserve the current architecture, training, ten-view pooling, and recency-0.75 parameter averaging while also averaging every BatchNorm running mean and variance over the sampled tail iterates.",
+  "mechanism": "Tail-coupled BatchNorm state averaging",
+  "opportunity": 74,
+  "parent_ids": [
+    "090177582521f5f5d31c311961e0fbf350324f32a874981584b7288fbec1c524"
+  ],
+  "portfolio_after": [
+    "71dde35a51603e0107055827e0d4c90dacf1ea38e09bd539eda062aba3c719f5",
+    "090177582521f5f5d31c311961e0fbf350324f32a874981584b7288fbec1c524",
+    "70ed2507a43377f230d765c54f2fec0681d49226a53d5e38764abeae8dbd9c4f",
+    "7e14e9ec5e9190a2927df1d207a97eae89c4e274c0d207789e52fa52c8df7f08"
+  ],
+  "prompt_hashes": {
+    "common_template_sha256": "e8327ba94bab12abc7c7ec7c6615378a3ae62434efb944d4a7d9492f1d19bc14",
+    "prompt_sha256": "75326c97b5aa726cb1e2fe3712ca03f16224710f10c273b31b42385f5c844b0c",
+    "proposal_policy_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "search_state_sha256": "c938ac007bf70fe8d27f64661175531e51fcb16b38318c328493c32ee292e27e",
+    "treatment_skeleton_sha256": "fd403387652f28f69416fa0e5c6dd72d22c2c7e8b0c65cdd1f7f36cadfabf39f"
+  },
+  "proposal_type": "ordinary",
+  "proposals_cumulative": 74,
+  "remaining_budget": {
+    "evaluations": 126,
+    "evaluator_seconds": 18291.127272875747,
+    "proposals": 126,
+    "tokens": 97946863
+  },
+  "retained": false,
+  "retention_decision": "invalid",
+  "run_id": "fashion-mnist-openevolve-v2-1-mps-fashion_mnist_source_only_mps-openevolve-b01-c3",
+  "schema_version": "1.0",
+  "selected_parent_ids": [
+    "090177582521f5f5d31c311961e0fbf350324f32a874981584b7288fbec1c524"
+  ],
+  "timestamp": "2026-08-24T14:38:53.349651+00:00",
+  "usage_cumulative": {
+    "cached_input_tokens": 787456,
+    "input_tokens": 1801968,
+    "output_tokens": 251169,
+    "reasoning_output_tokens": 193234,
+    "total_tokens": 2053137
+  },
+  "usage_increment": {
+    "cached_input_tokens": 12032,
+    "input_tokens": 26522,
+    "output_tokens": 3587,
+    "reasoning_output_tokens": 3059,
+    "total_tokens": 30109
+  },
+  "visible_candidate_ids": [
+    "71dde35a51603e0107055827e0d4c90dacf1ea38e09bd539eda062aba3c719f5",
+    "090177582521f5f5d31c311961e0fbf350324f32a874981584b7288fbec1c524",
+    "70ed2507a43377f230d765c54f2fec0681d49226a53d5e38764abeae8dbd9c4f",
+    "7e14e9ec5e9190a2927df1d207a97eae89c4e274c0d207789e52fa52c8df7f08"
+  ]
+}

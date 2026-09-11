@@ -1,0 +1,88 @@
+{
+  "artifact_path": "candidates/668e4a8eb9addff07c0ea19c69f44df9e7c96f796a33fe29b6e513cce7f9dac1",
+  "candidate_id": "668e4a8eb9addff07c0ea19c69f44df9e7c96f796a33fe29b6e513cce7f9dac1",
+  "codex_service_tier": "default",
+  "condition": "C2",
+  "conversation_session_id": null,
+  "evaluation": {
+    "evaluator_calls": 1,
+    "evaluator_seconds": 367.1908649470024,
+    "failure_kind": null,
+    "fitness": -0.983275,
+    "metrics": {
+      "depth": 8.0,
+      "mfu_percent": 35.8,
+      "num_params_M": 50.3,
+      "num_steps": 1975.0,
+      "peak_vram_mb": 44908.2,
+      "total_tokens_M": 517.7,
+      "training_seconds": 300.1,
+      "val_bpb": 0.983275
+    },
+    "valid": true
+  },
+  "evaluator_calls_cumulative": 31,
+  "evaluator_calls_increment": 1,
+  "evaluator_seconds_cumulative": 10878.349273063008,
+  "evaluator_seconds_increment": 367.1908649470024,
+  "event": "proposal_completed",
+  "evicted_candidate_id": "8c52475db4fda09893476c96d40fc69047ae1c48337447459d04d848b6668f86",
+  "evidence": "Uniform 136-token windows achieved 0.983317, while the compute-matched 128-early/144-late allocation regressed to 0.983641; reversing that allocation directly tests whether local context is more valuable in earlier layers.",
+  "hypothesis": "Using 144-token windows in the first three local layers and 128-token windows in the final three will lower val_bpb below 0.983317 by favoring early context formation while preserving the aggregate attention compute of uniform 136-token windows.",
+  "incumbent_after": "668e4a8eb9addff07c0ea19c69f44df9e7c96f796a33fe29b6e513cce7f9dac1",
+  "intended_edit": "Replace uniform 512-token local attention with 144-token early and 128-token late windows, retaining full-context layers 4 and 8 and all optimizer settings.",
+  "mechanism": "Reverse depth-progressive local-context allocation",
+  "opportunity": 31,
+  "parent_ids": [
+    "8c52475db4fda09893476c96d40fc69047ae1c48337447459d04d848b6668f86"
+  ],
+  "portfolio_after": [
+    "2e4e679fdd77bbc3fed6a47ae628686a2ccb0d91245639f7c0f5c3c4567dbc26",
+    "3a33cb8c30856a8e11eb7d01cc5a45fe311db86799ecf90a8047ea5e8ae52999",
+    "a4773d8d9da797249640369db372a5771680031313ab50231d1f103bbd072da4",
+    "668e4a8eb9addff07c0ea19c69f44df9e7c96f796a33fe29b6e513cce7f9dac1"
+  ],
+  "prompt_hashes": {
+    "common_template_sha256": "ba85b39aa7288f4f48475376da6cff65661f39cfeb7ac7cde15b2a9a2e692fde",
+    "prompt_sha256": "ef12105d5104575d8344c4a9de41a0767b517df23d1af99b9a691572724bf3ee",
+    "proposal_policy_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "search_state_sha256": "c938ac007bf70fe8d27f64661175531e51fcb16b38318c328493c32ee292e27e",
+    "treatment_skeleton_sha256": "d7e07952219cc8606c7477e0d44cd15d65220fadee256275c8266112402ed656"
+  },
+  "proposal_type": "ordinary",
+  "proposals_cumulative": 31,
+  "remaining_budget": {
+    "evaluations": 169,
+    "evaluator_seconds": 709121.650726937,
+    "proposals": 169,
+    "tokens": 98545917
+  },
+  "retained": true,
+  "retention_decision": "replaced_selected_parent_on_strict_improvement",
+  "run_id": "nanogpt-openevolve-v2-1-h100-karpathy_nanogpt_source_only_h100-openevolve-b02-c2",
+  "schema_version": "1.0",
+  "selected_parent_ids": [
+    "8c52475db4fda09893476c96d40fc69047ae1c48337447459d04d848b6668f86"
+  ],
+  "timestamp": "2026-08-24T04:54:06.515908+00:00",
+  "usage_cumulative": {
+    "cached_input_tokens": 348672,
+    "input_tokens": 1394120,
+    "output_tokens": 59963,
+    "reasoning_output_tokens": 48721,
+    "total_tokens": 1454083
+  },
+  "usage_increment": {
+    "cached_input_tokens": 12032,
+    "input_tokens": 47136,
+    "output_tokens": 1024,
+    "reasoning_output_tokens": 501,
+    "total_tokens": 48160
+  },
+  "visible_candidate_ids": [
+    "2e4e679fdd77bbc3fed6a47ae628686a2ccb0d91245639f7c0f5c3c4567dbc26",
+    "3a33cb8c30856a8e11eb7d01cc5a45fe311db86799ecf90a8047ea5e8ae52999",
+    "a4773d8d9da797249640369db372a5771680031313ab50231d1f103bbd072da4",
+    "8c52475db4fda09893476c96d40fc69047ae1c48337447459d04d848b6668f86"
+  ]
+}

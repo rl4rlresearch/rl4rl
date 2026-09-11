@@ -1,0 +1,105 @@
+{
+  "artifact_path": "candidates/9fd64edb305b9d2e9043c29dec2df3ff46a3c8b8d79790f93f20c20a5d935f0b",
+  "candidate_id": "9fd64edb305b9d2e9043c29dec2df3ff46a3c8b8d79790f93f20c20a5d935f0b",
+  "codex_service_tier": "default",
+  "condition": "C3",
+  "conversation_session_id": null,
+  "evaluation": {
+    "evaluator_calls": 1,
+    "evaluator_seconds": 99.54804720799439,
+    "failure_kind": null,
+    "fitness": -3967781419857473561,
+    "metrics": {
+      "batch_size": 64,
+      "evaluation_cases": 815,
+      "evaluation_split": "public_speaker_disjoint_validation",
+      "examples_processed": 50000,
+      "inference_cost": 3967781419857473561,
+      "maximum_recurrent_steps": 20,
+      "mean_recurrent_steps": 20.0,
+      "median_recurrent_steps": 20,
+      "optimizer_steps": 786,
+      "p95_recurrent_steps": 20,
+      "parameters": 49161,
+      "peak_hidden_elements": 118272,
+      "recurrent_logit_effect": 0.060508936643600464,
+      "recurrent_macs": 759172500,
+      "recurrent_steps": 16300,
+      "state_dependence_effect": 0.39614978432655334,
+      "state_update_effect": 0.39540621638298035,
+      "total_inference_macs": 760672100,
+      "trained_recurrent_logit_effect": 0.5089331269264221,
+      "trained_state_dependence_effect": 0.4390784800052643,
+      "trained_state_update_effect": 0.4219713509082794,
+      "training_seconds": 85.1479240830522,
+      "validation_accuracy": 0.8687116564417178,
+      "validation_correct": 708,
+      "validation_cross_entropy": 0.39398240165476417
+    },
+    "valid": true
+  },
+  "evaluator_calls_cumulative": 28,
+  "evaluator_calls_increment": 1,
+  "evaluator_seconds_cumulative": 3243.9503532911185,
+  "evaluator_seconds_increment": 99.54804720799439,
+  "event": "proposal_completed",
+  "evicted_candidate_id": "f1211d63e7587922d1711b6092186290378dcaa4c2f2fa8983303135c5497ba0",
+  "evidence": "The 116-unit model qualified at 85.77%, while the adjacent 115-unit model reached 84.17% using batch size 128; retraining that exact lower-cost width with more optimizer updates directly tests whether the narrow miss was optimization-limited rather than capacity-limited.",
+  "hypothesis": "A 115-unit GRU trained with batch size 64 will recover at least 85% validation accuracy through roughly twice as many optimizer updates while retaining the previously measured 760,672,100 inference MACs.",
+  "incumbent_after": "9fd64edb305b9d2e9043c29dec2df3ff46a3c8b8d79790f93f20c20a5d935f0b",
+  "intended_edit": "Reduce the qualified recurrent width from 116 to 115 units and halve the training batch size without changing inference structure, augmentation, loss, or learning-rate schedule.",
+  "mechanism": "Smaller-batch optimization rescue at the recurrent-width boundary",
+  "opportunity": 28,
+  "parent_ids": [
+    "f1211d63e7587922d1711b6092186290378dcaa4c2f2fa8983303135c5497ba0"
+  ],
+  "portfolio_after": [
+    "016d906da09d1fe9115b3d48dd009dea2faccbbb35792057b39773f1cdb8582b",
+    "9f7eb3a03783b4844ec898e727d8d89777943225d98c21c9e9b614594c83bfbc",
+    "ae70ffa3c70bfdccd459983107c2252c457d960cd383d68a49759046da0288dc",
+    "9fd64edb305b9d2e9043c29dec2df3ff46a3c8b8d79790f93f20c20a5d935f0b"
+  ],
+  "prompt_hashes": {
+    "common_template_sha256": "dee04faf4c430276c1036ba97f5705a339857dbdf19117dac88952a5a3a47e9d",
+    "prompt_sha256": "d197e8cbb9b36701caf215bbf8ec6ff720a479cdff28973d5cfef77b11b86a4d",
+    "proposal_policy_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "search_state_sha256": "c938ac007bf70fe8d27f64661175531e51fcb16b38318c328493c32ee292e27e",
+    "treatment_skeleton_sha256": "5dbd2bf49477bd4739767d08a44eccc76ab0b8de1a6e10bddf4b3629a1a67b49"
+  },
+  "proposal_type": "ordinary",
+  "proposals_cumulative": 28,
+  "remaining_budget": {
+    "evaluations": 172,
+    "evaluator_seconds": 56756.04964670888,
+    "proposals": 172,
+    "tokens": 99319514
+  },
+  "retained": true,
+  "retention_decision": "replaced_selected_parent_on_strict_improvement",
+  "run_id": "tiny-kws-rnn-openevolve-v2-1-cpu-tiny_kws_rnn_source_only_cpu-openevolve-b05-c3",
+  "schema_version": "1.0",
+  "selected_parent_ids": [
+    "f1211d63e7587922d1711b6092186290378dcaa4c2f2fa8983303135c5497ba0"
+  ],
+  "timestamp": "2026-09-04T04:13:29.148613+00:00",
+  "usage_cumulative": {
+    "cached_input_tokens": 301056,
+    "input_tokens": 617427,
+    "output_tokens": 63059,
+    "reasoning_output_tokens": 51143,
+    "total_tokens": 680486
+  },
+  "usage_increment": {
+    "cached_input_tokens": 10752,
+    "input_tokens": 23747,
+    "output_tokens": 2495,
+    "reasoning_output_tokens": 2115,
+    "total_tokens": 26242
+  },
+  "visible_candidate_ids": [
+    "016d906da09d1fe9115b3d48dd009dea2faccbbb35792057b39773f1cdb8582b",
+    "9f7eb3a03783b4844ec898e727d8d89777943225d98c21c9e9b614594c83bfbc",
+    "ae70ffa3c70bfdccd459983107c2252c457d960cd383d68a49759046da0288dc",
+    "f1211d63e7587922d1711b6092186290378dcaa4c2f2fa8983303135c5497ba0"
+  ]
+}

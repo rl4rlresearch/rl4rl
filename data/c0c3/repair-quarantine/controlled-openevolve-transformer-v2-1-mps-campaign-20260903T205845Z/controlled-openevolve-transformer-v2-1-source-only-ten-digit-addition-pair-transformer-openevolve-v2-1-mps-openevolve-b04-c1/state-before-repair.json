@@ -1,0 +1,1514 @@
+{
+  "active": {
+    "index": 124,
+    "selected_parent_id": "a4de10ad698145dea90a0a1c6662dd2832c1db8f9c502bbb289afd7db9dbdea3",
+    "started_at": "2026-09-03T20:35:06.341578+00:00",
+    "transition_active": false,
+    "visible_ids": [
+      "a4de10ad698145dea90a0a1c6662dd2832c1db8f9c502bbb289afd7db9dbdea3"
+    ]
+  },
+  "candidates": {
+    "02ab8b6faac43f73a463eab6f4ab623dc372b3c1d0448b02215eee2f02086a4e": {
+      "artifact_path": "candidates/02ab8b6faac43f73a463eab6f4ab623dc372b3c1d0448b02215eee2f02086a4e",
+      "candidate_id": "02ab8b6faac43f73a463eab6f4ab623dc372b3c1d0448b02215eee2f02086a4e",
+      "created_opportunity": 5,
+      "fitness": -1620.0,
+      "hypothesis": "Removing the two 8-element LayerNorm biases will reduce parameters from 1636 to 1620 while retaining at least 99% accuracy, because the attention LayerNorm bias is absorbable by the query/value biases with its key component softmax-invariant, and the MLP LayerNorm bias is absorbable by `fc1.bias`.",
+      "intended_edit": "Disable only the bias parameters in `ln1` and `ln2`, preserving their learned scales and every other architectural and training setting.",
+      "metrics": {
+        "accuracy": 0.9998,
+        "cases": 10010,
+        "correct": 10008,
+        "parameters": 1620,
+        "training_steps": 4999
+      },
+      "parent_ids": [
+        "0c5739da9f29148e1e6269ddc9aed365a62c24fd7d53dc756ee0ead7226bed9b"
+      ],
+      "retained_order": 5,
+      "selected_count": 2
+    },
+    "04c482b1f0d19bd9abab494b4c4fa0ffdd08e9b93d023097986ac90fb3fd2978": {
+      "artifact_path": "candidates/04c482b1f0d19bd9abab494b4c4fa0ffdd08e9b93d023097986ac90fb3fd2978",
+      "candidate_id": "04c482b1f0d19bd9abab494b4c4fa0ffdd08e9b93d023097986ac90fb3fd2978",
+      "created_opportunity": 12,
+      "fitness": -1615.0,
+      "hypothesis": "Reducing the learned value bias from four to three coordinates will lower parameters from 1616 to 1615 while retaining at least 99% accuracy, because the four-coordinate version achieved 99.98% and three learned coordinates may preserve enough of the optimization benefit lost only when all eight coordinates were removed.",
+      "intended_edit": "Store three learned value-bias coordinates and pad the remaining five coordinates with zeros during attention.",
+      "metrics": {
+        "accuracy": 1.0,
+        "cases": 10010,
+        "correct": 10010,
+        "parameters": 1615,
+        "training_steps": 4999
+      },
+      "parent_ids": [
+        "ec4f751f22dc03c1229c5a4acd114951951635db4102d5b8f60fde07708fdf5b"
+      ],
+      "retained_order": 12,
+      "selected_count": 2
+    },
+    "0548e8a0790d1a94590796974275e6e6fd271d046157250dd416aaec6a128bf4": {
+      "artifact_path": "candidates/0548e8a0790d1a94590796974275e6e6fd271d046157250dd416aaec6a128bf4",
+      "candidate_id": "0548e8a0790d1a94590796974275e6e6fd271d046157250dd416aaec6a128bf4",
+      "created_opportunity": 51,
+      "fitness": -1595.0,
+      "hypothesis": "Initialization-preserving quotienting of the eighth `fc2` input column will reduce the model from 1596 to 1595 parameters while retaining at least 99% accuracy when its seven coordinates are optimized with eight-dimensional ambient AdamW.",
+      "intended_edit": "Convert the first remaining dense `fc2` column into a Householder zero-mean column, preserve the conceptual dense initialization and random stream, and include its coordinates in the ambient-state optimizer.",
+      "metrics": {
+        "accuracy": 0.9998,
+        "cases": 10010,
+        "correct": 10008,
+        "parameters": 1595,
+        "training_steps": 4999
+      },
+      "parent_ids": [
+        "b52e8698a69752c2342906b60e250a28bb9ee109871956a8675d14640d7840e6"
+      ],
+      "retained_order": 51,
+      "selected_count": 1
+    },
+    "06ff4048f08d3f85de2efaa64c41406c341a821e4d7d3056fd3e7219f6fecef7": {
+      "artifact_path": "candidates/06ff4048f08d3f85de2efaa64c41406c341a821e4d7d3056fd3e7219f6fecef7",
+      "candidate_id": "06ff4048f08d3f85de2efaa64c41406c341a821e4d7d3056fd3e7219f6fecef7",
+      "created_opportunity": 16,
+      "fitness": -1612.0,
+      "hypothesis": "Learning five of eight query-bias coordinates will reduce the model from 1613 to 1612 parameters while retaining at least 99% accuracy, because the six-coordinate query bias achieved 100% accuracy while preserving the necessary three-coordinate value bias.",
+      "intended_edit": "Store five learned query-bias coordinates and pad the remaining three coordinates with zeros during attention.",
+      "metrics": {
+        "accuracy": 1.0,
+        "cases": 10010,
+        "correct": 10010,
+        "parameters": 1612,
+        "training_steps": 4999
+      },
+      "parent_ids": [
+        "b7b107e4bcf1842069d08130a966ead05b38bdd04750812d57ebba9e0a91a316"
+      ],
+      "retained_order": 16,
+      "selected_count": 1
+    },
+    "0c5739da9f29148e1e6269ddc9aed365a62c24fd7d53dc756ee0ead7226bed9b": {
+      "artifact_path": "candidates/0c5739da9f29148e1e6269ddc9aed365a62c24fd7d53dc756ee0ead7226bed9b",
+      "candidate_id": "0c5739da9f29148e1e6269ddc9aed365a62c24fd7d53dc756ee0ead7226bed9b",
+      "created_opportunity": 4,
+      "fitness": -1636.0,
+      "hypothesis": "Eliminating only the 8 key-bias parameters will reduce the model from 1644 to 1636 parameters while retaining at least 99% accuracy, because adding the same learned key bias to every attended position changes each query\u2019s attention logits by a position-independent constant that softmax cancels exactly.",
+      "intended_edit": "Replace the fused 24-element QKV bias with separate learned query and value biases, preserving the original query/value computations while omitting the functionally redundant key bias.",
+      "metrics": {
+        "accuracy": 0.9984999999999999,
+        "cases": 10010,
+        "correct": 9995,
+        "parameters": 1636,
+        "training_steps": 4999
+      },
+      "parent_ids": [
+        "2b9cea175ed60b009337ac54f6e8ad23bf2c014eb4080237777bfb70bfd9fd5b"
+      ],
+      "retained_order": 4,
+      "selected_count": 1
+    },
+    "0c5fc9e49078f3b6f385c1154b43e15bf0a75f3481a9885ded835c57ff22bfc4": {
+      "artifact_path": "candidates/0c5fc9e49078f3b6f385c1154b43e15bf0a75f3481a9885ded835c57ff22bfc4",
+      "candidate_id": "0c5fc9e49078f3b6f385c1154b43e15bf0a75f3481a9885ded835c57ff22bfc4",
+      "created_opportunity": 29,
+      "fitness": -1606.0,
+      "hypothesis": "Removing the single global all-ones degree of freedom from the tied token embedding will reduce the model from 1607 to 1606 parameters while retaining at least 99% accuracy, because the shift is erased from inputs by LayerNorm and adds only a vocabulary-wide common logit at the output.",
+      "intended_edit": "Represent the tied token embedding in an orthonormal zero-mean basis with one fewer learned coordinate, and use its materialized weight for both input lookup and output logits.",
+      "metrics": {
+        "accuracy": 0.9984000000000001,
+        "cases": 10010,
+        "correct": 9994,
+        "parameters": 1606,
+        "training_steps": 4999
+      },
+      "parent_ids": [
+        "75f4d43758178d76982ac07131b58d53c2385a414a548a697d53a24c0d6eb378"
+      ],
+      "retained_order": 29,
+      "selected_count": 2
+    },
+    "0f421f3a0757d2b0d417228e895234742276959b02dc5425257d3c74c0bb9674": {
+      "artifact_path": "candidates/0f421f3a0757d2b0d417228e895234742276959b02dc5425257d3c74c0bb9674",
+      "candidate_id": "0f421f3a0757d2b0d417228e895234742276959b02dc5425257d3c74c0bb9674",
+      "created_opportunity": 77,
+      "fitness": -967.0,
+      "hypothesis": "Quotienting the eighth `qkv` weight row will reduce the model from 968 to 967 parameters while retaining at least 99% accuracy, because non-affine `ln1` makes its common-mode input weight unobservable and identical ambient AdamW treatment succeeded for the first seven rows.",
+      "intended_edit": "Add a seven-coordinate Householder parameterization for the eighth `qkv` row, preserve conceptual initialization and random-stream order, and optimize all eight quotiented rows in eight-dimensional ambient space.",
+      "metrics": {
+        "accuracy": 0.9983,
+        "cases": 10010,
+        "correct": 9993,
+        "parameters": 967,
+        "training_steps": 4999
+      },
+      "parent_ids": [
+        "95721763e8e658e2f9e0affef6d77a30a75dc69459308ac9c42352366c4eac22"
+      ],
+      "retained_order": 77,
+      "selected_count": 1
+    },
+    "11adaa9335a9eb3c6366616231a5729bd8d9f07e9a890905c6e5c770679f96b9": {
+      "artifact_path": "candidates/11adaa9335a9eb3c6366616231a5729bd8d9f07e9a890905c6e5c770679f96b9",
+      "candidate_id": "11adaa9335a9eb3c6366616231a5729bd8d9f07e9a890905c6e5c770679f96b9",
+      "created_opportunity": 95,
+      "fitness": -870.0,
+      "hypothesis": "Canonicalizing one query-weight coordinate in the unbiased second attention head will reduce the model from 871 to 870 parameters while retaining at least 99% accuracy, because a joint rotation of that head\u2019s query and key channels preserves every attention logit.",
+      "intended_edit": "Remove one coordinate from the second head\u2019s second query row, jointly rotate its initialized Q/K row pairs into the resulting gauge, and extend ambient AdamW to support the additional fixed coordinate.",
+      "metrics": {
+        "accuracy": 0.9990000000000001,
+        "cases": 10010,
+        "correct": 10000,
+        "parameters": 870,
+        "training_steps": 4999
+      },
+      "parent_ids": [
+        "96c1be67c7e227a29d1d408dd946b87584e450a4314010087b11b21413372848"
+      ],
+      "retained_order": 95,
+      "selected_count": 1
+    },
+    "149f465283ea9488a372fee6010583cb6818bca704c56b73c3ddd03b1afe7456": {
+      "artifact_path": "candidates/149f465283ea9488a372fee6010583cb6818bca704c56b73c3ddd03b1afe7456",
+      "candidate_id": "149f465283ea9488a372fee6010583cb6818bca704c56b73c3ddd03b1afe7456",
+      "created_opportunity": 63,
+      "fitness": -1437.0,
+      "hypothesis": "Removing the eight learned `ln2` scale parameters will reduce the model from 1445 to 1437 parameters while retaining at least 99% accuracy, because `fc1` can absorb any diagonal LayerNorm scaling and initialization remains functionally identical.",
+      "intended_edit": "Make the MLP-input LayerNorm non-affine, eliminating eight redundant trainable scales without changing the initial model function or random stream.",
+      "metrics": {
+        "accuracy": 0.9993000000000001,
+        "cases": 10010,
+        "correct": 10003,
+        "parameters": 1437,
+        "training_steps": 4999
+      },
+      "parent_ids": [
+        "d4184aee7fde9218e4ca651e2222b0507b18569c1c20584268838f949467df74"
+      ],
+      "retained_order": 63,
+      "selected_count": 1
+    },
+    "1904c65bbe0baab2b27b3267fb86eca3d5c1865c4c41c3825c44f82ab23a21e3": {
+      "artifact_path": "candidates/1904c65bbe0baab2b27b3267fb86eca3d5c1865c4c41c3825c44f82ab23a21e3",
+      "candidate_id": "1904c65bbe0baab2b27b3267fb86eca3d5c1865c4c41c3825c44f82ab23a21e3",
+      "created_opportunity": 78,
+      "fitness": -966.0,
+      "hypothesis": "Quotienting the ninth `qkv` weight row will reduce the model from 967 to 966 parameters while retaining at least 99% accuracy, because non-affine `ln1` makes every row\u2019s common-mode input weight unobservable and identical ambient AdamW treatment succeeded for the first eight rows.",
+      "intended_edit": "Add a seven-coordinate Householder parameterization for the ninth `qkv` row, preserve conceptual initialization and random-stream order, and include the new coordinates in the ambient optimizer.",
+      "metrics": {
+        "accuracy": 0.9983,
+        "cases": 10010,
+        "correct": 9993,
+        "parameters": 966,
+        "training_steps": 4999
+      },
+      "parent_ids": [
+        "0f421f3a0757d2b0d417228e895234742276959b02dc5425257d3c74c0bb9674"
+      ],
+      "retained_order": 78,
+      "selected_count": 1
+    },
+    "1982b167f09b45bf956acd46355ca0ccda9a92cd288382f3ee3f2116c991910a": {
+      "artifact_path": "candidates/1982b167f09b45bf956acd46355ca0ccda9a92cd288382f3ee3f2116c991910a",
+      "candidate_id": "1982b167f09b45bf956acd46355ca0ccda9a92cd288382f3ee3f2116c991910a",
+      "created_opportunity": 66,
+      "fitness": -1429.0,
+      "hypothesis": "Quotienting one `qkv` weight row will reduce the model from 1430 to 1429 parameters while retaining at least 99% accuracy, because non-affine `ln1` produces zero-mean inputs and scalar ambient AdamW preserves the established optimization geometry.",
+      "intended_edit": "Replace the first `qkv` weight row with seven Householder zero-mean coordinates, preserve the conceptual initialization and random stream, and add those coordinates to the existing ambient optimizer.",
+      "metrics": {
+        "accuracy": 0.9994,
+        "cases": 10010,
+        "correct": 10004,
+        "parameters": 1429,
+        "training_steps": 4999
+      },
+      "parent_ids": [
+        "56dc4c525e9b10327f4855134fc5faa228ab060283612efab119ab491638a8f8"
+      ],
+      "retained_order": 66,
+      "selected_count": 1
+    },
+    "1b599b1cfff832b0f3099a4be0b93e8e05e3bc96b1e443d67b092c78f1115635": {
+      "artifact_path": "candidates/1b599b1cfff832b0f3099a4be0b93e8e05e3bc96b1e443d67b092c78f1115635",
+      "candidate_id": "1b599b1cfff832b0f3099a4be0b93e8e05e3bc96b1e443d67b092c78f1115635",
+      "created_opportunity": 96,
+      "fitness": -869.0,
+      "hypothesis": "Fixing a second query-weight coordinate in the unbiased attention head through a compensating Q/K shear will reduce the model from 870 to 869 learned parameters while retaining at least 99% accuracy, because the inverse-transpose key transformation preserves every attention logit.",
+      "intended_edit": "Triangularize two coordinates of the unbiased head\u2019s query rows, omit the resulting zero coordinate, and generalize ambient AdamW to optimize noncontiguous gauge coordinates.",
+      "metrics": {
+        "accuracy": 0.9993000000000001,
+        "cases": 10010,
+        "correct": 10003,
+        "parameters": 869,
+        "training_steps": 4999
+      },
+      "parent_ids": [
+        "11adaa9335a9eb3c6366616231a5729bd8d9f07e9a890905c6e5c770679f96b9"
+      ],
+      "retained_order": 96,
+      "selected_count": 1
+    },
+    "1c837b0cb9644b08f1158d7d1039b72a1e65b1e3c98866efbf92e507abce04c9": {
+      "artifact_path": "candidates/1c837b0cb9644b08f1158d7d1039b72a1e65b1e3c98866efbf92e507abce04c9",
+      "candidate_id": "1c837b0cb9644b08f1158d7d1039b72a1e65b1e3c98866efbf92e507abce04c9",
+      "created_opportunity": 74,
+      "fitness": -970.0,
+      "hypothesis": "Quotienting the fifth `qkv` weight row will reduce the model from 971 to 970 parameters while retaining at least 99% accuracy, because non-affine `ln1` makes its common-mode input weight unobservable and identical ambient AdamW treatment succeeded for the first four rows.",
+      "intended_edit": "Add a seven-coordinate Householder parameterization for the fifth `qkv` row, preserve conceptual initialization, and optimize it in eight-dimensional ambient space.",
+      "metrics": {
+        "accuracy": 0.9984000000000001,
+        "cases": 10010,
+        "correct": 9994,
+        "parameters": 970,
+        "training_steps": 4999
+      },
+      "parent_ids": [
+        "29ee33c90824dd1d9c31ab9981cbb14eb98f31a29fbf3456a5a26cac51c35006"
+      ],
+      "retained_order": 74,
+      "selected_count": 1
+    },
+    "1ce3f94470a81bdc7837aa85ee254222449968965c400901d50ee13a29eaf9e0": {
+      "artifact_path": "candidates/1ce3f94470a81bdc7837aa85ee254222449968965c400901d50ee13a29eaf9e0",
+      "candidate_id": "1ce3f94470a81bdc7837aa85ee254222449968965c400901d50ee13a29eaf9e0",
+      "created_opportunity": 58,
+      "fitness": -1588.0,
+      "hypothesis": "Initialization-preserving quotienting of the fifth attention output-projection column will reduce the model from 1589 to 1588 parameters while retaining at least 99% accuracy when all five quotiented columns use eight-dimensional ambient AdamW.",
+      "intended_edit": "Replace the fifth dense attention projection column with a seven-coordinate Householder zero-mean parameterization, preserve its conceptual initialization and random stream, and include its coordinates in the ambient optimizer.",
+      "metrics": {
+        "accuracy": 0.9998999999999999,
+        "cases": 10010,
+        "correct": 10009,
+        "parameters": 1588,
+        "training_steps": 4999
+      },
+      "parent_ids": [
+        "6e6939d6dab2e53f95941adfb0f6a4f3c886a04ee636d424e8cfbfab3361a2e4"
+      ],
+      "retained_order": 58,
+      "selected_count": 1
+    },
+    "29ee33c90824dd1d9c31ab9981cbb14eb98f31a29fbf3456a5a26cac51c35006": {
+      "artifact_path": "candidates/29ee33c90824dd1d9c31ab9981cbb14eb98f31a29fbf3456a5a26cac51c35006",
+      "candidate_id": "29ee33c90824dd1d9c31ab9981cbb14eb98f31a29fbf3456a5a26cac51c35006",
+      "created_opportunity": 72,
+      "fitness": -971.0,
+      "hypothesis": "Reducing the tied token representation from five to four learned channels will lower the model from 1085 to 971 parameters while retaining at least 99% accuracy, because the five-channel design achieved 99.96% accuracy and the full eight-dimensional attention and MLP computation remains unchanged.",
+      "intended_edit": "Pad four-dimensional learned token embeddings with four fixed zero channels before transformer processing and use the same materialized vectors for tied output logits.",
+      "metrics": {
+        "accuracy": 0.9983,
+        "cases": 10010,
+        "correct": 9993,
+        "parameters": 971,
+        "training_steps": 4999
+      },
+      "parent_ids": [
+        "67caaf89f2ae5930ac3587dbcb79f773f6303e0b2ebc3fa6e792e9c572c239ea"
+      ],
+      "retained_order": 72,
+      "selected_count": 2
+    },
+    "2b9cea175ed60b009337ac54f6e8ad23bf2c014eb4080237777bfb70bfd9fd5b": {
+      "artifact_path": "candidates/2b9cea175ed60b009337ac54f6e8ad23bf2c014eb4080237777bfb70bfd9fd5b",
+      "candidate_id": "2b9cea175ed60b009337ac54f6e8ad23bf2c014eb4080237777bfb70bfd9fd5b",
+      "created_opportunity": 0,
+      "fitness": -1644.0,
+      "hypothesis": "frozen seed baseline",
+      "intended_edit": "none",
+      "metrics": {
+        "accuracy": 0.9995999999999999,
+        "cases": 10010,
+        "correct": 10006,
+        "parameters": 1644,
+        "training_steps": 4999
+      },
+      "parent_ids": [],
+      "retained_order": 0,
+      "selected_count": 4
+    },
+    "2c290745400c7add44741775be9c85b26eee319d6c78b466f78a9c50bc0ecb02": {
+      "artifact_path": "candidates/2c290745400c7add44741775be9c85b26eee319d6c78b466f78a9c50bc0ecb02",
+      "candidate_id": "2c290745400c7add44741775be9c85b26eee319d6c78b466f78a9c50bc0ecb02",
+      "created_opportunity": 89,
+      "fitness": -956.0,
+      "hypothesis": "Quotienting the nineteenth `qkv` weight row will reduce the model from 957 to 956 learned parameters while retaining at least 99% accuracy, because non-affine `ln1` makes that row\u2019s common-mode input weight unobservable.",
+      "intended_edit": "Add a seven-coordinate Householder parameterization for the nineteenth `qkv` row, preserve conceptual initialization and random-stream order, and optimize its coordinates in eight-dimensional ambient space.",
+      "metrics": {
+        "accuracy": 0.9984000000000001,
+        "cases": 10010,
+        "correct": 9994,
+        "parameters": 956,
+        "training_steps": 4999
+      },
+      "parent_ids": [
+        "5ae61900a558b9aa9f1bd5d981a6cbe92d9d8106c852e84562c4afbde2969929"
+      ],
+      "retained_order": 89,
+      "selected_count": 1
+    },
+    "2f3e0f3bd0ef5dc712a8f0d6d6c7a2de83ffa1321adfcc068502d4c7c287480f": {
+      "artifact_path": "candidates/2f3e0f3bd0ef5dc712a8f0d6d6c7a2de83ffa1321adfcc068502d4c7c287480f",
+      "candidate_id": "2f3e0f3bd0ef5dc712a8f0d6d6c7a2de83ffa1321adfcc068502d4c7c287480f",
+      "created_opportunity": 68,
+      "fitness": -1427.0,
+      "hypothesis": "Quotienting the third `qkv` weight row will reduce the model from 1428 to 1427 parameters while retaining at least 99% accuracy, because non-affine `ln1` makes its common-mode input weight unobservable and the identical ambient AdamW treatment succeeded for the first two rows.",
+      "intended_edit": "Add a seven-coordinate Householder parameterization for the third `qkv` row, preserve conceptual initialization and random-stream order, and optimize all three quotiented rows in eight-dimensional ambient space.",
+      "metrics": {
+        "accuracy": 1.0,
+        "cases": 10010,
+        "correct": 10010,
+        "parameters": 1427,
+        "training_steps": 4999
+      },
+      "parent_ids": [
+        "68ade163631d2bdf6c4be0213e92a877a8ced32fc44f50b11031d8c45b17a2f7"
+      ],
+      "retained_order": 68,
+      "selected_count": 1
+    },
+    "31638026cd5d371df6106e296548e5e8a61e353ac243a3aaaffee04f65128c56": {
+      "artifact_path": "candidates/31638026cd5d371df6106e296548e5e8a61e353ac243a3aaaffee04f65128c56",
+      "candidate_id": "31638026cd5d371df6106e296548e5e8a61e353ac243a3aaaffee04f65128c56",
+      "created_opportunity": 91,
+      "fitness": -887.0,
+      "hypothesis": "Fixing the final LayerNorm affine values on its last four channels will reduce the model from 895 to 887 parameters while retaining at least 99% accuracy, because the compact tied output embedding has exact zeros in those channels, so their learned scales and biases cannot affect any token logit.",
+      "intended_edit": "Replace the final full affine LayerNorm with a compact affine LayerNorm that learns only the four logit-visible channel scales and biases while preserving normalization across all eight channels.",
+      "metrics": {
+        "accuracy": 0.9992,
+        "cases": 10010,
+        "correct": 10002,
+        "parameters": 887,
+        "training_steps": 4999
+      },
+      "parent_ids": [
+        "880260a9572009dc1c8356fbd598a470a2d40d28aa8e863a55eccfa73dcdf092"
+      ],
+      "retained_order": 91,
+      "selected_count": 1
+    },
+    "3e8e534ffa7bdee00261d65d3ea5a5ed1aa48b32f060f7f0ea50d2a7f489f2cb": {
+      "artifact_path": "candidates/3e8e534ffa7bdee00261d65d3ea5a5ed1aa48b32f060f7f0ea50d2a7f489f2cb",
+      "candidate_id": "3e8e534ffa7bdee00261d65d3ea5a5ed1aa48b32f060f7f0ea50d2a7f489f2cb",
+      "created_opportunity": 75,
+      "fitness": -969.0,
+      "hypothesis": "Quotienting the sixth `qkv` weight row will reduce the model from 970 to 969 parameters while retaining at least 99% accuracy, because non-affine `ln1` makes its common-mode input weight unobservable and identical ambient AdamW treatment succeeded for the first five rows.",
+      "intended_edit": "Add a seven-coordinate Householder parameterization for the sixth `qkv` row, preserve conceptual initialization, and optimize it in eight-dimensional ambient space.",
+      "metrics": {
+        "accuracy": 0.9984000000000001,
+        "cases": 10010,
+        "correct": 9994,
+        "parameters": 969,
+        "training_steps": 4999
+      },
+      "parent_ids": [
+        "1c837b0cb9644b08f1158d7d1039b72a1e65b1e3c98866efbf92e507abce04c9"
+      ],
+      "retained_order": 75,
+      "selected_count": 1
+    },
+    "443190bde58777a342c67397ed38d740d0879709092016474aece578e0bf2008": {
+      "artifact_path": "candidates/443190bde58777a342c67397ed38d740d0879709092016474aece578e0bf2008",
+      "candidate_id": "443190bde58777a342c67397ed38d740d0879709092016474aece578e0bf2008",
+      "created_opportunity": 53,
+      "fitness": -1593.0,
+      "hypothesis": "Initialization-preserving quotienting of the tenth `fc2` input column will reduce the model from 1594 to 1593 parameters while retaining at least 99% accuracy when its seven coordinates are optimized with eight-dimensional ambient AdamW.",
+      "intended_edit": "Replace the sole remaining dense `fc2` column with a Householder zero-mean parameterization, preserve its conceptual dense initialization, and add it to the ambient-state optimizer.",
+      "metrics": {
+        "accuracy": 1.0,
+        "cases": 10010,
+        "correct": 10010,
+        "parameters": 1593,
+        "training_steps": 4999
+      },
+      "parent_ids": [
+        "b61c4b4a6976aef14ae1de194257e2a58537ccbfd475fe2a42ec115b25998328"
+      ],
+      "retained_order": 53,
+      "selected_count": 1
+    },
+    "49d5a54154eed4cd0b53c10ec7f11118f42fd3c1fffc7f332f2c67768a2e0d63": {
+      "artifact_path": "candidates/49d5a54154eed4cd0b53c10ec7f11118f42fd3c1fffc7f332f2c67768a2e0d63",
+      "candidate_id": "49d5a54154eed4cd0b53c10ec7f11118f42fd3c1fffc7f332f2c67768a2e0d63",
+      "created_opportunity": 84,
+      "fitness": -961.0,
+      "hypothesis": "Quotienting the fourteenth `qkv` weight row will reduce the model from 962 to 961 parameters while retaining at least 99% accuracy, because non-affine `ln1` makes the row\u2019s common-mode input weight unobservable and identical ambient AdamW treatment succeeded for the first thirteen rows.",
+      "intended_edit": "Add a seven-coordinate Householder parameterization for the fourteenth `qkv` row, preserve conceptual initialization and random-stream order, and include its coordinates in the ambient optimizer.",
+      "metrics": {
+        "accuracy": 0.9984000000000001,
+        "cases": 10010,
+        "correct": 9994,
+        "parameters": 961,
+        "training_steps": 4999
+      },
+      "parent_ids": [
+        "d2500037e9229f18323a518b66c0b57bab04a74c5aea67c55404f83f452da816"
+      ],
+      "retained_order": 84,
+      "selected_count": 1
+    },
+    "4a859b8a237458102810b7c6fdbacf7d8a1383af56810d0a9a5c021820fe2a10": {
+      "artifact_path": "candidates/4a859b8a237458102810b7c6fdbacf7d8a1383af56810d0a9a5c021820fe2a10",
+      "candidate_id": "4a859b8a237458102810b7c6fdbacf7d8a1383af56810d0a9a5c021820fe2a10",
+      "created_opportunity": 56,
+      "fitness": -1590.0,
+      "hypothesis": "Initialization-preserving quotienting of the third attention output-projection column will reduce the model from 1591 to 1590 parameters while retaining at least 99% accuracy when all three quotiented columns use eight-dimensional ambient AdamW.",
+      "intended_edit": "Replace the third dense attention projection column with a seven-coordinate Householder zero-mean parameterization, preserve conceptual dense initialization, and include its coordinates in the ambient optimizer.",
+      "metrics": {
+        "accuracy": 1.0,
+        "cases": 10010,
+        "correct": 10010,
+        "parameters": 1590,
+        "training_steps": 4999
+      },
+      "parent_ids": [
+        "838ecb9c586a72e3a5be61362828babbbe382793e027bd8e11bcb08617440fda"
+      ],
+      "retained_order": 56,
+      "selected_count": 1
+    },
+    "520af24b4a0fb5811578e540c3165ff01d0c23a3cf8abd7b625720a3eafa09d1": {
+      "artifact_path": "candidates/520af24b4a0fb5811578e540c3165ff01d0c23a3cf8abd7b625720a3eafa09d1",
+      "candidate_id": "520af24b4a0fb5811578e540c3165ff01d0c23a3cf8abd7b625720a3eafa09d1",
+      "created_opportunity": 7,
+      "fitness": -1619.0,
+      "hypothesis": "Removing one of eight value-bias coordinates will reduce parameters from 1620 to 1619 while retaining at least 99% accuracy, because the full removal narrowly missed at 97.53% and the retained seven coordinates preserve most of its optimization benefit while `proj.bias` can absorb the missing constant offset.",
+      "intended_edit": "Store seven learned value-bias coordinates and pad the eighth with zero during attention.",
+      "metrics": {
+        "accuracy": 0.9995999999999999,
+        "cases": 10010,
+        "correct": 10006,
+        "parameters": 1619,
+        "training_steps": 4999
+      },
+      "parent_ids": [
+        "02ab8b6faac43f73a463eab6f4ab623dc372b3c1d0448b02215eee2f02086a4e"
+      ],
+      "retained_order": 7,
+      "selected_count": 1
+    },
+    "5314c0df7933237c7e05f6fef917e876cdd37fee417eab68bb9070cc9788e480": {
+      "artifact_path": "candidates/5314c0df7933237c7e05f6fef917e876cdd37fee417eab68bb9070cc9788e480",
+      "candidate_id": "5314c0df7933237c7e05f6fef917e876cdd37fee417eab68bb9070cc9788e480",
+      "created_opportunity": 19,
+      "fitness": -1609.0,
+      "hypothesis": "Learning two of eight query-bias coordinates will reduce the model from 1610 to 1609 parameters while retaining at least 99% accuracy, because every prior query-bias reduction through three learned coordinates retained at least 99.98% accuracy while preserving the necessary three-coordinate value bias.",
+      "intended_edit": "Store two learned query-bias coordinates and pad the remaining six coordinates with zeros during attention.",
+      "metrics": {
+        "accuracy": 1.0,
+        "cases": 10010,
+        "correct": 10010,
+        "parameters": 1609,
+        "training_steps": 4999
+      },
+      "parent_ids": [
+        "d1c07c0cae95e152b406aa4e50dfb22ea0e56a8b7888844585ecfc524f1dd705"
+      ],
+      "retained_order": 19,
+      "selected_count": 3
+    },
+    "538226548c4b927798c951e4ea6791d98a45afa4d051ee0b67a84565314c122b": {
+      "artifact_path": "candidates/538226548c4b927798c951e4ea6791d98a45afa4d051ee0b67a84565314c122b",
+      "candidate_id": "538226548c4b927798c951e4ea6791d98a45afa4d051ee0b67a84565314c122b",
+      "created_opportunity": 48,
+      "fitness": -1597.0,
+      "hypothesis": "Initialization-preserving quotienting of the sixth `fc2` input column will reduce the model from 1598 to 1597 parameters while retaining at least 99% accuracy when its seven coordinates are optimized with eight-dimensional ambient AdamW.",
+      "intended_edit": "Convert the first remaining dense `fc2` column into a Householder zero-mean column, preserve the conceptual dense initialization and random stream, and include its coordinates in the ambient-state optimizer.",
+      "metrics": {
+        "accuracy": 1.0,
+        "cases": 10010,
+        "correct": 10010,
+        "parameters": 1597,
+        "training_steps": 4999
+      },
+      "parent_ids": [
+        "72678108781fde0f874b2e58bb6c668908e2db3f385cfcc1af3277700e9f9154"
+      ],
+      "retained_order": 48,
+      "selected_count": 1
+    },
+    "55959aa8f7e9a1ed6773aaac0585ae8068452f00105dc01fd1e956a374cea13d": {
+      "artifact_path": "candidates/55959aa8f7e9a1ed6773aaac0585ae8068452f00105dc01fd1e956a374cea13d",
+      "candidate_id": "55959aa8f7e9a1ed6773aaac0585ae8068452f00105dc01fd1e956a374cea13d",
+      "created_opportunity": 8,
+      "fitness": -1618.0,
+      "hypothesis": "Removing a second value-bias coordinate will reduce parameters from 1619 to 1618 while retaining at least 99% accuracy, because the first coordinate removal preserved 99.96% accuracy and six learned coordinates still retain most of the optimization benefit lost when all eight were removed.",
+      "intended_edit": "Store six learned value-bias coordinates and pad the remaining two coordinates with zeros during attention.",
+      "metrics": {
+        "accuracy": 0.9958,
+        "cases": 10010,
+        "correct": 9968,
+        "parameters": 1618,
+        "training_steps": 4999
+      },
+      "parent_ids": [
+        "520af24b4a0fb5811578e540c3165ff01d0c23a3cf8abd7b625720a3eafa09d1"
+      ],
+      "retained_order": 8,
+      "selected_count": 1
+    },
+    "56dc4c525e9b10327f4855134fc5faa228ab060283612efab119ab491638a8f8": {
+      "artifact_path": "candidates/56dc4c525e9b10327f4855134fc5faa228ab060283612efab119ab491638a8f8",
+      "candidate_id": "56dc4c525e9b10327f4855134fc5faa228ab060283612efab119ab491638a8f8",
+      "created_opportunity": 64,
+      "fitness": -1430.0,
+      "hypothesis": "Making `ln1` non-affine will reduce the model from 1437 to 1430 learned parameters while retaining at least 99% accuracy, because the following `qkv` projection can absorb any diagonal LayerNorm scaling and initialization remains functionally identical.",
+      "intended_edit": "Remove the seven learned `ln1` scale coordinates by replacing `ScaleFixedLayerNorm` with non-affine LayerNorm.",
+      "metrics": {
+        "accuracy": 0.9948999999999999,
+        "cases": 10010,
+        "correct": 9959,
+        "parameters": 1430,
+        "training_steps": 4999
+      },
+      "parent_ids": [
+        "149f465283ea9488a372fee6010583cb6818bca704c56b73c3ddd03b1afe7456"
+      ],
+      "retained_order": 64,
+      "selected_count": 2
+    },
+    "57eb5dfe11a94e66e670433a8c5a0640503689846279a8c4b1f1f259d36cd287": {
+      "artifact_path": "candidates/57eb5dfe11a94e66e670433a8c5a0640503689846279a8c4b1f1f259d36cd287",
+      "candidate_id": "57eb5dfe11a94e66e670433a8c5a0640503689846279a8c4b1f1f259d36cd287",
+      "created_opportunity": 41,
+      "fitness": -1602.0,
+      "hypothesis": "Quotienting the last `fc2` input column instead of the optimization-sensitive third column will reduce the model from 1603 to 1602 parameters while retaining at least 99% accuracy, because the removed all-ones output component is erased exactly by the final LayerNorm and initialization is preserved modulo that symmetry.",
+      "intended_edit": "Keep the two successful leading `fc2` quotient columns, parameterize the final column in the same zero-mean basis, and reproduce the successful 1603-parameter design\u2019s conceptual dense initialization and random-number stream.",
+      "metrics": {
+        "accuracy": 0.9998999999999999,
+        "cases": 10010,
+        "correct": 10009,
+        "parameters": 1602,
+        "training_steps": 4999
+      },
+      "parent_ids": [
+        "7a8024e1ed5ac2babcfa6709a9aa68a80d85d2779f19faa2a380b83cd6fe4d2e"
+      ],
+      "retained_order": 41,
+      "selected_count": 3
+    },
+    "5ae61900a558b9aa9f1bd5d981a6cbe92d9d8106c852e84562c4afbde2969929": {
+      "artifact_path": "candidates/5ae61900a558b9aa9f1bd5d981a6cbe92d9d8106c852e84562c4afbde2969929",
+      "candidate_id": "5ae61900a558b9aa9f1bd5d981a6cbe92d9d8106c852e84562c4afbde2969929",
+      "created_opportunity": 88,
+      "fitness": -957.0,
+      "hypothesis": "Quotienting the eighteenth `qkv` weight row will reduce the model from 958 to 957 parameters while retaining at least 99% accuracy, because non-affine `ln1` makes that row\u2019s common-mode input weight unobservable.",
+      "intended_edit": "Add a seven-coordinate Householder parameterization for the eighteenth `qkv` row, preserve conceptual initialization and random-stream order, and optimize its coordinates in eight-dimensional ambient space.",
+      "metrics": {
+        "accuracy": 0.9982,
+        "cases": 10010,
+        "correct": 9992,
+        "parameters": 957,
+        "training_steps": 4999
+      },
+      "parent_ids": [
+        "68895699bf5f5079ea6ca6a148d2f1451e28251f3ceb03647769e8b5d89ace2d"
+      ],
+      "retained_order": 88,
+      "selected_count": 1
+    },
+    "600b59cd2b2ffac6361d9d9f509ca69a19e9228cc538678f85769c115df9faf5": {
+      "artifact_path": "candidates/600b59cd2b2ffac6361d9d9f509ca69a19e9228cc538678f85769c115df9faf5",
+      "candidate_id": "600b59cd2b2ffac6361d9d9f509ca69a19e9228cc538678f85769c115df9faf5",
+      "created_opportunity": 45,
+      "fitness": -1600.0,
+      "hypothesis": "Applying ambient eight-dimensional AdamW to an initialization-preserving quotient of the third `fc2` input column will achieve at least 99% accuracy with 1600 parameters.",
+      "intended_edit": "Quotient the third `fc2` column while preserving conceptual dense initialization, then optimize both it and the penultimate quotiented column with ambient-state AdamW.",
+      "metrics": {
+        "accuracy": 0.9993000000000001,
+        "cases": 10010,
+        "correct": 10003,
+        "parameters": 1600,
+        "training_steps": 4999
+      },
+      "parent_ids": [
+        "d8a7e247d00d5b5e3e8e5bf0c80f9bc02cefaad069dceb7eecaaf7d4b578d4ec"
+      ],
+      "retained_order": 45,
+      "selected_count": 1
+    },
+    "67caaf89f2ae5930ac3587dbcb79f773f6303e0b2ebc3fa6e792e9c572c239ea": {
+      "artifact_path": "candidates/67caaf89f2ae5930ac3587dbcb79f773f6303e0b2ebc3fa6e792e9c572c239ea",
+      "candidate_id": "67caaf89f2ae5930ac3587dbcb79f773f6303e0b2ebc3fa6e792e9c572c239ea",
+      "created_opportunity": 71,
+      "fitness": -1085.0,
+      "hypothesis": "Reducing the tied token representation from six to five learned channels will lower the 1199-parameter model by one parameter per vocabulary token while retaining at least 99% accuracy, because the six-channel bottleneck achieved 99.99% accuracy with substantial margin and the eight-dimensional attention and MLP remain unchanged.",
+      "intended_edit": "Pad five-dimensional learned token embeddings with three fixed zero channels before transformer processing and use the same materialized vectors for tied output logits.",
+      "metrics": {
+        "accuracy": 0.9995999999999999,
+        "cases": 10010,
+        "correct": 10006,
+        "parameters": 1085,
+        "training_steps": 4999
+      },
+      "parent_ids": [
+        "867d10cd27ec465d7b5d33f987cbf172b50e22bc5d46ffdb46dada9b3c727713"
+      ],
+      "retained_order": 71,
+      "selected_count": 1
+    },
+    "68895699bf5f5079ea6ca6a148d2f1451e28251f3ceb03647769e8b5d89ace2d": {
+      "artifact_path": "candidates/68895699bf5f5079ea6ca6a148d2f1451e28251f3ceb03647769e8b5d89ace2d",
+      "candidate_id": "68895699bf5f5079ea6ca6a148d2f1451e28251f3ceb03647769e8b5d89ace2d",
+      "created_opportunity": 87,
+      "fitness": -958.0,
+      "hypothesis": "Quotienting the seventeenth `qkv` weight row will reduce the model from 959 to 958 parameters while retaining at least 99% accuracy, because non-affine `ln1` makes that row\u2019s common-mode input weight unobservable.",
+      "intended_edit": "Add a seven-coordinate Householder parameterization for the seventeenth `qkv` row, preserve conceptual initialization and random-stream order, and optimize its coordinates in eight-dimensional ambient space.",
+      "metrics": {
+        "accuracy": 0.9982,
+        "cases": 10010,
+        "correct": 9992,
+        "parameters": 958,
+        "training_steps": 4999
+      },
+      "parent_ids": [
+        "b06eef468d292750dbc2d690ddab61c07cee7fedc7a254df986d884a8a99444f"
+      ],
+      "retained_order": 87,
+      "selected_count": 1
+    },
+    "68ade163631d2bdf6c4be0213e92a877a8ced32fc44f50b11031d8c45b17a2f7": {
+      "artifact_path": "candidates/68ade163631d2bdf6c4be0213e92a877a8ced32fc44f50b11031d8c45b17a2f7",
+      "candidate_id": "68ade163631d2bdf6c4be0213e92a877a8ced32fc44f50b11031d8c45b17a2f7",
+      "created_opportunity": 67,
+      "fitness": -1428.0,
+      "hypothesis": "Quotienting the second `qkv` weight row will reduce the model from 1429 to 1428 parameters while retaining at least 99% accuracy, because non-affine `ln1` makes each row\u2019s common-mode input weight unobservable and independent ambient AdamW already preserved 99.94% accuracy for the first row.",
+      "intended_edit": "Add a seven-coordinate Householder parameterization for the second `qkv` row, retain dense conceptual initialization and random-stream order, and optimize both quotiented rows in eight-dimensional ambient space.",
+      "metrics": {
+        "accuracy": 0.9997,
+        "cases": 10010,
+        "correct": 10007,
+        "parameters": 1428,
+        "training_steps": 4999
+      },
+      "parent_ids": [
+        "1982b167f09b45bf956acd46355ca0ccda9a92cd288382f3ee3f2116c991910a"
+      ],
+      "retained_order": 67,
+      "selected_count": 1
+    },
+    "6a00f7187da179ff07543957f7acdfabf65ca7c3e1fc83a97d920b57c30be6a5": {
+      "artifact_path": "candidates/6a00f7187da179ff07543957f7acdfabf65ca7c3e1fc83a97d920b57c30be6a5",
+      "candidate_id": "6a00f7187da179ff07543957f7acdfabf65ca7c3e1fc83a97d920b57c30be6a5",
+      "created_opportunity": 54,
+      "fitness": -1592.0,
+      "hypothesis": "Initialization-preserving quotienting of the first attention output-projection column will reduce the model from 1593 to 1592 parameters while retaining at least 99% accuracy when its seven coordinates are optimized with eight-dimensional ambient AdamW.",
+      "intended_edit": "Replace one dense attention projection column with a Householder zero-mean parameterization, preserve the conceptual dense initialization and random-number stream, and include its coordinates in the ambient-state optimizer.",
+      "metrics": {
+        "accuracy": 1.0,
+        "cases": 10010,
+        "correct": 10010,
+        "parameters": 1592,
+        "training_steps": 4999
+      },
+      "parent_ids": [
+        "443190bde58777a342c67397ed38d740d0879709092016474aece578e0bf2008"
+      ],
+      "retained_order": 54,
+      "selected_count": 1
+    },
+    "6a07016b0039fa90fdbf785f8cf498935ed2b08badb1da4164f7a76c16727b68": {
+      "artifact_path": "candidates/6a07016b0039fa90fdbf785f8cf498935ed2b08badb1da4164f7a76c16727b68",
+      "candidate_id": "6a07016b0039fa90fdbf785f8cf498935ed2b08badb1da4164f7a76c16727b68",
+      "created_opportunity": 46,
+      "fitness": -1599.0,
+      "hypothesis": "Initialization-preserving quotienting of the fourth `fc2` input column will reduce the model from 1600 to 1599 parameters while retaining at least 99% accuracy when its seven coordinates are optimized with eight-dimensional ambient AdamW.",
+      "intended_edit": "Convert the first remaining dense `fc2` column into a Householder zero-mean column, preserve the conceptual dense initialization and random stream, and add it to the ambient-state optimizer.",
+      "metrics": {
+        "accuracy": 1.0,
+        "cases": 10010,
+        "correct": 10010,
+        "parameters": 1599,
+        "training_steps": 4999
+      },
+      "parent_ids": [
+        "600b59cd2b2ffac6361d9d9f509ca69a19e9228cc538678f85769c115df9faf5"
+      ],
+      "retained_order": 46,
+      "selected_count": 1
+    },
+    "6e6939d6dab2e53f95941adfb0f6a4f3c886a04ee636d424e8cfbfab3361a2e4": {
+      "artifact_path": "candidates/6e6939d6dab2e53f95941adfb0f6a4f3c886a04ee636d424e8cfbfab3361a2e4",
+      "candidate_id": "6e6939d6dab2e53f95941adfb0f6a4f3c886a04ee636d424e8cfbfab3361a2e4",
+      "created_opportunity": 57,
+      "fitness": -1589.0,
+      "hypothesis": "Initialization-preserving quotienting of the fourth attention output-projection column will reduce the model from 1590 to 1589 parameters while retaining at least 99% accuracy when all four quotiented columns use eight-dimensional ambient AdamW.",
+      "intended_edit": "Replace the fourth dense attention projection column with a seven-coordinate Householder zero-mean parameterization, preserve conceptual dense initialization and the random-number stream, and include its coordinates in the ambient optimizer.",
+      "metrics": {
+        "accuracy": 1.0,
+        "cases": 10010,
+        "correct": 10010,
+        "parameters": 1589,
+        "training_steps": 4999
+      },
+      "parent_ids": [
+        "4a859b8a237458102810b7c6fdbacf7d8a1383af56810d0a9a5c021820fe2a10"
+      ],
+      "retained_order": 57,
+      "selected_count": 1
+    },
+    "72678108781fde0f874b2e58bb6c668908e2db3f385cfcc1af3277700e9f9154": {
+      "artifact_path": "candidates/72678108781fde0f874b2e58bb6c668908e2db3f385cfcc1af3277700e9f9154",
+      "candidate_id": "72678108781fde0f874b2e58bb6c668908e2db3f385cfcc1af3277700e9f9154",
+      "created_opportunity": 47,
+      "fitness": -1598.0,
+      "hypothesis": "Initialization-preserving quotienting of the fifth `fc2` input column will reduce the model from 1599 to 1598 parameters while retaining at least 99% accuracy when its seven coordinates are optimized with eight-dimensional ambient AdamW.",
+      "intended_edit": "Convert the next remaining dense `fc2` column into a Householder zero-mean column, preserve the conceptual dense initialization and random stream, and add its coordinates to the ambient-state optimizer.",
+      "metrics": {
+        "accuracy": 1.0,
+        "cases": 10010,
+        "correct": 10010,
+        "parameters": 1598,
+        "training_steps": 4999
+      },
+      "parent_ids": [
+        "6a07016b0039fa90fdbf785f8cf498935ed2b08badb1da4164f7a76c16727b68"
+      ],
+      "retained_order": 47,
+      "selected_count": 1
+    },
+    "75f4d43758178d76982ac07131b58d53c2385a414a548a697d53a24c0d6eb378": {
+      "artifact_path": "candidates/75f4d43758178d76982ac07131b58d53c2385a414a548a697d53a24c0d6eb378",
+      "candidate_id": "75f4d43758178d76982ac07131b58d53c2385a414a548a697d53a24c0d6eb378",
+      "created_opportunity": 25,
+      "fitness": -1607.0,
+      "hypothesis": "Fixing one first-LayerNorm scale coordinate to one will reduce the model from 1608 to 1607 parameters while retaining at least 99% accuracy, because that scale can be absorbed exactly into the corresponding dense QKV projection column.",
+      "intended_edit": "Replace the first LayerNorm with an equivalent implementation containing seven learned scales and one fixed unit scale, preserving all verified attention biases and dense projection weights.",
+      "metrics": {
+        "accuracy": 0.9992,
+        "cases": 10010,
+        "correct": 10002,
+        "parameters": 1607,
+        "training_steps": 4999
+      },
+      "parent_ids": [
+        "959e9018fe6f6f37a10707dcce37770739c0d391a7e88339ab4dc768baabb354"
+      ],
+      "retained_order": 25,
+      "selected_count": 4
+    },
+    "7a8024e1ed5ac2babcfa6709a9aa68a80d85d2779f19faa2a380b83cd6fe4d2e": {
+      "artifact_path": "candidates/7a8024e1ed5ac2babcfa6709a9aa68a80d85d2779f19faa2a380b83cd6fe4d2e",
+      "candidate_id": "7a8024e1ed5ac2babcfa6709a9aa68a80d85d2779f19faa2a380b83cd6fe4d2e",
+      "created_opportunity": 36,
+      "fitness": -1603.0,
+      "hypothesis": "Constraining a second `fc2` weight column to the seven-dimensional zero-mean subspace will reduce the model from 1604 to 1603 parameters while retaining at least 99% accuracy, because each discarded all-ones component independently produces only a token-wise residual shift erased by the final LayerNorm.",
+      "intended_edit": "Extend `OneColumnGaugeLinear` to parameterize its first two weight columns with independent Householder zero-mean coordinates, leaving the other ten columns dense.",
+      "metrics": {
+        "accuracy": 0.9998,
+        "cases": 10010,
+        "correct": 10008,
+        "parameters": 1603,
+        "training_steps": 4999
+      },
+      "parent_ids": [
+        "d399cf8015205f20c7f23886750152679b186ce87d250a3aa8d4c48735f8d1bb"
+      ],
+      "retained_order": 36,
+      "selected_count": 5
+    },
+    "838ecb9c586a72e3a5be61362828babbbe382793e027bd8e11bcb08617440fda": {
+      "artifact_path": "candidates/838ecb9c586a72e3a5be61362828babbbe382793e027bd8e11bcb08617440fda",
+      "candidate_id": "838ecb9c586a72e3a5be61362828babbbe382793e027bd8e11bcb08617440fda",
+      "created_opportunity": 55,
+      "fitness": -1591.0,
+      "hypothesis": "Initialization-preserving quotienting of the second attention output-projection column will reduce the model from 1592 to 1591 parameters while retaining at least 99% accuracy when both quotiented columns are optimized with eight-dimensional ambient AdamW.",
+      "intended_edit": "Replace the second dense attention projection column with an independent seven-coordinate Householder zero-mean parameterization, preserve conceptual dense initialization, and include it in the ambient-state optimizer.",
+      "metrics": {
+        "accuracy": 1.0,
+        "cases": 10010,
+        "correct": 10010,
+        "parameters": 1591,
+        "training_steps": 4999
+      },
+      "parent_ids": [
+        "6a00f7187da179ff07543957f7acdfabf65ca7c3e1fc83a97d920b57c30be6a5"
+      ],
+      "retained_order": 55,
+      "selected_count": 1
+    },
+    "85d76a49d2f084d24905b24c63d6b1fea70ec9579ddb946924ee7708f9d2e4ae": {
+      "artifact_path": "candidates/85d76a49d2f084d24905b24c63d6b1fea70ec9579ddb946924ee7708f9d2e4ae",
+      "candidate_id": "85d76a49d2f084d24905b24c63d6b1fea70ec9579ddb946924ee7708f9d2e4ae",
+      "created_opportunity": 69,
+      "fitness": -1426.0,
+      "hypothesis": "Quotienting the fourth `qkv` weight row will reduce the model from 1427 to 1426 parameters while retaining at least 99% accuracy, because non-affine `ln1` makes the row\u2019s common-mode input weight unobservable and the identical ambient AdamW treatment achieved 100% accuracy for the first three rows.",
+      "intended_edit": "Add a seven-coordinate Householder parameterization for the fourth `qkv` row, preserve conceptual initialization and random-stream order, and optimize all four quotiented rows in eight-dimensional ambient space.",
+      "metrics": {
+        "accuracy": 0.9993000000000001,
+        "cases": 10010,
+        "correct": 10003,
+        "parameters": 1426,
+        "training_steps": 4999
+      },
+      "parent_ids": [
+        "2f3e0f3bd0ef5dc712a8f0d6d6c7a2de83ffa1321adfcc068502d4c7c287480f"
+      ],
+      "retained_order": 69,
+      "selected_count": 1
+    },
+    "867d10cd27ec465d7b5d33f987cbf172b50e22bc5d46ffdb46dada9b3c727713": {
+      "artifact_path": "candidates/867d10cd27ec465d7b5d33f987cbf172b50e22bc5d46ffdb46dada9b3c727713",
+      "candidate_id": "867d10cd27ec465d7b5d33f987cbf172b50e22bc5d46ffdb46dada9b3c727713",
+      "created_opportunity": 70,
+      "fitness": -1199.0,
+      "hypothesis": "Restricting the tied token embeddings to six learned channels while retaining the eight-channel transformer will reduce the model from 1426 to 1199 parameters and retain at least 99% accuracy, because learned relative-lag attention already supplies positional structure separately and addition-token identity should not require every residual channel.",
+      "intended_edit": "Replace each full-width token vector with a learned six-dimensional vector padded into the eight-dimensional residual stream, use the same compact vectors for logits, and preserve the verified initialization random stream by reconstructing and truncating the former conceptual initialization.",
+      "metrics": {
+        "accuracy": 0.9998999999999999,
+        "cases": 10010,
+        "correct": 10009,
+        "parameters": 1199,
+        "training_steps": 4999
+      },
+      "parent_ids": [
+        "85d76a49d2f084d24905b24c63d6b1fea70ec9579ddb946924ee7708f9d2e4ae"
+      ],
+      "retained_order": 70,
+      "selected_count": 1
+    },
+    "8696054230ad283a09d8445182411035dad2b80d3685331fd24c9b78e8efbb24": {
+      "artifact_path": "candidates/8696054230ad283a09d8445182411035dad2b80d3685331fd24c9b78e8efbb24",
+      "candidate_id": "8696054230ad283a09d8445182411035dad2b80d3685331fd24c9b78e8efbb24",
+      "created_opportunity": 9,
+      "fitness": -1617.0,
+      "hypothesis": "Removing one additional value-bias coordinate will reduce parameters from 1618 to 1617 while retaining at least 99% accuracy, because the two-coordinate ablation achieved 99.58% and five learned coordinates preserve most of the optimization benefit absent when all eight coordinates were removed.",
+      "intended_edit": "Store five learned value-bias coordinates and pad the remaining three coordinates with zeros during attention.",
+      "metrics": {
+        "accuracy": 0.9991,
+        "cases": 10010,
+        "correct": 10001,
+        "parameters": 1617,
+        "training_steps": 4999
+      },
+      "parent_ids": [
+        "55959aa8f7e9a1ed6773aaac0585ae8068452f00105dc01fd1e956a374cea13d"
+      ],
+      "retained_order": 9,
+      "selected_count": 2
+    },
+    "880260a9572009dc1c8356fbd598a470a2d40d28aa8e863a55eccfa73dcdf092": {
+      "artifact_path": "candidates/880260a9572009dc1c8356fbd598a470a2d40d28aa8e863a55eccfa73dcdf092",
+      "candidate_id": "880260a9572009dc1c8356fbd598a470a2d40d28aa8e863a55eccfa73dcdf092",
+      "created_opportunity": 90,
+      "fitness": -895.0,
+      "hypothesis": "Reducing each attention head\u2019s learned query/key width from four dimensions to two will produce a 895-parameter transformer with at least 99% accuracy, because learned relative-lag biases can perform most positional routing while the unchanged four-dimensional value paths, token representation, and MLP retain the task\u2019s load-bearing capacity.",
+      "intended_edit": "Replace the 24-output QKV projection with a 16-output projection containing two-dimensional queries and keys plus full-width values, preserving the conceptual initialization stream and input-shift gauge optimization.",
+      "metrics": {
+        "accuracy": 0.9992,
+        "cases": 10010,
+        "correct": 10002,
+        "parameters": 895,
+        "training_steps": 4999
+      },
+      "parent_ids": [
+        "2c290745400c7add44741775be9c85b26eee319d6c78b466f78a9c50bc0ecb02"
+      ],
+      "retained_order": 90,
+      "selected_count": 1
+    },
+    "9094b3f52e80d07fc87f71437d059d212e1f6a62525b1282d0ddc165817d96b4": {
+      "artifact_path": "candidates/9094b3f52e80d07fc87f71437d059d212e1f6a62525b1282d0ddc165817d96b4",
+      "candidate_id": "9094b3f52e80d07fc87f71437d059d212e1f6a62525b1282d0ddc165817d96b4",
+      "created_opportunity": 17,
+      "fitness": -1611.0,
+      "hypothesis": "Learning four of eight query-bias coordinates will reduce the model from 1612 to 1611 parameters while retaining at least 99% accuracy, because the five- and six-coordinate query-bias designs both achieved 100% while preserving the necessary three-coordinate value bias.",
+      "intended_edit": "Store four learned query-bias coordinates and pad the remaining four coordinates with zeros during attention.",
+      "metrics": {
+        "accuracy": 0.9998999999999999,
+        "cases": 10010,
+        "correct": 10009,
+        "parameters": 1611,
+        "training_steps": 4999
+      },
+      "parent_ids": [
+        "06ff4048f08d3f85de2efaa64c41406c341a821e4d7d3056fd3e7219f6fecef7"
+      ],
+      "retained_order": 17,
+      "selected_count": 1
+    },
+    "921de0dd1663d4c57feb4a8cc8f48b6b2adc181a88c4b2a3d62498205b28c6ec": {
+      "artifact_path": "candidates/921de0dd1663d4c57feb4a8cc8f48b6b2adc181a88c4b2a3d62498205b28c6ec",
+      "candidate_id": "921de0dd1663d4c57feb4a8cc8f48b6b2adc181a88c4b2a3d62498205b28c6ec",
+      "created_opportunity": 97,
+      "fitness": -868.0,
+      "hypothesis": "Quotienting one query-weight coordinate in the biased attention head will reduce the model from 869 to 868 learned parameters while retaining at least 99% accuracy, because a Q/K shear that leaves its one-axis query bias unchanged preserves every attention logit.",
+      "intended_edit": "Triangularize one coordinate of the biased head\u2019s first query row using its unbiased second query row, apply the compensating inverse-transpose transformation to its keys, and omit the resulting zero coordinate from training.",
+      "metrics": {
+        "accuracy": 0.9978,
+        "cases": 10010,
+        "correct": 9988,
+        "parameters": 868,
+        "training_steps": 4999
+      },
+      "parent_ids": [
+        "1b599b1cfff832b0f3099a4be0b93e8e05e3bc96b1e443d67b092c78f1115635"
+      ],
+      "retained_order": 97,
+      "selected_count": 1
+    },
+    "95721763e8e658e2f9e0affef6d77a30a75dc69459308ac9c42352366c4eac22": {
+      "artifact_path": "candidates/95721763e8e658e2f9e0affef6d77a30a75dc69459308ac9c42352366c4eac22",
+      "candidate_id": "95721763e8e658e2f9e0affef6d77a30a75dc69459308ac9c42352366c4eac22",
+      "created_opportunity": 76,
+      "fitness": -968.0,
+      "hypothesis": "Quotienting the seventh `qkv` weight row will reduce the model from 969 to 968 parameters while retaining at least 99% accuracy, because non-affine `ln1` makes its common-mode input weight unobservable and identical ambient AdamW treatment succeeded for the first six rows.",
+      "intended_edit": "Add a seven-coordinate Householder parameterization for the seventh `qkv` row, preserve conceptual initialization and random-stream order, and optimize all seven quotiented rows in eight-dimensional ambient space.",
+      "metrics": {
+        "accuracy": 0.9983,
+        "cases": 10010,
+        "correct": 9993,
+        "parameters": 968,
+        "training_steps": 4999
+      },
+      "parent_ids": [
+        "3e8e534ffa7bdee00261d65d3ea5a5ed1aa48b32f060f7f0ea50d2a7f489f2cb"
+      ],
+      "retained_order": 76,
+      "selected_count": 1
+    },
+    "959e9018fe6f6f37a10707dcce37770739c0d391a7e88339ab4dc768baabb354": {
+      "artifact_path": "candidates/959e9018fe6f6f37a10707dcce37770739c0d391a7e88339ab4dc768baabb354",
+      "candidate_id": "959e9018fe6f6f37a10707dcce37770739c0d391a7e88339ab4dc768baabb354",
+      "created_opportunity": 22,
+      "fitness": -1608.0,
+      "hypothesis": "Fixing one attention output-bias coordinate to zero will reduce the model from 1609 to 1608 parameters while retaining at least 99% accuracy, because any all-ones component of this residual-branch bias is erased by subsequent LayerNorms.",
+      "intended_edit": "Replace the eight-coordinate attention projection bias with seven learned coordinates padded by one fixed zero, while leaving the verified two-coordinate query bias and three-coordinate value bias intact.",
+      "metrics": {
+        "accuracy": 0.9987999999999999,
+        "cases": 10010,
+        "correct": 9998,
+        "parameters": 1608,
+        "training_steps": 4999
+      },
+      "parent_ids": [
+        "5314c0df7933237c7e05f6fef917e876cdd37fee417eab68bb9070cc9788e480"
+      ],
+      "retained_order": 22,
+      "selected_count": 3
+    },
+    "96c1be67c7e227a29d1d408dd946b87584e450a4314010087b11b21413372848": {
+      "artifact_path": "candidates/96c1be67c7e227a29d1d408dd946b87584e450a4314010087b11b21413372848",
+      "candidate_id": "96c1be67c7e227a29d1d408dd946b87584e450a4314010087b11b21413372848",
+      "created_opportunity": 94,
+      "fitness": -871.0,
+      "hypothesis": "Constraining the sole biased two-dimensional attention head to one query-bias coordinate will reduce the model from 872 to 871 parameters while retaining at least 99% accuracy, because a joint orthogonal rotation of that head\u2019s query and key channels can align any query-bias vector with one axis without changing attention logits.",
+      "intended_edit": "Replace the two learned query-bias coordinates with one scalar coordinate; the existing padding keeps all other query-bias coordinates fixed at zero while preserving initialization and random-stream order.",
+      "metrics": {
+        "accuracy": 0.9989,
+        "cases": 10010,
+        "correct": 9999,
+        "parameters": 871,
+        "training_steps": 4999
+      },
+      "parent_ids": [
+        "f2c0c9475df14aa2547b0eb0edb574932f7d57b810cd055fa7ea0808d4238447"
+      ],
+      "retained_order": 94,
+      "selected_count": 1
+    },
+    "a4de10ad698145dea90a0a1c6662dd2832c1db8f9c502bbb289afd7db9dbdea3": {
+      "artifact_path": "candidates/a4de10ad698145dea90a0a1c6662dd2832c1db8f9c502bbb289afd7db9dbdea3",
+      "candidate_id": "a4de10ad698145dea90a0a1c6662dd2832c1db8f9c502bbb289afd7db9dbdea3",
+      "created_opportunity": 100,
+      "fitness": -847.0,
+      "hypothesis": "Replacing the twelve-unit GELU MLP with a seven-unit learned GLU will reduce the model from 866 to 847 parameters while retaining at least 99% accuracy, because seven independent output directions span the entire LayerNorm-visible residual quotient and multiplicative gates provide greater nonlinear efficiency per direction.",
+      "intended_edit": "Add a generic gauge-fixed output projection, replace the GELU MLP with seven learned value/gate pairs, update ambient optimization for its columns, and set the default gated width to seven.",
+      "metrics": {
+        "accuracy": 0.9994,
+        "cases": 10010,
+        "correct": 10004,
+        "parameters": 847,
+        "training_steps": 4999
+      },
+      "parent_ids": [
+        "e814490fd2ef5d265c2ada32e7468302bc44ddbc42c898b68a5e3397cd5bfcc4"
+      ],
+      "retained_order": 100,
+      "selected_count": 24
+    },
+    "b06eef468d292750dbc2d690ddab61c07cee7fedc7a254df986d884a8a99444f": {
+      "artifact_path": "candidates/b06eef468d292750dbc2d690ddab61c07cee7fedc7a254df986d884a8a99444f",
+      "candidate_id": "b06eef468d292750dbc2d690ddab61c07cee7fedc7a254df986d884a8a99444f",
+      "created_opportunity": 86,
+      "fitness": -959.0,
+      "hypothesis": "Quotienting the sixteenth `qkv` weight row will reduce the model from 960 to 959 parameters while retaining at least 99% accuracy, because non-affine `ln1` makes its common-mode input weight unobservable and identical ambient AdamW treatment succeeded for the first fifteen rows.",
+      "intended_edit": "Add a seven-coordinate Householder parameterization for the sixteenth `qkv` row, preserve conceptual initialization and random-stream order, and include its coordinates in the ambient optimizer.",
+      "metrics": {
+        "accuracy": 0.9983,
+        "cases": 10010,
+        "correct": 9993,
+        "parameters": 959,
+        "training_steps": 4999
+      },
+      "parent_ids": [
+        "cf94389dc40bd131438358d39be83421f0b7210d65329a8ff866a405e0845462"
+      ],
+      "retained_order": 86,
+      "selected_count": 1
+    },
+    "b52e8698a69752c2342906b60e250a28bb9ee109871956a8675d14640d7840e6": {
+      "artifact_path": "candidates/b52e8698a69752c2342906b60e250a28bb9ee109871956a8675d14640d7840e6",
+      "candidate_id": "b52e8698a69752c2342906b60e250a28bb9ee109871956a8675d14640d7840e6",
+      "created_opportunity": 49,
+      "fitness": -1596.0,
+      "hypothesis": "Initialization-preserving quotienting of the seventh `fc2` input column will reduce the model from 1597 to 1596 parameters while retaining at least 99% accuracy when its seven coordinates are optimized with eight-dimensional ambient AdamW.",
+      "intended_edit": "Convert the first remaining dense `fc2` column into a Householder zero-mean column, preserve the conceptual dense initialization and random stream, and include its coordinates in the ambient-state optimizer.",
+      "metrics": {
+        "accuracy": 0.9995,
+        "cases": 10010,
+        "correct": 10005,
+        "parameters": 1596,
+        "training_steps": 4999
+      },
+      "parent_ids": [
+        "538226548c4b927798c951e4ea6791d98a45afa4d051ee0b67a84565314c122b"
+      ],
+      "retained_order": 49,
+      "selected_count": 2
+    },
+    "b61c4b4a6976aef14ae1de194257e2a58537ccbfd475fe2a42ec115b25998328": {
+      "artifact_path": "candidates/b61c4b4a6976aef14ae1de194257e2a58537ccbfd475fe2a42ec115b25998328",
+      "candidate_id": "b61c4b4a6976aef14ae1de194257e2a58537ccbfd475fe2a42ec115b25998328",
+      "created_opportunity": 52,
+      "fitness": -1594.0,
+      "hypothesis": "Initialization-preserving quotienting of the ninth `fc2` input column will reduce the model from 1595 to 1594 parameters while retaining at least 99% accuracy when its seven coordinates are optimized with eight-dimensional ambient AdamW.",
+      "intended_edit": "Convert the first remaining dense `fc2` column into a Householder zero-mean column, preserve the conceptual dense initialization and random stream, and include its coordinates in the ambient-state optimizer.",
+      "metrics": {
+        "accuracy": 1.0,
+        "cases": 10010,
+        "correct": 10010,
+        "parameters": 1594,
+        "training_steps": 4999
+      },
+      "parent_ids": [
+        "0548e8a0790d1a94590796974275e6e6fd271d046157250dd416aaec6a128bf4"
+      ],
+      "retained_order": 52,
+      "selected_count": 1
+    },
+    "b7b107e4bcf1842069d08130a966ead05b38bdd04750812d57ebba9e0a91a316": {
+      "artifact_path": "candidates/b7b107e4bcf1842069d08130a966ead05b38bdd04750812d57ebba9e0a91a316",
+      "candidate_id": "b7b107e4bcf1842069d08130a966ead05b38bdd04750812d57ebba9e0a91a316",
+      "created_opportunity": 15,
+      "fitness": -1613.0,
+      "hypothesis": "Learning six of eight query-bias coordinates will reduce the model from 1614 to 1613 parameters while retaining at least 99% accuracy, because the seven-coordinate query bias achieved 100% accuracy while preserving the verified three-coordinate value bias.",
+      "intended_edit": "Store six learned query-bias coordinates and pad the remaining two coordinates with zeros during attention.",
+      "metrics": {
+        "accuracy": 1.0,
+        "cases": 10010,
+        "correct": 10010,
+        "parameters": 1613,
+        "training_steps": 4999
+      },
+      "parent_ids": [
+        "bced2b80bde1a6113f3261ad6cc057f19422b2a395ee133f0be8b0de775749cf"
+      ],
+      "retained_order": 15,
+      "selected_count": 1
+    },
+    "bae5dfcb0238636fb5ebe3aa7b3f54825cface910fcdf786c010421240680d6b": {
+      "artifact_path": "candidates/bae5dfcb0238636fb5ebe3aa7b3f54825cface910fcdf786c010421240680d6b",
+      "candidate_id": "bae5dfcb0238636fb5ebe3aa7b3f54825cface910fcdf786c010421240680d6b",
+      "created_opportunity": 59,
+      "fitness": -1587.0,
+      "hypothesis": "Initialization-preserving quotienting of the sixth attention output-projection column will reduce the model from 1588 to 1587 parameters while retaining at least 99% accuracy when all six quotiented columns use eight-dimensional ambient AdamW.",
+      "intended_edit": "Replace the sixth dense attention projection column with a seven-coordinate Householder zero-mean parameterization, preserve its conceptual initialization and random stream, and include its coordinates in the ambient optimizer.",
+      "metrics": {
+        "accuracy": 0.9998999999999999,
+        "cases": 10010,
+        "correct": 10009,
+        "parameters": 1587,
+        "training_steps": 4999
+      },
+      "parent_ids": [
+        "1ce3f94470a81bdc7837aa85ee254222449968965c400901d50ee13a29eaf9e0"
+      ],
+      "retained_order": 59,
+      "selected_count": 1
+    },
+    "bced2b80bde1a6113f3261ad6cc057f19422b2a395ee133f0be8b0de775749cf": {
+      "artifact_path": "candidates/bced2b80bde1a6113f3261ad6cc057f19422b2a395ee133f0be8b0de775749cf",
+      "candidate_id": "bced2b80bde1a6113f3261ad6cc057f19422b2a395ee133f0be8b0de775749cf",
+      "created_opportunity": 14,
+      "fitness": -1614.0,
+      "hypothesis": "Learning seven of eight query-bias coordinates will reduce the model from 1615 to 1614 parameters while retaining at least 99% accuracy, because it preserves the three-coordinate value bias that achieved 100% accuracy and makes only a one-coordinate change to the otherwise verified architecture.",
+      "intended_edit": "Store seven learned query-bias coordinates and pad the remaining coordinate with zero during attention.",
+      "metrics": {
+        "accuracy": 1.0,
+        "cases": 10010,
+        "correct": 10010,
+        "parameters": 1614,
+        "training_steps": 4999
+      },
+      "parent_ids": [
+        "04c482b1f0d19bd9abab494b4c4fa0ffdd08e9b93d023097986ac90fb3fd2978"
+      ],
+      "retained_order": 14,
+      "selected_count": 1
+    },
+    "bd1165d01bb22462fa3e607e2b130a46a8700c8602942397dc3279a0f8dc6f53": {
+      "artifact_path": "candidates/bd1165d01bb22462fa3e607e2b130a46a8700c8602942397dc3279a0f8dc6f53",
+      "candidate_id": "bd1165d01bb22462fa3e607e2b130a46a8700c8602942397dc3279a0f8dc6f53",
+      "created_opportunity": 60,
+      "fitness": -1447.0,
+      "hypothesis": "Replacing the 184-parameter absolute-position table with 44 learned head-specific causal lag biases will retain at least 99% accuracy while reducing the model from 1587 to 1447 parameters, because the two attention heads can directly specialize to the previous-output and aligned-input offsets without consuming residual-stream dimensions.",
+      "intended_edit": "Remove absolute positional vectors, add a learned relative-lag bias to each attention head, fix the softmax-redundant zero-lag coordinate, and preserve the verified initialization random stream.",
+      "metrics": {
+        "accuracy": 0.9995999999999999,
+        "cases": 10010,
+        "correct": 10006,
+        "parameters": 1447,
+        "training_steps": 4999
+      },
+      "parent_ids": [
+        "bae5dfcb0238636fb5ebe3aa7b3f54825cface910fcdf786c010421240680d6b"
+      ],
+      "retained_order": 60,
+      "selected_count": 1
+    },
+    "c023010cb0e9ac594fa189d1d7806d00ebf9f2baa50cbb3c55ec9fc112c3620c": {
+      "artifact_path": "candidates/c023010cb0e9ac594fa189d1d7806d00ebf9f2baa50cbb3c55ec9fc112c3620c",
+      "candidate_id": "c023010cb0e9ac594fa189d1d7806d00ebf9f2baa50cbb3c55ec9fc112c3620c",
+      "created_opportunity": 31,
+      "fitness": -1605.0,
+      "hypothesis": "Reparameterizing the eight-coordinate MLP output bias as seven orthonormal zero-mean coordinates will reduce the model from 1606 to 1605 parameters while retaining at least 99% accuracy, because the discarded all-ones component is erased by the final LayerNorm.",
+      "intended_edit": "Replace the dense `fc2` bias with a seven-parameter Householder basis spanning the zero-mean subspace.",
+      "metrics": {
+        "accuracy": 0.9992,
+        "cases": 10010,
+        "correct": 10002,
+        "parameters": 1605,
+        "training_steps": 4999
+      },
+      "parent_ids": [
+        "0c5fc9e49078f3b6f385c1154b43e15bf0a75f3481a9885ded835c57ff22bfc4"
+      ],
+      "retained_order": 31,
+      "selected_count": 4
+    },
+    "cf94389dc40bd131438358d39be83421f0b7210d65329a8ff866a405e0845462": {
+      "artifact_path": "candidates/cf94389dc40bd131438358d39be83421f0b7210d65329a8ff866a405e0845462",
+      "candidate_id": "cf94389dc40bd131438358d39be83421f0b7210d65329a8ff866a405e0845462",
+      "created_opportunity": 85,
+      "fitness": -960.0,
+      "hypothesis": "Quotienting the fifteenth `qkv` weight row will reduce the model from 961 to 960 parameters while retaining at least 99% accuracy, because non-affine `ln1` makes its common-mode input weight unobservable and identical ambient AdamW treatment succeeded for the first fourteen rows.",
+      "intended_edit": "Add a seven-coordinate Householder parameterization for the fifteenth `qkv` row, preserve conceptual initialization and random-stream order, and include its coordinates in the ambient optimizer.",
+      "metrics": {
+        "accuracy": 0.9984000000000001,
+        "cases": 10010,
+        "correct": 9994,
+        "parameters": 960,
+        "training_steps": 4999
+      },
+      "parent_ids": [
+        "49d5a54154eed4cd0b53c10ec7f11118f42fd3c1fffc7f332f2c67768a2e0d63"
+      ],
+      "retained_order": 85,
+      "selected_count": 1
+    },
+    "d0e1e0987579ceda330582b35b6027cacb92ccf66dc9d31b63ec7c7e28d73930": {
+      "artifact_path": "candidates/d0e1e0987579ceda330582b35b6027cacb92ccf66dc9d31b63ec7c7e28d73930",
+      "candidate_id": "d0e1e0987579ceda330582b35b6027cacb92ccf66dc9d31b63ec7c7e28d73930",
+      "created_opportunity": 61,
+      "fitness": -1446.0,
+      "hypothesis": "Initialization-preserving quotienting of the seventh attention output-projection column will reduce the current model from 1447 to 1446 parameters while retaining at least 99% accuracy.",
+      "intended_edit": "Replace the seventh dense attention projection column with a seven-coordinate Householder zero-mean parameterization, preserve conceptual initialization, and optimize it with eight-dimensional ambient AdamW.",
+      "metrics": {
+        "accuracy": 0.9992,
+        "cases": 10010,
+        "correct": 10002,
+        "parameters": 1446,
+        "training_steps": 4999
+      },
+      "parent_ids": [
+        "bd1165d01bb22462fa3e607e2b130a46a8700c8602942397dc3279a0f8dc6f53"
+      ],
+      "retained_order": 61,
+      "selected_count": 1
+    },
+    "d1c07c0cae95e152b406aa4e50dfb22ea0e56a8b7888844585ecfc524f1dd705": {
+      "artifact_path": "candidates/d1c07c0cae95e152b406aa4e50dfb22ea0e56a8b7888844585ecfc524f1dd705",
+      "candidate_id": "d1c07c0cae95e152b406aa4e50dfb22ea0e56a8b7888844585ecfc524f1dd705",
+      "created_opportunity": 18,
+      "fitness": -1610.0,
+      "hypothesis": "Learning three of eight query-bias coordinates will reduce the model from 1611 to 1610 parameters while retaining at least 99% accuracy, because the four-coordinate query-bias design achieved 99.99% while preserving the necessary three-coordinate value bias.",
+      "intended_edit": "Store three learned query-bias coordinates and pad the remaining five coordinates with zeros during attention.",
+      "metrics": {
+        "accuracy": 0.9998,
+        "cases": 10010,
+        "correct": 10008,
+        "parameters": 1610,
+        "training_steps": 4999
+      },
+      "parent_ids": [
+        "9094b3f52e80d07fc87f71437d059d212e1f6a62525b1282d0ddc165817d96b4"
+      ],
+      "retained_order": 18,
+      "selected_count": 1
+    },
+    "d2500037e9229f18323a518b66c0b57bab04a74c5aea67c55404f83f452da816": {
+      "artifact_path": "candidates/d2500037e9229f18323a518b66c0b57bab04a74c5aea67c55404f83f452da816",
+      "candidate_id": "d2500037e9229f18323a518b66c0b57bab04a74c5aea67c55404f83f452da816",
+      "created_opportunity": 83,
+      "fitness": -962.0,
+      "hypothesis": "Quotienting the thirteenth `qkv` weight row will reduce the model from 963 to 962 parameters while retaining at least 99% accuracy, because non-affine `ln1` makes the row\u2019s common-mode input weight unobservable and identical ambient AdamW treatment succeeded for the first twelve rows.",
+      "intended_edit": "Add a seven-coordinate Householder parameterization for the thirteenth `qkv` row, preserve conceptual initialization and random-stream order, and include its coordinates in the ambient optimizer.",
+      "metrics": {
+        "accuracy": 0.9984000000000001,
+        "cases": 10010,
+        "correct": 9994,
+        "parameters": 962,
+        "training_steps": 4999
+      },
+      "parent_ids": [
+        "e38342d453b8952cb7f9953cecffb9f9462c713be8c8698c05327a1f82860819"
+      ],
+      "retained_order": 83,
+      "selected_count": 1
+    },
+    "d399cf8015205f20c7f23886750152679b186ce87d250a3aa8d4c48735f8d1bb": {
+      "artifact_path": "candidates/d399cf8015205f20c7f23886750152679b186ce87d250a3aa8d4c48735f8d1bb",
+      "candidate_id": "d399cf8015205f20c7f23886750152679b186ce87d250a3aa8d4c48735f8d1bb",
+      "created_opportunity": 35,
+      "fitness": -1604.0,
+      "hypothesis": "Constraining one `fc2` output column to the seven-dimensional zero-mean subspace will reduce the model from 1605 to 1604 parameters while retaining at least 99% accuracy, because its discarded all-ones component contributes only an activation-dependent residual shift erased by the final LayerNorm.",
+      "intended_edit": "Replace `fc2` with an otherwise dense linear layer whose first output column uses an isotropic Householder parameterization with seven learned coordinates.",
+      "metrics": {
+        "accuracy": 0.9969,
+        "cases": 10010,
+        "correct": 9979,
+        "parameters": 1604,
+        "training_steps": 4999
+      },
+      "parent_ids": [
+        "c023010cb0e9ac594fa189d1d7806d00ebf9f2baa50cbb3c55ec9fc112c3620c"
+      ],
+      "retained_order": 35,
+      "selected_count": 1
+    },
+    "d4184aee7fde9218e4ca651e2222b0507b18569c1c20584268838f949467df74": {
+      "artifact_path": "candidates/d4184aee7fde9218e4ca651e2222b0507b18569c1c20584268838f949467df74",
+      "candidate_id": "d4184aee7fde9218e4ca651e2222b0507b18569c1c20584268838f949467df74",
+      "created_opportunity": 62,
+      "fitness": -1445.0,
+      "hypothesis": "Quotienting the eighth attention output-projection column will reduce the model from 1446 to 1445 parameters while retaining at least 99% accuracy.",
+      "intended_edit": "Replace the remaining dense projection column with seven Householder zero-mean coordinates, preserve conceptual initialization, and optimize it using eight-dimensional ambient AdamW.",
+      "metrics": {
+        "accuracy": 0.9991,
+        "cases": 10010,
+        "correct": 10001,
+        "parameters": 1445,
+        "training_steps": 4999
+      },
+      "parent_ids": [
+        "d0e1e0987579ceda330582b35b6027cacb92ccf66dc9d31b63ec7c7e28d73930"
+      ],
+      "retained_order": 62,
+      "selected_count": 1
+    },
+    "d8a7e247d00d5b5e3e8e5bf0c80f9bc02cefaad069dceb7eecaaf7d4b578d4ec": {
+      "artifact_path": "candidates/d8a7e247d00d5b5e3e8e5bf0c80f9bc02cefaad069dceb7eecaaf7d4b578d4ec",
+      "candidate_id": "d8a7e247d00d5b5e3e8e5bf0c80f9bc02cefaad069dceb7eecaaf7d4b578d4ec",
+      "created_opportunity": 44,
+      "fitness": -1601.0,
+      "hypothesis": "Quotienting the penultimate `fc2` column while updating it through eight-dimensional AdamW moments will retain at least 99% accuracy with 1601 parameters, because it preserves the successful 1602-parameter model\u2019s dense-column optimization trajectory modulo the exact final-LayerNorm shift symmetry.",
+      "intended_edit": "Represent the penultimate `fc2` column with seven Householder coordinates and optimize those coordinates using projected updates from ambient eight-dimensional AdamW state.",
+      "metrics": {
+        "accuracy": 0.9997,
+        "cases": 10010,
+        "correct": 10007,
+        "parameters": 1601,
+        "training_steps": 4999
+      },
+      "parent_ids": [
+        "57eb5dfe11a94e66e670433a8c5a0640503689846279a8c4b1f1f259d36cd287"
+      ],
+      "retained_order": 44,
+      "selected_count": 1
+    },
+    "e0033d9c8be46fd8040c58706cfc878be666b2c694da085bae57440c97b01abc": {
+      "artifact_path": "candidates/e0033d9c8be46fd8040c58706cfc878be666b2c694da085bae57440c97b01abc",
+      "candidate_id": "e0033d9c8be46fd8040c58706cfc878be666b2c694da085bae57440c97b01abc",
+      "created_opportunity": 92,
+      "fitness": -875.0,
+      "hypothesis": "Gauge-fixing all 12 `fc1` weight rows will reduce the model from 887 to 875 learned parameters while retaining at least 99% accuracy, because non-affine `ln2` produces zero-mean inputs, making each row\u2019s common-mode weight exactly unobservable.",
+      "intended_edit": "Replace `fc1` with a row-wise Householder gauge-fixed linear layer, preserve the original conceptual initialization stream and bias, and optimize its coordinates with ambient AdamW.",
+      "metrics": {
+        "accuracy": 0.9992,
+        "cases": 10010,
+        "correct": 10002,
+        "parameters": 875,
+        "training_steps": 4999
+      },
+      "parent_ids": [
+        "31638026cd5d371df6106e296548e5e8a61e353ac243a3aaaffee04f65128c56"
+      ],
+      "retained_order": 92,
+      "selected_count": 1
+    },
+    "e38342d453b8952cb7f9953cecffb9f9462c713be8c8698c05327a1f82860819": {
+      "artifact_path": "candidates/e38342d453b8952cb7f9953cecffb9f9462c713be8c8698c05327a1f82860819",
+      "candidate_id": "e38342d453b8952cb7f9953cecffb9f9462c713be8c8698c05327a1f82860819",
+      "created_opportunity": 82,
+      "fitness": -963.0,
+      "hypothesis": "Quotienting the twelfth `qkv` weight row will reduce the model from 964 to 963 parameters while retaining at least 99% accuracy, because non-affine `ln1` makes the row\u2019s common-mode input weight unobservable and the same ambient AdamW treatment succeeded for the first eleven rows.",
+      "intended_edit": "Add a seven-coordinate Householder parameterization for the twelfth `qkv` row, preserve conceptual initialization and random-stream order, and include its coordinates in the ambient optimizer.",
+      "metrics": {
+        "accuracy": 0.9982,
+        "cases": 10010,
+        "correct": 9992,
+        "parameters": 963,
+        "training_steps": 4999
+      },
+      "parent_ids": [
+        "f6af2f23c1837f02c0fe30a18d2047942b834d9714d129a0e050e84de9844e6b"
+      ],
+      "retained_order": 82,
+      "selected_count": 1
+    },
+    "e4f209e03f0aa13105373aa786d777d4c48cdb6d559463396c43d621cbf7a390": {
+      "artifact_path": "candidates/e4f209e03f0aa13105373aa786d777d4c48cdb6d559463396c43d621cbf7a390",
+      "candidate_id": "e4f209e03f0aa13105373aa786d777d4c48cdb6d559463396c43d621cbf7a390",
+      "created_opportunity": 79,
+      "fitness": -965.0,
+      "hypothesis": "Quotienting the tenth `qkv` weight row will reduce the model from 966 to 965 parameters while retaining at least 99% accuracy, because non-affine `ln1` makes every row\u2019s common-mode input weight unobservable and identical ambient AdamW treatment succeeded for the first nine rows.",
+      "intended_edit": "Add a seven-coordinate Householder parameterization for the tenth `qkv` row, preserve conceptual initialization and random-stream order, and include the new coordinates in the ambient optimizer.",
+      "metrics": {
+        "accuracy": 0.9984000000000001,
+        "cases": 10010,
+        "correct": 9994,
+        "parameters": 965,
+        "training_steps": 4999
+      },
+      "parent_ids": [
+        "1904c65bbe0baab2b27b3267fb86eca3d5c1865c4c41c3825c44f82ab23a21e3"
+      ],
+      "retained_order": 79,
+      "selected_count": 2
+    },
+    "e814490fd2ef5d265c2ada32e7468302bc44ddbc42c898b68a5e3397cd5bfcc4": {
+      "artifact_path": "candidates/e814490fd2ef5d265c2ada32e7468302bc44ddbc42c898b68a5e3397cd5bfcc4",
+      "candidate_id": "e814490fd2ef5d265c2ada32e7468302bc44ddbc42c898b68a5e3397cd5bfcc4",
+      "created_opportunity": 99,
+      "fitness": -866.0,
+      "hypothesis": "Fixing one nonzero coefficient of the biased head\u2019s second query row will reduce the model from 867 to 866 learned parameters while retaining at least 99% accuracy, because scaling that query channel while inversely scaling its key channel preserves every attention logit and leaves the one-axis query bias unchanged.",
+      "intended_edit": "Preserve the initialized largest coefficient of the biased head\u2019s second query row as a checkpointed buffer, omit it from learned coordinates, reconstruct it during forward passes, and include the fixed value in ambient AdamW updates.",
+      "metrics": {
+        "accuracy": 0.9993000000000001,
+        "cases": 10010,
+        "correct": 10003,
+        "parameters": 866,
+        "training_steps": 4999
+      },
+      "parent_ids": [
+        "fcd7804eff441074d1f5fbe3b7e2918fb969a1cc69262cfbddc2a703d94e942a"
+      ],
+      "retained_order": 99,
+      "selected_count": 1
+    },
+    "ec4f751f22dc03c1229c5a4acd114951951635db4102d5b8f60fde07708fdf5b": {
+      "artifact_path": "candidates/ec4f751f22dc03c1229c5a4acd114951951635db4102d5b8f60fde07708fdf5b",
+      "candidate_id": "ec4f751f22dc03c1229c5a4acd114951951635db4102d5b8f60fde07708fdf5b",
+      "created_opportunity": 11,
+      "fitness": -1616.0,
+      "hypothesis": "Reducing the learned value bias from five to four coordinates will lower parameters from 1617 to 1616 while retaining at least 99% accuracy, because the three-coordinate ablation achieved 99.91% and remains far above the 97.53% observed only when all eight coordinates were removed.",
+      "intended_edit": "Store four learned value-bias coordinates and pad the remaining four coordinates with zeros during attention.",
+      "metrics": {
+        "accuracy": 0.9998,
+        "cases": 10010,
+        "correct": 10008,
+        "parameters": 1616,
+        "training_steps": 4999
+      },
+      "parent_ids": [
+        "8696054230ad283a09d8445182411035dad2b80d3685331fd24c9b78e8efbb24"
+      ],
+      "retained_order": 11,
+      "selected_count": 1
+    },
+    "f2c0c9475df14aa2547b0eb0edb574932f7d57b810cd055fa7ea0808d4238447": {
+      "artifact_path": "candidates/f2c0c9475df14aa2547b0eb0edb574932f7d57b810cd055fa7ea0808d4238447",
+      "candidate_id": "f2c0c9475df14aa2547b0eb0edb574932f7d57b810cd055fa7ea0808d4238447",
+      "created_opportunity": 93,
+      "fitness": -872.0,
+      "hypothesis": "Removing the three learned value-bias parameters will reduce the model from 875 to 872 parameters while retaining at least 99% accuracy, because normalized attention passes value bias through as a position-independent vector that the existing projection bias can represent modulo a common residual-stream shift annihilated by downstream LayerNorm.",
+      "intended_edit": "Remove `v_bias` and its addition to the projected values, leaving the seven-parameter attention output bias as the nonredundant branch-bias representation.",
+      "metrics": {
+        "accuracy": 0.9998,
+        "cases": 10010,
+        "correct": 10008,
+        "parameters": 872,
+        "training_steps": 4999
+      },
+      "parent_ids": [
+        "e0033d9c8be46fd8040c58706cfc878be666b2c694da085bae57440c97b01abc"
+      ],
+      "retained_order": 93,
+      "selected_count": 1
+    },
+    "f6af2f23c1837f02c0fe30a18d2047942b834d9714d129a0e050e84de9844e6b": {
+      "artifact_path": "candidates/f6af2f23c1837f02c0fe30a18d2047942b834d9714d129a0e050e84de9844e6b",
+      "candidate_id": "f6af2f23c1837f02c0fe30a18d2047942b834d9714d129a0e050e84de9844e6b",
+      "created_opportunity": 81,
+      "fitness": -964.0,
+      "hypothesis": "Quotienting the eleventh `qkv` weight row will reduce the model from 965 to 964 parameters while retaining at least 99% accuracy, because non-affine `ln1` makes the row\u2019s common-mode input weight unobservable and the same ambient AdamW treatment succeeded for the first ten rows.",
+      "intended_edit": "Add a seven-coordinate Householder parameterization for the eleventh `qkv` row, preserve conceptual initialization and random-stream order, and include its coordinates in the ambient optimizer.",
+      "metrics": {
+        "accuracy": 0.9984000000000001,
+        "cases": 10010,
+        "correct": 9994,
+        "parameters": 964,
+        "training_steps": 4999
+      },
+      "parent_ids": [
+        "e4f209e03f0aa13105373aa786d777d4c48cdb6d559463396c43d621cbf7a390"
+      ],
+      "retained_order": 81,
+      "selected_count": 1
+    },
+    "fcd7804eff441074d1f5fbe3b7e2918fb969a1cc69262cfbddc2a703d94e942a": {
+      "artifact_path": "candidates/fcd7804eff441074d1f5fbe3b7e2918fb969a1cc69262cfbddc2a703d94e942a",
+      "candidate_id": "fcd7804eff441074d1f5fbe3b7e2918fb969a1cc69262cfbddc2a703d94e942a",
+      "created_opportunity": 98,
+      "fitness": -867.0,
+      "hypothesis": "Fixing one nonzero coefficient of the biased head\u2019s first query row will reduce the model from 868 to 867 learned parameters while retaining at least 99% accuracy, because scaling that query channel and its bias while inversely scaling the corresponding key channel preserves every attention logit.",
+      "intended_edit": "Preserve the initialized value of the largest surviving query coefficient as a checkpointed buffer, omit it from learned coordinates, reconstruct it during forward passes, and include the fixed base value in ambient AdamW updates.",
+      "metrics": {
+        "accuracy": 0.9995999999999999,
+        "cases": 10010,
+        "correct": 10006,
+        "parameters": 867,
+        "training_steps": 4999
+      },
+      "parent_ids": [
+        "921de0dd1663d4c57feb4a8cc8f48b6b2adc181a88c4b2a3d62498205b28c6ec"
+      ],
+      "retained_order": 98,
+      "selected_count": 1
+    }
+  },
+  "condition": "C1",
+  "conversation_session_id": null,
+  "evaluations_used": 106,
+  "evaluator_seconds_used": 65739.58457525156,
+  "incumbent_id": "a4de10ad698145dea90a0a1c6662dd2832c1db8f9c502bbb289afd7db9dbdea3",
+  "next_opportunity": 124,
+  "no_search": false,
+  "portfolio_ids": [
+    "a4de10ad698145dea90a0a1c6662dd2832c1db8f9c502bbb289afd7db9dbdea3"
+  ],
+  "proposals_used": 123,
+  "protocol_hash": "0247b4415c62d35b231e3347f31a3f63cd54eb4ec6bb2441bfc209e0ee2d3cc4",
+  "revision": 248,
+  "run_id": "controlled-openevolve-transformer-v2-1-source-only-ten-digit-addition-pair-transformer-openevolve-v2-1-mps-openevolve-b04-c1",
+  "schema_version": "1.0",
+  "status": "running",
+  "token_budget_continuation_notice_sent": false,
+  "usage": {
+    "cached_input_tokens": 1133056,
+    "input_tokens": 2577464,
+    "output_tokens": 320174,
+    "reasoning_output_tokens": 251881
+  }
+}

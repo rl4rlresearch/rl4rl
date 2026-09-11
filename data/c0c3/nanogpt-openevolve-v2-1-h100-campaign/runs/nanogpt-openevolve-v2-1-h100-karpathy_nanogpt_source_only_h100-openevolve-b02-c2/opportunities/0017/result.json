@@ -1,0 +1,88 @@
+{
+  "artifact_path": "candidates/be9051879c37407cef5930cec87076b6ca9a06577abfbed60a36ed331ad1e119",
+  "candidate_id": "be9051879c37407cef5930cec87076b6ca9a06577abfbed60a36ed331ad1e119",
+  "codex_service_tier": "fast",
+  "condition": "C2",
+  "conversation_session_id": null,
+  "evaluation": {
+    "evaluator_calls": 1,
+    "evaluator_seconds": 333.6775902139998,
+    "failure_kind": null,
+    "fitness": -0.989121,
+    "metrics": {
+      "depth": 8.0,
+      "mfu_percent": 38.8,
+      "num_params_M": 50.3,
+      "num_steps": 1848.0,
+      "peak_vram_mb": 44908.2,
+      "total_tokens_M": 484.4,
+      "training_seconds": 300.0,
+      "val_bpb": 0.989121
+    },
+    "valid": true
+  },
+  "evaluator_calls_cumulative": 17,
+  "evaluator_calls_increment": 1,
+  "evaluator_seconds_cumulative": 5894.288308268003,
+  "evaluator_seconds_increment": 333.6775902139998,
+  "event": "proposal_completed",
+  "evicted_candidate_id": null,
+  "evidence": "The 50% linear warmdown achieved the best val_bpb of 0.985746, while moving its start to 40%, 55%, or 60% did not improve it; this motivates preserving the best start time and testing schedule shape instead.",
+  "hypothesis": "Replacing the linear 50% warmdown with a cosine warmdown will lower val_bpb below 0.985746 by retaining larger updates early in the proven convergence window while tapering more gently toward zero near validation.",
+  "incumbent_after": "b167b4ea24017770dfa20861b6aad33546af93659696e9bb410ab4c7d9e459e7",
+  "intended_edit": "Keep the best batch size, weight decay, and warmdown start fixed, changing only the interpolation within the warmdown from linear to cosine.",
+  "mechanism": "Cosine-shaped terminal learning-rate annealing",
+  "opportunity": 17,
+  "parent_ids": [
+    "b167b4ea24017770dfa20861b6aad33546af93659696e9bb410ab4c7d9e459e7"
+  ],
+  "portfolio_after": [
+    "6aa246f92535321a52e9ff1f3e5484d71b05d6a1b756223dd8bdcb31ef443260",
+    "b0c155e042de5034ebea8dce488e7c995260b13650f44b0965cd83f2cd6fc104",
+    "b167b4ea24017770dfa20861b6aad33546af93659696e9bb410ab4c7d9e459e7",
+    "47c925ce7bc54d9bca6af5a17417c55e7c154f49878196f930f1ca3875778c9f"
+  ],
+  "prompt_hashes": {
+    "common_template_sha256": "ba85b39aa7288f4f48475376da6cff65661f39cfeb7ac7cde15b2a9a2e692fde",
+    "prompt_sha256": "0477cb9789ba3b42bacfd80d7b00fa9643e34d0b572971fc7afe8394583b7514",
+    "proposal_policy_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "search_state_sha256": "c938ac007bf70fe8d27f64661175531e51fcb16b38318c328493c32ee292e27e",
+    "treatment_skeleton_sha256": "ea0b89e92d93cdb336e0f0e7aa135436cfacacca8b77dc3e302a8339623f318f"
+  },
+  "proposal_type": "ordinary",
+  "proposals_cumulative": 17,
+  "remaining_budget": {
+    "evaluations": 183,
+    "evaluator_seconds": 714105.711691732,
+    "proposals": 183,
+    "tokens": 99225045
+  },
+  "retained": false,
+  "retention_decision": "not_strictly_better_than_selected_parent",
+  "run_id": "nanogpt-openevolve-v2-1-h100-karpathy_nanogpt_source_only_h100-openevolve-b02-c2",
+  "schema_version": "1.0",
+  "selected_parent_ids": [
+    "b167b4ea24017770dfa20861b6aad33546af93659696e9bb410ab4c7d9e459e7"
+  ],
+  "timestamp": "2026-08-24T00:04:59.215198+00:00",
+  "usage_cumulative": {
+    "cached_input_tokens": 187392,
+    "input_tokens": 735275,
+    "output_tokens": 39680,
+    "reasoning_output_tokens": 32633,
+    "total_tokens": 774955
+  },
+  "usage_increment": {
+    "cached_input_tokens": 12032,
+    "input_tokens": 47136,
+    "output_tokens": 790,
+    "reasoning_output_tokens": 516,
+    "total_tokens": 47926
+  },
+  "visible_candidate_ids": [
+    "6aa246f92535321a52e9ff1f3e5484d71b05d6a1b756223dd8bdcb31ef443260",
+    "b0c155e042de5034ebea8dce488e7c995260b13650f44b0965cd83f2cd6fc104",
+    "b167b4ea24017770dfa20861b6aad33546af93659696e9bb410ab4c7d9e459e7",
+    "47c925ce7bc54d9bca6af5a17417c55e7c154f49878196f930f1ca3875778c9f"
+  ]
+}

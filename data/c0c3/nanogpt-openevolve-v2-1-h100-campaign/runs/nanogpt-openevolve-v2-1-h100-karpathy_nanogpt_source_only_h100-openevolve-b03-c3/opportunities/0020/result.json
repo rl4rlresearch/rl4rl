@@ -1,0 +1,88 @@
+{
+  "artifact_path": "candidates/e884daeef8c3e012079f3331e3b6697706c6368120031dcc8bb7a9422283ec2e",
+  "candidate_id": "e884daeef8c3e012079f3331e3b6697706c6368120031dcc8bb7a9422283ec2e",
+  "codex_service_tier": "fast",
+  "condition": "C3",
+  "conversation_session_id": null,
+  "evaluation": {
+    "evaluator_calls": 1,
+    "evaluator_seconds": 374.1889254259995,
+    "failure_kind": null,
+    "fitness": -0.993485,
+    "metrics": {
+      "depth": 8.0,
+      "mfu_percent": 38.66,
+      "num_params_M": 50.3,
+      "num_steps": 926.0,
+      "peak_vram_mb": 45316.5,
+      "total_tokens_M": 485.5,
+      "training_seconds": 300.1,
+      "val_bpb": 0.993485
+    },
+    "valid": true
+  },
+  "evaluator_calls_cumulative": 20,
+  "evaluator_calls_increment": 1,
+  "evaluator_seconds_cumulative": 7440.601264901998,
+  "evaluator_seconds_increment": 374.1889254259995,
+  "event": "proposal_completed",
+  "evicted_candidate_id": "2865e528e18dc51191e4037eaeb5824cb0ea83ede79061b59b8f3caac686da6b",
+  "evidence": "Quarter-context attention regressed to 1.009577, showing that removing context is harmful, while attention-output gating improved val_bpb to 0.993637 but reduced volume to 482.3M tokens. A single embedding-stage local-context path tests different context computation while preserving full attention and near-baseline throughput.",
+  "hypothesis": "A learned two-lag embedding convolution will lower val_bpb below 0.993637 while retaining at least 490M training tokens by supplying exact short-range context without reducing attention windows or adding per-layer projections.",
+  "incumbent_after": "e884daeef8c3e012079f3331e3b6697706c6368120031dcc8bb7a9422283ec2e",
+  "intended_edit": "Replace the shared assumption that token representations remain context-free until attention with a zero-initialized, channel-wise causal FIR over the preceding two token embeddings; optimize its coefficients with AdamW and use the proven 11.75 logit softcap.",
+  "mechanism": "Learned causal embedding convolution",
+  "opportunity": 20,
+  "parent_ids": [
+    "2865e528e18dc51191e4037eaeb5824cb0ea83ede79061b59b8f3caac686da6b"
+  ],
+  "portfolio_after": [
+    "e884daeef8c3e012079f3331e3b6697706c6368120031dcc8bb7a9422283ec2e",
+    "eae6d6f6e71f7c40476d436f13b811436a914f2aadd4ccb896baad1149666905",
+    "adbcaf376f067b374df266afee3cd44b703d9549b00595d1bcf57d210f51b5e7",
+    "dc725a877809c8c9b98a82241aae181de0c7f1b656d987c1c5f1a6364c0eeb4a"
+  ],
+  "prompt_hashes": {
+    "common_template_sha256": "ba85b39aa7288f4f48475376da6cff65661f39cfeb7ac7cde15b2a9a2e692fde",
+    "prompt_sha256": "2c0900dea91cd786f3a2f9c127403549d86845be5695705b66869846f16bea44",
+    "proposal_policy_sha256": "cd7b9ba20a1cd1edd0663b5e3652baa9cd3c81925074103fe47e66c021d61a4a",
+    "search_state_sha256": "c938ac007bf70fe8d27f64661175531e51fcb16b38318c328493c32ee292e27e",
+    "treatment_skeleton_sha256": "fc6356d52b0311bc55dcff650df36ae2bc495254e488d2aa1e6ee9dea30ea996"
+  },
+  "proposal_type": "assumption_changing",
+  "proposals_cumulative": 20,
+  "remaining_budget": {
+    "evaluations": 180,
+    "evaluator_seconds": 712559.398735098,
+    "proposals": 180,
+    "tokens": 99055830
+  },
+  "retained": true,
+  "retention_decision": "replaced_selected_parent_on_strict_improvement",
+  "run_id": "nanogpt-openevolve-v2-1-h100-karpathy_nanogpt_source_only_h100-openevolve-b03-c3",
+  "schema_version": "1.0",
+  "selected_parent_ids": [
+    "2865e528e18dc51191e4037eaeb5824cb0ea83ede79061b59b8f3caac686da6b"
+  ],
+  "timestamp": "2026-08-24T00:25:14.915202+00:00",
+  "usage_cumulative": {
+    "cached_input_tokens": 268288,
+    "input_tokens": 882534,
+    "output_tokens": 61636,
+    "reasoning_output_tokens": 51322,
+    "total_tokens": 944170
+  },
+  "usage_increment": {
+    "cached_input_tokens": 12032,
+    "input_tokens": 47470,
+    "output_tokens": 8958,
+    "reasoning_output_tokens": 7537,
+    "total_tokens": 56428
+  },
+  "visible_candidate_ids": [
+    "2865e528e18dc51191e4037eaeb5824cb0ea83ede79061b59b8f3caac686da6b",
+    "eae6d6f6e71f7c40476d436f13b811436a914f2aadd4ccb896baad1149666905",
+    "adbcaf376f067b374df266afee3cd44b703d9549b00595d1bcf57d210f51b5e7",
+    "dc725a877809c8c9b98a82241aae181de0c7f1b656d987c1c5f1a6364c0eeb4a"
+  ]
+}

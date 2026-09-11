@@ -1,0 +1,91 @@
+{
+  "artifact_path": "candidates/0c48d83e2848b355dc27871d6f916d66273bf8ed9b3c3b9086ea86cf34d5273f",
+  "candidate_id": "0c48d83e2848b355dc27871d6f916d66273bf8ed9b3c3b9086ea86cf34d5273f",
+  "codex_service_tier": "default",
+  "condition": "C3",
+  "conversation_session_id": null,
+  "evaluation": {
+    "evaluator_calls": 1,
+    "evaluator_seconds": 58.69663154100999,
+    "failure_kind": null,
+    "fitness": 9330.420700588911,
+    "metrics": {
+      "batch_size": 128,
+      "evaluation_cases": 10000,
+      "evaluation_split": "public_validation",
+      "examples_processed": 100000,
+      "optimizer_steps": 782,
+      "parameters": 249977,
+      "training_seconds": 50.456144500058144,
+      "validation_accuracy": 0.933,
+      "validation_correct": 9330,
+      "validation_cross_entropy": 0.188493701171875,
+      "validation_score": 9330.420700588911
+    },
+    "valid": true
+  },
+  "evaluator_calls_cumulative": 91,
+  "evaluator_calls_increment": 1,
+  "evaluator_seconds_cumulative": 6100.452523504151,
+  "evaluator_seconds_increment": 58.69663154100999,
+  "event": "proposal_completed",
+  "evicted_candidate_id": null,
+  "evidence": "Translation TTA improved correctness from 9,344 to 9,348, indicating that one-pixel shift sensitivity remains load-bearing. Global pooling fell to 9,085, so this patch targets downsampling instability without discarding spatial organization. Its 96 additional learned parameters bring the verified 249,881-parameter model to 249,977, below the ceiling.",
+  "hypothesis": "Learning a separate max-versus-average pooling mixture for each feature channel will exceed 9,348 correct predictions by reducing translation-sensitive aliasing while retaining the spatial grid required by the classifier.",
+  "incumbent_after": "12ca95c9d1fcd8477855dc73c81c37685627a3e4f224dd8fd5b6bcc9b91cf3a5",
+  "intended_edit": "Replace both hard max-pooling layers with channel-wise learned mixtures initialized near max pooling. This challenges the old assumption that one fixed downsampling statistic suits every feature channel; the new approach lets edge channels preserve peaks while broader shape channels learn smoother aggregation.",
+  "mechanism": "Channel-adaptive mixed-statistic downsampling",
+  "opportunity": 110,
+  "parent_ids": [
+    "fd19aa30b256fce2335059a90295c933af6b3af31a3165950247720161f0264f"
+  ],
+  "portfolio_after": [
+    "6f8c6665820ee2e2076c934157ed86f28f8c3f008fb32fb353dfcf25527ae583",
+    "fd19aa30b256fce2335059a90295c933af6b3af31a3165950247720161f0264f",
+    "12ca95c9d1fcd8477855dc73c81c37685627a3e4f224dd8fd5b6bcc9b91cf3a5",
+    "c8d762becfb2bc2e30dffa3cb167f1c082726e28875d71d976595501fd2b818f"
+  ],
+  "prompt_hashes": {
+    "common_template_sha256": "e8327ba94bab12abc7c7ec7c6615378a3ae62434efb944d4a7d9492f1d19bc14",
+    "prompt_sha256": "e2ee4b073b79df65bdec891f41907d7a6b532b9cc6512d04f2e46aa48fe538a0",
+    "proposal_policy_sha256": "ce1e11aa597bbfab85bb87bc9a6089bf0c32df89ea8da0d0be408234b8f6347d",
+    "search_state_sha256": "c938ac007bf70fe8d27f64661175531e51fcb16b38318c328493c32ee292e27e",
+    "treatment_skeleton_sha256": "54662d1ea8eea6c6acf586717544f02c59b11710a78efbea884d14d453dd0e75"
+  },
+  "proposal_type": "assumption_changing",
+  "proposals_cumulative": 110,
+  "remaining_budget": {
+    "evaluations": 109,
+    "evaluator_seconds": 17899.54747649585,
+    "proposals": 90,
+    "tokens": 97042873
+  },
+  "retained": false,
+  "retention_decision": "not_strictly_better_than_selected_parent",
+  "run_id": "fashion-mnist-openevolve-v2-1-mps-fashion_mnist_source_only_mps-openevolve-b02-c3",
+  "schema_version": "1.0",
+  "selected_parent_ids": [
+    "fd19aa30b256fce2335059a90295c933af6b3af31a3165950247720161f0264f"
+  ],
+  "timestamp": "2026-08-24T15:28:19.170507+00:00",
+  "usage_cumulative": {
+    "cached_input_tokens": 1138176,
+    "input_tokens": 2700729,
+    "output_tokens": 256398,
+    "reasoning_output_tokens": 201274,
+    "total_tokens": 2957127
+  },
+  "usage_increment": {
+    "cached_input_tokens": 6912,
+    "input_tokens": 26196,
+    "output_tokens": 5666,
+    "reasoning_output_tokens": 5117,
+    "total_tokens": 31862
+  },
+  "visible_candidate_ids": [
+    "6f8c6665820ee2e2076c934157ed86f28f8c3f008fb32fb353dfcf25527ae583",
+    "fd19aa30b256fce2335059a90295c933af6b3af31a3165950247720161f0264f",
+    "12ca95c9d1fcd8477855dc73c81c37685627a3e4f224dd8fd5b6bcc9b91cf3a5",
+    "c8d762becfb2bc2e30dffa3cb167f1c082726e28875d71d976595501fd2b818f"
+  ]
+}

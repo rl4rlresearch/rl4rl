@@ -1,0 +1,82 @@
+{
+  "artifact_path": "candidates/791aefc578828368dde765408535b767d12091e2b56582bfe18a4edc3f05d8ca",
+  "candidate_id": "791aefc578828368dde765408535b767d12091e2b56582bfe18a4edc3f05d8ca",
+  "codex_service_tier": "fast",
+  "condition": "C1",
+  "conversation_session_id": null,
+  "evaluation": {
+    "evaluator_calls": 1,
+    "evaluator_seconds": 359.751496279001,
+    "failure_kind": null,
+    "fitness": -0.986167,
+    "metrics": {
+      "depth": 8.0,
+      "mfu_percent": 34.95,
+      "num_params_M": 50.3,
+      "num_steps": 1992.0,
+      "peak_vram_mb": 44908.2,
+      "total_tokens_M": 522.2,
+      "training_seconds": 300.1,
+      "val_bpb": 0.986167
+    },
+    "valid": true
+  },
+  "evaluator_calls_cumulative": 18,
+  "evaluator_calls_increment": 1,
+  "evaluator_seconds_cumulative": 10210.154257441081,
+  "evaluator_seconds_increment": 359.751496279001,
+  "event": "proposal_completed",
+  "evicted_candidate_id": "a1a9234027b48bc7b7b3915b2e809e849b6afedfe79a9a211f23947b1f8adec9",
+  "evidence": "All-local and grouped-query variants processed more tokens but regressed to 1.015479 and 0.996550, showing that token throughput alone is insufficient; increasing optimization cadence tests sample efficiency without sacrificing the empirically essential capacity or global attention.",
+  "hypothesis": "Halving the optimizer batch to 262K tokens will provide nearly twice as many parameter updates while preserving the successful 50.3M-parameter architecture and final full-context layer, lowering val_bpb below 0.992286 despite modest optimizer overhead.",
+  "incumbent_after": "791aefc578828368dde765408535b767d12091e2b56582bfe18a4edc3f05d8ca",
+  "intended_edit": "Reduce gradient accumulation from two microbatches to one by halving TOTAL_BATCH_SIZE while retaining DEVICE_BATCH_SIZE and all learning-rate settings.",
+  "mechanism": "Higher-frequency optimizer updates",
+  "opportunity": 18,
+  "parent_ids": [
+    "a1a9234027b48bc7b7b3915b2e809e849b6afedfe79a9a211f23947b1f8adec9"
+  ],
+  "portfolio_after": [
+    "791aefc578828368dde765408535b767d12091e2b56582bfe18a4edc3f05d8ca"
+  ],
+  "prompt_hashes": {
+    "common_template_sha256": "ba85b39aa7288f4f48475376da6cff65661f39cfeb7ac7cde15b2a9a2e692fde",
+    "prompt_sha256": "2bb354168468ce1bac348b42e10e699a900835de6932b37e211262a849817f57",
+    "proposal_policy_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "search_state_sha256": "04e5eb078ae1964e4ec65bfeeeb1acd0ffa246e7d54d5e0f997f81f602da28c5",
+    "treatment_skeleton_sha256": "7d4e926d1ebf26487cfe6e17375cc8be3f9e9e3fba66cd6617ef087761fb2c18"
+  },
+  "proposal_type": "ordinary",
+  "proposals_cumulative": 18,
+  "remaining_budget": {
+    "evaluations": 182,
+    "evaluator_seconds": 709789.845742559,
+    "proposals": 182,
+    "tokens": 99520642
+  },
+  "retained": true,
+  "retention_decision": "strict_incumbent_improvement",
+  "run_id": "nanogpt-openevolve-v2-1-h100-karpathy_nanogpt_source_only_h100-openevolve-b01-c1",
+  "schema_version": "1.0",
+  "selected_parent_ids": [
+    "a1a9234027b48bc7b7b3915b2e809e849b6afedfe79a9a211f23947b1f8adec9"
+  ],
+  "timestamp": "2026-08-24T00:15:44.902094+00:00",
+  "usage_cumulative": {
+    "cached_input_tokens": 208640,
+    "input_tokens": 425546,
+    "output_tokens": 53812,
+    "reasoning_output_tokens": 49459,
+    "total_tokens": 479358
+  },
+  "usage_increment": {
+    "cached_input_tokens": 12032,
+    "input_tokens": 24549,
+    "output_tokens": 2267,
+    "reasoning_output_tokens": 2070,
+    "total_tokens": 26816
+  },
+  "visible_candidate_ids": [
+    "a1a9234027b48bc7b7b3915b2e809e849b6afedfe79a9a211f23947b1f8adec9"
+  ]
+}

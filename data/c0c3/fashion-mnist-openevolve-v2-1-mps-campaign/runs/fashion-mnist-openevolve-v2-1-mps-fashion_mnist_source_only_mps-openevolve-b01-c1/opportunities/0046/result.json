@@ -1,0 +1,85 @@
+{
+  "artifact_path": "candidates/f239d26c6215f2ded914afb93a0d9ff1ef4cb529680019a6acdc4ec90463da06",
+  "candidate_id": "f239d26c6215f2ded914afb93a0d9ff1ef4cb529680019a6acdc4ec90463da06",
+  "codex_service_tier": "default",
+  "condition": "C1",
+  "conversation_session_id": null,
+  "evaluation": {
+    "evaluator_calls": 1,
+    "evaluator_seconds": 86.39409337495454,
+    "failure_kind": null,
+    "fitness": 9223.409957063122,
+    "metrics": {
+      "batch_size": 128,
+      "evaluation_cases": 10000,
+      "evaluation_split": "public_validation",
+      "examples_processed": 100000,
+      "optimizer_steps": 782,
+      "parameters": 230442,
+      "training_seconds": 73.86709962482564,
+      "validation_accuracy": 0.9223,
+      "validation_correct": 9223,
+      "validation_cross_entropy": 0.21963992080688477,
+      "validation_score": 9223.409957063122
+    },
+    "valid": true
+  },
+  "evaluator_calls_cumulative": 46,
+  "evaluator_calls_increment": 1,
+  "evaluator_seconds_cumulative": 2415.0415215373505,
+  "evaluator_seconds_increment": 86.39409337495454,
+  "event": "proposal_completed",
+  "evicted_candidate_id": null,
+  "evidence": "The cosine-curriculum model remains best at 9,239 correct, while architecture, head, loss, and augmentation changes failed to improve it; per-step EMA timed out, so substantially reducing update frequency and kernel dispatch isolates its still-unresolved optimization benefit.",
+  "hypothesis": "A foreach-fused 0.99-decay EMA sampled every 32 steps will exceed 9,239 correct predictions by suppressing endpoint noise without the runtime overhead that caused per-step EMA to time out.",
+  "incumbent_after": "ec71b27e1efc2db2830416f8d1f193e18261a08b77519a8423550d8212d8d6ae",
+  "intended_edit": "Maintain a fused parameter EMA at 32-step intervals, account for elapsed steps in its decay, and install the averaged parameters after the final optimizer step.",
+  "mechanism": "Fused coarse-checkpoint parameter EMA",
+  "opportunity": 46,
+  "parent_ids": [
+    "ec71b27e1efc2db2830416f8d1f193e18261a08b77519a8423550d8212d8d6ae"
+  ],
+  "portfolio_after": [
+    "ec71b27e1efc2db2830416f8d1f193e18261a08b77519a8423550d8212d8d6ae"
+  ],
+  "prompt_hashes": {
+    "common_template_sha256": "e8327ba94bab12abc7c7ec7c6615378a3ae62434efb944d4a7d9492f1d19bc14",
+    "prompt_sha256": "b588c8a48b403bb9ef37b0e750f5724126f6051a4c29b65422aefa0203f4c7fc",
+    "proposal_policy_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "search_state_sha256": "04e5eb078ae1964e4ec65bfeeeb1acd0ffa246e7d54d5e0f997f81f602da28c5",
+    "treatment_skeleton_sha256": "9efca30a999bd531c75caf3a7abbfb8e4880ef126f36c0f150c5291b18d02b1a"
+  },
+  "proposal_type": "ordinary",
+  "proposals_cumulative": 46,
+  "remaining_budget": {
+    "evaluations": 154,
+    "evaluator_seconds": 21584.95847846265,
+    "proposals": 154,
+    "tokens": 99035899
+  },
+  "retained": false,
+  "retention_decision": "not_strictly_better_than_incumbent",
+  "run_id": "fashion-mnist-openevolve-v2-1-mps-fashion_mnist_source_only_mps-openevolve-b01-c1",
+  "schema_version": "1.0",
+  "selected_parent_ids": [
+    "ec71b27e1efc2db2830416f8d1f193e18261a08b77519a8423550d8212d8d6ae"
+  ],
+  "timestamp": "2026-08-24T06:05:24.213284+00:00",
+  "usage_cumulative": {
+    "cached_input_tokens": 482048,
+    "input_tokens": 849375,
+    "output_tokens": 114726,
+    "reasoning_output_tokens": 91014,
+    "total_tokens": 964101
+  },
+  "usage_increment": {
+    "cached_input_tokens": 12032,
+    "input_tokens": 18935,
+    "output_tokens": 6344,
+    "reasoning_output_tokens": 5921,
+    "total_tokens": 25279
+  },
+  "visible_candidate_ids": [
+    "ec71b27e1efc2db2830416f8d1f193e18261a08b77519a8423550d8212d8d6ae"
+  ]
+}

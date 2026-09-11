@@ -1,0 +1,82 @@
+{
+  "artifact_path": "candidates/8d92b95b9dda7a6211d93767ddc2b220e73ef7cfa2adbdd28e471141f816bee6",
+  "candidate_id": "8d92b95b9dda7a6211d93767ddc2b220e73ef7cfa2adbdd28e471141f816bee6",
+  "codex_service_tier": "default",
+  "condition": "C1",
+  "conversation_session_id": null,
+  "evaluation": {
+    "evaluator_calls": 1,
+    "evaluator_seconds": 374.59335484500116,
+    "failure_kind": null,
+    "fitness": -0.986236,
+    "metrics": {
+      "depth": 8.0,
+      "mfu_percent": 35.45,
+      "num_params_M": 50.3,
+      "num_steps": 2453.0,
+      "peak_vram_mb": 35959.7,
+      "total_tokens_M": 442.1,
+      "training_seconds": 300.1,
+      "val_bpb": 0.986236
+    },
+    "valid": true
+  },
+  "evaluator_calls_cumulative": 30,
+  "evaluator_calls_increment": 1,
+  "evaluator_seconds_cumulative": 11009.594502345,
+  "evaluator_seconds_increment": 374.59335484500116,
+  "event": "proposal_completed",
+  "evicted_candidate_id": null,
+  "evidence": "The direct current-token expert improved val_bpb from 0.995511 to 0.994364, showing that an explicit short-range path can help, while the ordered multiplicative trigram readout reached 0.987766 versus 0.987386 and did not improve. This suggests the limitation was injecting lexical context only at prediction time; the proposed mechanism instead lets delayed contextual states interact inside every layer\u2019s squared-ReLU computation.",
+  "hypothesis": "Zero-initialized, per-channel delay taps that mix hidden states from offsets 1, 2, and 4 into every block\u2019s nonlinear MLP will exploit short-range contextual structure more effectively than a readout-only lexical expert, lowering val_bpb below 0.984109 without materially reducing throughput.",
+  "incumbent_after": "aaf7ccb680662d608ae32d6b6350661a7e5cf95ccaa7377e112407c99287efd3",
+  "intended_edit": "Replace the assumption that non-current context must reach each position through softmax attention with a learned fixed-offset context path. Each block\u2019s MLP receives a normalized mixture of the current post-attention state and three delayed contextual states, with independent channel gates initialized to zero so training begins as the verified baseline.",
+  "mechanism": "Layerwise contextual delay-line MLP",
+  "opportunity": 30,
+  "parent_ids": [
+    "aaf7ccb680662d608ae32d6b6350661a7e5cf95ccaa7377e112407c99287efd3"
+  ],
+  "portfolio_after": [
+    "aaf7ccb680662d608ae32d6b6350661a7e5cf95ccaa7377e112407c99287efd3"
+  ],
+  "prompt_hashes": {
+    "common_template_sha256": "ba85b39aa7288f4f48475376da6cff65661f39cfeb7ac7cde15b2a9a2e692fde",
+    "prompt_sha256": "bc4a6b05bbebe7936af096baef634957ddb48ee49199132bc4b77befd0bd0262",
+    "proposal_policy_sha256": "cd7b9ba20a1cd1edd0663b5e3652baa9cd3c81925074103fe47e66c021d61a4a",
+    "search_state_sha256": "04e5eb078ae1964e4ec65bfeeeb1acd0ffa246e7d54d5e0f997f81f602da28c5",
+    "treatment_skeleton_sha256": "658d9e9d0663cdc6ea30c9e1c8b6d80aafa92522e5461b678d2d9c57c2f1c223"
+  },
+  "proposal_type": "assumption_changing",
+  "proposals_cumulative": 30,
+  "remaining_budget": {
+    "evaluations": 170,
+    "evaluator_seconds": 708990.405497655,
+    "proposals": 170,
+    "tokens": 99182912
+  },
+  "retained": false,
+  "retention_decision": "not_strictly_better_than_incumbent",
+  "run_id": "nanogpt-openevolve-v2-1-h100-karpathy_nanogpt_source_only_h100-openevolve-b02-c1",
+  "schema_version": "1.0",
+  "selected_parent_ids": [
+    "aaf7ccb680662d608ae32d6b6350661a7e5cf95ccaa7377e112407c99287efd3"
+  ],
+  "timestamp": "2026-08-24T06:19:47.377487+00:00",
+  "usage_cumulative": {
+    "cached_input_tokens": 319744,
+    "input_tokens": 730905,
+    "output_tokens": 86183,
+    "reasoning_output_tokens": 73795,
+    "total_tokens": 817088
+  },
+  "usage_increment": {
+    "cached_input_tokens": 6912,
+    "input_tokens": 25278,
+    "output_tokens": 6173,
+    "reasoning_output_tokens": 5021,
+    "total_tokens": 31451
+  },
+  "visible_candidate_ids": [
+    "aaf7ccb680662d608ae32d6b6350661a7e5cf95ccaa7377e112407c99287efd3"
+  ]
+}

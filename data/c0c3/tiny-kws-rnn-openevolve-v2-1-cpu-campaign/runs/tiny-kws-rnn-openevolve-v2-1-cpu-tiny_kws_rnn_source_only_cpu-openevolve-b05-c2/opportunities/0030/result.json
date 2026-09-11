@@ -1,0 +1,105 @@
+{
+  "artifact_path": "candidates/0bd13b2fc062c9cdb3d723bf219c392276bf63cd1d09e3cfeadde7583aeed1d0",
+  "candidate_id": "0bd13b2fc062c9cdb3d723bf219c392276bf63cd1d09e3cfeadde7583aeed1d0",
+  "codex_service_tier": "default",
+  "condition": "C2",
+  "conversation_session_id": null,
+  "evaluation": {
+    "evaluator_calls": 1,
+    "evaluator_seconds": 64.82141116587445,
+    "failure_kind": null,
+    "fitness": -2202715128035029648,
+    "metrics": {
+      "batch_size": 128,
+      "evaluation_cases": 815,
+      "evaluation_split": "public_speaker_disjoint_validation",
+      "examples_processed": 50000,
+      "inference_cost": 2202715128035029648,
+      "maximum_recurrent_steps": 32,
+      "mean_recurrent_steps": 32.0,
+      "median_recurrent_steps": 32,
+      "optimizer_steps": 397,
+      "p95_recurrent_steps": 32,
+      "parameters": 18608,
+      "peak_hidden_elements": 131584,
+      "recurrent_logit_effect": 0.08199263364076614,
+      "recurrent_macs": 420618240,
+      "recurrent_steps": 26080,
+      "state_dependence_effect": 0.26646968722343445,
+      "state_update_effect": 0.2772471606731415,
+      "total_inference_macs": 422287360,
+      "trained_recurrent_logit_effect": 0.4274147152900696,
+      "trained_state_dependence_effect": 0.29991549253463745,
+      "trained_state_update_effect": 0.300925612449646,
+      "training_seconds": 46.185714167077094,
+      "validation_accuracy": 0.8662576687116564,
+      "validation_correct": 706,
+      "validation_cross_entropy": 0.40811364109530773
+    },
+    "valid": true
+  },
+  "evaluator_calls_cumulative": 30,
+  "evaluator_calls_increment": 1,
+  "evaluator_seconds_cumulative": 3175.4659995003603,
+  "evaluator_seconds_increment": 64.82141116587445,
+  "event": "proposal_completed",
+  "evicted_candidate_id": "51e9641e54df71764d7a062c09e55cd2642b8aca75a67130382c598db75496c5",
+  "evidence": "The 65-unit signed-extrema design achieved 85.77% accuracy at 433,971,200 MACs, whereas the 65-unit triple-readout design failed; this isolates minimum pooling as useful at the width boundary and motivates testing the adjacent 64-unit signed-extrema model.",
+  "hypothesis": "A 64-unit full-resolution GRU using mean, final, maximum, and minimum summaries will retain at least 85% validation accuracy while reducing total inference MACs by approximately 2.69% versus the qualified 65-unit design.",
+  "incumbent_after": "0bd13b2fc062c9cdb3d723bf219c392276bf63cd1d09e3cfeadde7583aeed1d0",
+  "intended_edit": "Reduce the recurrent width from 67 to 64, add temporal-minimum tracking, and resize the classifier to consume four 64-unit summaries while preserving all 32 causal steps and the established training procedure.",
+  "mechanism": "Adjacent-width GRU pruning with signed temporal-extrema readout",
+  "opportunity": 30,
+  "parent_ids": [
+    "51e9641e54df71764d7a062c09e55cd2642b8aca75a67130382c598db75496c5"
+  ],
+  "portfolio_after": [
+    "0bd13b2fc062c9cdb3d723bf219c392276bf63cd1d09e3cfeadde7583aeed1d0",
+    "b8cfe7582eba4b8b3421d54069294115fa2c331bb4bdef372449259a95d540b9",
+    "a2847927323e28c38e7419d18f53dd3be0880a7db0c807d0b8fd787d9365211d",
+    "68cb446402c5cb84b33e5bf197931c3c995f264e8456f994dd5828dd035965ba"
+  ],
+  "prompt_hashes": {
+    "common_template_sha256": "dee04faf4c430276c1036ba97f5705a339857dbdf19117dac88952a5a3a47e9d",
+    "prompt_sha256": "24ac788b10c34640d11e24eb3d5dfc37aa5221083b2117395c4d99e71c0f5f60",
+    "proposal_policy_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "search_state_sha256": "c938ac007bf70fe8d27f64661175531e51fcb16b38318c328493c32ee292e27e",
+    "treatment_skeleton_sha256": "022d0ee32fad49242b0c3f9def5781b638fbce0d2e1b93a9ced548071bcede8d"
+  },
+  "proposal_type": "ordinary",
+  "proposals_cumulative": 30,
+  "remaining_budget": {
+    "evaluations": 170,
+    "evaluator_seconds": 56824.53400049964,
+    "proposals": 170,
+    "tokens": 99276142
+  },
+  "retained": true,
+  "retention_decision": "replaced_selected_parent_on_strict_improvement",
+  "run_id": "tiny-kws-rnn-openevolve-v2-1-cpu-tiny_kws_rnn_source_only_cpu-openevolve-b05-c2",
+  "schema_version": "1.0",
+  "selected_parent_ids": [
+    "51e9641e54df71764d7a062c09e55cd2642b8aca75a67130382c598db75496c5"
+  ],
+  "timestamp": "2026-09-04T04:04:12.713319+00:00",
+  "usage_cumulative": {
+    "cached_input_tokens": 329984,
+    "input_tokens": 683130,
+    "output_tokens": 40728,
+    "reasoning_output_tokens": 24062,
+    "total_tokens": 723858
+  },
+  "usage_increment": {
+    "cached_input_tokens": 10752,
+    "input_tokens": 24380,
+    "output_tokens": 2265,
+    "reasoning_output_tokens": 791,
+    "total_tokens": 26645
+  },
+  "visible_candidate_ids": [
+    "51e9641e54df71764d7a062c09e55cd2642b8aca75a67130382c598db75496c5",
+    "b8cfe7582eba4b8b3421d54069294115fa2c331bb4bdef372449259a95d540b9",
+    "a2847927323e28c38e7419d18f53dd3be0880a7db0c807d0b8fd787d9365211d",
+    "68cb446402c5cb84b33e5bf197931c3c995f264e8456f994dd5828dd035965ba"
+  ]
+}

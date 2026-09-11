@@ -1,0 +1,79 @@
+{
+  "artifact_path": "candidates/b174e7b0b580c126571bddb1ae2ce52d8ccb40217d37068f59ee757a1dd3679b",
+  "candidate_id": "b174e7b0b580c126571bddb1ae2ce52d8ccb40217d37068f59ee757a1dd3679b",
+  "codex_service_tier": "default",
+  "condition": "C0",
+  "conversation_session_id": null,
+  "evaluation": {
+    "evaluator_calls": 1,
+    "evaluator_seconds": 350.00603733281605,
+    "failure_kind": "nonqualification",
+    "fitness": null,
+    "metrics": {
+      "accuracy": 0.6990999999999999,
+      "cases": 10010,
+      "correct": 6998,
+      "parameters": 1575,
+      "training_steps": 4999
+    },
+    "valid": false
+  },
+  "evaluator_calls_cumulative": 113,
+  "evaluator_calls_increment": 1,
+  "evaluator_seconds_cumulative": 47828.36421687831,
+  "evaluator_seconds_increment": 350.00603733281605,
+  "event": "proposal_completed",
+  "evicted_candidate_id": null,
+  "evidence": "The previous fixed-coordinate key-row reduction reached only 53.22% and relied on `ln1` outputs being zero-mean at initialization; learned unequal scales invalidate that premise. The current 1,576-parameter model reaches 99.92%, so correcting that specific gauge mismatch is an informative one-parameter reduction.",
+  "hypothesis": "Removing one key-projection parameter with a gauge that tracks the learned `ln1` scales will produce a 1,575-parameter model with at least 99% accuracy, because it preserves the key-shift invariance throughout training rather than only at initialization.",
+  "incumbent_after": "83a3865a90d0f7ad2b26be8430e854000ba2fb034b505aac58460109058ef401",
+  "intended_edit": "Compact the first key-projection row to seven coordinates, dynamically reconstruct its eighth coordinate orthogonal to the inverse LayerNorm scale, and initialize it from the same full 192-weight draw projected onto that gauge.",
+  "mechanism": "Scale-aware key-row gauge fixing",
+  "opportunity": 113,
+  "parent_ids": [
+    "83a3865a90d0f7ad2b26be8430e854000ba2fb034b505aac58460109058ef401"
+  ],
+  "portfolio_after": [
+    "83a3865a90d0f7ad2b26be8430e854000ba2fb034b505aac58460109058ef401"
+  ],
+  "prompt_hashes": {
+    "common_template_sha256": "3f2bea6418b6969c4bf2aa1df18dcda8a3a4ac075bf20c79068c754698b6be5e",
+    "prompt_sha256": "50d076314ca74773d316884c9ebf0900ecf8b06177565c9a06d4c1485dbc8c4f",
+    "proposal_policy_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "search_state_sha256": "04e5eb078ae1964e4ec65bfeeeb1acd0ffa246e7d54d5e0f997f81f602da28c5",
+    "treatment_skeleton_sha256": "39b3de64d0ec1d734df2a2b827665ece1fdf6a88dc2f78ee14fd7d407cb537a5"
+  },
+  "proposal_type": "ordinary",
+  "proposals_cumulative": 113,
+  "remaining_budget": {
+    "evaluations": 87,
+    "evaluator_seconds": 312171.6357831217,
+    "proposals": 87,
+    "tokens": 97055139
+  },
+  "retained": false,
+  "retention_decision": "invalid",
+  "run_id": "controlled-openevolve-transformer-v2-1-source-only-ten-digit-addition-pair-transformer-openevolve-v2-1-mps-openevolve-b02-c0",
+  "schema_version": "1.0",
+  "selected_parent_ids": [
+    "83a3865a90d0f7ad2b26be8430e854000ba2fb034b505aac58460109058ef401"
+  ],
+  "timestamp": "2026-09-03T11:48:41.959361+00:00",
+  "usage_cumulative": {
+    "cached_input_tokens": 1145600,
+    "input_tokens": 2624793,
+    "output_tokens": 320068,
+    "reasoning_output_tokens": 248948,
+    "total_tokens": 2944861
+  },
+  "usage_increment": {
+    "cached_input_tokens": 10752,
+    "input_tokens": 25110,
+    "output_tokens": 5686,
+    "reasoning_output_tokens": 4333,
+    "total_tokens": 30796
+  },
+  "visible_candidate_ids": [
+    "83a3865a90d0f7ad2b26be8430e854000ba2fb034b505aac58460109058ef401"
+  ]
+}

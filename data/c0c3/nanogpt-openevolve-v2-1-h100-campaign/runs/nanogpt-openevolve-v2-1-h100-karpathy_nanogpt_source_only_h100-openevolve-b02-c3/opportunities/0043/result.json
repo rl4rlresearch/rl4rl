@@ -1,0 +1,88 @@
+{
+  "artifact_path": "candidates/8b6445bd4fdf199d4ec902e3064286f697770e15cf3af9a251c252513a28fbfe",
+  "candidate_id": "8b6445bd4fdf199d4ec902e3064286f697770e15cf3af9a251c252513a28fbfe",
+  "codex_service_tier": "default",
+  "condition": "C3",
+  "conversation_session_id": null,
+  "evaluation": {
+    "evaluator_calls": 1,
+    "evaluator_seconds": 333.37111875800474,
+    "failure_kind": null,
+    "fitness": -0.984034,
+    "metrics": {
+      "depth": 8.0,
+      "mfu_percent": 36.5,
+      "num_params_M": 50.3,
+      "num_steps": 2513.0,
+      "peak_vram_mb": 33810.6,
+      "total_tokens_M": 494.1,
+      "training_seconds": 300.1,
+      "val_bpb": 0.984034
+    },
+    "valid": true
+  },
+  "evaluator_calls_cumulative": 43,
+  "evaluator_calls_increment": 1,
+  "evaluator_seconds_cumulative": 15408.95094221302,
+  "evaluator_seconds_increment": 333.37111875800474,
+  "event": "proposal_completed",
+  "evicted_candidate_id": "18b4ebcffa67416f5decbe2a50bb88ca93b314b431342f30c3b988e9dc47747c",
+  "evidence": "The 229,376-token batch achieved 0.984024, while 196,608 tokens achieved a close 0.985044 and 493.9M tokens using unchanged learning rates but 16% more updates; scaling rates by 6/7 isolates whether excessive cumulative update magnitude caused that regression.",
+  "hypothesis": "A 196,608-token batch with all peak learning rates scaled by 6/7 will process at least 490M tokens and reduce val_bpb below 0.984024 by preserving the best run\u2019s cumulative optimizer displacement while benefiting from more frequent, less correlated updates.",
+  "incumbent_after": "3d31108dd2560dedb2a9f4b45d8fcf99a1db29716ee5ceaadc6e961435956f26",
+  "intended_edit": "Restore four 128-dimensional heads, use a 96-sequence single microbatch, and scale every optimizer-group learning rate by the 196,608/229,376 batch ratio.",
+  "mechanism": "Token-normalized smaller-batch learning rates",
+  "opportunity": 43,
+  "parent_ids": [
+    "18b4ebcffa67416f5decbe2a50bb88ca93b314b431342f30c3b988e9dc47747c"
+  ],
+  "portfolio_after": [
+    "8b6445bd4fdf199d4ec902e3064286f697770e15cf3af9a251c252513a28fbfe",
+    "026879a46f507b71b1aa8d8204b1dd56b35e3793037b20f533e2faa713ff3081",
+    "3d31108dd2560dedb2a9f4b45d8fcf99a1db29716ee5ceaadc6e961435956f26",
+    "df068d3bd8ab55e48b64c8e80ba9b8bd5ac4080491f549c49f0ac823a2def330"
+  ],
+  "prompt_hashes": {
+    "common_template_sha256": "ba85b39aa7288f4f48475376da6cff65661f39cfeb7ac7cde15b2a9a2e692fde",
+    "prompt_sha256": "e105590d8ac6358d7a24a84fdf3a0e72e0d98e1b7e956e126f4b0d74ca00d773",
+    "proposal_policy_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "search_state_sha256": "c938ac007bf70fe8d27f64661175531e51fcb16b38318c328493c32ee292e27e",
+    "treatment_skeleton_sha256": "a9844cca08b509a5a130ea758afd3e582138604f861d09f3b7487efb90021b73"
+  },
+  "proposal_type": "ordinary",
+  "proposals_cumulative": 43,
+  "remaining_budget": {
+    "evaluations": 157,
+    "evaluator_seconds": 704591.0490577869,
+    "proposals": 157,
+    "tokens": 97922730
+  },
+  "retained": true,
+  "retention_decision": "replaced_selected_parent_on_strict_improvement",
+  "run_id": "nanogpt-openevolve-v2-1-h100-karpathy_nanogpt_source_only_h100-openevolve-b02-c3",
+  "schema_version": "1.0",
+  "selected_parent_ids": [
+    "18b4ebcffa67416f5decbe2a50bb88ca93b314b431342f30c3b988e9dc47747c"
+  ],
+  "timestamp": "2026-08-24T07:13:26.265040+00:00",
+  "usage_cumulative": {
+    "cached_input_tokens": 491008,
+    "input_tokens": 1971161,
+    "output_tokens": 106109,
+    "reasoning_output_tokens": 88044,
+    "total_tokens": 2077270
+  },
+  "usage_increment": {
+    "cached_input_tokens": 12032,
+    "input_tokens": 47471,
+    "output_tokens": 4965,
+    "reasoning_output_tokens": 4142,
+    "total_tokens": 52436
+  },
+  "visible_candidate_ids": [
+    "18b4ebcffa67416f5decbe2a50bb88ca93b314b431342f30c3b988e9dc47747c",
+    "026879a46f507b71b1aa8d8204b1dd56b35e3793037b20f533e2faa713ff3081",
+    "3d31108dd2560dedb2a9f4b45d8fcf99a1db29716ee5ceaadc6e961435956f26",
+    "df068d3bd8ab55e48b64c8e80ba9b8bd5ac4080491f549c49f0ac823a2def330"
+  ]
+}

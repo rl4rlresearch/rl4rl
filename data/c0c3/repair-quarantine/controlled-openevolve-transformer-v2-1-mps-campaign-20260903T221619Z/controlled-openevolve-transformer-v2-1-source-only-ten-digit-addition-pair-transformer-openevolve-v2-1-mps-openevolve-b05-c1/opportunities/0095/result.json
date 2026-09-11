@@ -1,0 +1,79 @@
+{
+  "artifact_path": "candidates/6c23f703a39fe17f61cab1dd21300a8fdf804376f00c20f8049a5eb835b40809",
+  "candidate_id": "6c23f703a39fe17f61cab1dd21300a8fdf804376f00c20f8049a5eb835b40809",
+  "codex_service_tier": "default",
+  "condition": "C1",
+  "conversation_session_id": null,
+  "evaluation": {
+    "evaluator_calls": 1,
+    "evaluator_seconds": 1156.5557960409205,
+    "failure_kind": "nonqualification",
+    "fitness": null,
+    "metrics": {
+      "accuracy": 0.2502,
+      "cases": 10010,
+      "correct": 2505,
+      "parameters": 1267,
+      "training_steps": 49999
+    },
+    "valid": false
+  },
+  "evaluator_calls_cumulative": 95,
+  "evaluator_calls_increment": 1,
+  "evaluator_seconds_cumulative": 104751.24074921024,
+  "evaluator_seconds_increment": 1156.5557960409205,
+  "event": "proposal_completed",
+  "evicted_candidate_id": null,
+  "evidence": "The first null-direction reuse achieved 100% accuracy at 1,268 parameters, so the same independent symmetry remains the strongest supported reduction. The analogous 1,267 design produced no accuracy result because training timed out, motivating an equivalent implementation with fewer redundant reductions.",
+  "hypothesis": "Reusing attention-output column 1\u2019s LayerNorm-invisible mean as final-LayerNorm scale coordinate 2 will reduce the model from 1,268 to 1,267 parameters while retaining at least 99% accuracy; batching both shared-scale reductions and eliminating a duplicate projection-bias reduction will allow the previously timed-out design to finish verification.",
+  "incumbent_after": "4f2c888111907114e780fa71c5867d98bd3d81eb95b42d5023e7e54a4cd82540",
+  "intended_edit": "Remove the second dedicated final-LayerNorm scale, derive the two learned scales from attention projection columns 0 and 1, initialize both column means to one, and reuse one computed projection-bias mean within each block.",
+  "mechanism": "Batched null-direction parameter reuse with fused bias reduction",
+  "opportunity": 95,
+  "parent_ids": [
+    "4f2c888111907114e780fa71c5867d98bd3d81eb95b42d5023e7e54a4cd82540"
+  ],
+  "portfolio_after": [
+    "4f2c888111907114e780fa71c5867d98bd3d81eb95b42d5023e7e54a4cd82540"
+  ],
+  "prompt_hashes": {
+    "common_template_sha256": "3f2bea6418b6969c4bf2aa1df18dcda8a3a4ac075bf20c79068c754698b6be5e",
+    "prompt_sha256": "0cfceb62427c9f35aaa7393c6f77a5b2dbff34715e26ff00fa07f8d952aa0bc0",
+    "proposal_policy_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "search_state_sha256": "04e5eb078ae1964e4ec65bfeeeb1acd0ffa246e7d54d5e0f997f81f602da28c5",
+    "treatment_skeleton_sha256": "faf79cdaef9ca57ff9ef468703b2074edf0fce0d9098582670100af427d429f1"
+  },
+  "proposal_type": "ordinary",
+  "proposals_cumulative": 95,
+  "remaining_budget": {
+    "evaluations": 105,
+    "evaluator_seconds": 255248.75925078976,
+    "proposals": 105,
+    "tokens": 97640717
+  },
+  "retained": false,
+  "retention_decision": "invalid",
+  "run_id": "controlled-openevolve-transformer-v2-1-source-only-ten-digit-addition-pair-transformer-openevolve-v2-1-mps-openevolve-b05-c1",
+  "schema_version": "1.0",
+  "selected_parent_ids": [
+    "4f2c888111907114e780fa71c5867d98bd3d81eb95b42d5023e7e54a4cd82540"
+  ],
+  "timestamp": "2026-09-03T21:21:34.483660+00:00",
+  "usage_cumulative": {
+    "cached_input_tokens": 1019904,
+    "input_tokens": 2029428,
+    "output_tokens": 329855,
+    "reasoning_output_tokens": 284046,
+    "total_tokens": 2359283
+  },
+  "usage_increment": {
+    "cached_input_tokens": 10752,
+    "input_tokens": 23044,
+    "output_tokens": 3321,
+    "reasoning_output_tokens": 2070,
+    "total_tokens": 26365
+  },
+  "visible_candidate_ids": [
+    "4f2c888111907114e780fa71c5867d98bd3d81eb95b42d5023e7e54a4cd82540"
+  ]
+}

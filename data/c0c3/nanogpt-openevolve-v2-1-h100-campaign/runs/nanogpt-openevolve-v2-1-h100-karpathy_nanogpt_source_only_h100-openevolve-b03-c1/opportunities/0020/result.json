@@ -1,0 +1,82 @@
+{
+  "artifact_path": "candidates/65824330db93dfbd6561404cd85964f1f91c9077be5141d1ef01de0ad0af60e7",
+  "candidate_id": "65824330db93dfbd6561404cd85964f1f91c9077be5141d1ef01de0ad0af60e7",
+  "codex_service_tier": "fast",
+  "condition": "C1",
+  "conversation_session_id": null,
+  "evaluation": {
+    "evaluator_calls": 1,
+    "evaluator_seconds": 369.3288865479999,
+    "failure_kind": null,
+    "fitness": -0.985574,
+    "metrics": {
+      "depth": 8.0,
+      "mfu_percent": 35.49,
+      "num_params_M": 50.3,
+      "num_steps": 2095.0,
+      "peak_vram_mb": 41166.9,
+      "total_tokens_M": 480.5,
+      "training_seconds": 300.1,
+      "val_bpb": 0.985574
+    },
+    "valid": true
+  },
+  "evaluator_calls_cumulative": 20,
+  "evaluator_calls_increment": 1,
+  "evaluator_seconds_cumulative": 11471.197532829021,
+  "evaluator_seconds_increment": 369.3288865479999,
+  "event": "proposal_completed",
+  "evicted_candidate_id": null,
+  "evidence": "Removing global mixing worsened val_bpb to 0.994122 despite processing more tokens, while batch and schedule refinements have produced only marginal gains; this motivates improving how retrieved context is incorporated rather than reducing attention or further tuning the training schedule.",
+  "hypothesis": "Applying a neutral-initialized, query-dependent scalar gate to each attention head will reduce val_bpb below 0.985492 by letting tokens selectively amplify or suppress retrieved context without sacrificing the proven local/global attention topology or meaningful throughput.",
+  "incumbent_after": "1a128e3833c4af580ef5f0b37ec6f952a49d73754aa52ed0a3c20d9f1c1d8b9a",
+  "intended_edit": "Challenge the assumption that every attention head\u2019s retrieved context should enter the residual stream at uniform strength: add a learned per-token head gate after FlashAttention, initialized so the model is functionally unchanged at startup.",
+  "mechanism": "Query-dependent attention-head gating",
+  "opportunity": 20,
+  "parent_ids": [
+    "1a128e3833c4af580ef5f0b37ec6f952a49d73754aa52ed0a3c20d9f1c1d8b9a"
+  ],
+  "portfolio_after": [
+    "1a128e3833c4af580ef5f0b37ec6f952a49d73754aa52ed0a3c20d9f1c1d8b9a"
+  ],
+  "prompt_hashes": {
+    "common_template_sha256": "ba85b39aa7288f4f48475376da6cff65661f39cfeb7ac7cde15b2a9a2e692fde",
+    "prompt_sha256": "4aab7917213fe025a7ab0483ee01c33b159b95086417b211b7c6db6d36352449",
+    "proposal_policy_sha256": "cd7b9ba20a1cd1edd0663b5e3652baa9cd3c81925074103fe47e66c021d61a4a",
+    "search_state_sha256": "04e5eb078ae1964e4ec65bfeeeb1acd0ffa246e7d54d5e0f997f81f602da28c5",
+    "treatment_skeleton_sha256": "11e68a67a5ffaadce2bd1babb96990e0e45788afb6b856522206f254feb5a7e5"
+  },
+  "proposal_type": "assumption_changing",
+  "proposals_cumulative": 20,
+  "remaining_budget": {
+    "evaluations": 180,
+    "evaluator_seconds": 708528.802467171,
+    "proposals": 180,
+    "tokens": 99480019
+  },
+  "retained": false,
+  "retention_decision": "not_strictly_better_than_incumbent",
+  "run_id": "nanogpt-openevolve-v2-1-h100-karpathy_nanogpt_source_only_h100-openevolve-b03-c1",
+  "schema_version": "1.0",
+  "selected_parent_ids": [
+    "1a128e3833c4af580ef5f0b37ec6f952a49d73754aa52ed0a3c20d9f1c1d8b9a"
+  ],
+  "timestamp": "2026-08-23T23:12:29.924225+00:00",
+  "usage_cumulative": {
+    "cached_input_tokens": 237824,
+    "input_tokens": 476007,
+    "output_tokens": 43974,
+    "reasoning_output_tokens": 38298,
+    "total_tokens": 519981
+  },
+  "usage_increment": {
+    "cached_input_tokens": 12032,
+    "input_tokens": 24772,
+    "output_tokens": 4728,
+    "reasoning_output_tokens": 4136,
+    "total_tokens": 29500
+  },
+  "visible_candidate_ids": [
+    "1a128e3833c4af580ef5f0b37ec6f952a49d73754aa52ed0a3c20d9f1c1d8b9a"
+  ]
+}

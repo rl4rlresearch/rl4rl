@@ -1,0 +1,105 @@
+{
+  "artifact_path": "candidates/5d4158e7a025b59a77f0068e0f175bde128017fb83d7ba5dacc20a243be3cb8c",
+  "candidate_id": "5d4158e7a025b59a77f0068e0f175bde128017fb83d7ba5dacc20a243be3cb8c",
+  "codex_service_tier": "default",
+  "condition": "C3",
+  "conversation_session_id": null,
+  "evaluation": {
+    "evaluator_calls": 1,
+    "evaluator_seconds": 212.25948954210617,
+    "failure_kind": null,
+    "fitness": -4840749447232461924,
+    "metrics": {
+      "batch_size": 128,
+      "evaluation_cases": 815,
+      "evaluation_split": "public_speaker_disjoint_validation",
+      "examples_processed": 50000,
+      "inference_cost": 4840749447232461924,
+      "maximum_recurrent_steps": 20,
+      "mean_recurrent_steps": 20.0,
+      "median_recurrent_steps": 20,
+      "optimizer_steps": 397,
+      "p95_recurrent_steps": 20,
+      "parameters": 59704,
+      "peak_hidden_elements": 131584,
+      "recurrent_logit_effect": 0.057060398161411285,
+      "recurrent_macs": 926361600,
+      "recurrent_steps": 16300,
+      "state_dependence_effect": 0.39357790350914,
+      "state_update_effect": 0.3941539227962494,
+      "total_inference_macs": 928030720,
+      "trained_recurrent_logit_effect": 0.5352967381477356,
+      "trained_state_dependence_effect": 0.4393596947193146,
+      "trained_state_update_effect": 0.4224254786968231,
+      "training_seconds": 171.0220195830334,
+      "validation_accuracy": 0.8588957055214724,
+      "validation_correct": 700,
+      "validation_cross_entropy": 0.4255875101850077
+    },
+    "valid": true
+  },
+  "evaluator_calls_cumulative": 10,
+  "evaluator_calls_increment": 1,
+  "evaluator_seconds_cumulative": 1310.1721254610457,
+  "evaluator_seconds_increment": 212.25948954210617,
+  "event": "proposal_completed",
+  "evicted_candidate_id": "c60dda914501c8063d11b6ea3ecde613fea03dbd129dcabb964ca59987a3cc8c",
+  "evidence": "The 20-step mean-only model reached 84.66%, just three validation examples below qualification. Unlike repeating temporal or width boundary searches, the endpoint head directly addresses the shared equal-averaging bottleneck while preserving the original predictor at initialization and adding only 834,560 validation MACs.",
+  "hypothesis": "A 128-unit GRU processing 20 uniform frames with a learned terminal-state residual head will achieve at least 85% accuracy while keeping total inference MACs below 0.93 billion.",
+  "incumbent_after": "5d4158e7a025b59a77f0068e0f175bde128017fb83d7ba5dacc20a243be3cb8c",
+  "intended_edit": "Replace the assumption that uniformly averaging recurrent outputs is sufficient with a dual-timescale prediction: retain the proven mean summary and add a zero-initialized classifier head over the terminal hidden state, which preserves ordered whole-utterance context without adding recurrent MACs.",
+  "mechanism": "Residual endpoint-aware temporal readout",
+  "opportunity": 10,
+  "parent_ids": [
+    "c60dda914501c8063d11b6ea3ecde613fea03dbd129dcabb964ca59987a3cc8c"
+  ],
+  "portfolio_after": [
+    "016d906da09d1fe9115b3d48dd009dea2faccbbb35792057b39773f1cdb8582b",
+    "497f437b4acea755000f5631415f1c963f25971555d43a9fc890d4c88c100aef",
+    "2fcab7ae9b12bcb3cae5fb0ac4edd344a24aa02b12096b9d7df13792bc6d39c0",
+    "5d4158e7a025b59a77f0068e0f175bde128017fb83d7ba5dacc20a243be3cb8c"
+  ],
+  "prompt_hashes": {
+    "common_template_sha256": "dee04faf4c430276c1036ba97f5705a339857dbdf19117dac88952a5a3a47e9d",
+    "prompt_sha256": "c6daec60408228ebe73845ac0a26949e4d169608ac41c7f7a2ee6ec09082ab44",
+    "proposal_policy_sha256": "f3e935f1a3cb6334e7f39b20b1b6b601cd727de9c5f0c3630206a91f08e358c9",
+    "search_state_sha256": "c938ac007bf70fe8d27f64661175531e51fcb16b38318c328493c32ee292e27e",
+    "treatment_skeleton_sha256": "f016c37b5448170df46e8814a96a1eb789ec56fae609bb17f07d9342159cac1c"
+  },
+  "proposal_type": "assumption_changing",
+  "proposals_cumulative": 10,
+  "remaining_budget": {
+    "evaluations": 190,
+    "evaluator_seconds": 58689.827874538954,
+    "proposals": 190,
+    "tokens": 99775940
+  },
+  "retained": true,
+  "retention_decision": "replaced_selected_parent_on_strict_improvement",
+  "run_id": "tiny-kws-rnn-openevolve-v2-1-cpu-tiny_kws_rnn_source_only_cpu-openevolve-b05-c3",
+  "schema_version": "1.0",
+  "selected_parent_ids": [
+    "c60dda914501c8063d11b6ea3ecde613fea03dbd129dcabb964ca59987a3cc8c"
+  ],
+  "timestamp": "2026-09-04T03:10:28.242409+00:00",
+  "usage_cumulative": {
+    "cached_input_tokens": 107520,
+    "input_tokens": 192992,
+    "output_tokens": 31068,
+    "reasoning_output_tokens": 27906,
+    "total_tokens": 224060
+  },
+  "usage_increment": {
+    "cached_input_tokens": 10752,
+    "input_tokens": 22681,
+    "output_tokens": 8792,
+    "reasoning_output_tokens": 8211,
+    "total_tokens": 31473
+  },
+  "visible_candidate_ids": [
+    "016d906da09d1fe9115b3d48dd009dea2faccbbb35792057b39773f1cdb8582b",
+    "497f437b4acea755000f5631415f1c963f25971555d43a9fc890d4c88c100aef",
+    "2fcab7ae9b12bcb3cae5fb0ac4edd344a24aa02b12096b9d7df13792bc6d39c0",
+    "c60dda914501c8063d11b6ea3ecde613fea03dbd129dcabb964ca59987a3cc8c"
+  ]
+}

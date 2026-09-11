@@ -1,0 +1,82 @@
+{
+  "artifact_path": "candidates/c0b45196a7bf3b21523adfc23202460d8de364eec2b92200ff5c676fdfd04762",
+  "candidate_id": "c0b45196a7bf3b21523adfc23202460d8de364eec2b92200ff5c676fdfd04762",
+  "codex_service_tier": "default",
+  "condition": "C0",
+  "conversation_session_id": null,
+  "evaluation": {
+    "evaluator_calls": 1,
+    "evaluator_seconds": 366.64639752800576,
+    "failure_kind": null,
+    "fitness": -0.98419,
+    "metrics": {
+      "depth": 8.0,
+      "mfu_percent": 36.75,
+      "num_params_M": 50.3,
+      "num_steps": 1900.0,
+      "peak_vram_mb": 44908.2,
+      "total_tokens_M": 498.1,
+      "training_seconds": 300.1,
+      "val_bpb": 0.98419
+    },
+    "valid": true
+  },
+  "evaluator_calls_cumulative": 49,
+  "evaluator_calls_increment": 1,
+  "evaluator_seconds_cumulative": 17999.07631188398,
+  "evaluator_seconds_increment": 366.64639752800576,
+  "event": "proposal_completed",
+  "evicted_candidate_id": null,
+  "evidence": "Expanding layer 6 from 512 to 1024 improved val_bpb from 0.984313 to 0.984059 despite reducing training tokens from 506.2M to 500.2M, while adding 1024-token attention at layer 2 regressed to 0.984559. This motivates reallocating attention compute toward layer 6 rather than distributing it across adjacent layers.",
+  "hypothesis": "Narrowing layers 5 and 7 to 256-token attention while retaining 1024 tokens at layer 6 will beat 0.984059 val_bpb by recovering throughput without removing the context expansion proven most useful at layer 6.",
+  "incumbent_after": "c537d035fb2713f584eb26b5a1a1da3b8e5a8a6d04e1ed3ff940d703b1a5b1db",
+  "intended_edit": "Add a 256-token narrow-window symbol and apply it at layers 5 and 7; preserve full attention at layers 4 and 8, 1024-token attention at layer 6, and 512-token attention at layers 1\u20133.",
+  "mechanism": "Concentrated mid-stack attention reallocation",
+  "opportunity": 49,
+  "parent_ids": [
+    "c537d035fb2713f584eb26b5a1a1da3b8e5a8a6d04e1ed3ff940d703b1a5b1db"
+  ],
+  "portfolio_after": [
+    "c537d035fb2713f584eb26b5a1a1da3b8e5a8a6d04e1ed3ff940d703b1a5b1db"
+  ],
+  "prompt_hashes": {
+    "common_template_sha256": "ba85b39aa7288f4f48475376da6cff65661f39cfeb7ac7cde15b2a9a2e692fde",
+    "prompt_sha256": "c414dc997a4c29142e83ff470c2eb73bce3950bd9f522187437c6afc0d405491",
+    "proposal_policy_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "search_state_sha256": "04e5eb078ae1964e4ec65bfeeeb1acd0ffa246e7d54d5e0f997f81f602da28c5",
+    "treatment_skeleton_sha256": "cc5e322e94ca59a398439716c61d9ebd33d308c6a71e2873b1e63d57f87c8c6c"
+  },
+  "proposal_type": "ordinary",
+  "proposals_cumulative": 49,
+  "remaining_budget": {
+    "evaluations": 151,
+    "evaluator_seconds": 702000.923688116,
+    "proposals": 151,
+    "tokens": 98711113
+  },
+  "retained": false,
+  "retention_decision": "not_strictly_better_than_incumbent",
+  "run_id": "nanogpt-openevolve-v2-1-h100-karpathy_nanogpt_source_only_h100-openevolve-b01-c0",
+  "schema_version": "1.0",
+  "selected_parent_ids": [
+    "c537d035fb2713f584eb26b5a1a1da3b8e5a8a6d04e1ed3ff940d703b1a5b1db"
+  ],
+  "timestamp": "2026-08-24T12:13:56.679688+00:00",
+  "usage_cumulative": {
+    "cached_input_tokens": 558848,
+    "input_tokens": 1195099,
+    "output_tokens": 93788,
+    "reasoning_output_tokens": 81587,
+    "total_tokens": 1288887
+  },
+  "usage_increment": {
+    "cached_input_tokens": 12032,
+    "input_tokens": 24996,
+    "output_tokens": 6116,
+    "reasoning_output_tokens": 5633,
+    "total_tokens": 31112
+  },
+  "visible_candidate_ids": [
+    "c537d035fb2713f584eb26b5a1a1da3b8e5a8a6d04e1ed3ff940d703b1a5b1db"
+  ]
+}

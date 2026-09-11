@@ -1,0 +1,85 @@
+{
+  "artifact_path": "candidates/cf05cf527f9b29545af0b7f83c0a108857fb024c837eec3ec6ca702932274c83",
+  "candidate_id": "cf05cf527f9b29545af0b7f83c0a108857fb024c837eec3ec6ca702932274c83",
+  "codex_service_tier": "default",
+  "condition": "C2",
+  "conversation_session_id": null,
+  "evaluation": {
+    "evaluator_calls": 1,
+    "evaluator_seconds": 895.7840530828107,
+    "failure_kind": "nonqualification",
+    "fitness": null,
+    "metrics": {
+      "accuracy": 0.9887,
+      "cases": 10010,
+      "correct": 9897,
+      "parameters": 1612,
+      "training_steps": 4999
+    },
+    "valid": false
+  },
+  "evaluator_calls_cumulative": 25,
+  "evaluator_calls_increment": 1,
+  "evaluator_seconds_cumulative": 9746.90856404102,
+  "evaluator_seconds_increment": 895.7840530828107,
+  "event": "proposal_completed",
+  "evicted_candidate_id": null,
+  "evidence": "The current bias-free-attention design achieved 99.84% accuracy at 1,613 parameters while already using a successful common-mode quotient for `fc2.bias`; applying that same exact residual-stream symmetry to `attn.proj.bias` is a distinct one-parameter reduction that avoids the positional, LayerNorm, and embedding reductions that previously failed.",
+  "hypothesis": "Constraining the attention output-projection bias to the seven-dimensional zero-sum subspace will reduce the verified 1,613-parameter model to 1,612 parameters while retaining at least 99% accuracy, because its omitted uniform component passes unchanged through both residual additions and is canceled exactly by the downstream LayerNorms.",
+  "incumbent_after": "56556004ce5e1bfca74c697b68ac0cf2e94004ee31927f5d74d51d39a1aad7e3",
+  "intended_edit": "Store the attention output-projection bias in the same orthonormal zero-sum basis used for the verified terminal MLP bias quotient, reconstruct it in the forward pass, and preserve virtual eight-coordinate AdamW moments during training.",
+  "mechanism": "Attention-output common-mode gauge fixing",
+  "opportunity": 25,
+  "parent_ids": [
+    "56556004ce5e1bfca74c697b68ac0cf2e94004ee31927f5d74d51d39a1aad7e3"
+  ],
+  "portfolio_after": [
+    "2b9cea175ed60b009337ac54f6e8ad23bf2c014eb4080237777bfb70bfd9fd5b",
+    "56556004ce5e1bfca74c697b68ac0cf2e94004ee31927f5d74d51d39a1aad7e3",
+    "7e092aae48439a081c92528fbc85f6580ce350808619f2e80436fc10c4d76f76",
+    "aa011b96e4af8de4be63a50985f2c698878b814b3e2bfd243cc5943394255ca5"
+  ],
+  "prompt_hashes": {
+    "common_template_sha256": "3f2bea6418b6969c4bf2aa1df18dcda8a3a4ac075bf20c79068c754698b6be5e",
+    "prompt_sha256": "7b84d0e59a2a828f29c16675cf8bbb2f05ca1b1f44c26a851f8b3e99aa5838ad",
+    "proposal_policy_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "search_state_sha256": "c938ac007bf70fe8d27f64661175531e51fcb16b38318c328493c32ee292e27e",
+    "treatment_skeleton_sha256": "bbcf090bf93e1a2d80c380638029680e905795c1cb7b8d91d9e546d19e36ffdb"
+  },
+  "proposal_type": "ordinary",
+  "proposals_cumulative": 25,
+  "remaining_budget": {
+    "evaluations": 175,
+    "evaluator_seconds": 350253.091435959,
+    "proposals": 175,
+    "tokens": 99127089
+  },
+  "retained": false,
+  "retention_decision": "invalid",
+  "run_id": "controlled-openevolve-transformer-v2-1-source-only-ten-digit-addition-pair-transformer-openevolve-v2-1-mps-openevolve-b04-c2",
+  "schema_version": "1.0",
+  "selected_parent_ids": [
+    "56556004ce5e1bfca74c697b68ac0cf2e94004ee31927f5d74d51d39a1aad7e3"
+  ],
+  "timestamp": "2026-09-04T01:00:48.643679+00:00",
+  "usage_cumulative": {
+    "cached_input_tokens": 294912,
+    "input_tokens": 760722,
+    "output_tokens": 112189,
+    "reasoning_output_tokens": 84141,
+    "total_tokens": 872911
+  },
+  "usage_increment": {
+    "cached_input_tokens": 10752,
+    "input_tokens": 38008,
+    "output_tokens": 3069,
+    "reasoning_output_tokens": 2070,
+    "total_tokens": 41077
+  },
+  "visible_candidate_ids": [
+    "2b9cea175ed60b009337ac54f6e8ad23bf2c014eb4080237777bfb70bfd9fd5b",
+    "56556004ce5e1bfca74c697b68ac0cf2e94004ee31927f5d74d51d39a1aad7e3",
+    "7e092aae48439a081c92528fbc85f6580ce350808619f2e80436fc10c4d76f76",
+    "aa011b96e4af8de4be63a50985f2c698878b814b3e2bfd243cc5943394255ca5"
+  ]
+}

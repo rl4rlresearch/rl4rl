@@ -1,0 +1,88 @@
+{
+  "artifact_path": "candidates/59ab778813f4c2b498d1b067494630c0cefa7cfabb91c412f1a94a0d688c49f5",
+  "candidate_id": "59ab778813f4c2b498d1b067494630c0cefa7cfabb91c412f1a94a0d688c49f5",
+  "codex_service_tier": "fast",
+  "condition": "C2",
+  "conversation_session_id": null,
+  "evaluation": {
+    "evaluator_calls": 1,
+    "evaluator_seconds": 358.67730308,
+    "failure_kind": null,
+    "fitness": -0.992854,
+    "metrics": {
+      "depth": 8.0,
+      "mfu_percent": 34.99,
+      "num_params_M": 50.3,
+      "num_steps": 1002.0,
+      "peak_vram_mb": 45060.2,
+      "total_tokens_M": 525.3,
+      "training_seconds": 300.1,
+      "val_bpb": 0.992854
+    },
+    "valid": true
+  },
+  "evaluator_calls_cumulative": 20,
+  "evaluator_calls_increment": 1,
+  "evaluator_seconds_cumulative": 7809.576497569997,
+  "evaluator_seconds_increment": 358.67730308,
+  "event": "proposal_completed",
+  "evicted_candidate_id": "751f6421ee699b4c6ae86e4cb2e4fb251857399c2f9b5720235c590a65eaf50a",
+  "evidence": "Moving from seven 512-token local layers to seven 384-token local layers improved val_bpb from 0.993870 to 0.993518 at comparable throughput, while removing the final global anchor worsened val_bpb to 1.001821; this motivates continuing the locality sweep while preserving that anchor.",
+  "hypothesis": "Seven 256-token local-attention layers followed by one full-context layer will process at least 516.9M tokens and lower val_bpb below 0.993518.",
+  "incumbent_after": "59ab778813f4c2b498d1b067494630c0cefa7cfabb91c412f1a94a0d688c49f5",
+  "intended_edit": "Restore the proven 524K-token batch, use a single forced final full-context anchor, and reduce all preceding local windows from 1024 to 256 tokens.",
+  "mechanism": "Eighth-context local attention with a final global anchor",
+  "opportunity": 20,
+  "parent_ids": [
+    "751f6421ee699b4c6ae86e4cb2e4fb251857399c2f9b5720235c590a65eaf50a"
+  ],
+  "portfolio_after": [
+    "1672d8d0ee8e902a0619c466ac0540fb8f43ea901642548fe1761c29190ab6cf",
+    "59ab778813f4c2b498d1b067494630c0cefa7cfabb91c412f1a94a0d688c49f5",
+    "e851f3f277cd5f216a6438df48eb17a425d2354d52becdf00dc0225d90cbbb90",
+    "8398f6a44da02110e69923d6ad536cb18c5d86e2a95bc65979fedb83351a4164"
+  ],
+  "prompt_hashes": {
+    "common_template_sha256": "ba85b39aa7288f4f48475376da6cff65661f39cfeb7ac7cde15b2a9a2e692fde",
+    "prompt_sha256": "854620f85f78abca3c693c793d333e63edbb553495b3c236e85330c31f7ceb7f",
+    "proposal_policy_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "search_state_sha256": "c938ac007bf70fe8d27f64661175531e51fcb16b38318c328493c32ee292e27e",
+    "treatment_skeleton_sha256": "27690963940b62df93dad18fbea9378afddc1550815b2a1d1c88da1cc7022425"
+  },
+  "proposal_type": "ordinary",
+  "proposals_cumulative": 20,
+  "remaining_budget": {
+    "evaluations": 180,
+    "evaluator_seconds": 712190.42350243,
+    "proposals": 180,
+    "tokens": 99055165
+  },
+  "retained": true,
+  "retention_decision": "replaced_selected_parent_on_strict_improvement",
+  "run_id": "nanogpt-openevolve-v2-1-h100-karpathy_nanogpt_source_only_h100-openevolve-b01-c2",
+  "schema_version": "1.0",
+  "selected_parent_ids": [
+    "751f6421ee699b4c6ae86e4cb2e4fb251857399c2f9b5720235c590a65eaf50a"
+  ],
+  "timestamp": "2026-08-23T22:25:07.070200+00:00",
+  "usage_cumulative": {
+    "cached_input_tokens": 203264,
+    "input_tokens": 878217,
+    "output_tokens": 66618,
+    "reasoning_output_tokens": 59259,
+    "total_tokens": 944835
+  },
+  "usage_increment": {
+    "cached_input_tokens": 12032,
+    "input_tokens": 47157,
+    "output_tokens": 1179,
+    "reasoning_output_tokens": 887,
+    "total_tokens": 48336
+  },
+  "visible_candidate_ids": [
+    "1672d8d0ee8e902a0619c466ac0540fb8f43ea901642548fe1761c29190ab6cf",
+    "751f6421ee699b4c6ae86e4cb2e4fb251857399c2f9b5720235c590a65eaf50a",
+    "e851f3f277cd5f216a6438df48eb17a425d2354d52becdf00dc0225d90cbbb90",
+    "8398f6a44da02110e69923d6ad536cb18c5d86e2a95bc65979fedb83351a4164"
+  ]
+}

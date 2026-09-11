@@ -1,0 +1,79 @@
+{
+  "artifact_path": "candidates/25b94c956a5f02e426f5a70c8143f1c3b93066c70eda95ab3dee6c44910d330e",
+  "candidate_id": "25b94c956a5f02e426f5a70c8143f1c3b93066c70eda95ab3dee6c44910d330e",
+  "codex_service_tier": "default",
+  "condition": "C1",
+  "conversation_session_id": null,
+  "evaluation": {
+    "evaluator_calls": 1,
+    "evaluator_seconds": 584.2145082089119,
+    "failure_kind": null,
+    "fitness": -1551.0,
+    "metrics": {
+      "accuracy": 0.9994,
+      "cases": 10010,
+      "correct": 10004,
+      "parameters": 1551,
+      "training_steps": 4999
+    },
+    "valid": true
+  },
+  "evaluator_calls_cumulative": 67,
+  "evaluator_calls_increment": 1,
+  "evaluator_seconds_cumulative": 34917.84378295648,
+  "evaluator_seconds_increment": 584.2145082089119,
+  "event": "proposal_completed",
+  "evicted_candidate_id": "232c1e4dcb7b8f0856dd77ecbd02902fec3e39ce169b1a3fa72f279b1fd55e20",
+  "evidence": "The current 1,552-parameter design achieves 100% accuracy while pruning two `ln2` bias coordinates; unlike the failed fifth `ln1` pruning, this tests an unextended downstream-affine quotient with a retained learned `fc1` bias pathway.",
+  "hypothesis": "Removing a third `ln2` bias coordinate will reduce the model from 1,552 to 1,551 parameters while retaining at least 99% accuracy, because the current 100%-accurate model already removes two such coordinates and the following `fc1` bias can absorb the additional constant affine effect.",
+  "incumbent_after": "25b94c956a5f02e426f5a70c8143f1c3b93066c70eda95ab3dee6c44910d330e",
+  "intended_edit": "Replace the two-coordinate-pruned LayerNorm before the MLP with a three-coordinate-pruned variant, leaving attention, initialization, and training unchanged.",
+  "mechanism": "Third pre-MLP LayerNorm bias quotient",
+  "opportunity": 67,
+  "parent_ids": [
+    "232c1e4dcb7b8f0856dd77ecbd02902fec3e39ce169b1a3fa72f279b1fd55e20"
+  ],
+  "portfolio_after": [
+    "25b94c956a5f02e426f5a70c8143f1c3b93066c70eda95ab3dee6c44910d330e"
+  ],
+  "prompt_hashes": {
+    "common_template_sha256": "3f2bea6418b6969c4bf2aa1df18dcda8a3a4ac075bf20c79068c754698b6be5e",
+    "prompt_sha256": "01c316cd1652a29827d2a919417a0d4fdf2d706622de880eb99fa2dcbeea8a28",
+    "proposal_policy_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "search_state_sha256": "04e5eb078ae1964e4ec65bfeeeb1acd0ffa246e7d54d5e0f997f81f602da28c5",
+    "treatment_skeleton_sha256": "39c23b0707aafdfeaba01c9d4adf23c4fdb7b6818e289b61c866085d222aeb73"
+  },
+  "proposal_type": "ordinary",
+  "proposals_cumulative": 67,
+  "remaining_budget": {
+    "evaluations": 133,
+    "evaluator_seconds": 325082.1562170435,
+    "proposals": 133,
+    "tokens": 98229879
+  },
+  "retained": true,
+  "retention_decision": "strict_incumbent_improvement",
+  "run_id": "controlled-openevolve-transformer-v2-1-source-only-ten-digit-addition-pair-transformer-openevolve-v2-1-mps-openevolve-b01-c1",
+  "schema_version": "1.0",
+  "selected_parent_ids": [
+    "232c1e4dcb7b8f0856dd77ecbd02902fec3e39ce169b1a3fa72f279b1fd55e20"
+  ],
+  "timestamp": "2026-08-25T09:13:26.130249+00:00",
+  "usage_cumulative": {
+    "cached_input_tokens": 718592,
+    "input_tokens": 1502660,
+    "output_tokens": 267461,
+    "reasoning_output_tokens": 221167,
+    "total_tokens": 1770121
+  },
+  "usage_increment": {
+    "cached_input_tokens": 12032,
+    "input_tokens": 23664,
+    "output_tokens": 1417,
+    "reasoning_output_tokens": 959,
+    "total_tokens": 25081
+  },
+  "visible_candidate_ids": [
+    "232c1e4dcb7b8f0856dd77ecbd02902fec3e39ce169b1a3fa72f279b1fd55e20"
+  ]
+}

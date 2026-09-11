@@ -1,0 +1,88 @@
+{
+  "artifact_path": "candidates/4a4558bfcc0bf4280a42830d64e2b4e97632b60be36f27cd8cc4afc2322e08ad",
+  "candidate_id": "4a4558bfcc0bf4280a42830d64e2b4e97632b60be36f27cd8cc4afc2322e08ad",
+  "codex_service_tier": "default",
+  "condition": "C3",
+  "conversation_session_id": null,
+  "evaluation": {
+    "evaluator_calls": 1,
+    "evaluator_seconds": 372.53284089099907,
+    "failure_kind": null,
+    "fitness": -0.983115,
+    "metrics": {
+      "depth": 8.0,
+      "mfu_percent": 39.88,
+      "num_params_M": 55.6,
+      "num_steps": 1680.0,
+      "peak_vram_mb": 50080.0,
+      "total_tokens_M": 440.4,
+      "training_seconds": 300.1,
+      "val_bpb": 0.983115
+    },
+    "valid": true
+  },
+  "evaluator_calls_cumulative": 34,
+  "evaluator_calls_increment": 1,
+  "evaluator_seconds_cumulative": 13917.319473617967,
+  "evaluator_seconds_increment": 372.53284089099907,
+  "event": "proposal_completed",
+  "evicted_candidate_id": "eb53649d0c7ba44f9f745a3603ecab13bcced821ae01ea174ec4bbd832b2f97d",
+  "evidence": "Increasing MLP width from 4.375\u00d7 to 5\u00d7 improved val_bpb from 0.984614 to 0.982905 despite lower token exposure, while 5.625\u00d7 regressed to 0.983497 after throughput fell to 424.1M tokens; the 5.25\u00d7 width is a conservative interpolation and remains aligned to 128-channel tensor-core tiles.",
+  "hypothesis": "A 5.25\u00d7 MLP will retain at least 440M-token throughput and reduce val_bpb below 0.982905.",
+  "incumbent_after": "1e7859e9934c6cfa4c5851bca385fa3dba73a7ef1b2f5106aba39f010be3e092",
+  "intended_edit": "Increase every MLP hidden width from 4.375\u00d7 to 5.25\u00d7 while retaining the proven 262,144-token batch, eight-layer architecture, linear warmdown, and 93.75% learning rates.",
+  "mechanism": "Tensor-core-aligned MLP width interpolation",
+  "opportunity": 34,
+  "parent_ids": [
+    "eb53649d0c7ba44f9f745a3603ecab13bcced821ae01ea174ec4bbd832b2f97d"
+  ],
+  "portfolio_after": [
+    "53fffed7fdc6dacb903b7169947d7fd113b6aaa60e850331136c2d65e4e10d09",
+    "7e2a53f50b95e61369a632bd57dd0941e5de1ad5effd620a474cea8a349514f4",
+    "4a4558bfcc0bf4280a42830d64e2b4e97632b60be36f27cd8cc4afc2322e08ad",
+    "1e7859e9934c6cfa4c5851bca385fa3dba73a7ef1b2f5106aba39f010be3e092"
+  ],
+  "prompt_hashes": {
+    "common_template_sha256": "ba85b39aa7288f4f48475376da6cff65661f39cfeb7ac7cde15b2a9a2e692fde",
+    "prompt_sha256": "263feaed2eb7fb2c98a3a811377debc20b8af8c169ea557850a2b161c1e95964",
+    "proposal_policy_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "search_state_sha256": "c938ac007bf70fe8d27f64661175531e51fcb16b38318c328493c32ee292e27e",
+    "treatment_skeleton_sha256": "d84c707836722b838e301a6cc83e96ad7f08e82a6b85306d33275fb5f7ea976e"
+  },
+  "proposal_type": "ordinary",
+  "proposals_cumulative": 34,
+  "remaining_budget": {
+    "evaluations": 166,
+    "evaluator_seconds": 706082.680526382,
+    "proposals": 166,
+    "tokens": 98354889
+  },
+  "retained": true,
+  "retention_decision": "replaced_selected_parent_on_strict_improvement",
+  "run_id": "nanogpt-openevolve-v2-1-h100-karpathy_nanogpt_source_only_h100-openevolve-b01-c3",
+  "schema_version": "1.0",
+  "selected_parent_ids": [
+    "eb53649d0c7ba44f9f745a3603ecab13bcced821ae01ea174ec4bbd832b2f97d"
+  ],
+  "timestamp": "2026-08-24T04:54:52.599590+00:00",
+  "usage_cumulative": {
+    "cached_input_tokens": 460544,
+    "input_tokens": 1540040,
+    "output_tokens": 105071,
+    "reasoning_output_tokens": 89648,
+    "total_tokens": 1645111
+  },
+  "usage_increment": {
+    "cached_input_tokens": 12032,
+    "input_tokens": 47462,
+    "output_tokens": 598,
+    "reasoning_output_tokens": 372,
+    "total_tokens": 48060
+  },
+  "visible_candidate_ids": [
+    "53fffed7fdc6dacb903b7169947d7fd113b6aaa60e850331136c2d65e4e10d09",
+    "7e2a53f50b95e61369a632bd57dd0941e5de1ad5effd620a474cea8a349514f4",
+    "eb53649d0c7ba44f9f745a3603ecab13bcced821ae01ea174ec4bbd832b2f97d",
+    "1e7859e9934c6cfa4c5851bca385fa3dba73a7ef1b2f5106aba39f010be3e092"
+  ]
+}

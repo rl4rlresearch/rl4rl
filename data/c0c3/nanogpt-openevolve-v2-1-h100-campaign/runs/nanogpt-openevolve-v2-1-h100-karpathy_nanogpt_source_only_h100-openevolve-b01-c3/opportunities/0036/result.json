@@ -1,0 +1,88 @@
+{
+  "artifact_path": "candidates/f147862cf900cccc73a28dc92578e07823642bb58619df1024d8527e05c6ecb1",
+  "candidate_id": "f147862cf900cccc73a28dc92578e07823642bb58619df1024d8527e05c6ecb1",
+  "codex_service_tier": "default",
+  "condition": "C3",
+  "conversation_session_id": null,
+  "evaluation": {
+    "evaluator_calls": 1,
+    "evaluator_seconds": 366.90175388400166,
+    "failure_kind": null,
+    "fitness": -0.983844,
+    "metrics": {
+      "depth": 8.0,
+      "mfu_percent": 38.72,
+      "num_params_M": 54.5,
+      "num_steps": 1710.0,
+      "peak_vram_mb": 49047.2,
+      "total_tokens_M": 448.3,
+      "training_seconds": 300.1,
+      "val_bpb": 0.983844
+    },
+    "valid": true
+  },
+  "evaluator_calls_cumulative": 36,
+  "evaluator_calls_increment": 1,
+  "evaluator_seconds_cumulative": 14654.23651611397,
+  "evaluator_seconds_increment": 366.90175388400166,
+  "event": "proposal_completed",
+  "evicted_candidate_id": "53fffed7fdc6dacb903b7169947d7fd113b6aaa60e850331136c2d65e4e10d09",
+  "evidence": "The unbiased 5\u00d7 MLP achieved the best observed val_bpb of 0.982905 despite processing 14.7M fewer tokens than the 4.375\u00d7 baseline, while the bigram expert regressed to 0.985446 and cost 9.4M tokens; reclaiming one intermediate full-attention layer tests whether extra token exposure can improve the proven 5\u00d7 design without eliminating global attention.",
+  "hypothesis": "Restoring the verified-best 5\u00d7 MLP while removing the unsuccessful bigram expert and making the intermediate full-attention layer local will retain final-layer global context, raise throughput above 460M tokens, and reduce val_bpb below 0.982905.",
+  "incumbent_after": "1e7859e9934c6cfa4c5851bca385fa3dba73a7ef1b2f5106aba39f010be3e092",
+  "intended_edit": "Remove the rank-64 bigram path, widen all MLPs to 5\u00d7, and change the attention pattern from SSSL to SSSS; the existing window logic still forces the final layer to use full context.",
+  "mechanism": "Final-layer-only global attention reallocation",
+  "opportunity": 36,
+  "parent_ids": [
+    "53fffed7fdc6dacb903b7169947d7fd113b6aaa60e850331136c2d65e4e10d09"
+  ],
+  "portfolio_after": [
+    "f147862cf900cccc73a28dc92578e07823642bb58619df1024d8527e05c6ecb1",
+    "b841504d24a8b5afb8e5e6ca34b00987a938c2e7fb40c17ae4d561cae0e41748",
+    "4a4558bfcc0bf4280a42830d64e2b4e97632b60be36f27cd8cc4afc2322e08ad",
+    "1e7859e9934c6cfa4c5851bca385fa3dba73a7ef1b2f5106aba39f010be3e092"
+  ],
+  "prompt_hashes": {
+    "common_template_sha256": "ba85b39aa7288f4f48475376da6cff65661f39cfeb7ac7cde15b2a9a2e692fde",
+    "prompt_sha256": "8754c2a1a36e8fb709aa2afa30b6537e2dbb8868c76a360b6f052d3847cb6a7d",
+    "proposal_policy_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "search_state_sha256": "c938ac007bf70fe8d27f64661175531e51fcb16b38318c328493c32ee292e27e",
+    "treatment_skeleton_sha256": "c7f10bd6a313eebee774f0123b42b5b0314ae22c70b8f24502d2da71a4680239"
+  },
+  "proposal_type": "ordinary",
+  "proposals_cumulative": 36,
+  "remaining_budget": {
+    "evaluations": 164,
+    "evaluator_seconds": 705345.763483886,
+    "proposals": 164,
+    "tokens": 98254301
+  },
+  "retained": true,
+  "retention_decision": "replaced_selected_parent_on_strict_improvement",
+  "run_id": "nanogpt-openevolve-v2-1-h100-karpathy_nanogpt_source_only_h100-openevolve-b01-c3",
+  "schema_version": "1.0",
+  "selected_parent_ids": [
+    "53fffed7fdc6dacb903b7169947d7fd113b6aaa60e850331136c2d65e4e10d09"
+  ],
+  "timestamp": "2026-08-24T05:50:23.861940+00:00",
+  "usage_cumulative": {
+    "cached_input_tokens": 484608,
+    "input_tokens": 1634953,
+    "output_tokens": 110746,
+    "reasoning_output_tokens": 93300,
+    "total_tokens": 1745699
+  },
+  "usage_increment": {
+    "cached_input_tokens": 12032,
+    "input_tokens": 47441,
+    "output_tokens": 3004,
+    "reasoning_output_tokens": 1302,
+    "total_tokens": 50445
+  },
+  "visible_candidate_ids": [
+    "53fffed7fdc6dacb903b7169947d7fd113b6aaa60e850331136c2d65e4e10d09",
+    "b841504d24a8b5afb8e5e6ca34b00987a938c2e7fb40c17ae4d561cae0e41748",
+    "4a4558bfcc0bf4280a42830d64e2b4e97632b60be36f27cd8cc4afc2322e08ad",
+    "1e7859e9934c6cfa4c5851bca385fa3dba73a7ef1b2f5106aba39f010be3e092"
+  ]
+}

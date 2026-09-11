@@ -1,0 +1,85 @@
+{
+  "artifact_path": "candidates/e062bffb284eb79cf6ece1fe55fb8230221832ac6975fec4a27c481c5cac2154",
+  "candidate_id": "e062bffb284eb79cf6ece1fe55fb8230221832ac6975fec4a27c481c5cac2154",
+  "codex_service_tier": "default",
+  "condition": "C0",
+  "conversation_session_id": null,
+  "evaluation": {
+    "evaluator_calls": 1,
+    "evaluator_seconds": 85.01917108311318,
+    "failure_kind": null,
+    "fitness": 9248.4049754274,
+    "metrics": {
+      "batch_size": 48,
+      "evaluation_cases": 10000,
+      "evaluation_split": "public_validation",
+      "examples_processed": 100000,
+      "optimizer_steps": 2084,
+      "parameters": 216346,
+      "training_seconds": 77.08310595783405,
+      "validation_accuracy": 0.9248,
+      "validation_correct": 9248,
+      "validation_cross_entropy": 0.2346428108215332,
+      "validation_score": 9248.4049754274
+    },
+    "valid": true
+  },
+  "evaluator_calls_cumulative": 33,
+  "evaluator_calls_increment": 1,
+  "evaluator_seconds_cumulative": 2675.134027669672,
+  "evaluator_seconds_increment": 85.01917108311318,
+  "event": "proposal_completed",
+  "evicted_candidate_id": null,
+  "evidence": "Sparse late-checkpoint parameter averaging improved validation_correct from 9,249 to 9,252, but the current implementation leaves BatchNorm statistics at their final, unaveraged values; aligning those statistics directly refines the only recently successful mechanism.",
+  "hypothesis": "Averaging BatchNorm running statistics alongside the successful late parameter snapshots will exceed 9,252 correct predictions by evaluating the averaged weights with activation statistics from the same trajectory window.",
+  "incumbent_after": "d19a5820be51635b34d2dcd25e49a072e11ad8d760bbcc002b06ff78cf1d40cf",
+  "intended_edit": "Retain the model on the optimizer and jointly average/copy BatchNorm running means and variances at every existing late checkpoint.",
+  "mechanism": "BatchNorm-aligned late-checkpoint averaging",
+  "opportunity": 33,
+  "parent_ids": [
+    "d19a5820be51635b34d2dcd25e49a072e11ad8d760bbcc002b06ff78cf1d40cf"
+  ],
+  "portfolio_after": [
+    "d19a5820be51635b34d2dcd25e49a072e11ad8d760bbcc002b06ff78cf1d40cf"
+  ],
+  "prompt_hashes": {
+    "common_template_sha256": "e8327ba94bab12abc7c7ec7c6615378a3ae62434efb944d4a7d9492f1d19bc14",
+    "prompt_sha256": "a4a3bb64aad70e5ef7cc92489e2b1025d1c7bece54f5677c99b7ea3da0eb035f",
+    "proposal_policy_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "search_state_sha256": "04e5eb078ae1964e4ec65bfeeeb1acd0ffa246e7d54d5e0f997f81f602da28c5",
+    "treatment_skeleton_sha256": "e8d8ea3dd54293d753572b3d8995af7289bb316976ff8a2a35c964306c046c5d"
+  },
+  "proposal_type": "ordinary",
+  "proposals_cumulative": 33,
+  "remaining_budget": {
+    "evaluations": 167,
+    "evaluator_seconds": 21324.865972330328,
+    "proposals": 167,
+    "tokens": 99324106
+  },
+  "retained": false,
+  "retention_decision": "not_strictly_better_than_incumbent",
+  "run_id": "fashion-mnist-openevolve-v2-1-mps-fashion_mnist_source_only_mps-openevolve-b02-c0",
+  "schema_version": "1.0",
+  "selected_parent_ids": [
+    "d19a5820be51635b34d2dcd25e49a072e11ad8d760bbcc002b06ff78cf1d40cf"
+  ],
+  "timestamp": "2026-08-24T03:54:05.948124+00:00",
+  "usage_cumulative": {
+    "cached_input_tokens": 363264,
+    "input_tokens": 596969,
+    "output_tokens": 78925,
+    "reasoning_output_tokens": 62417,
+    "total_tokens": 675894
+  },
+  "usage_increment": {
+    "cached_input_tokens": 6912,
+    "input_tokens": 18526,
+    "output_tokens": 1984,
+    "reasoning_output_tokens": 1222,
+    "total_tokens": 20510
+  },
+  "visible_candidate_ids": [
+    "d19a5820be51635b34d2dcd25e49a072e11ad8d760bbcc002b06ff78cf1d40cf"
+  ]
+}

@@ -1,0 +1,88 @@
+{
+  "artifact_path": "candidates/18b4ebcffa67416f5decbe2a50bb88ca93b314b431342f30c3b988e9dc47747c",
+  "candidate_id": "18b4ebcffa67416f5decbe2a50bb88ca93b314b431342f30c3b988e9dc47747c",
+  "codex_service_tier": "default",
+  "condition": "C3",
+  "conversation_session_id": null,
+  "evaluation": {
+    "evaluator_calls": 1,
+    "evaluator_seconds": 360.5930462540018,
+    "failure_kind": null,
+    "fitness": -0.989288,
+    "metrics": {
+      "depth": 8.0,
+      "mfu_percent": 35.91,
+      "num_params_M": 50.3,
+      "num_steps": 1857.0,
+      "peak_vram_mb": 45013.6,
+      "total_tokens_M": 486.8,
+      "training_seconds": 300.0,
+      "val_bpb": 0.989288
+    },
+    "valid": true
+  },
+  "evaluator_calls_cumulative": 40,
+  "evaluator_calls_increment": 1,
+  "evaluator_seconds_cumulative": 14338.535352805016,
+  "evaluator_seconds_increment": 360.5930462540018,
+  "event": "proposal_completed",
+  "evicted_candidate_id": "ca3eec1a909d9a8ac242d8f3a78d71416773d03e9530d17e365d295fae65ace2",
+  "evidence": "The 262K-token design achieved the best observed val_bpb of 0.985237 at 495.2M tokens. All available designs fixed HEAD_DIM=128, while broader windows increased contextual compute but regressed to 0.993720; finer head factorization tests richer learned context selection without paying for longer attention.",
+  "hypothesis": "On the proven 2.25\u00d7/2.75\u00d7/5.5\u00d7 taper and 262K-token optimizer batch, replacing four 128-dimensional attention heads with eight 64-dimensional heads will retain at least 480M training tokens and reduce val_bpb below 0.985237 by enabling more specialized contextual routing at essentially unchanged projection and attention FLOPs.",
+  "incumbent_after": "af8d3af70d4854627139f5bb5d7ae27d6c84b60a5fcf1a079666105619ac21c3",
+  "intended_edit": "Restore the best verified MLP taper and optimizer batch, then challenge the shared assumption that four wide heads are the best context representation by doubling head count while preserving model width, KV width, parameter scale, sequence length, and attention-window pattern.",
+  "mechanism": "Finer-grained eight-head context routing",
+  "opportunity": 40,
+  "parent_ids": [
+    "ca3eec1a909d9a8ac242d8f3a78d71416773d03e9530d17e365d295fae65ace2"
+  ],
+  "portfolio_after": [
+    "18b4ebcffa67416f5decbe2a50bb88ca93b314b431342f30c3b988e9dc47747c",
+    "026879a46f507b71b1aa8d8204b1dd56b35e3793037b20f533e2faa713ff3081",
+    "e738a32d8a472f2740c091d04e39ae7502ab7ece7901a35ff019825afbf62c3a",
+    "af8d3af70d4854627139f5bb5d7ae27d6c84b60a5fcf1a079666105619ac21c3"
+  ],
+  "prompt_hashes": {
+    "common_template_sha256": "ba85b39aa7288f4f48475376da6cff65661f39cfeb7ac7cde15b2a9a2e692fde",
+    "prompt_sha256": "e49728854033faf238994332cb43c1204bfa03f842c5c15146e4cccbe1f3a03a",
+    "proposal_policy_sha256": "cd7b9ba20a1cd1edd0663b5e3652baa9cd3c81925074103fe47e66c021d61a4a",
+    "search_state_sha256": "c938ac007bf70fe8d27f64661175531e51fcb16b38318c328493c32ee292e27e",
+    "treatment_skeleton_sha256": "922895e261dd455d6cc7b91bf3609a01be955008b9f9c90def7a11b754e97e67"
+  },
+  "proposal_type": "assumption_changing",
+  "proposals_cumulative": 40,
+  "remaining_budget": {
+    "evaluations": 160,
+    "evaluator_seconds": 705661.464647195,
+    "proposals": 160,
+    "tokens": 98074502
+  },
+  "retained": true,
+  "retention_decision": "replaced_selected_parent_on_strict_improvement",
+  "run_id": "nanogpt-openevolve-v2-1-h100-karpathy_nanogpt_source_only_h100-openevolve-b02-c3",
+  "schema_version": "1.0",
+  "selected_parent_ids": [
+    "ca3eec1a909d9a8ac242d8f3a78d71416773d03e9530d17e365d295fae65ace2"
+  ],
+  "timestamp": "2026-08-24T06:32:57.755939+00:00",
+  "usage_cumulative": {
+    "cached_input_tokens": 454912,
+    "input_tokens": 1828618,
+    "output_tokens": 96880,
+    "reasoning_output_tokens": 80130,
+    "total_tokens": 1925498
+  },
+  "usage_increment": {
+    "cached_input_tokens": 12032,
+    "input_tokens": 47654,
+    "output_tokens": 3095,
+    "reasoning_output_tokens": 2588,
+    "total_tokens": 50749
+  },
+  "visible_candidate_ids": [
+    "ca3eec1a909d9a8ac242d8f3a78d71416773d03e9530d17e365d295fae65ace2",
+    "026879a46f507b71b1aa8d8204b1dd56b35e3793037b20f533e2faa713ff3081",
+    "e738a32d8a472f2740c091d04e39ae7502ab7ece7901a35ff019825afbf62c3a",
+    "af8d3af70d4854627139f5bb5d7ae27d6c84b60a5fcf1a079666105619ac21c3"
+  ]
+}

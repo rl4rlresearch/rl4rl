@@ -1,0 +1,80 @@
+{
+  "artifact_path": "candidates/ab1f04e2fd829b04a7203faf36349aa0ebb5b0229225bf61b12e800f0d7f6ab4",
+  "candidate_id": "ab1f04e2fd829b04a7203faf36349aa0ebb5b0229225bf61b12e800f0d7f6ab4",
+  "codex_service_tier": "fast",
+  "condition": "C3",
+  "conversation_session_id": null,
+  "evaluation": {
+    "evaluator_calls": 1,
+    "evaluator_seconds": 241.16745987499598,
+    "failure_kind": null,
+    "fitness": -1636.0,
+    "metrics": {
+      "accuracy": 0.9986,
+      "cases": 10010,
+      "correct": 9996,
+      "parameters": 1636,
+      "training_steps": 4999
+    },
+    "valid": true
+  },
+  "evaluator_calls_cumulative": 5,
+  "evaluator_calls_increment": 1,
+  "evaluator_seconds_cumulative": 1092.7877276249928,
+  "evaluator_seconds_increment": 241.16745987499598,
+  "event": "proposal_completed",
+  "evicted_candidate_id": null,
+  "evidence": "The 1644-parameter baseline reached 99.96%, while the earlier 1636-parameter key-bias removal reached 86.15%; since key bias mathematically adds only a row-wise softmax constant, the failed result motivates preserving the baseline RNG stream and initialization exactly while removing the same redundant degrees of freedom.",
+  "hypothesis": "Removing all eight key-bias parameters while preserving the baseline constructor RNG stream will produce 1636 parameters and retain at least 99% accuracy, because zero key bias is functionally invisible to causal softmax and all remaining weights receive the proven baseline initialization.",
+  "incumbent_after": "ab1f04e2fd829b04a7203faf36349aa0ebb5b0229225bf61b12e800f0d7f6ab4",
+  "intended_edit": "Keep the fused QKV weight and baseline initialization sequence, replace its 24-element bias with 16 learned query/value biases, and insert a fixed zero key bias only during the forward pass.",
+  "mechanism": "Initialization-preserving removal of softmax-invariant key bias",
+  "opportunity": 5,
+  "parent_ids": [
+    "2b9cea175ed60b009337ac54f6e8ad23bf2c014eb4080237777bfb70bfd9fd5b"
+  ],
+  "portfolio_after": [
+    "2b9cea175ed60b009337ac54f6e8ad23bf2c014eb4080237777bfb70bfd9fd5b",
+    "ab1f04e2fd829b04a7203faf36349aa0ebb5b0229225bf61b12e800f0d7f6ab4"
+  ],
+  "prompt_hashes": {
+    "common_template_sha256": "3f2bea6418b6969c4bf2aa1df18dcda8a3a4ac075bf20c79068c754698b6be5e",
+    "prompt_sha256": "571c5ddfaa1921fa488da659ee915d7c7d2d97529e2c3a5c23b7b569202836c2",
+    "proposal_policy_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "search_state_sha256": "c938ac007bf70fe8d27f64661175531e51fcb16b38318c328493c32ee292e27e",
+    "treatment_skeleton_sha256": "8904f78663c948e51e17020dcf4a11246613e6125ffe07986fb69838d79058a1"
+  },
+  "proposal_type": "ordinary",
+  "proposals_cumulative": 5,
+  "remaining_budget": {
+    "evaluations": 195,
+    "evaluator_seconds": 358907.212272375,
+    "proposals": 195,
+    "tokens": 99890458
+  },
+  "retained": true,
+  "retention_decision": "filled_open_portfolio_slot",
+  "run_id": "controlled-openevolve-transformer-v2-1-source-only-ten-digit-addition-pair-transformer-openevolve-v2-1-mps-openevolve-b05-c3",
+  "schema_version": "1.0",
+  "selected_parent_ids": [
+    "2b9cea175ed60b009337ac54f6e8ad23bf2c014eb4080237777bfb70bfd9fd5b"
+  ],
+  "timestamp": "2026-08-23T10:16:33.154943+00:00",
+  "usage_cumulative": {
+    "cached_input_tokens": 58112,
+    "input_tokens": 95163,
+    "output_tokens": 14379,
+    "reasoning_output_tokens": 11957,
+    "total_tokens": 109542
+  },
+  "usage_increment": {
+    "cached_input_tokens": 12032,
+    "input_tokens": 19358,
+    "output_tokens": 2489,
+    "reasoning_output_tokens": 2070,
+    "total_tokens": 21847
+  },
+  "visible_candidate_ids": [
+    "2b9cea175ed60b009337ac54f6e8ad23bf2c014eb4080237777bfb70bfd9fd5b"
+  ]
+}

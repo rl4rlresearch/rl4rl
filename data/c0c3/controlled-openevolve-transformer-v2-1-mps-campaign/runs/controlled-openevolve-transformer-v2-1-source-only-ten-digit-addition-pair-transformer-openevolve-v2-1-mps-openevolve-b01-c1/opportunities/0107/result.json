@@ -1,0 +1,79 @@
+{
+  "artifact_path": "candidates/996e9c4c729c87d951317891e22c727634adc47f51e89d0a5d7ddb61944efc6b",
+  "candidate_id": "996e9c4c729c87d951317891e22c727634adc47f51e89d0a5d7ddb61944efc6b",
+  "codex_service_tier": "default",
+  "condition": "C1",
+  "conversation_session_id": null,
+  "evaluation": {
+    "evaluator_calls": 1,
+    "evaluator_seconds": 394.0597826249432,
+    "failure_kind": "nonqualification",
+    "fitness": null,
+    "metrics": {
+      "accuracy": 0.5384,
+      "cases": 10010,
+      "correct": 5389,
+      "parameters": 1533,
+      "training_steps": 4999
+    },
+    "valid": false
+  },
+  "evaluator_calls_cumulative": 107,
+  "evaluator_calls_increment": 1,
+  "evaluator_seconds_cumulative": 45723.68088920484,
+  "evaluator_seconds_increment": 394.0597826249432,
+  "event": "proposal_completed",
+  "evicted_candidate_id": null,
+  "evidence": "The current 99.91%-accurate design successfully applies this second-coordinate LayerNorm-input quotient to `fc1` rows five and six. This tests the same optimization-friendly parameterization on a key row, avoiding the distinct orthogonal query/key rotation that reached only 73.92%.",
+  "hypothesis": "Pruning the second input coordinate of key row five will reduce the model from 1,534 to 1,533 parameters while retaining at least 99% accuracy, because LayerNorm\u2019s zero-mean input makes the removed weight an exact row-wise gauge and any bias-induced key offset is softmax-null.",
+  "incumbent_after": "95880bc121c114eddbfc08e9ecb38d0567d91ad40c7e8e859dd3774a20a65407",
+  "intended_edit": "Replace QKV with a one-parameter-smaller projection, reconstruct the selected key weight as zero, and canonicalize fresh initialization to preserve its initial attention scores.",
+  "mechanism": "Single key-row normalized-input gauge",
+  "opportunity": 107,
+  "parent_ids": [
+    "95880bc121c114eddbfc08e9ecb38d0567d91ad40c7e8e859dd3774a20a65407"
+  ],
+  "portfolio_after": [
+    "95880bc121c114eddbfc08e9ecb38d0567d91ad40c7e8e859dd3774a20a65407"
+  ],
+  "prompt_hashes": {
+    "common_template_sha256": "3f2bea6418b6969c4bf2aa1df18dcda8a3a4ac075bf20c79068c754698b6be5e",
+    "prompt_sha256": "914393355536f3817b2802836c20497679cdb4bc5a1e9f3383ee3ef48875f591",
+    "proposal_policy_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "search_state_sha256": "04e5eb078ae1964e4ec65bfeeeb1acd0ffa246e7d54d5e0f997f81f602da28c5",
+    "treatment_skeleton_sha256": "2ec48385981eab876e7ba51a4427f130410f33641de146c74bc5eb8a4c05eedf"
+  },
+  "proposal_type": "ordinary",
+  "proposals_cumulative": 107,
+  "remaining_budget": {
+    "evaluations": 93,
+    "evaluator_seconds": 314276.31911079516,
+    "proposals": 93,
+    "tokens": 97117635
+  },
+  "retained": false,
+  "retention_decision": "invalid",
+  "run_id": "controlled-openevolve-transformer-v2-1-source-only-ten-digit-addition-pair-transformer-openevolve-v2-1-mps-openevolve-b01-c1",
+  "schema_version": "1.0",
+  "selected_parent_ids": [
+    "95880bc121c114eddbfc08e9ecb38d0567d91ad40c7e8e859dd3774a20a65407"
+  ],
+  "timestamp": "2026-08-26T05:17:30.754534+00:00",
+  "usage_cumulative": {
+    "cached_input_tokens": 1110528,
+    "input_tokens": 2463868,
+    "output_tokens": 418497,
+    "reasoning_output_tokens": 338102,
+    "total_tokens": 2882365
+  },
+  "usage_increment": {
+    "cached_input_tokens": 12032,
+    "input_tokens": 24746,
+    "output_tokens": 5691,
+    "reasoning_output_tokens": 4660,
+    "total_tokens": 30437
+  },
+  "visible_candidate_ids": [
+    "95880bc121c114eddbfc08e9ecb38d0567d91ad40c7e8e859dd3774a20a65407"
+  ]
+}

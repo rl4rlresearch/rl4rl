@@ -1,0 +1,82 @@
+{
+  "artifact_path": "candidates/d0d95a55b7d2db706df925758c073d68f9fc19cbc67efe808666c2937b7ff8a8",
+  "candidate_id": "d0d95a55b7d2db706df925758c073d68f9fc19cbc67efe808666c2937b7ff8a8",
+  "codex_service_tier": "fast",
+  "condition": "C1",
+  "conversation_session_id": null,
+  "evaluation": {
+    "evaluator_calls": 1,
+    "evaluator_seconds": 357.9910724009969,
+    "failure_kind": null,
+    "fitness": -1.014398,
+    "metrics": {
+      "depth": 7.0,
+      "mfu_percent": 29.31,
+      "num_params_M": 47.2,
+      "num_steps": 786.0,
+      "peak_vram_mb": 40139.2,
+      "total_tokens_M": 412.1,
+      "training_seconds": 300.1,
+      "val_bpb": 1.014398
+    },
+    "valid": true
+  },
+  "evaluator_calls_cumulative": 7,
+  "evaluator_calls_increment": 1,
+  "evaluator_seconds_cumulative": 2576.470724490997,
+  "evaluator_seconds_increment": 357.9910724009969,
+  "event": "proposal_completed",
+  "evicted_candidate_id": null,
+  "evidence": "The starting design achieved 0.995558 after 497.0M tokens, while every tested change that reduced token throughput regressed; a same-width one-layer reduction directly tests the opposite compute-quality tradeoff without altering attention kernels or optimizer behavior.",
+  "hypothesis": "Reducing depth from 8 to 7 retains the 512-dimensional width and four value-embedding tables while removing one transformer block, increasing training volume beyond 497M tokens enough to lower val_bpb below 0.995558.",
+  "incumbent_after": "2865e528e18dc51191e4037eaeb5824cb0ea83ede79061b59b8f3caac686da6b",
+  "intended_edit": "Set DEPTH to 7 without changing batching, learning rates, or the proven SSSL attention pattern.",
+  "mechanism": "Shallower same-width transformer",
+  "opportunity": 7,
+  "parent_ids": [
+    "2865e528e18dc51191e4037eaeb5824cb0ea83ede79061b59b8f3caac686da6b"
+  ],
+  "portfolio_after": [
+    "2865e528e18dc51191e4037eaeb5824cb0ea83ede79061b59b8f3caac686da6b"
+  ],
+  "prompt_hashes": {
+    "common_template_sha256": "ba85b39aa7288f4f48475376da6cff65661f39cfeb7ac7cde15b2a9a2e692fde",
+    "prompt_sha256": "b0e171b2476ba633fc743810c0213b4f0868050702eb30cbc53724668ecc58a3",
+    "proposal_policy_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "search_state_sha256": "04e5eb078ae1964e4ec65bfeeeb1acd0ffa246e7d54d5e0f997f81f602da28c5",
+    "treatment_skeleton_sha256": "f92295e121855da640e475ce4bacfe890bef70a6dfb9d361d2f9be6a6c6927a2"
+  },
+  "proposal_type": "ordinary",
+  "proposals_cumulative": 7,
+  "remaining_budget": {
+    "evaluations": 193,
+    "evaluator_seconds": 717423.529275509,
+    "proposals": 193,
+    "tokens": 99816020
+  },
+  "retained": false,
+  "retention_decision": "not_strictly_better_than_incumbent",
+  "run_id": "nanogpt-openevolve-v2-1-h100-karpathy_nanogpt_source_only_h100-openevolve-b02-c1",
+  "schema_version": "1.0",
+  "selected_parent_ids": [
+    "2865e528e18dc51191e4037eaeb5824cb0ea83ede79061b59b8f3caac686da6b"
+  ],
+  "timestamp": "2026-08-23T19:26:33.150607+00:00",
+  "usage_cumulative": {
+    "cached_input_tokens": 55040,
+    "input_tokens": 158211,
+    "output_tokens": 25769,
+    "reasoning_output_tokens": 23784,
+    "total_tokens": 183980
+  },
+  "usage_increment": {
+    "cached_input_tokens": 12032,
+    "input_tokens": 23299,
+    "output_tokens": 2903,
+    "reasoning_output_tokens": 2724,
+    "total_tokens": 26202
+  },
+  "visible_candidate_ids": [
+    "2865e528e18dc51191e4037eaeb5824cb0ea83ede79061b59b8f3caac686da6b"
+  ]
+}

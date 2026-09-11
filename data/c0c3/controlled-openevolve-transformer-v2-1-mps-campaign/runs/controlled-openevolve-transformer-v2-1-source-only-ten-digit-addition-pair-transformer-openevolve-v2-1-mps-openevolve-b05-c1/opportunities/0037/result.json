@@ -1,0 +1,73 @@
+{
+  "artifact_path": "candidates/95e409a304bf9049011eeae8eed6ee3546c25635a5a5096b783e9ab02a97b3c2",
+  "candidate_id": "95e409a304bf9049011eeae8eed6ee3546c25635a5a5096b783e9ab02a97b3c2",
+  "codex_service_tier": "default",
+  "condition": "C1",
+  "conversation_session_id": null,
+  "evaluation": {
+    "evaluator_calls": 1,
+    "evaluator_seconds": 1800.0132300420664,
+    "failure_kind": "timeout",
+    "fitness": null,
+    "metrics": {},
+    "valid": false
+  },
+  "evaluator_calls_cumulative": 37,
+  "evaluator_calls_increment": 1,
+  "evaluator_seconds_cumulative": 36379.24306662509,
+  "evaluator_seconds_increment": 1800.0132300420664,
+  "event": "proposal_completed",
+  "evicted_candidate_id": null,
+  "evidence": "The 1,384-parameter model reached 99.99% at 52,000 steps; every prior 1,376-parameter attempt failed only by timeout, including with sparse validation, so preserving the baseline LayerNorm execution path directly tests whether the no-bias kernel path caused the runtime regression.",
+  "hypothesis": "Replacing the final LayerNorm\u2019s learned bias with a fixed zero buffer will reduce the model from 1,384 to 1,376 parameters while retaining at least 99% accuracy and completing the proven 52,000-step schedule because the forward pass still supplies a bias tensor to the optimized LayerNorm path.",
+  "incumbent_after": "3c392db70798c80cc38c042449de930c8b4f4a1135de7728797d019652d02a33",
+  "intended_edit": "Add a scale-only LayerNorm whose zero bias is a non-parameter buffer, and use it for the terminal normalization without changing training settings.",
+  "mechanism": "Fused scale-only terminal normalization",
+  "opportunity": 37,
+  "parent_ids": [
+    "3c392db70798c80cc38c042449de930c8b4f4a1135de7728797d019652d02a33"
+  ],
+  "portfolio_after": [
+    "3c392db70798c80cc38c042449de930c8b4f4a1135de7728797d019652d02a33"
+  ],
+  "prompt_hashes": {
+    "common_template_sha256": "3f2bea6418b6969c4bf2aa1df18dcda8a3a4ac075bf20c79068c754698b6be5e",
+    "prompt_sha256": "c28e77eaf58be74a019fa864feac7f28ccf3c13430f313ebe862d00538bff4be",
+    "proposal_policy_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "search_state_sha256": "04e5eb078ae1964e4ec65bfeeeb1acd0ffa246e7d54d5e0f997f81f602da28c5",
+    "treatment_skeleton_sha256": "4d89b280de035af4272fd2ce6ce4c34ec972581bef682282e5a251daf4009309"
+  },
+  "proposal_type": "ordinary",
+  "proposals_cumulative": 37,
+  "remaining_budget": {
+    "evaluations": 163,
+    "evaluator_seconds": 323620.7569333749,
+    "proposals": 163,
+    "tokens": 99111052
+  },
+  "retained": false,
+  "retention_decision": "invalid",
+  "run_id": "controlled-openevolve-transformer-v2-1-source-only-ten-digit-addition-pair-transformer-openevolve-v2-1-mps-openevolve-b05-c1",
+  "schema_version": "1.0",
+  "selected_parent_ids": [
+    "3c392db70798c80cc38c042449de930c8b4f4a1135de7728797d019652d02a33"
+  ],
+  "timestamp": "2026-08-24T12:02:06.655046+00:00",
+  "usage_cumulative": {
+    "cached_input_tokens": 421888,
+    "input_tokens": 768638,
+    "output_tokens": 120310,
+    "reasoning_output_tokens": 106013,
+    "total_tokens": 888948
+  },
+  "usage_increment": {
+    "cached_input_tokens": 12032,
+    "input_tokens": 20981,
+    "output_tokens": 8591,
+    "reasoning_output_tokens": 8286,
+    "total_tokens": 29572
+  },
+  "visible_candidate_ids": [
+    "3c392db70798c80cc38c042449de930c8b4f4a1135de7728797d019652d02a33"
+  ]
+}

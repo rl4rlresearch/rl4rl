@@ -1,0 +1,82 @@
+{
+  "artifact_path": "candidates/f746e25e61f5e3e6ac7db58e30e7f9dedd63df4fff1d1fa76f88268622524d8c",
+  "candidate_id": "f746e25e61f5e3e6ac7db58e30e7f9dedd63df4fff1d1fa76f88268622524d8c",
+  "codex_service_tier": "fast",
+  "condition": "C3",
+  "conversation_session_id": null,
+  "evaluation": {
+    "evaluator_calls": 1,
+    "evaluator_seconds": 263.22387983405497,
+    "failure_kind": null,
+    "fitness": -1628.0,
+    "metrics": {
+      "accuracy": 0.9998,
+      "cases": 10010,
+      "correct": 10008,
+      "parameters": 1628,
+      "training_steps": 4999
+    },
+    "valid": true
+  },
+  "evaluator_calls_cumulative": 4,
+  "evaluator_calls_increment": 1,
+  "evaluator_seconds_cumulative": 946.8908164161257,
+  "evaluator_seconds_increment": 263.22387983405497,
+  "event": "proposal_completed",
+  "evicted_candidate_id": null,
+  "evidence": "Key-bias elimination achieved 99.95% accuracy with 1,636 parameters, while removing residual-output biases reduced accuracy to 75.38%; this patch preserves those critical output biases and removes a different attention bias that is functionally absorbable by the retained projection bias.",
+  "hypothesis": "Removing the attention value bias in addition to the proven-redundant key bias will reduce parameters from 1,644 to 1,628 while retaining at least 99% accuracy, because attention weights sum to one and the retained output-projection bias can represent the value bias\u2019s constant contribution.",
+  "incumbent_after": "f746e25e61f5e3e6ac7db58e30e7f9dedd63df4fff1d1fa76f88268622524d8c",
+  "intended_edit": "Use a bias-free packed QKV projection with only an explicit learned query bias, while retaining both residual-output biases and `d_ff=12`.",
+  "mechanism": "Softmax-normalized value-bias absorption",
+  "opportunity": 4,
+  "parent_ids": [
+    "2b9cea175ed60b009337ac54f6e8ad23bf2c014eb4080237777bfb70bfd9fd5b"
+  ],
+  "portfolio_after": [
+    "2b9cea175ed60b009337ac54f6e8ad23bf2c014eb4080237777bfb70bfd9fd5b",
+    "db9b3f660e3520715480aa177e81d1c78e964a213309f9e03599519edb1eecd4",
+    "f746e25e61f5e3e6ac7db58e30e7f9dedd63df4fff1d1fa76f88268622524d8c"
+  ],
+  "prompt_hashes": {
+    "common_template_sha256": "3f2bea6418b6969c4bf2aa1df18dcda8a3a4ac075bf20c79068c754698b6be5e",
+    "prompt_sha256": "ae5f8c5f0a6fe9f678eefaaf44febcffd53ae4fd689aa55b7d9506e798d47b3f",
+    "proposal_policy_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "search_state_sha256": "c938ac007bf70fe8d27f64661175531e51fcb16b38318c328493c32ee292e27e",
+    "treatment_skeleton_sha256": "8127cedc5fc9914e671cd1f77db11e16601a6c5172a599a83bf15c1255d36ff0"
+  },
+  "proposal_type": "ordinary",
+  "proposals_cumulative": 4,
+  "remaining_budget": {
+    "evaluations": 196,
+    "evaluator_seconds": 359053.1091835839,
+    "proposals": 196,
+    "tokens": 99911838
+  },
+  "retained": true,
+  "retention_decision": "filled_open_portfolio_slot",
+  "run_id": "controlled-openevolve-transformer-v2-1-source-only-ten-digit-addition-pair-transformer-openevolve-v2-1-mps-openevolve-b01-c3",
+  "schema_version": "1.0",
+  "selected_parent_ids": [
+    "2b9cea175ed60b009337ac54f6e8ad23bf2c014eb4080237777bfb70bfd9fd5b"
+  ],
+  "timestamp": "2026-08-23T10:47:29.903610+00:00",
+  "usage_cumulative": {
+    "cached_input_tokens": 43008,
+    "input_tokens": 79664,
+    "output_tokens": 8498,
+    "reasoning_output_tokens": 7328,
+    "total_tokens": 88162
+  },
+  "usage_increment": {
+    "cached_input_tokens": 12032,
+    "input_tokens": 23247,
+    "output_tokens": 1797,
+    "reasoning_output_tokens": 1417,
+    "total_tokens": 25044
+  },
+  "visible_candidate_ids": [
+    "2b9cea175ed60b009337ac54f6e8ad23bf2c014eb4080237777bfb70bfd9fd5b",
+    "db9b3f660e3520715480aa177e81d1c78e964a213309f9e03599519edb1eecd4"
+  ]
+}

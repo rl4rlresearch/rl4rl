@@ -1,0 +1,82 @@
+{
+  "artifact_path": "candidates/da0ba08aee3e6c54abfd51a674f1da29f7b6e9d6c34f31a5c677120c25ef39ea",
+  "candidate_id": "da0ba08aee3e6c54abfd51a674f1da29f7b6e9d6c34f31a5c677120c25ef39ea",
+  "codex_service_tier": "fast",
+  "condition": "C1",
+  "conversation_session_id": null,
+  "evaluation": {
+    "evaluator_calls": 1,
+    "evaluator_seconds": 348.69846058200073,
+    "failure_kind": null,
+    "fitness": -0.994122,
+    "metrics": {
+      "depth": 8.0,
+      "mfu_percent": 36.3,
+      "num_params_M": 50.3,
+      "num_steps": 986.0,
+      "peak_vram_mb": 45060.2,
+      "total_tokens_M": 516.9,
+      "training_seconds": 300.3,
+      "val_bpb": 0.994122
+    },
+    "valid": true
+  },
+  "evaluator_calls_cumulative": 3,
+  "evaluator_calls_increment": 1,
+  "evaluator_seconds_cumulative": 1042.9253835910008,
+  "evaluator_seconds_increment": 348.69846058200073,
+  "event": "proposal_completed",
+  "evicted_candidate_id": null,
+  "evidence": "The 512-token design improved val_bpb to 0.993365 with 512.2M tokens, whereas shrinking windows to 256 caused a throughput cliff and val_bpb 1.013136; this motivates retaining 512-token windows and testing a less costly reduction in global-attention frequency.",
+  "hypothesis": "Keeping the kernel-efficient 512-token local windows while removing the intermediate full-context layer will raise token throughput enough to reduce val_bpb below 0.993365; seven stacked local layers can propagate information across the 2048-token sequence before the final global layer.",
+  "incumbent_after": "ee1f1cf686a479f175a9b2178602df52386a3561e80b0612b88ccd725e447c2e",
+  "intended_edit": "Change the attention pattern from six local/two global layers to seven local/one final global layer.",
+  "mechanism": "Stacked local receptive field with a single global readout",
+  "opportunity": 3,
+  "parent_ids": [
+    "ee1f1cf686a479f175a9b2178602df52386a3561e80b0612b88ccd725e447c2e"
+  ],
+  "portfolio_after": [
+    "ee1f1cf686a479f175a9b2178602df52386a3561e80b0612b88ccd725e447c2e"
+  ],
+  "prompt_hashes": {
+    "common_template_sha256": "ba85b39aa7288f4f48475376da6cff65661f39cfeb7ac7cde15b2a9a2e692fde",
+    "prompt_sha256": "2443dd11ed31a39cb0c173d9c771962eec36c6c4d6e8c9839dbcc0da7da57992",
+    "proposal_policy_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "search_state_sha256": "04e5eb078ae1964e4ec65bfeeeb1acd0ffa246e7d54d5e0f997f81f602da28c5",
+    "treatment_skeleton_sha256": "a0d32d26fcd6481ce722a1da1756de4630a24c4ac3c03984561b17046cabd330"
+  },
+  "proposal_type": "ordinary",
+  "proposals_cumulative": 3,
+  "remaining_budget": {
+    "evaluations": 197,
+    "evaluator_seconds": 718957.074616409,
+    "proposals": 197,
+    "tokens": 99926781
+  },
+  "retained": false,
+  "retention_decision": "not_strictly_better_than_incumbent",
+  "run_id": "nanogpt-openevolve-v2-1-h100-karpathy_nanogpt_source_only_h100-openevolve-b03-c1",
+  "schema_version": "1.0",
+  "selected_parent_ids": [
+    "ee1f1cf686a479f175a9b2178602df52386a3561e80b0612b88ccd725e447c2e"
+  ],
+  "timestamp": "2026-08-23T13:03:22.455992+00:00",
+  "usage_cumulative": {
+    "cached_input_tokens": 36096,
+    "input_tokens": 66275,
+    "output_tokens": 6944,
+    "reasoning_output_tokens": 6320,
+    "total_tokens": 73219
+  },
+  "usage_increment": {
+    "cached_input_tokens": 12032,
+    "input_tokens": 22339,
+    "output_tokens": 2290,
+    "reasoning_output_tokens": 2070,
+    "total_tokens": 24629
+  },
+  "visible_candidate_ids": [
+    "ee1f1cf686a479f175a9b2178602df52386a3561e80b0612b88ccd725e447c2e"
+  ]
+}

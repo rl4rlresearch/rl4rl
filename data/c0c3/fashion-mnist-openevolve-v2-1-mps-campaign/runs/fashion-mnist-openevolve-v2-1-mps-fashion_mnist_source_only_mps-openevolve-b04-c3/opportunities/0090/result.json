@@ -1,0 +1,91 @@
+{
+  "artifact_path": "candidates/ce1533d65500732b24b97264f15080eddbb4babfb7f8c06264250a02ee1f91cb",
+  "candidate_id": "ce1533d65500732b24b97264f15080eddbb4babfb7f8c06264250a02ee1f91cb",
+  "codex_service_tier": "default",
+  "condition": "C3",
+  "conversation_session_id": null,
+  "evaluation": {
+    "evaluator_calls": 1,
+    "evaluator_seconds": 86.01196437492035,
+    "failure_kind": null,
+    "fitness": 9235.412819390334,
+    "metrics": {
+      "batch_size": 64,
+      "evaluation_cases": 10000,
+      "evaluation_split": "public_validation",
+      "examples_processed": 100000,
+      "optimizer_steps": 1564,
+      "parameters": 249331,
+      "training_seconds": 79.30040733283386,
+      "validation_accuracy": 0.9235,
+      "validation_correct": 9235,
+      "validation_cross_entropy": 0.21118341751098632,
+      "validation_score": 9235.412819390334
+    },
+    "valid": true
+  },
+  "evaluator_calls_cumulative": 76,
+  "evaluator_calls_increment": 1,
+  "evaluator_seconds_cumulative": 6359.33609604137,
+  "evaluator_seconds_increment": 86.01196437492035,
+  "event": "proposal_completed",
+  "evicted_candidate_id": null,
+  "evidence": "The current design spends 178,752 weights collapsing all spatial-channel features into only 38 units, while the 9,166-correct attention result indicates that discarding spatial detail is harmful. This 249,331-parameter alternative preserves every spatial location and avoids the failed direct-logit shortcut by learning nonlinear interactions through a 141-unit head.",
+  "hypothesis": "A learned 24-channel local projection plus full-channel global summary feeding a 141-unit nonlinear head will exceed 9,243 correct predictions within the parameter ceiling.",
+  "incumbent_after": "bff70d953e9234dcb1fc8e24b5d84af2819a49eb730c62eff1921f197f441da5",
+  "intended_edit": "Replace the 4,704-to-38 bottleneck with a shared per-location channel compressor, retain all 7\u00d77 locations, concatenate a 96-channel global summary, and classify through a substantially wider latent representation.",
+  "mechanism": "Multi-resolution channel-factorized spatial head",
+  "opportunity": 90,
+  "parent_ids": [
+    "342fbadd1e2ab97e10957b92abd666617ef886492352bd844b5f1b079811a954"
+  ],
+  "portfolio_after": [
+    "74d2b14ddc3543768c329cf41b7893dac79d8a8d981906b04f6d9548c0c3ba27",
+    "7982b4ed3bdeb9170c094cfad988ad4495c762073b8396d5ef24800db276d751",
+    "bff70d953e9234dcb1fc8e24b5d84af2819a49eb730c62eff1921f197f441da5",
+    "342fbadd1e2ab97e10957b92abd666617ef886492352bd844b5f1b079811a954"
+  ],
+  "prompt_hashes": {
+    "common_template_sha256": "e8327ba94bab12abc7c7ec7c6615378a3ae62434efb944d4a7d9492f1d19bc14",
+    "prompt_sha256": "5b608aebbcc9d3b664beb8f4d3df83ee346c6dbeb14706f2300e538e5a8459a5",
+    "proposal_policy_sha256": "ce1e11aa597bbfab85bb87bc9a6089bf0c32df89ea8da0d0be408234b8f6347d",
+    "search_state_sha256": "c938ac007bf70fe8d27f64661175531e51fcb16b38318c328493c32ee292e27e",
+    "treatment_skeleton_sha256": "602e34a42ad787287bbb99ebe1b6d82a775e3076ee86da86d705e1d2d8f51539"
+  },
+  "proposal_type": "assumption_changing",
+  "proposals_cumulative": 90,
+  "remaining_budget": {
+    "evaluations": 124,
+    "evaluator_seconds": 17640.66390395863,
+    "proposals": 110,
+    "tokens": 97949549
+  },
+  "retained": false,
+  "retention_decision": "not_strictly_better_than_selected_parent",
+  "run_id": "fashion-mnist-openevolve-v2-1-mps-fashion_mnist_source_only_mps-openevolve-b04-c3",
+  "schema_version": "1.0",
+  "selected_parent_ids": [
+    "342fbadd1e2ab97e10957b92abd666617ef886492352bd844b5f1b079811a954"
+  ],
+  "timestamp": "2026-08-24T14:37:58.671752+00:00",
+  "usage_cumulative": {
+    "cached_input_tokens": 935424,
+    "input_tokens": 1867543,
+    "output_tokens": 182908,
+    "reasoning_output_tokens": 147683,
+    "total_tokens": 2050451
+  },
+  "usage_increment": {
+    "cached_input_tokens": 12032,
+    "input_tokens": 21482,
+    "output_tokens": 2925,
+    "reasoning_output_tokens": 2477,
+    "total_tokens": 24407
+  },
+  "visible_candidate_ids": [
+    "74d2b14ddc3543768c329cf41b7893dac79d8a8d981906b04f6d9548c0c3ba27",
+    "7982b4ed3bdeb9170c094cfad988ad4495c762073b8396d5ef24800db276d751",
+    "bff70d953e9234dcb1fc8e24b5d84af2819a49eb730c62eff1921f197f441da5",
+    "342fbadd1e2ab97e10957b92abd666617ef886492352bd844b5f1b079811a954"
+  ]
+}

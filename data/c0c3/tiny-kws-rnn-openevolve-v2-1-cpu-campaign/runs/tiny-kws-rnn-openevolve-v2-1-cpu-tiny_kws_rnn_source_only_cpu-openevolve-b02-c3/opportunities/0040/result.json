@@ -1,0 +1,105 @@
+{
+  "artifact_path": "candidates/fc59d2830a48c584950151c12e0570f449a194b4133a8fd2700922d8ed3b159f",
+  "candidate_id": "fc59d2830a48c584950151c12e0570f449a194b4133a8fd2700922d8ed3b159f",
+  "codex_service_tier": "default",
+  "condition": "C3",
+  "conversation_session_id": null,
+  "evaluation": {
+    "evaluator_calls": 1,
+    "evaluator_seconds": 112.67737024999224,
+    "failure_kind": "nonqualification",
+    "fitness": null,
+    "metrics": {
+      "batch_size": 128,
+      "evaluation_cases": 815,
+      "evaluation_split": "public_speaker_disjoint_validation",
+      "examples_processed": 50000,
+      "inference_cost": 2242574041396680189,
+      "maximum_recurrent_steps": 27,
+      "mean_recurrent_steps": 27.0,
+      "median_recurrent_steps": 27,
+      "optimizer_steps": 397,
+      "p95_recurrent_steps": 27,
+      "parameters": 21384,
+      "peak_hidden_elements": 96768,
+      "recurrent_logit_effect": 0.13152049481868744,
+      "recurrent_macs": 428833440,
+      "recurrent_steps": 22005,
+      "state_dependence_effect": 0.3330639600753784,
+      "state_update_effect": 0.5314231514930725,
+      "total_inference_macs": 429928800,
+      "trained_recurrent_logit_effect": 0.3202230930328369,
+      "trained_state_dependence_effect": 0.32372891902923584,
+      "trained_state_update_effect": 0.5454568862915039,
+      "training_seconds": 94.3087120000273,
+      "validation_accuracy": 0.8466257668711656,
+      "validation_correct": 690,
+      "validation_cross_entropy": 0.4861218317886072
+    },
+    "valid": false
+  },
+  "evaluator_calls_cumulative": 40,
+  "evaluator_calls_increment": 1,
+  "evaluator_seconds_cumulative": 4413.597678956576,
+  "evaluator_seconds_increment": 112.67737024999224,
+  "event": "proposal_completed",
+  "evicted_candidate_id": null,
+  "evidence": "The full-rank 69-unit GRU qualified at 85.77% with 497,398,575 MACs, and widths 69\u201373 all qualified on the same 27-frame representation, while 26-frame thinning failed. This suggests retaining 27 observations but challenges the load-bearing assumption that every gate requires an independent full-rank hidden-to-hidden matrix.",
+  "hypothesis": "An 84-channel gated state whose recurrent control is mediated by a shared 28-dimensional nonlinear bottleneck will achieve at least 85% validation accuracy on the qualified 27-frame schedule while reducing predicted total inference MACs from 497,398,575 to approximately 429,928,800.",
+  "incumbent_after": "b0f196e7ba88483fc09758b7fbe846897d80f5a95fd15f356a2bdd27fe7ea17d",
+  "intended_edit": "Replace the full-rank 75-unit GRU with a wider custom gated state update using counted `nn.Linear` projections and a compact shared recurrent controller; retain causal spectral deltas and mean-plus-final prediction, and adopt the qualified 27-frame span-preserving schedule.",
+  "mechanism": "Shared bottleneck-controlled gated recurrence",
+  "opportunity": 40,
+  "parent_ids": [
+    "a421a6de2a52e0fdef867b85c2bfaedad23ca6d18a0416f6a97f9ce1f7a0af34"
+  ],
+  "portfolio_after": [
+    "fca02338484af182027732446367be690d851443138330d3f950e8e7b51b6a38",
+    "a421a6de2a52e0fdef867b85c2bfaedad23ca6d18a0416f6a97f9ce1f7a0af34",
+    "e99241e7b60c78f17772b3bfa64ad4b1f406ba1b018bbac97d7c23870d53eb48",
+    "b0f196e7ba88483fc09758b7fbe846897d80f5a95fd15f356a2bdd27fe7ea17d"
+  ],
+  "prompt_hashes": {
+    "common_template_sha256": "dee04faf4c430276c1036ba97f5705a339857dbdf19117dac88952a5a3a47e9d",
+    "prompt_sha256": "83e84873f08a9b6d11b504d2bc8cbc83ccf8eec3359d67a68aa0337f0aa51181",
+    "proposal_policy_sha256": "f3e935f1a3cb6334e7f39b20b1b6b601cd727de9c5f0c3630206a91f08e358c9",
+    "search_state_sha256": "c938ac007bf70fe8d27f64661175531e51fcb16b38318c328493c32ee292e27e",
+    "treatment_skeleton_sha256": "7b2aae5c18e89b2240449afa0730620088f554a706208ba80a86f47859890c38"
+  },
+  "proposal_type": "assumption_changing",
+  "proposals_cumulative": 40,
+  "remaining_budget": {
+    "evaluations": 160,
+    "evaluator_seconds": 55586.402321043424,
+    "proposals": 160,
+    "tokens": 98924764
+  },
+  "retained": false,
+  "retention_decision": "invalid",
+  "run_id": "tiny-kws-rnn-openevolve-v2-1-cpu-tiny_kws_rnn_source_only_cpu-openevolve-b02-c3",
+  "schema_version": "1.0",
+  "selected_parent_ids": [
+    "a421a6de2a52e0fdef867b85c2bfaedad23ca6d18a0416f6a97f9ce1f7a0af34"
+  ],
+  "timestamp": "2026-09-04T04:56:55.710524+00:00",
+  "usage_cumulative": {
+    "cached_input_tokens": 508544,
+    "input_tokens": 985920,
+    "output_tokens": 89316,
+    "reasoning_output_tokens": 67174,
+    "total_tokens": 1075236
+  },
+  "usage_increment": {
+    "cached_input_tokens": 10752,
+    "input_tokens": 25139,
+    "output_tokens": 8177,
+    "reasoning_output_tokens": 6362,
+    "total_tokens": 33316
+  },
+  "visible_candidate_ids": [
+    "fca02338484af182027732446367be690d851443138330d3f950e8e7b51b6a38",
+    "a421a6de2a52e0fdef867b85c2bfaedad23ca6d18a0416f6a97f9ce1f7a0af34",
+    "e99241e7b60c78f17772b3bfa64ad4b1f406ba1b018bbac97d7c23870d53eb48",
+    "b0f196e7ba88483fc09758b7fbe846897d80f5a95fd15f356a2bdd27fe7ea17d"
+  ]
+}

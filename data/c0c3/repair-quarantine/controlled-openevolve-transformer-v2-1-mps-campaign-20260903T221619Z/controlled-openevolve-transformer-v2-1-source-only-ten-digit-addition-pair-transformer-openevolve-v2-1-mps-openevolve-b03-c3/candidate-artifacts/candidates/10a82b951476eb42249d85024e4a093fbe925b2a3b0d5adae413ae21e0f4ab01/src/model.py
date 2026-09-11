@@ -1,0 +1,468 @@
+"""Tiny decoder-only transformer used for 10-digit addition."""
+
+import math
+from dataclasses import dataclass
+from typing import Tuple
+
+import torch
+import torch.nn as nn
+import torch.nn.functional as F
+
+
+@dataclass
+class ModelConfig:
+    n_layer: int
+    d_model: int
+    n_head: int
+    d_ff: int
+    dropout: float
+    max_seq_len: int
+    vocab_size: int
+
+
+class GaugeFixedTokenEmbedding(nn.Module):
+    """Tied embedding with its global scalar-shift gauge removed."""
+
+    def __init__(self, num_embeddings: int, embedding_dim: int):
+        super().__init__()
+        self.num_embeddings = num_embeddings
+        self.embedding_dim = embedding_dim
+        self.weight = nn.Parameter(
+            torch.empty(num_embeddings * embedding_dim - 1)
+        )
+        self.full_weight = None
+        self.reset_parameters()
+
+    @torch.no_grad()
+    def reset_parameters(self, std: float = 1.0) -> None:
+        raw = self.weight.new_empty(
+            self.num_embeddings, self.embedding_dim
+        )
+        nn.init.normal_(raw, mean=0.0, std=std)
+        flat = raw.reshape(-1)
+        self.weight.copy_(flat[:-1] - flat[-1])
+
+    def forward(self, idx: torch.Tensor) -> torch.Tensor:
+        full_weight = torch.cat(
+            (self.weight, self.weight.new_zeros(1))
+        ).view(self.num_embeddings, self.embedding_dim)
+        if torch.is_grad_enabled():
+            full_weight.retain_grad()
+        self.full_weight = full_weight
+        return F.embedding(idx, full_weight)
+
+    def project(self, x: torch.Tensor) -> torch.Tensor:
+        return F.linear(x, self.full_weight)
+
+
+class TiedTokenProjection(nn.Module):
+    """Parameter-free output view of the learned token embedding."""
+
+    def __init__(self, embedding: GaugeFixedTokenEmbedding):
+        super().__init__()
+        self.in_features = embedding.embedding_dim
+        self.out_features = embedding.num_embeddings
+        object.__setattr__(self, "embedding", embedding)
+
+        scratch = torch.empty(self.out_features, self.in_features)
+        nn.init.kaiming_uniform_(scratch, a=math.sqrt(5))
+
+    def forward(self, x: torch.Tensor) -> torch.Tensor:
+        return self.embedding.project(x)
+
+
+class GaugeFixedPositionEmbedding(nn.Module):
+    """Embedding with seven independent positional scalar shifts removed."""
+
+    def __init__(self, num_embeddings: int, embedding_dim: int):
+        super().__init__()
+        self.num_embeddings = num_embeddings
+        self.embedding_dim = embedding_dim
+        self.first = nn.Parameter(torch.empty(embedding_dim - 1))
+        self.second = nn.Parameter(torch.empty(embedding_dim - 1))
+        self.third = nn.Parameter(torch.empty(embedding_dim - 1))
+        self.fourth = nn.Parameter(torch.empty(embedding_dim - 1))
+        self.fifth = nn.Parameter(torch.empty(embedding_dim - 1))
+        self.sixth = nn.Parameter(torch.empty(embedding_dim - 1))
+        self.seventh = nn.Parameter(torch.empty(embedding_dim - 1))
+        self.rest = nn.Parameter(
+            torch.empty(num_embeddings - 7, embedding_dim)
+        )
+        self.full_first = None
+        self.full_second = None
+        self.full_third = None
+        self.full_fourth = None
+        self.full_fifth = None
+        self.full_sixth = None
+        self.full_seventh = None
+        self.reset_parameters()
+
+    @torch.no_grad()
+    def reset_parameters(self, std: float = 1.0) -> None:
+        raw = self.first.new_empty(
+            self.num_embeddings, self.embedding_dim
+        )
+        nn.init.normal_(raw, mean=0.0, std=std)
+        self.first.copy_(raw[0, :-1] - raw[0, -1])
+        self.second.copy_(raw[1, :-1] - raw[1, -1])
+        self.third.copy_(raw[2, :-1] - raw[2, -1])
+        self.fourth.copy_(raw[3, :-1] - raw[3, -1])
+        self.fifth.copy_(raw[4, :-1] - raw[4, -1])
+        self.sixth.copy_(raw[5, :-1] - raw[5, -1])
+        self.seventh.copy_(raw[6, :-1] - raw[6, -1])
+        self.rest.copy_(raw[7:])
+
+    def forward(self, idx: torch.Tensor) -> torch.Tensor:
+        first = torch.cat((self.first, self.first.new_zeros(1)))
+        second = torch.cat((self.second, self.second.new_zeros(1)))
+        third = torch.cat((self.third, self.third.new_zeros(1)))
+        fourth = torch.cat((self.fourth, self.fourth.new_zeros(1)))
+        fifth = torch.cat((self.fifth, self.fifth.new_zeros(1)))
+        sixth = torch.cat((self.sixth, self.sixth.new_zeros(1)))
+        seventh = torch.cat((self.seventh, self.seventh.new_zeros(1)))
+        if torch.is_grad_enabled():
+            first.retain_grad()
+            second.retain_grad()
+            third.retain_grad()
+            fourth.retain_grad()
+            fifth.retain_grad()
+            sixth.retain_grad()
+            seventh.retain_grad()
+            self.full_first = first
+            self.full_second = second
+            self.full_third = third
+            self.full_fourth = fourth
+            self.full_fifth = fifth
+            self.full_sixth = sixth
+            self.full_seventh = seventh
+        weight = torch.cat(
+            (
+                first.unsqueeze(0),
+                second.unsqueeze(0),
+                third.unsqueeze(0),
+                fourth.unsqueeze(0),
+                fifth.unsqueeze(0),
+                sixth.unsqueeze(0),
+                seventh.unsqueeze(0),
+                self.rest,
+            ),
+            dim=0,
+        )
+        return F.embedding(idx, weight)
+
+
+class GaugeFixedTerminalLinear(nn.Module):
+    """Linear layer with bias and six weight-column output gauges removed."""
+
+    def __init__(self, in_features: int, out_features: int):
+        super().__init__()
+        self.in_features = in_features
+        self.out_features = out_features
+        self.weight_prefix = nn.ParameterList(
+            [
+                nn.Parameter(torch.empty(out_features - 1))
+                for _ in range(6)
+            ]
+        )
+        self.weight_rest = nn.Parameter(
+            torch.empty(out_features, in_features - 6)
+        )
+        self.bias = nn.Parameter(torch.empty(out_features - 1))
+        self.full_weight_prefix = None
+        self.full_bias = None
+        self.reset_parameters()
+
+    @torch.no_grad()
+    def reset_parameters(self) -> None:
+        raw_weight = self.weight_rest.new_empty(
+            self.out_features, self.in_features
+        )
+        nn.init.kaiming_uniform_(raw_weight, a=math.sqrt(5))
+        fan_in, _ = nn.init._calculate_fan_in_and_fan_out(raw_weight)
+        bound = 1 / math.sqrt(fan_in) if fan_in > 0 else 0
+        raw_bias = self.bias.new_empty(self.out_features)
+        nn.init.uniform_(raw_bias, -bound, bound)
+        for column, stored in enumerate(self.weight_prefix):
+            stored.copy_(
+                raw_weight[:-1, column] - raw_weight[-1, column]
+            )
+        self.weight_rest.copy_(raw_weight[:, 6:])
+        self.bias.copy_(raw_bias[:-1] - raw_bias[-1])
+
+    def forward(self, x: torch.Tensor) -> torch.Tensor:
+        full_weight_prefix = [
+            torch.cat((stored, stored.new_zeros(1)))
+            for stored in self.weight_prefix
+        ]
+        full_bias = torch.cat((self.bias, self.bias.new_zeros(1)))
+        if torch.is_grad_enabled():
+            for full_weight in full_weight_prefix:
+                full_weight.retain_grad()
+            full_bias.retain_grad()
+            self.full_weight_prefix = full_weight_prefix
+            self.full_bias = full_bias
+        weight = torch.cat(
+            (
+                torch.stack(full_weight_prefix, dim=1),
+                self.weight_rest,
+            ),
+            dim=1,
+        )
+        return F.linear(x, weight, full_bias)
+
+
+class GaugeFixedAttentionProjection(nn.Module):
+    """Linear projection with bias and three weight-column output gauges removed."""
+
+    def __init__(self, in_features: int, out_features: int):
+        super().__init__()
+        self.in_features = in_features
+        self.out_features = out_features
+        self.weight_prefix = nn.ParameterList(
+            [
+                nn.Parameter(torch.empty(out_features - 1))
+                for _ in range(3)
+            ]
+        )
+        self.weight_rest = nn.Parameter(
+            torch.empty(out_features, in_features - 3)
+        )
+        self.bias = nn.Parameter(torch.empty(out_features - 1))
+        self.full_weight_prefix = None
+        self.full_bias = None
+        self.reset_parameters()
+
+    @torch.no_grad()
+    def reset_parameters(self) -> None:
+        raw_weight = self.weight_rest.new_empty(
+            self.out_features, self.in_features
+        )
+        nn.init.kaiming_uniform_(raw_weight, a=math.sqrt(5))
+        fan_in, _ = nn.init._calculate_fan_in_and_fan_out(raw_weight)
+        bound = 1 / math.sqrt(fan_in) if fan_in > 0 else 0
+        raw_bias = self.bias.new_empty(self.out_features)
+        nn.init.uniform_(raw_bias, -bound, bound)
+        for column, stored in enumerate(self.weight_prefix):
+            stored.copy_(
+                raw_weight[:-1, column] - raw_weight[-1, column]
+            )
+        self.weight_rest.copy_(raw_weight[:, 3:])
+        self.bias.copy_(raw_bias[:-1] - raw_bias[-1])
+
+    def forward(self, x: torch.Tensor) -> torch.Tensor:
+        full_weight_prefix = [
+            torch.cat((stored, stored.new_zeros(1)))
+            for stored in self.weight_prefix
+        ]
+        full_bias = torch.cat((self.bias, self.bias.new_zeros(1)))
+        if torch.is_grad_enabled():
+            for full_weight in full_weight_prefix:
+                full_weight.retain_grad()
+            full_bias.retain_grad()
+            self.full_weight_prefix = full_weight_prefix
+            self.full_bias = full_bias
+        weight = torch.cat(
+            (
+                torch.stack(full_weight_prefix, dim=1),
+                self.weight_rest,
+            ),
+            dim=1,
+        )
+        return F.linear(x, weight, full_bias)
+
+
+class TwoAbsorbedScaleLayerNorm(nn.Module):
+    """Bias-free LayerNorm with its final two scales absorbed downstream."""
+
+    def __init__(self, normalized_shape: int, eps: float = 1e-5):
+        super().__init__()
+        self.normalized_shape = normalized_shape
+        self.eps = eps
+        self.weight = nn.Parameter(torch.ones(normalized_shape - 2))
+
+    def forward(self, x: torch.Tensor) -> torch.Tensor:
+        weight = torch.cat((self.weight, self.weight.new_ones(2)))
+        return F.layer_norm(
+            x, (self.normalized_shape,), weight, None, self.eps
+        )
+
+
+class FullyAbsorbedScaleLayerNorm(nn.Module):
+    """Parameter-free LayerNorm whose scales live in following fc1 columns."""
+
+    def __init__(self, normalized_shape: int, eps: float = 1e-5):
+        super().__init__()
+        self.normalized_shape = normalized_shape
+        self.eps = eps
+
+    def forward(self, x: torch.Tensor) -> torch.Tensor:
+        return F.layer_norm(
+            x, (self.normalized_shape,), None, None, self.eps
+        )
+
+
+class CausalSelfAttention(nn.Module):
+    def __init__(self, d_model: int, n_head: int, dropout: float, max_seq_len: int):
+        super().__init__()
+        if d_model % n_head != 0:
+            raise ValueError("d_model must be divisible by n_head")
+
+        self.n_head = n_head
+        self.head_dim = d_model // n_head
+
+        # Keep a distinct learned query for each head, but share one learned
+        # key/value representation across the query heads.
+        self.q_proj = nn.Linear(d_model, d_model, bias=False)
+        self.k_proj = nn.Linear(d_model, self.head_dim, bias=False)
+        self.v_proj = nn.Linear(d_model, self.head_dim, bias=False)
+        self.q_bias = nn.Parameter(torch.zeros(d_model))
+        self.proj = GaugeFixedAttentionProjection(d_model, d_model)
+        self.attn_drop = nn.Dropout(dropout)
+        self.resid_drop = nn.Dropout(dropout)
+
+        mask = torch.tril(torch.ones(max_seq_len, max_seq_len, dtype=torch.bool))
+        self.register_buffer("mask", mask, persistent=False)
+
+    def forward(self, x: torch.Tensor) -> torch.Tensor:
+        bsz, seqlen, d_model = x.shape
+        q = self.q_proj(x) + self.q_bias
+        k = self.k_proj(x)
+        v = self.v_proj(x)
+
+        q = q.view(
+            bsz, seqlen, self.n_head, self.head_dim
+        ).transpose(1, 2)
+        # Singleton head dimensions broadcast the shared learned key/value
+        # stream across the independently parameterized query heads.
+        k = k.unsqueeze(1)
+        v = v.unsqueeze(1)
+
+        att = (q @ k.transpose(-2, -1)) / math.sqrt(self.head_dim)
+        causal = self.mask[:seqlen, :seqlen]
+        att = att.masked_fill(~causal, float("-inf"))
+        att = F.softmax(att, dim=-1)
+        att = self.attn_drop(att)
+
+        y = att @ v
+        y = y.transpose(1, 2).contiguous().view(bsz, seqlen, d_model)
+        y = self.proj(y)
+        y = self.resid_drop(y)
+        return y
+
+
+class MLP(nn.Module):
+    def __init__(self, d_model: int, d_ff: int, dropout: float):
+        super().__init__()
+        self.fc1 = nn.Linear(d_model, d_ff)
+        self.fc2 = GaugeFixedTerminalLinear(d_ff, d_model)
+        self.drop = nn.Dropout(dropout)
+
+    def forward(self, x: torch.Tensor) -> torch.Tensor:
+        return self.drop(self.fc2(F.gelu(self.fc1(x))))
+
+
+class Block(nn.Module):
+    def __init__(self, cfg: ModelConfig):
+        super().__init__()
+        self.ln1 = TwoAbsorbedScaleLayerNorm(cfg.d_model)
+        self.attn = CausalSelfAttention(cfg.d_model, cfg.n_head, cfg.dropout, cfg.max_seq_len)
+        self.ln2 = FullyAbsorbedScaleLayerNorm(cfg.d_model)
+        self.mlp = MLP(cfg.d_model, cfg.d_ff, cfg.dropout)
+
+    def forward(self, x: torch.Tensor) -> torch.Tensor:
+        x = x + self.attn(self.ln1(x))
+        x = x + self.mlp(self.ln2(x))
+        return x
+
+
+class TinyDecoderLM(nn.Module):
+    def __init__(self, cfg: ModelConfig):
+        super().__init__()
+        self.cfg = cfg
+        self.token_emb = GaugeFixedTokenEmbedding(
+            cfg.vocab_size, cfg.d_model
+        )
+        self.pos_emb = GaugeFixedPositionEmbedding(cfg.max_seq_len, cfg.d_model)
+        self.drop = nn.Dropout(cfg.dropout)
+        self.blocks = nn.ModuleList([Block(cfg) for _ in range(cfg.n_layer)])
+        self.ln_f = nn.LayerNorm(cfg.d_model)
+
+        # Parameter-free output view preserves input/output weight tying.
+        self.lm_head = TiedTokenProjection(self.token_emb)
+
+        self.apply(self._init_weights)
+
+    @staticmethod
+    def _init_weights(module: nn.Module) -> None:
+        if isinstance(module, GaugeFixedTokenEmbedding):
+            module.reset_parameters(std=0.02)
+        elif isinstance(module, TiedTokenProjection):
+            module.embedding.reset_parameters(std=0.02)
+        elif isinstance(module, GaugeFixedPositionEmbedding):
+            module.reset_parameters(std=0.02)
+        elif isinstance(module, GaugeFixedAttentionProjection):
+            with torch.no_grad():
+                raw_weight = module.weight_rest.new_empty(
+                    module.out_features, module.in_features
+                )
+                nn.init.normal_(raw_weight, mean=0.0, std=0.02)
+                for column, stored in enumerate(module.weight_prefix):
+                    stored.copy_(
+                        raw_weight[:-1, column] - raw_weight[-1, column]
+                    )
+                module.weight_rest.copy_(raw_weight[:, 3:])
+                nn.init.zeros_(module.bias)
+        elif isinstance(module, GaugeFixedTerminalLinear):
+            with torch.no_grad():
+                raw_weight = module.weight_rest.new_empty(
+                    module.out_features, module.in_features
+                )
+                nn.init.normal_(raw_weight, mean=0.0, std=0.02)
+                for column, stored in enumerate(module.weight_prefix):
+                    stored.copy_(
+                        raw_weight[:-1, column] - raw_weight[-1, column]
+                    )
+                module.weight_rest.copy_(raw_weight[:, 6:])
+                nn.init.zeros_(module.bias)
+        elif isinstance(module, (nn.Linear, nn.Embedding)):
+            nn.init.normal_(module.weight, mean=0.0, std=0.02)
+            if isinstance(module, nn.Linear) and module.bias is not None:
+                nn.init.zeros_(module.bias)
+
+    def forward(self, idx: torch.Tensor, targets: torch.Tensor = None) -> Tuple[torch.Tensor, torch.Tensor]:
+        _, seqlen = idx.shape
+
+        if seqlen > self.cfg.max_seq_len:
+            idx = idx[:, -self.cfg.max_seq_len :]
+            if targets is not None:
+                targets = targets[:, -self.cfg.max_seq_len :]
+            seqlen = idx.shape[1]
+
+        pos = torch.arange(0, seqlen, device=idx.device).unsqueeze(0)
+        x = self.token_emb(idx) + self.pos_emb(pos)
+        x = self.drop(x)
+
+        for blk in self.blocks:
+            x = blk(x)
+
+        x = self.ln_f(x)
+        logits = self.lm_head(x)
+
+        loss = None
+        if targets is not None:
+            loss = F.cross_entropy(logits.reshape(-1, logits.size(-1)), targets.reshape(-1), ignore_index=-100)
+        return logits, loss
+
+    @torch.no_grad()
+    def generate(self, prompt: torch.Tensor, max_new_tokens: int) -> torch.Tensor:
+        out = prompt
+        for _ in range(max_new_tokens):
+            idx = out[:, -self.cfg.max_seq_len :]
+            logits, _ = self.forward(idx)
+            next_tok = torch.argmax(logits[:, -1, :], dim=-1, keepdim=True)
+            out = torch.cat([out, next_tok], dim=1)
+        return out
+
+
+def count_parameters(model: nn.Module) -> int:
+    return sum(p.numel() for p in model.parameters())
