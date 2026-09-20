@@ -33,6 +33,11 @@ The intervention study, its configurations, trajectory dashboard, frozen
 candidate architectures, retraining launcher, and result reports are grouped in
 [`experiments/research_process_interventions_andy/`](experiments/research_process_interventions_andy/README.md).
 
+The [architecture trajectory visualization](<architecture trajectory visualization/README.md>)
+replays saved runs as interactive 3D source schematics, with trajectory
+selection, a timeline, continuous architecture morphing, and recorded metrics.
+Its viewer, data tooling, tests, and documentation live in that separate folder.
+
 ## Published ontology results
 
 Component fingerprints, architectural family IDs, review evidence, and trajectory

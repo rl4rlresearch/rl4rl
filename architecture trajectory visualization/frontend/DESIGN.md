@@ -1,0 +1,9 @@
+# Architecture replay design
+
+The model is the main content. Use a neutral charcoal drawing surface, pale text, and operation-specific sea-green, rose, gold, and lavender. Readable blocks and explicit connections carry the view; partial source hierarchies remain visibly identified. Compact toolbars and a persistent timeline support research work. A removable inspector holds evidence and exact metrics. The lineage rail shows recorded ancestry, with symbols and words distinguishing outcomes.
+
+Camera motion follows direct interaction and reset/preset controls. Adjacent snapshots preserve camera orientation and matched node placement. Presentation mode enlarges the same real model, current proposal, and metric without hiding provenance. Reduced motion makes structural transitions immediate.
+
+Architecture transitions retain matched meshes and label elements. Critically damped motion carries position, size, color, and opacity continuously, including when scrubbing interrupts a transition. Additions grow from a nearby component as a presentation effect; removals shrink and fade. Connections follow the displayed endpoint positions on every frame. Block widths use bounded logarithmic scaling of explicit numeric output dimensions; unknown expressions use neutral geometry, and geometry never represents parameter volume. A one-second-scale morph and short hold give each recorded architecture time to read. Loading keeps the previous scene visible with an explicit pending caption; captures settle the selected recorded snapshot first.
+
+Desktop: 244 px left rail, flexible viewport, 292 px inspector; bottom replay dock occupies its own grid row. On narrower screens the inspector and lineage rail become toggled overlays, leaving the timeline in view. Every selector has a visible label, errors are actionable, and the graph has an accessible component-list fallback.

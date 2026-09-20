@@ -1,0 +1,229 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Architecture replay · RL4RL</title>
+    <link
+      rel="icon"
+      href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Cpath fill='%237cb8a4' d='M3 9l13-7 13 7-13 7zM3 13l13 7 13-7v7l-13 7-13-7z'/%3E%3C/svg%3E"
+    />
+    <link rel="stylesheet" href="/architecture-assets/viewer.css" />
+  </head>
+  <body>
+    <div id="app">
+      <header class="app-header">
+        <a class="brand" href="/">RL4RL <span>/ Architecture replay</span></a>
+        <nav aria-label="Dashboard navigation">
+          <a href="/">Trajectories</a><a href="/ontology">Ontology</a
+          ><a href="/architectures" aria-current="page">Architectures</a>
+        </nav>
+        <div class="header-actions">
+          <button id="import-button">Open bundle</button
+          ><button id="export-button">Export run</button
+          ><button id="presentation-button" aria-pressed="false">
+            Present
+          </button>
+        </div>
+        <input
+          id="bundle-input"
+          type="file"
+          accept="application/json,.json"
+          hidden
+        />
+      </header>
+      <section class="toolbar" aria-label="Trajectory selection">
+        <label
+          >Campaign<select id="campaign-select">
+            <option>Loading campaigns…</option>
+          </select></label
+        >
+        <label>Framework<select id="framework-select"></select></label>
+        <label
+          >Condition<select id="condition-select">
+            <option value="">All conditions</option>
+          </select></label
+        >
+        <label>Block<select id="block-select"></select></label>
+        <label class="run-field"
+          >Run<select id="run-select">
+            <option>Select a campaign</option>
+          </select></label
+        >
+        <label
+          >Replay<select id="mode-select">
+            <option value="lineage">Ancestry path</option>
+            <option value="all">All attempts</option>
+            <option value="incumbent">Incumbent history</option>
+          </select></label
+        >
+        <label
+          >Scope<select id="scope-select">
+            <option value="dashboard">Dashboard scope</option>
+            <option value="archive">Archive history</option>
+          </select></label
+        >
+      </section>
+      <div class="workspace">
+        <aside class="lineage-panel" aria-label="Candidate history">
+          <div class="panel-heading">
+            <h2>Search history</h2>
+            <span id="history-count"></span>
+          </div>
+          <label class="endpoint-label"
+            >Path endpoint<select id="endpoint-select"></select
+          ></label>
+          <label class="sr-only" for="history-search"
+            >Find a proposal or candidate</label
+          ><input
+            id="history-search"
+            type="search"
+            placeholder="Find proposal or candidate"
+          />
+          <div id="lineage-mini" aria-label="Recorded ancestry"></div>
+          <div
+            id="history-list"
+            role="list"
+            aria-label="Proposal occurrences"
+          ></div>
+          <div class="rail-footer" id="scope-description"></div>
+        </aside>
+        <main class="model-panel">
+          <div class="model-heading">
+            <div>
+              <p id="model-context"></p>
+              <div class="title-row">
+                <h1 id="model-title">Architecture replay</h1>
+                <span id="status" class="status"></span>
+              </div>
+              <p id="model-subtitle">Loading saved research trajectories</p>
+              <p id="model-metric"></p>
+            </div>
+            <div class="model-actions">
+              <button id="history-toggle" aria-pressed="false">History</button
+              ><button id="inspector-toggle" aria-pressed="true">
+                Details
+              </button>
+            </div>
+          </div>
+          <div
+            id="viewport"
+            aria-label="Interactive 3D architecture. Use the component list for keyboard inspection."
+          >
+            <div id="canvas-mount"></div>
+            <div id="scene-message" role="status">
+              Reading campaign catalog…
+            </div>
+            <div class="viewport-controls">
+              <button id="fit-button">Fit model</button
+              ><button id="camera-button">Top view</button
+              ><button id="view-button" aria-pressed="false">
+                Component list</button
+              ><button id="capture-button">Capture PNG</button>
+            </div>
+            <div id="component-list" hidden></div>
+            <div class="scene-caption">
+              <span id="representation">Source-backed replay</span
+              ><span id="change-caption"></span>
+            </div>
+          </div>
+          <div class="model-footer">
+            <div id="operation-legend" aria-label="Operation colors"></div>
+            <span id="source-label"></span>
+          </div>
+        </main>
+        <aside class="inspector" aria-label="Architecture evidence">
+          <div class="panel-heading">
+            <h2>Experiment</h2>
+            <span id="proposal-label"></span>
+          </div>
+          <dl id="metrics"></dl>
+          <div class="section-divider"></div>
+          <label
+            >Compare architecture with<select id="comparison-select">
+              <option value="parent">Recorded parent</option>
+              <option value="baseline">Run baseline</option>
+            </select></label
+          >
+          <label id="parent-choice-label" hidden
+            >Parent route<select id="parent-select"></select
+          ></label>
+          <label id="evaluation-label" hidden
+            >Evaluation<select id="evaluation-select"></select
+          ></label>
+          <div id="diff-detail"></div>
+          <section>
+            <h3>Proposed change</h3>
+            <p id="proposal-description">Select a recorded proposal.</p>
+          </section>
+          <section id="node-inspector">
+            <h3>Component evidence</h3>
+            <p>Select a block or a component in the list.</p>
+          </section>
+          <details>
+            <summary>Published categorical evidence</summary>
+            <div id="categorical-evidence"></div>
+          </details>
+          <details>
+            <summary>Record & provenance</summary>
+            <dl id="provenance"></dl>
+            <div id="diagnostics"></div>
+          </details>
+        </aside>
+      </div>
+      <footer class="timeline" aria-label="Architecture replay timeline">
+        <div class="timeline-top">
+          <div class="playback">
+            <button id="start-button" aria-label="First proposal">|‹</button
+            ><button id="previous-button" aria-label="Previous proposal">
+              ‹</button
+            ><button id="play-button" aria-label="Play trajectory">Play</button
+            ><button id="next-button" aria-label="Next proposal">›</button
+            ><button id="end-button" aria-label="Last proposal">›|</button
+            ><label class="speed-label"
+              ><span class="sr-only">Playback speed</span
+              ><select id="speed-select">
+                <option value="0.5">0.5×</option>
+                <option value="1" selected>1×</option>
+                <option value="2">2×</option>
+                <option value="4">4×</option>
+              </select></label
+            >
+          </div>
+          <div id="selection-label" aria-live="polite">
+            No proposal selected
+          </div>
+          <label class="metric-choice"
+            >Plot<select id="metric-select"></select
+          ></label>
+        </div>
+        <div class="scrubber">
+          <div
+            id="metric-chart"
+            role="img"
+            aria-label="Selected metric across the current replay"
+          ></div>
+          <div id="timeline-markers" aria-hidden="true"></div>
+          <label class="sr-only" for="timeline-slider"
+            >Proposal in selected trajectory</label
+          ><input
+            id="timeline-slider"
+            type="range"
+            min="0"
+            max="0"
+            value="0"
+            step="1"
+            disabled
+          />
+        </div>
+        <div class="timeline-bottom">
+          <span id="timeline-start">Seed</span
+          ><span id="timeline-context">One stop per recorded proposal</span
+          ><span id="timeline-end"></span>
+        </div>
+      </footer>
+      <div id="notice" role="status" hidden></div>
+    </div>
+    <script type="module" src="/architecture-assets/viewer.js"></script>
+  </body>
+</html>
