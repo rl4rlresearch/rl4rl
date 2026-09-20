@@ -2899,6 +2899,8 @@ def run_transcript_payload(
 # Keep the interactive client in a standalone file so browser behavior can be
 # linted and tested independently of the read-only Python log server.
 PYTHON_SOURCE_PATH = Path(__file__).resolve()
+ARCHITECTURE_ROOT = PYTHON_SOURCE_PATH.parents[1] / "architecture trajectory visualization"
+ARCHITECTURE_PACKAGE = ARCHITECTURE_ROOT / "architecture_trajectory_visualization"
 PAGE_PATH = PYTHON_SOURCE_PATH.with_name("live_trajectory_dashboard.html")
 SCIENCE_PAGE_PATH = PYTHON_SOURCE_PATH.with_name("scientific_process_dashboard.html")
 CONTROLLER_PAGE_PATH = PYTHON_SOURCE_PATH.with_name("controller_dashboard.html")
@@ -2969,8 +2971,16 @@ def dashboard_revision(paths: tuple[Path, ...] | None = None) -> str:
         TRANSCRIPT_PAGE_PATH,
         ONTOLOGY_PAGE_PATH,
         STAGNATION_PAGE_PATH,
+        ARCHITECTURE_ROOT / "frontend" / "index.html",
+        ARCHITECTURE_ROOT / "frontend" / "dist" / "viewer.js",
+        ARCHITECTURE_ROOT / "frontend" / "dist" / "viewer.css",
         PYTHON_SOURCE_PATH.with_name("ontology_dashboard.js"),
         PYTHON_SOURCE_PATH.with_name("ontology_categorical_dashboard.py"),
+        ARCHITECTURE_PACKAGE / "api.py",
+        ARCHITECTURE_PACKAGE / "replay.py",
+        ARCHITECTURE_PACKAGE / "graph.py",
+        ARCHITECTURE_PACKAGE / "annotations.py",
+        ARCHITECTURE_PACKAGE / "paths.py",
     ):
         digest.update(str(path).encode("utf-8"))
         try:
@@ -2985,6 +2995,11 @@ def start_python_hot_reloader(poll_seconds: float = 1.0) -> None:
     watched = (
         PYTHON_SOURCE_PATH,
         PYTHON_SOURCE_PATH.with_name("ontology_categorical_dashboard.py"),
+        ARCHITECTURE_PACKAGE / "api.py",
+        ARCHITECTURE_PACKAGE / "replay.py",
+        ARCHITECTURE_PACKAGE / "graph.py",
+        ARCHITECTURE_PACKAGE / "annotations.py",
+        ARCHITECTURE_PACKAGE / "paths.py",
     )
     initial_revision = dashboard_revision(watched)
 
@@ -4225,6 +4240,12 @@ def make_handler(
         capacity_controller = capacity_controller or CapacityController()
     compute_monitor = compute_monitor or MacComputeMonitor()
     configured_campaigns = dict(campaigns)
+    if str(ARCHITECTURE_ROOT) not in sys.path:
+        sys.path.insert(0, str(ARCHITECTURE_ROOT))
+    from architecture_trajectory_visualization.api import ArchitectureStore, encode
+    from architecture_trajectory_visualization.paths import VIEWER_ROOT
+
+    architecture_store = ArchitectureStore(REPO_ROOT, configured_campaigns)
 
     def lifecycle_campaigns() -> dict[str, Path]:
         return discover_campaigns(
@@ -4354,6 +4375,35 @@ def make_handler(
                     read_dashboard_page().encode("utf-8"),
                     "text/html; charset=utf-8",
                 )
+            elif request_path in {"/architectures", "/architectures.html"}:
+                self.send_payload((VIEWER_ROOT / "index.html").read_bytes(), "text/html; charset=utf-8")
+            elif request_path.startswith("/architecture-assets/"):
+                name = request_path.removeprefix("/architecture-assets/")
+                allowed = {"viewer.js": "application/javascript", "viewer.css": "text/css", "viewer.js.map": "application/json", "viewer.css.map": "application/json", "viewer.js.LEGAL.txt": "text/plain"}
+                if name not in allowed or not (VIEWER_ROOT / "dist" / name).is_file():
+                    self.send_payload(b"Build assets with npm ci && npm run build in architecture trajectory visualization/frontend", "text/plain", status=HTTPStatus.NOT_FOUND)
+                else:
+                    self.send_payload((VIEWER_ROOT / "dist" / name).read_bytes(), allowed[name] + "; charset=utf-8")
+            elif request_path.startswith("/api/architectures/"):
+                params = parse_qs(request.query)
+                def get(key: str, default: str = "") -> str:
+                    return params.get(key, [default])[0]
+                try:
+                    action = request_path.removeprefix("/api/architectures/")
+                    scope = get("scope", "dashboard")
+                    if action == "catalog":
+                        payload = architecture_store.catalog(scope)
+                    elif action == "run":
+                        payload = architecture_store.run(get("campaign"), get("run"), scope)
+                    elif action == "snapshot":
+                        payload = architecture_store.snapshot(get("campaign"), get("run"), int(get("proposal")), scope, expected_revision=get("revision") or None)
+                    elif action == "export":
+                        payload = architecture_store.export(get("campaign"), get("run"), scope, expected_revision=get("revision") or None)
+                    else:
+                        raise KeyError("Unknown architecture endpoint")
+                    self.send_payload(encode(payload), "application/json; charset=utf-8")
+                except (KeyError, ValueError, OSError) as error:
+                    self.send_payload(encode({"error": str(error)}), "application/json; charset=utf-8", status=HTTPStatus.NOT_FOUND)
             elif request_path in {"/science", "/science.html"}:
                 self.send_payload(
                     read_science_page().encode("utf-8"),
